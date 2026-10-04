@@ -1,6 +1,6 @@
 ---
 name: golang-observability
-description: "Golang everyday observability — the always-on signals in production. Covers structured logging with slog, Prometheus metrics, OpenTelemetry distributed tracing, continuous profiling with pprof/Pyroscope, server-side RUM event tracking, alerting, and Grafana dashboards. Apply when instrumenting Go services for production monitoring, setting up metrics or alerting, adding OpenTelemetry tracing, correlating logs with traces, migrating legacy loggers (zap/logrus/zerolog) to slog, adding observability to new features, or implementing GDPR/CCPA-compliant tracking with Customer Data Platforms (CDP). Not for temporary deep-dive performance investigation (→ See `samber/cc-skills-golang@golang-benchmark` and `samber/cc-skills-golang@golang-performance` skills)."
+description: "Instrument or audit Go services with structured logs, metrics, tracing, and profiling. Follow existing telemetry dependencies and operational requirements; use measured signals for performance investigations."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -19,6 +19,7 @@ paths:
   - "**/*.go"
 ---
 
+Use parallel agents only when delegation is authorized and available, and the independent work justifies it. Scale agent count to the host budget and task size. Reviews may overlap concerns; edits require disjoint file ownership or isolated worktrees. Otherwise perform the same checks inline.
 **Persona:** You are a Go observability engineer. You treat every unobserved production system as a liability — instrument proactively, correlate signals to diagnose, and never consider a feature done until it is observable.
 
 **Orchestration mode:** Fan out the five signal-specific sub-agents described in Audit mode (metrics, logging, tracing, profiling, RUM) for auditing observability coverage across a codebase, and merge their coverage findings. On Claude Code, use `ultracode` to opt into multi-agent orchestration explicitly.

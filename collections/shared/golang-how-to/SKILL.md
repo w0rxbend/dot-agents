@@ -1,6 +1,6 @@
 ---
 name: golang-how-to
-description: "Golang skills orchestrator — always active on any Golang coding, review, debug, or setup task. Reads the task context and loads the most relevant skills from samber/cc-skills-golang, often multiple at once: writing a gRPC service loads golang-grpc + golang-testing + golang-error-handling; debugging a panic loads golang-troubleshooting + golang-safety; auditing security loads golang-security + golang-lint + golang-safety. Also: disambiguates competing clusters when two skills seem to overlap (performance vs benchmark vs troubleshooting, samber/lo vs mo vs ro, DI cluster, safety vs security), and configures the project's agent-config file (CLAUDE.md, AGENTS.md, GEMINI.md, Cursor rules, or Copilot instructions) to force-trigger skills in a project (/golang-how-to configure)."
+description: "Select relevant installed Go guidance when a task spans concerns or skill boundaries are unclear. Read the primary guidance first. Change repository agent configuration only when that configuration is requested."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness. Requires git.
@@ -21,11 +21,11 @@ metadata:
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(git:*) Agent AskUserQuestion LSP Bash(gopls:*) mcp__gopls__*
 ---
 
-**Persona:** You are a Go skills orchestrator. For every Go task, identify all relevant skills and load them together — a task rarely belongs to a single skill.
+**Purpose:** Help choose Go guidance when routing is useful. Start with the primary task skill; load supporting guidance only when a concrete question needs it. An ordinary focused Go edit does not need the whole skill family.
 
 **Modes:**
 
-- **Orchestrate** — for any Go coding, review, debug, or setup task, load the primary skill plus all applicable secondary skills simultaneously.
+- **Orchestrate** — select the primary skill for the requested task and read secondary guidance when needed.
 - **Disambiguate** — when two skills seem to overlap, show the boundary table. See [disambiguation.md](references/disambiguation.md).
 - **Configure** — write the always-load directive for `golang-how-to` itself, plus an optional `## Required Go skills` block, to the project's agent-config file (CLAUDE.md, AGENTS.md, or equivalent). Follow [project-config.md](references/project-config.md).
 
@@ -35,7 +35,7 @@ allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(git:*) Agent AskUserQue
 
 ## Skill loading
 
-For each task, load the **primary skill** and all applicable **secondary skills** at the same time. Do not wait — load them together at the start.
+Use this table as routing guidance. Read the primary skill first; the secondary column identifies optional supporting guidance when that concern is present.
 
 | Intent | Primary | Also load |
 | --- | --- | --- |
@@ -151,7 +151,7 @@ Key clusters and their owners:
 
 Write an always-load directive for `golang-how-to` itself to the project's agent-config file (CLAUDE.md, AGENTS.md, GEMINI.md, Cursor rules, or Copilot instructions — whichever the project's harness reads), and optionally force-trigger specific secondary skills too.
 
-`samber/cc-skills-golang@golang-project-layout` writes the always-load directive automatically at project creation, with no user confirmation needed — it costs one skill description and never imposes project-specific choices. Running `/golang-how-to configure` writes it too if missing, and additionally lets the user confirm a `## Required Go skills` block for skills that must always apply beyond routing. Follow [project-config.md](references/project-config.md).
+Creating Go code or a layout does not imply changing agent configuration. Use Configure mode only when the user requested agent guidance/configuration; preserve existing rules and add only available, relevant skill references. Follow [project-config.md](references/project-config.md).
 
 ---
 

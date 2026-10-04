@@ -67,9 +67,9 @@ license_source: "https://github.com/zhaoxuya520/reverse-skill/blob/main/LICENSE"
 - 关键发现必须有证据支撑
 - 复现步骤必须让第三方能独立重现
 - 敏感信息（真实 token、密码、内部 URL）用占位符替代
-- **MUST** 包含 Evidence → Finding → Path 链（见 `../ops/evidence-finding-path.md` 与模板 §0）
+- **MUST** 包含 Evidence → Finding → Path 链（在报告中记录证据来源、可重现发现和处理路径；参见已安装模板 §0）
 - **MUST** 读取 `references/vendor-report-rules.md`：选定 `malware` / `apt` 或 `flavor = null`（漏洞任务可叠加 thin `vuln`）；无 flavor 时只输出原任务模板和适用的 Base 元素，不强制 IOC/ATT&CK
-- **SHOULD** 引用 case `scope.md` / `timeline.md`（`../scripts/case-init.ps1`）
+- **SHOULD** 引用 case `scope.md` / `timeline.md`（该辅助脚本未随本安装提供；按任务需要在工作区创建这些文件）
 
 ### 图表集成
 

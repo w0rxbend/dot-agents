@@ -1,6 +1,6 @@
 ---
 name: agent-orchestrator
-description: Meta-skill que orquestra todos os agentes do ecossistema. Scan automatico de skills, match por capacidades, coordenacao de workflows multi-skill e registry management.
+description: "Discover and rank installed skills for a requested orchestration or skill-routing task. Use the bundled registry helpers when a catalog search is useful; do not scan or orchestrate every ordinary request."
 risk: safe
 source: community
 date_added: '2026-03-06'
@@ -42,22 +42,21 @@ e orquestra multiplos skills para tarefas complexas.
 
 ## Principio: Zero Intervencao Manual
 
-- **SEMPRE faz varredura** antes de processar qualquer solicitacao
+- Faça a varredura quando o usuário pedir discovery, atualização do registry ou ajuda para escolher skills. Use o catálogo disponível para solicitações comuns.
 - Novas skills sao **auto-detectadas e incluidas** ao criar SKILL.md em qualquer subpasta
 - Skills removidas sao **auto-excluidas** do registry
 - Nenhum comando manual e necessario para registrar novas skills
 
 ---
 
-## Workflow Obrigatorio (Toda Solicitacao)
+## Workflow de discovery solicitado
 
-Execute estes passos ANTES de processar qualquer request do usuario.
-Os scripts usam paths relativos automaticamente - funciona de qualquer diretorio.
+Use estes passos para uma tarefa de discovery ou orquestração. Resolva o diretório desta skill a partir de `SKILL.md`; execute os helpers por caminho absoluto, sem depender do diretório atual. Os helpers geram um plano: mensagens, publicação ou deploy só fazem parte da execução quando solicitados.
 
 ## Passo 1: Auto-Discovery (Varredura)
 
 ```bash
-python agent-orchestrator/scripts/scan_registry.py
+python "<skill-directory>/scripts/scan_registry.py"
 ```
 
 Ultra-rapido (<100ms) via cache de hashes MD5. So re-processa arquivos alterados.
@@ -66,7 +65,7 @@ Retorna JSON com resumo de todos os skills encontrados.
 ## Passo 2: Match De Skills
 
 ```bash
-python agent-orchestrator/scripts/match_skills.py "<solicitacao do usuario>"
+python "<skill-directory>/scripts/match_skills.py" "<solicitacao do usuario>"
 ```
 
 Retorna JSON com skills ranqueadas por relevancia. Interpretar o resultado:
@@ -80,7 +79,7 @@ Retorna JSON com skills ranqueadas por relevancia. Interpretar o resultado:
 ## Passo 3: Orquestracao (Se Matched >= 2)
 
 ```bash
-python agent-orchestrator/scripts/orchestrate.py --skills skill1,skill2 --query "<solicitacao>"
+python "<skill-directory>/scripts/orchestrate.py" --skills skill1,skill2 --query "<solicitacao>"
 ```
 
 Retorna plano de execucao com padrao, ordem dos steps e data flow entre skills.
@@ -89,7 +88,7 @@ Retorna plano de execucao com padrao, ordem dos steps e data flow entre skills.
 
 Para queries simples, os passos 1+2 podem ser combinados em sequencia:
 ```bash
-python agent-orchestrator/scripts/scan_registry.py && python agent-orchestrator/scripts/match_skills.py "<solicitacao>"
+python "<skill-directory>/scripts/scan_registry.py" && python "<skill-directory>/scripts/match_skills.py" "<solicitacao>"
 ```
 
 ---
@@ -130,15 +129,15 @@ Cada entrada no registry contem:
 
 ## Scan Rapido (Usa Cache De Hashes)
 
-python agent-orchestrator/scripts/scan_registry.py
+python "<skill-directory>/scripts/scan_registry.py"
 
 ## Tabela De Status Detalhada
 
-python agent-orchestrator/scripts/scan_registry.py --status
+python "<skill-directory>/scripts/scan_registry.py" --status
 
 ## Re-Scan Completo (Ignora Cache)
 
-python agent-orchestrator/scripts/scan_registry.py --force
+python "<skill-directory>/scripts/scan_registry.py" --force
 ```
 
 ---
@@ -160,7 +159,7 @@ Threshold minimo: 5 pontos. Skills abaixo disso sao ignoradas.
 ## Match Com Projeto
 
 ```bash
-python agent-orchestrator/scripts/match_skills.py --project meu-projeto "query aqui"
+python "<skill-directory>/scripts/match_skills.py" --project meu-projeto "query aqui"
 ```
 
 Skills atribuidas ao projeto recebem +20 de boost automatico.
@@ -274,7 +273,7 @@ capabilities: [data-extraction, web-automation]
 ## Ver Status De Todos Os Skills
 
 ```bash
-python agent-orchestrator/scripts/scan_registry.py --status
+python "<skill-directory>/scripts/scan_registry.py" --status
 ```
 
 ## Interpretar Status
@@ -296,7 +295,7 @@ python agent-orchestrator/scripts/scan_registry.py --status
 | whatsapp-cloud-api | messaging, api-integration            | active  |
 | instagram          | social-media, api-integration         | partial |
 
-*Esta tabela e atualizada automaticamente via `scan_registry.py --status`.*
+*Esta tabela e atualizada automaticamente via `scan_registry.py" --status`.*
 
 ## Best Practices
 

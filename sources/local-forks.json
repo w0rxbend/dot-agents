@@ -1,0 +1,1801 @@
+{
+  "schema_version": 1,
+  "changes": [
+    {
+      "id": "backend-dev-guidelines",
+      "path": "collections/shared/backend-dev-guidelines",
+      "source": "davila7/claude-code-templates",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "7698edb57ccbaf005b73ab22a7785a432c5862490458067e77ed8089ac2bc370",
+      "before_words": 965,
+      "reasons": [
+        "Repair links to the eleven existing resources/ guides.",
+        "Bound one upstream service architecture to matching Express projects.",
+        "Prevent generic API requests from activating an Express-only architecture.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "4973e10129219f3b4e8f6e4a5f0bd988db32aaf5a8fed3d57d1acb8be536540e",
+      "after_words": 955,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "12-factor-app",
+      "path": "collections/shared/12-factor-app",
+      "source": "pproenca/dot-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "1144899200abd0a7575f031c3466c2064724bdfaee9d0651eefa4548113a8641",
+      "before_words": 952,
+      "reasons": [
+        "Remove a metadata.json link that is not shipped; preserve all real rule references."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "fe7caa625f9d9ab7ef5ce9819465f20e38fd08fb083a8bb7199bf6a0970b72a6",
+      "after_words": 944,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "code-simplifier",
+      "path": "collections/shared/code-simplifier",
+      "source": "pproenca/dot-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "1850c855a6368316c42883968becdc7238bd3cb62722c6ca9d521251d613eaa7",
+      "before_words": 857,
+      "reasons": [
+        "Remove a metadata.json link that is not shipped; preserve all real rule references."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "8dee97e8fffeca83b99bcc0a426286764f429b231c71b0562cd7c32d942903fa",
+      "after_words": 849,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "dockerfile-optimise",
+      "path": "collections/shared/dockerfile-optimise",
+      "source": "pproenca/dot-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "dde4627a36d84401c23f0f86de04269c25a262164bb3bd8adb320d31f34b602e",
+      "before_words": 763,
+      "reasons": [
+        "Remove a metadata.json link that is not shipped; preserve all real rule references."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "baaf6527596357a95c235a62157e099d5a572af71187485f372413ae24d6ee47",
+      "after_words": 755,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "frontend-dev-guidelines",
+      "path": "collections/shared/frontend-dev-guidelines",
+      "source": "davila7/claude-code-templates",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "646f2fb6e25cef87f39de43363f0962d92b3c39f53ffd881fb7959e1338a4ae0",
+      "before_words": 1367,
+      "reasons": [
+        "Remove another project's nonexistent Vite path and hardcoded line numbers."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "d0c64f7c8cfd317c85392872e81202c36fe8750de136bbd70154a44c562784d0",
+      "after_words": 1385,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "code-review-and-quality",
+      "path": "collections/shared/code-review-and-quality",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "8e7bce542662056895bbf9a31e1334c2d2ebabebb6ab9f6ffb3834752ebbe333",
+      "before_words": 2986,
+      "reasons": [
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "7fa094effbbe43e651b1c794bae3029b99edf25e49220dc218880595e34cdfed",
+      "after_words": 3009,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "doubt-driven-development",
+      "path": "collections/shared/doubt-driven-development",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "6fa1fcd8420c28daf7e53c5b08b0f20b907911efd2a6d9bce0b9740da20a4008",
+      "before_words": 2582,
+      "reasons": [
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
+        "Remove unavailable persona/nested-agent assumptions and preserve honest independence reporting.",
+        "Remove an unavailable persona roster dependency.",
+        "Remove mandatory cross-model offer/command confirmation loops while retaining safe prompt transport and authorization.",
+        "Reconcile remaining checklist/rationalization rules with scoped authorized review."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "2bae6380f05130b5a3ce21abfe5c94afd1947b5cd4a1b08764dcd0de36127cf6",
+      "after_words": 1948,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "frontend-ui-engineering",
+      "path": "collections/shared/frontend-ui-engineering",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "549044e9bd8d7fe993ce8e5c0d2b0f5465650676dc15805329973f936179eb1e",
+      "before_words": 1581,
+      "reasons": [
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "c67a6ce7d637267f091c67a608a08da59b32dab57ea1967e6abfa085afdbeb93",
+      "after_words": 1589,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "incremental-implementation",
+      "path": "collections/shared/incremental-implementation",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "df66536610071727feae1ca95f3c391c248ad828041750ccd3699cce763aa00b",
+      "before_words": 1500,
+      "reasons": [
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "0c707b16e4ec8cd8ccd9649198ec819fa32e49341519913585df59e3557194b3",
+      "after_words": 1508,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "observability-and-instrumentation",
+      "path": "collections/shared/observability-and-instrumentation",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "e7fcb0820306d46268de9594d676ad98e35040858926c412b7000faa52a61f87",
+      "before_words": 2161,
+      "reasons": [
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "81f28b933b8016ab956fca9c236f1537bd6bbb01fe653920a9349ed353928b07",
+      "after_words": 2169,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "performance-optimization",
+      "path": "collections/shared/performance-optimization",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "fb97055401a0f94dfb1518c948bc62ef2860e19ac1f1df3ce0c758894d66cb38",
+      "before_words": 1673,
+      "reasons": [
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "dbcdc6e59c34b0148dd714d1ef5d5cd3de0df9be02edc6946a05f8a5bee26418",
+      "after_words": 1678,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "planning-and-task-breakdown",
+      "path": "collections/shared/planning-and-task-breakdown",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "ed0f90cc5951ddd4bcab7f871f64efec93a49af9279ef93bc470da77ad8da3f7",
+      "before_words": 1730,
+      "reasons": [
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "078b7346d6a568a2d4570ea597e88aeba0ad10cd94bf55887cbce1e5c4b415e1",
+      "after_words": 1738,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "security-and-hardening",
+      "path": "collections/shared/security-and-hardening",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "2e3fc60eed5aba97fe416f3f3c9317fdb014a682925ec70a733c3ff99e4b9858",
+      "before_words": 2504,
+      "reasons": [
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "f2b28ffb313b72edb407b595be024e8299f0c804d00c192aafedaf93e7193297",
+      "after_words": 2528,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "shipping-and-launch",
+      "path": "collections/shared/shipping-and-launch",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "1055d25dfe6cfeb6ae31eba3e2328fd0e7c66b285f0e44c40f67c77a59813281",
+      "before_words": 1792,
+      "reasons": [
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "e022e0f488c346fbb2e9e9dc0117b915546f414cdd7ac9318a8d9643fc66ccbc",
+      "after_words": 1811,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "test-driven-development",
+      "path": "collections/shared/test-driven-development",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "7c0c6ac057c19d7f8be65d9f49c3a638703b868f4625c78b70da5439d5d74fca",
+      "before_words": 2442,
+      "reasons": [
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
+        "Scope TDD to useful behavioral verification rather than every reversible edit.",
+        "Discover the actual JVM build and Mill module test tasks.",
+        "Include the preferred Mill wrapper without replacing existing build systems.",
+        "Use proportional tests and selective module checks for large monorepos.",
+        "Make independent reproduction optional and avoid concurrent test/code mutation.",
+        "Make verification proportional to meaningful behavior.",
+        "Retain required checks while dropping an unconditional full-suite requirement.",
+        "Avoid requiring confirmation for every ordinary authorized browser navigation.",
+        "Replace the nonexistent generic reference without implying language-specific examples exist there.",
+        "Parent review narrowed remaining any-change triggers and removed a mandatory browser MCP dependency."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "7db52393ed5dd50bafdde24d8d8d061946d44a731c7dbe392f68fea6efe38d93",
+      "after_words": 2517,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "using-agent-skills",
+      "path": "collections/shared/using-agent-skills",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "30787ef2c77bf1a4729fffed0f6523ba6fcbe81bdc436b36371b78c21394d3c3",
+      "before_words": 1320,
+      "reasons": [
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
+        "Remove global policy claims, forced serial lifecycle, blanket runtime/docs gates, and redundant confirmation loops."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "35a0e29c0844a0af8449fed99b34db44c0a5dc7c38b5be0fd7b32585b3e20779",
+      "after_words": 301,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "code-review-ai-ai-review",
+      "path": "collections/shared/code-review-ai-ai-review",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "1b2f0785e72b0858f7686d1751613fba01a2a239501669037efb8d86f8febd91",
+      "before_words": 1719,
+      "reasons": [
+        "Remove an unshipped implementation-playbook.md claim; retain the substantive skill instructions."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "34004eef74fdabe470268a3795673c83035931eb80f0c675bf136e04549e862a",
+      "after_words": 1711,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "code-reviewer",
+      "path": "collections/shared/code-reviewer",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "9472932fb8d9f04da9acdc0461fa897f57fa08af70fd733129e28f6f87a6431f",
+      "before_words": 1206,
+      "reasons": [
+        "Remove an unshipped implementation-playbook.md claim; retain the substantive skill instructions."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "a164878668ff650356e26c6e18073b1b7c77890f8b73702eff581675514f66f0",
+      "after_words": 1198,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "dependency-upgrade",
+      "path": "collections/shared/dependency-upgrade",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "46ce77abae51e0e83770b2afcda0b4339be011e51b41d920f3481dceabb0f4e3",
+      "before_words": 1239,
+      "reasons": [
+        "Remove an unshipped implementation-playbook.md claim; retain the substantive skill instructions.",
+        "Remove the unshipped optional-resource catalog and route to actual manifests and upstream migration guidance."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "84863cc0be2fce2343a903565ca7a1a6d57d15dc43317b34ebc553c44e389b1d",
+      "after_words": 1222,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "java-pro",
+      "path": "collections/shared/java-pro",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "d835715a46fcf45024f02cfd94d7c24915b964fe4e36fe161f147fe2022ee789",
+      "before_words": 1184,
+      "reasons": [
+        "Remove an unshipped implementation-playbook.md claim; retain the substantive skill instructions.",
+        "Correct a withdrawn Java feature presented as a broadly available Java 21+ capability."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "ce0d1cc1a567d596eda8f917121070cd73d707f8b253fcd5c6bf40b8a0be13fe",
+      "after_words": 1203,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "scala-pro",
+      "path": "collections/shared/scala-pro",
+      "source": "davila7/claude-code-templates",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "787c444c6c41c0fcb61cc5800495025b37eb1760cfe42b6aeb0f714c682ba423",
+      "before_words": 717,
+      "reasons": [
+        "Remove an unshipped implementation-playbook.md claim; retain the substantive skill instructions."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "f8557836bc087ecf0301e3ea36a96da92ea077ace8a415c709ed3972eb78f81c",
+      "after_words": 709,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "api-designer",
+      "path": "collections/shared/api-designer",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "ba65d90c01ee209081e6db092b40da18b34f22725f9db4f6f4e7bfc4a8e1fc48",
+      "before_words": 951,
+      "reasons": [
+        "Replace two absent reference dependencies with useful domain discovery guidance."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "6df284c26575075f2110453331e3ed1eed83ebdaaebbee2ca4769922b5d37791",
+      "after_words": 955,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "ai-analyzer",
+      "path": "collections/shared/ai-analyzer",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "abab5b9fc71a25d75c7f4a38b0bc7f0d3a063d6c07bdf992fdc508ea650969d8",
+      "before_words": 588,
+      "reasons": [
+        "Make the absent report generator explicit rather than invoking a nonexistent helper."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "5a9374e496e6d45ce0b4bbb0033986b10f19b598e9de7206839d181c39b7b0ce",
+      "after_words": 588,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "docs-generator",
+      "path": "collections/shared/docs-generator",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "23aa3745d9f8e26d7485fd822f39c70b44d5e8f30cdb1d8ccd42604c452cf208",
+      "before_words": 771,
+      "reasons": [
+        "Replace an unavailable sibling ops reference with the evidence invariant it was intended to enforce.",
+        "Avoid implying an unshipped sibling initialization script is installed."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "b548914374ba31a6548312cf55fbc999f496b771fbb425096fc0bc855287fc7a",
+      "after_words": 769,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "architecting-networks",
+      "path": "collections/shared/architecting-networks",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "bde30e05e2a8c935b92df1e4a024ffb3b2bb515c75367984d3a35d9f211856ad",
+      "before_words": 2138,
+      "reasons": [
+        "Distinguish absent illustrative helper names from runnable bundled scripts.",
+        "Prevent copied utility command sketches from being treated as installed automation."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "9e3361c417510e3036fbefb68da562bb1308157e163e452473e364c2998716ea",
+      "after_words": 2193,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "architecting-security",
+      "path": "collections/shared/architecting-security",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "314b9f2f38335ff1a9d4cd3b629cd2a5bc592f7e2587a80df0a24778109251e5",
+      "before_words": 3104,
+      "reasons": [
+        "Distinguish absent illustrative helper names from runnable bundled scripts.",
+        "Prevent copied utility command sketches from being treated as installed automation."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "e5a03bd58f70e2c0ab7ba23f8fb0d3653f0fceb9ae88435e5ee133d53f1f5dbd",
+      "after_words": 3159,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "building-ci-pipelines",
+      "path": "collections/shared/building-ci-pipelines",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "e7433f619d7f284e612740bd81b4c5fc7d3335e07a7686ae93252b5183733cd0",
+      "before_words": 1252,
+      "reasons": [
+        "Prevent copied utility command sketches from being treated as installed automation."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "f0420f2c13b99d893a436b01bf2c10336fc6e883862e607fa66cc30136e59d77",
+      "after_words": 1295,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "deploying-on-aws",
+      "path": "collections/shared/deploying-on-aws",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "8a478f330ce72dc172f6a8d6e30cc0d74bd7efb32b44cf54285e5643cdf3a31e",
+      "before_words": 2709,
+      "reasons": [
+        "Distinguish absent illustrative helper names from runnable bundled scripts.",
+        "Prevent copied utility command sketches from being treated as installed automation."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "68af7f70ad30ef171a60e836b266bbfb476e3abf4a49a030fbad5d40694ff6df",
+      "after_words": 2764,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "managing-media",
+      "path": "collections/shared/managing-media",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "0ef6e58a4b4dc764a61823b8b29a1261a894a91bc3b9fd5d188a3d3f0add9682",
+      "before_words": 1616,
+      "reasons": [
+        "Distinguish absent illustrative helper names from runnable bundled scripts.",
+        "Prevent copied utility command sketches from being treated as installed automation."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "f6d6e53306fff23bd506e06fc08c93d06531c7498b0ef22afcefbdfe274c55a4",
+      "after_words": 1663,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "security-hardening",
+      "path": "collections/shared/security-hardening",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "74537681e947156cecf9bc8a68cada29c7b2fe46c2bc78cac8c356ec458a794d",
+      "before_words": 1727,
+      "reasons": [
+        "Distinguish absent illustrative helper names from runnable bundled scripts.",
+        "Prevent copied utility command sketches from being treated as installed automation."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "6b1fb842901e59ab170ab7498e7a4edc8803782ae5ee7d8a4969a3f56b5055f3",
+      "after_words": 1778,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "using-document-databases",
+      "path": "collections/shared/using-document-databases",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "fbd90354ba5bd236d8a99fa613f6837a45ec9aa61a67991c607c19ffc03ca77f",
+      "before_words": 1051,
+      "reasons": [
+        "Prevent copied utility command sketches from being treated as installed automation."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "e95fdea8a4141af27f6f395876ca4f38754f1b161a540c4390bf7e03f9862b78",
+      "after_words": 1094,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "agent-orchestrator",
+      "path": "collections/shared/agent-orchestrator",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "ade0f7dad25db88ab35c0b5a188cdf71a534f1703e53cab90d873a6da545a514",
+      "before_words": 1212,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
+        "Scope registry scans to actual discovery/orchestration requests.",
+        "Remove mandatory every-request scan and incorrect cwd-independent path claim.",
+        "Make helper invocations resolve from the installed skill directory.",
+        "Repair shell quoting in the combined discovery example."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "4a016410187c2035adf068a7116b606b29d653fc3ca21520f6620bf40cefc24e",
+      "after_words": 1261,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "agent-squad",
+      "path": "collections/shared/agent-squad",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "df2141928ccaf3a2cc0a354324630920b9efd03638579497ba550027861e1267",
+      "before_words": 1129,
+      "reasons": [
+        "Permit direct work and scale delegation to the task instead of forcing every phase through a persona.",
+        "Carry existing workflow authorization across phases.",
+        "Remove repeated next-phase permission requests.",
+        "Allow the coordinator to integrate work and resolve routine disagreements.",
+        "Avoid stopping authorized work for routine engineering blockers."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "c685a1032b60044d09c8b5802d4fb30ce4c842f5467a11a54930ebe03a436cc7",
+      "after_words": 1135,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "git-storytelling-commit-strategy",
+      "path": "collections/shared/git-storytelling-commit-strategy",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "06b6611eb136705d87d34974b3bcc3c36506f8e9f253c3ed4be1cfac98bf195a",
+      "before_words": 2065,
+      "reasons": [
+        "Remove an unconditional commit rule on ordinary task switches."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "bd2645a1a7e50ededdf7fdd05ead8017efd41b589f62f0b1758f5a15122a096b",
+      "after_words": 2085,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "hermes--hermes-agent-skill-authoring",
+      "path": "collections/hermes/software-development/hermes-agent-skill-authoring",
+      "source": "NousResearch/hermes-agent",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "be5bce268e7fa2b186e309156fc4a62eeedb151f8cc490ce9232847e2868e717",
+      "before_words": 2025,
+      "reasons": [
+        "Keep skill editing separate from unconditional Git publication.",
+        "Remove the always-commit requirement while retaining source/docs discipline."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "c57dc74c883f9fbc4adbbe266733d867411672a93a3f9ead54ec152d3ee6fd4f",
+      "after_words": 2040,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "audit-skills",
+      "path": "collections/shared/audit-skills",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "03198a29c5eb59f87146b3e43030a644421a0797ba4a9339fcff7b827b234133",
+      "before_words": 811,
+      "reasons": [
+        "Remove an unfinished authoring scaffold sentence."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "58f5eb97dd658baf6c541d9675d22e4cd4d71431b557fa35d295ec35e5304899",
+      "after_words": 807,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "code-review",
+      "path": "collections/shared/code-review",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "fc4e07ca5f53b332317a1a39d50c988c0a288e6042b30db86dcbbd0afb7e419b",
+      "before_words": 3107,
+      "reasons": [
+        "Preserve the substantive review dimensions separately from the focused entrypoint.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
+        "Remove forced Haiku/Sonnet fanout, contradictory verification rules, and automatic gh comment publication."
+      ],
+      "files": [
+        "references/review-dimensions.md",
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "d81176983811ec306ddd6d5a443150472b64f92bfa4718593f1e183a16a2f1c1",
+      "after_words": 397,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-database",
+      "path": "collections/shared/golang-database",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "34889bcf13c1f66125b388cf0abbf5600f1d09ef50ad731f8b266c48efd5d6b3",
+      "before_words": 1558,
+      "reasons": [
+        "Make read-only Go investigation proportional and delegation conditional on authorization and availability.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "198a5634adccc098d695fba7a79fb8937e70a3bb829e06233f747d21a7184a38",
+      "after_words": 1513,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-graphql",
+      "path": "collections/shared/golang-graphql",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "98c62367ab8bd4e5b58d0765f8cf26133198e11715c5b938b4e810a1b03e3867",
+      "before_words": 1631,
+      "reasons": [
+        "Make read-only Go investigation proportional and delegation conditional on authorization and availability."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "e156eb46b63390bb1ae2a57348e91ce53435729dc0748c842cbdedc13b18fd34",
+      "after_words": 1617,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-lint",
+      "path": "collections/shared/golang-lint",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "45e510222626ab4367e7831dcef2560c9c54a7f489ec4219eec89f4fdc4e6930",
+      "before_words": 972,
+      "reasons": [
+        "Prevent concurrent Go autofixes across overlapping linter categories.",
+        "Remove background autofix races with active implementation edits.",
+        "Replace unsafe simultaneous full-tree autofixes with read-only analysis and disjoint mutation ownership.",
+        "Match golangci-lint v2 configuration to its v2 import path and project-pinned version.",
+        "Use the official binary installation preference and avoid blindly installing latest into a v1/v2 project.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
+        "Parent review removed blanket configuration/CI mandates and made optional cleanup delegation authorization-aware."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "b4dde61d13b982633c42b682c08eff8d6dedd00c77085d730e281084ec1ef92f",
+      "after_words": 936,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-benchmark",
+      "path": "collections/shared/golang-benchmark",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "35f74a20f926c629af3ca39936fb9bf2a9b52ca55f8a3ea1476d32b08d328a70",
+      "before_words": 1727,
+      "reasons": [
+        "Bound the existing Go parallel workflow to authorized available agents and disjoint mutation ownership.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "87f44eecfba79068675e07f3921f23322b63a23c9fb028cf580970726385b962",
+      "after_words": 1730,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-documentation",
+      "path": "collections/shared/golang-documentation",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "a313e2a0037731074ae7e12a14727e42396ea397d84f53873400d3fc5c44fb2d",
+      "before_words": 1785,
+      "reasons": [
+        "Bound the existing Go parallel workflow to authorized available agents and disjoint mutation ownership."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "761f55a008efdd45c69273c2ad1a1025b6274caf9bc5d11822227c8c9b8678fc",
+      "after_words": 1829,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-error-handling",
+      "path": "collections/shared/golang-error-handling",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "536c25e624c3cf3def98962d9f89db07b258cde6c9e7fd17009a9eb204ba631f",
+      "before_words": 900,
+      "reasons": [
+        "Bound the existing Go parallel workflow to authorized available agents and disjoint mutation ownership.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "615fd6093da84a2a7ca518a63f52fe5b1cfb38ae62dc9069b29caeb1473b6165",
+      "after_words": 898,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-observability",
+      "path": "collections/shared/golang-observability",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "539f7fc73370e01fad2cbe5a67a63a651bd40242bc00c920b3f1cbf781023185",
+      "before_words": 1759,
+      "reasons": [
+        "Bound the existing Go parallel workflow to authorized available agents and disjoint mutation ownership.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "5d35e741558dd3dda777cc9a5c0c333040ae31fa591def1bef96b9b52aeaea8f",
+      "after_words": 1745,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-performance",
+      "path": "collections/shared/golang-performance",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "80a4e7aa3b343777fd24f6e28141bb1329b6daeb9aa4f69b163b02a4b2155c50",
+      "before_words": 1229,
+      "reasons": [
+        "Bound the existing Go parallel workflow to authorized available agents and disjoint mutation ownership.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "24408424b96af889c16237596352de490035fb29e00c5a62abd1f41040426af7",
+      "after_words": 1217,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-security",
+      "path": "collections/shared/golang-security",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "8bcc0f7ff7d196aa498e0305b81c28f60c6e50a358626360f526c0cacc760bc4",
+      "before_words": 1928,
+      "reasons": [
+        "Bound the existing Go parallel workflow to authorized available agents and disjoint mutation ownership.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "e9a5edeb443450df8d620db99cf2388bd20c3c818a398b7a81d94788c3efbd51",
+      "after_words": 1902,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-testing",
+      "path": "collections/shared/golang-testing",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "55eea3ed4536df0c95fc1247382d3027d45b1d1af0a94fc9de653debae5df0f2",
+      "before_words": 2337,
+      "reasons": [
+        "Bound the existing Go parallel workflow to authorized available agents and disjoint mutation ownership.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "211875d2d1dc18bf0eeeadfce2426949524f0e6d4a4cd5bdc4f4eca28e5a304f",
+      "after_words": 2352,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-troubleshooting",
+      "path": "collections/shared/golang-troubleshooting",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "a94def5ae84dd581536e5fdd64b1c22bd7f9683f3173d638830edb60697aa8e8",
+      "before_words": 1734,
+      "reasons": [
+        "Bound the existing Go parallel workflow to authorized available agents and disjoint mutation ownership.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "b7396b506bdefeaa225e8c558c850dad6b5bbd767bcf7a638f2516952bbb28eb",
+      "after_words": 1722,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-how-to",
+      "path": "collections/shared/golang-how-to",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "ec364f51bec96667a20d67d3f8e8b5b9b7a2220bb9ed60581edf634f868313c2",
+      "before_words": 1986,
+      "reasons": [
+        "Reduce automatic Go context expansion.",
+        "Make verification proportional to meaningful behavior.",
+        "Make the Go routing table progressive rather than an instruction to preload all matches.",
+        "Stop implicit repository AGENTS/CLAUDE always-load rule insertion.",
+        "Replace force-trigger installation on every new Go project with requested, idempotent, scoped configuration.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/project-config.md"
+      ],
+      "after_entry_sha256": "4bfb9ad1e8571323cdc902e0222795d12334ad7a55c52c04d615a40fa0967d4e",
+      "after_words": 1893,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-project-layout",
+      "path": "collections/shared/golang-project-layout",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "d23c793c974a868906a95e5ac53fd077ba9630410bb7352d323697a29156c20a",
+      "before_words": 965,
+      "reasons": [
+        "Avoid mandatory architecture and DI interviews for already-specified or small Go tasks.",
+        "Keep architecture proportional to the actual project.",
+        "Make verification proportional to meaningful behavior.",
+        "Remove automatic always-load config mutation from Go scaffolding.",
+        "Preserve existing Go module identities, case, vanity paths, and consumer compatibility.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "c854744404ee77a8a5b9f890435cfa855fb2ab1ad21b36bd136d7cdfd0fea6cf",
+      "after_words": 928,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-refactoring",
+      "path": "collections/shared/golang-refactoring",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "4b297f823861d6620a5034a3a26b2d4875b1153ab123f2c5059f7ddb73939355",
+      "before_words": 2274,
+      "reasons": [
+        "Remove an unconditional approval gate on every reversible Go refactor.",
+        "Keep the valuable staged-refactor strategy without forcing agents and PRs for every small refactor.",
+        "Respect session authorization instead of repeated mandatory approval questions.",
+        "Remove the duplicate hard sign-off gate inside the staged-workflow reference.",
+        "Scope the advanced staged-refactor machinery and preserve the useful dependency/conflict ordering.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
+        "Carry plan authorization through the staged-workflow reference instead of reconfirming every row."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/workflow.md"
+      ],
+      "after_entry_sha256": "e613857d8c1acf95695fa24d752b57b9f2038cdcf07d6d8bd37c56bda40caf42",
+      "after_words": 2148,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "effect-schema",
+      "path": "collections/shared/effect-schema",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "cc6ea85c70bf424bb439b8cb7142c321722e3b78538b4025fe14ee3891df03f5",
+      "before_words": 1468,
+      "reasons": [
+        "Use the maintained Effect v3 Schema import and non-transforming primitive constructors.",
+        "Route Effect Schema guidance by actual dependency major version.",
+        "Parent verification fixed the v3 ParseResult namespace/Type constructor and date transformation target; both examples typecheck and pass runtime assertions on Effect 3.22.2/TypeScript 6.0.2."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "69a6f370a0756a6b673df53433132c2b7cbbc975b3969e11781b6d249edc6b42",
+      "after_words": 1523,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-google-wire",
+      "path": "collections/shared/golang-google-wire",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "3815eb855fbfe8bad1e6c092f7f5e3609c7f3551c7385e8e7c420369185de6cf",
+      "before_words": 1421,
+      "reasons": [
+        "Record official Google Wire archival status without forcing a migration.",
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "215e21918d41e5494770032b596421a30ecfce9f64ea274048074e4edc79f139",
+      "after_words": 1444,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-cli",
+      "path": "collections/shared/golang-cli",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "da9eef3871a94cccbcbab77c2b3a5990e7fe00d9434f3728cb427e520ae77311",
+      "before_words": 1278,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "6f8bef48c4f44ac37cd69212283b6cbb411107c5a5b5aecca58c298853509541",
+      "after_words": 1240,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-code-style",
+      "path": "collections/shared/golang-code-style",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "1c53d6b8405fc2992b92524d4782c826845916d64f90a5af483b9401865b9a76",
+      "before_words": 1323,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "2bc64ac10f6741246a7e23b5c244aaf3d6bb56df1ef683f62c28d07a8201a69a",
+      "after_words": 1289,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-concurrency",
+      "path": "collections/shared/golang-concurrency",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "b56255b765a50c1052c5d71cd60ddb1c2ef643ce3b447aa195ba81f31d10bd1c",
+      "before_words": 1320,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "6b4ae5baee76c214a9dd32e40b6fec97b9758289ee5a025d14263a212669cb56",
+      "after_words": 1251,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-context",
+      "path": "collections/shared/golang-context",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "257a3e5a07d686ef617a59bc55e5b320665381e50dbc696d0aacc43aee687da2",
+      "before_words": 833,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "3df4a8048e1fead903ba60a146059bb3ab4a8f0b4231a5e1857b8e910d1039ac",
+      "after_words": 805,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-continuous-integration",
+      "path": "collections/shared/golang-continuous-integration",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "106f80606011f563fb56565095d08f3eb21f06771577a124c8522088671b9b3b",
+      "before_words": 1906,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "829d7c8c595eeb4d02aa2b7e075f8a8518228b2f950d3fcadc28860b9e801c10",
+      "after_words": 1829,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-data-structures",
+      "path": "collections/shared/golang-data-structures",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "36d8047541529a0254d3221b53c0d3b7c6c10b499a545201be55e0f0be510952",
+      "before_words": 1423,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "de604c7fd0ab8a8cd75055bb34cb235e674c9e0ce57522d5f22e39e26756b9ba",
+      "after_words": 1380,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-dependency-injection",
+      "path": "collections/shared/golang-dependency-injection",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "2c41da3950c03198fe8d5ea21ab024e8ea7ebd162925fe2b91024a750d63a1be",
+      "before_words": 1763,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "f6e2a3300f0c7878d2498ef72078583a2728ec218ea83630855efc0cfabd8e57",
+      "after_words": 1716,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-dependency-management",
+      "path": "collections/shared/golang-dependency-management",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "adedc0f78b8a469b8398434b8a9f373a380e50cf3a8a5a7974bb3f4a24c6166b",
+      "before_words": 1383,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "f757cb30adef9c1d5fc8eb1ff45458aba82f286cdd11439976d7646a2350390c",
+      "after_words": 1306,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-design-patterns",
+      "path": "collections/shared/golang-design-patterns",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "49bfe0170e71d2768f57415f0322b4e27149d03ea3d86b85ef346631668b0f51",
+      "before_words": 1543,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "aea715097e29ea04c44d4a2858b60a8e3e8babb46e15bdbd3cb988261855daa8",
+      "after_words": 1477,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-gopls",
+      "path": "collections/shared/golang-gopls",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "198024b700b0011d5caccff80031b975c060c2cdb6bdf980a371bf0533fa34a7",
+      "before_words": 1314,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "f20d85becc839e00696eb847f15f9646b99c4be7130983fbe29648d5e8ab3bb8",
+      "after_words": 1227,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-modernize",
+      "path": "collections/shared/golang-modernize",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "4690bd30545ecd8bd4af278684773c2cde19981aae5dd97ba45a90f5ea560c60",
+      "before_words": 1798,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "3b0dda7d2f1e9d5f3b856141117275a941a8cb11a04ce749acd7cd0ecafdcdd2",
+      "after_words": 1766,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-naming",
+      "path": "collections/shared/golang-naming",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "ff6e9b3d1ba65f8e243d872501f44fe8d48f90da8e9441d682e56d3e6d9e2ac7",
+      "before_words": 1758,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "d5dd9827f0ff182052bfa6b3b6d5d3cb4f189c1001b77fc0d670f22e4598aa16",
+      "after_words": 1686,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-pkg-go-dev",
+      "path": "collections/shared/golang-pkg-go-dev",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "74d399d4662247d471dec02715bcfd8db644e3bc3157ed306c3f32e30a0a244e",
+      "before_words": 1728,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "7f7eafd26c69de60769b20a9cae94594a269d67b9cb53dfd23646dc115f18941",
+      "after_words": 1666,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-popular-libraries",
+      "path": "collections/shared/golang-popular-libraries",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "b39895a329c1f0af944d93b513272f4e3190844b41d0075c9ac011bcf063ec31",
+      "before_words": 636,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "c20e95a06ff3b9f65d1cd561c6cad78fcbd641284a3b1c7dd267aaf55a2fc6c3",
+      "after_words": 572,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-safety",
+      "path": "collections/shared/golang-safety",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "a9bce4568ba98ae804505d6b1d6fbe0376fe7afdc9f30051bfc03f898e26d50e",
+      "before_words": 1579,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "2081a8e3a2b7439d2e2c3925d617b3ade3a918d5883e0ed4fa08fd3f9c7ff6c0",
+      "after_words": 1496,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-samber-hot",
+      "path": "collections/shared/golang-samber-hot",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "96f8bdb1affbc84e1701608bc54cb8ac76e3432c089d2b9d3a7fe63fa187f916",
+      "before_words": 1034,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "ff4dca4f8ef1b67725df48971abaf14a15effd96c284433ba6495d0191c61644",
+      "after_words": 1000,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-samber-lo",
+      "path": "collections/shared/golang-samber-lo",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "1388c16bd1116ece044f83c44ae5908252609400a0f9b9d28523068b9ffa4319",
+      "before_words": 1392,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "8ee92bab8084698e58b00089055a2d387bba4cae6438dbfcfa4a89598ab928f4",
+      "after_words": 1336,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-samber-mo",
+      "path": "collections/shared/golang-samber-mo",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "552843bc00e43d778386548d611f6d3a484e0a4b3dd7eb7fd0b5d4f23210c789",
+      "before_words": 1498,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "a2323fa51326829de9dc996c20d6a9f4ee520a8a73e4f5958fed67ccf822acbe",
+      "after_words": 1450,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-samber-ro",
+      "path": "collections/shared/golang-samber-ro",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "28fb7b4db9ab6982354f7be39e8b0727e4a4b3dcd87c9c2add1046841d27122b",
+      "before_words": 1613,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "1fb0c4c3828cb9fc6cecd951cfb7f96a745d7f20c5b5d80da011ce6fe9dbad56",
+      "after_words": 1555,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-samber-slog",
+      "path": "collections/shared/golang-samber-slog",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "54235bd7bc6dc9005d79eab614211939c6e686de00bf05d10343a03a92a97fd8",
+      "before_words": 1391,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "b181a87179fa8c214e9d3e5007e83a49bc376ffbfd16d33102a3df549b8a73a7",
+      "after_words": 1368,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-spf13-cobra",
+      "path": "collections/shared/golang-spf13-cobra",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "f77b93e6f14c3c0f4b168bb97c617d2866064964c2909c2cd817181190fe51ff",
+      "before_words": 1328,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "c75d03afee6e9b84bea25fc899d5553fc9b8d27c3592857fea4d4072706d008a",
+      "after_words": 1281,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-spf13-viper",
+      "path": "collections/shared/golang-spf13-viper",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "d2f42c2c44457b391070865e154df3dd87509479536872fdf892ab0cd629dba4",
+      "before_words": 1261,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "acf48e0a8f3a61f188101b06ab4a07f121b3b5ca9722fa25a06b8260ba11a495",
+      "after_words": 1212,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-stay-updated",
+      "path": "collections/shared/golang-stay-updated",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "a348fe3d83f5e09c4970f26d8c4ee978df58ee7d2bb06b16124fa833562fb42e",
+      "before_words": 990,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "6014e1e6d3704e4b4958d444dc1e49f6f609eebe32ab21826b106d52c4adbf87",
+      "after_words": 920,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-stretchr-testify",
+      "path": "collections/shared/golang-stretchr-testify",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "e0e681bafd39acc6edb6c9d06c53add7b42e10d93a7f0dd546dde67a23d3f1bf",
+      "before_words": 804,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "dc2e90ab109610268e2d5c1f3f5f1bbe975d9890a0b83c9feaba65879f3ed461",
+      "after_words": 771,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-structs-interfaces",
+      "path": "collections/shared/golang-structs-interfaces",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "0bc93e1e86c3cf24571205b6fdd773a23df1b34366e7f639a9530d6984117601",
+      "before_words": 1768,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "ae789e3d2abe3e4eb89aac6dcbbb259bb18e21745b10f2cdc2e7cdd98c4f905f",
+      "after_words": 1711,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-swagger",
+      "path": "collections/shared/golang-swagger",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "537126ccf09bf25f4edae6e0fac2bbb7d4ffbd157edadf17e7a6d2e03d19a93e",
+      "before_words": 1175,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "907905532972a81b2059cf0a87a7fc9af2f362d0058b6e0eb21d1dbdfa6e97e9",
+      "after_words": 1141,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-uber-dig",
+      "path": "collections/shared/golang-uber-dig",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "6dd33a3826275f6adaa7cf62a87c481ceb9253466f9cf71a5f02ceb5e357c1af",
+      "before_words": 1406,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "4a7bf178210e93ffea8250fcfd8cc1d855e573fc472d4a9304f08595e6b64067",
+      "after_words": 1382,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "golang-uber-fx",
+      "path": "collections/shared/golang-uber-fx",
+      "source": "samber/cc-skills-golang",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "9de3192cc61f8407e2121f582005b0c589ede70951761f43176f4312c41ae259",
+      "before_words": 1437,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "623ed5ee7d16f865b851f61afedbe984f5af659c78c5657af3ee641061629256",
+      "after_words": 1420,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "agent-memory-systems",
+      "path": "collections/shared/agent-memory-systems",
+      "source": "davila7/claude-code-templates",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "c45f6da6e83d7740b91c32e9ba5a7320bbdc4e5c973416af6371b53e599f1dc6",
+      "before_words": 342,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "8396ac80f9cedd988d5e6b0791dce5cdaa6f8b08c93cc020a8c19660181f16c4",
+      "after_words": 291,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "git-workflow-and-versioning",
+      "path": "collections/shared/git-workflow-and-versioning",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "b7465d187935c52546d39fdc7bd6ac36d94eda25a9500ef8c18b767d2eb116ea",
+      "before_words": 2154,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "178eaefe248708aac55aff9f54ca2fae2251e30b239e5ed84adfc0c05978afd9",
+      "after_words": 2112,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "interview-me",
+      "path": "collections/shared/interview-me",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "ace4b675999bb504593d572e0f73f3d7e803ad6fddf318445598c82c11939db2",
+      "before_words": 2512,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "f0964c31b16873ea77cb0aef4042e4879d1a87127ea643e68732bd676982c1dd",
+      "after_words": 2469,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "spec-driven-development",
+      "path": "collections/shared/spec-driven-development",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "c4b97ce3d7f24be0e67fd612c7595f65504872e3a9f8d338d098b2363fdb66ef",
+      "before_words": 1988,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "4df1f4401536be8cbc7b8e294f7d61dadc0a785c4f4be47c096d4eda6b3a776a",
+      "after_words": 1956,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "design-patterns",
+      "path": "collections/shared/design-patterns",
+      "source": "ariaramin/design-patterns-skill",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "c56023eb4874a4f35c0b0042c2fbe4c9ae99adb314d801b23ccaf9ee9b13940f",
+      "before_words": 1032,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "48c80b4ae031f91c065481ed22a2ec42235ec4795b9b37297f1b1cf600d70eff",
+      "after_words": 946,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "gof-patterns",
+      "path": "collections/shared/gof-patterns",
+      "source": "jaeleeps/gof-patterns",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "c29e634d1cc4db7f1c941561df5c25bee69bc8a5dc90073aa8eac1d4234ef1e7",
+      "before_words": 1479,
+      "reasons": [
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "a1a127186c1968ca81c4f58ec6fe76fc82b184ba8abd2ad2807db55d3c1ad87a",
+      "after_words": 1442,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "scala-collections",
+      "path": "collections/shared/scala-collections",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "4e149a6c662de7d28c7d8aac2e15a8adccdb85830e38498e436e9279d488c149",
+      "before_words": 3445,
+      "reasons": [
+        "Move the complete dense example library into a linked on-demand reference; retain all instructional content.",
+        "Reduce context load for Scala and Lua tasks without deleting the detailed example library."
+      ],
+      "files": [
+        "references/language-patterns.md",
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "5ef16431fca4ca5413b0146a6fd1769022b0bd909072b52ee1e7bd894542f325",
+      "after_words": 203,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "scala-functional-patterns",
+      "path": "collections/shared/scala-functional-patterns",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "c04522dcc29c25959a511f3ad2e73604131c6c0c8c4cb54e4b66b3fb816571de",
+      "before_words": 3292,
+      "reasons": [
+        "Move the complete dense example library into a linked on-demand reference; retain all instructional content.",
+        "Reduce context load for Scala and Lua tasks without deleting the detailed example library."
+      ],
+      "files": [
+        "references/language-patterns.md",
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "f774c6c9c0e43b5f6fcd79172d9dda2a36b5f824dfbaa5a9fc115e2d4bec6ddb",
+      "after_words": 192,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "scala-type-system",
+      "path": "collections/shared/scala-type-system",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "e9294c8839ff1618175c69dc4e6a12d992dc5a0fcca8ae36ca7624cd36f49c6b",
+      "before_words": 3222,
+      "reasons": [
+        "Move the complete dense example library into a linked on-demand reference; retain all instructional content.",
+        "Reduce context load for Scala and Lua tasks without deleting the detailed example library."
+      ],
+      "files": [
+        "references/language-patterns.md",
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "462706fd676da3e85e8146ad17a724c54cc14e065b9a2349b9c754ac6ae1b5d2",
+      "after_words": 193,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "lua-tables-patterns",
+      "path": "collections/shared/lua-tables-patterns",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "7590b79379d793997778b6fd2ed6e6353ab236a9a9d058a043b9a0483e257446",
+      "before_words": 3155,
+      "reasons": [
+        "Move the complete dense example library into a linked on-demand reference; retain all instructional content.",
+        "Reduce context load for Scala and Lua tasks without deleting the detailed example library."
+      ],
+      "files": [
+        "references/language-patterns.md",
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "010a591517c279e1dec218eb09aa67c71985394e5b3d64463722837e831924d2",
+      "after_words": 148,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "pixijs-ticker",
+      "path": "collections/shared/pixijs-ticker",
+      "source": "pixijs/pixijs-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "f9831fff4604279e45fe6a605a244d5535fb2669e6f6a92a184d61e35b9b4a64",
+      "before_words": 1171,
+      "reasons": [
+        "Fix duplicate rendering in the manual loop: the Application ticker already owns a render listener."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "d6ced3f43f90df84256ef5469d564459ee4765018e753b8fe766328098c409d3",
+      "after_words": 1181,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "pixijs-application",
+      "path": "collections/shared/pixijs-application",
+      "source": "pixijs/pixijs-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "99a4dc0e2625e3d95badf01b2a6715c1573f3ce5bfcd3298aaacf18533de12fb",
+      "before_words": 1313,
+      "reasons": [
+        "Clarify that manually updating the Application ticker also invokes its render callback."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "ad91ce2db3b89a176268f215424589d7d73b62325f82f75e3185cd8329a1c4c5",
+      "after_words": 1323,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "pixijs-core-concepts",
+      "path": "collections/shared/pixijs-core-concepts",
+      "source": "pixijs/pixijs-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "cf632dd602779c0f584fdbb6f5b0a022c68cfdb408882c243ba0cff43d2957d9",
+      "before_words": 825,
+      "reasons": [
+        "Use the modern Pixi v8 object-form renderer invocation consistently."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "9e2c22b0854253054b8184b5437f1d136f84592ce905b9e5672f7887faba0cc4",
+      "after_words": 828,
+      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
+    },
+    {
+      "id": "hermes--claude-code",
+      "path": "collections/hermes/autonomous-ai-agents/claude-code",
+      "source": "NousResearch/hermes-agent",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "ec92e627db1f449ea038e2b756ebbaa067880dd673a35497ea64b7e6391cf519",
+      "after_entry_sha256": "9d2cd97eb5a7c2730453296f4b4f63f4ed279eb6915f39c99cdf73a83add900c",
+      "before_words": 5016,
+      "after_words": 5169,
+      "files": [
+        "SKILL.md"
+      ],
+      "reasons": [
+        "Replace blind timed workspace trust acceptance with inspected scope-aware handling; preserve existing task authorization.",
+        "Prefer supported print mode for bounded tasks and distinguish worktree change isolation from an execution sandbox.",
+        "Honor configured/user-selected CLI model instead of forcing Haiku/Opus and an unchosen fallback."
+      ],
+      "before_after": "Reviewed local fork of the MIT upstream Hermes entrypoint; all API examples and supporting resources retained except unsafe blind dialog/model instructions."
+    }
+  ]
+}

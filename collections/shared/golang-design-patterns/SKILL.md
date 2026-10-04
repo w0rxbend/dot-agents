@@ -1,6 +1,6 @@
 ---
 name: golang-design-patterns
-description: "Idiomatic Golang design patterns — functional options, constructor APIs, `init()` and global-state avoidance, enums, panic vs error decisions, resource management and lifecycle, graceful shutdown, timeouts and retries, streaming and iterators, and architecture styles (clean, hexagonal, DDD, flat). Apply when choosing between architectural patterns, implementing functional options, designing constructor APIs, setting up graceful shutdown, applying resilience patterns, or asking which idiomatic Go pattern fits a specific problem. Not for wiring a DI container or comparing DI libraries (→ See `samber/cc-skills-golang@golang-dependency-injection` skill), nor for error wrapping, `errors.Is`/`As`, or logging mechanics (→ See `samber/cc-skills-golang@golang-error-handling` skill)."
+description: "Design Go APIs with functional options, interfaces, composition, constructors, and clear ownership. Select a pattern for a concrete design problem rather than adding abstractions by default."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.

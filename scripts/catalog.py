@@ -9,7 +9,7 @@ def render(repo=REPO):
     entries = load_catalog(repo)['skills']
     counts = Counter(item['distribution'] for item in entries)
     lines = ['# Skill catalog', '', f"{len(entries)} unique installed skills: {counts['vendored']} included, "
-             f"{counts['external']} provider-managed.", '',
+             f"{counts['external']} external (provider-managed, direct-source, or local-only).", '',
              'Install IDs keep same-named skills from different collections in separate directories. '
              'The upstream `name` in each skill remains unchanged.', '',
              '| Install ID | Skill | Collection | License | Files |',

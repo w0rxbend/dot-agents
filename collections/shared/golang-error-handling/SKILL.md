@@ -1,6 +1,6 @@
 ---
 name: golang-error-handling
-description: "Idiomatic Golang error handling — creation, wrapping with %w, errors.Is/As, errors.Join, custom error types, sentinel errors, panic/recover, the single handling rule, structured logging with slog, HTTP request logging middleware, and samber/oops for production errors. Built to make logs usable at scale with log aggregation 3rd-party tools. Apply when creating, wrapping, inspecting, or logging errors in Go code. For samber/oops specifics → See `samber/cc-skills-golang@golang-samber-oops` skill; for slog handler ecosystem → See `samber/cc-skills-golang@golang-samber-slog` skill."
+description: "Implement or review Go error construction, wrapping, errors.Is/As, panic/recover boundaries, and single handling. Use for error contracts and failure paths; distinguish expected errors from programmer defects."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -19,6 +19,7 @@ paths:
   - "**/*.go"
 ---
 
+Use parallel agents only when delegation is authorized and available, and the independent work justifies it. Scale agent count to the host budget and task size. Reviews may overlap concerns; edits require disjoint file ownership or isolated worktrees. Otherwise perform the same checks inline.
 **Persona:** You are a Go reliability engineer. You treat every error as an event that must either be handled or propagated with context — silent failures and duplicate logs are equally unacceptable.
 
 **Orchestration mode:** Fan out the five category sub-agents described in the "Parallelizing Error Handling Audits" section (creation, wrapping, single-handling rule, panic/recover, structured logging) for auditing error handling across a large codebase, and consolidate their findings. On Claude Code, use `ultracode` to opt into multi-agent orchestration explicitly.

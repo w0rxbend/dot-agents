@@ -1,0 +1,19 @@
+# Version-sensitive build, ownership and I/O
+
+## Build graph and test discovery
+
+The reviewed [package metadata](https://github.com/w0rxbend/zig-playground/blob/47345191d6a59dd40a08ce273ad4f8fc08824412/build.zig.zon) declares minimum_zig_version=0.15.2. The [build graph](https://github.com/w0rxbend/zig-playground/blob/47345191d6a59dd40a08ce273ad4f8fc08824412/build.zig) exposes zig_playground from src/root.zig and a separate executable root with that named import. It uses explicit root_module/createModule APIs, installs the executable under the selected prefix and forwards b.args after `zig build run --`. Do not transplant older addExecutable root_source_file patterns into this graph.
+
+The test step depends on two addTest/addRunArtifact pairs: library and executable roots. Adding a source file is not proof its tests are discovered. Connect its import/declaration reachability and the relevant root explicitly. Read optimize/target on each module rather than assuming the executable's selection automatically changes the exposed library's settings. Cross-compilation success does not prove the resulting executable ran on that target. See the [0.15.2 compilation model](https://ziglang.org/documentation/0.15.2/#Compilation-Model), and use that version's local std source for build APIs; the moving online build guide can show newer syntax.
+
+## Allocators and lifetimes
+
+In [main.zig](https://github.com/w0rxbend/zig-playground/blob/47345191d6a59dd40a08ce273ad4f8fc08824412/src/main.zig), ArrayList starts at .empty and allocation/deinit calls receive the allocator. This matches the unmanaged default introduced in the [0.15 release changes](https://ziglang.org/download/0.15.1/release-notes.html#ArrayList-make-unmanaged-the-default), rather than old init(allocator) examples. Use the same allocator for the allocation's ownership lifetime. Register defer/errdefer cleanup after acquisition; if returning owned memory, transfer cleanup responsibility deliberately rather than returning a slice freed at function exit.
+
+Container growth can invalidate items slices/pointers. Document borrowed views, owned results and arena lifetime. Do not retain a list element pointer across append/reallocation or a writer interface backed by an expired local buffer. An arena can release a whole request's data but must not be destroyed while a consumer still borrows it. Test allocation failure and partial initialization as well as normal cleanup; std.testing.allocator detects leaked allocations in tests but cannot establish all use-after-free paths are safe. Follow [Zig ownership guidance](https://ziglang.org/documentation/0.15.2/#Lifetime-and-Ownership).
+
+## Buffered output and fuzzing
+
+[root.zig](https://github.com/w0rxbend/zig-playground/blob/47345191d6a59dd40a08ce273ad4f8fc08824412/src/root.zig) supplies a stack buffer to std.fs.File.stdout().writer, writes through its interface and propagates flush failure. Preserve explicit successful flush at the output boundary. `defer flush() catch {}` hides an output failure; buffered print success alone does not mean bytes reached stdout. Keep debug output on stderr so application stdout remains usable by pipes. Consult the [versioned I/O migration](https://ziglang.org/download/0.15.1/release-notes.html#Writergate) instead of mixing old std.io bufferedWriter with this API.
+
+The existing fuzz example deliberately rejects one magic input: discovery is an expected demonstration failure, not evidence that ordinary tests provide complete fuzz coverage. Bound fuzz runs using the chosen compiler's supported options; retain a failing input as a deterministic regression once it exposes a real defect. Do not delete the assertion just to make fuzzing green or claim unbounded fuzz success. For routine validation use `zig fmt --check build.zig src` and `zig build test`; use native stdout capture for output/flush behavior and report any cross-target execution limitation.

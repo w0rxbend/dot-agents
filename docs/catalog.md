@@ -1,6 +1,6 @@
 # Skill catalog
 
-560 unique installed skills: 475 included, 85 provider-managed.
+586 unique installed skills: 500 included, 86 external (provider-managed, direct-source, or local-only).
 
 Install IDs keep same-named skills from different collections in separate directories. The upstream `name` in each skill remains unchanged.
 
@@ -24,6 +24,7 @@ Install IDs keep same-named skills from different collections in separate direct
 | `agent-squad--rex` | rex | agent-squad | MIT | [SKILL.md](../collections/shared/agent-squad/rex/SKILL.md) |
 | `ai-analyzer` | ai-analyzer | shared | MIT | [SKILL.md](../collections/shared/ai-analyzer/SKILL.md) |
 | `ai-engineer` | ai-engineer | shared | MIT | [SKILL.md](../collections/shared/ai-engineer/SKILL.md) |
+| `airgradient-clients` | airgradient-clients | shared | MIT | [SKILL.md](../collections/shared/airgradient-clients/SKILL.md) |
 | `ameba-configuration` | ameba-configuration | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/ameba-configuration/SKILL.md) |
 | `ameba-custom-rules` | ameba-custom-rules | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/ameba-custom-rules/SKILL.md) |
 | `ameba-integration` | ameba-integration | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/ameba-integration/SKILL.md) |
@@ -237,10 +238,13 @@ Install IDs keep same-named skills from different collections in separate direct
 | `codex-work-pets--pets` | pets | codex-work-pets | LicenseRef-Provider | [Provider](providers.md) |
 | `codex-work-pets--update-pet` | update-pet | codex-work-pets | LicenseRef-Provider | [Provider](providers.md) |
 | `comment` | comment | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/comment/SKILL.md) |
+| `compatibility-ports` | compatibility-ports | shared | MIT | [SKILL.md](../collections/shared/compatibility-ports/SKILL.md) |
 | `constraint-driven-development` | constraint-driven-development | shared | MIT | [SKILL.md](../collections/shared/constraint-driven-development/SKILL.md) |
 | `context-engineering` | context-engineering | shared | MIT | [SKILL.md](../collections/shared/context-engineering/SKILL.md) |
 | `copywriting` | copywriting | shared | MIT | [SKILL.md](../collections/shared/copywriting/SKILL.md) |
+| `cpp-obs-plugin-development` | cpp-obs-plugin-development | shared | MIT | [SKILL.md](../collections/shared/cpp-obs-plugin-development/SKILL.md) |
 | `creating-dashboards` | creating-dashboards | shared | MIT | [SKILL.md](../collections/shared/creating-dashboards/SKILL.md) |
+| `crystal-build-and-test` | crystal-build-and-test | shared | MIT | [SKILL.md](../collections/shared/crystal-build-and-test/SKILL.md) |
 | `data-engineer` | data-engineer | shared | MIT | [SKILL.md](../collections/shared/data-engineer/SKILL.md) |
 | `data-engineering-data-pipeline` | data-engineering-data-pipeline | shared | MIT | [SKILL.md](../collections/shared/data-engineering-data-pipeline/SKILL.md) |
 | `data-scientist` | data-scientist | shared | MIT | [SKILL.md](../collections/shared/data-scientist/SKILL.md) |
@@ -275,6 +279,8 @@ Install IDs keep same-named skills from different collections in separate direct
 | `effect-resource-management` | effect-resource-management | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/effect-resource-management/SKILL.md) |
 | `effect-schema` | effect-schema | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/effect-schema/SKILL.md) |
 | `effect-testing` | effect-testing | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/effect-testing/SKILL.md) |
+| `elixir-project-workflow` | elixir-project-workflow | shared | MIT | [SKILL.md](../collections/shared/elixir-project-workflow/SKILL.md) |
+| `embedded-device-protocols` | embedded-device-protocols | shared | MIT | [SKILL.md](../collections/shared/embedded-device-protocols/SKILL.md) |
 | `error-debugging-error-analysis` | error-debugging-error-analysis | shared | MIT | [SKILL.md](../collections/shared/error-debugging-error-analysis/SKILL.md) |
 | `error-debugging-error-trace` | error-debugging-error-trace | shared | MIT | [SKILL.md](../collections/shared/error-debugging-error-trace/SKILL.md) |
 | `error-debugging-multi-agent-review` | error-debugging-multi-agent-review | shared | MIT | [SKILL.md](../collections/shared/error-debugging-multi-agent-review/SKILL.md) |
@@ -415,6 +421,7 @@ Install IDs keep same-named skills from different collections in separate direct
 | `hermes--xlsx` | xlsx | hermes | MIT | [SKILL.md](../collections/hermes/productivity/xlsx/SKILL.md) |
 | `hermes--xurl` | xurl | hermes | MIT | [SKILL.md](../collections/hermes/social-media/xurl/SKILL.md) |
 | `hermes--youtube-content` | youtube-content | hermes | MIT | [SKILL.md](../collections/hermes/media/youtube-content/SKILL.md) |
+| `homelab-operations` | homelab-operations | shared | MIT | [SKILL.md](../collections/shared/homelab-operations/SKILL.md) |
 | `human-copywrite` | human-copywrite | shared | MIT | [SKILL.md](../collections/shared/human-copywrite/SKILL.md) |
 | `idea-refine` | idea-refine | shared | MIT | [SKILL.md](../collections/shared/idea-refine/SKILL.md) |
 | `implementing-api-patterns` | implementing-api-patterns | shared | MIT | [SKILL.md](../collections/shared/implementing-api-patterns/SKILL.md) |
@@ -467,12 +474,22 @@ Install IDs keep same-named skills from different collections in separate direct
 | `observability-cloud-planning` | observability-cloud-planning | shared | MIT | [SKILL.md](../collections/shared/observability-cloud-planning/SKILL.md) |
 | `observability-engineer` | observability-engineer | shared | MIT | [SKILL.md](../collections/shared/observability-engineer/SKILL.md) |
 | `operating-kubernetes` | operating-kubernetes | shared | MIT | [SKILL.md](../collections/shared/operating-kubernetes/SKILL.md) |
+| `parametric-cad-validation` | parametric-cad-validation | shared | MIT | [SKILL.md](../collections/shared/parametric-cad-validation/SKILL.md) |
 | `performance-engineer` | performance-engineer | shared | MIT | [SKILL.md](../collections/shared/performance-engineer/SKILL.md) |
 | `performance-engineering` | performance-engineering | shared | MIT | [SKILL.md](../collections/shared/performance-engineering/SKILL.md) |
 | `performance-management` | performance-management | shared | MIT | [SKILL.md](../collections/shared/performance-management/SKILL.md) |
 | `performance-optimization` | performance-optimization | shared | MIT | [SKILL.md](../collections/shared/performance-optimization/SKILL.md) |
 | `performance-optimizer` | performance-optimizer | shared | MIT | [SKILL.md](../collections/shared/performance-optimizer/SKILL.md) |
 | `performance-profiling` | performance-profiling | shared | MIT | [SKILL.md](../collections/shared/performance-profiling/SKILL.md) |
+| `pixijs-application` | pixijs-application | shared | MIT | [SKILL.md](../collections/shared/pixijs-application/SKILL.md) |
+| `pixijs-assets` | pixijs-assets | shared | MIT | [SKILL.md](../collections/shared/pixijs-assets/SKILL.md) |
+| `pixijs-core-concepts` | pixijs-core-concepts | shared | MIT | [SKILL.md](../collections/shared/pixijs-core-concepts/SKILL.md) |
+| `pixijs-events` | pixijs-events | shared | MIT | [SKILL.md](../collections/shared/pixijs-events/SKILL.md) |
+| `pixijs-performance` | pixijs-performance | shared | MIT | [SKILL.md](../collections/shared/pixijs-performance/SKILL.md) |
+| `pixijs-scene-container` | pixijs-scene-container | shared | MIT | [SKILL.md](../collections/shared/pixijs-scene-container/SKILL.md) |
+| `pixijs-scene-graphics` | pixijs-scene-graphics | shared | MIT | [SKILL.md](../collections/shared/pixijs-scene-graphics/SKILL.md) |
+| `pixijs-scene-text` | pixijs-scene-text | shared | MIT | [SKILL.md](../collections/shared/pixijs-scene-text/SKILL.md) |
+| `pixijs-ticker` | pixijs-ticker | shared | MIT | [SKILL.md](../collections/shared/pixijs-ticker/SKILL.md) |
 | `planning-and-task-breakdown` | planning-and-task-breakdown | shared | MIT | [SKILL.md](../collections/shared/planning-and-task-breakdown/SKILL.md) |
 | `platform-engineering` | platform-engineering | shared | MIT | [SKILL.md](../collections/shared/platform-engineering/SKILL.md) |
 | `providing-feedback` | providing-feedback | shared | MIT | [SKILL.md](../collections/shared/providing-feedback/SKILL.md) |
@@ -493,10 +510,13 @@ Install IDs keep same-named skills from different collections in separate direct
 | `python-type-system` | python-type-system | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/python-type-system/SKILL.md) |
 | `refactor` | refactor | shared | MIT | [SKILL.md](../collections/shared/refactor/SKILL.md) |
 | `refactoring-guru` | refactoring-guru | shared | MIT | [SKILL.md](../collections/shared/refactoring-guru/SKILL.md) |
+| `rust-linux-apps` | rust-linux-apps | shared | MIT | [SKILL.md](../collections/shared/rust-linux-apps/SKILL.md) |
+| `rust-systems-contracts` | rust-systems-contracts | shared | MIT | [SKILL.md](../collections/shared/rust-systems-contracts/SKILL.md) |
 | `safe-refactor` | safe-refactor | shared | Apache-2.0 | [SKILL.md](../collections/shared/safe-refactor/SKILL.md) |
 | `saga-orchestration` | saga-orchestration | shared | MIT | [SKILL.md](../collections/shared/saga-orchestration/SKILL.md) |
 | `scala-collections` | Scala Collections | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/scala-collections/SKILL.md) |
 | `scala-functional-patterns` | Scala Functional Patterns | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/scala-functional-patterns/SKILL.md) |
+| `scala-library-contracts` | scala-library-contracts | shared | MIT | [SKILL.md](../collections/shared/scala-library-contracts/SKILL.md) |
 | `scala-pro` | scala-pro | shared | MIT | [SKILL.md](../collections/shared/scala-pro/SKILL.md) |
 | `scala-type-system` | Scala Type System | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/scala-type-system/SKILL.md) |
 | `scala-zio-skills--zio-reference` | zio-reference | scala-zio-skills | MIT | [SKILL.md](../collections/scala-zio-skills/skills/zio-reference/SKILL.md) |
@@ -517,11 +537,13 @@ Install IDs keep same-named skills from different collections in separate direct
 | `skill-writer` | skill-writer | shared | MIT | [SKILL.md](../collections/shared/skill-writer/SKILL.md) |
 | `source-driven-development` | source-driven-development | shared | MIT | [SKILL.md](../collections/shared/source-driven-development/SKILL.md) |
 | `spec-driven-development` | spec-driven-development | shared | MIT | [SKILL.md](../collections/shared/spec-driven-development/SKILL.md) |
+| `streaming-integrations` | streaming-integrations | shared | MIT | [SKILL.md](../collections/shared/streaming-integrations/SKILL.md) |
 | `telegram-bot-builder` | telegram-bot-builder | shared | MIT | [SKILL.md](../collections/shared/telegram-bot-builder/SKILL.md) |
 | `telegram-mini-app` | telegram-mini-app | shared | MIT | [SKILL.md](../collections/shared/telegram-mini-app/SKILL.md) |
 | `test-driven-development` | test-driven-development | shared | MIT | [SKILL.md](../collections/shared/test-driven-development/SKILL.md) |
 | `testing-strategies` | testing-strategies | shared | MIT | [SKILL.md](../collections/shared/testing-strategies/SKILL.md) |
 | `theming-components` | theming-components | shared | MIT | [SKILL.md](../collections/shared/theming-components/SKILL.md) |
+| `typescript-project-contracts` | typescript-project-contracts | shared | MIT | [SKILL.md](../collections/shared/typescript-project-contracts/SKILL.md) |
 | `ultracave` | ultracave | shared | Apache-2.0 | [SKILL.md](../collections/shared/ultracave/SKILL.md) |
 | `using-agent-skills` | using-agent-skills | shared | MIT | [SKILL.md](../collections/shared/using-agent-skills/SKILL.md) |
 | `using-document-databases` | using-document-databases | shared | MIT | [SKILL.md](../collections/shared/using-document-databases/SKILL.md) |
@@ -534,7 +556,11 @@ Install IDs keep same-named skills from different collections in separate direct
 | `wiki-builder` | wiki-builder | shared | MIT | [SKILL.md](../collections/shared/wiki-builder/SKILL.md) |
 | `wiki-changelog` | wiki-changelog | shared | MIT | [SKILL.md](../collections/shared/wiki-changelog/SKILL.md) |
 | `wiki-page-writer` | wiki-page-writer | shared | MIT | [SKILL.md](../collections/shared/wiki-page-writer/SKILL.md) |
+| `workstation-installers` | workstation-installers | shared | MIT | [SKILL.md](../collections/shared/workstation-installers/SKILL.md) |
+| `worxbend-private-repository-context` | worxbend-private-repository-context | shared | LicenseRef-Private-Local | [Provider](providers.md) |
+| `worxbend-repository-context` | worxbend-repository-context | shared | MIT | [SKILL.md](../collections/shared/worxbend-repository-context/SKILL.md) |
 | `writing-dockerfiles` | writing-dockerfiles | shared | MIT | [SKILL.md](../collections/shared/writing-dockerfiles/SKILL.md) |
+| `zig-build-and-memory` | zig-build-and-memory | shared | MIT | [SKILL.md](../collections/shared/zig-build-and-memory/SKILL.md) |
 | `zio-skills--docs-add-missing-section` | docs-add-missing-section | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-add-missing-section/SKILL.md) |
 | `zio-skills--docs-ascii-diagram` | docs-ascii-diagram | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-ascii-diagram/SKILL.md) |
 | `zio-skills--docs-backfill-metadata` | docs-backfill-metadata | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-backfill-metadata/SKILL.md) |

@@ -459,9 +459,9 @@ Use `infrastructure-as-code` skill to implement with Terraform/Pulumi
 
 **Utility Scripts:**
 - `scripts/cidr-calculator.py` - Calculate CIDR blocks and plan IP addressing
-- `scripts/cost-estimator.sh` - Estimate network infrastructure costs
-- `scripts/validate-sg-rules.py` - Validate security group rule configurations
-- `scripts/flow-log-analyzer.py` - Analyze VPC flow logs for security and cost
+- `scripts/cost-estimator.sh` (illustrative helper; not shipped) - Estimate network infrastructure costs
+- `scripts/validate-sg-rules.py` (illustrative helper; not shipped) - Validate security group rule configurations
+- `scripts/flow-log-analyzer.py` (illustrative helper; not shipped) - Analyze VPC flow logs for security and cost
 
 ## Integration with Other Skills
 
@@ -488,3 +488,7 @@ Use `infrastructure-as-code` skill to implement with Terraform/Pulumi
 - Design multi-region failover networking
 - Implement cross-region backup connectivity
 - Plan network recovery procedures
+
+## Helper availability
+
+The helper names marked **not shipped** describe possible project automation. Do not run those commands as installed tooling. Use the bundled helpers that exist, or implement and verify the missing behavior in the task workspace when it is actually needed.

@@ -1,0 +1,17 @@
+# Pinned editor and rendering integrations
+
+## Archived coc.nvim extension
+
+The pinned [coc-crystal-experimental manifest](https://github.com/w0rxbend/coc-crystal-experimental/blob/b154aa3feedb70ee29c50af1abc45cca323a9e9f/package.json) belongs to an archived extension. It declares TypeScript 4.3.4, webpack 5.40, coc.nvim 0.0.80, a coc engine range, and `lib/index.js` as its delivered entrypoint. [webpack configuration](https://github.com/w0rxbend/coc-crystal-experimental/blob/b154aa3feedb70ee29c50af1abc45cca323a9e9f/webpack.config.js) targets Node/CommonJS and leaves `coc.nvim` external. Preserve that host-provided dependency and packaging shape during a bounded maintenance fix. Modern browser bundler defaults, Node-only TypeScript execution or new coc APIs may not match the supported host.
+
+Trace configuration across the contributed schema and [activation source](https://github.com/w0rxbend/coc-crystal-experimental/blob/b154aa3feedb70ee29c50af1abc45cca323a9e9f/src/index.ts). The manifest publishes `crystal.enabled`, while the observed source reads `config.enable`; this is a concrete compatibility question to resolve when fixing enable/disable behavior, not permission to rewrite all options. The server setting, file selector/watcher, start readiness/error path and disposal subscription are additional integration contracts. Verify executable configuration before starting a process; do not turn an arbitrary configured command into a shell string.
+
+The existing `build` runs webpack; `prepare` runs clean/build through npx. A build can verify bundle shape, but it cannot prove activation, settings or Scry communication inside coc.nvim. An editor integration check requires a suitable installed host/server and the requested maintenance scope. Preserve archive status and existing release/distribution behavior unless the task asks to revive it. No test script was observed.
+
+## Pixi browser sources
+
+The archived [obs-effects manifest](https://github.com/w0rxbend/obs-effects/blob/ad8d6fd8767c7bd90a9746b076c80797cf53c46d/package.json) has Pixi 8.19, TypeScript 6, Vite 8 and a Spine Pixi-v8 adapter. Its build already combines lint, metadata validation, TypeScript and Vite. Preserve that train rather than borrow the dashboard's Solid/TS5/Vite6 configuration. Use the lockfile's resolved versions and package-compatible documentation for rendering APIs and adapters.
+
+Pixi 8 initializes `Application` asynchronously; attach scenes/assets only after initialization. Teardown must respect ownership of ticker subscriptions, media, event listeners and shared textures. A successful TypeScript build or effects-metadata test does not prove transparent rendering, visibility suspension, browser-source navigation or audio behavior in OBS. The [Pixi v8 migration guide](https://pixijs.com/8.x/guides/migrations/v8) explains the API-generation boundary; use installed Pixi specialist skills for detailed rendering work, and streaming integration guidance when the failing boundary is OBS/Twitch/event transport.
+
+For a change spanning a backend event and scene renderer, inspect both wire decoding and the consuming scene. Preserve unknown-event behavior and avoid casting malformed messages into domain types. Scope browser tests to the changed lifecycle or rendering contract; state whether actual OBS integration ran. Do not introduce a framework/toolchain migration as a side effect of an archived integration repair.

@@ -1,5 +1,7 @@
 # Refactoring Workflow — Plan, Stage, Land
 
+This reference describes an optional multi-PR strategy for a large refactor with explicit human checkpoints. A focused local refactor can follow the same safety-net/order invariants without creating integration branches, publishing PRs, or requesting new approval after each step. Use the requested repository workflow and existing authorization.
+
 - A refactor of any real size is a choreography problem before it is a coding problem.
 - This file covers: how to plan the sequence, order the steps so they don't collide, stage them as small human-reviewed PRs, and persist the plan itself — in the code, not just in a conversation that will eventually run out of context — for the intermediate states that are deliberately imperfect and for the ideas that would otherwise be lost.
 
@@ -46,7 +48,7 @@ Once the blast radius is mapped, turn it into a **refactoring inventory** — on
   - they also touch the same file, so Ordering (b) below puts them in sequence regardless — never split a move-then-optimize pair across parallel worktrees
 - The inventory is not busywork — it is the object every later ordering decision is computed from, and it is what you show the human for sign-off.
 
-**This step ends with explicit user sign-off before any code is touched.** This is a hard gate, not a suggestion: present the inventory and the staged PR plan derived from it (see below), and wait for approval. A refactor that starts moving code before the human has seen the shape of the whole plan cannot be course-corrected cheaply — by the time a wrong assumption surfaces, several PRs may already be staged on top of it.
+For a large staged refactor, make the inventory reviewable before dependent edits. Reuse a plan or execution direction already authorized by the user. Ask when the proposed direction introduces an unresolved product/API decision or expands the requested scope; ordinary reversible work inside the chosen plan can continue.
 
 ## 2. Three Interacting Orderings
 
@@ -87,7 +89,7 @@ If any answer is yes, the two rows are sequential. Only when every answer is no 
 The shape:
 
 1. Create a long-lived `refactor/<topic>` branch off `main`, and seed it with `// REFACTOR(step N): ...` markers for the plan itself — see Step 5.
-2. For each atomic change in the inventory, in the order established in Step 2, **dispatch it to a sub-agent** rather than executing it directly in the orchestrating session. The sub-agent, scoped to a fresh worktree, does the work:
+2. For each atomic change in the inventory, in the order established in Step 2, execute inline or, if authorized and available, dispatch it to an agent with isolated edit ownership. The sub-agent, scoped to a fresh worktree, does the work:
    - Enter a fresh, isolated worktree.
    - Create a branch for that one change, based on the current tip of `refactor/<topic>`.
    - Apply the single change — and nothing else. If the inventory row is turning out larger than **~100–500 lines**, that's a signal it's actually two rows: split it before it grows into a diff nobody can review in one sitting.
@@ -158,7 +160,7 @@ grep -rn "REFACTOR(" .
 
 ## 7. Human Checkpoints
 
-The same triggers as `SKILL.md`'s "Pause for human sign-off before" list apply here — cross-package moves, exported-API changes, deletions, new major versions, untested code — and they're not one-time: get sign-off on each one again if it comes up mid-refactor, even after the planning gate has already been cleared once. For untested code specifically, that means sign-off on the characterization-test baseline (see [safety-net.md](safety-net.md)) before refactoring it, not after.
+Preserve human checkpoints explicitly requested for this staged strategy. Cross-package moves, public API changes, deletion, and toolchain changes need review proportional to their impact; reuse authorization for items already included in the plan. Ask again only when newly discovered evidence materially changes scope or compatibility. For untested code, establish and inspect the [characterization-test baseline](safety-net.md) before relying on it.
 
 Structural-only PRs are reversible and low-risk by construction (Beck's separation is the whole reason they're safe to move fast on) and can be fast-reviewed. Behavioral PRs — anything that changes what the code does, not just how it's shaped — get full scrutiny every time, regardless of how small the diff looks.
 

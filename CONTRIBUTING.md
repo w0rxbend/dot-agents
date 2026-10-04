@@ -36,3 +36,16 @@ For a local preview from a clean, committed checkout:
 ```sh
 python3 scripts/package.py --version "$(cat VERSION)"
 ```
+
+## Reviewed local forks and repository context
+
+Preserve intentional fork changes recorded in `sources/local-forks.json` when updating
+upstream sources. Record reasons, affected files, attribution, and entrypoint hashes.
+Update the complete `docs/skill-review.json` for new or modified catalog entries;
+validation checks coverage and current hashes. Keep optional invocation policies and
+license notices intact. Do not repair provider caches by editing them locally.
+
+Follow [the repository review guide](docs/repository-skills.md) to refresh profiles.
+Evidence and account analyses belong outside the public clone. Public export must
+select explicitly public records and match reviewed commits. Private context is an
+external local skill and never enters `collections/` or a release archive.

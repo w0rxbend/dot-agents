@@ -1,6 +1,6 @@
 ---
 name: golang-lint
-description: "Linting best practices and golangci-lint configuration for Golang projects — running linters, configuring .golangci.yml, suppressing warnings with nolint directives, interpreting lint output, and selecting linters. Use when configuring golangci-lint, asking about lint warnings or nolint suppressions, setting up code quality tooling, or choosing linters. Also use when the user mentions golangci-lint, go vet, staticcheck, or revive. Not for wiring a lint step into a GitHub Actions pipeline (→ See `samber/cc-skills-golang@golang-continuous-integration` skill)."
+description: "Configure or interpret golangci-lint, formatters, exclusions, and CI checks for Go. Match the project's v1/v2 version. Run fixes with exclusive file ownership; parallel reviewers do not justify overlapping autofix edits."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -26,25 +26,25 @@ paths:
 
 **Persona:** You are a Go code quality engineer. You treat linting as a first-class part of the development workflow — not a post-hoc cleanup step.
 
-**Orchestration mode:** Fan out the five sub-agents described in the "Parallelizing Legacy Codebase Cleanup" section (auto-fix, security linters, error handling, style/formatting, code quality) when adopting linting on a legacy codebase, so independent linter categories are fixed concurrently. On Claude Code, use `ultracode` to opt into multi-agent orchestration explicitly.
+**Orchestration mode:** For a broad cleanup, authorized reviewers may inspect independent concerns in parallel. Assign edits by disjoint files or isolated worktrees; linter categories often overlap the same lines, so category separation alone is not safe edit ownership.
 
 **Modes:**
 
 - **Setup mode** — configuring `.golangci.yml`, choosing linters, enabling CI: follow the configuration and workflow sections sequentially.
-- **Coding mode** — writing new Go code: launch a background agent running `golangci-lint run --fix` on the modified files only while the main agent continues implementing the feature; surface results when it completes.
-- **Interpret/fix mode** — reading lint output, suppressing warnings, fixing issues on existing code: start from "Interpreting Output" and "Suppressing Lint Warnings"; use parallel sub-agents for large-scale legacy cleanup.
+- **Coding mode** — use read-only lint checks while edits continue. Run `--fix` only after the file owner has finished editing, then inspect the diff and rerun affected checks.
+- **Interpret/fix mode** — reading lint output, suppressing warnings, fixing issues on existing code: start from "Interpreting Output" and "Suppressing Lint Warnings". Authorized parallel reviewers can help a large cleanup; use exclusive file ownership for fixes.
 
 **Dependencies:**
 
-- golangci-lint: `go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest`
+- Inspect the project's pinned golangci-lint version first. Prefer its binary release or established CI installation. The [official installation guide](https://golangci-lint.run/docs/welcome/install/local/) explains why building with `go install` is not the recommended default. v2 source builds use `github.com/golangci/golangci-lint/v2/cmd/golangci-lint`.
 
 # Go Linting
 
 ## Overview
 
-`golangci-lint` is the standard Go linting tool. It aggregates 100+ linters into a single binary, runs them in parallel, and provides a unified configuration format. Run it frequently during development and always in CI.
+`golangci-lint` aggregates linters into a single binary with unified configuration. Run it according to the repository's local and CI workflow.
 
-Every Go project MUST have a `.golangci.yml` — it is the **source of truth** for which linters are enabled and how they are configured. See the [recommended configuration](./assets/.golangci.yml) for a production-ready setup with 48 linters enabled.
+Use the project's existing configuration as the source of truth for enabled linters. A small Go project can use the tool's defaults; add or expand configuration when the requested setup or concrete checks require it. The [example configuration](./assets/.golangci.yml) is a starting point to adapt, not a mandatory linter policy for every repository.
 
 ## Quick Reference
 
@@ -144,13 +144,7 @@ The linter name in parentheses tells you which linter flagged it. Use this to:
 
 ## Parallelizing Legacy Codebase Cleanup
 
-When adopting linting on a legacy codebase, use up to 5 parallel sub-agents to fix independent linter categories simultaneously:
-
-- Sub-agent 1: Run `golangci-lint run --fix ./...` for auto-fixable issues
-- Sub-agent 2: Fix security linter findings (bodyclose, sqlclosecheck, gosec)
-- Sub-agent 3: Fix error handling issues (errcheck, nilerr, wrapcheck)
-- Sub-agent 4: Fix style and formatting (gofumpt, goimports, revive)
-- Sub-agent 5: Fix code quality (gocritic, unused, ineffassign)
+When delegation is authorized and available, reviewers can independently classify security, errors, formatting, and code-quality findings. Run automatic formatting/fixes once, with exclusive ownership of affected files. Assign remaining fixes by disjoint package/file sets or isolated worktrees, then integrate and verify. If fixes overlap files or symbols, perform them sequentially.
 
 ## Cross-References
 

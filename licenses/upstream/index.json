@@ -138,5 +138,18 @@
     "sha": "51eb40a55fa1c2a4c99f2980830d28bbea4a2ac7",
     "html_url": "https://github.com/VirtusLab/scala-skill",
     "reason": "No repository LICENSE or redistribution grant found; install directly from source."
+  },
+  "pixijs/pixijs-skills": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "7bd20dd44922561abb41143b986141b5154386a1",
+    "html_url": "https://github.com/pixijs/pixijs-skills/blob/83760c6f53462ca9cecd68055041f5a8c94758ce/LICENSE",
+    "file": "licenses/upstream/pixijs--pixijs-skills.txt",
+    "upstream_ref": "83760c6f53462ca9cecd68055041f5a8c94758ce"
+  },
+  "local/private-repository-context": {
+    "spdx": "LicenseRef-Private-Local",
+    "distribution": "external",
+    "reason": "Locally authored private-repository context; excluded from public exports."
   }
 }

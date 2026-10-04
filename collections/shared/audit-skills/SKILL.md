@@ -15,7 +15,6 @@ tools: [claude, gemini, gpt, llama, mistral, etc]
 ## Overview
 
 Expert security auditor for AI Skills and Bundles. Performs non-intrusive static analysis to identify malicious patterns, data leaks, system stability risks, and obfuscated payloads across Windows, macOS, Linux/Unix, and Mobile (Android/iOS).
-2-4 sentences is perfect.
 
 ## When to Use This Skill
 

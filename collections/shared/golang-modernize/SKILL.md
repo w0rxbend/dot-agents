@@ -1,6 +1,6 @@
 ---
 name: golang-modernize
-description: "Modernize Golang code to use recent language features, standard library improvements, and idiomatic patterns. Use when reviewing Go code with old-style patterns, when encountering a deprecation warning, or when the user asks for modernization, a Go version upgrade (e.g. to Go 1.27), or a CI/tooling refresh. Not for structural refactors, extracting functions, or moving code between packages (→ See `samber/cc-skills-golang@golang-refactoring` skill)."
+description: "Adopt newer Go language or library features when compatible with the module's declared Go version and consumers. Use for an intentional modernization; preserve behavior and avoid unrelated toolchain upgrades."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.

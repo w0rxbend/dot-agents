@@ -533,9 +533,9 @@ S3 Upload
 
 ### Utility Scripts
 
-- **Cost Estimation:** `scripts/cost-estimate.sh` - Estimate infrastructure costs
-- **Resource Audit:** `scripts/resource-audit.sh` - Audit AWS resources
-- **Security Check:** `scripts/security-check.sh` - Basic security validation
+- **Cost Estimation:** `scripts/cost-estimate.sh` (illustrative helper; not shipped) - Estimate infrastructure costs
+- **Resource Audit:** `scripts/resource-audit.sh` (illustrative helper; not shipped) - Audit AWS resources
+- **Security Check:** `scripts/security-check.sh` (illustrative helper; not shipped) - Basic security validation
 
 ## AWS Service Updates (2025)
 
@@ -589,3 +589,7 @@ S3 Upload
 4. Migrate to modern services (EC2 → Fargate, RDS → Aurora)
 5. Improve security posture (enable GuardDuty, implement least privilege)
 6. Automate with IaC (reverse-engineer to Terraform or CDK)
+
+## Helper availability
+
+The helper names marked **not shipped** describe possible project automation. Do not run those commands as installed tooling. Use the bundled helpers that exist, or implement and verify the missing behavior in the task workspace when it is actually needed.

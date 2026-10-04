@@ -1,0 +1,19 @@
+# Ownership, errors and conditional memory work
+
+## Follow ownership through the API
+
+Use borrowed inputs when the callee only needs to inspect a value and owned inputs when it must retain or transfer it. Returning an owned result can be correct when output must outlive an input; replacing it with a borrowed view changes lifetime and storage requirements. Read the consumer before changing `String`/`&str`, `Vec<T>`/`&[T]`, reference or iterator signatures. Treat clone frequency as a measured cost, not a reason to change observable ownership or insert shared synchronization.
+
+For collection work, distinguish capacity reservation from length and initialized elements. Vector growth can move storage; references/raw pointers into its allocation cannot be retained across operations that invalidate them. Setting length does not initialize memory. Prefer safe collection operations; if a justified unsafe fast path exists, document initialization, valid pointer range, alignment, aliasing and drop ownership. [Vec guarantees](https://doc.rust-lang.org/std/vec/struct.Vec.html).
+
+Preserve error information across boundaries. Libraries should expose the caller-relevant failure categories; CLI entrypoints can add operational context and choose display/exit behavior. `?` propagates compatible errors; mapping every failure to an empty collection, zero or success changes the contract. A documented educational precondition can justify a panic, while untrusted file/network/user input usually needs a recoverable path. Keep error decisions consistent with the source exercise guidance in [workspace-and-learning.md](workspace-and-learning.md).
+
+## Allocators only when the task reaches that boundary
+
+No custom allocator was found in the inspected rust-playground manifests/source. Do not install one as an optimization default. If actual code implements or selects an allocator, inspect its target, toolchain, failure behavior and ownership API before modifying it.
+
+For a `GlobalAlloc` implementation, preserve allocation alignment/layout and matching deallocation; nonzero allocation sizes and overflow bounds matter. On successful reallocation the old pointer is invalid even if the address is unchanged; on failure its allocation remains owned by the caller. Allocator hooks must not unwind. Avoid allocating logging or synchronization paths that can recursively invoke the allocator. Do not assume that an unused source-level allocation produces a hook invocation: optimization can eliminate it, so exact counts are not a safety proof. Follow the specific API's allocation/deallocation pair instead of mixing global functions with underlying allocator methods. [GlobalAlloc safety and re-entrance](https://doc.rust-lang.org/std/alloc/trait.GlobalAlloc.html).
+
+Rust 2024 warns about unsafe operations inside unsafe functions without explicit unsafe blocks. The function's caller precondition and each implementation operation's proof are separate obligations; use localized blocks with a meaningful safety explanation instead of suppressing the lint during migration. [Rust 2024 unsafe-operation change](https://doc.rust-lang.org/edition-guide/rust-2024/unsafe-op-in-unsafe-fn.html).
+
+Choose tools for the invariant: tests for input/output/drop behavior; [Miri](https://github.com/rust-lang/miri#using-miri) when available and supported for relevant unsafe execution; [sanitizer](https://doc.rust-lang.org/unstable-book/compiler-flags/sanitizer.html)/native integration where the code depends on FFI or platform allocation; release-mode measurements for a performance claim. These tools have different coverage and cannot certify all thread interleavings or external native code. Keep unsupported targets and unrun checks explicit. Desktop/terminal lifecycle and Linux packaging are separate concerns covered by an available `rust-linux-apps` skill when the repository is actually such an application.

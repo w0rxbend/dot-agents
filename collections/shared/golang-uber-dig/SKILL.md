@@ -1,6 +1,6 @@
 ---
 name: golang-uber-dig
-description: "Implements dependency injection in Golang using uber-go/dig — reflection-based container, Provide/Invoke, dig.In/dig.Out parameter and result objects, named values, value groups, optional dependencies, scopes, and Decorate. Apply when using or adopting uber-go/dig, when the codebase imports `go.uber.org/dig`, or when wiring an application graph at startup. For higher-level lifecycle and modules, see `samber/cc-skills-golang@golang-uber-fx` skill."
+description: "Maintain Go dependency graphs with Uber Dig: providers, invocation, input/output structs, names/groups, decorators, and graph errors. Use when the project already chooses Dig or requests that composition model."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.

@@ -189,10 +189,10 @@ def main():
                 dest_root = destination / 'shared' / child.name if vendored else None
                 item = add(child / 'SKILL.md', 'shared', f'~/.agents/skills/{child.name}', source, license_id,
                            dest_root, child)
+                if meta.get('upstream_ref'):
+                    item['upstream_ref'] = meta['upstream_ref']
                 if not vendored:
                     item['local_globs'] = list(dict.fromkeys(meta.get('local_globs', []) + item['local_globs']))
-                    if meta.get('upstream_ref'):
-                        item['upstream_ref'] = meta['upstream_ref']
                 for doc in sorted(child.rglob('SKILL.md')):
                     if doc == child / 'SKILL.md' or any(x in doc.relative_to(child).parts for x in IGNORED):
                         continue

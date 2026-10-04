@@ -298,3 +298,7 @@ go get github.com/aws/aws-sdk-go-v2/service/dynamodb
 - `references/skill-integrations.md` - Frontend skill integration
 
 **Examples:** `examples/mongodb-fastapi/`, `examples/mongodb-nextjs/`, `examples/dynamodb-serverless/`, `examples/firestore-react/`
+
+## Helper availability
+
+The helper names marked **not shipped** describe possible project automation. Do not run those commands as installed tooling. Use the bundled helpers that exist, or implement and verify the missing behavior in the task workspace when it is actually needed.

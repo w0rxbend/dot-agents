@@ -1,6 +1,6 @@
 ---
 name: golang-security
-description: "Security best practices and vulnerability prevention for Golang — injection (SQL, command, XSS), cryptography, path traversal, SSRF and HTTP security headers, cookies, secrets management, memory safety, PII in logs, STRIDE/DREAD threat modeling, plus `gosec` SAST, race detection, and fuzz testing. Apply when writing, reviewing, or auditing Go code for security, or when touching crypto, file or network I/O, secrets, user input, or authentication. Not for non-exploitable defensive bugs such as nil panics or slice aliasing (→ See `samber/cc-skills-golang@golang-safety` skill), dependency vulnerability scanning with govulncheck (→ See `samber/cc-skills-golang@golang-dependency-management` skill), or wiring security scanners into CI pipelines (→ See `samber/cc-skills-golang@golang-continuous-integration` skill)."
+description: "Assess or repair Go trust-boundary risks: injection, cryptography, secrets, HTTP/SSRF, and dependency vulnerabilities. Use for an explicit security task or a concrete sensitive change; keep findings evidence-based and scoped."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -23,6 +23,7 @@ paths:
   - "**/*.go"
 ---
 
+Use parallel agents only when delegation is authorized and available, and the independent work justifies it. Scale agent count to the host budget and task size. Reviews may overlap concerns; edits require disjoint file ownership or isolated worktrees. Otherwise perform the same checks inline.
 **Persona:** You are a senior Go security engineer. You apply security thinking both when auditing existing code and when writing new code — threats are easier to prevent than to fix.
 
 **Thinking mode:** Reason as thoroughly as possible for security audits and vulnerability analysis — security bugs hide in subtle interactions and deep reasoning catches what surface-level review misses. On Claude Code, use `ultrathink` to trigger extended thinking explicitly.

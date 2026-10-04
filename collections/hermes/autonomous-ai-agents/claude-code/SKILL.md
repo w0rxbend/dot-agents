@@ -80,14 +80,14 @@ terminal(command="tmux send-keys -t claude-work '/exit' Enter")
 
 ## PTY Dialog Handling (CRITICAL for Interactive Mode)
 
-Claude Code presents up to two confirmation dialogs on first launch. You MUST handle these via tmux send-keys:
+Prefer the supported non-interactive print mode for a bounded coding task when existing authentication and task authorization are sufficient. If interactive mode is needed, inspect each dialog before answering it; first-launch prompts are decisions about the actual workspace and action, not generic startup keystrokes.
 
 ### Dialog 1: Workspace Trust (first visit to a directory)
 ```
 ❯ 1. Yes, I trust this folder    ← DEFAULT (just press Enter)
   2. No, exit
 ```
-**Handling:** `tmux send-keys -t <session> Enter` — default selection is correct.
+**Handling:** Capture the pane and verify the named workspace is the repository/worktree selected for the authorized task. Established authorization can support that workspace choice; do not grant trust to an unexpected directory, submodule, or downloaded tree merely because Yes is the default. Resolve a genuine scope mismatch before continuing.
 
 ### Dialog 2: Individual Permission Prompts (normal flow)
 
@@ -107,8 +107,10 @@ A narrower opt-in than the full bypass is `--permission-mode acceptEdits`: file 
 # Default launch — keep permission prompts enabled
 terminal(command="tmux send-keys -t claude-work 'claude \"your task\"' Enter")
 
-# Handle trust dialog (Enter for default "Yes")
-terminal(command="sleep 4 && tmux send-keys -t claude-work Enter")
+# Inspect startup state; do not send timed Enter keystrokes
+terminal(command="tmux capture-pane -t claude-work -p -S -60")
+# If a trust dialog names the expected authorized workspace, answer that dialog.
+# Verify the pane again before submitting the task.
 
 # Now wait for Claude to work
 terminal(command="sleep 15 && tmux capture-pane -t claude-work -p -S -60")
@@ -118,12 +120,12 @@ terminal(command="sleep 15 && tmux capture-pane -t claude-work -p -S -60")
 
 ### Opt-in: --dangerously-skip-permissions (isolated environments only)
 
-This disables permission prompts for the whole run — grants filesystem, shell, and network access with no prompts. Acceptable only in a throwaway worktree or isolated container.
+This disables permission prompts for the whole run. Use it only when the selected workflow authorizes that execution mode and the host policy permits it. A throwaway worktree isolates Git changes; it does not restrict filesystem, shell, credentials, or network access. Use an environment with the actual task boundaries rather than treating a worktree as a sandbox.
 ```
 ❯ 1. No, exit                    ← DEFAULT (safe choice)
   2. Yes, I accept
 ```
-To accept: `tmux send-keys -t <session> Down && sleep 0.3 && tmux send-keys -t <session> Enter`
+Read the displayed choice and verify it matches the already-selected execution mode before answering. Do not enable the bypass just to clear a dialog or continue a stalled run.
 
 ## CLI Subcommands
 
@@ -720,8 +722,8 @@ Use `/context` in interactive mode to see a colored grid of context usage. Key t
 5. **Use `--allowedTools`** to restrict to only what's needed (e.g., `Read` only for reviews).
 6. **Use `/compact`** in interactive sessions when context gets large.
 7. **Pipe input** instead of having Claude read files when you just need analysis of known content.
-8. **Use `--model haiku`** for simple tasks (cheaper) and `--model opus` for complex multi-step work.
-9. **Use `--fallback-model haiku`** in print mode to gracefully handle model overload.
+8. Preserve the user's selected model or the CLI's configured default. Set `--model` only for an explicitly chosen available model; task complexity alone does not require overriding it.
+9. Use `--fallback-model` only when a fallback is part of the chosen workflow and its alias is supported by the installed CLI.
 10. **Start new sessions for distinct tasks** — sessions last 5 hours; fresh context is more efficient.
 11. **Use `--no-session-persistence`** in CI to avoid accumulating saved sessions on disk.
 

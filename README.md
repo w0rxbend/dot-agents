@@ -6,6 +6,7 @@
 My global agent skills, with a portable installer, source inventory, and versioned releases.
 Supporting scripts, references, and assets are preserved alongside each skill.
 Browse the [full catalog](docs/catalog.md), the [Mill/VSS skills and setup guide](docs/mill-skills.md),
+the [repository adaptation and review guide](docs/repository-skills.md),
 or the [code quality and design patterns guide](docs/skill-discovery.md).
 
 ## Clone and install
@@ -125,13 +126,13 @@ and rename the backup to its original name.
 ## Install a release
 
 Download `dot-agents-VERSION.tar.gz` and `SHA256SUMS` from [Releases](https://github.com/w0rxbend/dot-agents/releases).
-For version 1.0.1, with GitHub CLI installed:
+For version 1.2.0, with GitHub CLI installed:
 
 ```sh
-gh release download v1.0.1 --repo w0rxbend/dot-agents --pattern 'dot-agents-*.tar.gz' --pattern SHA256SUMS
+gh release download v1.2.0 --repo w0rxbend/dot-agents --pattern 'dot-agents-*.tar.gz' --pattern SHA256SUMS
 sha256sum -c SHA256SUMS                 # macOS: shasum -a 256 -c SHA256SUMS
-tar -xzf dot-agents-1.0.1.tar.gz
-cd dot-agents-1.0.1
+tar -xzf dot-agents-1.2.0.tar.gz
+cd dot-agents-1.2.0
 ./install.sh --agents all
 ```
 

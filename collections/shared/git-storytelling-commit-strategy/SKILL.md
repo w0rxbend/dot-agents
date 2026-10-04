@@ -501,7 +501,7 @@ git reset --hard HEAD@{5}     # Go back to that state
 
 ## Tips for Success
 
-1. **Commit before context switching** - Always commit before changing tasks
+1. **Checkpoint before context switching** - Review the diff and preserve work. Commit when it belongs to the requested Git workflow; do not include unrelated changes merely to create a checkpoint.
 2. **Review before committing** - Use `git diff` to review changes
 3. **Write commit messages for future you** - Explain the "why" not just the "what"
 4. **Keep the story coherent** - Each commit should make sense on its own

@@ -63,7 +63,7 @@ Creating a feature? Set up this structure:
 | `~components` | `src/components` | `import { SuspenseLoader } from '~components/SuspenseLoader'` |
 | `~features` | `src/features` | `import { authApi } from '~features/auth'` |
 
-Defined in: [vite.config.ts](../../vite.config.ts) lines 180-185
+These aliases illustrate one Vite setup. Inspect this repository's `vite.config.*` and `tsconfig*.json` before using them; Next.js and other frameworks may use different mappings.
 
 ---
 

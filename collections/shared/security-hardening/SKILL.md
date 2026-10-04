@@ -413,8 +413,8 @@ For layer-specific hardening guidance:
 
 For automation scripts:
 - **Python automation:** See `scripts/harden-linux.py`
-- **Container host setup:** See `scripts/harden-container-host.sh`
-- **Compliance reporting:** See `scripts/generate-compliance-report.py`
+- **Container host setup:** See `scripts/harden-container-host.sh` (illustrative helper; not shipped)
+- **Compliance reporting:** See `scripts/generate-compliance-report.py` (illustrative helper; not shipped)
 - **Infrastructure scanning:** See `scripts/scan-infrastructure.sh`
 
 For working examples:
@@ -463,3 +463,7 @@ For working examples:
 7. **Iterate:** Review and improve hardening regularly
 
 For step-by-step implementation, start with `references/linux-hardening.md` or `references/container-hardening.md` based on infrastructure type.
+
+## Helper availability
+
+The helper names marked **not shipped** describe possible project automation. Do not run those commands as installed tooling. Use the bundled helpers that exist, or implement and verify the missing behavior in the task workspace when it is actually needed.

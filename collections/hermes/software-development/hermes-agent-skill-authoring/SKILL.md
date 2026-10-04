@@ -173,7 +173,7 @@ A skill exists to make the agent's process more predictable — the agent reliab
    ```
    Also verify every `related_skills` entry exists in-repo.
 5. **Add tests + regen docs** (previous section).
-6. **Git add + commit** on the active branch; open a PR.
+6. Review the intended diff. Commit or open a PR when requested or included in the authorized contribution workflow; follow the repository's branch and release policy.
 7. **Note:** the CURRENT session's skill loader is cached — `skill_view` / `skills_list` will not see the new skill until a new session. This is expected, not a bug.
 
 ## Editing Existing In-Repo Skills
@@ -181,7 +181,7 @@ A skill exists to make the agent's process more predictable — the agent reliab
 - **Small fix:** `skill_manage(action='patch', ...)` works on in-repo skills, as does `patch`.
 - **Major rewrite:** `write_file` the whole SKILL.md.
 - **Supporting files:** `write_file` to `references/`, `templates/`, or `scripts/` under the skill dir.
-- **Always commit** — in-repo skills are source, not runtime state. Re-run the docs generator when frontmatter changed.
+- Treat in-repo skills as source. Re-run the docs generator when frontmatter changed; commit within the authorized repository workflow.
 
 ## Common Pitfalls
 

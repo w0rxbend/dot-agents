@@ -447,3 +447,7 @@ Token-free execution:
 **deploying-applications** - Deployment automation and GitOps
 **auth-security** - Secrets management and authentication
 **observability** - Pipeline monitoring and alerting
+
+## Helper availability
+
+The helper names marked **not shipped** describe possible project automation. Do not run those commands as installed tooling. Use the bundled helpers that exist, or implement and verify the missing behavior in the task workspace when it is actually needed.

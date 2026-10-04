@@ -488,9 +488,9 @@ Continuously monitor and enforce security configurations across cloud environmen
 - `examples/architectures/zero-trust-network.md` - Zero trust network design
 
 **Scripts:**
-- `scripts/threat-model-template.py` - Generate STRIDE threat model templates
-- `scripts/control-gap-analysis.sh` - Compare current controls against frameworks
-- `scripts/sbom-generate.sh` - Generate SBOM in CycloneDX format
+- `scripts/threat-model-template.py` (illustrative helper; not shipped) - Generate STRIDE threat model templates
+- `scripts/control-gap-analysis.sh` (illustrative helper; not shipped) - Compare current controls against frameworks
+- `scripts/sbom-generate.sh` (illustrative helper; not shipped) - Generate SBOM in CycloneDX format
 - `scripts/security-checklist.sh` - Automated security architecture checklist
 
 ## Summary
@@ -498,3 +498,7 @@ Continuously monitor and enforce security configurations across cloud environmen
 Security architecture requires strategic planning across multiple layers, from physical security to security operations. Implement defense-in-depth for comprehensive protection, adopt zero trust principles for modern cloud environments, use threat modeling to identify risks proactively, and map controls to frameworks for compliance and completeness.
 
 Start with risk assessment to understand threats, select appropriate architecture approach (zero trust for greenfield, hybrid for brownfield), implement layered controls, and continuously monitor and improve security posture.
+
+## Helper availability
+
+The helper names marked **not shipped** describe possible project automation. Do not run those commands as installed tooling. Use the bundled helpers that exist, or implement and verify the missing behavior in the task workspace when it is actually needed.

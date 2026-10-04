@@ -3,6 +3,50 @@
     "source": "VirtusLab/scala-skill",
     "upstream_ref": "51eb40a55fa1c2a4c99f2980830d28bbea4a2ac7",
     "local_overlay": "overlays/direct-style-scala/preferences.md",
-    "local_globs": ["~/.local/share/dot-agents/providers/skills/direct-style-scala"]
+    "local_globs": [
+      "~/.local/share/dot-agents/providers/skills/direct-style-scala"
+    ]
+  },
+  "pixijs-application": {
+    "source": "pixijs/pixijs-skills",
+    "upstream_ref": "83760c6f53462ca9cecd68055041f5a8c94758ce"
+  },
+  "pixijs-assets": {
+    "source": "pixijs/pixijs-skills",
+    "upstream_ref": "83760c6f53462ca9cecd68055041f5a8c94758ce"
+  },
+  "pixijs-events": {
+    "source": "pixijs/pixijs-skills",
+    "upstream_ref": "83760c6f53462ca9cecd68055041f5a8c94758ce"
+  },
+  "pixijs-performance": {
+    "source": "pixijs/pixijs-skills",
+    "upstream_ref": "83760c6f53462ca9cecd68055041f5a8c94758ce"
+  },
+  "pixijs-scene-container": {
+    "source": "pixijs/pixijs-skills",
+    "upstream_ref": "83760c6f53462ca9cecd68055041f5a8c94758ce"
+  },
+  "pixijs-scene-graphics": {
+    "source": "pixijs/pixijs-skills",
+    "upstream_ref": "83760c6f53462ca9cecd68055041f5a8c94758ce"
+  },
+  "pixijs-scene-text": {
+    "source": "pixijs/pixijs-skills",
+    "upstream_ref": "83760c6f53462ca9cecd68055041f5a8c94758ce"
+  },
+  "pixijs-ticker": {
+    "source": "pixijs/pixijs-skills",
+    "upstream_ref": "83760c6f53462ca9cecd68055041f5a8c94758ce"
+  },
+  "pixijs-core-concepts": {
+    "source": "pixijs/pixijs-skills",
+    "upstream_ref": "83760c6f53462ca9cecd68055041f5a8c94758ce"
+  },
+  "worxbend-private-repository-context": {
+    "source": "local/private-repository-context",
+    "local_globs": [
+      "~/.local/share/dot-agents/private-skills/worxbend-private-repository-context"
+    ]
   }
 }

@@ -1,7 +1,7 @@
 ---
 name: effect-schema
 user-invocable: false
-description: Use when @effect/schema patterns including schema definition, validation, parsing, encoding, and transformations. Use for type-safe data validation in Effect applications.
+description: Use when effect/Schema patterns including schema definition, validation, parsing, encoding, and transformations. Use for type-safe data validation in Effect applications.
 allowed-tools:
   - Bash
   - Read
@@ -11,7 +11,9 @@ allowed-tools:
 
 # Effect Schema
 
-Master type-safe data validation and transformation with @effect/schema. This
+Inspect the project's Effect major version before choosing API signatures. The examples below target the maintained v3 `Schema` module (`import { Schema } from "effect"`); preserve legacy standalone `@effect/schema` only in an existing older project. For v4, follow its migration guide rather than assuming v3 signatures are identical. See [v3 Schema introduction](https://effect.website/docs/v3/schema/introduction) and [v4 migration](https://github.com/Effect-TS/effect/blob/main/MIGRATION.md).
+
+Master type-safe data validation and transformation with effect/Schema. This
 skill covers schema definition, parsing, encoding, and advanced schema patterns
 for building robust data pipelines.
 
@@ -20,14 +22,14 @@ for building robust data pipelines.
 ### Primitive Schemas
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 // Primitive types
 const StringSchema = Schema.String
 const NumberSchema = Schema.Number
 const BooleanSchema = Schema.Boolean
-const BigIntSchema = Schema.BigInt
-const SymbolSchema = Schema.Symbol
+const BigIntSchema = Schema.BigIntFromSelf
+const SymbolSchema = Schema.SymbolFromSelf
 
 // Special types
 const UndefinedSchema = Schema.Undefined
@@ -40,7 +42,7 @@ const AnySchema = Schema.Any
 ### Literal Values
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 // String literal
 const HelloSchema = Schema.Literal("hello")
@@ -60,7 +62,7 @@ const StatusSchema = Schema.Literal("pending", "approved", "rejected")
 ### Basic Struct
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 // Define user schema
 const UserSchema = Schema.Struct({
@@ -78,7 +80,7 @@ type User = Schema.Schema.Type<typeof UserSchema>
 ### Optional Fields
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 const PersonSchema = Schema.Struct({
   name: Schema.String,
@@ -94,7 +96,7 @@ type Person = Schema.Schema.Type<typeof PersonSchema>
 ### Nested Schemas
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 const AddressSchema = Schema.Struct({
   street: Schema.String,
@@ -114,7 +116,7 @@ const UserWithAddressSchema = Schema.Struct({
 ### Array Schemas
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 // Array of strings
 const StringArraySchema = Schema.Array(Schema.String)
@@ -132,7 +134,7 @@ const NonEmptyStringArray = Schema.NonEmptyArray(Schema.String)
 ### Tuple Schemas
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 // Fixed tuple
 const CoordinatesSchema = Schema.Tuple(
@@ -151,7 +153,7 @@ const ResponseSchema = Schema.Tuple(
 ### Record Schemas
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 // String keys, number values
 const ScoresSchema = Schema.Record({
@@ -171,7 +173,7 @@ const ConfigSchema = Schema.Record({
 ### Union Types
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 // Simple union
 const StringOrNumberSchema = Schema.Union(
@@ -199,7 +201,7 @@ type Shape = Schema.Schema.Type<typeof ShapeSchema>
 ### Intersection Types
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 const TimestampsSchema = Schema.Struct({
   createdAt: Schema.Date,
@@ -223,7 +225,7 @@ const ManualIntersection = Schema.Struct({
 ### Synchronous Parsing
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 const UserSchema = Schema.Struct({
   name: Schema.String,
@@ -247,7 +249,7 @@ parseUser({ name: "Bob" }) // Throws: missing 'age' field
 ### Effect-Based Parsing
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 import { Effect } from "effect"
 
 const parseUserEffect = Schema.decodeUnknown(UserSchema)
@@ -271,7 +273,7 @@ const safeProgram = program.pipe(
 ### Encoding
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 // Encode typed data back to raw format
 const encodeUser = Schema.encodeSync(UserSchema)
@@ -286,12 +288,12 @@ const encoded = encodeUser(user)
 ### Transform Schemas
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 // String to Date transformation
 const DateFromString = Schema.transform(
   Schema.String,
-  Schema.Date,
+  Schema.ValidDateFromSelf,
   {
     decode: (s) => new Date(s),
     encode: (d) => d.toISOString()
@@ -305,15 +307,15 @@ const date = parseDate("2024-01-01T00:00:00Z")
 
 // Encode Date back to string
 const encodeDate = Schema.encodeSync(DateFromString)
-const isoString = encodeDate(new Date())
+const isoString = encodeDate(date)
 // "2024-01-01T00:00:00.000Z"
 ```
 
 ### Validated Transformations
 
 ```typescript
-import { Schema } from "@effect/schema"
-import { ParseResult } from "@effect/schema/ParseResult"
+import { Schema } from "effect"
+import { ParseResult } from "effect"
 
 // Email validation and transformation
 const EmailSchema = Schema.transformOrFail(
@@ -323,7 +325,7 @@ const EmailSchema = Schema.transformOrFail(
     decode: (s) => {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) {
         return ParseResult.fail(
-          ParseResult.type(Schema.String.ast, s, "Invalid email format")
+          new ParseResult.Type(Schema.String.ast, s, "Invalid email format")
         )
       }
       return ParseResult.succeed(s.toLowerCase())
@@ -338,7 +340,7 @@ const EmailSchema = Schema.transformOrFail(
 ### String Refinements
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 // Min/max length
 const UsernameSchema = Schema.String.pipe(
@@ -361,7 +363,7 @@ const HttpUrlSchema = Schema.String.pipe(Schema.startsWith("http"))
 ### Number Refinements
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 // Positive numbers
 const PositiveSchema = Schema.Number.pipe(Schema.positive())
@@ -382,7 +384,7 @@ const EvenSchema = Schema.Number.pipe(Schema.multipleOf(2))
 ### Custom Refinements
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 const PasswordSchema = Schema.String.pipe(
   Schema.minLength(8),
@@ -401,7 +403,7 @@ const PasswordSchema = Schema.String.pipe(
 ### API Response Schema
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 const ApiResponseSchema = <A, I, R>(dataSchema: Schema.Schema<A, I, R>) =>
   Schema.Struct({
@@ -419,7 +421,7 @@ type UserResponse = Schema.Schema.Type<typeof UserResponseSchema>
 ### Paginated Response
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 const PaginatedSchema = <A, I, R>(itemSchema: Schema.Schema<A, I, R>) =>
   Schema.Struct({
@@ -435,7 +437,7 @@ const PaginatedUsersSchema = PaginatedSchema(UserSchema)
 ### Form Data Schema
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 
 const SignupFormSchema = Schema.Struct({
   email: Schema.String.pipe(
@@ -459,7 +461,7 @@ const SignupFormSchema = Schema.Struct({
 ### Parsing in Effect Pipelines
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 import { Effect } from "effect"
 
 const processUserData = (rawData: unknown) =>
@@ -478,7 +480,7 @@ const processUserData = (rawData: unknown) =>
 ### Handling Parse Errors
 
 ```typescript
-import { Schema } from "@effect/schema"
+import { Schema } from "effect"
 import { Effect } from "effect"
 
 const safeParseUser = (data: unknown) =>

@@ -1,6 +1,6 @@
 ---
 name: golang-safety
-description: "Defensive Golang coding against accidental bugs — nil panics, typed-nil interfaces, `append` backing-array aliasing, silent int64-to-int32 truncation, float `==` comparison, `defer` inside loops, defensive copies of slices and maps, and usable zero values. Use when a Go program panics on a nil map write or nil pointer dereference, when reviewing code for nil-safety, numeric conversion overflow, or resource lifecycle, or when designing a type whose zero value must be safe. Not for designing concurrent access with goroutines, channels, or sync primitives (→ See `samber/cc-skills-golang@golang-concurrency` skill), not for exploitable vulnerabilities such as injection, weak crypto, or leaked secrets (→ See `samber/cc-skills-golang@golang-security` skill), and not for debugging an already-failing program (→ See `samber/cc-skills-golang@golang-troubleshooting` skill)."
+description: "Prevent accidental Go bugs involving nil/interfaces, slices and maps, numeric conversions, resource ownership, and unchecked errors. Use for correctness-sensitive code or a concrete failure; threat assessment belongs to golang-security."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.

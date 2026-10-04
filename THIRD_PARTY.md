@@ -35,3 +35,14 @@ VirtusLab `direct-style-scala` is cataloged as external because no repository li
 redistribution grant was found at the pinned commit. Its source is downloaded directly by
 the optional installer and is never copied into the public collection. Only the original
 local preference overlay and installation code are distributed here.
+
+## Repository-specific skills and PixiJS
+
+The sixteen repository adaptation skills are original guidance under MIT, derived from
+public build configuration and representative source contracts. Their references
+link to reviewed public commits; private repository code and names are not included.
+
+Nine skills from `pixijs/pixijs-skills` retain MIT notices and the pinned upstream
+commit in the catalog. Three have reviewed local corrections. The existing skill
+forks retain their original licenses, including FSL where applicable; the local fork
+manifest does not change those terms. See [the review guide](docs/repository-skills.md).

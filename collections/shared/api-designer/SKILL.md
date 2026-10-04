@@ -121,9 +121,7 @@ Choose based on context:
 
 ## Domain Reference Cheatsheet
 
-Read `references/domains.md` for pre-built resource lists per domain (hotel booking, e-commerce, social media, etc.) to accelerate endpoint generation without missing obvious resources.
-
-Read `references/testmu_example.md` for generating API structure and providing examples.
+Derive resources from the actual domain model, existing endpoints, and consumer requirements. Cover the lifecycle and ownership of each resource rather than copying a generic domain list. This installation does not include separate domain cheatsheets.
 
 ---
 

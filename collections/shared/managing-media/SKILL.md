@@ -432,7 +432,7 @@ responsive-gallery.tsx        # Responsive image gallery patterns
 - `scripts/optimize_images.py` - Batch image optimization
 - `scripts/generate_mock_images.py` - Test image generation
 - `scripts/validate_media_accessibility.js` - Accessibility validation
-- `scripts/analyze_media_performance.js` - Performance analysis
+- `scripts/analyze_media_performance.js` (illustrative helper; not shipped) - Performance analysis
 
 ### References (Detailed Documentation)
 - `references/upload-patterns.md` - File upload implementations
@@ -472,3 +472,7 @@ This skill works with other component skills:
 6. Apply optimization strategies
 7. Test performance and responsive behavior
 8. Integrate with cloud storage (optional)
+
+## Helper availability
+
+The helper names marked **not shipped** describe possible project automation. Do not run those commands as installed tooling. Use the bundled helpers that exist, or implement and verify the missing behavior in the task workspace when it is actually needed.

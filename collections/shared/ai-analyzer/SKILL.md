@@ -152,7 +152,7 @@ const allergies = exists('data/allergies.json') ? readFile('data/allergies.json'
 
 **文本报告**: 包含总体评估、风险预测、关键趋势、相关性发现、个性化建议
 
-**HTML报告**: 调用 `scripts/generate_ai_report.py` 生成包含ECharts图表的交互式报告
+**HTML报告**: 本安装不包含报告生成器。需要交互式图表时，在任务工作区生成并验证 HTML；不要调用不存在的 `generate_ai_report.py`。
 
 #### 步骤 9: 更新AI历史记录
 

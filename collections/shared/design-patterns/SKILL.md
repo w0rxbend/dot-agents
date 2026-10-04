@@ -1,14 +1,6 @@
 ---
 name: design-patterns
-description: >
-  Expert guide to GoF (Gang of Four) design patterns based on "Dive Into Design Patterns" by Alexander Shvets.
-  Use this skill whenever the user asks about design patterns, OOP principles, SOLID, software architecture,
-  or code structure decisions. Trigger for questions like: "how do I implement X pattern", "which pattern
-  should I use for Y problem", "explain Factory/Observer/Strategy/etc.", "what's the difference between X
-  and Y pattern", "how to apply SOLID", "how to structure this code", "my classes are too coupled",
-  "I need to add behavior at runtime", "how to avoid a telescoping constructor", or any question where
-  the answer involves object-oriented design. Also trigger when reviewing code for design smells like
-  tight coupling, god classes, or switch-case proliferation.
+description: "Choose or explain a Gang of Four pattern for a concrete design problem using the bundled Refactoring.Guru-inspired guidance. Keep the design proportional; existing patterns or plain code may already satisfy the requirement."
 ---
 
 # Design Patterns Skill

@@ -345,8 +345,8 @@ Part of code review is dependency review:
 ```
 ## See Also
 
-- For detailed security review guidance, see `references/security-checklist.md`
-- For performance review checks, see `references/performance-checklist.md`
+- For detailed security review guidance, see the repository's security requirements; inspect changed trust boundaries, authentication, authorization, input handling, and secret exposure
+- For performance review checks, see the repository's performance budgets; verify a suspected bottleneck with measurements
 
 ## Common Rationalizations
 

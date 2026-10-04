@@ -1,6 +1,6 @@
 ---
 name: gof-patterns
-description: Identify Gang of Four (GoF) design patterns in code and judge whether each one is appropriate. Use when the user asks which design patterns a file, directory, module, or codebase uses; whether code "follows" a pattern such as Factory, Singleton, Strategy, Observer, Adapter, Decorator, Visitor, or any of the 23 GoF patterns; whether a pattern is over-engineered, misapplied, or the right fit; or which pattern would fit a piece of code.
+description: "Identify Gang of Four patterns in specified code and assess whether their complexity earns its place. Use for a pattern analysis or design question; do not turn ordinary edits into a whole-codebase pattern audit."
 license: MIT (see LICENSE)
 metadata:
   author: jaeleeps

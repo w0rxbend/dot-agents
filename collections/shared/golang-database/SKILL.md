@@ -1,6 +1,6 @@
 ---
 name: golang-database
-description: "Comprehensive guide for Go database access — parameterized queries, struct scanning, NULLable columns, transactions, isolation levels, SELECT FOR UPDATE, connection pool, batch processing, context propagation, and migration tooling. Use when writing, reviewing, or debugging Golang code that interacts with PostgreSQL, MariaDB, MySQL, or SQLite; for database testing; or for questions about database/sql, sqlx, or pgx. Does NOT generate database schemas or migration SQL."
+description: "Implement or review Go database queries, parameterization, scanning, transactions, context cancellation, pooling, and cleanup. Preserve the project's SQL driver, ORM, and migration conventions."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -23,8 +23,8 @@ paths:
 
 **Modes:**
 
-- **Write mode** — generating new repository functions, query helpers, or transaction wrappers: follow the skill's sequential instructions; launch a background agent to grep for existing query patterns and naming conventions in the codebase before generating new code.
-- **Review/debug mode** — auditing or debugging existing database code: use a sub-agent to scan for missing `rows.Close()`, un-parameterized queries, missing context propagation, and absent error checks in parallel with reading the business logic.
+- **Write mode** — generating repository functions, query helpers, or transactions: inspect existing query and naming conventions before writing code. An authorized read-only scout may help with a large codebase; otherwise search inline.
+- **Review/debug mode** — audit resource cleanup, parameterization, cancellation, and errors alongside the business logic. For a broad authorized audit, divide read-only module ownership among available reviewers; a focused fix is usually clearer inline.
 
 > **Community default.** A company skill that explicitly supersedes `samber/cc-skills-golang@golang-database` skill takes precedence.
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Verify distribution boundaries, inventory checksums, metadata, and symlinks."""
 import re
+import json
+import hashlib
 import sys
 from pathlib import Path
 from common import REPO, frontmatter, load_catalog, tree_hash
@@ -43,6 +45,30 @@ def validate(repo=REPO):
             raise ValueError(f'file exceeds repository size limit: {p}')
     if (repo / 'docs/catalog.md').read_text(encoding='utf-8') != render(repo):
         raise ValueError('catalog documentation is stale')
+    review_path = repo / 'docs/skill-review.json'
+    if not review_path.is_file():
+        raise ValueError('complete skill review is missing')
+    if review_path.exists():
+        review = json.loads(review_path.read_text())
+        reviewed = {row['id']: row for row in review['skills']}
+        if len(reviewed) != len(review['skills']) or set(reviewed) != ids:
+            raise ValueError('skill review does not cover the complete catalog')
+        for item in data['skills']:
+            row = reviewed[item['id']]
+            if not row.get('reviewed') or row['sha256'] != item['sha256']:
+                raise ValueError(f"stale skill review: {item['id']}")
+        forks = json.loads((repo / 'sources/local-forks.json').read_text())
+        for fork in forks['changes']:
+            entry = repo / fork['path'] / 'SKILL.md'
+            if hashlib.sha256(entry.read_bytes()).hexdigest() != fork['after_entry_sha256']:
+                raise ValueError(f"stale local fork record: {fork['id']}")
+        profiles = json.loads((repo / 'collections/shared/worxbend-repository-context/references/profiles.json').read_text())
+        for profile in profiles['repositories']:
+            if any(skill not in ids for skill in profile['skills']):
+                raise ValueError('repository profile references an unavailable skill')
+        private = next(item for item in data['skills'] if item['id'] == 'worxbend-private-repository-context')
+        if private['distribution'] != 'external' or 'path' in private:
+            raise ValueError('private context must remain local-only')
     print(f"OK: {len(ids)} skills, hashes, metadata, licenses, symlinks, and catalog")
 
 
