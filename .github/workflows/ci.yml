@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: '3.10'
+          - os: macos-latest
+            python: '3.14'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Validate catalog and test installer
+        run: make check
+      - name: Install and check the full collection in a temporary home
+        shell: bash
+        run: |
+          skill_test_home=$(mktemp -d)
+          ./install.sh --home "$skill_test_home" --agents all
+          ./install.sh --home "$skill_test_home" --agents all --check
+          ./install.sh --home "$skill_test_home" --agents all
+          ./uninstall.sh --home "$skill_test_home" --agents all
+      - name: Ensure checks did not modify the checkout
+        run: test -z "$(git status --porcelain)"

@@ -1,0 +1,121 @@
+{
+  "sickn33/antigravity-awesome-skills": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "dc38cfd7ab732a67b0f14997cfa8c9ec740a1889",
+    "html_url": "https://github.com/sickn33/agentic-awesome-skills/blob/main/LICENSE",
+    "file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
+  },
+  "thebushidocollective/han": {
+    "spdx": "FSL-1.1-ALv2",
+    "path": "LICENSE",
+    "sha": "5507887840f467118eafa1467efabaa9c319285a",
+    "html_url": "https://github.com/TheBushidoCollective/han/blob/main/LICENSE",
+    "file": "licenses/upstream/thebushidocollective--han.txt"
+  },
+  "ancoleman/ai-design-components": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "98ea59a4bda3e359f9b2156927f5d9b531cb4871",
+    "html_url": "https://github.com/ancoleman/ai-design-components/blob/main/LICENSE",
+    "file": "licenses/upstream/ancoleman--ai-design-components.txt"
+  },
+  "davila7/claude-code-templates": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "b92d7062bc207a15cf2fee3d04280fec730c8440",
+    "html_url": "https://github.com/davila7/claude-code-templates/blob/main/LICENSE",
+    "file": "licenses/upstream/davila7--claude-code-templates.txt"
+  },
+  "addyosmani/agent-skills": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "d67778ada6b9cda6227e9130da182c13e73c8b2e",
+    "html_url": "https://github.com/addyosmani/agent-skills/blob/main/LICENSE",
+    "file": "licenses/upstream/addyosmani--agent-skills.txt"
+  },
+  "JuliusBrussee/caveman": {
+    "spdx": "Apache-2.0",
+    "path": "LICENSE",
+    "sha": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+    "html_url": "https://github.com/JuliusBrussee/caveman/blob/main/LICENSE",
+    "file": "licenses/upstream/JuliusBrussee--caveman.txt"
+  },
+  "pproenca/dot-skills": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "b77bf2ab726c6e7cb5a81a9d3b7dc38266ebfd3d",
+    "html_url": "https://github.com/pproenca/dot-skills/blob/master/LICENSE",
+    "file": "licenses/upstream/pproenca--dot-skills.txt"
+  },
+  "vercel-labs/skills": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "eabe3008f6c0275929faa8b07d406e82717648cc",
+    "html_url": "https://github.com/vercel-labs/skills/blob/main/LICENSE",
+    "file": "licenses/upstream/vercel-labs--skills.txt"
+  },
+  "asyrafhussin/agent-skills": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "5eea79e87e631186860873735d11152123be3e1c",
+    "html_url": "https://github.com/AsyrafHussin/agent-skills/blob/main/LICENSE",
+    "file": "licenses/upstream/asyrafhussin--agent-skills.txt"
+  },
+  "ariaramin/design-patterns-skill": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "a9fd8e45a44b32b39164e3ce9d347a6e53597235",
+    "html_url": "https://github.com/ariaramin/design-patterns-skill/blob/main/LICENSE",
+    "file": "licenses/upstream/ariaramin--design-patterns-skill.txt"
+  },
+  "zio/zio-skills": {
+    "spdx": "Apache-2.0",
+    "path": "LICENSE",
+    "sha": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+    "html_url": "https://github.com/zio/zio-skills/blob/main/LICENSE",
+    "file": "licenses/upstream/zio--zio-skills.txt"
+  },
+  "NousResearch/hermes-agent": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "75410e73319c72cd3e991a501c5455eb78f38375",
+    "html_url": "https://github.com/NousResearch/hermes-agent/blob/main/LICENSE",
+    "file": "licenses/upstream/NousResearch--hermes-agent.txt"
+  },
+  "anthropics/knowledge-work-plugins": {
+    "spdx": "Apache-2.0",
+    "path": "LICENSE",
+    "sha": "f53c679acba79cbb292961fd9fb9e87ca20eab22",
+    "html_url": "https://github.com/anthropics/knowledge-work-plugins/blob/main/LICENSE",
+    "file": "licenses/upstream/anthropics--knowledge-work-plugins.txt"
+  },
+  "linux-root/scala-zio-skills": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "ddfa7d6e14a02d5bb3d242a50b9aa35eab3a72cf",
+    "html_url": "https://github.com/linux-root/scala-zio-skills/blob/main/LICENSE",
+    "file": "licenses/upstream/linux-root--scala-zio-skills.txt"
+  },
+  "jaeleeps/gof-patterns": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "d7f1e1ae4ca642b270c35a1b77b4f9643308d455",
+    "html_url": "https://github.com/jaeleeps/gof-patterns/blob/main/LICENSE",
+    "file": "licenses/upstream/jaeleeps--gof-patterns.txt"
+  },
+  "samber/cc-skills-golang": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "e01f008a1febe41946345c425832c6aa093731d3",
+    "html_url": "https://github.com/samber/cc-skills-golang/blob/main/LICENSE",
+    "file": "licenses/upstream/samber--cc-skills-golang.txt"
+  },
+  "render-oss/skills": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "52d381453350f117984c53da6da08219614f33f9",
+    "html_url": "https://github.com/render-oss/skills/blob/main/LICENSE",
+    "file": "licenses/upstream/render-oss--skills.txt"
+  }
+}

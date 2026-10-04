@@ -1,0 +1,346 @@
+import type { ActivityReport, ComponentUsage, PhaseUsage } from './component-usage.ts';
+import type { TokenUsageTotals } from './token-usage.ts';
+
+/**
+ * The end-of-run report: what the run cost, what it did, and what looks wrong.
+ *
+ * Built from OBSERVED telemetry — the `observe()` event stream, via the trackers — and never from
+ * anything the model says about itself. Its counterpart is self-report.ts, which is the model's own
+ * account. Keeping the two apart is what lets a reader catch a run whose story does not match its
+ * event stream; it is also why this report carries no review verdict (see FlagInput).
+ *
+ * Separate from the trackers on purpose. They observe and tally; this interprets. Interpretation is
+ * where thresholds live, and thresholds are the part worth reviewing and testing — `computeFlags` is
+ * a pure function for exactly that reason.
+ *
+ * It replaces a flat 17-row table in which 15 rows read `cost: 0`, for three unrelated reasons: a
+ * phase's own spending was billed to `agent:default`, ordinary tools like `bash` are genuinely free,
+ * and the plumbing tools always will be. One table cannot serve money, activity counts and plumbing
+ * at once, so this splits them — and the activity section has no cost column at all, because
+ * deleting the column is the fix rather than inventing numbers to fill it.
+ */
+
+/** One thing worth a human's attention, computed rather than eyeballed from the log. */
+export interface RunFlag {
+  /** Stable kebab-case identifier, so flags can be counted across runs. */
+  code: string;
+  /** The phase it concerns, when it concerns one. */
+  phase?: string;
+  detail: string;
+}
+
+export interface RunReport {
+  totals: {
+    cost: number;
+    turns: number;
+    tokens: number;
+    /** cacheRead / tokens — how much of the run was re-sent context. Usually ~0.78. */
+    cacheHitRate: number;
+  };
+  phases: (PhaseUsage & { share: number; calls: number; failedCalls: number; tokensPerOwnTurn: number })[];
+  roles: { role: string; calls: number; cost: number }[];
+  activity: ActivityReport;
+  flags: RunFlag[];
+}
+
+/**
+ * Deliberately carries no review verdict.
+ *
+ * This report is built from observed telemetry; the verdict is self-reported by the model and filed
+ * by `report_run_result` (self-report.ts), landing in the archive's `verdict.json`. Keeping them apart
+ * is what lets a reader compare the two — this report can say a page was never reviewed at all
+ * (`review-not-run`, below) even when the model's own filed verdict claims otherwise.
+ */
+export interface FlagInput {
+  phases: PhaseUsage[];
+  activity: ActivityReport;
+  refusals: readonly { tool: string; parent: string }[];
+  /**
+   * Calls a phase REFUSED, by tool name — not failures.
+   *
+   * Both arrive as `isError`, so `phaseFailures` counts them together, but they mean opposite things: a
+   * refusal is a cap working. Since the confirming round landed, the healthy shape of a run that fixed
+   * something is round 1, round 2, then a third attempt refused — so without this the report flags every
+   * correct module run as having a failed phase, and bills the refusal for the phase's whole cost.
+   */
+  refusedCalls?: Record<string, number>;
+  /** How many times `report_run_result` was called; >1 means a report was rejected and refiled. */
+  reportCalls: number;
+}
+
+/** Tunable: one failed `edit` is a stale match, several is a loop. */
+const TOOL_ERROR_THRESHOLD = 3;
+
+/**
+ * The ceiling for a phase tool, should one ever exist again. Always null today: `review_page` and
+ * `fact_check_page` were the last two, and both are gone — every stage is a `task` delegation, keyed
+ * by role in `activity.delegations`, not by a repeatable `phaseCalls` entry with its own budget. Kept
+ * as a named seam rather than deleted outright, so a future phase tool with a round budget has
+ * somewhere to plug in its cap instead of this function growing a special case inline.
+ */
+function budgetedRepeatLimit(_phase: string): number | null {
+  return null;
+}
+
+/**
+ * Phases exempt from the repeat check because they legitimately run per documented type.
+ *
+ * Empty: no phase tool remains, so nothing needs exempting. Kept as a named constant because a
+ * fourth document kind adding a per-type phase tool would.
+ */
+const PER_TYPE_PHASES: readonly string[] = [];
+
+/**
+ * Every drafted page should have exactly one research delegation behind it.
+ *
+ * The signal the old repeat-count check was standing in front of: on `write-module-ref-turn5` four
+ * research calls with one failure produced three real API surfaces against four drafted pages, so a
+ * subpage was written with no research of its own — invisible to a rule that only asked whether a phase
+ * ran more than once.
+ *
+ * Both directions are worth a flag, and they mean opposite things: fewer research results than pages is
+ * a grounding problem, more is a delegation paid for and thrown away.
+ */
+function perTypePairing(activity: ActivityReport): RunFlag[] {
+  // Counted per ROLE, not per phase tool. The phase tools this used to read are gone, and `task` is one
+  // tool name whatever role it reaches, so the delegation counts are the only place the stages are still
+  // distinguishable.
+  //
+  // Weaker than the version it replaces, in a way worth knowing before trusting a clean result:
+  // `task_start` counts attempts, so a researcher that ran and gave up still counts as a delegation.
+  // That is exactly turn5's shape — 4 research calls, 1 failed, 4 pages drafted — and this arithmetic
+  // now reads it as balanced. It still catches the grosser fault, a page drafted with no research
+  // delegation behind it at all, and it reports failed delegations alongside so the reader can see when
+  // the balance is hollow.
+  const researched = activity.delegations['researcher'] ?? 0;
+  // Pages, not drafter delegations. A module run batched both subpages into ONE delegation, and this
+  // flag then announced "3 research delegation(s) but only 2 page(s) drafted — research paid for and
+  // never used" while all 3 pages sat on disk. Counting writes to docs/ keeps the flag measuring the
+  // thing it names; how the drafting was organized is `delegations['drafter']`, reported separately.
+  const drafted = activity.pagesWritten;
+  const failedDelegations = activity.toolErrors['task'] ?? 0;
+
+  if (researched === drafted) {
+    return failedDelegations === 0
+      ? []
+      : [
+          {
+            code: 'delegation-failures',
+            phase: 'task',
+            detail:
+              `${researched} research and ${drafted} draft delegation(s), but ${failedDelegations} ` +
+              `delegation(s) failed — a balanced count can still hide a page written from a research ` +
+              `call that returned nothing`,
+          },
+        ];
+  }
+
+  return [
+    {
+      code: 'research-draft-mismatch',
+      phase: 'drafter',
+      detail:
+        researched < drafted
+          ? `${drafted} page(s) drafted from ${researched} research delegation(s) — a page was ` +
+            `written without its own API surface`
+          : `${researched} research delegation(s) but only ${drafted} page(s) drafted — ` +
+            `research paid for and never used`,
+    },
+  ];
+}
+
+const money = (n: number) => `$${n.toFixed(4)}`;
+
+
+/**
+ * Derive the flags. Pure: same input, same flags, no runtime needed.
+ *
+ * A clean run must produce an empty array. A report that always complains gets ignored, so that is
+ * the first property the tests pin.
+ */
+export function computeFlags(input: FlagInput): RunFlag[] {
+  const { phases, activity, refusals, reportCalls } = input;
+  const flags: RunFlag[] = [];
+  // The synthetic bucket for turns outside any phase — it is not a phase and must not be judged
+  // like one (it has no delegates, so it would always trip own-exceeds-delegate).
+  const real = phases.filter((p) => !p.phase.startsWith('('));
+
+  for (const [phase, calls] of Object.entries(activity.phaseCalls)) {
+    // Review and fact-check may each repeat up to their own budget; the per-type phases have their own
+    // check below; every other phase runs once. See budgetedRepeatLimit and PER_TYPE_PHASES.
+    const budgeted = budgetedRepeatLimit(phase);
+    if (budgeted === null && PER_TYPE_PHASES.includes(phase)) continue;
+    const limit = budgeted ?? 1;
+    // A refused call is not a run. `phaseCalls` counts `tool_start`, so the round the budget REFUSED
+    // is in there — which made this flag fire on every run where the cap worked, reporting "the review
+    // cap did not hold" as the direct result of the cap holding. Observed in turns 1, 2 and 3 of the
+    // tinytally data-type archive, all three of them correct runs.
+    const ran = calls - (activity.phaseFailures[phase] ?? 0);
+    if (ran > limit) {
+      flags.push({
+        code: 'phase-repeat',
+        phase,
+        detail:
+          budgeted !== null
+            ? `ran ${ran}× against a ceiling of ${limit} (the budget plus one confirming round) — ` +
+              `the ${phase} cap did not hold`
+            : `ran ${ran}× — repeated work, or a phase re-entered after failing`,
+      });
+    }
+  }
+
+  // A run documents ONE thing, so its pages land under ONE docs root. Writing to both `guides/` and
+  // `reference/` means the run produced something it was not asked for — measured on
+  // write-tutorial-turn1, where the drafter linked to reference pages that did not exist and the
+  // integrator created stubs so the build would resolve. Kind-agnostic on purpose: it needs no
+  // knowledge of which kind is running, so it cannot drift out of step with one.
+  // Keyed off the LAST `docs/` segment: a write may arrive relative (`docs/guides/x.md`) or absolute
+  // (`/home/…/fixture/docs/guides/x.md`), and both must yield `guides`. A page directly in `docs/` has no
+  // root of its own and is skipped rather than counted as one.
+  const rootOf = (path: string): string | undefined => {
+    const after = path.split(/(?:^|\/)docs\//).pop() ?? '';
+    const head = after.split('/')[0] ?? '';
+    return head && !head.endsWith('.md') ? head : undefined;
+  };
+  const roots = [...new Set(activity.pagePaths.map(rootOf).filter((r): r is string => !!r))].sort();
+  if (roots.length > 1) {
+    flags.push({
+      code: 'pages-outside-one-root',
+      detail:
+        `pages written under ${roots.length} docs roots (${roots.join(', ')}) — one run documents one ` +
+        `thing, so the extra pages were not asked for: ${activity.pagePaths.join(', ')}`,
+    });
+  }
+
+  flags.push(...perTypePairing(activity));
+
+  for (const [phase, failed] of Object.entries(activity.phaseFailures)) {
+    // A refused call is not a failure — see `refusedCalls`. `phase-repeat` above subtracts the same way.
+    const errored = failed - (input.refusedCalls?.[phase] ?? 0);
+    if (errored <= 0) continue;
+    const cost = real.find((p) => p.phase === phase)?.totalCost ?? 0;
+    flags.push({
+      code: 'phase-failed',
+      phase,
+      detail: `${errored} call(s) ended in error; the phase spent ${money(cost)} in total`,
+    });
+  }
+
+  if (refusals.length > 0) {
+    const where = refusals.map((r) => `${r.tool} inside ${r.parent}`).join('; ');
+    flags.push({
+      code: 'guard-refusal',
+      detail: `${refusals.length} phase re-entry attempt(s) blocked: ${where}`,
+    });
+  }
+
+  const giveUps = activity.tools['give_up'] ?? 0;
+  if (giveUps > 0) {
+    flags.push({ code: 'give-up', detail: `${giveUps} delegate(s) abandoned their task` });
+  }
+
+  if (activity.cdViolations > 0) {
+    flags.push({
+      code: 'cd-into-repo',
+      detail:
+        `${activity.cdViolations} bash command(s) cd'd into the repo, against the run directive — ` +
+        `the shell already starts there`,
+    });
+  }
+
+  // A run that never delegated to `reviewer` at all is still worth flagging — an activity count, not
+  // a verdict, so it stands on its own regardless of what report_run_result claims. Read from
+  // `delegations` rather than `phaseCalls`: `reviewer` is a `task`-reached role now, not a phase tool,
+  // so it never appears in `phaseCalls` at all.
+  //
+  // Covers BOTH jobs now that `fact_checker` merged into `reviewer` (one delegate name, two jobs
+  // selected by the task prompt) — there used to be a second flag, `fact-check-not-run`, keyed on
+  // `delegations['fact_checker']`. It's gone, not renamed: `delegations` is keyed purely by the
+  // subagent's NAME (component-usage.ts, from `task_start`'s `agent` field), which cannot tell "asked
+  // to fact-check" from "asked to check style/checklist" once both share one name. A count-based
+  // heuristic (e.g. "≥2 reviewer calls means both jobs ran") is unsound — a normal
+  // review→fix→confirm cycle alone produces 2 reviewer delegations with zero fact-check calls. An
+  // honest gap here beats a fabricated one.
+  if ((activity.delegations['reviewer'] ?? 0) === 0) {
+    flags.push({
+      code: 'review-not-run',
+      detail: 'no reviewer delegation ran for this page (neither review nor fact-check)',
+    });
+  }
+
+  for (const phase of real) {
+    if (phase.delegateCost > 0 && phase.ownCost > phase.delegateCost) {
+      flags.push({
+        code: 'own-exceeds-delegate',
+        phase: phase.phase,
+        detail:
+          `own ${money(phase.ownCost)} > delegate ${money(phase.delegateCost)} — the writer spent ` +
+          `more coordinating than its roles spent working`,
+      });
+    }
+  }
+
+  // No flag watches context growth. A median-based one needs three or more rows with own turns, and
+  // `(orchestration)` is the only one left now that no phase tool holds a relay conversation of its
+  // own, so it could never fire, and a fixed tokens-per-turn threshold would be a number with nothing
+  // behind it. `tokensPerOwnTurn` is in the table for a reader to judge instead.
+
+  if (reportCalls > 1) {
+    flags.push({
+      code: 'report-refiled',
+      detail: `report_run_result called ${reportCalls}× — a report was rejected and refiled`,
+    });
+  }
+
+  for (const [tool, errors] of Object.entries(activity.toolErrors)) {
+    if (errors >= TOOL_ERROR_THRESHOLD) {
+      flags.push({
+        code: 'tool-errors',
+        detail: `${tool} failed ${errors}× — path guessing, or an edit retried against a stale match`,
+      });
+    }
+  }
+
+  return flags;
+}
+
+/** Assemble the whole report from the trackers' snapshots. */
+export function buildRunReport(input: {
+  totals: TokenUsageTotals;
+  components: ComponentUsage[];
+  phases: PhaseUsage[];
+  activity: ActivityReport;
+  refusals: readonly { tool: string; parent: string }[];
+  refusedCalls?: Record<string, number>;
+}): RunReport {
+  const { totals, components, phases, activity, refusals, refusedCalls } = input;
+  const runCost = phases.reduce((sum, p) => sum + p.totalCost, 0);
+
+  return {
+    totals: {
+      cost: totals.cost,
+      turns: totals.turns,
+      tokens: totals.totalTokens,
+      cacheHitRate: totals.totalTokens ? totals.cacheRead / totals.totalTokens : 0,
+    },
+    phases: phases.map((p) => ({
+      ...p,
+      share: runCost ? p.totalCost / runCost : 0,
+      calls: activity.phaseCalls[p.phase] ?? 0,
+      failedCalls: activity.phaseFailures[p.phase] ?? 0,
+      tokensPerOwnTurn: p.ownTurns ? Math.round(p.ownTokens / p.ownTurns) : 0,
+    })),
+    roles: components
+      .filter((c) => c.category === 'subagent')
+      .map((c) => ({ role: c.name, calls: c.calls, cost: c.cost }))
+      .sort((a, b) => b.cost - a.cost),
+    activity,
+    flags: computeFlags({
+      phases,
+      activity,
+      refusals,
+      refusedCalls,
+      reportCalls: activity.tools['report_run_result'] ?? 0,
+    }),
+  };
+}

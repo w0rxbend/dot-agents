@@ -1,0 +1,340 @@
+import { observe, type FlueEvent } from '@flue/runtime';
+import { getRepoPath } from './run-context.ts';
+
+/**
+ * The phase tools, reported under their own category to separate them from generic tools.
+ *
+ * Empty now: `review_page` and `fact_check_page` were the last two `harness: true` phase tools, and
+ * both are gone — every stage of the pipeline is a `task` delegation, and `task` is one tool name
+ * whatever role it reaches. The per-stage view is entirely the 'subagent' category now, which names
+ * the role that actually ran; see perTypePairing in run-telemetry.ts. Kept as a named set, rather than
+ * deleted along with its two entries, so a future phase tool with a reason to hold its delegate's
+ * result in TypeScript (see reviewer.ts's comment on why the last two gave that up) has somewhere to
+ * register.
+ */
+const PHASE_TOOLS = new Set<string>();
+
+export type ComponentCategory = 'phase' | 'subagent' | 'tool' | 'skill' | 'agent';
+
+export interface ComponentUsage {
+  category: ComponentCategory;
+  name: string;
+  calls: number;
+  tokens: number;
+  cost: number;
+}
+
+/**
+ * What one stage of the pipeline cost, end to end.
+ *
+ * A stage is a phase tool when one is open, otherwise the ROLE that ran the turn, otherwise the
+ * writer's own orchestration. `PHASE_TOOLS` is empty now — `review_page`, the last phase tool, is
+ * gone — so every stage keys on its role today: research, design, write, review, fact-check,
+ * integrate all read as `delegateOnly` rows for the role that ran them, and only `(orchestration)`
+ * carries the root writer's own turns. Kept as a three-way rule rather than simplified to two, because
+ * a future phase tool would otherwise have nowhere to attribute its own relay cost.
+ *
+ * `own` and `delegate` no longer split every row, and the asymmetry is the point:
+ *
+ *  - a phase tool's row (none exist today) would have BOTH, because it runs a scratch conversation
+ *    relaying to a role — `review_page` did, back when reviewing cost $1.67 of its own coordination
+ *    against $0.99 for the roles it delegated to, which is exactly the coordination-vs-work comparison
+ *    that made removing the relay worth measuring.
+ *  - a role's row is delegate-only: there is no relay in front of it.
+ *  - `(orchestration)` is own-only: the root agent's turns between delegations.
+ */
+export interface PhaseUsage {
+  /**
+   * Phase tool name, role name, or '(orchestration)' for the writer's own turns.
+   *
+   * Was '(between phases)', which described the old shape — turns outside any phase tool. It now
+   * holds the root agent's whole contribution rather than the gaps between phases, so the label
+   * changed with the meaning. Archived runs from before this carry the old name; a reader comparing
+   * them should know the two are not the same quantity.
+   */
+  phase: string;
+  ownTurns: number;
+  ownTokens: number;
+  ownCost: number;
+  delegateTurns: number;
+  delegateTokens: number;
+  delegateCost: number;
+  /** own + delegate, the figure to compare phases by. */
+  totalTokens: number;
+  totalCost: number;
+}
+
+/**
+ * What the run *did*, as counts — with no cost column, deliberately.
+ *
+ * `bash`, `read`, `edit` and friends are local operations with no model call, so their cost is
+ * genuinely zero. Reporting that zero next to real money was the whole complaint about the old flat
+ * table: it invites the reader to think the number is broken. The informative fact about `bash` is
+ * the 20, not the $0.
+ */
+export interface ActivityReport {
+  /** Call counts per ordinary tool. */
+  tools: Record<string, number>;
+  /** Failures per tool, any category. */
+  toolErrors: Record<string, number>;
+  /** Phase calls that ended isError=true — paid-for work that was thrown away. */
+  phaseFailures: Record<string, number>;
+  /** Skills the model activated, in the order first seen. */
+  skills: string[];
+  /** Phase tool call counts, so a repeated phase is visible. Always empty today — see `PHASE_TOOLS`. */
+  phaseCalls: Record<string, number>;
+  /**
+   * Delegations per role, from `task_start`.
+   *
+   * The pipeline's stages are readable here now that they are `task` calls rather than phase tools:
+   * `task` is one tool name whatever role it reaches, so `tools` cannot tell research from drafting but
+   * this can. Counts ATTEMPTS — a delegation that failed still appears.
+   */
+  delegations: Record<string, number>;
+  /**
+   * Distinct doc pages written, by path.
+   *
+   * Separate from `delegations['drafter']` because they answer different questions and a module run
+   * made them diverge: one drafter delegation wrote BOTH subpages, so the delegation count said 2
+   * where 3 pages existed. Count pages when asking what the run produced, delegations when asking
+   * how it was organized.
+   */
+  pagesWritten: number;
+  /**
+   * The distinct doc pages written, by path.
+   *
+   * Kept alongside the count because the count cannot show WHERE a run wrote. A tutorial run created two
+   * reference stubs to satisfy its own broken links; only the paths reveal that.
+   */
+  pagePaths: string[];
+  cdViolations: number;
+}
+
+export interface ComponentUsageTracker {
+  /** Snapshot of accumulated per-component usage, grouped by category then name. */
+  report(): ComponentUsage[];
+  /** Snapshot of accumulated per-phase usage, most expensive first. */
+  phases(): PhaseUsage[];
+  /** Snapshot of what the run did, as counts. */
+  activity(): ActivityReport;
+  stop(): ComponentUsage[];
+}
+
+function entryFor(components: Map<string, ComponentUsage>, category: ComponentCategory, name: string) {
+  const key = `${category}:${name}`;
+  let entry = components.get(key);
+  if (!entry) {
+    entry = { category, name, calls: 0, tokens: 0, cost: 0 };
+    components.set(key, entry);
+  }
+  return entry;
+}
+
+/**
+ * Subscribe to runtime activity and tally calls + token usage per component
+ * (phase/subagent/tool/skill/agent), for a final per-run breakdown alongside
+ * the aggregate total from `trackTokenUsage`.
+ *
+ * Call counts come from `tool_start` (phase tools, repo/generic tools, skill
+ * loads) and `task_start` (role delegation via `event.agent`). Token usage comes
+ * from `turn` events, attributed by the most specific envelope field available —
+ * so phase tools never double-count the tokens their delegated role already
+ * accounts for.
+ *
+ * Attribution order, most specific first:
+ *  - `taskId` mapped back to the role recorded at `task_start` → that role. Verified
+ *    against a real run: a delegate's turns do carry `taskId`, so role cost is exact.
+ *  - otherwise `harness`, `session`, then `agentName` → the writer itself. Every
+ *    turn in a run carries `harness` (a delegate inherits the parent's), and the
+ *    field holds the harness's own name — "default" — not the owning tool's, so
+ *    harness turns cannot be split per phase from that field. They aggregate under
+ *    the writer, which is why `agent:default` is the largest line in every run.
+ *
+ * The totals reconcile: role tokens plus writer tokens equal the run total, which is
+ * the property that matters — no turn goes uncounted.
+ *
+ * `phases()` splits that same spending by which phase was running, which the component view cannot
+ * show. It keys on a stack of open PHASE tools, and the "phase tools only" part is the whole trick:
+ * an earlier attempt at this pushed *every* tool and reported zero for the phases, because during a
+ * long phase the innermost open tool is nearly always `bash` or `edit`, never the phase itself. The
+ * note left behind blamed turn events not arriving between a phase's start and end; walking a real
+ * run's log disproved that — 84% of the writer's tokens fell inside the review phase's window, and
+ * only 12% outside any phase.
+ */
+export function trackComponentUsage(): ComponentUsageTracker {
+  const components = new Map<string, ComponentUsage>();
+  // A delegated task's turns carry the generated `taskId` correlation field, not
+  // the subagent's own name, in `event.session` — map taskId back to the
+  // subagent name recorded at task_start so turn tokens land on the right entry.
+  const subagentByTaskId = new Map<string, string>();
+
+  const phases = new Map<string, PhaseUsage>();
+  // Parenthesised on purpose: computeFlags and scripts/run-report.mjs both treat a leading '(' as
+  // "synthetic, do not judge as a stage", since this row has no delegate half to compare against.
+  const ORCHESTRATION = '(orchestration)';
+  // Open phase tools, innermost last. Phase tools only — see the note above on why including
+  // ordinary tools makes this report zeros.
+  const openPhases: string[] = [];
+  const phaseEntry = (name: string) => {
+    let entry = phases.get(name);
+    if (!entry) {
+      entry = {
+        phase: name,
+        ownTurns: 0,
+        ownTokens: 0,
+        ownCost: 0,
+        delegateTurns: 0,
+        delegateTokens: 0,
+        delegateCost: 0,
+        totalTokens: 0,
+        totalCost: 0,
+      };
+      phases.set(name, entry);
+    }
+    return entry;
+  };
+
+  // Failures per tool. `read` on a guessed path and `edit` on a stale `old_string` are the common
+  // ones, and a run with several is usually looping rather than progressing.
+  const toolErrors = new Map<string, number>();
+  // Phase calls that ended isError=true — work paid for and thrown away.
+  const phaseFailures = new Map<string, number>();
+  // bash commands that cd into the repo, against SHARED_DIRECTIVE's "do not cd into the repo".
+  // An earlier run did it 76 times.
+  let cdViolations = 0;
+  // Distinct doc pages written, by path — a page rewritten during review fixes counts once.
+  const pagesWritten = new Set<string>();
+
+  const unsubscribe = observe((event: FlueEvent) => {
+    if (event.type === 'tool_start' && PHASE_TOOLS.has(event.toolName)) openPhases.push(event.toolName);
+    // The completion event is `tool`, not `tool_end` — `tool_start` has no symmetric partner.
+    if (event.type === 'tool') {
+      if (event.isError) {
+        toolErrors.set(event.toolName, (toolErrors.get(event.toolName) ?? 0) + 1);
+        if (PHASE_TOOLS.has(event.toolName)) {
+          phaseFailures.set(event.toolName, (phaseFailures.get(event.toolName) ?? 0) + 1);
+        }
+      }
+      if (PHASE_TOOLS.has(event.toolName)) {
+        // Remove the innermost occurrence, not the first: a module run can have the same phase open
+        // twice concurrently (one review_page per page).
+        const at = openPhases.lastIndexOf(event.toolName);
+        if (at !== -1) openPhases.splice(at, 1);
+      }
+    }
+
+    if (event.type === 'tool_start' && event.toolName === 'bash') {
+      // Read defensively: this runs inside every run, and neither a surprising args shape nor an
+      // unset run context may throw and take the run down with it — getRepoPath() throws before the
+      // first render has published the context. Matching the repo path specifically: `cd website`
+      // for a subdirectory build is legitimate, `cd /abs/path/to/checkout` is the wasted one.
+      const command = String((event.args as { command?: unknown } | undefined)?.command ?? '');
+      let repoPath: string | undefined;
+      try {
+        repoPath = getRepoPath();
+      } catch {
+        repoPath = undefined;
+      }
+      if (repoPath && command.includes(`cd ${repoPath}`)) cdViolations += 1;
+    }
+
+    // Pages written, counted from the write itself rather than from a delegation. One drafter
+    // delegation can produce several pages — a module run batched both subpages into one — so a
+    // delegation count answers "how often did we ask" and this answers "how many pages exist".
+    // Read defensively for the same reason as the bash block above.
+    if (event.type === 'tool_start' && event.toolName === 'write') {
+      const path = String((event.args as { path?: unknown } | undefined)?.path ?? '');
+      if (/(^|\/)docs\/.*\.mdx?$/.test(path)) pagesWritten.add(path);
+    }
+
+    if (event.type === 'tool_start') {
+      const category: ComponentCategory = PHASE_TOOLS.has(event.toolName)
+        ? 'phase'
+        : event.toolName === 'activate_skill'
+          ? 'skill'
+          : 'tool';
+      const name = category === 'skill' ? String((event.args as any)?.name ?? 'unknown') : event.toolName;
+      entryFor(components, category, name).calls += 1;
+      return;
+    }
+
+    if (event.type === 'task_start') {
+      if (event.agent) {
+        entryFor(components, 'subagent', event.agent).calls += 1;
+        if (event.taskId) subagentByTaskId.set(event.taskId, event.agent);
+      }
+      return;
+    }
+
+    if (event.type === 'turn') {
+      const u = event.response.usage;
+      if (!u) return;
+      const role = event.taskId ? subagentByTaskId.get(event.taskId) : undefined;
+      const name = role ?? event.harness ?? event.session ?? event.agentName;
+      if (!name) return;
+      const category: ComponentCategory = role ? 'subagent' : 'agent';
+      const entry = entryFor(components, category, name);
+      entry.tokens += u.totalTokens;
+      entry.cost += u.cost.total;
+
+      // Same turn, filed a second way: by the stage it belongs to.
+      //
+      // A phase tool would win when one is open, so its own relay turns and its delegate's turns
+      // would land on the same row and stay comparable — no phase tool is open today, since
+      // `review_page` (the last one) is gone, so every delegated turn is filed under its ROLE instead:
+      // that is every stage now, including review and fact-check, all reached with `task`. Everything
+      // else is the root agent's own work.
+      //
+      // With parallel calls this credits the most recently started phase, so a module run's
+      // concurrent per-type work is approximate; sequential runs are exact.
+      const phase = phaseEntry(openPhases.at(-1) ?? role ?? ORCHESTRATION);
+      if (role) {
+        phase.delegateTurns += 1;
+        phase.delegateTokens += u.totalTokens;
+        phase.delegateCost += u.cost.total;
+      } else {
+        phase.ownTurns += 1;
+        phase.ownTokens += u.totalTokens;
+        phase.ownCost += u.cost.total;
+      }
+      phase.totalTokens = phase.ownTokens + phase.delegateTokens;
+      phase.totalCost = phase.ownCost + phase.delegateCost;
+    }
+  });
+
+  const report = () =>
+    [...components.values()].sort((a, b) => a.category.localeCompare(b.category) || b.calls - a.calls);
+
+  const phaseReport = () => [...phases.values()].sort((a, b) => b.totalCost - a.totalCost);
+
+  const byCategory = (category: ComponentCategory): Record<string, number> =>
+    Object.fromEntries(
+      [...components.values()].filter((c) => c.category === category).map((c) => [c.name, c.calls]),
+    );
+
+  const activityReport = (): ActivityReport => ({
+    tools: byCategory('tool'),
+    toolErrors: Object.fromEntries(toolErrors),
+    phaseFailures: Object.fromEntries(phaseFailures),
+    skills: [...components.values()].filter((c) => c.category === 'skill').map((c) => c.name),
+    phaseCalls: byCategory('phase'),
+    delegations: byCategory('subagent'),
+    pagesWritten: pagesWritten.size,
+    pagePaths: [...pagesWritten],
+    cdViolations,
+  });
+
+  let stopped = false;
+  return {
+    report,
+    phases: phaseReport,
+    activity: activityReport,
+    stop() {
+      if (!stopped) {
+        unsubscribe();
+        stopped = true;
+      }
+      return report();
+    },
+  };
+}
