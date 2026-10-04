@@ -85,7 +85,8 @@ Requires a compatible installed build JDK (CI uses Java 21), network access for 
 launcher/dependencies/managed JDKs, and Python 3.10+. It runs compilation/startup, the mixed
 interop test, actual assembled-jar execution, code-generation cache/change checks, and
 selective execution prepared **before** changing a Kotlin source. It also confirms the
-unrelated Java module is absent from that selection. Source templates remain untouched.
+unrelated Java module is absent from that selection. The checker uses `--no-daemon` with closed stdin for isolated CI processes; the on-disk
+task cache and selective baseline persist between invocations. Source templates remain untouched.
 
 Android, Python/JS/Groovy, Scala Native, Spark, plugin publication, and full HTTP VSS behavior
 are covered by researched references; these fixtures do not claim those external/platform

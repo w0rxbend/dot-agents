@@ -42,13 +42,18 @@ def copy_tree(source, dest):
 
 def make_links_portable(destination, copies, external_roots=()):
     """Keep installed aliases, but retarget them to the copied collection."""
+    # Canonicalize the roots too: macOS /var and /private/var, or a symlinked
+    # home directory, must compare consistently with resolved link targets.
+    destination = destination.resolve()
+    copies = {source.resolve(): copied.resolve() for source, copied in copies.items()}
+    external_roots = {root.resolve() for root in external_roots}
     sources = sorted(copies, key=lambda path: len(path.parts), reverse=True)
     destinations = sorted(copies.items(), key=lambda item: len(item[1].parts), reverse=True)
     for link in destination.rglob('*'):
         if not link.is_symlink():
             continue
         target = link.resolve()
-        if target.is_relative_to(destination.resolve()) and target.exists():
+        if target.is_relative_to(destination) and target.exists():
             if os.path.isabs(os.readlink(link)):
                 link.unlink()
                 link.symlink_to(os.path.relpath(target, link.parent), target_is_directory=target.is_dir())
@@ -78,6 +83,8 @@ def make_links_portable(destination, copies, external_roots=()):
 
 def omit_external_copies(copies, external_roots):
     """A provider skill inside a larger vendored collection still stays external."""
+    copies = {source.resolve(): destination.resolve() for source, destination in copies.items()}
+    external_roots = {root.resolve() for root in external_roots}
     for source, destination in copies.items():
         for external in external_roots:
             if external != source and external.is_relative_to(source):

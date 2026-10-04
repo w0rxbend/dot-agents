@@ -72,21 +72,31 @@ class ImportTests(unittest.TestCase):
 class SourcePolicyTests(unittest.TestCase):
     def test_provider_alias_and_nested_copy_are_omitted(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            source = root / 'source'
-            provider = source / 'provider'
-            provider.mkdir(parents=True)
-            (provider / 'SKILL.md').write_text('provider-only content')
-            (source / 'public.txt').write_text('public')
-            (source / 'alias').symlink_to(provider, target_is_directory=True)
-            dest = root / 'snapshot'
-            copy_tree(source, dest)
-            copies = {source: dest}
-            import_skills.omit_external_copies(copies, {provider})
-            make_links_portable(dest, copies, {provider})
-            self.assertFalse((dest / 'provider').exists())
-            self.assertFalse((dest / 'alias').is_symlink())
-            self.assertEqual('public', (dest / 'public.txt').read_text())
+            self.check_provider_omission(Path(temp))
+
+    def test_provider_omission_through_symlinked_workspace(self):
+        with tempfile.TemporaryDirectory() as temp:
+            actual = Path(temp) / 'actual'
+            actual.mkdir()
+            alias = Path(temp) / 'workspace'
+            alias.symlink_to(actual, target_is_directory=True)
+            self.check_provider_omission(alias)
+
+    def check_provider_omission(self, root):
+        source = root / 'source'
+        provider = source / 'provider'
+        provider.mkdir(parents=True)
+        (provider / 'SKILL.md').write_text('provider-only content')
+        (source / 'public.txt').write_text('public')
+        (source / 'alias').symlink_to(provider, target_is_directory=True)
+        dest = root / 'snapshot'
+        copy_tree(source, dest)
+        copies = {source: dest}
+        import_skills.omit_external_copies(copies, {provider})
+        make_links_portable(dest, copies, {provider})
+        self.assertFalse((dest / 'provider').exists())
+        self.assertFalse((dest / 'alias').is_symlink())
+        self.assertEqual('public', (dest / 'public.txt').read_text())
 
     def test_unknown_upstream_cannot_be_vendored(self):
         with self.assertRaises(ValueError):

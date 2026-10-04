@@ -14,7 +14,8 @@ LAUNCHER = f'https://repo.maven.apache.org/maven2/com/lihaoyi/mill-dist/{VERSION
 
 
 def run(command, cwd, expected=None):
-    result = subprocess.run(command, cwd=cwd, text=True, capture_output=True, timeout=300)
+    result = subprocess.run(command, cwd=cwd, stdin=subprocess.DEVNULL,
+                            text=True, capture_output=True, timeout=300)
     if result.returncode:
         raise RuntimeError(f'{command} failed:\n{result.stdout}\n{result.stderr}')
     if expected is not None and expected not in result.stdout:
@@ -29,6 +30,9 @@ def check(root):
         with urllib.request.urlopen(LAUNCHER, timeout=60) as response:
             launcher.write_bytes(response.read())
         launcher.chmod(0o755)
+        # These isolated CI examples need direct process I/O rather than daemon
+        # launcher I/O forwarding. Mill's disk task cache still spans invocations.
+        mill = [str(launcher), '--no-daemon']
         fixtures = [
             ('declarative', 'mill-project-models/assets/declarative', ['run'], 'declarative Mill'),
             ('script', 'mill-project-models/assets/script', ['Hello.scala', 'Mill'], 'script Mill: Mill'),
@@ -39,41 +43,35 @@ def check(root):
              ['app.run', '+', 'scalaService.test'], 'Hello, Mill from Scala'),
             ('ox-app', 'mill-vss/assets/ox-app', ['app.run'], 'VSS with Mill and Ox'),
         ]
-        completed = []
-        try:
-            for name, relative, args, expected in fixtures:
-                source = root / relative
-                work = workspace / name
-                shutil.copytree(source, work)
-                completed.append(work)
-                print(f'Checking {name} on Mill {VERSION}', flush=True)
-                run([str(launcher), *args], work, expected)
-                if name == 'codegen':
-                    generated, = (work / 'out').rglob('Generated.java')
-                    before = generated.stat().st_mtime_ns
-                    run([str(launcher), 'app.generatedSources'], work)
-                    assert generated.stat().st_mtime_ns == before, 'unchanged generator did not stay cached'
-                    (work / 'app/message.txt').write_text('changed tracked input\n')
-                    run([str(launcher), 'app.run'], work, 'changed tracked input')
-                    assert 'changed tracked input' in generated.read_text()
-                if name == 'mixed-jvm':
-                    run([str(launcher), 'app.assembly'], work)
-                    artifact = work / 'out/app/assembly.dest/out.jar'
-                    assert artifact.is_file(), 'assembly missing'
-                    run(['java', '-jar', str(artifact)], work, 'Hello, Mill from Scala')
-                    selector = '{scalaService.test,unrelated.compile}'
-                    run([str(launcher), 'selective.prepare', selector], work)
-                    kotlin = work / 'kotlinImpl/src/example/KotlinGreeting.kt'
-                    kotlin.write_text(kotlin.read_text() + '\n// changed tracked source\n')
-                    selected = run([str(launcher), 'selective.resolve', selector], work)
-                    lines = [line.strip() for line in selected.splitlines()]
-                    assert any(line.startswith('scalaService.test') for line in lines), selected
-                    assert 'unrelated.compile' not in lines, selected
-                    run([str(launcher), 'selective.run', selector], work)
-                print(f'PASS: {name}', flush=True)
-        finally:
-            for work in completed:
-                subprocess.run([str(launcher), 'shutdown'], cwd=work, capture_output=True, timeout=30)
+        for name, relative, args, expected in fixtures:
+            source = root / relative
+            work = workspace / name
+            shutil.copytree(source, work)
+            print(f'Checking {name} on Mill {VERSION}', flush=True)
+            run([*mill, *args], work, expected)
+            if name == 'codegen':
+                generated, = (work / 'out').rglob('Generated.java')
+                before = generated.stat().st_mtime_ns
+                run([*mill, 'app.generatedSources'], work)
+                assert generated.stat().st_mtime_ns == before, 'unchanged generator did not stay cached'
+                (work / 'app/message.txt').write_text('changed tracked input\n')
+                run([*mill, 'app.run'], work, 'changed tracked input')
+                assert 'changed tracked input' in generated.read_text()
+            if name == 'mixed-jvm':
+                run([*mill, 'app.assembly'], work)
+                artifact = work / 'out/app/assembly.dest/out.jar'
+                assert artifact.is_file(), 'assembly missing'
+                run(['java', '-jar', str(artifact)], work, 'Hello, Mill from Scala')
+                selector = '{scalaService.test,unrelated.compile}'
+                run([*mill, 'selective.prepare', selector], work)
+                kotlin = work / 'kotlinImpl/src/example/KotlinGreeting.kt'
+                kotlin.write_text(kotlin.read_text() + '\n// changed tracked source\n')
+                selected = run([*mill, 'selective.resolve', selector], work)
+                lines = [line.strip() for line in selected.splitlines()]
+                assert any(line.startswith('scalaService.test') for line in lines), selected
+                assert 'unrelated.compile' not in lines, selected
+                run([*mill, 'selective.run', selector], work)
+            print(f'PASS: {name}', flush=True)
     print('OK: six examples, mixed-language tests, executable assembly, tracked generation/cache, selective baseline')
 
 
