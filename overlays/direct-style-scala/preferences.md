@@ -28,4 +28,3 @@ the upstream tooling and new-project setup defaults below and in its chapters.
 
 The upstream new-project chapter's sbt skeleton and website's Scala CLI starter
 are source examples to translate for a new Mill project in this environment.
-

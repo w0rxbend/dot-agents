@@ -3488,7 +3488,7 @@
       "collection": "shared",
       "source": "VirtusLab/scala-skill",
       "license": "LicenseRef-No-Redistribution-Grant",
-      "sha256": "bbe14cd545572be586682766152d52191c7f36272b46b777f7c9ed1690238bcb",
+      "sha256": "29d376aedf52b0c172ac2b7073ab81750af0b213849351d5a5cd80fd0d77d174",
       "local_globs": [
         "~/.local/share/dot-agents/providers/skills/direct-style-scala",
         "~/.agents/skills/direct-style-scala",
