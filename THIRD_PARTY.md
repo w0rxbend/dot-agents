@@ -23,3 +23,15 @@ The Anthropic engineering, design, and productivity plugin skill files were comp
 public `anthropics/knowledge-work-plugins` versions and matched byte for byte at import time.
 Restricted hosted skills and other packages without established redistribution permission are listed
 as `external`, with setup guidance in [docs/providers.md](docs/providers.md).
+
+## Mill and VirtusLab Scala Stack
+
+The 14 Mill skills and preference overlay are original guidance under the repository MIT
+license, researched from [official Mill documentation](https://mill-build.org/mill/index.html).
+The Mill MIT notice is retained at `licenses/upstream/com-lihaoyi--mill.txt` for adapted examples.
+The [research manifest](docs/mill-research.json) records source attribution and retrieval hashes.
+
+VirtusLab `direct-style-scala` is cataloged as external because no repository license or
+redistribution grant was found at the pinned commit. Its source is downloaded directly by
+the optional installer and is never copied into the public collection. Only the original
+local preference overlay and installation code are distributed here.

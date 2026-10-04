@@ -1,0 +1,6 @@
+package build.app
+
+object `package` extends build.JvmConventions {
+  def moduleDeps = Seq(build.scalaService)
+  def mainClass = Some("example.Main")
+}

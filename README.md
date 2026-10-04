@@ -5,7 +5,8 @@
 
 My global agent skills, with a portable installer, source inventory, and versioned releases.
 Supporting scripts, references, and assets are preserved alongside each skill.
-Browse the [full catalog](docs/catalog.md) or the [code quality and design patterns guide](docs/skill-discovery.md).
+Browse the [full catalog](docs/catalog.md), the [Mill/VSS skills and setup guide](docs/mill-skills.md),
+or the [code quality and design patterns guide](docs/skill-discovery.md).
 
 ## Clone and install
 
@@ -21,6 +22,17 @@ cd ~/.dot-agents
 This installs every included skill into `~/.agents/skills` and `~/.claude/skills`, plus the supported
 agents whose configuration directories already exist. Codex reads `~/.agents/skills` natively.
 Restart your agents after installation.
+
+For the official VirtusLab Scala skill with Mill preferred, restore its pinned upstream source
+and link it into the selected agents:
+
+```sh
+python3 scripts/install_vss.py
+./install.sh --agents all --include-local
+./install.sh --agents all --include-local --check
+```
+
+See [Mill/VSS setup](docs/mill-skills.md) for the 14 focused skills, examples, and version policy.
 
 To create skills directories for every supported agent on a fresh machine:
 

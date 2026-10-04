@@ -1,0 +1,12 @@
+package build.scalaService
+import mill.*, scalalib.*
+
+object `package` extends ScalaModule, build.JvmConventions {
+  def scalaVersion = "3.8.2"
+  def scalacOptions = Seq("-release", "21")
+  def moduleDeps = Seq(build.api, build.kotlinImpl)
+  object test extends ScalaTests {
+    def mvnDeps = Seq(mvn"com.lihaoyi::utest:0.9.1")
+    def testFramework = "utest.runner.Framework"
+  }
+}

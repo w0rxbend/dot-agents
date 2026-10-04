@@ -1670,7 +1670,8 @@
       "license": "MIT",
       "sha256": "081192fe180637a49b473f83ffc5260a9497c8ceef6ced4a16c7de527ead4ddb",
       "local_globs": [
-        "~/.agents/skills/code-complete"
+        "~/.agents/skills/code-complete",
+        "~/.hermes/skills/code-complete"
       ],
       "path": "collections/shared/code-complete",
       "distribution": "vendored",
@@ -3482,6 +3483,22 @@
       "license_file": "licenses/upstream/ancoleman--ai-design-components.txt"
     },
     {
+      "id": "direct-style-scala",
+      "name": "direct-style-scala",
+      "collection": "shared",
+      "source": "VirtusLab/scala-skill",
+      "license": "LicenseRef-No-Redistribution-Grant",
+      "sha256": "bbe14cd545572be586682766152d52191c7f36272b46b777f7c9ed1690238bcb",
+      "local_globs": [
+        "~/.local/share/dot-agents/providers/skills/direct-style-scala",
+        "~/.agents/skills/direct-style-scala",
+        "~/.hermes/skills/direct-style-scala"
+      ],
+      "distribution": "external",
+      "reason": "provider-managed or redistribution permission not established",
+      "upstream_ref": "51eb40a55fa1c2a4c99f2980830d28bbea4a2ac7"
+    },
+    {
       "id": "docker-compose-basics",
       "name": "docker-compose-basics",
       "collection": "shared",
@@ -4791,7 +4808,8 @@
       "license": "MIT",
       "sha256": "b89f7ae562d252179123d6012d10ac206aafa41475e10e81b1beb14c41e07c62",
       "local_globs": [
-        "~/.agents/skills/grasp-knowledge"
+        "~/.agents/skills/grasp-knowledge",
+        "~/.hermes/skills/grasp-knowledge"
       ],
       "path": "collections/shared/grasp-knowledge",
       "distribution": "vendored",
@@ -6058,6 +6076,216 @@
       "license_file": "licenses/upstream/JuliusBrussee--caveman.txt"
     },
     {
+      "id": "mill-build-logic",
+      "name": "mill-build-logic",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "54e101b70d421da67b96f116d4f122b043dffc8a2af088d08c3aa17da4bb70c6",
+      "local_globs": [
+        "~/.agents/skills/mill-build-logic",
+        "~/.hermes/skills/mill-build-logic"
+      ],
+      "path": "collections/shared/mill-build-logic",
+      "distribution": "vendored",
+      "license_file": "collections/shared/mill-build-logic/LICENSE"
+    },
+    {
+      "id": "mill-cli-and-ide",
+      "name": "mill-cli-and-ide",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "47d803eb95acab18a4e23a846eb792a36d792f89d114324fc9648729cc5b18dd",
+      "local_globs": [
+        "~/.agents/skills/mill-cli-and-ide",
+        "~/.hermes/skills/mill-cli-and-ide"
+      ],
+      "path": "collections/shared/mill-cli-and-ide",
+      "distribution": "vendored",
+      "license_file": "collections/shared/mill-cli-and-ide/LICENSE"
+    },
+    {
+      "id": "mill-dependencies-and-toolchains",
+      "name": "mill-dependencies-and-toolchains",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "a291499d1793aadd7587eecbf9397e8b2b1078b9650a79119cc313998dafb5a3",
+      "local_globs": [
+        "~/.agents/skills/mill-dependencies-and-toolchains",
+        "~/.hermes/skills/mill-dependencies-and-toolchains"
+      ],
+      "path": "collections/shared/mill-dependencies-and-toolchains",
+      "distribution": "vendored",
+      "license_file": "collections/shared/mill-dependencies-and-toolchains/LICENSE"
+    },
+    {
+      "id": "mill-jvm-modules",
+      "name": "mill-jvm-modules",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "a97f25579bb7ec724ba1957c113dacfa878e96b56007888b8a91ced3efe2732b",
+      "local_globs": [
+        "~/.agents/skills/mill-jvm-modules",
+        "~/.hermes/skills/mill-jvm-modules"
+      ],
+      "path": "collections/shared/mill-jvm-modules",
+      "distribution": "vendored",
+      "license_file": "collections/shared/mill-jvm-modules/LICENSE"
+    },
+    {
+      "id": "mill-linting",
+      "name": "mill-linting",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "4ce34b4ad12df3b4c70e56bbf9cf165dd1b62cfa4c49cbd471b4d0d8796cb7d7",
+      "local_globs": [
+        "~/.agents/skills/mill-linting",
+        "~/.hermes/skills/mill-linting"
+      ],
+      "path": "collections/shared/mill-linting",
+      "distribution": "vendored",
+      "license_file": "collections/shared/mill-linting/LICENSE"
+    },
+    {
+      "id": "mill-monorepo",
+      "name": "mill-monorepo",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "904a8adb3599becad5cfb250160cb5c9b160f3397546f03e3ec79e18b585901a",
+      "local_globs": [
+        "~/.agents/skills/mill-monorepo",
+        "~/.hermes/skills/mill-monorepo"
+      ],
+      "path": "collections/shared/mill-monorepo",
+      "distribution": "vendored",
+      "license_file": "collections/shared/mill-monorepo/LICENSE"
+    },
+    {
+      "id": "mill-packaging-publishing",
+      "name": "mill-packaging-publishing",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "cb129d35e2226a121824042575b3eccdd450d0faf8c09a79e31b1e31f926feee",
+      "local_globs": [
+        "~/.agents/skills/mill-packaging-publishing",
+        "~/.hermes/skills/mill-packaging-publishing"
+      ],
+      "path": "collections/shared/mill-packaging-publishing",
+      "distribution": "vendored",
+      "license_file": "collections/shared/mill-packaging-publishing/LICENSE"
+    },
+    {
+      "id": "mill-performance",
+      "name": "mill-performance",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "78461b65f33f30658ddeec7bb4d7a1920b3900beca3cd35d9d06a8359075ae1e",
+      "local_globs": [
+        "~/.agents/skills/mill-performance",
+        "~/.hermes/skills/mill-performance"
+      ],
+      "path": "collections/shared/mill-performance",
+      "distribution": "vendored",
+      "license_file": "collections/shared/mill-performance/LICENSE"
+    },
+    {
+      "id": "mill-plugins",
+      "name": "mill-plugins",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "a5c4ab76047242398bdb1edf3b75c4b3b5c1b2d73a805a6a6ba9241ecc0496ad",
+      "local_globs": [
+        "~/.agents/skills/mill-plugins",
+        "~/.hermes/skills/mill-plugins"
+      ],
+      "path": "collections/shared/mill-plugins",
+      "distribution": "vendored",
+      "license_file": "collections/shared/mill-plugins/LICENSE"
+    },
+    {
+      "id": "mill-polyglot",
+      "name": "mill-polyglot",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "c9d15e5e874cb8d770980d24901961d0b9ecbf2c57b2b1c189219f3d22ed9443",
+      "local_globs": [
+        "~/.agents/skills/mill-polyglot",
+        "~/.hermes/skills/mill-polyglot"
+      ],
+      "path": "collections/shared/mill-polyglot",
+      "distribution": "vendored",
+      "license_file": "collections/shared/mill-polyglot/LICENSE"
+    },
+    {
+      "id": "mill-project-models",
+      "name": "mill-project-models",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "83052ffc923eed7817b49bb461ec5c9374377818eed76f0d60ab3980425913e3",
+      "local_globs": [
+        "~/.agents/skills/mill-project-models",
+        "~/.hermes/skills/mill-project-models"
+      ],
+      "path": "collections/shared/mill-project-models",
+      "distribution": "vendored",
+      "license_file": "collections/shared/mill-project-models/LICENSE"
+    },
+    {
+      "id": "mill-scala-platforms",
+      "name": "mill-scala-platforms",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "1532c552decb8774b3524dda1c28ac32bb9c71c86690d977e6a3ce20d4fba975",
+      "local_globs": [
+        "~/.agents/skills/mill-scala-platforms",
+        "~/.hermes/skills/mill-scala-platforms"
+      ],
+      "path": "collections/shared/mill-scala-platforms",
+      "distribution": "vendored",
+      "license_file": "collections/shared/mill-scala-platforms/LICENSE"
+    },
+    {
+      "id": "mill-testing",
+      "name": "mill-testing",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "4b2bc78034836944a52678b7a6dc959d2a47e532d38f3a4de1aab777a8b1711f",
+      "local_globs": [
+        "~/.agents/skills/mill-testing",
+        "~/.hermes/skills/mill-testing"
+      ],
+      "path": "collections/shared/mill-testing",
+      "distribution": "vendored",
+      "license_file": "collections/shared/mill-testing/LICENSE"
+    },
+    {
+      "id": "mill-vss",
+      "name": "mill-vss",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "a8ce0e7f9d8b32c52c89b4a0adb2848e2168e72e9f7f39156218abac721bb30a",
+      "local_globs": [
+        "~/.agents/skills/mill-vss",
+        "~/.hermes/skills/mill-vss"
+      ],
+      "path": "collections/shared/mill-vss",
+      "distribution": "vendored",
+      "license_file": "collections/shared/mill-vss/LICENSE"
+    },
+    {
       "id": "mobile-design",
       "name": "mobile-design",
       "collection": "shared",
@@ -6527,7 +6755,8 @@
       "license": "MIT",
       "sha256": "c2cbdda1192ec4323e06b7a683a34e0216a6088bdf7187c442002aa321c3c89c",
       "local_globs": [
-        "~/.agents/skills/refactoring-guru"
+        "~/.agents/skills/refactoring-guru",
+        "~/.hermes/skills/refactoring-guru"
       ],
       "path": "collections/shared/refactoring-guru",
       "distribution": "vendored",

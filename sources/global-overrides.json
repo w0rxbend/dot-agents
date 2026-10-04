@@ -1,0 +1,8 @@
+{
+  "direct-style-scala": {
+    "source": "VirtusLab/scala-skill",
+    "upstream_ref": "51eb40a55fa1c2a4c99f2980830d28bbea4a2ac7",
+    "local_overlay": "overlays/direct-style-scala/preferences.md",
+    "local_globs": ["~/.local/share/dot-agents/providers/skills/direct-style-scala"]
+  }
+}

@@ -1,6 +1,6 @@
 # Skill catalog
 
-545 unique installed skills: 461 included, 84 provider-managed.
+560 unique installed skills: 475 included, 85 provider-managed.
 
 Install IDs keep same-named skills from different collections in separate directories. The upstream `name` in each skill remains unchanged.
 
@@ -260,6 +260,7 @@ Install IDs keep same-named skills from different collections in separate direct
 | `design-patterns` | design-patterns | shared | MIT | [SKILL.md](../collections/shared/design-patterns/SKILL.md) |
 | `designing-apis` | designing-apis | shared | MIT | [SKILL.md](../collections/shared/designing-apis/SKILL.md) |
 | `designing-sdks` | designing-sdks | shared | MIT | [SKILL.md](../collections/shared/designing-sdks/SKILL.md) |
+| `direct-style-scala` | direct-style-scala | shared | LicenseRef-No-Redistribution-Grant | [Provider](providers.md) |
 | `docker-compose-basics` | docker-compose-basics | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/docker-compose-basics/SKILL.md) |
 | `docker-compose-networking` | docker-compose-networking | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/docker-compose-networking/SKILL.md) |
 | `docker-compose-production` | docker-compose-production | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/docker-compose-production/SKILL.md) |
@@ -444,6 +445,20 @@ Install IDs keep same-named skills from different collections in separate direct
 | `managing-incidents` | managing-incidents | shared | MIT | [SKILL.md](../collections/shared/managing-incidents/SKILL.md) |
 | `managing-media` | managing-media | shared | MIT | [SKILL.md](../collections/shared/managing-media/SKILL.md) |
 | `megacave` | megacave | shared | Apache-2.0 | [SKILL.md](../collections/shared/megacave/SKILL.md) |
+| `mill-build-logic` | mill-build-logic | shared | MIT | [SKILL.md](../collections/shared/mill-build-logic/SKILL.md) |
+| `mill-cli-and-ide` | mill-cli-and-ide | shared | MIT | [SKILL.md](../collections/shared/mill-cli-and-ide/SKILL.md) |
+| `mill-dependencies-and-toolchains` | mill-dependencies-and-toolchains | shared | MIT | [SKILL.md](../collections/shared/mill-dependencies-and-toolchains/SKILL.md) |
+| `mill-jvm-modules` | mill-jvm-modules | shared | MIT | [SKILL.md](../collections/shared/mill-jvm-modules/SKILL.md) |
+| `mill-linting` | mill-linting | shared | MIT | [SKILL.md](../collections/shared/mill-linting/SKILL.md) |
+| `mill-monorepo` | mill-monorepo | shared | MIT | [SKILL.md](../collections/shared/mill-monorepo/SKILL.md) |
+| `mill-packaging-publishing` | mill-packaging-publishing | shared | MIT | [SKILL.md](../collections/shared/mill-packaging-publishing/SKILL.md) |
+| `mill-performance` | mill-performance | shared | MIT | [SKILL.md](../collections/shared/mill-performance/SKILL.md) |
+| `mill-plugins` | mill-plugins | shared | MIT | [SKILL.md](../collections/shared/mill-plugins/SKILL.md) |
+| `mill-polyglot` | mill-polyglot | shared | MIT | [SKILL.md](../collections/shared/mill-polyglot/SKILL.md) |
+| `mill-project-models` | mill-project-models | shared | MIT | [SKILL.md](../collections/shared/mill-project-models/SKILL.md) |
+| `mill-scala-platforms` | mill-scala-platforms | shared | MIT | [SKILL.md](../collections/shared/mill-scala-platforms/SKILL.md) |
+| `mill-testing` | mill-testing | shared | MIT | [SKILL.md](../collections/shared/mill-testing/SKILL.md) |
+| `mill-vss` | mill-vss | shared | MIT | [SKILL.md](../collections/shared/mill-vss/SKILL.md) |
 | `mobile-design` | mobile-design | shared | MIT | [SKILL.md](../collections/shared/mobile-design/SKILL.md) |
 | `nim-c-interop` | Nim C Interop | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/nim-c-interop/SKILL.md) |
 | `nim-memory-management` | Nim Memory Management | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/nim-memory-management/SKILL.md) |

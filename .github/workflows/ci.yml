@@ -44,3 +44,33 @@ jobs:
           ./uninstall.sh --home "$skill_test_home" --agents all
       - name: Ensure checks did not modify the checkout
         run: test -z "$(git status --porcelain)"
+
+  mill-examples:
+    name: Mill 1.1.10 examples and VSS installer
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      COURSIER_REPOSITORIES: https://repo.maven.apache.org/maven2
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.14'
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Compile and exercise all six examples
+        run: python3 scripts/check_mill_examples.py
+      - name: Restore VSS directly from its pinned source and install the full collection
+        shell: bash
+        run: |
+          skill_test_home=$(mktemp -d)
+          ./install.sh --home "$skill_test_home" --agents all
+          python3 scripts/install_vss.py --home "$skill_test_home"
+          ./install.sh --home "$skill_test_home" --agents all --include-local
+          ./install.sh --home "$skill_test_home" --agents all --include-local --check
+      - name: Ensure checks did not modify the checkout
+        run: test -z "$(git status --porcelain)"

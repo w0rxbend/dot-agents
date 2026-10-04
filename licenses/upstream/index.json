@@ -131,5 +131,12 @@
     "sha": "93bd56e5ad1581244cd864197df74d0e91ebc295",
     "html_url": "https://github.com/dykyi-roman/awesome-claude-code/blob/master/LICENSE",
     "file": "licenses/upstream/dykyi-roman--awesome-claude-code.txt"
+  },
+  "VirtusLab/scala-skill": {
+    "spdx": "LicenseRef-No-Redistribution-Grant",
+    "distribution": "external",
+    "sha": "51eb40a55fa1c2a4c99f2980830d28bbea4a2ac7",
+    "html_url": "https://github.com/VirtusLab/scala-skill",
+    "reason": "No repository LICENSE or redistribution grant found; install directly from source."
   }
 }

@@ -30,3 +30,12 @@ use the provider's native discovery rather than assuming a local link enables it
 
 Official discovery details: [Codex skills](https://learn.chatgpt.com/docs/build-skills),
 [Claude Code and synced skills](https://code.claude.com/docs/en/skills).
+
+## VirtusLab Scala Stack
+
+The official [direct-style-scala skill](https://github.com/VirtusLab/scala-skill) has no
+verified redistribution grant. Restore it directly with `python3 scripts/install_vss.py`,
+then `./install.sh --include-local` (add `--agents all` to target every agent).
+The source lives outside managed agent directories to avoid replacing it with a self-link.
+The pinned installer adds [the user's Mill preference](../overlays/direct-style-scala/preferences.md);
+see [the full setup and research guide](mill-skills.md).
