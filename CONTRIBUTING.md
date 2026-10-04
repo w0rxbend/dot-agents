@@ -12,6 +12,9 @@ repository's `collections/`, not your installed skill sources.
 The readable catalog is generated with `python3 scripts/catalog.py`. Checksum changes require an
 intentional catalog refresh. Imported legacy names are retained even when they are not lowercase kebab case.
 
+Dependabot manages GitHub Actions updates. Renovate is disabled here to avoid duplicate updates
+and dependency changes to the preserved example projects inside imported skills.
+
 ## Release
 
 1. Update `VERSION` to `MAJOR.MINOR.PATCH`.
