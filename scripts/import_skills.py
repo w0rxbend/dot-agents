@@ -15,9 +15,12 @@ def slug(value):
 
 def copy_tree(source, dest):
     def ignore(directory, names):
-        return [n for n in names if n in IGNORED or n in {
+        skipped = [n for n in names if n in IGNORED or n in {
             '.gitignore', '.bundled_manifest', '.curator_state', '.codex-system-skills.marker'
         }]
+        if source.name == 'zio-skills' and Path(directory) == source:
+            skipped += [n for n in names if n == 'flowrite']
+        return skipped
     shutil.copytree(source, dest, symlinks=True, ignore=ignore)
 
 

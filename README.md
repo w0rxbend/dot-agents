@@ -146,3 +146,5 @@ and a GitHub release. See [CONTRIBUTING.md](CONTRIBUTING.md) for the release pro
 
 Repository scripts and documentation use MIT. Imported material retains its own terms, including
 MIT, Apache-2.0, and FSL-1.1-ALv2. See [THIRD_PARTY.md](THIRD_PARTY.md).
+Imported example applications can have flagged dependencies; review [SECURITY.md](SECURITY.md)
+before running their helper scripts or installing their packages.
