@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Snapshot recognized global skill roots. Hosted skills remain metadata only."""
 import argparse
+import os
 import re
 import shutil
 from pathlib import Path
@@ -24,6 +25,35 @@ def copy_tree(source, dest):
     shutil.copytree(source, dest, symlinks=True, ignore=ignore)
 
 
+def make_links_portable(destination, copies):
+    """Keep installed aliases, but retarget them to the copied collection."""
+    sources = sorted(copies, key=lambda path: len(path.parts), reverse=True)
+    destinations = sorted(copies.items(), key=lambda item: len(item[1].parts), reverse=True)
+    for link in destination.rglob('*'):
+        if not link.is_symlink():
+            continue
+        target = link.resolve()
+        if target.is_relative_to(destination.resolve()) and target.exists():
+            continue
+        # A relative link outside its source collection resolves differently after copying.
+        # Resolve the original link before mapping its target into the snapshot.
+        for source, copied_root in destinations:
+            if link.is_relative_to(copied_root):
+                target = (source / link.relative_to(copied_root)).resolve()
+                break
+        for source in sources:
+            if target.is_relative_to(source):
+                copied_target = copies[source] / target.relative_to(source)
+                if not copied_target.exists():
+                    raise ValueError(f'symlink target was excluded from snapshot: {link}')
+                link.unlink()
+                link.symlink_to(os.path.relpath(copied_target, link.parent),
+                                target_is_directory=copied_target.is_dir())
+                break
+        else:
+            raise ValueError(f'symlink points outside imported skill sources: {link}')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--home', type=Path, default=Path.home())
@@ -42,6 +72,7 @@ def main():
     installed = []
     seen = {}
     copied = set()
+    copies = {}
     ids = set()
 
     def add(doc, collection, local_glob, source, license_id, dest_root=None, src_root=None):
@@ -63,6 +94,7 @@ def main():
             if dest_root not in copied:
                 copy_tree(src_root, dest_root)
                 copied.add(dest_root)
+                copies[src_root.resolve()] = dest_root
             path = dest_root / doc.parent.relative_to(src_root)
             item['path'] = path.relative_to(REPO).as_posix()
             item['distribution'] = 'vendored'
@@ -159,6 +191,7 @@ def main():
         add(doc, 'claude-hosted', '~/.config/Claude/local-agent-mode-sessions/skills-plugin/*/*/skills/' + doc.parent.name,
             'Anthropic hosted skills', 'LicenseRef-Provider')
 
+    make_links_portable(destination, copies)
     installed.sort(key=lambda item: item['id'])
     dump_json(REPO / 'catalog.json', dict(schema_version=1, skills=installed, excluded=[
         'project-local skills', 'marketplace catalogs and temporary staging directories',

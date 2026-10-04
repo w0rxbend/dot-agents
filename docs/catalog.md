@@ -1,6 +1,6 @@
 # Skill catalog
 
-543 unique installed skills: 459 included, 84 provider-managed.
+545 unique installed skills: 461 included, 84 provider-managed.
 
 Install IDs keep same-named skills from different collections in separate directories. The upstream `name` in each skill remains unchanged.
 
@@ -125,6 +125,7 @@ Install IDs keep same-named skills from different collections in separate direct
 | `clean-code-guard` | clean-code-guard | shared | MIT | [SKILL.md](../collections/shared/clean-code-guard/SKILL.md) |
 | `clean-code-principles` | clean-code-principles | shared | MIT | [SKILL.md](../collections/shared/clean-code-principles/SKILL.md) |
 | `code-audit` | code-audit | shared | MIT | [SKILL.md](../collections/shared/code-audit/SKILL.md) |
+| `code-complete` | code-complete | shared | MIT | [SKILL.md](../collections/shared/code-complete/SKILL.md) |
 | `code-documentation-code-explain` | code-documentation-code-explain | shared | MIT | [SKILL.md](../collections/shared/code-documentation-code-explain/SKILL.md) |
 | `code-documentation-doc-generate` | code-documentation-doc-generate | shared | MIT | [SKILL.md](../collections/shared/code-documentation-doc-generate/SKILL.md) |
 | `code-refactoring-refactor-clean` | code-refactoring-refactor-clean | shared | MIT | [SKILL.md](../collections/shared/code-refactoring-refactor-clean/SKILL.md) |
@@ -352,6 +353,7 @@ Install IDs keep same-named skills from different collections in separate direct
 | `golang-uber-dig` | golang-uber-dig | shared | MIT | [SKILL.md](../collections/shared/golang-uber-dig/SKILL.md) |
 | `golang-uber-fx` | golang-uber-fx | shared | MIT | [SKILL.md](../collections/shared/golang-uber-fx/SKILL.md) |
 | `grafana-dashboards` | grafana-dashboards | shared | MIT | [SKILL.md](../collections/shared/grafana-dashboards/SKILL.md) |
+| `grasp-knowledge` | grasp-knowledge | shared | MIT | [SKILL.md](../collections/shared/grasp-knowledge/SKILL.md) |
 | `guiding-users` | guiding-users | shared | MIT | [SKILL.md](../collections/shared/guiding-users/SKILL.md) |
 | `hashicorp-vault` | hashicorp-vault | shared | MIT | [SKILL.md](../collections/shared/hashicorp-vault/SKILL.md) |
 | `hermes--airtable` | airtable | hermes | MIT | [SKILL.md](../collections/hermes/productivity/airtable/SKILL.md) |
@@ -475,7 +477,7 @@ Install IDs keep same-named skills from different collections in separate direct
 | `python-pro` | python-pro | shared | MIT | [SKILL.md](../collections/shared/python-pro/SKILL.md) |
 | `python-type-system` | python-type-system | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/python-type-system/SKILL.md) |
 | `refactor` | refactor | shared | MIT | [SKILL.md](../collections/shared/refactor/SKILL.md) |
-| `refactoring-guru` | refactoring-guru | shared | LicenseRef-Local | [SKILL.md](../collections/shared/refactoring-guru/SKILL.md) |
+| `refactoring-guru` | refactoring-guru | shared | MIT | [SKILL.md](../collections/shared/refactoring-guru/SKILL.md) |
 | `safe-refactor` | safe-refactor | shared | Apache-2.0 | [SKILL.md](../collections/shared/safe-refactor/SKILL.md) |
 | `saga-orchestration` | saga-orchestration | shared | MIT | [SKILL.md](../collections/shared/saga-orchestration/SKILL.md) |
 | `scala-collections` | Scala Collections | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/scala-collections/SKILL.md) |

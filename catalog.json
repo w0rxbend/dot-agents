@@ -1663,6 +1663,20 @@
       "license_file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
     },
     {
+      "id": "code-complete",
+      "name": "code-complete",
+      "collection": "shared",
+      "source": "ciembor/agent-rules-books",
+      "license": "MIT",
+      "sha256": "081192fe180637a49b473f83ffc5260a9497c8ceef6ced4a16c7de527ead4ddb",
+      "local_globs": [
+        "~/.agents/skills/code-complete"
+      ],
+      "path": "collections/shared/code-complete",
+      "distribution": "vendored",
+      "license_file": "licenses/upstream/ciembor--agent-rules-books.txt"
+    },
+    {
       "id": "code-documentation-code-explain",
       "name": "code-documentation-code-explain",
       "collection": "shared",
@@ -4770,6 +4784,20 @@
       "license_file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
     },
     {
+      "id": "grasp-knowledge",
+      "name": "grasp-knowledge",
+      "collection": "shared",
+      "source": "dykyi-roman/awesome-claude-code",
+      "license": "MIT",
+      "sha256": "b89f7ae562d252179123d6012d10ac206aafa41475e10e81b1beb14c41e07c62",
+      "local_globs": [
+        "~/.agents/skills/grasp-knowledge"
+      ],
+      "path": "collections/shared/grasp-knowledge",
+      "distribution": "vendored",
+      "license_file": "licenses/upstream/dykyi-roman--awesome-claude-code.txt"
+    },
+    {
       "id": "guiding-users",
       "name": "guiding-users",
       "collection": "shared",
@@ -6495,14 +6523,15 @@
       "id": "refactoring-guru",
       "name": "refactoring-guru",
       "collection": "shared",
-      "source": "local",
-      "license": "LicenseRef-Local",
-      "sha256": "2d8aa35edfe9933780285806b42145e6695b83c4f7322dcb8c90ec897b96403b",
+      "source": "ciembor/agent-rules-books",
+      "license": "MIT",
+      "sha256": "c2cbdda1192ec4323e06b7a683a34e0216a6088bdf7187c442002aa321c3c89c",
       "local_globs": [
         "~/.agents/skills/refactoring-guru"
       ],
       "path": "collections/shared/refactoring-guru",
-      "distribution": "vendored"
+      "distribution": "vendored",
+      "license_file": "licenses/upstream/ciembor--agent-rules-books.txt"
     },
     {
       "id": "safe-refactor",

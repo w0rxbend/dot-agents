@@ -117,5 +117,19 @@
     "sha": "52d381453350f117984c53da6da08219614f33f9",
     "html_url": "https://github.com/render-oss/skills/blob/main/LICENSE",
     "file": "licenses/upstream/render-oss--skills.txt"
+  },
+  "ciembor/agent-rules-books": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "cd8d62d37497c0bd8d4124e895648850d4ca815a",
+    "html_url": "https://github.com/ciembor/agent-rules-books/blob/main/LICENSE",
+    "file": "licenses/upstream/ciembor--agent-rules-books.txt"
+  },
+  "dykyi-roman/awesome-claude-code": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "93bd56e5ad1581244cd864197df74d0e91ebc295",
+    "html_url": "https://github.com/dykyi-roman/awesome-claude-code/blob/master/LICENSE",
+    "file": "licenses/upstream/dykyi-roman--awesome-claude-code.txt"
   }
 }

@@ -12,11 +12,11 @@ Sources include Addy Osmani's agent-skills, agentic-awesome-skills (formerly ant
 ai-design-components, claude-code-templates, The Bushido Collective's Han, Caveman, dot-skills,
 Vercel skills, Asyraf Hussin's agent-skills, design-patterns-skill, GoF patterns, Samber's Go skills,
 ZIO skills, scala-zio-skills, Hermes Agent, Anthropic knowledge-work-plugins, Codex built-ins,
-and explicitly MIT-licensed Render skills.
+explicitly MIT-licensed Render skills, ciembor's agent-rules-books, and dykyi-roman's awesome-claude-code.
 
 Han uses **FSL-1.1-ALv2**, a source-available license with permitted-purpose and competing-use restrictions
 and a future Apache-2.0 grant. Read its included license before reusing those skills commercially.
-Local skills with no recorded upstream are labeled `LicenseRef-Local`; no additional upstream
+Any local skills with no recorded upstream are labeled `LicenseRef-Local`; no additional upstream
 license is inferred for them.
 
 The Anthropic engineering, design, and productivity plugin skill files were compared with their

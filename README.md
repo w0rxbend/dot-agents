@@ -113,13 +113,13 @@ and rename the backup to its original name.
 ## Install a release
 
 Download `dot-agents-VERSION.tar.gz` and `SHA256SUMS` from [Releases](https://github.com/w0rxbend/dot-agents/releases).
-For version 1.0.0, with GitHub CLI installed:
+For version 1.0.1, with GitHub CLI installed:
 
 ```sh
-gh release download v1.0.0 --repo w0rxbend/dot-agents --pattern 'dot-agents-*.tar.gz' --pattern SHA256SUMS
+gh release download v1.0.1 --repo w0rxbend/dot-agents --pattern 'dot-agents-*.tar.gz' --pattern SHA256SUMS
 sha256sum -c SHA256SUMS                 # macOS: shasum -a 256 -c SHA256SUMS
-tar -xzf dot-agents-1.0.0.tar.gz
-cd dot-agents-1.0.0
+tar -xzf dot-agents-1.0.1.tar.gz
+cd dot-agents-1.0.1
 ./install.sh --agents all
 ```
 
