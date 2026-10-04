@@ -115,7 +115,7 @@ class InstallTests(unittest.TestCase):
         self.repo = moved
         self.skill = moved / 'collections/test'
         self.run_install()
-        self.assertEqual((self.home / '.agents/skills/test').resolve(), self.skill)
+        self.assertEqual((self.home / '.agents/skills/test').resolve(), self.skill.resolve())
 
     def test_external_skills_only_link_existing_local_content(self):
         external = self.home / '.provider/skills/vendor-test'
