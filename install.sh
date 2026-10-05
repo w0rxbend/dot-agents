@@ -36,6 +36,12 @@ AGENTS = {
     'opencode': '.config/opencode/skills',
 }
 OPTIONAL = {'pi', 'hermes', 'cursor', 'gemini', 'copilot', 'opencode'}
+# Pi reads ~/.agents/skills and ~/.pi/agent/skills and silently drops skills
+# whose frontmatter name collides. Only the collections that historically
+# lived in those roots are installed there; other collections stay available
+# in the agents that tolerate same-named skills (Claude, Hermes, Codex, ...).
+PI_SCOPED_COLLECTIONS = {'shared', 'agent-squad', 'zio-skills', 'scala-zio-skills'}
+PI_SCOPED_AGENTS = {'agents', 'pi'}
 HEADER = '# Generated from catalog.json by `./install.sh render`; do not edit by hand.\n'
 
 
@@ -76,6 +82,9 @@ def plan(skills, agent_names, home, include_local=False):
     for agent in agent_names:
         root = home / AGENTS[agent]
         for item in skills:
+            if agent in PI_SCOPED_AGENTS \
+                    and item.get('collection', 'shared') not in PI_SCOPED_COLLECTIONS:
+                continue
             if item['distribution'] != 'vendored':
                 if not include_local:
                     continue
@@ -155,10 +164,13 @@ def backup_conflicts(rows, home, dry_run=False):
         root = home / AGENTS[agent]
         # A root symlink pointing outside the repo would make dotbot create links
         # inside the foreign directory; move it aside so a real directory is created.
-        if root.is_symlink() and not root.resolve().is_relative_to(REPO):
+        # The foreign target keeps its content, so its children need no backup.
+        root_moved = root.is_symlink() and not root.resolve().is_relative_to(REPO)
+        if root_moved:
             moved.append(root)
         for _, dest, _, _ in rows:
-            if dest.parent == root and not dest.is_symlink() and dest.exists():
+            if not root_moved and dest.parent == root \
+                    and not dest.is_symlink() and dest.exists():
                 moved.append(dest)
     if not moved:
         return []
@@ -169,7 +181,8 @@ def backup_conflicts(rows, home, dry_run=False):
     if dry_run:
         return moved
     backup_root.mkdir(parents=True, exist_ok=True)
-    for path in moved:
+    # Deepest paths first: a root symlink must move only after its children.
+    for path in sorted(moved, key=lambda item: len(item.parts), reverse=True):
         target = backup_root / str(path).lstrip('/')
         target.parent.mkdir(parents=True, exist_ok=True)
         path.rename(target)

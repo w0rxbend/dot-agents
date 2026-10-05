@@ -69,6 +69,16 @@ class InstallerTests(unittest.TestCase):
         self.assertIn('if: test -d "$HOME/.pi/agent"', config)
         self.assertNotIn('~/.gemini/', config)
 
+    def test_pi_scanned_roots_exclude_other_collections(self):
+        self.entries.append(dict(id='hermes--github', name='github', path='collections/hermes/github',
+                                 distribution='vendored', collection='hermes'))
+        self.catalog()
+        rows = installer.plan(self.entries, ['agents', 'pi', 'claude'], self.home)
+        destinations = {str(dest) for _, dest, _, _ in rows}
+        self.assertNotIn(str(self.home / '.agents/skills/hermes--github'), destinations)
+        self.assertNotIn(str(self.home / '.pi/agent/skills/hermes--github'), destinations)
+        self.assertIn(str(self.home / '.claude/skills/hermes--github'), destinations)
+
     def test_lifecycle_and_idempotence(self):
         self.dotbot_available()
         self.invoke()
@@ -103,15 +113,17 @@ class InstallerTests(unittest.TestCase):
         foreign = self.root / 'foreign'
         foreign.mkdir()
         (foreign / 'stale').mkdir()
+        (foreign / 'test').mkdir()  # real skill dir behind the root symlink
         root = self.home / '.agents/skills'
         root.parent.mkdir(parents=True)
         root.symlink_to(foreign)
         self.invoke()
         self.assertFalse(root.is_symlink())
         self.assertEqual(root.joinpath('test').resolve(), self.skill.resolve())
+        self.assertTrue((foreign / 'test').is_dir(), 'content behind a moved root symlink stays intact')
         moved = list((self.root / 'backup').rglob('.agents/skills'))
-        del moved[1:]  # rglob also matches the nested stale/ directory
         self.assertEqual(len(moved), 1)
+        self.assertTrue(moved[0].is_symlink(), 'only the root symlink is backed up')
 
     def test_uninstall_leaves_foreign_links(self):
         self.dotbot_available()
