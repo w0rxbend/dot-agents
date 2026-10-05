@@ -1402,6 +1402,19 @@
       "reason": "provider-managed or redistribution permission not established"
     },
     {
+      "id": "claude-hosted--docs",
+      "name": "docs",
+      "collection": "claude-hosted",
+      "source": "Anthropic hosted skills",
+      "license": "LicenseRef-Provider",
+      "sha256": "e1c14526066dd6f68c24de1d1fbf3a737aa57fb0a42721cd190dcbdea5dc2b12",
+      "local_globs": [
+        "~/.config/Claude/local-agent-mode-sessions/skills-plugin/*/*/skills/docs"
+      ],
+      "distribution": "external",
+      "reason": "provider-managed or redistribution permission not established"
+    },
+    {
       "id": "claude-hosted--docx",
       "name": "docx",
       "collection": "claude-hosted",
@@ -1492,7 +1505,19 @@
       "license": "LicenseRef-Provider",
       "sha256": "a25afd10ae4ad476b0ab82aaafcfec982a690062c2deb156fb471485197bdd64",
       "local_globs": [
-        "~/.agents/skills/synced/*/pptx",
+        "~/.agents/skills/synced/*/pptx"
+      ],
+      "distribution": "external",
+      "reason": "provider-managed or redistribution permission not established"
+    },
+    {
+      "id": "claude-hosted--pptx--ab989785",
+      "name": "pptx",
+      "collection": "claude-hosted",
+      "source": "Anthropic hosted skills",
+      "license": "LicenseRef-Provider",
+      "sha256": "ab98978559c7730fbb579ae5a0bdbe9b716a78aba9760f880c011136cd84fabb",
+      "local_globs": [
         "~/.config/Claude/local-agent-mode-sessions/skills-plugin/*/*/skills/pptx"
       ],
       "distribution": "external",
@@ -2006,19 +2031,6 @@
       "reason": "provider-managed or redistribution permission not established"
     },
     {
-      "id": "codex-cloud-environment--runtime",
-      "name": "cloud-environment-runtime",
-      "collection": "codex-cloud-environment",
-      "source": "OpenAI plugin: cloud-environment",
-      "license": "LicenseRef-Provider",
-      "sha256": "b428945a52a0e8813907af55bf7b2c52e9e212584415e50e8f315e790741ce6b",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/cloud-environment/*/skills/runtime"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
       "id": "codex-codex-browser-recorder--record-browser",
       "name": "record-browser",
       "collection": "codex-codex-browser-recorder",
@@ -2300,318 +2312,6 @@
       "sha256": "26def2b4c28462738baa2753519ad9d52c529826387bf3d468331bc91d9eac73",
       "local_globs": [
         "~/.codex/plugins/cache/openai-primary-runtime/documents/*/skills/documents"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-analytics-dashboard",
-      "name": "artifact-template-analytics-dashboard",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "4a63d426bc29b2a313c4347e28a3ab6a37e2b1c3583bdd2940675c58d448d1e8",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-analytics-dashboard"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-business-review",
-      "name": "artifact-template-business-review",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "528e07efc85673b24e83ec9e0c19909220d04c0c375cd0b2b79e21b9b5e89613",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-business-review"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-design-report",
-      "name": "artifact-template-design-report",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "32aa5ae68a74af66176217e60d46d675d2417caf6c15bc7b5da3b64ea98706e8",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-design-report"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-experiment-analysis",
-      "name": "artifact-template-experiment-analysis",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "df5bf42678c893be8c5d774ec37ef9bdb2ea528d299d20f9eda7a9dfda5284e8",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-experiment-analysis"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-financial-budget",
-      "name": "artifact-template-financial-budget",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "e2d9030c7c22800482453fc8e61213c3117ae2fa13c0d8ef3e67e93f06fedd23",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-financial-budget"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-investment-committee-memo",
-      "name": "artifact-template-investment-committee-memo",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "f2779e8bc3680fa1857f375d15084ad7e379c6dc6a673670e3b834096fc95771",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-investment-committee-memo"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-legal-memorandum",
-      "name": "artifact-template-legal-memorandum",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "301fe6293a100423ba40727b49ee93d5c7412d93b303a42d4ac82a3a2327ff5e",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-legal-memorandum"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-market-trends-report",
-      "name": "artifact-template-market-trends-report",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "c53cc68f27820a29ac76319e3c271f6938b8884865543a21b87d86d48c97bd91",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-market-trends-report"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-minimal-letterhead",
-      "name": "artifact-template-minimal-letterhead",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "998fc193e216440b283aa766b1a4ab796fc974bf418923bfc084f687a16d95b1",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-minimal-letterhead"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-operating-calendar",
-      "name": "artifact-template-operating-calendar",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "de9144f4037848558ce8249e213171c95af944772346a474fa7c63f9f6f1af4f",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-operating-calendar"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-operating-review",
-      "name": "artifact-template-operating-review",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "17e11f8b8787821632775b30853cb4ba05d31ce83dccbb07b0c993d464e809eb",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-operating-review"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-project-kickoff",
-      "name": "artifact-template-project-kickoff",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "24d6cb908b3376c36844d43fa38fbaa652b43741ff817a809bb4a742a48c9e0c",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-project-kickoff"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-project-tracker",
-      "name": "artifact-template-project-tracker",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "ad4717eab08c10453abdf3fc9d4f97fb692fbe8df35370317848fdf36c68dddd",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-project-tracker"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-sales-pipeline",
-      "name": "artifact-template-sales-pipeline",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "cadfcd1f0c39a1aaa4ec82c181f2fad995357ff0514668423b818410bdd6c984",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-sales-pipeline"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-simple-dark-mode",
-      "name": "artifact-template-simple-dark-mode",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "f0bf33929c708e16d32c48e09d8c98488b8e4a3854b92cedaf398a8b54919f17",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-simple-dark-mode"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-simple-light-mode",
-      "name": "artifact-template-simple-light-mode",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "c15b9b9a9d6a790f6f83ac55c43aaefd3166c5c4f8b5620e8f8a85980b75a47e",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-simple-light-mode"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-strategy-memorandum",
-      "name": "artifact-template-strategy-memorandum",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "da92338f8af6013ef7ee133a01cc301a9625cc5899e43104043d06c8152e9e87",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-strategy-memorandum"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-system-design",
-      "name": "artifact-template-system-design",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "292d1f685e3ea4294992c2987e9b8b4a7ce7a8fff6b45633cd30bde9fd247b63",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-system-design"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-team-alignment",
-      "name": "artifact-template-team-alignment",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "0b09d0f8d01f9c2e218a33da3a8f0259cdaec01a53302ee5b1e427ad57843f25",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-team-alignment"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-three-statement-forecast",
-      "name": "artifact-template-three-statement-forecast",
-      "collection": "codex-openai-templates",
-      "source": "OpenAI plugin: openai-templates",
-      "license": "LicenseRef-Provider",
-      "sha256": "6537bac030d4db92c7981a61ef593d4f4c03a4c5043f95ee83f51600e5ce468a",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/openai-templates/*/skills/artifact-template-three-statement-forecast"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-pages--maintain-space",
-      "name": "maintain-space",
-      "collection": "codex-pages",
-      "source": "OpenAI plugin: pages",
-      "license": "LicenseRef-Provider",
-      "sha256": "a13ec15a44e0ec1dafdc040a9b4ae1f474abfd45c23bb0f76c7304a64616f32e",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/pages/*/skills/maintain-space"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-pages--manage-schedules",
-      "name": "manage-schedules",
-      "collection": "codex-pages",
-      "source": "OpenAI plugin: pages",
-      "license": "LicenseRef-Provider",
-      "sha256": "43df3643d54f5fad616e2a92e23edce33b5f59ff7c8cd417c8ac014489de62a3",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/pages/*/skills/manage-schedules"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-pages--organize-space",
-      "name": "organize-space",
-      "collection": "codex-pages",
-      "source": "OpenAI plugin: pages",
-      "license": "LicenseRef-Provider",
-      "sha256": "91679cf8092e62500eeceb5f84dee5d0cc6a64938524afe5f7f507e5adabfed1",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/pages/*/skills/organize-space"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-pages--write-page",
-      "name": "write-page",
-      "collection": "codex-pages",
-      "source": "OpenAI plugin: pages",
-      "license": "LicenseRef-Provider",
-      "sha256": "70f955e66d53336333cede5f49ac35d3ea4aa1e6ef6feed2a645342bd5a2ff73",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/pages/*/skills/write-page"
       ],
       "distribution": "external",
       "reason": "provider-managed or redistribution permission not established"
@@ -2948,58 +2648,6 @@
       "path": "collections/render/render-workflows",
       "distribution": "vendored",
       "license_file": "licenses/upstream/render-oss--skills.txt"
-    },
-    {
-      "id": "codex-sites--sites-building",
-      "name": "sites-building",
-      "collection": "codex-sites",
-      "source": "OpenAI plugin: sites",
-      "license": "LicenseRef-Provider",
-      "sha256": "73a005f2451a5e9e9df92cfb0547299c4a2c42dcf7a565b3a2d6448a7146531e",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/sites/*/skills/sites-building"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-sites--sites-hosting",
-      "name": "sites-hosting",
-      "collection": "codex-sites",
-      "source": "OpenAI plugin: sites",
-      "license": "LicenseRef-Provider",
-      "sha256": "c60720a5121b6cdaf14a26da575546a88cc09f4a9429b82380f68a22acab46d7",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/sites/*/skills/sites-hosting"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-sites--sites-mcp",
-      "name": "sites-mcp",
-      "collection": "codex-sites",
-      "source": "OpenAI plugin: sites",
-      "license": "LicenseRef-Provider",
-      "sha256": "5c97316b5efa550a6e24c776697aa14ad2f8aae2a9a0aaaf5fcbf3f514e113a1",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/sites/*/skills/sites-mcp"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
-    },
-    {
-      "id": "codex-sites--sites-preview-troubleshooting",
-      "name": "sites-preview-troubleshooting",
-      "collection": "codex-sites",
-      "source": "OpenAI plugin: sites",
-      "license": "LicenseRef-Provider",
-      "sha256": "f5a813b5348b2ccc24ab9db3382721fe483b9db5d673276aa04a5608615df1c7",
-      "local_globs": [
-        "~/.codex/plugins/cache/openai-curated-remote/sites/*/skills/sites-preview-troubleshooting"
-      ],
-      "distribution": "external",
-      "reason": "provider-managed or redistribution permission not established"
     },
     {
       "id": "codex-spreadsheets--excel-live-control",
@@ -6000,11 +5648,11 @@
     },
     {
       "id": "kotlin-coroutines",
-      "name": "Kotlin Coroutines",
+      "name": "kotlin-coroutines",
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "4c5dab39fbb2c6a8751ea4d79c7fadcac7b16859572af56eb74e4367b9a52b89",
+      "sha256": "9e6ae07928835f745dd7ab14ec12616ad65a6cb1a06b409626d44cbbf87f671c",
       "local_globs": [
         "~/.agents/skills/kotlin-coroutines"
       ],
@@ -6028,11 +5676,11 @@
     },
     {
       "id": "kotlin-dsl-patterns",
-      "name": "Kotlin DSL Patterns",
+      "name": "kotlin-dsl-patterns",
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "88c6c4d9834e6642b3aeb61b7eb240be02a890ecd21ba46852161870103b9bfc",
+      "sha256": "cce15fd2cadebae823250e2cbc03d47d6cea0a0cfc83ca28abc45d843f532e32",
       "local_globs": [
         "~/.agents/skills/kotlin-dsl-patterns"
       ],
@@ -6042,11 +5690,11 @@
     },
     {
       "id": "kotlin-null-safety",
-      "name": "Kotlin Null Safety",
+      "name": "kotlin-null-safety",
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "6f1ee9edecb4f383f0f0fcfce70dbfc655781f40065b24cf3988790386fe6351",
+      "sha256": "3d8654d7f73e27d78e39bfb2bd8dbac584d0acaab22708930d975894dbef27e8",
       "local_globs": [
         "~/.agents/skills/kotlin-null-safety"
       ],
@@ -6098,11 +5746,11 @@
     },
     {
       "id": "lua-c-integration",
-      "name": "Lua C Integration",
+      "name": "lua-c-integration",
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "ea7ced74792753784b64dfe1a03291a17810bf8e45c8ec5e5286fcb652e26cb4",
+      "sha256": "6d0ad1cbbbed2a45006861ac030b4848ede2a857d950a71d8506128435a2e505",
       "local_globs": [
         "~/.agents/skills/lua-c-integration"
       ],
@@ -6112,11 +5760,11 @@
     },
     {
       "id": "lua-coroutines",
-      "name": "Lua Coroutines",
+      "name": "lua-coroutines",
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "9b148cf0a255113d587b7ce65a5c29fa395bf0a0d72c42f189f3ce3febe011a5",
+      "sha256": "45fbcd3a8331b60a978d4179a5dc58264dc7340cd4757e4bfa6357a232f836e3",
       "local_globs": [
         "~/.agents/skills/lua-coroutines"
       ],
@@ -6126,11 +5774,11 @@
     },
     {
       "id": "lua-tables-patterns",
-      "name": "Lua Tables Patterns",
+      "name": "lua-tables-patterns",
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "ec522e6b1506174d13e3cf951b06c46cb978d4c9e41887bdffb27465a29c358c",
+      "sha256": "227947e3e305a2e13d088ca27afed0f3f394652057124b477a416003bcfd2a33",
       "local_globs": [
         "~/.agents/skills/lua-tables-patterns"
       ],
@@ -6406,11 +6054,11 @@
     },
     {
       "id": "nim-c-interop",
-      "name": "Nim C Interop",
+      "name": "nim-c-interop",
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "c9a3ce333086129091abfa13d1777d2d0fd7d6d2262e663eeef71f90826afc38",
+      "sha256": "47dcd7615250442c5cf8ab2931effb67c10d94a8003c233138a8e654cb68a79c",
       "local_globs": [
         "~/.agents/skills/nim-c-interop"
       ],
@@ -6420,11 +6068,11 @@
     },
     {
       "id": "nim-memory-management",
-      "name": "Nim Memory Management",
+      "name": "nim-memory-management",
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "0145645307e8172893e96b1fd54a34186e0420e1de275253b1b90d5a00496b80",
+      "sha256": "d6bac97fa005d9f82abf2099f3f999c8c1987bb8a0ffc5ee04a783b2b11d4ed2",
       "local_globs": [
         "~/.agents/skills/nim-memory-management"
       ],
@@ -6434,11 +6082,11 @@
     },
     {
       "id": "nim-metaprogramming",
-      "name": "Nim Metaprogramming",
+      "name": "nim-metaprogramming",
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "1d20f7d969f3fcae43dc1e61682caccd74f5587d30d60c1805e616b4047341c6",
+      "sha256": "73b27b9c61a4250b774fb89898b67f8d6c8e19c7c7d98d555c0fe79a34e274ea",
       "local_globs": [
         "~/.agents/skills/nim-metaprogramming"
       ],
@@ -7086,11 +6734,11 @@
     },
     {
       "id": "scala-collections",
-      "name": "Scala Collections",
+      "name": "scala-collections",
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "a6f85e2c0a1b7fb701dcf5f788c80110b31823bdfcd838f878583b713ee255b8",
+      "sha256": "4ac672d0e469d8e97c674cd88a6ebc4c8e2924a4f07a007295832fdc6fbfffb1",
       "local_globs": [
         "~/.agents/skills/scala-collections"
       ],
@@ -7100,11 +6748,11 @@
     },
     {
       "id": "scala-functional-patterns",
-      "name": "Scala Functional Patterns",
+      "name": "scala-functional-patterns",
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "2d3d0f212a8bdee081407c81a7e274785dc2bf6a2610d8422ebe376b96d3fbf2",
+      "sha256": "8459215c7005a7e647986f61a01e1dc3e4eb111c609e0ce7095bbed74689561b",
       "local_globs": [
         "~/.agents/skills/scala-functional-patterns"
       ],
@@ -7143,11 +6791,11 @@
     },
     {
       "id": "scala-type-system",
-      "name": "Scala Type System",
+      "name": "scala-type-system",
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "df6ac9aa600a8f5904659962fd5e0baeca1557141a6e67ce2a12f99c051aac63",
+      "sha256": "57a048ff502cc9cf7f4ba0f895dc436d2bb33dbde7f5f7e06506cc27239a0447",
       "local_globs": [
         "~/.agents/skills/scala-type-system"
       ],
@@ -7378,6 +7026,32 @@
       "path": "collections/shared/skill-writer",
       "distribution": "vendored",
       "license_file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
+    },
+    {
+      "id": "sonar-issue-prevention",
+      "name": "sonar-issue-prevention",
+      "collection": "shared",
+      "source": "local",
+      "license": "LicenseRef-Local",
+      "sha256": "860634076560d6914403516cd70cf62254027e56b355c4562551abaac06a4688",
+      "local_globs": [
+        "~/.codex/skills/sonar-issue-prevention"
+      ],
+      "path": "collections/shared/sonar-issue-prevention",
+      "distribution": "vendored"
+    },
+    {
+      "id": "sonarcloud-triage",
+      "name": "sonarcloud-triage",
+      "collection": "shared",
+      "source": "local",
+      "license": "LicenseRef-Local",
+      "sha256": "7fa19953d52f4ea9593e33f6b2bab908ea60c3ce4d6dc6915007e1caf13f3ce9",
+      "local_globs": [
+        "~/.codex/skills/sonarcloud-triage"
+      ],
+      "path": "collections/shared/sonarcloud-triage",
+      "distribution": "vendored"
     },
     {
       "id": "source-driven-development",

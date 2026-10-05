@@ -38,10 +38,10 @@ jobs:
         shell: bash
         run: |
           skill_test_home=$(mktemp -d)
-          ./install.sh --home "$skill_test_home" --agents all
-          ./install.sh --home "$skill_test_home" --agents all --check
-          ./install.sh --home "$skill_test_home" --agents all
-          ./uninstall.sh --home "$skill_test_home" --agents all
+          ./install.sh install --home "$skill_test_home" --agents all
+          ./install.sh check --home "$skill_test_home" --agents all
+          ./install.sh install --home "$skill_test_home" --agents all
+          ./install.sh uninstall --home "$skill_test_home" --agents all
       - name: Ensure checks did not modify the checkout
         run: test -z "$(git status --porcelain)"
 
@@ -68,9 +68,9 @@ jobs:
         shell: bash
         run: |
           skill_test_home=$(mktemp -d)
-          ./install.sh --home "$skill_test_home" --agents all
+          ./install.sh install --home "$skill_test_home" --agents all
           python3 scripts/install_vss.py --home "$skill_test_home"
-          ./install.sh --home "$skill_test_home" --agents all --include-local
-          ./install.sh --home "$skill_test_home" --agents all --include-local --check
+          ./install.sh install --home "$skill_test_home" --agents all --include-local
+          ./install.sh check --home "$skill_test_home" --agents all --include-local
       - name: Ensure checks did not modify the checkout
         run: test -z "$(git status --porcelain)"

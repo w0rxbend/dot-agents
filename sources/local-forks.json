@@ -1659,7 +1659,7 @@
         "references/language-patterns.md",
         "SKILL.md"
       ],
-      "after_entry_sha256": "5ef16431fca4ca5413b0146a6fd1769022b0bd909072b52ee1e7bd894542f325",
+      "after_entry_sha256": "a53807d7d95549bca9d7200a4b807682c59f4521daf58606e5dc3ae551a128b9",
       "after_words": 203,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
@@ -1679,7 +1679,7 @@
         "references/language-patterns.md",
         "SKILL.md"
       ],
-      "after_entry_sha256": "f774c6c9c0e43b5f6fcd79172d9dda2a36b5f824dfbaa5a9fc115e2d4bec6ddb",
+      "after_entry_sha256": "7cb25c1e43b61b48d6f3f915eb4496146d441e41f2ba8de35628a5a0c86c2b9b",
       "after_words": 192,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
@@ -1699,7 +1699,7 @@
         "references/language-patterns.md",
         "SKILL.md"
       ],
-      "after_entry_sha256": "462706fd676da3e85e8146ad17a724c54cc14e065b9a2349b9c754ac6ae1b5d2",
+      "after_entry_sha256": "7632d150a92beba6491a2b7d79ea907f27c8330bcbcc3b2597f7a55239b98833",
       "after_words": 193,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
@@ -1719,7 +1719,7 @@
         "references/language-patterns.md",
         "SKILL.md"
       ],
-      "after_entry_sha256": "010a591517c279e1dec218eb09aa67c71985394e5b3d64463722837e831924d2",
+      "after_entry_sha256": "d4493683b28f0a2181db7120663c2d592d63451aab61f13860769fa267f3e617",
       "after_words": 148,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },

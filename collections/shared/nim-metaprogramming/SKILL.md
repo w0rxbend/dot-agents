@@ -1,5 +1,5 @@
 ---
-name: Nim Metaprogramming
+name: nim-metaprogramming
 user-invocable: false
 description: Use when nim's metaprogramming including macros, templates, compile-time evaluation, AST manipulation, code generation, DSL creation, and leveraging compile-time computation for performance and abstraction in systems programming.
 allowed-tools: []

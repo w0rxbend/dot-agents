@@ -1,5 +1,5 @@
 ---
-name: Scala Type System
+name: scala-type-system
 user-invocable: false
 description: Use when scala's advanced type system including generics, variance, type bounds, implicit conversions, type classes, higher-kinded types, path-dependent types, and abstract type members for building type-safe, flexible APIs.
 allowed-tools: []

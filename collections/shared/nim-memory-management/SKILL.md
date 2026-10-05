@@ -1,5 +1,5 @@
 ---
-name: Nim Memory Management
+name: nim-memory-management
 user-invocable: false
 description: Use when nim's memory management including garbage collection strategies, manual memory control, destructors, move semantics, ref/ptr types, memory safety, and optimization techniques for performance-critical systems programming.
 allowed-tools: []

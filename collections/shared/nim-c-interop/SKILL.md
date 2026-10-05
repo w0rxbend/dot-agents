@@ -1,5 +1,5 @@
 ---
-name: Nim C Interop
+name: nim-c-interop
 user-invocable: false
 description: Use when nim-C interoperability including calling C from Nim, wrapping C libraries, importc/exportc pragmas, header generation, FFI patterns, and building high-performance systems code integrating Nim with existing C codebases.
 allowed-tools: []

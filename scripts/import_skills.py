@@ -218,6 +218,25 @@ def main():
             elif list(child.rglob('SKILL.md')):
                 raise ValueError(f'unrecognized nested collection: {child}')
 
+    for root, glob_prefix in ((home / '.codex/skills', '~/.codex/skills'),
+                              (home / '.pi/agent/skills', '~/.pi/agent/skills')):
+        if not root.is_dir():
+            continue
+        for child in sorted(root.iterdir()):
+            if child.name.startswith('.') or child.name in IGNORED or not child.is_dir() \
+                    or child.is_symlink() or not (child / 'SKILL.md').exists():
+                continue
+            info = frontmatter(child / 'SKILL.md')
+            override = overrides.get(info['name'], {})
+            source = override.get('source', 'local')
+            license_id, vendored = source_policy(source, licenses, info.get('license'))
+            dest_root = destination / 'shared' / child.name if vendored else None
+            item = add(child / 'SKILL.md', 'shared', f'{glob_prefix}/{child.name}', source, license_id,
+                       dest_root, child)
+            if not vendored:
+                item['local_globs'] = list(dict.fromkeys(
+                    override.get('local_globs', []) + item['local_globs']))
+
     system = home / '.codex/skills/.system'
     for doc in sorted(system.rglob('SKILL.md')):
         local_licenses = [p for p in doc.parent.iterdir() if p.name.lower().startswith('license')]

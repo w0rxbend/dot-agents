@@ -1,6 +1,6 @@
 # Skill catalog
 
-586 unique installed skills: 500 included, 86 external (provider-managed, direct-source, or local-only).
+561 unique installed skills: 502 included, 59 external (provider-managed, direct-source, or local-only).
 
 Install IDs keep same-named skills from different collections in separate directories. The upstream `name` in each skill remains unchanged.
 
@@ -106,6 +106,7 @@ Install IDs keep same-named skills from different collections in separate direct
 | `claude-engineering--tech-debt` | tech-debt | claude-engineering | Apache-2.0 | [SKILL.md](../collections/claude-plugins/engineering/tech-debt/SKILL.md) |
 | `claude-engineering--testing-strategy` | testing-strategy | claude-engineering | Apache-2.0 | [SKILL.md](../collections/claude-plugins/engineering/testing-strategy/SKILL.md) |
 | `claude-hosted--consolidate-memory` | consolidate-memory | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
+| `claude-hosted--docs` | docs | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
 | `claude-hosted--docx` | docx | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
 | `claude-hosted--explain-usage` | explain-usage | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
 | `claude-hosted--google-workspace` | google-workspace | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
@@ -113,6 +114,7 @@ Install IDs keep same-named skills from different collections in separate direct
 | `claude-hosted--morning` | morning | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
 | `claude-hosted--pdf` | pdf | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
 | `claude-hosted--pptx` | pptx | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
+| `claude-hosted--pptx--ab989785` | pptx | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
 | `claude-hosted--schedule` | schedule | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
 | `claude-hosted--setup-claude` | setup-claude | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
 | `claude-hosted--setup-cowork` | setup-cowork | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
@@ -150,7 +152,6 @@ Install IDs keep same-named skills from different collections in separate direct
 | `codex-build-web-apps--shadcn-best-practices` | shadcn | codex-build-web-apps | LicenseRef-Provider | [Provider](providers.md) |
 | `codex-build-web-apps--stripe-best-practices` | stripe-best-practices | codex-build-web-apps | LicenseRef-Provider | [Provider](providers.md) |
 | `codex-build-web-apps--supabase-best-practices` | supabase-postgres-best-practices | codex-build-web-apps | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-cloud-environment--runtime` | cloud-environment-runtime | codex-cloud-environment | LicenseRef-Provider | [Provider](providers.md) |
 | `codex-codex-browser-recorder--record-browser` | record-browser | codex-codex-browser-recorder | LicenseRef-Provider | [Provider](providers.md) |
 | `codex-data-analytics--analyze-data-quality` | analyze-data-quality | codex-data-analytics | LicenseRef-Provider | [Provider](providers.md) |
 | `codex-data-analytics--build-dashboard` | build-dashboard | codex-data-analytics | LicenseRef-Provider | [Provider](providers.md) |
@@ -173,30 +174,6 @@ Install IDs keep same-named skills from different collections in separate direct
 | `codex-data-analytics--validate-data` | validate-data | codex-data-analytics | LicenseRef-Provider | [Provider](providers.md) |
 | `codex-data-analytics--visualize-data` | visualize-data | codex-data-analytics | LicenseRef-Provider | [Provider](providers.md) |
 | `codex-documents--documents` | documents | codex-documents | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-analytics-dashboard` | artifact-template-analytics-dashboard | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-business-review` | artifact-template-business-review | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-design-report` | artifact-template-design-report | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-experiment-analysis` | artifact-template-experiment-analysis | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-financial-budget` | artifact-template-financial-budget | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-investment-committee-memo` | artifact-template-investment-committee-memo | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-legal-memorandum` | artifact-template-legal-memorandum | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-market-trends-report` | artifact-template-market-trends-report | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-minimal-letterhead` | artifact-template-minimal-letterhead | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-operating-calendar` | artifact-template-operating-calendar | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-operating-review` | artifact-template-operating-review | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-project-kickoff` | artifact-template-project-kickoff | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-project-tracker` | artifact-template-project-tracker | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-sales-pipeline` | artifact-template-sales-pipeline | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-simple-dark-mode` | artifact-template-simple-dark-mode | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-simple-light-mode` | artifact-template-simple-light-mode | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-strategy-memorandum` | artifact-template-strategy-memorandum | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-system-design` | artifact-template-system-design | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-team-alignment` | artifact-template-team-alignment | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-openai-templates--artifact-template-three-statement-forecast` | artifact-template-three-statement-forecast | codex-openai-templates | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-pages--maintain-space` | maintain-space | codex-pages | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-pages--manage-schedules` | manage-schedules | codex-pages | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-pages--organize-space` | organize-space | codex-pages | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-pages--write-page` | write-page | codex-pages | LicenseRef-Provider | [Provider](providers.md) |
 | `codex-pdf--pdf` | pdf | codex-pdf | LicenseRef-Provider | [Provider](providers.md) |
 | `codex-plugin-management--plugin-management` | plugin-management | codex-plugin-management | LicenseRef-Provider | [Provider](providers.md) |
 | `codex-presentations--presentations` | Presentations | codex-presentations | LicenseRef-Provider | [Provider](providers.md) |
@@ -221,10 +198,6 @@ Install IDs keep same-named skills from different collections in separate direct
 | `codex-render--render-static-sites` | render-static-sites | codex-render | MIT | [SKILL.md](../collections/render/render-static-sites/SKILL.md) |
 | `codex-render--render-web-services` | render-web-services | codex-render | MIT | [SKILL.md](../collections/render/render-web-services/SKILL.md) |
 | `codex-render--render-workflows` | render-workflows | codex-render | MIT | [SKILL.md](../collections/render/render-workflows/SKILL.md) |
-| `codex-sites--sites-building` | sites-building | codex-sites | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-sites--sites-hosting` | sites-hosting | codex-sites | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-sites--sites-mcp` | sites-mcp | codex-sites | LicenseRef-Provider | [Provider](providers.md) |
-| `codex-sites--sites-preview-troubleshooting` | sites-preview-troubleshooting | codex-sites | LicenseRef-Provider | [Provider](providers.md) |
 | `codex-spreadsheets--excel-live-control` | excel-live-control | codex-spreadsheets | LicenseRef-Provider | [Provider](providers.md) |
 | `codex-spreadsheets--spreadsheets` | Spreadsheets | codex-spreadsheets | LicenseRef-Provider | [Provider](providers.md) |
 | `codex-system--imagegen` | imagegen | codex-system | Apache-2.0 | [SKILL.md](../collections/codex-system/imagegen/SKILL.md) |
@@ -439,16 +412,16 @@ Install IDs keep same-named skills from different collections in separate direct
 | `java-pro` | java-pro | shared | MIT | [SKILL.md](../collections/shared/java-pro/SKILL.md) |
 | `java-streams-api` | java-streams-api | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/java-streams-api/SKILL.md) |
 | `javascript-pro` | javascript-pro | shared | MIT | [SKILL.md](../collections/shared/javascript-pro/SKILL.md) |
-| `kotlin-coroutines` | Kotlin Coroutines | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/kotlin-coroutines/SKILL.md) |
+| `kotlin-coroutines` | kotlin-coroutines | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/kotlin-coroutines/SKILL.md) |
 | `kotlin-coroutines-expert` | kotlin-coroutines-expert | shared | MIT | [SKILL.md](../collections/shared/kotlin-coroutines-expert/SKILL.md) |
-| `kotlin-dsl-patterns` | Kotlin DSL Patterns | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/kotlin-dsl-patterns/SKILL.md) |
-| `kotlin-null-safety` | Kotlin Null Safety | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/kotlin-null-safety/SKILL.md) |
+| `kotlin-dsl-patterns` | kotlin-dsl-patterns | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/kotlin-dsl-patterns/SKILL.md) |
+| `kotlin-null-safety` | kotlin-null-safety | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/kotlin-null-safety/SKILL.md) |
 | `kubernetes-architect` | kubernetes-architect | shared | MIT | [SKILL.md](../collections/shared/kubernetes-architect/SKILL.md) |
 | `kubernetes-hardening` | kubernetes-hardening | shared | MIT | [SKILL.md](../collections/shared/kubernetes-hardening/SKILL.md) |
 | `load-balancing-patterns` | load-balancing-patterns | shared | MIT | [SKILL.md](../collections/shared/load-balancing-patterns/SKILL.md) |
-| `lua-c-integration` | Lua C Integration | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/lua-c-integration/SKILL.md) |
-| `lua-coroutines` | Lua Coroutines | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/lua-coroutines/SKILL.md) |
-| `lua-tables-patterns` | Lua Tables Patterns | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/lua-tables-patterns/SKILL.md) |
+| `lua-c-integration` | lua-c-integration | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/lua-c-integration/SKILL.md) |
+| `lua-coroutines` | lua-coroutines | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/lua-coroutines/SKILL.md) |
+| `lua-tables-patterns` | lua-tables-patterns | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/lua-tables-patterns/SKILL.md) |
 | `managing-incidents` | managing-incidents | shared | MIT | [SKILL.md](../collections/shared/managing-incidents/SKILL.md) |
 | `managing-media` | managing-media | shared | MIT | [SKILL.md](../collections/shared/managing-media/SKILL.md) |
 | `megacave` | megacave | shared | Apache-2.0 | [SKILL.md](../collections/shared/megacave/SKILL.md) |
@@ -467,9 +440,9 @@ Install IDs keep same-named skills from different collections in separate direct
 | `mill-testing` | mill-testing | shared | MIT | [SKILL.md](../collections/shared/mill-testing/SKILL.md) |
 | `mill-vss` | mill-vss | shared | MIT | [SKILL.md](../collections/shared/mill-vss/SKILL.md) |
 | `mobile-design` | mobile-design | shared | MIT | [SKILL.md](../collections/shared/mobile-design/SKILL.md) |
-| `nim-c-interop` | Nim C Interop | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/nim-c-interop/SKILL.md) |
-| `nim-memory-management` | Nim Memory Management | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/nim-memory-management/SKILL.md) |
-| `nim-metaprogramming` | Nim Metaprogramming | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/nim-metaprogramming/SKILL.md) |
+| `nim-c-interop` | nim-c-interop | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/nim-c-interop/SKILL.md) |
+| `nim-memory-management` | nim-memory-management | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/nim-memory-management/SKILL.md) |
+| `nim-metaprogramming` | nim-metaprogramming | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/nim-metaprogramming/SKILL.md) |
 | `observability-and-instrumentation` | observability-and-instrumentation | shared | MIT | [SKILL.md](../collections/shared/observability-and-instrumentation/SKILL.md) |
 | `observability-cloud-planning` | observability-cloud-planning | shared | MIT | [SKILL.md](../collections/shared/observability-cloud-planning/SKILL.md) |
 | `observability-engineer` | observability-engineer | shared | MIT | [SKILL.md](../collections/shared/observability-engineer/SKILL.md) |
@@ -514,11 +487,11 @@ Install IDs keep same-named skills from different collections in separate direct
 | `rust-systems-contracts` | rust-systems-contracts | shared | MIT | [SKILL.md](../collections/shared/rust-systems-contracts/SKILL.md) |
 | `safe-refactor` | safe-refactor | shared | Apache-2.0 | [SKILL.md](../collections/shared/safe-refactor/SKILL.md) |
 | `saga-orchestration` | saga-orchestration | shared | MIT | [SKILL.md](../collections/shared/saga-orchestration/SKILL.md) |
-| `scala-collections` | Scala Collections | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/scala-collections/SKILL.md) |
-| `scala-functional-patterns` | Scala Functional Patterns | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/scala-functional-patterns/SKILL.md) |
+| `scala-collections` | scala-collections | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/scala-collections/SKILL.md) |
+| `scala-functional-patterns` | scala-functional-patterns | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/scala-functional-patterns/SKILL.md) |
 | `scala-library-contracts` | scala-library-contracts | shared | MIT | [SKILL.md](../collections/shared/scala-library-contracts/SKILL.md) |
 | `scala-pro` | scala-pro | shared | MIT | [SKILL.md](../collections/shared/scala-pro/SKILL.md) |
-| `scala-type-system` | Scala Type System | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/scala-type-system/SKILL.md) |
+| `scala-type-system` | scala-type-system | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/scala-type-system/SKILL.md) |
 | `scala-zio-skills--zio-reference` | zio-reference | scala-zio-skills | MIT | [SKILL.md](../collections/scala-zio-skills/skills/zio-reference/SKILL.md) |
 | `security-and-hardening` | security-and-hardening | shared | MIT | [SKILL.md](../collections/shared/security-and-hardening/SKILL.md) |
 | `security-best-practices` | security-best-practices | shared | MIT | [SKILL.md](../collections/shared/security-best-practices/SKILL.md) |
@@ -535,6 +508,8 @@ Install IDs keep same-named skills from different collections in separate direct
 | `skill-router` | skill-router | shared | MIT | [SKILL.md](../collections/shared/skill-router/SKILL.md) |
 | `skill-seekers` | skill-seekers | shared | MIT | [SKILL.md](../collections/shared/skill-seekers/SKILL.md) |
 | `skill-writer` | skill-writer | shared | MIT | [SKILL.md](../collections/shared/skill-writer/SKILL.md) |
+| `sonar-issue-prevention` | sonar-issue-prevention | shared | LicenseRef-Local | [SKILL.md](../collections/shared/sonar-issue-prevention/SKILL.md) |
+| `sonarcloud-triage` | sonarcloud-triage | shared | LicenseRef-Local | [SKILL.md](../collections/shared/sonarcloud-triage/SKILL.md) |
 | `source-driven-development` | source-driven-development | shared | MIT | [SKILL.md](../collections/shared/source-driven-development/SKILL.md) |
 | `spec-driven-development` | spec-driven-development | shared | MIT | [SKILL.md](../collections/shared/spec-driven-development/SKILL.md) |
 | `streaming-integrations` | streaming-integrations | shared | MIT | [SKILL.md](../collections/shared/streaming-integrations/SKILL.md) |

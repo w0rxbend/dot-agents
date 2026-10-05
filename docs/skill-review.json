@@ -1,38 +1,41 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-10-04T15:37:38.928919+00:00",
+  "reviewed_at": "2026-10-05T21:28:55.449502+00:00",
   "summary": {
-    "baseline_catalog_skills": 560,
+    "baseline_catalog_skills": 561,
     "canonical_entrypoint_files_read": 583,
     "duplicate_alias_variants": 23,
     "alias_variant_content_identical": true,
     "unique_entrypoint_sha256_count": 560,
     "uncataloged_installed_skills": 0,
-    "provider_managed_skills": 85,
+    "provider_managed_skills": 59,
     "explicit_only_policies_preserved": 27,
     "prospective_official_pixi_skills": 9,
-    "per_skill_decisions": 586,
+    "per_skill_decisions": 561,
     "changed_skills": 95,
     "changed_entrypoint_words_before": 154798,
     "changed_entrypoint_words_after": 136813,
     "decisions": {
       "fix": 53,
       "tailor": 39,
-      "retain": 383,
+      "retain": 385,
       "add": 25,
-      "provider-managed": 85,
+      "provider-managed": 58,
       "local-private": 1
     },
-    "final_catalog_skills": 586,
-    "public_vendored_skills": 500,
-    "external_skills": 86,
+    "final_catalog_skills": 561,
+    "public_vendored_skills": 502,
+    "external_skills": 59,
     "existing_skills_updated": 92,
     "public_skills_added": 25,
     "private_local_skills_added": 1,
     "repositories_reviewed": 100,
     "public_repositories": 92,
     "private_repositories_local_only": 8,
-    "entrypoint_words_saved": 17985
+    "entrypoint_words_saved": 17985,
+    "carried_forward": 545,
+    "refreshed_after_change": 12,
+    "added": 4
   },
   "method": [
     "Enumerated all recognized global roots and installed catalog aliases; canonicalized symlinks and read every SKILL.md.",
@@ -2860,6 +2863,27 @@
       "sha256": "45ad55e0d5491afe65a69870e38f8ca2afb81e17a4d456d898b0310e88457614"
     },
     {
+      "id": "claude-hosted--docs",
+      "name": "docs",
+      "source": "Anthropic hosted skills",
+      "distribution": "external",
+      "path": null,
+      "reviewed": true,
+      "review_method": "Provider-managed skill; metadata entry only, content not vendored.",
+      "automatic_discovery_preserved": true,
+      "decision": "provider-managed",
+      "reasons": [
+        "Provider-managed skill recorded during catalog refresh."
+      ],
+      "local_fork": false,
+      "modified_files": [],
+      "evidence": {
+        "source_attribution_preserved": true,
+        "optional_frontmatter_preserved": true
+      },
+      "sha256": "e1c14526066dd6f68c24de1d1fbf3a737aa57fb0a42721cd190dcbdea5dc2b12"
+    },
+    {
       "id": "claude-hosted--docx",
       "name": "docx",
       "source": "Anthropic hosted skills",
@@ -3040,6 +3064,27 @@
         ]
       },
       "sha256": "a25afd10ae4ad476b0ab82aaafcfec982a690062c2deb156fb471485197bdd64"
+    },
+    {
+      "id": "claude-hosted--pptx--ab989785",
+      "name": "pptx",
+      "source": "Anthropic hosted skills",
+      "distribution": "external",
+      "path": null,
+      "reviewed": true,
+      "review_method": "Provider-managed skill; metadata entry only, content not vendored.",
+      "automatic_discovery_preserved": true,
+      "decision": "provider-managed",
+      "reasons": [
+        "Provider-managed skill recorded during catalog refresh."
+      ],
+      "local_fork": false,
+      "modified_files": [],
+      "evidence": {
+        "source_attribution_preserved": true,
+        "optional_frontmatter_preserved": true
+      },
+      "sha256": "ab98978559c7730fbb579ae5a0bdbe9b716a78aba9760f880c011136cd84fabb"
     },
     {
       "id": "claude-hosted--schedule",
@@ -4043,30 +4088,6 @@
       "sha256": "8b9cb869a56e45fad0b72d79bd5a8b98fe2dcae24fe51434fce8d297c201dcd8"
     },
     {
-      "id": "codex-cloud-environment--runtime",
-      "name": "cloud-environment-runtime",
-      "source": "OpenAI plugin: cloud-environment",
-      "distribution": "external",
-      "entry_sha256": "c23513e361a6f9dbe1c28e5c41de635f355469b4ec1740ae1cd2de1d38a91bd3",
-      "words": 548,
-      "line_count": 61,
-      "explicit_only": false,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "b428945a52a0e8813907af55bf7b2c52e9e212584415e50e8f315e790741ce6b"
-    },
-    {
       "id": "codex-codex-browser-recorder--record-browser",
       "name": "record-browser",
       "source": "OpenAI plugin: codex-browser-recorder",
@@ -4608,588 +4629,6 @@
         ]
       },
       "sha256": "26def2b4c28462738baa2753519ad9d52c529826387bf3d468331bc91d9eac73"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-analytics-dashboard",
-      "name": "artifact-template-analytics-dashboard",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "cf5360fd8b197673bb237c52c603c97fa319c875c3dfa2cd8efff52d4422f513",
-      "words": 211,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "4a63d426bc29b2a313c4347e28a3ab6a37e2b1c3583bdd2940675c58d448d1e8"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-business-review",
-      "name": "artifact-template-business-review",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "27721fc1d67d1b41949caa75ac8f94f81952ff124406878af6524047929e60d2",
-      "words": 211,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "528e07efc85673b24e83ec9e0c19909220d04c0c375cd0b2b79e21b9b5e89613"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-design-report",
-      "name": "artifact-template-design-report",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "563722f53854e606f8a9f87e37e72d7ef70a22d46d5836b8e4d6abfb1b79e9e0",
-      "words": 210,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "32aa5ae68a74af66176217e60d46d675d2417caf6c15bc7b5da3b64ea98706e8"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-experiment-analysis",
-      "name": "artifact-template-experiment-analysis",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "0b05effc47df0a14f8e0c3e3597e6722224747435546385d38a2cae279bd20b9",
-      "words": 208,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "df5bf42678c893be8c5d774ec37ef9bdb2ea528d299d20f9eda7a9dfda5284e8"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-financial-budget",
-      "name": "artifact-template-financial-budget",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "c0b6b7a62a15597aaf2b1ec679e21da48f533b756127f0aef957cdfe9f3da738",
-      "words": 212,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "e2d9030c7c22800482453fc8e61213c3117ae2fa13c0d8ef3e67e93f06fedd23"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-investment-committee-memo",
-      "name": "artifact-template-investment-committee-memo",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "68abd08cfe5e073e3c446a3f675f44c5bf98f57434dba679e8acd8a763379a8b",
-      "words": 214,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "f2779e8bc3680fa1857f375d15084ad7e379c6dc6a673670e3b834096fc95771"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-legal-memorandum",
-      "name": "artifact-template-legal-memorandum",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "51fb9d21baf6119c4ccb1903638a6bac0e859210de63460fffa7025d52e997e0",
-      "words": 210,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "301fe6293a100423ba40727b49ee93d5c7412d93b303a42d4ac82a3a2327ff5e"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-market-trends-report",
-      "name": "artifact-template-market-trends-report",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "d58d019b89cb6f292ac3ab991d561489eef477ff53ce05fb024a0c936f5af26a",
-      "words": 214,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "c53cc68f27820a29ac76319e3c271f6938b8884865543a21b87d86d48c97bd91"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-minimal-letterhead",
-      "name": "artifact-template-minimal-letterhead",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "880ef094d4d0c89a7bde5ce9bbe4086625c186651e9e6efc8ba8bdd7cc77f9d5",
-      "words": 213,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "998fc193e216440b283aa766b1a4ab796fc974bf418923bfc084f687a16d95b1"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-operating-calendar",
-      "name": "artifact-template-operating-calendar",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "33bb660791a0b9a21628a42c34934932220203b6aabd84e98cb1b45327d0384c",
-      "words": 212,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "de9144f4037848558ce8249e213171c95af944772346a474fa7c63f9f6f1af4f"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-operating-review",
-      "name": "artifact-template-operating-review",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "6d63c5cd025ffe936e7bab5db3023672bbaec26af55c2bb8b057d38c202c9c32",
-      "words": 213,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "17e11f8b8787821632775b30853cb4ba05d31ce83dccbb07b0c993d464e809eb"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-project-kickoff",
-      "name": "artifact-template-project-kickoff",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "aa893ebd89e7c8d1db4261d01cc2b1add35d78d00785871ccaaa5fc8db783ec9",
-      "words": 213,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "24d6cb908b3376c36844d43fa38fbaa652b43741ff817a809bb4a742a48c9e0c"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-project-tracker",
-      "name": "artifact-template-project-tracker",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "d97d5be20189b7f53dd269b6e1c5f694eaf53e5a72f6559fcb1578911b7cda82",
-      "words": 213,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "ad4717eab08c10453abdf3fc9d4f97fb692fbe8df35370317848fdf36c68dddd"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-sales-pipeline",
-      "name": "artifact-template-sales-pipeline",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "15cfeeedf440021f16ed3f3ad8c7c1ef6d48898b9447741e223d2fb41cfc9800",
-      "words": 212,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "cadfcd1f0c39a1aaa4ec82c181f2fad995357ff0514668423b818410bdd6c984"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-simple-dark-mode",
-      "name": "artifact-template-simple-dark-mode",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "b7c8d0c05f75878b9bc21e56a57c41ec1aa29700aca0a24822be0f9f1bd53207",
-      "words": 215,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "f0bf33929c708e16d32c48e09d8c98488b8e4a3854b92cedaf398a8b54919f17"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-simple-light-mode",
-      "name": "artifact-template-simple-light-mode",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "7c68430c6cf57b55b457d4735dbd1a46b889bef135a32222902dd0848b6e1752",
-      "words": 215,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "c15b9b9a9d6a790f6f83ac55c43aaefd3166c5c4f8b5620e8f8a85980b75a47e"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-strategy-memorandum",
-      "name": "artifact-template-strategy-memorandum",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "51d7882ac94e8e57b323394825728c33925af878806e37277217c2dc12a912e5",
-      "words": 208,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "da92338f8af6013ef7ee133a01cc301a9625cc5899e43104043d06c8152e9e87"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-system-design",
-      "name": "artifact-template-system-design",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "87f7b7ed1b0d8410f5e5971cd7f7db9a4165e2f37069e97e52dbfb469b75a57c",
-      "words": 209,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "292d1f685e3ea4294992c2987e9b8b4a7ce7a8fff6b45633cd30bde9fd247b63"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-team-alignment",
-      "name": "artifact-template-team-alignment",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "26d7cafdcd1899a937b325c5d02ac57c162d45002153be33a934d35f81eb6110",
-      "words": 213,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "0b09d0f8d01f9c2e218a33da3a8f0259cdaec01a53302ee5b1e427ad57843f25"
-    },
-    {
-      "id": "codex-openai-templates--artifact-template-three-statement-forecast",
-      "name": "artifact-template-three-statement-forecast",
-      "source": "OpenAI plugin: openai-templates",
-      "distribution": "external",
-      "entry_sha256": "74f4a5cccec0107b861548b157e04c51d9b58ec13a990c86394b4c529b8ecf41",
-      "words": 218,
-      "line_count": 22,
-      "explicit_only": true,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "6537bac030d4db92c7981a61ef593d4f4c03a4c5043f95ee83f51600e5ce468a"
-    },
-    {
-      "id": "codex-pages--maintain-space",
-      "name": "maintain-space",
-      "source": "OpenAI plugin: pages",
-      "distribution": "external",
-      "entry_sha256": "334bf85b62e733cf6a392ab8421ef768a9f6e5d74c16db2c4cb3fcbb3f8c496c",
-      "words": 977,
-      "line_count": 47,
-      "explicit_only": false,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "a13ec15a44e0ec1dafdc040a9b4ae1f474abfd45c23bb0f76c7304a64616f32e"
-    },
-    {
-      "id": "codex-pages--manage-schedules",
-      "name": "manage-schedules",
-      "source": "OpenAI plugin: pages",
-      "distribution": "external",
-      "entry_sha256": "e0a464a83f15a6e896c5536cab775f667ebd0dd61eb64fe3c877a41935d64bd9",
-      "words": 1214,
-      "line_count": 94,
-      "explicit_only": false,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": [
-          "stale-scaffold"
-        ]
-      },
-      "sha256": "43df3643d54f5fad616e2a92e23edce33b5f59ff7c8cd417c8ac014489de62a3"
-    },
-    {
-      "id": "codex-pages--organize-space",
-      "name": "organize-space",
-      "source": "OpenAI plugin: pages",
-      "distribution": "external",
-      "entry_sha256": "dfa8bfae86785a98e43b1ca0af67a9c89b90c658eee7fc7ad4ccfe8cc84a267b",
-      "words": 1016,
-      "line_count": 49,
-      "explicit_only": false,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": [
-          "force-process"
-        ]
-      },
-      "sha256": "91679cf8092e62500eeceb5f84dee5d0cc6a64938524afe5f7f507e5adabfed1"
-    },
-    {
-      "id": "codex-pages--write-page",
-      "name": "write-page",
-      "source": "OpenAI plugin: pages",
-      "distribution": "external",
-      "entry_sha256": "cef4de2e3b991a2211fbb4f9f2416c670ed268ef0797489277bca6d73b4b57d6",
-      "words": 1703,
-      "line_count": 116,
-      "explicit_only": false,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": [
-          "unconditional-publish"
-        ]
-      },
-      "sha256": "70f955e66d53336333cede5f49ac35d3ea4aa1e6ef6feed2a645342bd5a2ff73"
     },
     {
       "id": "codex-pdf--pdf",
@@ -5869,107 +5308,6 @@
       "sha256": "a9dc711bf15097ba5cf18700721162f2505c92afee33182dcd0e9de77fb839b4",
       "current_entry_sha256": "b682cba179c244ae4c64a6f7b2f45fa50ecad8836f423a39d020a50cf94de773",
       "current_entry_words": 1155
-    },
-    {
-      "id": "codex-sites--sites-building",
-      "name": "sites-building",
-      "source": "OpenAI plugin: sites",
-      "distribution": "external",
-      "entry_sha256": "a74849932e62784144ee72ebe3952ba2ab2a095581459f99eac1611a380bea2c",
-      "words": 5434,
-      "line_count": 317,
-      "explicit_only": false,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": [
-          "large-entrypoint"
-        ]
-      },
-      "sha256": "73a005f2451a5e9e9df92cfb0547299c4a2c42dcf7a565b3a2d6448a7146531e"
-    },
-    {
-      "id": "codex-sites--sites-hosting",
-      "name": "sites-hosting",
-      "source": "OpenAI plugin: sites",
-      "distribution": "external",
-      "entry_sha256": "c1bf20036e4a2bc167e48c9c515c6cdae930deddd520698c917e2a10d07ed336",
-      "words": 1407,
-      "line_count": 102,
-      "explicit_only": false,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": [
-          "long-discovery",
-          "unconditional-publish"
-        ]
-      },
-      "sha256": "c60720a5121b6cdaf14a26da575546a88cc09f4a9429b82380f68a22acab46d7"
-    },
-    {
-      "id": "codex-sites--sites-mcp",
-      "name": "sites-mcp",
-      "source": "OpenAI plugin: sites",
-      "distribution": "external",
-      "entry_sha256": "db574064231c17051fccb4afc4ff951959f16e6fe17bc2caa2aee7aa1d19e2d7",
-      "words": 378,
-      "line_count": 32,
-      "explicit_only": false,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "5c97316b5efa550a6e24c776697aa14ad2f8aae2a9a0aaaf5fcbf3f514e113a1"
-    },
-    {
-      "id": "codex-sites--sites-preview-troubleshooting",
-      "name": "sites-preview-troubleshooting",
-      "source": "OpenAI plugin: sites",
-      "distribution": "external",
-      "entry_sha256": "b8d2cb0731ed0c46888f2e455b23a7114b209c66ac3708e6502b0f280065938e",
-      "words": 1135,
-      "line_count": 108,
-      "explicit_only": false,
-      "reviewed": true,
-      "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "provider-managed",
-      "reasons": [
-        "Provider-managed or redistribution rights unavailable; review completed locally and no restricted provider text copied into this report.",
-        "Keep delivery and runtime integration under its provider; repository/task guidance can choose matching local skills without rewriting cached policy."
-      ],
-      "evidence": {
-        "entrypoint_exists": true,
-        "content_read": true,
-        "finding_categories": []
-      },
-      "sha256": "f5a813b5348b2ccc24ab9db3382721fe483b9db5d673276aa04a5608615df1c7"
     },
     {
       "id": "codex-spreadsheets--excel-live-control",
@@ -12077,9 +11415,9 @@
       "source": "thebushidocollective/han",
       "distribution": "vendored",
       "path": "collections/shared/kotlin-coroutines",
-      "entry_sha256": "5ea5dd015a6eb13d7388da1b14afaf4b15d7b0e13709e14195e7441ac590e0aa",
-      "words": 2311,
-      "line_count": 775,
+      "entry_sha256": "9399a6a6b2b5b6590aad7a0c2f8d8748d2660a4ee0cec59b30741fada5430ba7",
+      "words": 2310,
+      "line_count": 776,
       "explicit_only": false,
       "reviewed": true,
       "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
@@ -12094,9 +11432,16 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "4c5dab39fbb2c6a8751ea4d79c7fadcac7b16859572af56eb74e4367b9a52b89",
-      "current_entry_sha256": "5ea5dd015a6eb13d7388da1b14afaf4b15d7b0e13709e14195e7441ac590e0aa",
-      "current_entry_words": 2311
+      "sha256": "9e6ae07928835f745dd7ab14ec12616ad65a6cb1a06b409626d44cbbf87f671c",
+      "current_entry_sha256": "9399a6a6b2b5b6590aad7a0c2f8d8748d2660a4ee0cec59b30741fada5430ba7",
+      "current_entry_words": 2310,
+      "post_review_changes": [
+        {
+          "at": "2026-10-05T21:28:55.445627+00:00",
+          "note": "Normalized 12 skill names to lowercase-hyphen (pi compatibility); added ~/.codex/skills and ~/.pi/agent/skills import roots; vendored sonar-issue-prevention and sonarcloud-triage.",
+          "tree_sha256": "9e6ae07928835f745dd7ab14ec12616ad65a6cb1a06b409626d44cbbf87f671c"
+        }
+      ]
     },
     {
       "id": "kotlin-coroutines-expert",
@@ -12131,9 +11476,9 @@
       "source": "thebushidocollective/han",
       "distribution": "vendored",
       "path": "collections/shared/kotlin-dsl-patterns",
-      "entry_sha256": "22f0278a540fb0227bd839e585354308aff1ba0047b295165981207f37db6788",
-      "words": 2540,
-      "line_count": 850,
+      "entry_sha256": "98649fe923b39d9d5399e4773fb7959e14b72d2d448ad8bf2e7e7e21ed424248",
+      "words": 2538,
+      "line_count": 851,
       "explicit_only": false,
       "reviewed": true,
       "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
@@ -12148,9 +11493,16 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "88c6c4d9834e6642b3aeb61b7eb240be02a890ecd21ba46852161870103b9bfc",
-      "current_entry_sha256": "22f0278a540fb0227bd839e585354308aff1ba0047b295165981207f37db6788",
-      "current_entry_words": 2540
+      "sha256": "cce15fd2cadebae823250e2cbc03d47d6cea0a0cfc83ca28abc45d843f532e32",
+      "current_entry_sha256": "98649fe923b39d9d5399e4773fb7959e14b72d2d448ad8bf2e7e7e21ed424248",
+      "current_entry_words": 2538,
+      "post_review_changes": [
+        {
+          "at": "2026-10-05T21:28:55.446102+00:00",
+          "note": "Normalized 12 skill names to lowercase-hyphen (pi compatibility); added ~/.codex/skills and ~/.pi/agent/skills import roots; vendored sonar-issue-prevention and sonarcloud-triage.",
+          "tree_sha256": "cce15fd2cadebae823250e2cbc03d47d6cea0a0cfc83ca28abc45d843f532e32"
+        }
+      ]
     },
     {
       "id": "kotlin-null-safety",
@@ -12158,9 +11510,9 @@
       "source": "thebushidocollective/han",
       "distribution": "vendored",
       "path": "collections/shared/kotlin-null-safety",
-      "entry_sha256": "870401650c611904b943f0e03e17ccb332925920e3a049ba55eedeb5234b0a08",
-      "words": 2448,
-      "line_count": 667,
+      "entry_sha256": "e37ecc63d58035253e1b970b4953a8d9cc8b9d47fd75f00c2fe48480d3abeae7",
+      "words": 2446,
+      "line_count": 668,
       "explicit_only": false,
       "reviewed": true,
       "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
@@ -12175,9 +11527,16 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "6f1ee9edecb4f383f0f0fcfce70dbfc655781f40065b24cf3988790386fe6351",
-      "current_entry_sha256": "870401650c611904b943f0e03e17ccb332925920e3a049ba55eedeb5234b0a08",
-      "current_entry_words": 2448
+      "sha256": "3d8654d7f73e27d78e39bfb2bd8dbac584d0acaab22708930d975894dbef27e8",
+      "current_entry_sha256": "e37ecc63d58035253e1b970b4953a8d9cc8b9d47fd75f00c2fe48480d3abeae7",
+      "current_entry_words": 2446,
+      "post_review_changes": [
+        {
+          "at": "2026-10-05T21:28:55.446441+00:00",
+          "note": "Normalized 12 skill names to lowercase-hyphen (pi compatibility); added ~/.codex/skills and ~/.pi/agent/skills import roots; vendored sonar-issue-prevention and sonarcloud-triage.",
+          "tree_sha256": "3d8654d7f73e27d78e39bfb2bd8dbac584d0acaab22708930d975894dbef27e8"
+        }
+      ]
     },
     {
       "id": "kubernetes-architect",
@@ -12266,9 +11625,9 @@
       "source": "thebushidocollective/han",
       "distribution": "vendored",
       "path": "collections/shared/lua-c-integration",
-      "entry_sha256": "d249f5cd6091ab558b29ede6d0958333d09ffd52b58b0c3cff159d498e0dfd5e",
-      "words": 2655,
-      "line_count": 858,
+      "entry_sha256": "9e17173a1814687a40bd7f9255c0b018752087832de89c8193c68247ebb4eefa",
+      "words": 2653,
+      "line_count": 859,
       "explicit_only": false,
       "reviewed": true,
       "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
@@ -12283,9 +11642,16 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "ea7ced74792753784b64dfe1a03291a17810bf8e45c8ec5e5286fcb652e26cb4",
-      "current_entry_sha256": "d249f5cd6091ab558b29ede6d0958333d09ffd52b58b0c3cff159d498e0dfd5e",
-      "current_entry_words": 2655
+      "sha256": "6d0ad1cbbbed2a45006861ac030b4848ede2a857d950a71d8506128435a2e505",
+      "current_entry_sha256": "9e17173a1814687a40bd7f9255c0b018752087832de89c8193c68247ebb4eefa",
+      "current_entry_words": 2653,
+      "post_review_changes": [
+        {
+          "at": "2026-10-05T21:28:55.446731+00:00",
+          "note": "Normalized 12 skill names to lowercase-hyphen (pi compatibility); added ~/.codex/skills and ~/.pi/agent/skills import roots; vendored sonar-issue-prevention and sonarcloud-triage.",
+          "tree_sha256": "6d0ad1cbbbed2a45006861ac030b4848ede2a857d950a71d8506128435a2e505"
+        }
+      ]
     },
     {
       "id": "lua-coroutines",
@@ -12293,9 +11659,9 @@
       "source": "thebushidocollective/han",
       "distribution": "vendored",
       "path": "collections/shared/lua-coroutines",
-      "entry_sha256": "3818f5238f98612bf87596f09fee753aa440ef256847e3c66680b7194e6074de",
-      "words": 2655,
-      "line_count": 951,
+      "entry_sha256": "d97ea4582981b92f2c8d45aa94482fefb03248379cca18653bcf0ba7bff7a983",
+      "words": 2654,
+      "line_count": 952,
       "explicit_only": false,
       "reviewed": true,
       "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
@@ -12310,9 +11676,16 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "9b148cf0a255113d587b7ce65a5c29fa395bf0a0d72c42f189f3ce3febe011a5",
-      "current_entry_sha256": "3818f5238f98612bf87596f09fee753aa440ef256847e3c66680b7194e6074de",
-      "current_entry_words": 2655
+      "sha256": "45fbcd3a8331b60a978d4179a5dc58264dc7340cd4757e4bfa6357a232f836e3",
+      "current_entry_sha256": "d97ea4582981b92f2c8d45aa94482fefb03248379cca18653bcf0ba7bff7a983",
+      "current_entry_words": 2654,
+      "post_review_changes": [
+        {
+          "at": "2026-10-05T21:28:55.447110+00:00",
+          "note": "Normalized 12 skill names to lowercase-hyphen (pi compatibility); added ~/.codex/skills and ~/.pi/agent/skills import roots; vendored sonar-issue-prevention and sonarcloud-triage.",
+          "tree_sha256": "45fbcd3a8331b60a978d4179a5dc58264dc7340cd4757e4bfa6357a232f836e3"
+        }
+      ]
     },
     {
       "id": "lua-tables-patterns",
@@ -12320,9 +11693,9 @@
       "source": "thebushidocollective/han",
       "distribution": "vendored",
       "path": "collections/shared/lua-tables-patterns",
-      "entry_sha256": "7590b79379d793997778b6fd2ed6e6353ab236a9a9d058a043b9a0483e257446",
-      "words": 3155,
-      "line_count": 1089,
+      "entry_sha256": "d4493683b28f0a2181db7120663c2d592d63451aab61f13860769fa267f3e617",
+      "words": 146,
+      "line_count": 27,
       "explicit_only": false,
       "reviewed": true,
       "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
@@ -12344,9 +11717,16 @@
         "source_attribution_preserved": true,
         "optional_frontmatter_preserved": true
       },
-      "sha256": "ec522e6b1506174d13e3cf951b06c46cb978d4c9e41887bdffb27465a29c358c",
-      "current_entry_sha256": "010a591517c279e1dec218eb09aa67c71985394e5b3d64463722837e831924d2",
-      "current_entry_words": 148
+      "sha256": "227947e3e305a2e13d088ca27afed0f3f394652057124b477a416003bcfd2a33",
+      "current_entry_sha256": "d4493683b28f0a2181db7120663c2d592d63451aab61f13860769fa267f3e617",
+      "current_entry_words": 146,
+      "post_review_changes": [
+        {
+          "at": "2026-10-05T21:28:55.447505+00:00",
+          "note": "Normalized 12 skill names to lowercase-hyphen (pi compatibility); added ~/.codex/skills and ~/.pi/agent/skills import roots; vendored sonar-issue-prevention and sonarcloud-triage.",
+          "tree_sha256": "227947e3e305a2e13d088ca27afed0f3f394652057124b477a416003bcfd2a33"
+        }
+      ]
     },
     {
       "id": "managing-incidents",
@@ -12855,9 +12235,9 @@
       "source": "thebushidocollective/han",
       "distribution": "vendored",
       "path": "collections/shared/nim-c-interop",
-      "entry_sha256": "5ce0dfb27c45aeef7baf232069e69457b95e2b920a4256208614e65becf92719",
-      "words": 1740,
-      "line_count": 525,
+      "entry_sha256": "dd14642f08b21d89419ccef020cf5babeba4aac81003a261e1907ea213c2a205",
+      "words": 1738,
+      "line_count": 526,
       "explicit_only": false,
       "reviewed": true,
       "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
@@ -12872,9 +12252,16 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "c9a3ce333086129091abfa13d1777d2d0fd7d6d2262e663eeef71f90826afc38",
-      "current_entry_sha256": "5ce0dfb27c45aeef7baf232069e69457b95e2b920a4256208614e65becf92719",
-      "current_entry_words": 1740
+      "sha256": "47dcd7615250442c5cf8ab2931effb67c10d94a8003c233138a8e654cb68a79c",
+      "current_entry_sha256": "dd14642f08b21d89419ccef020cf5babeba4aac81003a261e1907ea213c2a205",
+      "current_entry_words": 1738,
+      "post_review_changes": [
+        {
+          "at": "2026-10-05T21:28:55.447568+00:00",
+          "note": "Normalized 12 skill names to lowercase-hyphen (pi compatibility); added ~/.codex/skills and ~/.pi/agent/skills import roots; vendored sonar-issue-prevention and sonarcloud-triage.",
+          "tree_sha256": "47dcd7615250442c5cf8ab2931effb67c10d94a8003c233138a8e654cb68a79c"
+        }
+      ]
     },
     {
       "id": "nim-memory-management",
@@ -12882,9 +12269,9 @@
       "source": "thebushidocollective/han",
       "distribution": "vendored",
       "path": "collections/shared/nim-memory-management",
-      "entry_sha256": "7c08bfdad52077c3bb5f9aab20241ca91759368e31876d1b3134a36a306d3c2d",
-      "words": 2136,
-      "line_count": 658,
+      "entry_sha256": "ea95e8f61a0208078d023d2294dc1fcd61fb7e4ff075ecb1cf9ad3d68ec7b603",
+      "words": 2134,
+      "line_count": 659,
       "explicit_only": false,
       "reviewed": true,
       "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
@@ -12899,9 +12286,16 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "0145645307e8172893e96b1fd54a34186e0420e1de275253b1b90d5a00496b80",
-      "current_entry_sha256": "7c08bfdad52077c3bb5f9aab20241ca91759368e31876d1b3134a36a306d3c2d",
-      "current_entry_words": 2136
+      "sha256": "d6bac97fa005d9f82abf2099f3f999c8c1987bb8a0ffc5ee04a783b2b11d4ed2",
+      "current_entry_sha256": "ea95e8f61a0208078d023d2294dc1fcd61fb7e4ff075ecb1cf9ad3d68ec7b603",
+      "current_entry_words": 2134,
+      "post_review_changes": [
+        {
+          "at": "2026-10-05T21:28:55.447777+00:00",
+          "note": "Normalized 12 skill names to lowercase-hyphen (pi compatibility); added ~/.codex/skills and ~/.pi/agent/skills import roots; vendored sonar-issue-prevention and sonarcloud-triage.",
+          "tree_sha256": "d6bac97fa005d9f82abf2099f3f999c8c1987bb8a0ffc5ee04a783b2b11d4ed2"
+        }
+      ]
     },
     {
       "id": "nim-metaprogramming",
@@ -12909,9 +12303,9 @@
       "source": "thebushidocollective/han",
       "distribution": "vendored",
       "path": "collections/shared/nim-metaprogramming",
-      "entry_sha256": "9cbe4a86ae55b20152900ae552621c2f66c164d8b22dca4d7cd99c9699c2cf20",
-      "words": 2112,
-      "line_count": 677,
+      "entry_sha256": "6ce061efd028e9553e1733c19a7d676c7c442b2a63dfb6942b25d96ed635c4fc",
+      "words": 2111,
+      "line_count": 678,
       "explicit_only": false,
       "reviewed": true,
       "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
@@ -12926,9 +12320,16 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "1d20f7d969f3fcae43dc1e61682caccd74f5587d30d60c1805e616b4047341c6",
-      "current_entry_sha256": "9cbe4a86ae55b20152900ae552621c2f66c164d8b22dca4d7cd99c9699c2cf20",
-      "current_entry_words": 2112
+      "sha256": "73b27b9c61a4250b774fb89898b67f8d6c8e19c7c7d98d555c0fe79a34e274ea",
+      "current_entry_sha256": "6ce061efd028e9553e1733c19a7d676c7c442b2a63dfb6942b25d96ed635c4fc",
+      "current_entry_words": 2111,
+      "post_review_changes": [
+        {
+          "at": "2026-10-05T21:28:55.448022+00:00",
+          "note": "Normalized 12 skill names to lowercase-hyphen (pi compatibility); added ~/.codex/skills and ~/.pi/agent/skills import roots; vendored sonar-issue-prevention and sonarcloud-triage.",
+          "tree_sha256": "73b27b9c61a4250b774fb89898b67f8d6c8e19c7c7d98d555c0fe79a34e274ea"
+        }
+      ]
     },
     {
       "id": "observability-and-instrumentation",
@@ -14138,9 +13539,9 @@
       "source": "thebushidocollective/han",
       "distribution": "vendored",
       "path": "collections/shared/scala-collections",
-      "entry_sha256": "4e149a6c662de7d28c7d8aac2e15a8adccdb85830e38498e436e9279d488c149",
-      "words": 3445,
-      "line_count": 865,
+      "entry_sha256": "a53807d7d95549bca9d7200a4b807682c59f4521daf58606e5dc3ae551a128b9",
+      "words": 202,
+      "line_count": 30,
       "explicit_only": false,
       "reviewed": true,
       "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
@@ -14162,9 +13563,16 @@
         "source_attribution_preserved": true,
         "optional_frontmatter_preserved": true
       },
-      "sha256": "a6f85e2c0a1b7fb701dcf5f788c80110b31823bdfcd838f878583b713ee255b8",
-      "current_entry_sha256": "5ef16431fca4ca5413b0146a6fd1769022b0bd909072b52ee1e7bd894542f325",
-      "current_entry_words": 203
+      "sha256": "4ac672d0e469d8e97c674cd88a6ebc4c8e2924a4f07a007295832fdc6fbfffb1",
+      "current_entry_sha256": "a53807d7d95549bca9d7200a4b807682c59f4521daf58606e5dc3ae551a128b9",
+      "current_entry_words": 202,
+      "post_review_changes": [
+        {
+          "at": "2026-10-05T21:28:55.448308+00:00",
+          "note": "Normalized 12 skill names to lowercase-hyphen (pi compatibility); added ~/.codex/skills and ~/.pi/agent/skills import roots; vendored sonar-issue-prevention and sonarcloud-triage.",
+          "tree_sha256": "4ac672d0e469d8e97c674cd88a6ebc4c8e2924a4f07a007295832fdc6fbfffb1"
+        }
+      ]
     },
     {
       "id": "scala-functional-patterns",
@@ -14172,9 +13580,9 @@
       "source": "thebushidocollective/han",
       "distribution": "vendored",
       "path": "collections/shared/scala-functional-patterns",
-      "entry_sha256": "c04522dcc29c25959a511f3ad2e73604131c6c0c8c4cb54e4b66b3fb816571de",
-      "words": 3292,
-      "line_count": 810,
+      "entry_sha256": "7cb25c1e43b61b48d6f3f915eb4496146d441e41f2ba8de35628a5a0c86c2b9b",
+      "words": 190,
+      "line_count": 30,
       "explicit_only": false,
       "reviewed": true,
       "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
@@ -14196,9 +13604,16 @@
         "source_attribution_preserved": true,
         "optional_frontmatter_preserved": true
       },
-      "sha256": "2d3d0f212a8bdee081407c81a7e274785dc2bf6a2610d8422ebe376b96d3fbf2",
-      "current_entry_sha256": "f774c6c9c0e43b5f6fcd79172d9dda2a36b5f824dfbaa5a9fc115e2d4bec6ddb",
-      "current_entry_words": 192
+      "sha256": "8459215c7005a7e647986f61a01e1dc3e4eb111c609e0ce7095bbed74689561b",
+      "current_entry_sha256": "7cb25c1e43b61b48d6f3f915eb4496146d441e41f2ba8de35628a5a0c86c2b9b",
+      "current_entry_words": 190,
+      "post_review_changes": [
+        {
+          "at": "2026-10-05T21:28:55.448363+00:00",
+          "note": "Normalized 12 skill names to lowercase-hyphen (pi compatibility); added ~/.codex/skills and ~/.pi/agent/skills import roots; vendored sonar-issue-prevention and sonarcloud-triage.",
+          "tree_sha256": "8459215c7005a7e647986f61a01e1dc3e4eb111c609e0ce7095bbed74689561b"
+        }
+      ]
     },
     {
       "id": "scala-library-contracts",
@@ -14253,9 +13668,9 @@
       "source": "thebushidocollective/han",
       "distribution": "vendored",
       "path": "collections/shared/scala-type-system",
-      "entry_sha256": "e9294c8839ff1618175c69dc4e6a12d992dc5a0fcca8ae36ca7624cd36f49c6b",
-      "words": 3222,
-      "line_count": 877,
+      "entry_sha256": "7632d150a92beba6491a2b7d79ea907f27c8330bcbcc3b2597f7a55239b98833",
+      "words": 191,
+      "line_count": 30,
       "explicit_only": false,
       "reviewed": true,
       "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
@@ -14277,9 +13692,16 @@
         "source_attribution_preserved": true,
         "optional_frontmatter_preserved": true
       },
-      "sha256": "df6ac9aa600a8f5904659962fd5e0baeca1557141a6e67ce2a12f99c051aac63",
-      "current_entry_sha256": "462706fd676da3e85e8146ad17a724c54cc14e065b9a2349b9c754ac6ae1b5d2",
-      "current_entry_words": 193
+      "sha256": "57a048ff502cc9cf7f4ba0f895dc436d2bb33dbde7f5f7e06506cc27239a0447",
+      "current_entry_sha256": "7632d150a92beba6491a2b7d79ea907f27c8330bcbcc3b2597f7a55239b98833",
+      "current_entry_words": 191,
+      "post_review_changes": [
+        {
+          "at": "2026-10-05T21:28:55.448416+00:00",
+          "note": "Normalized 12 skill names to lowercase-hyphen (pi compatibility); added ~/.codex/skills and ~/.pi/agent/skills import roots; vendored sonar-issue-prevention and sonarcloud-triage.",
+          "tree_sha256": "57a048ff502cc9cf7f4ba0f895dc436d2bb33dbde7f5f7e06506cc27239a0447"
+        }
+      ]
     },
     {
       "id": "scala-zio-skills--zio-reference",
@@ -14738,6 +14160,69 @@
       "sha256": "75621bca5cf88c799b3c1b26e011c032911664f650a58fb5a4dfa64a43b701f7",
       "current_entry_sha256": "1d91fc490c4003e3e861ddfb71c14ab7e8bd7db68ca0ac5f32ceb4a368c1737e",
       "current_entry_words": 650
+    },
+    {
+      "id": "sonar-issue-prevention",
+      "name": "sonar-issue-prevention",
+      "source": "local",
+      "distribution": "vendored",
+      "path": "collections/shared/sonar-issue-prevention",
+      "reviewed": true,
+      "review_method": "Static entrypoint and bundled-file analysis during catalog refresh; no helper executed.",
+      "automatic_discovery_preserved": true,
+      "decision": "retain",
+      "reasons": [
+        "New skill reviewed during refresh; no authority, delegation, or supply-chain concerns in the entrypoint."
+      ],
+      "local_fork": false,
+      "modified_files": [],
+      "evidence": {
+        "source_attribution_preserved": true,
+        "optional_frontmatter_preserved": true
+      },
+      "bundled_files": [
+        "SKILL.md",
+        "agents/openai.yaml",
+        "references/maintainability.md",
+        "references/tooling-safety.md"
+      ],
+      "entry_sha256": "31ebdef91b86e9dcbfff895f046a6a2853fd6cbe5fb8a24c479eb9e28097d677",
+      "words": 265,
+      "line_count": 20,
+      "current_entry_sha256": "31ebdef91b86e9dcbfff895f046a6a2853fd6cbe5fb8a24c479eb9e28097d677",
+      "current_entry_words": 265,
+      "sha256": "860634076560d6914403516cd70cf62254027e56b355c4562551abaac06a4688"
+    },
+    {
+      "id": "sonarcloud-triage",
+      "name": "sonarcloud-triage",
+      "source": "local",
+      "distribution": "vendored",
+      "path": "collections/shared/sonarcloud-triage",
+      "reviewed": true,
+      "review_method": "Static entrypoint and bundled-file analysis during catalog refresh; no helper executed.",
+      "automatic_discovery_preserved": true,
+      "decision": "retain",
+      "reasons": [
+        "New skill reviewed during refresh; no authority, delegation, or supply-chain concerns in the entrypoint."
+      ],
+      "local_fork": false,
+      "modified_files": [],
+      "evidence": {
+        "source_attribution_preserved": true,
+        "optional_frontmatter_preserved": true
+      },
+      "bundled_files": [
+        "SKILL.md",
+        "agents/openai.yaml",
+        "references/triage-pitfalls.md"
+      ],
+      "entry_sha256": "d21417cba47e28ad23cd9eb1faf56344d747fc3176b7f5b03efd0da01248a61b",
+      "words": 422,
+      "line_count": 29,
+      "current_entry_sha256": "d21417cba47e28ad23cd9eb1faf56344d747fc3176b7f5b03efd0da01248a61b",
+      "current_entry_words": 422,
+      "sha256": "7fa19953d52f4ea9593e33f6b2bab908ea60c3ce4d6dc6915007e1caf13f3ce9"
     },
     {
       "id": "source-driven-development",
