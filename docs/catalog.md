@@ -1,6 +1,6 @@
 # Skill catalog
 
-550 unique installed skills: 491 included, 59 external (provider-managed, direct-source, or local-only).
+528 unique installed skills: 469 included, 59 external (provider-managed, direct-source, or local-only).
 
 Install IDs keep same-named skills from different collections in separate directories. The upstream `name` in each skill remains unchanged.
 
@@ -458,39 +458,17 @@ Install IDs keep same-named skills from different collections in separate direct
 | `rust-systems-contracts` | rust-systems-contracts | shared | MIT | [SKILL.md](../collections/shared/rust-systems-contracts/SKILL.md) |
 | `safe-refactor` | safe-refactor | shared | Apache-2.0 | [SKILL.md](../collections/shared/safe-refactor/SKILL.md) |
 | `saga-orchestration` | saga-orchestration | shared | MIT | [SKILL.md](../collections/shared/saga-orchestration/SKILL.md) |
-| `scala-acyclic-whole-run-compiler-adapters` | scala-acyclic-whole-run-compiler-adapters | shared | MIT | [SKILL.md](../collections/shared/scala-acyclic-whole-run-compiler-adapters/SKILL.md) |
-| `scala-ammonite-static-script-dependency-propagation` | scala-ammonite-static-script-dependency-propagation | shared | MIT | [SKILL.md](../collections/shared/scala-ammonite-static-script-dependency-propagation/SKILL.md) |
-| `scala-ammonite-symbol-derived-closure-capture` | scala-ammonite-symbol-derived-closure-capture | shared | MIT | [SKILL.md](../collections/shared/scala-ammonite-symbol-derived-closure-capture/SKILL.md) |
-| `scala-cask-route-trie-validation-order` | scala-cask-route-trie-validation-order | shared | MIT | [SKILL.md](../collections/shared/scala-cask-route-trie-validation-order/SKILL.md) |
-| `scala-castor-platform-mixin-dispatch-accounting` | scala-castor-platform-mixin-dispatch-accounting | shared | MIT | [SKILL.md](../collections/shared/scala-castor-platform-mixin-dispatch-accounting/SKILL.md) |
-| `scala-cats-effect-cleanup-error-provenance` | scala-cats-effect-cleanup-error-provenance | shared | MIT | [SKILL.md](../collections/shared/scala-cats-effect-cleanup-error-provenance/SKILL.md) |
-| `scala-cats-effect-outcome-sensitive-concurrency` | scala-cats-effect-outcome-sensitive-concurrency | shared | MIT | [SKILL.md](../collections/shared/scala-cats-effect-outcome-sensitive-concurrency/SKILL.md) |
-| `scala-cats-effect-runtime-benchmark-review` | scala-cats-effect-runtime-benchmark-review | shared | MIT | [SKILL.md](../collections/shared/scala-cats-effect-runtime-benchmark-review/SKILL.md) |
-| `scala-cats-erased-runtime-compatibility` | scala-cats-erased-runtime-compatibility | shared | MIT | [SKILL.md](../collections/shared/scala-cats-erased-runtime-compatibility/SKILL.md) |
-| `scala-cats-law-backed-instance-surface` | scala-cats-law-backed-instance-surface | shared | MIT | [SKILL.md](../collections/shared/scala-cats-law-backed-instance-surface/SKILL.md) |
-| `scala-cats-traversal-branch-isolation` | scala-cats-traversal-branch-isolation | shared | MIT | [SKILL.md](../collections/shared/scala-cats-traversal-branch-isolation/SKILL.md) |
 | `scala-collections` | scala-collections | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/scala-collections/SKILL.md) |
-| `scala-fastparse-diagnostic-mode-review` | scala-fastparse-diagnostic-mode-review | shared | MIT | [SKILL.md](../collections/shared/scala-fastparse-diagnostic-mode-review/SKILL.md) |
-| `scala-fastparse-hot-path-cost-review` | scala-fastparse-hot-path-cost-review | shared | MIT | [SKILL.md](../collections/shared/scala-fastparse-hot-path-cost-review/SKILL.md) |
-| `scala-fastparse-shared-run-combinator-extraction` | scala-fastparse-shared-run-combinator-extraction | shared | MIT | [SKILL.md](../collections/shared/scala-fastparse-shared-run-combinator-extraction/SKILL.md) |
-| `scala-fs2-foreign-callback-lanes` | scala-fs2-foreign-callback-lanes | shared | MIT | [SKILL.md](../collections/shared/scala-fs2-foreign-callback-lanes/SKILL.md) |
-| `scala-fs2-per-element-scope-propagation` | scala-fs2-per-element-scope-propagation | shared | MIT | [SKILL.md](../collections/shared/scala-fs2-per-element-scope-propagation/SKILL.md) |
-| `scala-fs2-sink-emission-cardinality` | scala-fs2-sink-emission-cardinality | shared | MIT | [SKILL.md](../collections/shared/scala-fs2-sink-emission-cardinality/SKILL.md) |
+| `scala-compiler-macro-refactoring` | scala-compiler-macro-refactoring | shared | MIT | [SKILL.md](../collections/shared/scala-compiler-macro-refactoring/SKILL.md) |
+| `scala-effect-cancellation-finalization` | scala-effect-cancellation-finalization | shared | MIT | [SKILL.md](../collections/shared/scala-effect-cancellation-finalization/SKILL.md) |
 | `scala-functional-patterns` | scala-functional-patterns | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/scala-functional-patterns/SKILL.md) |
-| `scala-http4s-http1-bodyless-connection-framing` | scala-http4s-http1-bodyless-connection-framing | shared | MIT | [SKILL.md](../collections/shared/scala-http4s-http1-bodyless-connection-framing/SKILL.md) |
-| `scala-http4s-stateful-factory-acquisition` | scala-http4s-stateful-factory-acquisition | shared | MIT | [SKILL.md](../collections/shared/scala-http4s-stateful-factory-acquisition/SKILL.md) |
-| `scala-http4s-uri-segment-representation` | scala-http4s-uri-segment-representation | shared | MIT | [SKILL.md](../collections/shared/scala-http4s-uri-segment-representation/SKILL.md) |
+| `scala-http-server-semantics` | scala-http-server-semantics | shared | MIT | [SKILL.md](../collections/shared/scala-http-server-semantics/SKILL.md) |
+| `scala-library-compatibility-laws` | scala-library-compatibility-laws | shared | MIT | [SKILL.md](../collections/shared/scala-library-compatibility-laws/SKILL.md) |
 | `scala-library-contracts` | scala-library-contracts | shared | MIT | [SKILL.md](../collections/shared/scala-library-contracts/SKILL.md) |
 | `scala-oss-library-review` | scala-oss-library-review | shared | MIT | [SKILL.md](../collections/shared/scala-oss-library-review/SKILL.md) |
-| `scala-play-cors-csrf-policy-matrix` | scala-play-cors-csrf-policy-matrix | shared | MIT | [SKILL.md](../collections/shared/scala-play-cors-csrf-policy-matrix/SKILL.md) |
-| `scala-play-partial-startup-shutdown-completion` | scala-play-partial-startup-shutdown-completion | shared | MIT | [SKILL.md](../collections/shared/scala-play-partial-startup-shutdown-completion/SKILL.md) |
-| `scala-sourcecode-args-capture-review` | scala-sourcecode-args-capture-review | shared | MIT | [SKILL.md](../collections/shared/scala-sourcecode-args-capture-review/SKILL.md) |
+| `scala-runtime-diagnostics-hot-paths` | scala-runtime-diagnostics-hot-paths | shared | MIT | [SKILL.md](../collections/shared/scala-runtime-diagnostics-hot-paths/SKILL.md) |
+| `scala-stream-resource-scoping` | scala-stream-resource-scoping | shared | MIT | [SKILL.md](../collections/shared/scala-stream-resource-scoping/SKILL.md) |
 | `scala-type-system` | scala-type-system | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/scala-type-system/SKILL.md) |
-| `scala-zio-canceler-evaluation-owner` | scala-zio-canceler-evaluation-owner | shared | MIT | [SKILL.md](../collections/shared/scala-zio-canceler-evaluation-owner/SKILL.md) |
-| `scala-zio-diagnostic-reader-progress` | scala-zio-diagnostic-reader-progress | shared | MIT | [SKILL.md](../collections/shared/scala-zio-diagnostic-reader-progress/SKILL.md) |
-| `scala-zio-http-channel-handoff-completion` | scala-zio-http-channel-handoff-completion | shared | MIT | [SKILL.md](../collections/shared/scala-zio-http-channel-handoff-completion/SKILL.md) |
-| `scala-zio-http-middleware-execution-boundaries` | scala-zio-http-middleware-execution-boundaries | shared | MIT | [SKILL.md](../collections/shared/scala-zio-http-middleware-execution-boundaries/SKILL.md) |
-| `scala-zio-http-request-local-error-disclosure` | scala-zio-http-request-local-error-disclosure | shared | MIT | [SKILL.md](../collections/shared/scala-zio-http-request-local-error-disclosure/SKILL.md) |
 | `scala-zio-skills--zio-reference` | zio-reference | scala-zio-skills | MIT | [SKILL.md](../collections/scala-zio-skills/skills/zio-reference/SKILL.md) |
 | `security-and-hardening` | security-and-hardening | shared | MIT | [SKILL.md](../collections/shared/security-and-hardening/SKILL.md) |
 | `security-best-practices` | security-best-practices | shared | MIT | [SKILL.md](../collections/shared/security-best-practices/SKILL.md) |

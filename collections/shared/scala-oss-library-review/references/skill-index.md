@@ -3,51 +3,14 @@
 Generated from the promotion ledger; do not edit by hand. Pick the narrowest skill whose
 trigger matches the code under change. Several may apply to one PR.
 
-## Development
+## Merged skills
 
-| Skill | Repository | Use when |
-| --- | --- | --- |
-| `scala-ammonite-static-script-dependency-propagation` | com-lihaoyi/Ammonite | Use when adding Ammonite import-hook metadata or refactoring BSP script dependency resolution. |
-| `scala-cats-law-backed-instance-surface` | typelevel/cats | Use when adding Cats algebra instances, derived typeclass operations, or public implicit construction helpers. |
-| `scala-fs2-sink-emission-cardinality` | typelevel/fs2 | Use when changing an FS2 sink result type or sequencing after a draining pipe. |
-| `scala-http4s-uri-segment-representation` | http4s/http4s | Use when changing http4s URI path encoding, segment constructors, normalization, or String-to-Path equality. |
-
-## Review
-
-| Skill | Repository | Use when |
-| --- | --- | --- |
-| `scala-cats-effect-outcome-sensitive-concurrency` | typelevel/cats-effect | Use when reviewing Cats Effect race, memoize, or Fiber.cancel refactors that change cancellation outcomes, waiter cleanup, or startup behavior. |
-| `scala-cats-effect-runtime-benchmark-review` | typelevel/cats-effect | Use when reviewing Cats Effect scheduler placement or runtime array-copy optimizations whose benchmarks may exercise the wrong path, callback origin, or representation. |
-| `scala-cats-erased-runtime-compatibility` | typelevel/cats | Use when reviewing Cats erased generic signature changes or new cached instances in inherited Scala 2 traits. |
-| `scala-fastparse-diagnostic-mode-review` | com-lihaoyi/fastparse | Use when changing Fastparse Fail labels, verbose failure reporting, or failure trace replay. |
-| `scala-fastparse-hot-path-cost-review` | com-lihaoyi/fastparse | Use when reviewing allocation, closure or bytecode-size changes in Fastparse ParsingRun helpers, inline/macro combinators, or diagnostic-message construction. |
-| `scala-fs2-per-element-scope-propagation` | typelevel/fs2 | Use when reviewing FS2 scope propagation across prefetch, channels or parEvalMap. |
-| `scala-sourcecode-args-capture-review` | com-lihaoyi/sourcecode | Use when reviewing sourcecode.Args macro changes. |
-| `scala-zio-diagnostic-reader-progress` | zio/zio | Use when changing ZIO fiber diagnostic reads. |
-
-## Refactoring
-
-| Skill | Repository | Use when |
-| --- | --- | --- |
-| `scala-acyclic-whole-run-compiler-adapters` | com-lihaoyi/acyclic | Use when refactoring Acyclic compiler adapters. |
-| `scala-ammonite-symbol-derived-closure-capture` | com-lihaoyi/Ammonite | Use when refactoring Ammonite REPL class wrappers, used-command tracking, or serialized closure capture. |
-| `scala-cask-route-trie-validation-order` | com-lihaoyi/cask | Use when refactoring Cask route-trie construction, method maps, duplicate-route validation, or default 404/405 dispatch. |
-| `scala-castor-platform-mixin-dispatch-accounting` | com-lihaoyi/castor | Use when refactoring Castor Context platform mixins or reviewing their inherited JVM/JS/Native API boundary. |
-| `scala-cats-traversal-branch-isolation` | typelevel/cats | Use when optimizing Cats Traverse or mapAccumulate with builders, strict-map helpers, or runtime-selected fast paths. |
-| `scala-fastparse-shared-run-combinator-extraction` | com-lihaoyi/fastparse | Use when refactoring Fastparse higher-order parsers, sequence or repetition macros, or reusable whitespace cuts. |
-| `scala-fs2-foreign-callback-lanes` | typelevel/fs2 | Use when refactoring FS2 foreign request/cancel callbacks or restartable server streams. |
-| `scala-http4s-stateful-factory-acquisition` | http4s/http4s | Use when refactoring http4s stateful middleware factories or their nonce and token-bucket tests. |
-| `scala-play-partial-startup-shutdown-completion` | playframework/playframework | Use when refactoring Play ApplicationLifecycle, development startup hooks, or coordinated server shutdown. |
-| `scala-zio-canceler-evaluation-owner` | zio/zio | Use when refactoring ZIO cancel-token bridges. |
-| `scala-zio-http-middleware-execution-boundaries` | zio/zio-http | Use when refactoring ZIO HTTP middleware placement. |
-
-## Hardening
-
-| Skill | Repository | Use when |
-| --- | --- | --- |
-| `scala-cats-effect-cleanup-error-provenance` | typelevel/cats-effect | Use when hardening Cats Effect IO cleanup-error handling that combines use, release, cancellation, or parallel failures and may mutate or hide exceptions. |
-| `scala-http4s-http1-bodyless-connection-framing` | http4s/http4s | Use when changing http4s Ember HTTP/1 HEAD handling, drain metadata, response remainders, or connection reuse. |
-| `scala-play-cors-csrf-policy-matrix` | playframework/playframework | Use when reviewing or hardening Play CORS origin matching or CSRF token/cache decisions. |
-| `scala-zio-http-channel-handoff-completion` | zio/zio-http | Use when changing ZIO HTTP pooled-channel completion. |
-| `scala-zio-http-request-local-error-disclosure` | zio/zio-http | Use when changing ZIO HTTP generated-error disclosure. |
+| Skill | Repositories | Folded findings | Use when |
+| --- | --- | --- | --- |
+| `scala-compiler-macro-refactoring` | com-lihaoyi/acyclic, com-lihaoyi/Ammonite, com-lihaoyi/fastparse, com-lihaoyi/sourcecode | acyclic-whole-run-compiler-adapters (refactoring), ammonite-static-script-dependency-propagation (development), ammonite-symbol-derived-closure-capture (refactoring), fastparse-shared-run-combinator-extraction (refactoring), sourcecode-args-capture-review (review) | Use when refactoring or reviewing Scala compiler plugins, macros/inline combinators, or REPL/script tooling where the risk is changing what is captured, when it runs, or what the compiler sees - Acyclic whole-run Scala 2/3 analysis and diagnostics, sourcecode Args argument capture, Ammonite symbol-derived closure capture and static BSP script dependency propagation, and Fastparse shared-run combinator extraction. |
+| `scala-effect-cancellation-finalization` | playframework/playframework, typelevel/cats-effect, zio/zio | cats-effect-cleanup-error-provenance (hardening), cats-effect-outcome-sensitive-concurrency (review), play-partial-startup-shutdown-completion (refactoring), zio-canceler-evaluation-owner (refactoring) | Use when a Scala change alters how cancellation, failure and success are distinguished or how cleanup completes - Cats Effect race/memoize/Fiber.cancel outcomes and bracket/finalizer error provenance, ZIO cancel-token bridges and their evaluation executor, Play ApplicationLifecycle partial startup, stop() completion and CoordinatedShutdown draining. |
+| `scala-http-server-semantics` | com-lihaoyi/cask, http4s/http4s, playframework/playframework, zio/zio-http | cask-route-trie-validation-order (refactoring), http4s-http1-bodyless-connection-framing (hardening), http4s-uri-segment-representation (development), play-cors-csrf-policy-matrix (hardening), zio-http-channel-handoff-completion (hardening), zio-http-middleware-execution-boundaries (refactoring), zio-http-request-local-error-disclosure (hardening) | Use when changing or reviewing HTTP server/client semantics in Scala libraries (http4s Ember HTTP/1 framing and connection reuse, http4s URI path segments, Cask route-trie validation and 404/405 dispatch, ZIO HTTP pooled-channel handoff, middleware execution boundaries and error disclosure, Play CORS/CSRF filter policy) by treating behavior as an explicit matrix of observable outcomes. |
+| `scala-library-compatibility-laws` | com-lihaoyi/castor, typelevel/cats | castor-platform-mixin-dispatch-accounting (refactoring), cats-erased-runtime-compatibility (review), cats-law-backed-instance-surface (development), cats-traversal-branch-isolation (refactoring) | Use when a published Scala library change must stay compatible beyond "it links" (erased generic signatures, inherited trait fields/accessors, old-compiled bytecode on a new runtime, source vs binary compatibility, JVM/JS/Native platform mixins) or must keep a law-backed typeclass surface honest, including traversal fast paths that must preserve branch-local isolation; grounded in Cats and Castor review history. |
+| `scala-runtime-diagnostics-hot-paths` | com-lihaoyi/fastparse, typelevel/cats-effect, zio/zio | cats-effect-runtime-benchmark-review (review), fastparse-diagnostic-mode-review (review), fastparse-hot-path-cost-review (review), zio-diagnostic-reader-progress (review) | Use when a Scala library change touches a diagnostic mode, failure-trace replay, a runtime diagnostic reader (fiber children/dumps), a per-step hot path (allocation, closures, macro/inline callsite bytecode) or a performance claim backed by a benchmark — covering Fastparse verbose failures/trace and ParsingRun cost, Cats Effect scheduler and packed-stack benchmarks, and ZIO fiber child observation. |
+| `scala-stream-resource-scoping` | http4s/http4s, typelevel/fs2 | fs2-foreign-callback-lanes (refactoring), fs2-per-element-scope-propagation (review), fs2-sink-emission-cardinality (development), http4s-stateful-factory-acquisition (refactoring) | Use when a Scala stream or effectful factory change moves where a resource, state or execution lane is acquired, owned, used or released - FS2 scope propagation across channels/prefetch/parEvalMap, FS2 foreign callback (Reactive Streams, Dispatcher, accept-loop) lanes and ownership, FS2 sink emission cardinality under drain/append/flatMap, and http4s stateful middleware factories (nonce, throttle) whose state must live at the acquisition boundary. |
 

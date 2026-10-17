@@ -1,6 +1,7 @@
 """Incremental consolidation of accepted skills; synthetic fixtures only, never research evidence."""
 import json
 import os
+import shutil
 import sys
 import tempfile
 import types
@@ -238,6 +239,43 @@ class ConsolidationTests(unittest.TestCase):
         self.assertIn('scala-zio-a', index)
         entry = next(r for r in s.load(self.checkout / 'catalog.json')['skills'] if r['id'] == s.HUB_SKILL)
         self.assertEqual(tree_hash(hub), entry['sha256'])
+
+    def merge_by_hand(self, sid, target):
+        """Simulate folding a promoted skill into a hand-written broader skill."""
+        ledger_path = self.checkout / 'research/scala-history/promoted-skills.json'
+        ledger = s.load(ledger_path)
+        ledger['skills'][sid]['merged_into'] = target
+        s.atomic_json(ledger_path, ledger)
+        dest = self.checkout / 'collections/shared' / target
+        dest.mkdir(parents=True)
+        (dest / 'SKILL.md').write_text(f'---\nname: {target}\ndescription: Use when testing merged.\nlicense: MIT\n---\n')
+        for path in (self.checkout / 'collections/shared' / sid, self.checkout / 'collections/hermes' / sid):
+            path.unlink() if path.is_symlink() else shutil.rmtree(path)
+        s.atomic_json(self.checkout / 'catalog.json', {'skills': [
+            r for r in s.load(self.checkout / 'catalog.json')['skills'] if r['id'] != sid]})
+
+    def test_merged_skill_is_not_repromoted_and_is_indexed_under_its_target(self):
+        self.accept('zio/zio', [('scala-zio-a', 'review'), ('scala-zio-b', 'hardening')])
+        s.promote_accepted(self.state, Runner())
+        self.merge_by_hand('scala-zio-a', 'scala-zio-merged')
+        result = s.promote_accepted(self.state, Runner())
+        self.assertEqual(['scala-zio-a', 'scala-zio-b'], result['unchanged'])
+        self.assertFalse((self.checkout / 'collections/shared/scala-zio-a').exists())
+        self.assertNotIn('scala-zio-a', self.catalog_ids())
+        knowledge = (self.checkout / 'research/scala-history/KNOWLEDGE.md').read_text()
+        self.assertIn('| `scala-zio-merged` | zio/zio | zio-a (review) | Use when testing merged. |', knowledge)
+        self.assertIn('merged into `scala-zio-merged`', knowledge)
+        self.assertIn('Installed as 2 skills', knowledge)
+
+    def test_new_acceptance_for_merged_skill_is_refused(self):
+        candidate, _ = self.accept('zio/zio', [('scala-zio-a', 'review')])
+        s.promote_accepted(self.state, Runner())
+        self.merge_by_hand('scala-zio-a', 'scala-zio-merged')
+        (candidate / 'skills/scala-zio-a/references/evidence.json').write_text('{"changed": true}\n')
+        self.accept('zio/zio', [('scala-zio-a', 'review')], write=False)
+        with self.assertRaisesRegex(ValueError, 'merged into scala-zio-merged'):
+            s.promote_accepted(self.state, Runner())
+        self.assertFalse((self.checkout / 'collections/shared/scala-zio-a').exists())
 
 
 if __name__ == '__main__':

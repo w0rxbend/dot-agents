@@ -6368,171 +6368,6 @@
       "license_file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
     },
     {
-      "id": "scala-acyclic-whole-run-compiler-adapters",
-      "name": "scala-acyclic-whole-run-compiler-adapters",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "85ee77e44bbfa67b8a4bc6606c70642590e0b29dc8dd061a94fb58be30f89942",
-      "local_globs": [
-        "~/.agents/skills/scala-acyclic-whole-run-compiler-adapters",
-        "~/.hermes/skills/scala-acyclic-whole-run-compiler-adapters"
-      ],
-      "path": "collections/shared/scala-acyclic-whole-run-compiler-adapters",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-acyclic-whole-run-compiler-adapters/LICENSE"
-    },
-    {
-      "id": "scala-ammonite-static-script-dependency-propagation",
-      "name": "scala-ammonite-static-script-dependency-propagation",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "a932d082a2f75285d0b179c04f9d77256bdbbdaab05197ef6713d1eb0bd4d9ff",
-      "local_globs": [
-        "~/.agents/skills/scala-ammonite-static-script-dependency-propagation",
-        "~/.hermes/skills/scala-ammonite-static-script-dependency-propagation"
-      ],
-      "path": "collections/shared/scala-ammonite-static-script-dependency-propagation",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-ammonite-static-script-dependency-propagation/LICENSE"
-    },
-    {
-      "id": "scala-ammonite-symbol-derived-closure-capture",
-      "name": "scala-ammonite-symbol-derived-closure-capture",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "f5b5a2b67b59b59dafbebd28e83a1cbc5bbcad83f946cd7f900fe8f41ecd1b98",
-      "local_globs": [
-        "~/.agents/skills/scala-ammonite-symbol-derived-closure-capture",
-        "~/.hermes/skills/scala-ammonite-symbol-derived-closure-capture"
-      ],
-      "path": "collections/shared/scala-ammonite-symbol-derived-closure-capture",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-ammonite-symbol-derived-closure-capture/LICENSE"
-    },
-    {
-      "id": "scala-cask-route-trie-validation-order",
-      "name": "scala-cask-route-trie-validation-order",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "effef531a378f80412b44235fef2aab215f11d863bab1985ce6f3f0933d216c3",
-      "local_globs": [
-        "~/.agents/skills/scala-cask-route-trie-validation-order",
-        "~/.hermes/skills/scala-cask-route-trie-validation-order"
-      ],
-      "path": "collections/shared/scala-cask-route-trie-validation-order",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-cask-route-trie-validation-order/LICENSE"
-    },
-    {
-      "id": "scala-castor-platform-mixin-dispatch-accounting",
-      "name": "scala-castor-platform-mixin-dispatch-accounting",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "3fae01ecc24fe00f1695bc64a3c8d839c85d1c62bf3b61a3be2156a93a07471d",
-      "local_globs": [
-        "~/.agents/skills/scala-castor-platform-mixin-dispatch-accounting",
-        "~/.hermes/skills/scala-castor-platform-mixin-dispatch-accounting"
-      ],
-      "path": "collections/shared/scala-castor-platform-mixin-dispatch-accounting",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-castor-platform-mixin-dispatch-accounting/LICENSE"
-    },
-    {
-      "id": "scala-cats-effect-cleanup-error-provenance",
-      "name": "scala-cats-effect-cleanup-error-provenance",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "89ba8b3940eb04c639c471ab92603998371203c9f2919d6b8a531259800926cc",
-      "local_globs": [
-        "~/.agents/skills/scala-cats-effect-cleanup-error-provenance",
-        "~/.hermes/skills/scala-cats-effect-cleanup-error-provenance"
-      ],
-      "path": "collections/shared/scala-cats-effect-cleanup-error-provenance",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-cats-effect-cleanup-error-provenance/LICENSE"
-    },
-    {
-      "id": "scala-cats-effect-outcome-sensitive-concurrency",
-      "name": "scala-cats-effect-outcome-sensitive-concurrency",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "a7f7b55a30dee88ec209076229286c0443ad5e868d1592a9c4c4ba2439555e65",
-      "local_globs": [
-        "~/.agents/skills/scala-cats-effect-outcome-sensitive-concurrency",
-        "~/.hermes/skills/scala-cats-effect-outcome-sensitive-concurrency"
-      ],
-      "path": "collections/shared/scala-cats-effect-outcome-sensitive-concurrency",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-cats-effect-outcome-sensitive-concurrency/LICENSE"
-    },
-    {
-      "id": "scala-cats-effect-runtime-benchmark-review",
-      "name": "scala-cats-effect-runtime-benchmark-review",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "e76c3f36cf30a1090dfd6c83c3d8f5e45304bb512dd9122dd50ea85b821145c2",
-      "local_globs": [
-        "~/.agents/skills/scala-cats-effect-runtime-benchmark-review",
-        "~/.hermes/skills/scala-cats-effect-runtime-benchmark-review"
-      ],
-      "path": "collections/shared/scala-cats-effect-runtime-benchmark-review",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-cats-effect-runtime-benchmark-review/LICENSE"
-    },
-    {
-      "id": "scala-cats-erased-runtime-compatibility",
-      "name": "scala-cats-erased-runtime-compatibility",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "df50cbeb568a417cc08f96f1912c2e133bbdd0f6f16b6e0a8345af57dacc3540",
-      "local_globs": [
-        "~/.agents/skills/scala-cats-erased-runtime-compatibility",
-        "~/.hermes/skills/scala-cats-erased-runtime-compatibility"
-      ],
-      "path": "collections/shared/scala-cats-erased-runtime-compatibility",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-cats-erased-runtime-compatibility/LICENSE"
-    },
-    {
-      "id": "scala-cats-law-backed-instance-surface",
-      "name": "scala-cats-law-backed-instance-surface",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "cff3007a1b181774da1f158beb38282beedf5fcb7da874d0d50c05c8c26767ee",
-      "local_globs": [
-        "~/.agents/skills/scala-cats-law-backed-instance-surface",
-        "~/.hermes/skills/scala-cats-law-backed-instance-surface"
-      ],
-      "path": "collections/shared/scala-cats-law-backed-instance-surface",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-cats-law-backed-instance-surface/LICENSE"
-    },
-    {
-      "id": "scala-cats-traversal-branch-isolation",
-      "name": "scala-cats-traversal-branch-isolation",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "0d08e2a65b178e663958f1edf73a9d7a61467d6aa8c6efd61755d6813622e1e0",
-      "local_globs": [
-        "~/.agents/skills/scala-cats-traversal-branch-isolation",
-        "~/.hermes/skills/scala-cats-traversal-branch-isolation"
-      ],
-      "path": "collections/shared/scala-cats-traversal-branch-isolation",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-cats-traversal-branch-isolation/LICENSE"
-    },
-    {
       "id": "scala-collections",
       "name": "scala-collections",
       "collection": "shared",
@@ -6547,94 +6382,34 @@
       "license_file": "licenses/upstream/thebushidocollective--han.txt"
     },
     {
-      "id": "scala-fastparse-diagnostic-mode-review",
-      "name": "scala-fastparse-diagnostic-mode-review",
+      "id": "scala-compiler-macro-refactoring",
+      "name": "scala-compiler-macro-refactoring",
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "3f50f87e663b26e92d17cc3077422ce131691eedceeb824f76134be1fed1b802",
+      "sha256": "8fa0408d79c9d4ce1f13013dcb63b1c695c18c94cbc605a574e9c7363b269d6b",
       "local_globs": [
-        "~/.agents/skills/scala-fastparse-diagnostic-mode-review",
-        "~/.hermes/skills/scala-fastparse-diagnostic-mode-review"
+        "~/.agents/skills/scala-compiler-macro-refactoring",
+        "~/.hermes/skills/scala-compiler-macro-refactoring"
       ],
-      "path": "collections/shared/scala-fastparse-diagnostic-mode-review",
+      "path": "collections/shared/scala-compiler-macro-refactoring",
       "distribution": "vendored",
-      "license_file": "collections/shared/scala-fastparse-diagnostic-mode-review/LICENSE"
+      "license_file": "collections/shared/scala-compiler-macro-refactoring/LICENSE"
     },
     {
-      "id": "scala-fastparse-hot-path-cost-review",
-      "name": "scala-fastparse-hot-path-cost-review",
+      "id": "scala-effect-cancellation-finalization",
+      "name": "scala-effect-cancellation-finalization",
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "dbe298c93b3f5cce845028a28755f497e95f1fb4c6918999f46501e154518482",
+      "sha256": "b9401ba75562be5e65b5788c2999330ad3c292ad41540eb65859a545c89e5fa2",
       "local_globs": [
-        "~/.agents/skills/scala-fastparse-hot-path-cost-review",
-        "~/.hermes/skills/scala-fastparse-hot-path-cost-review"
+        "~/.agents/skills/scala-effect-cancellation-finalization",
+        "~/.hermes/skills/scala-effect-cancellation-finalization"
       ],
-      "path": "collections/shared/scala-fastparse-hot-path-cost-review",
+      "path": "collections/shared/scala-effect-cancellation-finalization",
       "distribution": "vendored",
-      "license_file": "collections/shared/scala-fastparse-hot-path-cost-review/LICENSE"
-    },
-    {
-      "id": "scala-fastparse-shared-run-combinator-extraction",
-      "name": "scala-fastparse-shared-run-combinator-extraction",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "0afba4ba929be0661aff50e9e30c95cf42a666e8a89fb3ab6799afe3d9a9cf9d",
-      "local_globs": [
-        "~/.agents/skills/scala-fastparse-shared-run-combinator-extraction",
-        "~/.hermes/skills/scala-fastparse-shared-run-combinator-extraction"
-      ],
-      "path": "collections/shared/scala-fastparse-shared-run-combinator-extraction",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-fastparse-shared-run-combinator-extraction/LICENSE"
-    },
-    {
-      "id": "scala-fs2-foreign-callback-lanes",
-      "name": "scala-fs2-foreign-callback-lanes",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "1660e18bcdd26f017ce60b63d03d7fd17049ff52a23c6e3dd92396318de1e59f",
-      "local_globs": [
-        "~/.agents/skills/scala-fs2-foreign-callback-lanes",
-        "~/.hermes/skills/scala-fs2-foreign-callback-lanes"
-      ],
-      "path": "collections/shared/scala-fs2-foreign-callback-lanes",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-fs2-foreign-callback-lanes/LICENSE"
-    },
-    {
-      "id": "scala-fs2-per-element-scope-propagation",
-      "name": "scala-fs2-per-element-scope-propagation",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "ba9ee938d2fbed2f3e0b9ed1a3a4bc6520ed831d22586c7729410332d6f11f38",
-      "local_globs": [
-        "~/.agents/skills/scala-fs2-per-element-scope-propagation",
-        "~/.hermes/skills/scala-fs2-per-element-scope-propagation"
-      ],
-      "path": "collections/shared/scala-fs2-per-element-scope-propagation",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-fs2-per-element-scope-propagation/LICENSE"
-    },
-    {
-      "id": "scala-fs2-sink-emission-cardinality",
-      "name": "scala-fs2-sink-emission-cardinality",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "5da471b615c2c99bec8a9295b2b3159e6a5d258cf721601d42525729c0141828",
-      "local_globs": [
-        "~/.agents/skills/scala-fs2-sink-emission-cardinality",
-        "~/.hermes/skills/scala-fs2-sink-emission-cardinality"
-      ],
-      "path": "collections/shared/scala-fs2-sink-emission-cardinality",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-fs2-sink-emission-cardinality/LICENSE"
+      "license_file": "collections/shared/scala-effect-cancellation-finalization/LICENSE"
     },
     {
       "id": "scala-functional-patterns",
@@ -6651,49 +6426,34 @@
       "license_file": "licenses/upstream/thebushidocollective--han.txt"
     },
     {
-      "id": "scala-http4s-http1-bodyless-connection-framing",
-      "name": "scala-http4s-http1-bodyless-connection-framing",
+      "id": "scala-http-server-semantics",
+      "name": "scala-http-server-semantics",
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "5bd3efbfe0e818d1419379122cc10e0de1e548e09c18bb94e2161f286101db14",
+      "sha256": "fe78d511427efb769184c5adbddc9889b3e8a19dd1538105e4fd8d92d7d6c305",
       "local_globs": [
-        "~/.agents/skills/scala-http4s-http1-bodyless-connection-framing",
-        "~/.hermes/skills/scala-http4s-http1-bodyless-connection-framing"
+        "~/.agents/skills/scala-http-server-semantics",
+        "~/.hermes/skills/scala-http-server-semantics"
       ],
-      "path": "collections/shared/scala-http4s-http1-bodyless-connection-framing",
+      "path": "collections/shared/scala-http-server-semantics",
       "distribution": "vendored",
-      "license_file": "collections/shared/scala-http4s-http1-bodyless-connection-framing/LICENSE"
+      "license_file": "collections/shared/scala-http-server-semantics/LICENSE"
     },
     {
-      "id": "scala-http4s-stateful-factory-acquisition",
-      "name": "scala-http4s-stateful-factory-acquisition",
+      "id": "scala-library-compatibility-laws",
+      "name": "scala-library-compatibility-laws",
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "eb710c0f2f5f10b4cf2ea462c449708e90f25fa541bddc897f41a5e840481f9d",
+      "sha256": "983b96a6d370e2b21dc30a8939dd646481e0bcfc240e0b9ab9f46a905e26c2ee",
       "local_globs": [
-        "~/.agents/skills/scala-http4s-stateful-factory-acquisition",
-        "~/.hermes/skills/scala-http4s-stateful-factory-acquisition"
+        "~/.agents/skills/scala-library-compatibility-laws",
+        "~/.hermes/skills/scala-library-compatibility-laws"
       ],
-      "path": "collections/shared/scala-http4s-stateful-factory-acquisition",
+      "path": "collections/shared/scala-library-compatibility-laws",
       "distribution": "vendored",
-      "license_file": "collections/shared/scala-http4s-stateful-factory-acquisition/LICENSE"
-    },
-    {
-      "id": "scala-http4s-uri-segment-representation",
-      "name": "scala-http4s-uri-segment-representation",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "e146850ca55b7724c5517bf5a959a156c4904dcb744911eec5b3410ea20b734c",
-      "local_globs": [
-        "~/.agents/skills/scala-http4s-uri-segment-representation",
-        "~/.hermes/skills/scala-http4s-uri-segment-representation"
-      ],
-      "path": "collections/shared/scala-http4s-uri-segment-representation",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-http4s-uri-segment-representation/LICENSE"
+      "license_file": "collections/shared/scala-library-compatibility-laws/LICENSE"
     },
     {
       "id": "scala-library-contracts",
@@ -6716,7 +6476,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "c4d646dccd278bfbca996aa873227cf8117c535fd61245f33b35651eee4f25dd",
+      "sha256": "38cabbd7c2ce0f5214e57c1ea8405bacf7c773bd683a73c70e3f25e7fa508b16",
       "local_globs": [
         "~/.agents/skills/scala-oss-library-review",
         "~/.hermes/skills/scala-oss-library-review"
@@ -6726,49 +6486,34 @@
       "license_file": "collections/shared/scala-oss-library-review/LICENSE"
     },
     {
-      "id": "scala-play-cors-csrf-policy-matrix",
-      "name": "scala-play-cors-csrf-policy-matrix",
+      "id": "scala-runtime-diagnostics-hot-paths",
+      "name": "scala-runtime-diagnostics-hot-paths",
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "f2673112daabf9a64042c59934fde94b4f0fc3a047798aaa56c522be1a1c3c12",
+      "sha256": "a3474974209eff4bfa1aa6051b34bc3106b313e01a0ae828ed40c1793bcb7779",
       "local_globs": [
-        "~/.agents/skills/scala-play-cors-csrf-policy-matrix",
-        "~/.hermes/skills/scala-play-cors-csrf-policy-matrix"
+        "~/.agents/skills/scala-runtime-diagnostics-hot-paths",
+        "~/.hermes/skills/scala-runtime-diagnostics-hot-paths"
       ],
-      "path": "collections/shared/scala-play-cors-csrf-policy-matrix",
+      "path": "collections/shared/scala-runtime-diagnostics-hot-paths",
       "distribution": "vendored",
-      "license_file": "collections/shared/scala-play-cors-csrf-policy-matrix/LICENSE"
+      "license_file": "collections/shared/scala-runtime-diagnostics-hot-paths/LICENSE"
     },
     {
-      "id": "scala-play-partial-startup-shutdown-completion",
-      "name": "scala-play-partial-startup-shutdown-completion",
+      "id": "scala-stream-resource-scoping",
+      "name": "scala-stream-resource-scoping",
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "7c1acfff30744b61ae636ba753b0626238c3f05d0b7c05e2fefeaf8aac7bf798",
+      "sha256": "17b2b8bc1180fe0650c28d20ad7c13e71b88ef2765bbf8cb47b5608ab7e7a2e2",
       "local_globs": [
-        "~/.agents/skills/scala-play-partial-startup-shutdown-completion",
-        "~/.hermes/skills/scala-play-partial-startup-shutdown-completion"
+        "~/.agents/skills/scala-stream-resource-scoping",
+        "~/.hermes/skills/scala-stream-resource-scoping"
       ],
-      "path": "collections/shared/scala-play-partial-startup-shutdown-completion",
+      "path": "collections/shared/scala-stream-resource-scoping",
       "distribution": "vendored",
-      "license_file": "collections/shared/scala-play-partial-startup-shutdown-completion/LICENSE"
-    },
-    {
-      "id": "scala-sourcecode-args-capture-review",
-      "name": "scala-sourcecode-args-capture-review",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "619f005ddcd3c2f8bdbc8e75880231803a0cb81537cb84fb2fb37a11e0dd6cb3",
-      "local_globs": [
-        "~/.agents/skills/scala-sourcecode-args-capture-review",
-        "~/.hermes/skills/scala-sourcecode-args-capture-review"
-      ],
-      "path": "collections/shared/scala-sourcecode-args-capture-review",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-sourcecode-args-capture-review/LICENSE"
+      "license_file": "collections/shared/scala-stream-resource-scoping/LICENSE"
     },
     {
       "id": "scala-type-system",
@@ -6783,81 +6528,6 @@
       "path": "collections/shared/scala-type-system",
       "distribution": "vendored",
       "license_file": "licenses/upstream/thebushidocollective--han.txt"
-    },
-    {
-      "id": "scala-zio-canceler-evaluation-owner",
-      "name": "scala-zio-canceler-evaluation-owner",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "2bc9835ec4e0c8cec04ec2596625b66d253ba0e2146565a32ba45c9b29fcdb55",
-      "local_globs": [
-        "~/.agents/skills/scala-zio-canceler-evaluation-owner",
-        "~/.hermes/skills/scala-zio-canceler-evaluation-owner"
-      ],
-      "path": "collections/shared/scala-zio-canceler-evaluation-owner",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-zio-canceler-evaluation-owner/LICENSE"
-    },
-    {
-      "id": "scala-zio-diagnostic-reader-progress",
-      "name": "scala-zio-diagnostic-reader-progress",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "c2596764cbb3092b733be330343bc7a70463fcb5ed7813a2cc332b8e4ab9b802",
-      "local_globs": [
-        "~/.agents/skills/scala-zio-diagnostic-reader-progress",
-        "~/.hermes/skills/scala-zio-diagnostic-reader-progress"
-      ],
-      "path": "collections/shared/scala-zio-diagnostic-reader-progress",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-zio-diagnostic-reader-progress/LICENSE"
-    },
-    {
-      "id": "scala-zio-http-channel-handoff-completion",
-      "name": "scala-zio-http-channel-handoff-completion",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "900d66d6b27ffd842d28e0419f5d48daf9bb2a9e95485ed4d802baf4ce798154",
-      "local_globs": [
-        "~/.agents/skills/scala-zio-http-channel-handoff-completion",
-        "~/.hermes/skills/scala-zio-http-channel-handoff-completion"
-      ],
-      "path": "collections/shared/scala-zio-http-channel-handoff-completion",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-zio-http-channel-handoff-completion/LICENSE"
-    },
-    {
-      "id": "scala-zio-http-middleware-execution-boundaries",
-      "name": "scala-zio-http-middleware-execution-boundaries",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "81b647b8772b9d76370108458eeef43efadca5a827001a9e2ab74ed7ecf2bcee",
-      "local_globs": [
-        "~/.agents/skills/scala-zio-http-middleware-execution-boundaries",
-        "~/.hermes/skills/scala-zio-http-middleware-execution-boundaries"
-      ],
-      "path": "collections/shared/scala-zio-http-middleware-execution-boundaries",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-zio-http-middleware-execution-boundaries/LICENSE"
-    },
-    {
-      "id": "scala-zio-http-request-local-error-disclosure",
-      "name": "scala-zio-http-request-local-error-disclosure",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "390de841d73d775b9a462b7fd87b5060976e2aeb196dede7aa3c160a23581e69",
-      "local_globs": [
-        "~/.agents/skills/scala-zio-http-request-local-error-disclosure",
-        "~/.hermes/skills/scala-zio-http-request-local-error-disclosure"
-      ],
-      "path": "collections/shared/scala-zio-http-request-local-error-disclosure",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-zio-http-request-local-error-disclosure/LICENSE"
     },
     {
       "id": "scala-zio-skills--zio-reference",

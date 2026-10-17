@@ -2,7 +2,7 @@
   "schema_version": 1,
   "reviewed_at": "2026-10-17T21:22:59.372300+00:00",
   "summary": {
-    "baseline_catalog_skills": 550,
+    "baseline_catalog_skills": 528,
     "canonical_entrypoint_files_read": 583,
     "duplicate_alias_variants": 23,
     "alias_variant_content_identical": true,
@@ -11,20 +11,20 @@
     "provider_managed_skills": 59,
     "explicit_only_policies_preserved": 27,
     "prospective_official_pixi_skills": 9,
-    "per_skill_decisions": 550,
+    "per_skill_decisions": 528,
     "changed_skills": 95,
     "changed_entrypoint_words_before": 154798,
     "changed_entrypoint_words_after": 136813,
     "decisions": {
       "fix": 43,
       "tailor": 38,
-      "retain": 385,
+      "retain": 363,
       "add": 25,
       "provider-managed": 58,
       "local-private": 1
     },
-    "final_catalog_skills": 550,
-    "public_vendored_skills": 491,
+    "final_catalog_skills": 528,
+    "public_vendored_skills": 469,
     "external_skills": 59,
     "existing_skills_updated": 92,
     "public_skills_added": 25,
@@ -13780,350 +13780,6 @@
       ]
     },
     {
-      "id": "scala-acyclic-whole-run-compiler-adapters",
-      "name": "scala-acyclic-whole-run-compiler-adapters",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-acyclic-whole-run-compiler-adapters",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from com-lihaoyi/acyclic 2018-2024 source and PR review history; independently accepted (review sha256 8897d3e2045c)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json",
-        "references/historical-boundaries.md"
-      ],
-      "entry_sha256": "4eb62773730fc4f05e03f9520af7ef38b51241acda22362ddc151585d0b00645",
-      "words": 1462,
-      "line_count": 93,
-      "current_entry_sha256": "4eb62773730fc4f05e03f9520af7ef38b51241acda22362ddc151585d0b00645",
-      "current_entry_words": 1462,
-      "sha256": "85ee77e44bbfa67b8a4bc6606c70642590e0b29dc8dd061a94fb58be30f89942"
-    },
-    {
-      "id": "scala-ammonite-static-script-dependency-propagation",
-      "name": "scala-ammonite-static-script-dependency-propagation",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-ammonite-static-script-dependency-propagation",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from com-lihaoyi/Ammonite 2018-2024 source and PR review history; independently accepted (review sha256 080f6dab5847)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "514fe440b73b89885d74838a321d4930e09a2774caa835d94cd351f9e27d47bb",
-      "words": 1287,
-      "line_count": 76,
-      "current_entry_sha256": "514fe440b73b89885d74838a321d4930e09a2774caa835d94cd351f9e27d47bb",
-      "current_entry_words": 1287,
-      "sha256": "a932d082a2f75285d0b179c04f9d77256bdbbdaab05197ef6713d1eb0bd4d9ff"
-    },
-    {
-      "id": "scala-ammonite-symbol-derived-closure-capture",
-      "name": "scala-ammonite-symbol-derived-closure-capture",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-ammonite-symbol-derived-closure-capture",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from com-lihaoyi/Ammonite 2018-2024 source and PR review history; independently accepted (review sha256 080f6dab5847)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "3ab79dcb4138527515f71235a15c66e6da48c2fde8fe4681273c7083a14f8c84",
-      "words": 1553,
-      "line_count": 84,
-      "current_entry_sha256": "3ab79dcb4138527515f71235a15c66e6da48c2fde8fe4681273c7083a14f8c84",
-      "current_entry_words": 1553,
-      "sha256": "f5b5a2b67b59b59dafbebd28e83a1cbc5bbcad83f946cd7f900fe8f41ecd1b98"
-    },
-    {
-      "id": "scala-cask-route-trie-validation-order",
-      "name": "scala-cask-route-trie-validation-order",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-cask-route-trie-validation-order",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from com-lihaoyi/cask 2018-2024 source and PR review history; independently accepted (review sha256 5346c8283aaa)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json",
-        "references/history.md"
-      ],
-      "entry_sha256": "43c1449cf78808ceb8d6e5bae1ae54408a1da3a4bb532418e7e6e84963c9f637",
-      "words": 1431,
-      "line_count": 94,
-      "current_entry_sha256": "43c1449cf78808ceb8d6e5bae1ae54408a1da3a4bb532418e7e6e84963c9f637",
-      "current_entry_words": 1431,
-      "sha256": "effef531a378f80412b44235fef2aab215f11d863bab1985ce6f3f0933d216c3"
-    },
-    {
-      "id": "scala-castor-platform-mixin-dispatch-accounting",
-      "name": "scala-castor-platform-mixin-dispatch-accounting",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-castor-platform-mixin-dispatch-accounting",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from com-lihaoyi/castor 2018-2024 source and PR review history; independently accepted (review sha256 362a202cc4fe)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json",
-        "references/validation.md"
-      ],
-      "entry_sha256": "16f8126b2c31bab53b2a55ebe0251e27575c7ad927b4a891c2ac9496e4708ad5",
-      "words": 1325,
-      "line_count": 78,
-      "current_entry_sha256": "16f8126b2c31bab53b2a55ebe0251e27575c7ad927b4a891c2ac9496e4708ad5",
-      "current_entry_words": 1325,
-      "sha256": "3fae01ecc24fe00f1695bc64a3c8d839c85d1c62bf3b61a3be2156a93a07471d"
-    },
-    {
-      "id": "scala-cats-effect-cleanup-error-provenance",
-      "name": "scala-cats-effect-cleanup-error-provenance",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-cats-effect-cleanup-error-provenance",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from typelevel/cats-effect 2018-2024 source and PR review history; independently accepted (review sha256 efd2e80f1706)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "0f8ee12107df30d4cce4a7853fa5f7db963279e38a77037f7cfb0c1f76af1c49",
-      "words": 1038,
-      "line_count": 78,
-      "current_entry_sha256": "0f8ee12107df30d4cce4a7853fa5f7db963279e38a77037f7cfb0c1f76af1c49",
-      "current_entry_words": 1038,
-      "sha256": "89ba8b3940eb04c639c471ab92603998371203c9f2919d6b8a531259800926cc"
-    },
-    {
-      "id": "scala-cats-effect-outcome-sensitive-concurrency",
-      "name": "scala-cats-effect-outcome-sensitive-concurrency",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-cats-effect-outcome-sensitive-concurrency",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from typelevel/cats-effect 2018-2024 source and PR review history; independently accepted (review sha256 efd2e80f1706)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "2d6c475b0f2ac68f8c6a00bc4a54a9e77c2a493da578991a0f84c72f4c53754a",
-      "words": 1036,
-      "line_count": 76,
-      "current_entry_sha256": "2d6c475b0f2ac68f8c6a00bc4a54a9e77c2a493da578991a0f84c72f4c53754a",
-      "current_entry_words": 1036,
-      "sha256": "a7f7b55a30dee88ec209076229286c0443ad5e868d1592a9c4c4ba2439555e65"
-    },
-    {
-      "id": "scala-cats-effect-runtime-benchmark-review",
-      "name": "scala-cats-effect-runtime-benchmark-review",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-cats-effect-runtime-benchmark-review",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from typelevel/cats-effect 2018-2024 source and PR review history; independently accepted (review sha256 efd2e80f1706)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "daa078a1fd9e3042945f3667bc5fcf3d2f3810f3b9d467174d757314ab76dfa5",
-      "words": 1098,
-      "line_count": 81,
-      "current_entry_sha256": "daa078a1fd9e3042945f3667bc5fcf3d2f3810f3b9d467174d757314ab76dfa5",
-      "current_entry_words": 1098,
-      "sha256": "e76c3f36cf30a1090dfd6c83c3d8f5e45304bb512dd9122dd50ea85b821145c2"
-    },
-    {
-      "id": "scala-cats-erased-runtime-compatibility",
-      "name": "scala-cats-erased-runtime-compatibility",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-cats-erased-runtime-compatibility",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from typelevel/cats 2018-2024 source and PR review history; independently accepted (review sha256 1911404d40e1)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "b80c7056efa07339cc0ad346b7f1f88de81aa383dfb2d27f1e7f6fe11633443f",
-      "words": 1185,
-      "line_count": 81,
-      "current_entry_sha256": "b80c7056efa07339cc0ad346b7f1f88de81aa383dfb2d27f1e7f6fe11633443f",
-      "current_entry_words": 1185,
-      "sha256": "df50cbeb568a417cc08f96f1912c2e133bbdd0f6f16b6e0a8345af57dacc3540"
-    },
-    {
-      "id": "scala-cats-law-backed-instance-surface",
-      "name": "scala-cats-law-backed-instance-surface",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-cats-law-backed-instance-surface",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from typelevel/cats 2018-2024 source and PR review history; independently accepted (review sha256 1911404d40e1)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "ac6f6fe3ea5cb67f960a4cf2e81042678392ca891f253e00b2380f3292281576",
-      "words": 1164,
-      "line_count": 78,
-      "current_entry_sha256": "ac6f6fe3ea5cb67f960a4cf2e81042678392ca891f253e00b2380f3292281576",
-      "current_entry_words": 1164,
-      "sha256": "cff3007a1b181774da1f158beb38282beedf5fcb7da874d0d50c05c8c26767ee"
-    },
-    {
-      "id": "scala-cats-traversal-branch-isolation",
-      "name": "scala-cats-traversal-branch-isolation",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-cats-traversal-branch-isolation",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from typelevel/cats 2018-2024 source and PR review history; independently accepted (review sha256 1911404d40e1)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "ce2f15e11f4355f54ba1d730067556a94d31a0faac30958e7728e5773e69ce00",
-      "words": 1168,
-      "line_count": 80,
-      "current_entry_sha256": "ce2f15e11f4355f54ba1d730067556a94d31a0faac30958e7728e5773e69ce00",
-      "current_entry_words": 1168,
-      "sha256": "0d08e2a65b178e663958f1edf73a9d7a61467d6aa8c6efd61755d6813622e1e0"
-    },
-    {
       "id": "scala-collections",
       "name": "Scala Collections",
       "source": "thebushidocollective/han",
@@ -14170,17 +13826,17 @@
       ]
     },
     {
-      "id": "scala-fastparse-diagnostic-mode-review",
-      "name": "scala-fastparse-diagnostic-mode-review",
+      "id": "scala-compiler-macro-refactoring",
+      "name": "scala-compiler-macro-refactoring",
       "source": "local",
       "distribution": "vendored",
-      "path": "collections/shared/scala-fastparse-diagnostic-mode-review",
+      "path": "collections/shared/scala-compiler-macro-refactoring",
       "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
+      "review_method": "Hand-merged from independently accepted history-research skills; each source kept as a case reference with its byte-identical evidence.json; static entrypoint scan; no helper executed.",
       "automatic_discovery_preserved": true,
       "decision": "retain",
       "reasons": [
-        "Authored from com-lihaoyi/fastparse 2018-2024 source and PR review history; independently accepted (review sha256 eff66d372ccd)."
+        "Merges 5 accepted skills from com-lihaoyi/acyclic, com-lihaoyi/Ammonite, com-lihaoyi/fastparse, com-lihaoyi/sourcecode 2018-2024 source and PR review history: scala-acyclic-whole-run-compiler-adapters, scala-ammonite-static-script-dependency-propagation, scala-ammonite-symbol-derived-closure-capture, scala-sourcecode-args-capture-review, scala-fastparse-shared-run-combinator-extraction."
       ],
       "local_fork": false,
       "modified_files": [],
@@ -14191,28 +13847,36 @@
       "bundled_files": [
         "LICENSE",
         "SKILL.md",
-        "references/diagnostic-matrix.md",
-        "references/evidence.json"
+        "references/acyclic-whole-run-compiler-adapters.md",
+        "references/ammonite-static-script-dependency-propagation.md",
+        "references/ammonite-symbol-derived-closure-capture.md",
+        "references/evidence/scala-acyclic-whole-run-compiler-adapters.json",
+        "references/evidence/scala-ammonite-static-script-dependency-propagation.json",
+        "references/evidence/scala-ammonite-symbol-derived-closure-capture.json",
+        "references/evidence/scala-fastparse-shared-run-combinator-extraction.json",
+        "references/evidence/scala-sourcecode-args-capture-review.json",
+        "references/fastparse-shared-run-combinator-extraction.md",
+        "references/sourcecode-args-capture-review.md"
       ],
-      "entry_sha256": "ca55934adb4cecbb8b89d5a9fda7ff3e9e305cc240c9a64cc9c41171a1d083a7",
-      "words": 1685,
-      "line_count": 87,
-      "current_entry_sha256": "ca55934adb4cecbb8b89d5a9fda7ff3e9e305cc240c9a64cc9c41171a1d083a7",
-      "current_entry_words": 1685,
-      "sha256": "3f50f87e663b26e92d17cc3077422ce131691eedceeb824f76134be1fed1b802"
+      "entry_sha256": "f3290e9eab978f0773f094a56bfb6ccac6aab3679cf5df9ebd857e2ea1b64006",
+      "words": 3179,
+      "line_count": 186,
+      "current_entry_sha256": "f3290e9eab978f0773f094a56bfb6ccac6aab3679cf5df9ebd857e2ea1b64006",
+      "current_entry_words": 3179,
+      "sha256": "8fa0408d79c9d4ce1f13013dcb63b1c695c18c94cbc605a574e9c7363b269d6b"
     },
     {
-      "id": "scala-fastparse-hot-path-cost-review",
-      "name": "scala-fastparse-hot-path-cost-review",
+      "id": "scala-effect-cancellation-finalization",
+      "name": "scala-effect-cancellation-finalization",
       "source": "local",
       "distribution": "vendored",
-      "path": "collections/shared/scala-fastparse-hot-path-cost-review",
+      "path": "collections/shared/scala-effect-cancellation-finalization",
       "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
+      "review_method": "Hand-merged from independently accepted history-research skills; each source kept as a case reference with its byte-identical evidence.json; static entrypoint scan; no helper executed.",
       "automatic_discovery_preserved": true,
       "decision": "retain",
       "reasons": [
-        "Authored from com-lihaoyi/fastparse 2018-2024 source and PR review history; independently accepted (review sha256 eff66d372ccd)."
+        "Merges 4 accepted skills from playframework/playframework, typelevel/cats-effect, zio/zio 2018-2024 source and PR review history: scala-cats-effect-cleanup-error-provenance, scala-cats-effect-outcome-sensitive-concurrency, scala-zio-canceler-evaluation-owner, scala-play-partial-startup-shutdown-completion."
       ],
       "local_fork": false,
       "modified_files": [],
@@ -14223,139 +13887,21 @@
       "bundled_files": [
         "LICENSE",
         "SKILL.md",
-        "references/evidence.json"
+        "references/cats-effect-cleanup-error-provenance.md",
+        "references/cats-effect-outcome-sensitive-concurrency.md",
+        "references/evidence/scala-cats-effect-cleanup-error-provenance.json",
+        "references/evidence/scala-cats-effect-outcome-sensitive-concurrency.json",
+        "references/evidence/scala-play-partial-startup-shutdown-completion.json",
+        "references/evidence/scala-zio-canceler-evaluation-owner.json",
+        "references/play-partial-startup-shutdown-completion.md",
+        "references/zio-canceler-evaluation-owner.md"
       ],
-      "entry_sha256": "9198dfe8c37294753015978db82968e075e6238d16b570eb8f6c508de0697160",
-      "words": 2173,
-      "line_count": 171,
-      "current_entry_sha256": "9198dfe8c37294753015978db82968e075e6238d16b570eb8f6c508de0697160",
-      "current_entry_words": 2173,
-      "sha256": "dbe298c93b3f5cce845028a28755f497e95f1fb4c6918999f46501e154518482"
-    },
-    {
-      "id": "scala-fastparse-shared-run-combinator-extraction",
-      "name": "scala-fastparse-shared-run-combinator-extraction",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-fastparse-shared-run-combinator-extraction",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from com-lihaoyi/fastparse 2018-2024 source and PR review history; independently accepted (review sha256 eff66d372ccd)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json",
-        "references/probes.md"
-      ],
-      "entry_sha256": "921f056bf6be2743ce4d5b3569f848d6c2554973856fd2332b3396e8b2401319",
-      "words": 1645,
-      "line_count": 86,
-      "current_entry_sha256": "921f056bf6be2743ce4d5b3569f848d6c2554973856fd2332b3396e8b2401319",
-      "current_entry_words": 1645,
-      "sha256": "0afba4ba929be0661aff50e9e30c95cf42a666e8a89fb3ab6799afe3d9a9cf9d"
-    },
-    {
-      "id": "scala-fs2-foreign-callback-lanes",
-      "name": "scala-fs2-foreign-callback-lanes",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-fs2-foreign-callback-lanes",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from typelevel/fs2 2018-2024 source and PR review history; independently accepted (review sha256 c0b56aa6e7da)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "e9ff258e4724ee94fa725a0520ee85fd5dacb88fb2ae4682d2a79555a12128b6",
-      "words": 1148,
-      "line_count": 72,
-      "current_entry_sha256": "e9ff258e4724ee94fa725a0520ee85fd5dacb88fb2ae4682d2a79555a12128b6",
-      "current_entry_words": 1148,
-      "sha256": "1660e18bcdd26f017ce60b63d03d7fd17049ff52a23c6e3dd92396318de1e59f"
-    },
-    {
-      "id": "scala-fs2-per-element-scope-propagation",
-      "name": "scala-fs2-per-element-scope-propagation",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-fs2-per-element-scope-propagation",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from typelevel/fs2 2018-2024 source and PR review history; independently accepted (review sha256 c0b56aa6e7da)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "7620d64103cb8311cd6e7484ac71cb8b9971fde5e48181e71ed2f31495f99db5",
-      "words": 1043,
-      "line_count": 71,
-      "current_entry_sha256": "7620d64103cb8311cd6e7484ac71cb8b9971fde5e48181e71ed2f31495f99db5",
-      "current_entry_words": 1043,
-      "sha256": "ba9ee938d2fbed2f3e0b9ed1a3a4bc6520ed831d22586c7729410332d6f11f38"
-    },
-    {
-      "id": "scala-fs2-sink-emission-cardinality",
-      "name": "scala-fs2-sink-emission-cardinality",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-fs2-sink-emission-cardinality",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from typelevel/fs2 2018-2024 source and PR review history; independently accepted (review sha256 c0b56aa6e7da)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "9fd00a20941ebb73761453a56df90ff9a31e9270fefcdc7cfd18dc5ca11f52ae",
-      "words": 985,
-      "line_count": 72,
-      "current_entry_sha256": "9fd00a20941ebb73761453a56df90ff9a31e9270fefcdc7cfd18dc5ca11f52ae",
-      "current_entry_words": 985,
-      "sha256": "5da471b615c2c99bec8a9295b2b3159e6a5d258cf721601d42525729c0141828"
+      "entry_sha256": "bec1116a60665f8294261a9d922265d9f4701203c57eb89e015b8f4faf45a2f1",
+      "words": 2991,
+      "line_count": 278,
+      "current_entry_sha256": "bec1116a60665f8294261a9d922265d9f4701203c57eb89e015b8f4faf45a2f1",
+      "current_entry_words": 2991,
+      "sha256": "b9401ba75562be5e65b5788c2999330ad3c292ad41540eb65859a545c89e5fa2"
     },
     {
       "id": "scala-functional-patterns",
@@ -14404,17 +13950,17 @@
       ]
     },
     {
-      "id": "scala-http4s-http1-bodyless-connection-framing",
-      "name": "scala-http4s-http1-bodyless-connection-framing",
+      "id": "scala-http-server-semantics",
+      "name": "scala-http-server-semantics",
       "source": "local",
       "distribution": "vendored",
-      "path": "collections/shared/scala-http4s-http1-bodyless-connection-framing",
+      "path": "collections/shared/scala-http-server-semantics",
       "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
+      "review_method": "Hand-merged from independently accepted history-research skills; each source kept as a case reference with its byte-identical evidence.json; static entrypoint scan; no helper executed.",
       "automatic_discovery_preserved": true,
       "decision": "retain",
       "reasons": [
-        "Authored from http4s/http4s 2018-2024 source and PR review history; independently accepted (review sha256 8c8fe5ad7166)."
+        "Merges 7 accepted skills from com-lihaoyi/cask, http4s/http4s, playframework/playframework, zio/zio-http 2018-2024 source and PR review history: scala-http4s-http1-bodyless-connection-framing, scala-http4s-uri-segment-representation, scala-cask-route-trie-validation-order, scala-zio-http-channel-handoff-completion, scala-zio-http-middleware-execution-boundaries, scala-zio-http-request-local-error-disclosure, scala-play-cors-csrf-policy-matrix."
       ],
       "local_fork": false,
       "modified_files": [],
@@ -14425,27 +13971,40 @@
       "bundled_files": [
         "LICENSE",
         "SKILL.md",
-        "references/evidence.json"
+        "references/cask-route-trie-validation-order.md",
+        "references/evidence/scala-cask-route-trie-validation-order.json",
+        "references/evidence/scala-http4s-http1-bodyless-connection-framing.json",
+        "references/evidence/scala-http4s-uri-segment-representation.json",
+        "references/evidence/scala-play-cors-csrf-policy-matrix.json",
+        "references/evidence/scala-zio-http-channel-handoff-completion.json",
+        "references/evidence/scala-zio-http-middleware-execution-boundaries.json",
+        "references/evidence/scala-zio-http-request-local-error-disclosure.json",
+        "references/http4s-http1-bodyless-connection-framing.md",
+        "references/http4s-uri-segment-representation.md",
+        "references/play-cors-csrf-policy-matrix.md",
+        "references/zio-http-channel-handoff-completion.md",
+        "references/zio-http-middleware-execution-boundaries.md",
+        "references/zio-http-request-local-error-disclosure.md"
       ],
-      "entry_sha256": "aa5cf31d46297a17bac00698dbf09b5c7a2c87015e97ff55540ffa9227523b18",
-      "words": 1091,
-      "line_count": 73,
-      "current_entry_sha256": "aa5cf31d46297a17bac00698dbf09b5c7a2c87015e97ff55540ffa9227523b18",
-      "current_entry_words": 1091,
-      "sha256": "5bd3efbfe0e818d1419379122cc10e0de1e548e09c18bb94e2161f286101db14"
+      "entry_sha256": "7e969338232ef6182f6f4c424b824354e1a8e398cb808d1cd0af495c20f1a753",
+      "words": 3378,
+      "line_count": 335,
+      "current_entry_sha256": "7e969338232ef6182f6f4c424b824354e1a8e398cb808d1cd0af495c20f1a753",
+      "current_entry_words": 3378,
+      "sha256": "fe78d511427efb769184c5adbddc9889b3e8a19dd1538105e4fd8d92d7d6c305"
     },
     {
-      "id": "scala-http4s-stateful-factory-acquisition",
-      "name": "scala-http4s-stateful-factory-acquisition",
+      "id": "scala-library-compatibility-laws",
+      "name": "scala-library-compatibility-laws",
       "source": "local",
       "distribution": "vendored",
-      "path": "collections/shared/scala-http4s-stateful-factory-acquisition",
+      "path": "collections/shared/scala-library-compatibility-laws",
       "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
+      "review_method": "Hand-merged from independently accepted history-research skills; each source kept as a case reference with its byte-identical evidence.json; static entrypoint scan; no helper executed.",
       "automatic_discovery_preserved": true,
       "decision": "retain",
       "reasons": [
-        "Authored from http4s/http4s 2018-2024 source and PR review history; independently accepted (review sha256 8c8fe5ad7166)."
+        "Merges 4 accepted skills from com-lihaoyi/castor, typelevel/cats 2018-2024 source and PR review history: scala-cats-erased-runtime-compatibility, scala-cats-law-backed-instance-surface, scala-cats-traversal-branch-isolation, scala-castor-platform-mixin-dispatch-accounting."
       ],
       "local_fork": false,
       "modified_files": [],
@@ -14456,45 +14015,21 @@
       "bundled_files": [
         "LICENSE",
         "SKILL.md",
-        "references/evidence.json"
+        "references/castor-platform-mixin-dispatch-accounting.md",
+        "references/cats-erased-runtime-compatibility.md",
+        "references/cats-law-backed-instance-surface.md",
+        "references/cats-traversal-branch-isolation.md",
+        "references/evidence/scala-castor-platform-mixin-dispatch-accounting.json",
+        "references/evidence/scala-cats-erased-runtime-compatibility.json",
+        "references/evidence/scala-cats-law-backed-instance-surface.json",
+        "references/evidence/scala-cats-traversal-branch-isolation.json"
       ],
-      "entry_sha256": "ff20317387ed12f8a9138f058316d6cbcd9963cb29b29795cefd3991b8d58410",
-      "words": 1162,
-      "line_count": 76,
-      "current_entry_sha256": "ff20317387ed12f8a9138f058316d6cbcd9963cb29b29795cefd3991b8d58410",
-      "current_entry_words": 1162,
-      "sha256": "eb710c0f2f5f10b4cf2ea462c449708e90f25fa541bddc897f41a5e840481f9d"
-    },
-    {
-      "id": "scala-http4s-uri-segment-representation",
-      "name": "scala-http4s-uri-segment-representation",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-http4s-uri-segment-representation",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from http4s/http4s 2018-2024 source and PR review history; independently accepted (review sha256 8c8fe5ad7166)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "09a20fd16fc058a885f42eccb394ca6603188217a1f0e1ff65b9c9bb3db739c6",
-      "words": 985,
-      "line_count": 75,
-      "current_entry_sha256": "09a20fd16fc058a885f42eccb394ca6603188217a1f0e1ff65b9c9bb3db739c6",
-      "current_entry_words": 985,
-      "sha256": "e146850ca55b7724c5517bf5a959a156c4904dcb744911eec5b3410ea20b734c"
+      "entry_sha256": "bad3161ba82f5969eb215b442cf198af075a147ba1abe0914c6620dc8766a255",
+      "words": 3005,
+      "line_count": 181,
+      "current_entry_sha256": "bad3161ba82f5969eb215b442cf198af075a147ba1abe0914c6620dc8766a255",
+      "current_entry_words": 3005,
+      "sha256": "983b96a6d370e2b21dc30a8939dd646481e0bcfc240e0b9ab9f46a905e26c2ee"
     },
     {
       "id": "scala-library-contracts",
@@ -14535,32 +14070,25 @@
         "SKILL.md",
         "references/skill-index.md"
       ],
-      "entry_sha256": "75ddca67bf760ff172dd76c5d460bdb2781a913ef3d26ac43e3e2ed7d47d861d",
-      "words": 789,
-      "line_count": 132,
-      "current_entry_sha256": "75ddca67bf760ff172dd76c5d460bdb2781a913ef3d26ac43e3e2ed7d47d861d",
-      "current_entry_words": 789,
-      "sha256": "c4d646dccd278bfbca996aa873227cf8117c535fd61245f33b35651eee4f25dd",
-      "post_review_changes": [
-        {
-          "at": "2026-10-17T21:22:59.364758+00:00",
-          "note": "2026-10 optimization pass: consolidated duplicate skills, fixed broken or outdated content, and vendored Matt Pocock, ponytail, i-have-adhd and current caveman skills.",
-          "tree_sha256": "c4d646dccd278bfbca996aa873227cf8117c535fd61245f33b35651eee4f25dd"
-        }
-      ]
+      "entry_sha256": "ca39ba141497d7507927966416a2062ed5351f3242e181d149e58cfdb125a374",
+      "words": 819,
+      "line_count": 125,
+      "current_entry_sha256": "ca39ba141497d7507927966416a2062ed5351f3242e181d149e58cfdb125a374",
+      "current_entry_words": 819,
+      "sha256": "38cabbd7c2ce0f5214e57c1ea8405bacf7c773bd683a73c70e3f25e7fa508b16"
     },
     {
-      "id": "scala-play-cors-csrf-policy-matrix",
-      "name": "scala-play-cors-csrf-policy-matrix",
+      "id": "scala-runtime-diagnostics-hot-paths",
+      "name": "scala-runtime-diagnostics-hot-paths",
       "source": "local",
       "distribution": "vendored",
-      "path": "collections/shared/scala-play-cors-csrf-policy-matrix",
+      "path": "collections/shared/scala-runtime-diagnostics-hot-paths",
       "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
+      "review_method": "Hand-merged from independently accepted history-research skills; each source kept as a case reference with its byte-identical evidence.json; static entrypoint scan; no helper executed.",
       "automatic_discovery_preserved": true,
       "decision": "retain",
       "reasons": [
-        "Authored from playframework/playframework 2018-2024 source and PR review history; independently accepted (review sha256 41e8f25c756d)."
+        "Merges 4 accepted skills from com-lihaoyi/fastparse, typelevel/cats-effect, zio/zio 2018-2024 source and PR review history: scala-fastparse-diagnostic-mode-review, scala-fastparse-hot-path-cost-review, scala-cats-effect-runtime-benchmark-review, scala-zio-diagnostic-reader-progress."
       ],
       "local_fork": false,
       "modified_files": [],
@@ -14571,28 +14099,35 @@
       "bundled_files": [
         "LICENSE",
         "SKILL.md",
-        "references/evidence.json",
-        "references/policy-matrices.md"
+        "references/cats-effect-runtime-benchmark-review.md",
+        "references/evidence/scala-cats-effect-runtime-benchmark-review.json",
+        "references/evidence/scala-fastparse-diagnostic-mode-review.json",
+        "references/evidence/scala-fastparse-hot-path-cost-review.json",
+        "references/evidence/scala-zio-diagnostic-reader-progress.json",
+        "references/fastparse-diagnostic-mode-review.md",
+        "references/fastparse-hot-path-cost-review.md",
+        "references/zio-diagnostic-reader-progress-regression-spec.md",
+        "references/zio-diagnostic-reader-progress.md"
       ],
-      "entry_sha256": "be5515fca077de58e1a17e7d2adeb6fc067c5a479e245783fde2bd1fbe70bc2c",
-      "words": 1283,
-      "line_count": 74,
-      "current_entry_sha256": "be5515fca077de58e1a17e7d2adeb6fc067c5a479e245783fde2bd1fbe70bc2c",
-      "current_entry_words": 1283,
-      "sha256": "f2673112daabf9a64042c59934fde94b4f0fc3a047798aaa56c522be1a1c3c12"
+      "entry_sha256": "f11f8513b84610bdd2ee41c2ced5f47643083592d4cd19d538815a3cb1f730ca",
+      "words": 3637,
+      "line_count": 187,
+      "current_entry_sha256": "f11f8513b84610bdd2ee41c2ced5f47643083592d4cd19d538815a3cb1f730ca",
+      "current_entry_words": 3637,
+      "sha256": "a3474974209eff4bfa1aa6051b34bc3106b313e01a0ae828ed40c1793bcb7779"
     },
     {
-      "id": "scala-play-partial-startup-shutdown-completion",
-      "name": "scala-play-partial-startup-shutdown-completion",
+      "id": "scala-stream-resource-scoping",
+      "name": "scala-stream-resource-scoping",
       "source": "local",
       "distribution": "vendored",
-      "path": "collections/shared/scala-play-partial-startup-shutdown-completion",
+      "path": "collections/shared/scala-stream-resource-scoping",
       "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
+      "review_method": "Hand-merged from independently accepted history-research skills; each source kept as a case reference with its byte-identical evidence.json; static entrypoint scan; no helper executed.",
       "automatic_discovery_preserved": true,
       "decision": "retain",
       "reasons": [
-        "Authored from playframework/playframework 2018-2024 source and PR review history; independently accepted (review sha256 41e8f25c756d)."
+        "Merges 4 accepted skills from http4s/http4s, typelevel/fs2 2018-2024 source and PR review history: scala-fs2-foreign-callback-lanes, scala-fs2-per-element-scope-propagation, scala-fs2-sink-emission-cardinality, scala-http4s-stateful-factory-acquisition."
       ],
       "local_fork": false,
       "modified_files": [],
@@ -14603,47 +14138,21 @@
       "bundled_files": [
         "LICENSE",
         "SKILL.md",
-        "references/evidence.json",
-        "references/temporal-contracts.md"
+        "references/evidence/scala-fs2-foreign-callback-lanes.json",
+        "references/evidence/scala-fs2-per-element-scope-propagation.json",
+        "references/evidence/scala-fs2-sink-emission-cardinality.json",
+        "references/evidence/scala-http4s-stateful-factory-acquisition.json",
+        "references/fs2-foreign-callback-lanes.md",
+        "references/fs2-per-element-scope-propagation.md",
+        "references/fs2-sink-emission-cardinality.md",
+        "references/http4s-stateful-factory-acquisition.md"
       ],
-      "entry_sha256": "6b8cc0b5279d1086d4f66777ad4efe7aa2c68f10ca894b45221e38a9d0c745cd",
-      "words": 1200,
-      "line_count": 75,
-      "current_entry_sha256": "6b8cc0b5279d1086d4f66777ad4efe7aa2c68f10ca894b45221e38a9d0c745cd",
-      "current_entry_words": 1200,
-      "sha256": "7c1acfff30744b61ae636ba753b0626238c3f05d0b7c05e2fefeaf8aac7bf798"
-    },
-    {
-      "id": "scala-sourcecode-args-capture-review",
-      "name": "scala-sourcecode-args-capture-review",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-sourcecode-args-capture-review",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from com-lihaoyi/sourcecode 2018-2024 source and PR review history; independently accepted (review sha256 42a5fa876d91)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json",
-        "references/review-cases.md"
-      ],
-      "entry_sha256": "fa12806d8ba33129fbca7d13c33fd4218fc90402b1e3b90f0178107625780448",
-      "words": 1256,
-      "line_count": 82,
-      "current_entry_sha256": "fa12806d8ba33129fbca7d13c33fd4218fc90402b1e3b90f0178107625780448",
-      "current_entry_words": 1256,
-      "sha256": "619f005ddcd3c2f8bdbc8e75880231803a0cb81537cb84fb2fb37a11e0dd6cb3"
+      "entry_sha256": "0e22811ffa67812fa83d8a657e9b6fa37434d63e71b1a9ce159e12d184ea4a64",
+      "words": 2753,
+      "line_count": 268,
+      "current_entry_sha256": "0e22811ffa67812fa83d8a657e9b6fa37434d63e71b1a9ce159e12d184ea4a64",
+      "current_entry_words": 2753,
+      "sha256": "17b2b8bc1180fe0650c28d20ad7c13e71b88ef2765bbf8cb47b5608ab7e7a2e2"
     },
     {
       "id": "scala-type-system",
@@ -14690,162 +14199,6 @@
           "tree_sha256": "2415d6326366df220308b16354aa2e2a2ca936fcb6d13665a06368cd188ce77a"
         }
       ]
-    },
-    {
-      "id": "scala-zio-canceler-evaluation-owner",
-      "name": "scala-zio-canceler-evaluation-owner",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-zio-canceler-evaluation-owner",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from zio/zio 2018-2024 source and PR review history; independently accepted (review sha256 a7cb9acd89e1)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "ca927112eaed6c7ea2adede786bdf3aa042b93fbc7e43e8861d373e1f3d740c2",
-      "words": 1205,
-      "line_count": 77,
-      "current_entry_sha256": "ca927112eaed6c7ea2adede786bdf3aa042b93fbc7e43e8861d373e1f3d740c2",
-      "current_entry_words": 1205,
-      "sha256": "2bc9835ec4e0c8cec04ec2596625b66d253ba0e2146565a32ba45c9b29fcdb55"
-    },
-    {
-      "id": "scala-zio-diagnostic-reader-progress",
-      "name": "scala-zio-diagnostic-reader-progress",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-zio-diagnostic-reader-progress",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from zio/zio 2018-2024 source and PR review history; independently accepted (review sha256 a7cb9acd89e1)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json",
-        "references/regression-spec.md"
-      ],
-      "entry_sha256": "9d6a24faf07bed3f130b81ac22095b2c3a78daaab0805ce332a39830bc2e7bcc",
-      "words": 1258,
-      "line_count": 78,
-      "current_entry_sha256": "9d6a24faf07bed3f130b81ac22095b2c3a78daaab0805ce332a39830bc2e7bcc",
-      "current_entry_words": 1258,
-      "sha256": "c2596764cbb3092b733be330343bc7a70463fcb5ed7813a2cc332b8e4ab9b802"
-    },
-    {
-      "id": "scala-zio-http-channel-handoff-completion",
-      "name": "scala-zio-http-channel-handoff-completion",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-zio-http-channel-handoff-completion",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from zio/zio-http 2018-2024 source and PR review history; independently accepted (review sha256 62050090929a)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "f5b480a864abc91609864bc6e823777d77862640e48d58dcbcf005152f205eae",
-      "words": 1058,
-      "line_count": 83,
-      "current_entry_sha256": "f5b480a864abc91609864bc6e823777d77862640e48d58dcbcf005152f205eae",
-      "current_entry_words": 1058,
-      "sha256": "900d66d6b27ffd842d28e0419f5d48daf9bb2a9e95485ed4d802baf4ce798154"
-    },
-    {
-      "id": "scala-zio-http-middleware-execution-boundaries",
-      "name": "scala-zio-http-middleware-execution-boundaries",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-zio-http-middleware-execution-boundaries",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from zio/zio-http 2018-2024 source and PR review history; independently accepted (review sha256 62050090929a)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "5f6516b36e95cb2ee835608e6e9650afeb326f5f9af3e9a729f7745258181e0f",
-      "words": 1051,
-      "line_count": 84,
-      "current_entry_sha256": "5f6516b36e95cb2ee835608e6e9650afeb326f5f9af3e9a729f7745258181e0f",
-      "current_entry_words": 1051,
-      "sha256": "81b647b8772b9d76370108458eeef43efadca5a827001a9e2ab74ed7ecf2bcee"
-    },
-    {
-      "id": "scala-zio-http-request-local-error-disclosure",
-      "name": "scala-zio-http-request-local-error-disclosure",
-      "source": "local",
-      "distribution": "vendored",
-      "path": "collections/shared/scala-zio-http-request-local-error-disclosure",
-      "reviewed": true,
-      "review_method": "Historical research pipeline: independent evidence audit and model-based behavioral evaluation before promotion; static entrypoint scan; no helper executed.",
-      "automatic_discovery_preserved": true,
-      "decision": "retain",
-      "reasons": [
-        "Authored from zio/zio-http 2018-2024 source and PR review history; independently accepted (review sha256 62050090929a)."
-      ],
-      "local_fork": false,
-      "modified_files": [],
-      "evidence": {
-        "source_attribution_preserved": true,
-        "optional_frontmatter_preserved": true
-      },
-      "bundled_files": [
-        "LICENSE",
-        "SKILL.md",
-        "references/evidence.json"
-      ],
-      "entry_sha256": "086df3a713433a4d6b2a4b4d180bb22da06de887a48312b93c5059eb86c84f5a",
-      "words": 1105,
-      "line_count": 75,
-      "current_entry_sha256": "086df3a713433a4d6b2a4b4d180bb22da06de887a48312b93c5059eb86c84f5a",
-      "current_entry_words": 1105,
-      "sha256": "390de841d73d775b9a462b7fd87b5060976e2aeb196dede7aa3c160a23581e69"
     },
     {
       "id": "scala-zio-skills--zio-reference",

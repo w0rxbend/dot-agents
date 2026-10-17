@@ -273,39 +273,17 @@
     ~/.agents/skills/rust-systems-contracts: collections/shared/rust-systems-contracts
     ~/.agents/skills/safe-refactor: collections/shared/safe-refactor
     ~/.agents/skills/saga-orchestration: collections/shared/saga-orchestration
-    ~/.agents/skills/scala-acyclic-whole-run-compiler-adapters: collections/shared/scala-acyclic-whole-run-compiler-adapters
-    ~/.agents/skills/scala-ammonite-static-script-dependency-propagation: collections/shared/scala-ammonite-static-script-dependency-propagation
-    ~/.agents/skills/scala-ammonite-symbol-derived-closure-capture: collections/shared/scala-ammonite-symbol-derived-closure-capture
-    ~/.agents/skills/scala-cask-route-trie-validation-order: collections/shared/scala-cask-route-trie-validation-order
-    ~/.agents/skills/scala-castor-platform-mixin-dispatch-accounting: collections/shared/scala-castor-platform-mixin-dispatch-accounting
-    ~/.agents/skills/scala-cats-effect-cleanup-error-provenance: collections/shared/scala-cats-effect-cleanup-error-provenance
-    ~/.agents/skills/scala-cats-effect-outcome-sensitive-concurrency: collections/shared/scala-cats-effect-outcome-sensitive-concurrency
-    ~/.agents/skills/scala-cats-effect-runtime-benchmark-review: collections/shared/scala-cats-effect-runtime-benchmark-review
-    ~/.agents/skills/scala-cats-erased-runtime-compatibility: collections/shared/scala-cats-erased-runtime-compatibility
-    ~/.agents/skills/scala-cats-law-backed-instance-surface: collections/shared/scala-cats-law-backed-instance-surface
-    ~/.agents/skills/scala-cats-traversal-branch-isolation: collections/shared/scala-cats-traversal-branch-isolation
     ~/.agents/skills/scala-collections: collections/shared/scala-collections
-    ~/.agents/skills/scala-fastparse-diagnostic-mode-review: collections/shared/scala-fastparse-diagnostic-mode-review
-    ~/.agents/skills/scala-fastparse-hot-path-cost-review: collections/shared/scala-fastparse-hot-path-cost-review
-    ~/.agents/skills/scala-fastparse-shared-run-combinator-extraction: collections/shared/scala-fastparse-shared-run-combinator-extraction
-    ~/.agents/skills/scala-fs2-foreign-callback-lanes: collections/shared/scala-fs2-foreign-callback-lanes
-    ~/.agents/skills/scala-fs2-per-element-scope-propagation: collections/shared/scala-fs2-per-element-scope-propagation
-    ~/.agents/skills/scala-fs2-sink-emission-cardinality: collections/shared/scala-fs2-sink-emission-cardinality
+    ~/.agents/skills/scala-compiler-macro-refactoring: collections/shared/scala-compiler-macro-refactoring
+    ~/.agents/skills/scala-effect-cancellation-finalization: collections/shared/scala-effect-cancellation-finalization
     ~/.agents/skills/scala-functional-patterns: collections/shared/scala-functional-patterns
-    ~/.agents/skills/scala-http4s-http1-bodyless-connection-framing: collections/shared/scala-http4s-http1-bodyless-connection-framing
-    ~/.agents/skills/scala-http4s-stateful-factory-acquisition: collections/shared/scala-http4s-stateful-factory-acquisition
-    ~/.agents/skills/scala-http4s-uri-segment-representation: collections/shared/scala-http4s-uri-segment-representation
+    ~/.agents/skills/scala-http-server-semantics: collections/shared/scala-http-server-semantics
+    ~/.agents/skills/scala-library-compatibility-laws: collections/shared/scala-library-compatibility-laws
     ~/.agents/skills/scala-library-contracts: collections/shared/scala-library-contracts
     ~/.agents/skills/scala-oss-library-review: collections/shared/scala-oss-library-review
-    ~/.agents/skills/scala-play-cors-csrf-policy-matrix: collections/shared/scala-play-cors-csrf-policy-matrix
-    ~/.agents/skills/scala-play-partial-startup-shutdown-completion: collections/shared/scala-play-partial-startup-shutdown-completion
-    ~/.agents/skills/scala-sourcecode-args-capture-review: collections/shared/scala-sourcecode-args-capture-review
+    ~/.agents/skills/scala-runtime-diagnostics-hot-paths: collections/shared/scala-runtime-diagnostics-hot-paths
+    ~/.agents/skills/scala-stream-resource-scoping: collections/shared/scala-stream-resource-scoping
     ~/.agents/skills/scala-type-system: collections/shared/scala-type-system
-    ~/.agents/skills/scala-zio-canceler-evaluation-owner: collections/shared/scala-zio-canceler-evaluation-owner
-    ~/.agents/skills/scala-zio-diagnostic-reader-progress: collections/shared/scala-zio-diagnostic-reader-progress
-    ~/.agents/skills/scala-zio-http-channel-handoff-completion: collections/shared/scala-zio-http-channel-handoff-completion
-    ~/.agents/skills/scala-zio-http-middleware-execution-boundaries: collections/shared/scala-zio-http-middleware-execution-boundaries
-    ~/.agents/skills/scala-zio-http-request-local-error-disclosure: collections/shared/scala-zio-http-request-local-error-disclosure
     ~/.agents/skills/scala-zio-skills--zio-reference: collections/scala-zio-skills/skills/zio-reference
     ~/.agents/skills/security-and-hardening: collections/shared/security-and-hardening
     ~/.agents/skills/security-best-practices: collections/shared/security-best-practices
@@ -764,39 +742,17 @@
     ~/.claude/skills/rust-systems-contracts: collections/shared/rust-systems-contracts
     ~/.claude/skills/safe-refactor: collections/shared/safe-refactor
     ~/.claude/skills/saga-orchestration: collections/shared/saga-orchestration
-    ~/.claude/skills/scala-acyclic-whole-run-compiler-adapters: collections/shared/scala-acyclic-whole-run-compiler-adapters
-    ~/.claude/skills/scala-ammonite-static-script-dependency-propagation: collections/shared/scala-ammonite-static-script-dependency-propagation
-    ~/.claude/skills/scala-ammonite-symbol-derived-closure-capture: collections/shared/scala-ammonite-symbol-derived-closure-capture
-    ~/.claude/skills/scala-cask-route-trie-validation-order: collections/shared/scala-cask-route-trie-validation-order
-    ~/.claude/skills/scala-castor-platform-mixin-dispatch-accounting: collections/shared/scala-castor-platform-mixin-dispatch-accounting
-    ~/.claude/skills/scala-cats-effect-cleanup-error-provenance: collections/shared/scala-cats-effect-cleanup-error-provenance
-    ~/.claude/skills/scala-cats-effect-outcome-sensitive-concurrency: collections/shared/scala-cats-effect-outcome-sensitive-concurrency
-    ~/.claude/skills/scala-cats-effect-runtime-benchmark-review: collections/shared/scala-cats-effect-runtime-benchmark-review
-    ~/.claude/skills/scala-cats-erased-runtime-compatibility: collections/shared/scala-cats-erased-runtime-compatibility
-    ~/.claude/skills/scala-cats-law-backed-instance-surface: collections/shared/scala-cats-law-backed-instance-surface
-    ~/.claude/skills/scala-cats-traversal-branch-isolation: collections/shared/scala-cats-traversal-branch-isolation
     ~/.claude/skills/scala-collections: collections/shared/scala-collections
-    ~/.claude/skills/scala-fastparse-diagnostic-mode-review: collections/shared/scala-fastparse-diagnostic-mode-review
-    ~/.claude/skills/scala-fastparse-hot-path-cost-review: collections/shared/scala-fastparse-hot-path-cost-review
-    ~/.claude/skills/scala-fastparse-shared-run-combinator-extraction: collections/shared/scala-fastparse-shared-run-combinator-extraction
-    ~/.claude/skills/scala-fs2-foreign-callback-lanes: collections/shared/scala-fs2-foreign-callback-lanes
-    ~/.claude/skills/scala-fs2-per-element-scope-propagation: collections/shared/scala-fs2-per-element-scope-propagation
-    ~/.claude/skills/scala-fs2-sink-emission-cardinality: collections/shared/scala-fs2-sink-emission-cardinality
+    ~/.claude/skills/scala-compiler-macro-refactoring: collections/shared/scala-compiler-macro-refactoring
+    ~/.claude/skills/scala-effect-cancellation-finalization: collections/shared/scala-effect-cancellation-finalization
     ~/.claude/skills/scala-functional-patterns: collections/shared/scala-functional-patterns
-    ~/.claude/skills/scala-http4s-http1-bodyless-connection-framing: collections/shared/scala-http4s-http1-bodyless-connection-framing
-    ~/.claude/skills/scala-http4s-stateful-factory-acquisition: collections/shared/scala-http4s-stateful-factory-acquisition
-    ~/.claude/skills/scala-http4s-uri-segment-representation: collections/shared/scala-http4s-uri-segment-representation
+    ~/.claude/skills/scala-http-server-semantics: collections/shared/scala-http-server-semantics
+    ~/.claude/skills/scala-library-compatibility-laws: collections/shared/scala-library-compatibility-laws
     ~/.claude/skills/scala-library-contracts: collections/shared/scala-library-contracts
     ~/.claude/skills/scala-oss-library-review: collections/shared/scala-oss-library-review
-    ~/.claude/skills/scala-play-cors-csrf-policy-matrix: collections/shared/scala-play-cors-csrf-policy-matrix
-    ~/.claude/skills/scala-play-partial-startup-shutdown-completion: collections/shared/scala-play-partial-startup-shutdown-completion
-    ~/.claude/skills/scala-sourcecode-args-capture-review: collections/shared/scala-sourcecode-args-capture-review
+    ~/.claude/skills/scala-runtime-diagnostics-hot-paths: collections/shared/scala-runtime-diagnostics-hot-paths
+    ~/.claude/skills/scala-stream-resource-scoping: collections/shared/scala-stream-resource-scoping
     ~/.claude/skills/scala-type-system: collections/shared/scala-type-system
-    ~/.claude/skills/scala-zio-canceler-evaluation-owner: collections/shared/scala-zio-canceler-evaluation-owner
-    ~/.claude/skills/scala-zio-diagnostic-reader-progress: collections/shared/scala-zio-diagnostic-reader-progress
-    ~/.claude/skills/scala-zio-http-channel-handoff-completion: collections/shared/scala-zio-http-channel-handoff-completion
-    ~/.claude/skills/scala-zio-http-middleware-execution-boundaries: collections/shared/scala-zio-http-middleware-execution-boundaries
-    ~/.claude/skills/scala-zio-http-request-local-error-disclosure: collections/shared/scala-zio-http-request-local-error-disclosure
     ~/.claude/skills/scala-zio-skills--zio-reference: collections/scala-zio-skills/skills/zio-reference
     ~/.claude/skills/security-and-hardening: collections/shared/security-and-hardening
     ~/.claude/skills/security-best-practices: collections/shared/security-best-practices
@@ -1255,39 +1211,17 @@
     ~/.codex/skills/rust-systems-contracts: collections/shared/rust-systems-contracts
     ~/.codex/skills/safe-refactor: collections/shared/safe-refactor
     ~/.codex/skills/saga-orchestration: collections/shared/saga-orchestration
-    ~/.codex/skills/scala-acyclic-whole-run-compiler-adapters: collections/shared/scala-acyclic-whole-run-compiler-adapters
-    ~/.codex/skills/scala-ammonite-static-script-dependency-propagation: collections/shared/scala-ammonite-static-script-dependency-propagation
-    ~/.codex/skills/scala-ammonite-symbol-derived-closure-capture: collections/shared/scala-ammonite-symbol-derived-closure-capture
-    ~/.codex/skills/scala-cask-route-trie-validation-order: collections/shared/scala-cask-route-trie-validation-order
-    ~/.codex/skills/scala-castor-platform-mixin-dispatch-accounting: collections/shared/scala-castor-platform-mixin-dispatch-accounting
-    ~/.codex/skills/scala-cats-effect-cleanup-error-provenance: collections/shared/scala-cats-effect-cleanup-error-provenance
-    ~/.codex/skills/scala-cats-effect-outcome-sensitive-concurrency: collections/shared/scala-cats-effect-outcome-sensitive-concurrency
-    ~/.codex/skills/scala-cats-effect-runtime-benchmark-review: collections/shared/scala-cats-effect-runtime-benchmark-review
-    ~/.codex/skills/scala-cats-erased-runtime-compatibility: collections/shared/scala-cats-erased-runtime-compatibility
-    ~/.codex/skills/scala-cats-law-backed-instance-surface: collections/shared/scala-cats-law-backed-instance-surface
-    ~/.codex/skills/scala-cats-traversal-branch-isolation: collections/shared/scala-cats-traversal-branch-isolation
     ~/.codex/skills/scala-collections: collections/shared/scala-collections
-    ~/.codex/skills/scala-fastparse-diagnostic-mode-review: collections/shared/scala-fastparse-diagnostic-mode-review
-    ~/.codex/skills/scala-fastparse-hot-path-cost-review: collections/shared/scala-fastparse-hot-path-cost-review
-    ~/.codex/skills/scala-fastparse-shared-run-combinator-extraction: collections/shared/scala-fastparse-shared-run-combinator-extraction
-    ~/.codex/skills/scala-fs2-foreign-callback-lanes: collections/shared/scala-fs2-foreign-callback-lanes
-    ~/.codex/skills/scala-fs2-per-element-scope-propagation: collections/shared/scala-fs2-per-element-scope-propagation
-    ~/.codex/skills/scala-fs2-sink-emission-cardinality: collections/shared/scala-fs2-sink-emission-cardinality
+    ~/.codex/skills/scala-compiler-macro-refactoring: collections/shared/scala-compiler-macro-refactoring
+    ~/.codex/skills/scala-effect-cancellation-finalization: collections/shared/scala-effect-cancellation-finalization
     ~/.codex/skills/scala-functional-patterns: collections/shared/scala-functional-patterns
-    ~/.codex/skills/scala-http4s-http1-bodyless-connection-framing: collections/shared/scala-http4s-http1-bodyless-connection-framing
-    ~/.codex/skills/scala-http4s-stateful-factory-acquisition: collections/shared/scala-http4s-stateful-factory-acquisition
-    ~/.codex/skills/scala-http4s-uri-segment-representation: collections/shared/scala-http4s-uri-segment-representation
+    ~/.codex/skills/scala-http-server-semantics: collections/shared/scala-http-server-semantics
+    ~/.codex/skills/scala-library-compatibility-laws: collections/shared/scala-library-compatibility-laws
     ~/.codex/skills/scala-library-contracts: collections/shared/scala-library-contracts
     ~/.codex/skills/scala-oss-library-review: collections/shared/scala-oss-library-review
-    ~/.codex/skills/scala-play-cors-csrf-policy-matrix: collections/shared/scala-play-cors-csrf-policy-matrix
-    ~/.codex/skills/scala-play-partial-startup-shutdown-completion: collections/shared/scala-play-partial-startup-shutdown-completion
-    ~/.codex/skills/scala-sourcecode-args-capture-review: collections/shared/scala-sourcecode-args-capture-review
+    ~/.codex/skills/scala-runtime-diagnostics-hot-paths: collections/shared/scala-runtime-diagnostics-hot-paths
+    ~/.codex/skills/scala-stream-resource-scoping: collections/shared/scala-stream-resource-scoping
     ~/.codex/skills/scala-type-system: collections/shared/scala-type-system
-    ~/.codex/skills/scala-zio-canceler-evaluation-owner: collections/shared/scala-zio-canceler-evaluation-owner
-    ~/.codex/skills/scala-zio-diagnostic-reader-progress: collections/shared/scala-zio-diagnostic-reader-progress
-    ~/.codex/skills/scala-zio-http-channel-handoff-completion: collections/shared/scala-zio-http-channel-handoff-completion
-    ~/.codex/skills/scala-zio-http-middleware-execution-boundaries: collections/shared/scala-zio-http-middleware-execution-boundaries
-    ~/.codex/skills/scala-zio-http-request-local-error-disclosure: collections/shared/scala-zio-http-request-local-error-disclosure
     ~/.codex/skills/scala-zio-skills--zio-reference: collections/scala-zio-skills/skills/zio-reference
     ~/.codex/skills/security-and-hardening: collections/shared/security-and-hardening
     ~/.codex/skills/security-best-practices: collections/shared/security-best-practices
@@ -2534,71 +2468,23 @@
     ~/.config/opencode/skills/saga-orchestration:
       path: collections/shared/saga-orchestration
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-acyclic-whole-run-compiler-adapters:
-      path: collections/shared/scala-acyclic-whole-run-compiler-adapters
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-ammonite-static-script-dependency-propagation:
-      path: collections/shared/scala-ammonite-static-script-dependency-propagation
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-ammonite-symbol-derived-closure-capture:
-      path: collections/shared/scala-ammonite-symbol-derived-closure-capture
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-cask-route-trie-validation-order:
-      path: collections/shared/scala-cask-route-trie-validation-order
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-castor-platform-mixin-dispatch-accounting:
-      path: collections/shared/scala-castor-platform-mixin-dispatch-accounting
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-cats-effect-cleanup-error-provenance:
-      path: collections/shared/scala-cats-effect-cleanup-error-provenance
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-cats-effect-outcome-sensitive-concurrency:
-      path: collections/shared/scala-cats-effect-outcome-sensitive-concurrency
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-cats-effect-runtime-benchmark-review:
-      path: collections/shared/scala-cats-effect-runtime-benchmark-review
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-cats-erased-runtime-compatibility:
-      path: collections/shared/scala-cats-erased-runtime-compatibility
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-cats-law-backed-instance-surface:
-      path: collections/shared/scala-cats-law-backed-instance-surface
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-cats-traversal-branch-isolation:
-      path: collections/shared/scala-cats-traversal-branch-isolation
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/scala-collections:
       path: collections/shared/scala-collections
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-fastparse-diagnostic-mode-review:
-      path: collections/shared/scala-fastparse-diagnostic-mode-review
+    ~/.config/opencode/skills/scala-compiler-macro-refactoring:
+      path: collections/shared/scala-compiler-macro-refactoring
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-fastparse-hot-path-cost-review:
-      path: collections/shared/scala-fastparse-hot-path-cost-review
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-fastparse-shared-run-combinator-extraction:
-      path: collections/shared/scala-fastparse-shared-run-combinator-extraction
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-fs2-foreign-callback-lanes:
-      path: collections/shared/scala-fs2-foreign-callback-lanes
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-fs2-per-element-scope-propagation:
-      path: collections/shared/scala-fs2-per-element-scope-propagation
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-fs2-sink-emission-cardinality:
-      path: collections/shared/scala-fs2-sink-emission-cardinality
+    ~/.config/opencode/skills/scala-effect-cancellation-finalization:
+      path: collections/shared/scala-effect-cancellation-finalization
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/scala-functional-patterns:
       path: collections/shared/scala-functional-patterns
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-http4s-http1-bodyless-connection-framing:
-      path: collections/shared/scala-http4s-http1-bodyless-connection-framing
+    ~/.config/opencode/skills/scala-http-server-semantics:
+      path: collections/shared/scala-http-server-semantics
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-http4s-stateful-factory-acquisition:
-      path: collections/shared/scala-http4s-stateful-factory-acquisition
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-http4s-uri-segment-representation:
-      path: collections/shared/scala-http4s-uri-segment-representation
+    ~/.config/opencode/skills/scala-library-compatibility-laws:
+      path: collections/shared/scala-library-compatibility-laws
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/scala-library-contracts:
       path: collections/shared/scala-library-contracts
@@ -2606,32 +2492,14 @@
     ~/.config/opencode/skills/scala-oss-library-review:
       path: collections/shared/scala-oss-library-review
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-play-cors-csrf-policy-matrix:
-      path: collections/shared/scala-play-cors-csrf-policy-matrix
+    ~/.config/opencode/skills/scala-runtime-diagnostics-hot-paths:
+      path: collections/shared/scala-runtime-diagnostics-hot-paths
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-play-partial-startup-shutdown-completion:
-      path: collections/shared/scala-play-partial-startup-shutdown-completion
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-sourcecode-args-capture-review:
-      path: collections/shared/scala-sourcecode-args-capture-review
+    ~/.config/opencode/skills/scala-stream-resource-scoping:
+      path: collections/shared/scala-stream-resource-scoping
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/scala-type-system:
       path: collections/shared/scala-type-system
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-zio-canceler-evaluation-owner:
-      path: collections/shared/scala-zio-canceler-evaluation-owner
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-zio-diagnostic-reader-progress:
-      path: collections/shared/scala-zio-diagnostic-reader-progress
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-zio-http-channel-handoff-completion:
-      path: collections/shared/scala-zio-http-channel-handoff-completion
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-zio-http-middleware-execution-boundaries:
-      path: collections/shared/scala-zio-http-middleware-execution-boundaries
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-zio-http-request-local-error-disclosure:
-      path: collections/shared/scala-zio-http-request-local-error-disclosure
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/scala-zio-skills--zio-reference:
       path: collections/scala-zio-skills/skills/zio-reference
@@ -4007,71 +3875,23 @@
     ~/.hermes/skills/saga-orchestration:
       path: collections/shared/saga-orchestration
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-acyclic-whole-run-compiler-adapters:
-      path: collections/shared/scala-acyclic-whole-run-compiler-adapters
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-ammonite-static-script-dependency-propagation:
-      path: collections/shared/scala-ammonite-static-script-dependency-propagation
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-ammonite-symbol-derived-closure-capture:
-      path: collections/shared/scala-ammonite-symbol-derived-closure-capture
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-cask-route-trie-validation-order:
-      path: collections/shared/scala-cask-route-trie-validation-order
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-castor-platform-mixin-dispatch-accounting:
-      path: collections/shared/scala-castor-platform-mixin-dispatch-accounting
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-cats-effect-cleanup-error-provenance:
-      path: collections/shared/scala-cats-effect-cleanup-error-provenance
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-cats-effect-outcome-sensitive-concurrency:
-      path: collections/shared/scala-cats-effect-outcome-sensitive-concurrency
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-cats-effect-runtime-benchmark-review:
-      path: collections/shared/scala-cats-effect-runtime-benchmark-review
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-cats-erased-runtime-compatibility:
-      path: collections/shared/scala-cats-erased-runtime-compatibility
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-cats-law-backed-instance-surface:
-      path: collections/shared/scala-cats-law-backed-instance-surface
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-cats-traversal-branch-isolation:
-      path: collections/shared/scala-cats-traversal-branch-isolation
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/scala-collections:
       path: collections/shared/scala-collections
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-fastparse-diagnostic-mode-review:
-      path: collections/shared/scala-fastparse-diagnostic-mode-review
+    ~/.hermes/skills/scala-compiler-macro-refactoring:
+      path: collections/shared/scala-compiler-macro-refactoring
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-fastparse-hot-path-cost-review:
-      path: collections/shared/scala-fastparse-hot-path-cost-review
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-fastparse-shared-run-combinator-extraction:
-      path: collections/shared/scala-fastparse-shared-run-combinator-extraction
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-fs2-foreign-callback-lanes:
-      path: collections/shared/scala-fs2-foreign-callback-lanes
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-fs2-per-element-scope-propagation:
-      path: collections/shared/scala-fs2-per-element-scope-propagation
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-fs2-sink-emission-cardinality:
-      path: collections/shared/scala-fs2-sink-emission-cardinality
+    ~/.hermes/skills/scala-effect-cancellation-finalization:
+      path: collections/shared/scala-effect-cancellation-finalization
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/scala-functional-patterns:
       path: collections/shared/scala-functional-patterns
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-http4s-http1-bodyless-connection-framing:
-      path: collections/shared/scala-http4s-http1-bodyless-connection-framing
+    ~/.hermes/skills/scala-http-server-semantics:
+      path: collections/shared/scala-http-server-semantics
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-http4s-stateful-factory-acquisition:
-      path: collections/shared/scala-http4s-stateful-factory-acquisition
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-http4s-uri-segment-representation:
-      path: collections/shared/scala-http4s-uri-segment-representation
+    ~/.hermes/skills/scala-library-compatibility-laws:
+      path: collections/shared/scala-library-compatibility-laws
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/scala-library-contracts:
       path: collections/shared/scala-library-contracts
@@ -4079,32 +3899,14 @@
     ~/.hermes/skills/scala-oss-library-review:
       path: collections/shared/scala-oss-library-review
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-play-cors-csrf-policy-matrix:
-      path: collections/shared/scala-play-cors-csrf-policy-matrix
+    ~/.hermes/skills/scala-runtime-diagnostics-hot-paths:
+      path: collections/shared/scala-runtime-diagnostics-hot-paths
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-play-partial-startup-shutdown-completion:
-      path: collections/shared/scala-play-partial-startup-shutdown-completion
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-sourcecode-args-capture-review:
-      path: collections/shared/scala-sourcecode-args-capture-review
+    ~/.hermes/skills/scala-stream-resource-scoping:
+      path: collections/shared/scala-stream-resource-scoping
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/scala-type-system:
       path: collections/shared/scala-type-system
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-zio-canceler-evaluation-owner:
-      path: collections/shared/scala-zio-canceler-evaluation-owner
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-zio-diagnostic-reader-progress:
-      path: collections/shared/scala-zio-diagnostic-reader-progress
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-zio-http-channel-handoff-completion:
-      path: collections/shared/scala-zio-http-channel-handoff-completion
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-zio-http-middleware-execution-boundaries:
-      path: collections/shared/scala-zio-http-middleware-execution-boundaries
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-zio-http-request-local-error-disclosure:
-      path: collections/shared/scala-zio-http-request-local-error-disclosure
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/scala-zio-skills--zio-reference:
       path: collections/scala-zio-skills/skills/zio-reference
@@ -5081,71 +4883,23 @@
     ~/.pi/agent/skills/saga-orchestration:
       path: collections/shared/saga-orchestration
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-acyclic-whole-run-compiler-adapters:
-      path: collections/shared/scala-acyclic-whole-run-compiler-adapters
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-ammonite-static-script-dependency-propagation:
-      path: collections/shared/scala-ammonite-static-script-dependency-propagation
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-ammonite-symbol-derived-closure-capture:
-      path: collections/shared/scala-ammonite-symbol-derived-closure-capture
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-cask-route-trie-validation-order:
-      path: collections/shared/scala-cask-route-trie-validation-order
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-castor-platform-mixin-dispatch-accounting:
-      path: collections/shared/scala-castor-platform-mixin-dispatch-accounting
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-cats-effect-cleanup-error-provenance:
-      path: collections/shared/scala-cats-effect-cleanup-error-provenance
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-cats-effect-outcome-sensitive-concurrency:
-      path: collections/shared/scala-cats-effect-outcome-sensitive-concurrency
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-cats-effect-runtime-benchmark-review:
-      path: collections/shared/scala-cats-effect-runtime-benchmark-review
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-cats-erased-runtime-compatibility:
-      path: collections/shared/scala-cats-erased-runtime-compatibility
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-cats-law-backed-instance-surface:
-      path: collections/shared/scala-cats-law-backed-instance-surface
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-cats-traversal-branch-isolation:
-      path: collections/shared/scala-cats-traversal-branch-isolation
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/scala-collections:
       path: collections/shared/scala-collections
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-fastparse-diagnostic-mode-review:
-      path: collections/shared/scala-fastparse-diagnostic-mode-review
+    ~/.pi/agent/skills/scala-compiler-macro-refactoring:
+      path: collections/shared/scala-compiler-macro-refactoring
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-fastparse-hot-path-cost-review:
-      path: collections/shared/scala-fastparse-hot-path-cost-review
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-fastparse-shared-run-combinator-extraction:
-      path: collections/shared/scala-fastparse-shared-run-combinator-extraction
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-fs2-foreign-callback-lanes:
-      path: collections/shared/scala-fs2-foreign-callback-lanes
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-fs2-per-element-scope-propagation:
-      path: collections/shared/scala-fs2-per-element-scope-propagation
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-fs2-sink-emission-cardinality:
-      path: collections/shared/scala-fs2-sink-emission-cardinality
+    ~/.pi/agent/skills/scala-effect-cancellation-finalization:
+      path: collections/shared/scala-effect-cancellation-finalization
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/scala-functional-patterns:
       path: collections/shared/scala-functional-patterns
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-http4s-http1-bodyless-connection-framing:
-      path: collections/shared/scala-http4s-http1-bodyless-connection-framing
+    ~/.pi/agent/skills/scala-http-server-semantics:
+      path: collections/shared/scala-http-server-semantics
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-http4s-stateful-factory-acquisition:
-      path: collections/shared/scala-http4s-stateful-factory-acquisition
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-http4s-uri-segment-representation:
-      path: collections/shared/scala-http4s-uri-segment-representation
+    ~/.pi/agent/skills/scala-library-compatibility-laws:
+      path: collections/shared/scala-library-compatibility-laws
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/scala-library-contracts:
       path: collections/shared/scala-library-contracts
@@ -5153,32 +4907,14 @@
     ~/.pi/agent/skills/scala-oss-library-review:
       path: collections/shared/scala-oss-library-review
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-play-cors-csrf-policy-matrix:
-      path: collections/shared/scala-play-cors-csrf-policy-matrix
+    ~/.pi/agent/skills/scala-runtime-diagnostics-hot-paths:
+      path: collections/shared/scala-runtime-diagnostics-hot-paths
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-play-partial-startup-shutdown-completion:
-      path: collections/shared/scala-play-partial-startup-shutdown-completion
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-sourcecode-args-capture-review:
-      path: collections/shared/scala-sourcecode-args-capture-review
+    ~/.pi/agent/skills/scala-stream-resource-scoping:
+      path: collections/shared/scala-stream-resource-scoping
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/scala-type-system:
       path: collections/shared/scala-type-system
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-zio-canceler-evaluation-owner:
-      path: collections/shared/scala-zio-canceler-evaluation-owner
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-zio-diagnostic-reader-progress:
-      path: collections/shared/scala-zio-diagnostic-reader-progress
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-zio-http-channel-handoff-completion:
-      path: collections/shared/scala-zio-http-channel-handoff-completion
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-zio-http-middleware-execution-boundaries:
-      path: collections/shared/scala-zio-http-middleware-execution-boundaries
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-zio-http-request-local-error-disclosure:
-      path: collections/shared/scala-zio-http-request-local-error-disclosure
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/scala-zio-skills--zio-reference:
       path: collections/scala-zio-skills/skills/zio-reference
