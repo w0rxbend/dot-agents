@@ -1,0 +1,1058 @@
+{
+  "schema_version": 1,
+  "window": {
+    "start": "2018-01-01T00:00:00Z",
+    "end": "2024-12-31T23:59:59Z"
+  },
+  "discovered_at": "2026-10-15T19:17:00.150418Z",
+  "scope": "Public discovery snapshot, not a claim of completed research or verified historical maintainer status.",
+  "sources": [
+    "https://api.github.com/users/lihaoyi/repos",
+    "https://api.github.com/orgs/com-lihaoyi/repos"
+  ],
+  "limitations": [
+    "Known former-owner URLs resolved via GitHub; arbitrary unknown transfers/deletions are not exhaustively discoverable",
+    "Uncertain/example/tooling candidates remain included for explicit investigation."
+  ],
+  "counts": {
+    "inventoried": 82,
+    "included_candidates": 54,
+    "excluded": 28
+  },
+  "repositories": [
+    {
+      "repo": "com-lihaoyi/.github",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Uncertain Scala/library scope; retained for research rather than silently excluded",
+      "classification": "unknown",
+      "aliases": [],
+      "origins": [
+        "orgs/com-lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/.github"
+    },
+    {
+      "repo": "com-lihaoyi/acyclic",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/acyclic"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/acyclic"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/acyclic"
+    },
+    {
+      "repo": "com-lihaoyi/Ammonite",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/Ammonite"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/Ammonite"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/Ammonite"
+    },
+    {
+      "repo": "com-lihaoyi/cask",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/cask"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/cask"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/cask"
+    },
+    {
+      "repo": "com-lihaoyi/castor",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/castor"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/castor"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/castor"
+    },
+    {
+      "repo": "com-lihaoyi/com-lihaoyi",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Uncertain Scala/library scope; retained for research rather than silently excluded",
+      "classification": "unknown",
+      "aliases": [],
+      "origins": [
+        "orgs/com-lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/com-lihaoyi"
+    },
+    {
+      "repo": "com-lihaoyi/fansi",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/fansi"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/fansi"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/fansi"
+    },
+    {
+      "repo": "com-lihaoyi/fastparse",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/fastparse"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/fastparse"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/fastparse"
+    },
+    {
+      "repo": "com-lihaoyi/geny",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/geny"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/geny"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/geny"
+    },
+    {
+      "repo": "com-lihaoyi/homebrew-mill",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Repository created after historical cutoff",
+      "classification": "post_window",
+      "aliases": [],
+      "origins": [
+        "orgs/com-lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/homebrew-mill"
+    },
+    {
+      "repo": "com-lihaoyi/mainargs",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/mainargs"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/mainargs"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/mainargs"
+    },
+    {
+      "repo": "com-lihaoyi/mill",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/mill"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/mill"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/mill"
+    },
+    {
+      "repo": "com-lihaoyi/mill-build-web-redirect",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Uncertain Scala/library scope; retained for research rather than silently excluded",
+      "classification": "unknown",
+      "aliases": [],
+      "origins": [
+        "orgs/com-lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/mill-build-web-redirect"
+    },
+    {
+      "repo": "com-lihaoyi/mill-moduledefs",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "orgs/com-lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/mill-moduledefs"
+    },
+    {
+      "repo": "com-lihaoyi/mill-scala-hello.g8",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Uncertain Scala/library scope; retained for research rather than silently excluded",
+      "classification": "unknown",
+      "aliases": [],
+      "origins": [
+        "orgs/com-lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/mill-scala-hello.g8"
+    },
+    {
+      "repo": "com-lihaoyi/os-lib",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/os-lib"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/os-lib"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/os-lib"
+    },
+    {
+      "repo": "com-lihaoyi/PPrint",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/PPrint"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/PPrint"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/PPrint"
+    },
+    {
+      "repo": "com-lihaoyi/requests-scala",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/requests-scala"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/requests-scala"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/requests-scala"
+    },
+    {
+      "repo": "com-lihaoyi/scalasql",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "orgs/com-lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/scalasql"
+    },
+    {
+      "repo": "com-lihaoyi/scalatags",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/scalatags"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/scalatags"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/scalatags"
+    },
+    {
+      "repo": "com-lihaoyi/sourcecode",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/sourcecode"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/sourcecode"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/sourcecode"
+    },
+    {
+      "repo": "com-lihaoyi/unroll",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "orgs/com-lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/unroll"
+    },
+    {
+      "repo": "com-lihaoyi/upickle",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/upickle"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/upickle"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/upickle"
+    },
+    {
+      "repo": "com-lihaoyi/utest",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/utest"
+      ],
+      "origins": [
+        "orgs/com-lihaoyi/repos",
+        "repos/lihaoyi/utest"
+      ],
+      "html_url": "https://github.com/com-lihaoyi/utest"
+    },
+    {
+      "repo": "http4s/http4s",
+      "family": "http4s",
+      "included": true,
+      "reason": "Required core repository",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "repos/http4s/http4s"
+      ],
+      "html_url": "https://github.com/http4s/http4s"
+    },
+    {
+      "repo": "lihaoyi/6858",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Primary language Java; no Scala/tooling signal in description",
+      "classification": "non_scala",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/6858"
+    },
+    {
+      "repo": "lihaoyi/Ammonite-1",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/Ammonite-1"
+    },
+    {
+      "repo": "lihaoyi/autojit",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/autojit"
+    },
+    {
+      "repo": "lihaoyi/autowire",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/autowire"
+    },
+    {
+      "repo": "lihaoyi/boxer",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/boxer"
+    },
+    {
+      "repo": "lihaoyi/coursier",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Repository created after historical cutoff",
+      "classification": "post_window",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/coursier"
+    },
+    {
+      "repo": "lihaoyi/crdt",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/crdt"
+    },
+    {
+      "repo": "lihaoyi/docs.scala-lang",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/docs.scala-lang"
+    },
+    {
+      "repo": "lihaoyi/empty",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Uncertain Scala/library scope; retained for research rather than silently excluded",
+      "classification": "unknown",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/empty"
+    },
+    {
+      "repo": "lihaoyi/FSharpMetro",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Primary language C#; no Scala/tooling signal in description",
+      "classification": "non_scala",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/FSharpMetro"
+    },
+    {
+      "repo": "lihaoyi/gatling",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/gatling"
+    },
+    {
+      "repo": "lihaoyi/hands-on-scala-js",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/hands-on-scala-js"
+    },
+    {
+      "repo": "lihaoyi/improvement-proposals",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/improvement-proposals"
+    },
+    {
+      "repo": "lihaoyi/intellij-scala",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/intellij-scala"
+    },
+    {
+      "repo": "lihaoyi/Java-Games",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Primary language Java; no Scala/tooling signal in description",
+      "classification": "non_scala",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/Java-Games"
+    },
+    {
+      "repo": "lihaoyi/joptimize",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/joptimize"
+    },
+    {
+      "repo": "lihaoyi/linguist",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/linguist"
+    },
+    {
+      "repo": "lihaoyi/macropy",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Primary language TSQL; no Scala/tooling signal in description",
+      "classification": "non_scala",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/macropy"
+    },
+    {
+      "repo": "lihaoyi/metals",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/metals"
+    },
+    {
+      "repo": "lihaoyi/Metascala",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/Metascala"
+    },
+    {
+      "repo": "lihaoyi/mill-1",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/mill-1"
+    },
+    {
+      "repo": "lihaoyi/mill-scalafix",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/mill-scalafix"
+    },
+    {
+      "repo": "lihaoyi/mockito",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/mockito"
+    },
+    {
+      "repo": "lihaoyi/mysite",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Primary language Python; no Scala/tooling signal in description",
+      "classification": "non_scala",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/mysite"
+    },
+    {
+      "repo": "lihaoyi/netty",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/netty"
+    },
+    {
+      "repo": "lihaoyi/opendata",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Primary language Python; no Scala/tooling signal in description",
+      "classification": "non_scala",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/opendata"
+    },
+    {
+      "repo": "lihaoyi/roll",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Uncertain Scala/library scope; retained for research rather than silently excluded",
+      "classification": "unknown",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/roll"
+    },
+    {
+      "repo": "lihaoyi/sbt-jupiter-interface",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/sbt-jupiter-interface"
+    },
+    {
+      "repo": "lihaoyi/scala",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/scala"
+    },
+    {
+      "repo": "lihaoyi/scala-bench",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/scala-bench"
+    },
+    {
+      "repo": "lihaoyi/scala-js-fiddle",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/scala-js-fiddle"
+    },
+    {
+      "repo": "lihaoyi/scala-js-games",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/scala-js-games"
+    },
+    {
+      "repo": "lihaoyi/scala-lang",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/scala-lang"
+    },
+    {
+      "repo": "lihaoyi/scala-native-example-app",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/scala-native-example-app"
+    },
+    {
+      "repo": "lihaoyi/scala.rx",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/scala.rx"
+    },
+    {
+      "repo": "lihaoyi/scala3",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/scala3"
+    },
+    {
+      "repo": "lihaoyi/Scalatex",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/Scalatex"
+    },
+    {
+      "repo": "lihaoyi/Scalite",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/Scalite"
+    },
+    {
+      "repo": "lihaoyi/scip-java",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Repository created after historical cutoff",
+      "classification": "post_window",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/scip-java"
+    },
+    {
+      "repo": "lihaoyi/sinject",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/sinject"
+    },
+    {
+      "repo": "lihaoyi/SprayWebSockets",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/SprayWebSockets"
+    },
+    {
+      "repo": "lihaoyi/test",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Primary language HTML; no Scala/tooling signal in description",
+      "classification": "non_scala",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/test"
+    },
+    {
+      "repo": "lihaoyi/tree-sitter-scala",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Repository created after historical cutoff",
+      "classification": "post_window",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/tree-sitter-scala"
+    },
+    {
+      "repo": "lihaoyi/utest-example-module",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/utest-example-module"
+    },
+    {
+      "repo": "lihaoyi/vscode-scala-syntax",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Repository created after historical cutoff",
+      "classification": "post_window",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/vscode-scala-syntax"
+    },
+    {
+      "repo": "lihaoyi/workbench",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/workbench"
+    },
+    {
+      "repo": "lihaoyi/workbench-example-app",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/workbench-example-app"
+    },
+    {
+      "repo": "lihaoyi/XMLite",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/XMLite"
+    },
+    {
+      "repo": "lihaoyi/zinc",
+      "family": "lihaoyi",
+      "included": false,
+      "reason": "Personal fork; not evidence of original library authorship",
+      "classification": "fork",
+      "aliases": [],
+      "origins": [
+        "users/lihaoyi/repos"
+      ],
+      "html_url": "https://github.com/lihaoyi/zinc"
+    },
+    {
+      "repo": "playframework/playframework",
+      "family": "play",
+      "included": true,
+      "reason": "Required core repository",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "repos/playframework/playframework"
+      ],
+      "html_url": "https://github.com/playframework/playframework"
+    },
+    {
+      "repo": "scala-js/scala-js-dom",
+      "family": "lihaoyi",
+      "included": true,
+      "reason": "Scala library/tool candidate from enumerated owner; requires historical review",
+      "classification": "library_or_tool",
+      "aliases": [
+        "lihaoyi/scala-js-dom"
+      ],
+      "origins": [
+        "repos/lihaoyi/scala-js-dom"
+      ],
+      "html_url": "https://github.com/scala-js/scala-js-dom"
+    },
+    {
+      "repo": "typelevel/cats",
+      "family": "typelevel",
+      "included": true,
+      "reason": "Required core repository",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "repos/typelevel/cats"
+      ],
+      "html_url": "https://github.com/typelevel/cats"
+    },
+    {
+      "repo": "typelevel/cats-effect",
+      "family": "typelevel",
+      "included": true,
+      "reason": "Required core repository",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "repos/typelevel/cats-effect"
+      ],
+      "html_url": "https://github.com/typelevel/cats-effect"
+    },
+    {
+      "repo": "typelevel/fs2",
+      "family": "typelevel",
+      "included": true,
+      "reason": "Required core repository",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "repos/typelevel/fs2"
+      ],
+      "html_url": "https://github.com/typelevel/fs2"
+    },
+    {
+      "repo": "zio/zio",
+      "family": "zio",
+      "included": true,
+      "reason": "Required core repository",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "repos/zio/zio"
+      ],
+      "html_url": "https://github.com/zio/zio"
+    },
+    {
+      "repo": "zio/zio-http",
+      "family": "zio",
+      "included": true,
+      "reason": "Required core repository",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "repos/zio/zio-http"
+      ],
+      "html_url": "https://github.com/zio/zio-http"
+    },
+    {
+      "repo": "zio/zio-kafka",
+      "family": "zio",
+      "included": true,
+      "reason": "Required core repository",
+      "classification": "library_or_tool",
+      "aliases": [],
+      "origins": [
+        "repos/zio/zio-kafka"
+      ],
+      "html_url": "https://github.com/zio/zio-kafka"
+    }
+  ]
+}
