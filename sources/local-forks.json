@@ -41,24 +41,6 @@
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
-      "id": "code-simplifier",
-      "path": "collections/shared/code-simplifier",
-      "source": "pproenca/dot-skills",
-      "license": "MIT",
-      "local_fork": true,
-      "before_entry_sha256": "1850c855a6368316c42883968becdc7238bd3cb62722c6ca9d521251d613eaa7",
-      "before_words": 857,
-      "reasons": [
-        "Remove a metadata.json link that is not shipped; preserve all real rule references."
-      ],
-      "files": [
-        "SKILL.md"
-      ],
-      "after_entry_sha256": "8dee97e8fffeca83b99bcc0a426286764f429b231c71b0562cd7c32d942903fa",
-      "after_words": 849,
-      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
-    },
-    {
       "id": "dockerfile-optimise",
       "path": "collections/shared/dockerfile-optimise",
       "source": "pproenca/dot-skills",
@@ -67,13 +49,22 @@
       "before_entry_sha256": "dde4627a36d84401c23f0f86de04269c25a262164bb3bd8adb320d31f34b602e",
       "before_words": 763,
       "reasons": [
-        "Remove a metadata.json link that is not shipped; preserve all real rule references."
+        "Remove a metadata.json link that is not shipped; preserve all real rule references.",
+        "Absorb language-specific Dockerfile rules and image scanning from retired writing-dockerfiles; fix npm production flag."
       ],
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/ATTRIBUTION.md",
+        "references/_sections.md",
+        "references/base-distroless.md",
+        "references/lang-go.md",
+        "references/lang-node.md",
+        "references/lang-python.md",
+        "references/lang-rust.md",
+        "references/sec-scan-images.md"
       ],
-      "after_entry_sha256": "baaf6527596357a95c235a62157e099d5a572af71187485f372413ae24d6ee47",
-      "after_words": 755,
+      "after_entry_sha256": "d2488fbdd64dab494e8524ee19c0aaebdf6fa4c4a8174e4983f428eb9a63e4ae",
+      "after_words": 907,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -85,13 +76,14 @@
       "before_entry_sha256": "646f2fb6e25cef87f39de43363f0962d92b3c39f53ffd881fb7959e1338a4ae0",
       "before_words": 1367,
       "reasons": [
-        "Remove another project's nonexistent Vite path and hardcoded line numbers."
+        "Remove another project's nonexistent Vite path and hardcoded line numbers.",
+        "Scope description to React + MUI + TanStack repos; fix missing error-tracking link."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "d0c64f7c8cfd317c85392872e81202c36fe8750de136bbd70154a44c562784d0",
-      "after_words": 1385,
+      "after_entry_sha256": "9f21efdf3a8369177a53e1cbe4f18cbac243c3344b38df9b86ccddc66d2b13af",
+      "after_words": 1423,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -103,13 +95,15 @@
       "before_entry_sha256": "8e7bce542662056895bbf9a31e1334c2d2ebabebb6ab9f6ffb3834752ebbe333",
       "before_words": 2986,
       "reasons": [
-        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance.",
+        "Absorb feedback technique, per-language checks and comment templates from retired review skills; bounded multi-perspective review procedure."
       ],
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/"
       ],
-      "after_entry_sha256": "7fa094effbbe43e651b1c794bae3029b99edf25e49220dc218880595e34cdfed",
-      "after_words": 3009,
+      "after_entry_sha256": "e457ef95a889c6cfe7fab9eb4f49d150198bc39bf263d9e819ea0e6920870bbc",
+      "after_words": 3166,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -126,13 +120,14 @@
         "Remove unavailable persona/nested-agent assumptions and preserve honest independence reporting.",
         "Remove an unavailable persona roster dependency.",
         "Remove mandatory cross-model offer/command confirmation loops while retaining safe prompt transport and authorization.",
-        "Reconcile remaining checklist/rationalization rules with scoped authorized review."
+        "Reconcile remaining checklist/rationalization rules with scoped authorized review.",
+        "Replace nonexistent /review command and retired persona reference with real review skills."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "2bae6380f05130b5a3ce21abfe5c94afd1947b5cd4a1b08764dcd0de36127cf6",
-      "after_words": 1948,
+      "after_entry_sha256": "2aecc8e3e2b619965449b618ca7de27b63e3fd7869c04abdf2e1713af5a67b28",
+      "after_words": 1978,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -144,13 +139,15 @@
       "before_entry_sha256": "549044e9bd8d7fe993ce8e5c0d2b0f5465650676dc15805329973f936179eb1e",
       "before_words": 1581,
       "reasons": [
-        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance.",
+        "Absorb compound-component and list-virtualization patterns from retired frontend-patterns; sharpen description."
       ],
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/"
       ],
-      "after_entry_sha256": "c67a6ce7d637267f091c67a608a08da59b32dab57ea1967e6abfa085afdbeb93",
-      "after_words": 1589,
+      "after_entry_sha256": "708d661eeecf8f286c44a118cc3ce92a16c10c090d317e52ba2191dc5c108d4c",
+      "after_words": 1612,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -162,13 +159,14 @@
       "before_entry_sha256": "df66536610071727feae1ca95f3c391c248ad828041750ccd3699cce763aa00b",
       "before_words": 1500,
       "reasons": [
-        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance.",
+        "Narrow over-broad trigger."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "0c707b16e4ec8cd8ccd9649198ec819fa32e49341519913585df59e3557194b3",
-      "after_words": 1508,
+      "after_entry_sha256": "7e3c9217e9e1ce1522fa5cfb9fb8980da0f60f7f9be700e7b6f0ff3b9ddc678c",
+      "after_words": 1536,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -180,13 +178,15 @@
       "before_entry_sha256": "e7fcb0820306d46268de9594d676ad98e35040858926c412b7000faa52a61f87",
       "before_words": 2161,
       "reasons": [
-        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance.",
+        "Absorb error-budget example and telemetry limitations from retired observability-engineer; remove dangling reference."
       ],
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/"
       ],
-      "after_entry_sha256": "81f28b933b8016ab956fca9c236f1537bd6bbb01fe653920a9349ed353928b07",
-      "after_words": 2169,
+      "after_entry_sha256": "f0b6e0e5e38317f009d721523567ebff33a4586503725d82292751c6b371dd12",
+      "after_words": 2315,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -198,13 +198,16 @@
       "before_entry_sha256": "fb97055401a0f94dfb1518c948bc62ef2860e19ac1f1df3ce0c758894d66cb38",
       "before_words": 1673,
       "reasons": [
-        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance.",
+        "Absorb query, algorithm, memory and profiling-tool content from retired performance skills; move and harden lighthouse_audit.py; fix fences and self-references."
       ],
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/",
+        "scripts/"
       ],
-      "after_entry_sha256": "dbcdc6e59c34b0148dd714d1ef5d5cd3de0df9be02edc6946a05f8a5bee26418",
-      "after_words": 1678,
+      "after_entry_sha256": "d571c3883e48ccc1b49299b6194bf7c92325154ccf75445ae819a9ee9e424d9e",
+      "after_words": 2444,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -216,13 +219,14 @@
       "before_entry_sha256": "ed0f90cc5951ddd4bcab7f871f64efec93a49af9279ef93bc470da77ad8da3f7",
       "before_words": 1730,
       "reasons": [
-        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance.",
+        "Sharpen description."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "078b7346d6a568a2d4570ea597e88aeba0ad10cd94bf55887cbce1e5c4b415e1",
-      "after_words": 1738,
+      "after_entry_sha256": "9046b868d23dd0335f289f74f8101be18712f0fdd9157a8fcd12975f21233e54",
+      "after_words": 1753,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -234,13 +238,16 @@
       "before_entry_sha256": "2e3fc60eed5aba97fe416f3f3c9317fdb014a682925ec70a733c3ff99e4b9858",
       "before_words": 2504,
       "reasons": [
-        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance.",
+        "Absorb Supabase RLS and pre-deploy checklists from retired security-review; narrow supply-chain scope to dependency-scanning."
       ],
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/ATTRIBUTION.md",
+        "references/predeploy-and-supabase.md"
       ],
-      "after_entry_sha256": "f2b28ffb313b72edb407b595be024e8299f0c804d00c192aafedaf93e7193297",
-      "after_words": 2528,
+      "after_entry_sha256": "a0d6c52c859bab374c29a783b9432d0b176716c063c4369faabaf0ba2142cf6c",
+      "after_words": 2507,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -252,13 +259,14 @@
       "before_entry_sha256": "1055d25dfe6cfeb6ae31eba3e2328fd0e7c66b285f0e44c40f67c77a59813281",
       "before_words": 1792,
       "reasons": [
-        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance."
+        "Replace an unavailable cross-repository reference with concrete checks or retained local guidance.",
+        "Sharpen description to distinguish from neighboring skills."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "e022e0f488c346fbb2e9e9dc0117b915546f414cdd7ac9318a8d9643fc66ccbc",
-      "after_words": 1811,
+      "after_entry_sha256": "6f0213248fcb09cba45b03546b5c10e21ce9dbc66b910827dc15b5e9f128e977",
+      "after_words": 1810,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -281,13 +289,15 @@
         "Retain required checks while dropping an unconditional full-suite requirement.",
         "Avoid requiring confirmation for every ordinary authorized browser navigation.",
         "Replace the nonexistent generic reference without implying language-specific examples exist there.",
-        "Parent review narrowed remaining any-change triggers and removed a mandatory browser MCP dependency."
+        "Parent review narrowed remaining any-change triggers and removed a mandatory browser MCP dependency.",
+        "Replace duplicated pyramid and DevTools sections with pointers; add one-behavior-per-cycle guidance."
       ],
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/"
       ],
-      "after_entry_sha256": "7db52393ed5dd50bafdde24d8d8d061946d44a731c7dbe392f68fea6efe38d93",
-      "after_words": 2517,
+      "after_entry_sha256": "91c01821ad9d31baf9a85e8d3436e6b5d92889216bfd9ad3eec82093d1979f29",
+      "after_words": 2269,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -301,49 +311,14 @@
       "reasons": [
         "Replace an unavailable cross-repository reference with concrete checks or retained local guidance.",
         "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
-        "Remove global policy claims, forced serial lifecycle, blanket runtime/docs gates, and redundant confirmation loops."
+        "Remove global policy claims, forced serial lifecycle, blanket runtime/docs gates, and redundant confirmation loops.",
+        "Canonical routing table naming only installed skills."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "35a0e29c0844a0af8449fed99b34db44c0a5dc7c38b5be0fd7b32585b3e20779",
-      "after_words": 301,
-      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
-    },
-    {
-      "id": "code-review-ai-ai-review",
-      "path": "collections/shared/code-review-ai-ai-review",
-      "source": "sickn33/antigravity-awesome-skills",
-      "license": "MIT",
-      "local_fork": true,
-      "before_entry_sha256": "1b2f0785e72b0858f7686d1751613fba01a2a239501669037efb8d86f8febd91",
-      "before_words": 1719,
-      "reasons": [
-        "Remove an unshipped implementation-playbook.md claim; retain the substantive skill instructions."
-      ],
-      "files": [
-        "SKILL.md"
-      ],
-      "after_entry_sha256": "34004eef74fdabe470268a3795673c83035931eb80f0c675bf136e04549e862a",
-      "after_words": 1711,
-      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
-    },
-    {
-      "id": "code-reviewer",
-      "path": "collections/shared/code-reviewer",
-      "source": "sickn33/antigravity-awesome-skills",
-      "license": "MIT",
-      "local_fork": true,
-      "before_entry_sha256": "9472932fb8d9f04da9acdc0461fa897f57fa08af70fd733129e28f6f87a6431f",
-      "before_words": 1206,
-      "reasons": [
-        "Remove an unshipped implementation-playbook.md claim; retain the substantive skill instructions."
-      ],
-      "files": [
-        "SKILL.md"
-      ],
-      "after_entry_sha256": "a164878668ff650356e26c6e18073b1b7c77890f8b73702eff581675514f66f0",
-      "after_words": 1198,
+      "after_entry_sha256": "dca5c7191ad53fa6a3b0158f3b7d2677d1680711478e2417913ed071674bc0ba",
+      "after_words": 518,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -356,105 +331,14 @@
       "before_words": 1239,
       "reasons": [
         "Remove an unshipped implementation-playbook.md claim; retain the substantive skill instructions.",
-        "Remove the unshipped optional-resource catalog and route to actual manifests and upstream migration guidance."
+        "Remove the unshipped optional-resource catalog and route to actual manifests and upstream migration guidance.",
+        "Sharpen description to distinguish from neighboring skills."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "84863cc0be2fce2343a903565ca7a1a6d57d15dc43317b34ebc553c44e389b1d",
-      "after_words": 1222,
-      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
-    },
-    {
-      "id": "java-pro",
-      "path": "collections/shared/java-pro",
-      "source": "sickn33/antigravity-awesome-skills",
-      "license": "MIT",
-      "local_fork": true,
-      "before_entry_sha256": "d835715a46fcf45024f02cfd94d7c24915b964fe4e36fe161f147fe2022ee789",
-      "before_words": 1184,
-      "reasons": [
-        "Remove an unshipped implementation-playbook.md claim; retain the substantive skill instructions.",
-        "Correct a withdrawn Java feature presented as a broadly available Java 21+ capability."
-      ],
-      "files": [
-        "SKILL.md"
-      ],
-      "after_entry_sha256": "ce0d1cc1a567d596eda8f917121070cd73d707f8b253fcd5c6bf40b8a0be13fe",
-      "after_words": 1203,
-      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
-    },
-    {
-      "id": "scala-pro",
-      "path": "collections/shared/scala-pro",
-      "source": "davila7/claude-code-templates",
-      "license": "MIT",
-      "local_fork": true,
-      "before_entry_sha256": "787c444c6c41c0fcb61cc5800495025b37eb1760cfe42b6aeb0f714c682ba423",
-      "before_words": 717,
-      "reasons": [
-        "Remove an unshipped implementation-playbook.md claim; retain the substantive skill instructions."
-      ],
-      "files": [
-        "SKILL.md"
-      ],
-      "after_entry_sha256": "f8557836bc087ecf0301e3ea36a96da92ea077ace8a415c709ed3972eb78f81c",
-      "after_words": 709,
-      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
-    },
-    {
-      "id": "api-designer",
-      "path": "collections/shared/api-designer",
-      "source": "sickn33/antigravity-awesome-skills",
-      "license": "MIT",
-      "local_fork": true,
-      "before_entry_sha256": "ba65d90c01ee209081e6db092b40da18b34f22725f9db4f6f4e7bfc4a8e1fc48",
-      "before_words": 951,
-      "reasons": [
-        "Replace two absent reference dependencies with useful domain discovery guidance."
-      ],
-      "files": [
-        "SKILL.md"
-      ],
-      "after_entry_sha256": "6df284c26575075f2110453331e3ed1eed83ebdaaebbee2ca4769922b5d37791",
-      "after_words": 955,
-      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
-    },
-    {
-      "id": "ai-analyzer",
-      "path": "collections/shared/ai-analyzer",
-      "source": "sickn33/antigravity-awesome-skills",
-      "license": "MIT",
-      "local_fork": true,
-      "before_entry_sha256": "abab5b9fc71a25d75c7f4a38b0bc7f0d3a063d6c07bdf992fdc508ea650969d8",
-      "before_words": 588,
-      "reasons": [
-        "Make the absent report generator explicit rather than invoking a nonexistent helper."
-      ],
-      "files": [
-        "SKILL.md"
-      ],
-      "after_entry_sha256": "5a9374e496e6d45ce0b4bbb0033986b10f19b598e9de7206839d181c39b7b0ce",
-      "after_words": 588,
-      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
-    },
-    {
-      "id": "docs-generator",
-      "path": "collections/shared/docs-generator",
-      "source": "sickn33/antigravity-awesome-skills",
-      "license": "MIT",
-      "local_fork": true,
-      "before_entry_sha256": "23aa3745d9f8e26d7485fd822f39c70b44d5e8f30cdb1d8ccd42604c452cf208",
-      "before_words": 771,
-      "reasons": [
-        "Replace an unavailable sibling ops reference with the evidence invariant it was intended to enforce.",
-        "Avoid implying an unshipped sibling initialization script is installed."
-      ],
-      "files": [
-        "SKILL.md"
-      ],
-      "after_entry_sha256": "b548914374ba31a6548312cf55fbc999f496b771fbb425096fc0bc855287fc7a",
-      "after_words": 769,
+      "after_entry_sha256": "e4c223ad3866dad9dcb640271dead42b09fa0f86381512bf3d07df019fe371af",
+      "after_words": 1250,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -467,13 +351,15 @@
       "before_words": 2138,
       "reasons": [
         "Distinguish absent illustrative helper names from runnable bundled scripts.",
-        "Prevent copied utility command sketches from being treated as installed automation."
+        "Prevent copied utility command sketches from being treated as installed automation.",
+        "Remove references to bundled files and skills that do not exist; pin deprecated action references; sharpen description."
       ],
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/multi-cloud-networking.md"
       ],
-      "after_entry_sha256": "9e3361c417510e3036fbefb68da562bb1308157e163e452473e364c2998716ea",
-      "after_words": 2193,
+      "after_entry_sha256": "deba2668d64b5d69a3fb6c9eef98b6c2beef1036b4f08c1e634cc3876106ea07",
+      "after_words": 2085,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -486,13 +372,15 @@
       "before_words": 3104,
       "reasons": [
         "Distinguish absent illustrative helper names from runnable bundled scripts.",
-        "Prevent copied utility command sketches from being treated as installed automation."
+        "Prevent copied utility command sketches from being treated as installed automation.",
+        "Remove references to bundled files and skills that do not exist; pin deprecated action references; sharpen description."
       ],
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/supply-chain-security.md"
       ],
-      "after_entry_sha256": "e5a03bd58f70e2c0ab7ba23f8fb0d3653f0fceb9ae88435e5ee133d53f1f5dbd",
-      "after_words": 3159,
+      "after_entry_sha256": "11e287579ed436a49346dab70a5ac4859f60b282dd765ced414ab48a59f32439",
+      "after_words": 3084,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -504,13 +392,17 @@
       "before_entry_sha256": "e7433f619d7f284e612740bd81b4c5fc7d3335e07a7686ae93252b5183733cd0",
       "before_words": 1252,
       "reasons": [
-        "Prevent copied utility command sketches from being treated as installed automation."
+        "Prevent copied utility command sketches from being treated as installed automation.",
+        "Replace unpinned @master actions; remove nonexistent example and script references; update related skills."
       ],
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "examples/github-actions-basic/.github/workflows/ci.yml",
+        "references/github-actions-patterns.md",
+        "references/slsa-security-framework.md"
       ],
-      "after_entry_sha256": "f0420f2c13b99d893a436b01bf2c10336fc6e883862e607fa66cc30136e59d77",
-      "after_words": 1295,
+      "after_entry_sha256": "bae05a3831a32a3ab737b68f588b0e502709eb407e5f9289bc32ff81a4484c1a",
+      "after_words": 1370,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -523,13 +415,14 @@
       "before_words": 2709,
       "reasons": [
         "Distinguish absent illustrative helper names from runnable bundled scripts.",
-        "Prevent copied utility command sketches from being treated as installed automation."
+        "Prevent copied utility command sketches from being treated as installed automation.",
+        "Remove references to bundled files and skills that do not exist; pin deprecated action references; sharpen description."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "68af7f70ad30ef171a60e836b266bbfb476e3abf4a49a030fbad5d40694ff6df",
-      "after_words": 2764,
+      "after_entry_sha256": "29ae6d3d724181dd9a38c740c46d0699498176df5cd262b52480719f833345cd",
+      "after_words": 2690,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -561,13 +454,14 @@
       "before_words": 1727,
       "reasons": [
         "Distinguish absent illustrative helper names from runnable bundled scripts.",
-        "Prevent copied utility command sketches from being treated as installed automation."
+        "Prevent copied utility command sketches from being treated as installed automation.",
+        "Remove references to bundled files and skills that do not exist; pin deprecated action references; sharpen description."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "6b1fb842901e59ab170ab7498e7a4edc8803782ae5ee7d8a4969a3f56b5055f3",
-      "after_words": 1778,
+      "after_entry_sha256": "c97c0005cdca39a05a7183bbdfbec603bc91ed8ded3a99b7e36bec96938f1cac",
+      "after_words": 1743,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -579,75 +473,14 @@
       "before_entry_sha256": "fbd90354ba5bd236d8a99fa613f6837a45ec9aa61a67991c607c19ffc03ca77f",
       "before_words": 1051,
       "reasons": [
-        "Prevent copied utility command sketches from being treated as installed automation."
+        "Prevent copied utility command sketches from being treated as installed automation.",
+        "Replace missing script reference with the bundled index validator."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "e95fdea8a4141af27f6f395876ca4f38754f1b161a540c4390bf7e03f9862b78",
-      "after_words": 1094,
-      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
-    },
-    {
-      "id": "agent-orchestrator",
-      "path": "collections/shared/agent-orchestrator",
-      "source": "sickn33/antigravity-awesome-skills",
-      "license": "MIT",
-      "local_fork": true,
-      "before_entry_sha256": "ade0f7dad25db88ab35c0b5a188cdf71a534f1703e53cab90d873a6da545a514",
-      "before_words": 1212,
-      "reasons": [
-        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
-        "Scope registry scans to actual discovery/orchestration requests.",
-        "Remove mandatory every-request scan and incorrect cwd-independent path claim.",
-        "Make helper invocations resolve from the installed skill directory.",
-        "Repair shell quoting in the combined discovery example."
-      ],
-      "files": [
-        "SKILL.md"
-      ],
-      "after_entry_sha256": "4a016410187c2035adf068a7116b606b29d653fc3ca21520f6620bf40cefc24e",
-      "after_words": 1261,
-      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
-    },
-    {
-      "id": "agent-squad",
-      "path": "collections/shared/agent-squad",
-      "source": "sickn33/antigravity-awesome-skills",
-      "license": "MIT",
-      "local_fork": true,
-      "before_entry_sha256": "df2141928ccaf3a2cc0a354324630920b9efd03638579497ba550027861e1267",
-      "before_words": 1129,
-      "reasons": [
-        "Permit direct work and scale delegation to the task instead of forcing every phase through a persona.",
-        "Carry existing workflow authorization across phases.",
-        "Remove repeated next-phase permission requests.",
-        "Allow the coordinator to integrate work and resolve routine disagreements.",
-        "Avoid stopping authorized work for routine engineering blockers."
-      ],
-      "files": [
-        "SKILL.md"
-      ],
-      "after_entry_sha256": "c685a1032b60044d09c8b5802d4fb30ce4c842f5467a11a54930ebe03a436cc7",
-      "after_words": 1135,
-      "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
-    },
-    {
-      "id": "git-storytelling-commit-strategy",
-      "path": "collections/shared/git-storytelling-commit-strategy",
-      "source": "thebushidocollective/han",
-      "license": "FSL-1.1-ALv2",
-      "local_fork": true,
-      "before_entry_sha256": "06b6611eb136705d87d34974b3bcc3c36506f8e9f253c3ed4be1cfac98bf195a",
-      "before_words": 2065,
-      "reasons": [
-        "Remove an unconditional commit rule on ordinary task switches."
-      ],
-      "files": [
-        "SKILL.md"
-      ],
-      "after_entry_sha256": "bd2645a1a7e50ededdf7fdd05ead8017efd41b589f62f0b1758f5a15122a096b",
-      "after_words": 2085,
+      "after_entry_sha256": "976227c6bf8e201a6224398bc160a0e20495cbaba1e29c106964d2ccedda957f",
+      "after_words": 1139,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -678,13 +511,14 @@
       "before_entry_sha256": "03198a29c5eb59f87146b3e43030a644421a0797ba4a9339fcff7b827b234133",
       "before_words": 811,
       "reasons": [
-        "Remove an unfinished authoring scaffold sentence."
+        "Remove an unfinished authoring scaffold sentence.",
+        "Remove marketing title and dangling references; real audit procedure."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "58f5eb97dd658baf6c541d9675d22e4cd4d71431b557fa35d295ec35e5304899",
-      "after_words": 807,
+      "after_entry_sha256": "b1a6fb381ff2f7c8bae9f306811bbb7e7ae445827bb631bcff7acb9ab955159c",
+      "after_words": 721,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -698,14 +532,15 @@
       "reasons": [
         "Preserve the substantive review dimensions separately from the focused entrypoint.",
         "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
-        "Remove forced Haiku/Sonnet fanout, contradictory verification rules, and automatic gh comment publication."
+        "Remove forced Haiku/Sonnet fanout, contradictory verification rules, and automatic gh comment publication.",
+        "Inline severity scale and findings template; sharpen trigger versus the review rubric skill."
       ],
       "files": [
-        "references/review-dimensions.md",
-        "SKILL.md"
+        "SKILL.md",
+        "references/review-dimensions.md"
       ],
-      "after_entry_sha256": "d81176983811ec306ddd6d5a443150472b64f92bfa4718593f1e183a16a2f1c1",
-      "after_words": 397,
+      "after_entry_sha256": "ae678f9cbeb67146fe92213c89201123ccaa179ae0feb2e1093af81e3ed80f07",
+      "after_words": 585,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -1003,13 +838,15 @@
       "reasons": [
         "Use the maintained Effect v3 Schema import and non-transforming primitive constructors.",
         "Route Effect Schema guidance by actual dependency major version.",
-        "Parent verification fixed the v3 ParseResult namespace/Type constructor and date transformation target; both examples typecheck and pass runtime assertions on Effect 3.22.2/TypeScript 6.0.2."
+        "Parent verification fixed the v3 ParseResult namespace/Type constructor and date transformation target; both examples typecheck and pass runtime assertions on Effect 3.22.2/TypeScript 6.0.2.",
+        "Label Effect-TS v3 in description with v4 rename note; typecheck examples against effect 3.",
+        "Fix v3 API errors."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "69a6f370a0756a6b673df53433132c2b7cbbc975b3969e11781b6d249edc6b42",
-      "after_words": 1523,
+      "after_entry_sha256": "1b8179b1e70fe0226c5bcd295673be1038acecf52e7bab7268003e4aa8e82ca7",
+      "after_words": 1196,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -1544,13 +1381,14 @@
       "before_entry_sha256": "c45f6da6e83d7740b91c32e9ba5a7320bbdc4e5c973416af6371b53e599f1dc6",
       "before_words": 342,
       "reasons": [
-        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
+        "Rewrite garbled scrape into a coherent memory design procedure; remove dead links."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "8396ac80f9cedd988d5e6b0791dce5cdaa6f8b08c93cc020a8c19660181f16c4",
-      "after_words": 291,
+      "after_entry_sha256": "ceac3affacb7614ab1b06de5e7d68674a0c89e4bc8c448c13a1ae041cfa777f0",
+      "after_words": 1418,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -1562,13 +1400,15 @@
       "before_entry_sha256": "b7465d187935c52546d39fdc7bd6ac36d94eda25a9500ef8c18b767d2eb116ea",
       "before_words": 2154,
       "reasons": [
-        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
+        "Absorb condensed commit-message guidance and non-interactive history cleanup; replace destructive reset advice; add gh CI inspection."
       ],
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/"
       ],
-      "after_entry_sha256": "178eaefe248708aac55aff9f54ca2fae2251e30b239e5ed84adfc0c05978afd9",
-      "after_words": 2112,
+      "after_entry_sha256": "3a148a08f39975733b00794467b8d8a783ac4244e214bcc8c23d2e227f85fd59",
+      "after_words": 2336,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -1598,13 +1438,14 @@
       "before_entry_sha256": "c4b97ce3d7f24be0e67fd612c7595f65504872e3a9f8d338d098b2363fdb66ef",
       "before_words": 1988,
       "reasons": [
-        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
+        "Trim phases duplicated by planning skills; remove nonexistent commands and paths."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "4df1f4401536be8cbc7b8e294f7d61dadc0a785c4f4be47c096d4eda6b3a776a",
-      "after_words": 1956,
+      "after_entry_sha256": "7529b0cacbe18ccb952a313506f6e88a536affff1fad386ea589f75fffc22e29",
+      "after_words": 1747,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -1616,13 +1457,15 @@
       "before_entry_sha256": "c56023eb4874a4f35c0b0042c2fbe4c9ae99adb314d801b23ccaf9ee9b13940f",
       "before_words": 1032,
       "reasons": [
-        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
+        "Fix Singleton-for-global-state and Factory-everywhere advice; add when-plain-code-is-better verdicts."
       ],
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "references/ATTRIBUTION.md"
       ],
-      "after_entry_sha256": "48c80b4ae031f91c065481ed22a2ec42235ec4795b9b37297f1b1cf600d70eff",
-      "after_words": 946,
+      "after_entry_sha256": "b223bf2e7f327279b2a021ad306f9ce63712824ff1a3718fbdc2153477332053",
+      "after_words": 1253,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -1634,13 +1477,14 @@
       "before_entry_sha256": "c29e634d1cc4db7f1c941561df5c25bee69bc8a5dc90073aa8eac1d4234ef1e7",
       "before_words": 1479,
       "reasons": [
-        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body."
+        "Tighten discovery to the actual capability and task boundary; retain detailed coverage in the body.",
+        "Sharpen description versus design-patterns."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "a1a127186c1968ca81c4f58ec6fe76fc82b184ba8abd2ad2807db55d3c1ad87a",
-      "after_words": 1442,
+      "after_entry_sha256": "e73fed73887a1b369fdfc33e4b7ff64a910299ef17d9d2f7e1933cb55e3cbbb1",
+      "after_words": 1459,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -1653,14 +1497,15 @@
       "before_words": 3445,
       "reasons": [
         "Move the complete dense example library into a linked on-demand reference; retain all instructional content.",
-        "Reduce context load for Scala and Lua tasks without deleting the detailed example library."
+        "Reduce context load for Scala and Lua tasks without deleting the detailed example library.",
+        "Note parallel-collections module on 2.13+ and add 2.12-to-2.13/3 migration table."
       ],
       "files": [
-        "references/language-patterns.md",
-        "SKILL.md"
+        "SKILL.md",
+        "references/language-patterns.md"
       ],
-      "after_entry_sha256": "a53807d7d95549bca9d7200a4b807682c59f4521daf58606e5dc3ae551a128b9",
-      "after_words": 203,
+      "after_entry_sha256": "9666e3d98434c1a6df5859beadc87398e69532134ebac08fc611e00cff8000d5",
+      "after_words": 214,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -1673,14 +1518,15 @@
       "before_words": 3292,
       "reasons": [
         "Move the complete dense example library into a linked on-demand reference; retain all instructional content.",
-        "Reduce context load for Scala and Lua tasks without deleting the detailed example library."
+        "Reduce context load for Scala and Lua tasks without deleting the detailed example library.",
+        "Add Scala 3 enum ADTs and version notes."
       ],
       "files": [
-        "references/language-patterns.md",
-        "SKILL.md"
+        "SKILL.md",
+        "references/language-patterns.md"
       ],
-      "after_entry_sha256": "7cb25c1e43b61b48d6f3f915eb4496146d441e41f2ba8de35628a5a0c86c2b9b",
-      "after_words": 192,
+      "after_entry_sha256": "81ac3b9064c814daf24e3720a462042112001cf673e2c18c8bc262b20e1e6def",
+      "after_words": 210,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -1693,14 +1539,15 @@
       "before_words": 3222,
       "reasons": [
         "Move the complete dense example library into a linked on-demand reference; retain all instructional content.",
-        "Reduce context load for Scala and Lua tasks without deleting the detailed example library."
+        "Reduce context load for Scala and Lua tasks without deleting the detailed example library.",
+        "Add Scala 3 given/using/extension equivalents and flag implicit-conversion anti-patterns."
       ],
       "files": [
-        "references/language-patterns.md",
-        "SKILL.md"
+        "SKILL.md",
+        "references/language-patterns.md"
       ],
-      "after_entry_sha256": "7632d150a92beba6491a2b7d79ea907f27c8330bcbcc3b2597f7a55239b98833",
-      "after_words": 193,
+      "after_entry_sha256": "e49370370ba480cf13973b67126018713b6149ad1af8c1a80ca4033b26fa46e5",
+      "after_words": 215,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -1713,14 +1560,15 @@
       "before_words": 3155,
       "reasons": [
         "Move the complete dense example library into a linked on-demand reference; retain all instructional content.",
-        "Reduce context load for Scala and Lua tasks without deleting the detailed example library."
+        "Reduce context load for Scala and Lua tasks without deleting the detailed example library.",
+        "Real entrypoint with Lua version differences."
       ],
       "files": [
-        "references/language-patterns.md",
-        "SKILL.md"
+        "SKILL.md",
+        "references/language-patterns.md"
       ],
-      "after_entry_sha256": "d4493683b28f0a2181db7120663c2d592d63451aab61f13860769fa267f3e617",
-      "after_words": 148,
+      "after_entry_sha256": "2ca61983ba44a0e9bc697daa81e9aa15b8b7b511293147dfc8d3d2e6ae8e00bf",
+      "after_words": 901,
       "before_after": "Reviewable patch in listed files; full upstream instructional resources retained except absent references and scope-expanding workflow rules."
     },
     {
@@ -1796,6 +1644,2388 @@
         "Honor configured/user-selected CLI model instead of forcing Haiku/Opus and an unchosen fallback."
       ],
       "before_after": "Reviewed local fork of the MIT upstream Hermes entrypoint; all API examples and supporting resources retained except unsafe blind dialog/model instructions."
+    },
+    {
+      "id": "agent-observability",
+      "path": "collections/shared/agent-observability",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "08958fb3a7be38f9229f0d24d05c7fb50c26d7cd9baf205f39a3668f4e4261c4",
+      "before_words": 1092,
+      "reasons": [
+        "Remove placeholder links, hard-coded prices and boilerplate; add GenAI semantic-convention note."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/details.md"
+      ],
+      "after_entry_sha256": "6d76f97951929c8a0928cdd5946174c672f6fbc71bf57597b1d810a56bdbed43",
+      "after_words": 1237,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "agent-orchestration-improve-agent",
+      "path": "collections/shared/agent-orchestration-improve-agent",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "705fdb2cee09461ce2ffbf0ece199a0f4d16e632b541ef3b07d6533c28c3f5b4",
+      "before_words": 1405,
+      "reasons": [
+        "Rewrite around a measured eval/A-B/rollout loop; remove nonexistent tool calls and $ARGUMENTS; absorb multi-agent cost guidance."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/"
+      ],
+      "after_entry_sha256": "aa8f0471132e2dfcd50122bc7f39f1ab718c2d5c4ec5428b4eb0b30c1f3a3ee0",
+      "after_words": 1212,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "agent-self-scheduling",
+      "path": "collections/shared/agent-self-scheduling",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "0f9fde1ddcc42e24d40ad62eb63b770ef16e7e821322982f705df5396bd507e5",
+      "before_words": 720,
+      "reasons": [
+        "Add when-to-use description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "e0dc4be85770993d0eb6a8861c3de7ca88584ab827bc0e5a4c6234547b58d6e2",
+      "after_words": 760,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "analytics",
+      "path": "collections/shared/analytics",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "7c8afc48077e4b5610e3c138743061ce9b8b1a5a01c7faab3eab75df1869b49d",
+      "before_words": 1239,
+      "reasons": [
+        "Absorb conversion counting rules and readiness review from analytics-tracking and translated product-analytics reference from analytics-product; remove persona, filler and dead links."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/ATTRIBUTION.md",
+        "references/product-analytics.md"
+      ],
+      "after_entry_sha256": "3793964b9a80962f7ca8e14fb4425761fc2a406b0d2548648368c2eff591a5d2",
+      "after_words": 1614,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "analyze-performance",
+      "path": "collections/shared/analyze-performance",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "55a3b65f99f1e964201829bb3b2046c4dab04ceb4d6fe43b4fba723c24512e13",
+      "before_words": 546,
+      "reasons": [
+        "Rewrite with Sentry MCP/API procedure; remove wrong index advice and nonexistent commands."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "d9eb44299a201ba218da4044c29ce186668ceb6fd6a30297116395b445303161",
+      "after_words": 704,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "andrej-karpathy",
+      "path": "collections/shared/andrej-karpathy",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "0516f187326dac943d338c17f8f408925bc64783da043c5fcc42082a50b6b01f",
+      "before_words": 595,
+      "reasons": [
+        "Reposition description as a working posture for coding agents."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "b89dc76db15fbae3f967a27e94462ba82c819de4711a2edcb76b7563a4778a00",
+      "after_words": 619,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "api-analyzer",
+      "path": "collections/shared/api-analyzer",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "5b06a4022c27ccdfe0074d34d92b943c3033dd0ef5f5fdf284292163b36eb5be",
+      "before_words": 656,
+      "reasons": [
+        "Fix garbled trigger; remove vendor promotion and upsell."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "83152da467ceddc620d9e0b6614028d8c83d36e96bbc6446d0b748104b8a11bc",
+      "after_words": 555,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "api-and-interface-design",
+      "path": "collections/shared/api-and-interface-design",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "e83d34f52ff12dd8a7c5134cd7e8140ea4541ec65e204f8a1e4cd366e30c4192",
+      "before_words": 2168,
+      "reasons": [
+        "Sharpen description versus network API design."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "d1f9a1a20ab755e425574e8dfc3787eeffc8215232b6b9a5ba838c1eb09c25f8",
+      "after_words": 2184,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "api-security",
+      "path": "collections/shared/api-security",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "e7abc857e8a5158f8fa4a4340b17905ae67bcb69f9fe69f27fc0c6793867e589",
+      "before_words": 798,
+      "reasons": [
+        "Translate entrypoint to English and remove references to artifacts not shipped."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "7ea1f518df116ec6a3b965b350eeb299fcec10e7dc7220f65cde732ac1ad21c9",
+      "after_words": 984,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "api-security-best-practices",
+      "path": "collections/shared/api-security-best-practices",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "f01d39fb4e2a134f4ae416dc03701d99b5e703d49472376a7ce488cfdd55328f",
+      "before_words": 1483,
+      "reasons": [
+        "Sharpen description to distinguish from neighboring skills."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "2aeff60815ff47182e9ce51313d2b6085295940bfad6b20810788b4e04f3eda7",
+      "after_words": 1511,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "architecting-data",
+      "path": "collections/shared/architecting-data",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "ae7daf6ee24864c41a90c2f66c9b6defe7fbdcfbd82c822f98dcc3bc1822cc15",
+      "before_words": 1692,
+      "reasons": [
+        "Sharpen description; replace nonexistent integration skills."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "2eb69f2006ebcfa4807df2b08b5451f7376fdcb8408f09bb4b340a99b9d10c7e",
+      "after_words": 1682,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "architecture",
+      "path": "collections/shared/architecture",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "cc1ab59295d54bd8b0261676296cff767cf3334139992935352821471f12f900",
+      "before_words": 311,
+      "reasons": [
+        "Reposition as trade-off analysis; replace boilerplate and missing references."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "aeefab25ae081e880bcde2637d539c304d9a9ae9259772f2aadd258da5ad4d57",
+      "after_words": 593,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "architecture-patterns",
+      "path": "collections/shared/architecture-patterns",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "c81685820e6106fdd199d10bf9585f2dd6c9fceeeb9e771c9a6170c583c0aa5d",
+      "before_words": 283,
+      "reasons": [
+        "Add when-not-to-use criteria and CQRS/event-sourcing/modular-monolith notes; remove vendor plug and dead links."
+      ],
+      "files": [
+        "SKILL.md",
+        "resources/implementation-playbook.md"
+      ],
+      "after_entry_sha256": "a3c6f022b854ea95a2009f0f10dd96d5551d68853b0affcc83a3672ed3f94d20",
+      "after_words": 803,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "architecture-review",
+      "path": "collections/shared/architecture-review",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "12494bc565831ae0dc629e5396d1d6191c3f26fdf8d6eb0411581e6ece40e61e",
+      "before_words": 307,
+      "reasons": [
+        "Ontoly-only description; fix malformed links; absorb retired dependency-analysis mode."
+      ],
+      "files": [
+        "SKILL.md",
+        "examples.md",
+        "reference/capabilities.md",
+        "templates/dependency-review.md"
+      ],
+      "after_entry_sha256": "d7795710d9d6feb6d74e6bc39beacf71d7681fb82bcffb6fb0c72c1dd03fb201",
+      "after_words": 439,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "audit-logging",
+      "path": "collections/shared/audit-logging",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "f58eb4c8738e2b495344d589dba796264f3b21643913a42d9f9cfed4709cc18a",
+      "before_words": 1404,
+      "reasons": [
+        "Distinguish technical audit logging in description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "e22f530c17e36aaa24dbd41a579dbc8974d5f89d4868bc25aa452fc15739d4fd",
+      "after_words": 1436,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "aws-ec2",
+      "path": "collections/shared/aws-ec2",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "85acd756fafee4b32ca6b44313ad57f75e6e48d26d85076e03330c4985efeca4",
+      "before_words": 1421,
+      "reasons": [
+        "Add when-to-use description, remove no-op examples, boilerplate and dangling skills."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "0c72a585219c1d0e2dd12fb9bcc93eb59b6f18802892459c29dfff01295e8b05",
+      "after_words": 1449,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "aws-iam",
+      "path": "collections/shared/aws-iam",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "3667f70cf302153fdfb37ea19e57247f13322a6a162e96881e8589ffce82eba2",
+      "before_words": 1344,
+      "reasons": [
+        "Add when-to-use description, remove no-op examples, boilerplate and dangling skills."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "3f3ea30178507fe513b1f9ef67ef707957d17b3443155c31b4b1561811697204",
+      "after_words": 1371,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "aws-rds",
+      "path": "collections/shared/aws-rds",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "1bcf7234170333fd6cbe994061e80b26952508c2f2e513313fd87ac693fd3b87",
+      "before_words": 1287,
+      "reasons": [
+        "Add when-to-use description, remove no-op examples, boilerplate and dangling skills."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "9e3274b8220c4966d42323bab137d3242d40593e5495950cffcf7f236dd1dc66",
+      "after_words": 1310,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "aws-s3",
+      "path": "collections/shared/aws-s3",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "eaaed2490f804f341a25af41270d33d8cebbb4f646d0c42c1296670436b7a8da",
+      "before_words": 1306,
+      "reasons": [
+        "Add when-to-use description, remove no-op examples, boilerplate and dangling skills."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "5e16a836b4d9bcea3b70e7ff64d53d67e194f1f5f930974ceda022e3f4401971",
+      "after_words": 1323,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "backend-patterns",
+      "path": "collections/shared/backend-patterns",
+      "source": "davila7/claude-code-templates",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "23b9ef6b7cfc98d96c449ad9ade23b2e6939a3938c557c0f3daff1723d2a0770",
+      "before_words": 1568,
+      "reasons": [
+        "Sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "f7d4ef27f97b4b2a6d19b1d506383c52ffd6cdcc159ab010092769e6b4da4324",
+      "after_words": 1599,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "bdd-principles",
+      "path": "collections/shared/bdd-principles",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "fb03d135c66aa3c6c9a2251f3bf8686b7ec13c8db7a8f7d373c87c426ded27b7",
+      "before_words": 1401,
+      "reasons": [
+        "Become the single BDD skill by absorbing bdd-patterns and bdd-scenarios."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "5c68effb5f636416577a6ea204c9c18cd383636556e5338e5347d39aa65a3f0e",
+      "after_words": 1242,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "browser-testing-with-devtools",
+      "path": "collections/shared/browser-testing-with-devtools",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "4e3aacd6a380cd25bc6c2d67fdd1c926a9b22535b8a62109ecd33cefd909e3d9",
+      "before_words": 2138,
+      "reasons": [
+        "Sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "4e4ed48826c920b6e7f58f76ef54b010785a905c9d76b8a232fe829dd6741885",
+      "after_words": 2143,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "building-clis",
+      "path": "collections/shared/building-clis",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "df202d2b8ea2e5f4bd8bc2aeb84822769020cd7bd12d5c27f31c632b03fb27b6",
+      "before_words": 1564,
+      "reasons": [
+        "Point reference to retired api-patterns at its canonical replacement."
+      ],
+      "files": [
+        "SKILL.md",
+        "outputs.yaml"
+      ],
+      "after_entry_sha256": "63d8af631282dfdf561069118c42f7530541f229f7ecd72f5b007637b3e740b1",
+      "after_words": 1564,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "ci-cd-and-automation",
+      "path": "collections/shared/ci-cd-and-automation",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "a6ed8ed56456b01ff8314c44eefc69897d9905ae4e06bb2b7036286efb79b5f0",
+      "before_words": 1560,
+      "reasons": [
+        "Sharpen description to distinguish from neighboring skills."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "c0c342637265172a3dba32567623631da801a4c915da02fb6dd36afcce3e6481",
+      "after_words": 1577,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "clean-code-guard",
+      "path": "collections/shared/clean-code-guard",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "bc08c94e8c6ac566403c0216df3dc0b6521ee7933cf658326e2a6bc92f13b2af",
+      "before_words": 2521,
+      "reasons": [
+        "Remove nonexistent agents/openai.yaml and phantom frontmatter-exclusion references; absorb Law of Demeter and fail-fast references."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/ATTRIBUTION.md",
+        "references/fail-fast.md",
+        "references/law-of-demeter.md"
+      ],
+      "after_entry_sha256": "9e98f110a29dbefc2cda303228860bfb58019e12f86f583ad4d8a4880826af2f",
+      "after_words": 2617,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "code-audit",
+      "path": "collections/shared/code-audit",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "4b3b511bd5e1150781b5cc3f1abacacc22cd254f4fe394cc97a173138e926cf8",
+      "before_words": 255,
+      "reasons": [
+        "Translate entrypoint to English and remove references to artifacts not shipped."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "36175a38c8ae0f40145008785f9e92401ea9af535dea067dc2005fea4be87d37",
+      "after_words": 380,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "code-complete",
+      "path": "collections/shared/code-complete",
+      "source": "ciembor/agent-rules-books",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "49e57d403693af04a16b784763a0552aa299f0c2105e4d7098f9ac51d509c447",
+      "before_words": 81,
+      "reasons": [
+        "Sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "4f971c4446e53ebda862ae0dce218a9fb9e3f44ee841750959648e1ecfe25ee5",
+      "after_words": 111,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "code-refactoring-tech-debt",
+      "path": "collections/shared/code-refactoring-tech-debt",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "1af7513d1799b8b1081eb538b543d1717315e4926e36f82630bd199f67a308fa",
+      "before_words": 1517,
+      "reasons": [
+        "Remove boilerplate and invented cost/ROI figures; add hotspot commands and impact/risk/effort prioritization."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/"
+      ],
+      "after_entry_sha256": "c8e4ec3d4c2f5b5f1a0393bfa72be871b16445984e9a51c888746d4eaeb0c6bf",
+      "after_words": 863,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "code-simplification",
+      "path": "collections/shared/code-simplification",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "f0c5ed754057eb0c1e027e2587f59de816651feb5e837242296c43ea21cf621d",
+      "before_words": 2028,
+      "reasons": [
+        "Absorb curated code-simplifier rule files as references without invented impact figures."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/"
+      ],
+      "after_entry_sha256": "c362fcf2bdc59a9ccf65a1b0036fd5dbc87e175053f4321e4644805fc749030b",
+      "after_words": 2099,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "comment",
+      "path": "collections/shared/comment",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "5fd2911fd5c4737860a52e86087d2dd200cf9ccde1b9d4a913ca4f279f24f743",
+      "before_words": 145,
+      "reasons": [
+        "Require connected ClickUp tool, task confirmation and user approval before posting; fix truncated YAML description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "b23606a7be16c966cfadc5ee01098b478ff50106be1e540ddb7290d6d4956870",
+      "after_words": 564,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "constraint-driven-development",
+      "path": "collections/shared/constraint-driven-development",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "06479d4305f286d23cfb99f5dc85695896785269664e1f6a8d800e3b71e70c10",
+      "before_words": 3555,
+      "reasons": [
+        "Replace nonexistent upstream slash commands with generic phase wording."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "a200b0fd9f82783d6ef047573147c6e5c71cf42b4fd45c805f5d49f2e50f923f",
+      "after_words": 3580,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "context-engineering",
+      "path": "collections/shared/context-engineering",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "8b736cb9e55b82b265ab6ff78349c0e826e8a6df550deddf665b7fb3ff858b63",
+      "before_words": 2288,
+      "reasons": [
+        "Add hand-off-by-reference delegation pattern salvaged from retired agent-squad; sharpen description."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/"
+      ],
+      "after_entry_sha256": "6f25d7de02531e7facadbb3f5e69fb5568eef003e617b3c407fcdd884062efc6",
+      "after_words": 2517,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "copywriting",
+      "path": "collections/shared/copywriting",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "adcd67eb35b5bac367d4558f1017bd6a73edff05dcecaa7685ae18dfa91b97cc",
+      "before_words": 860,
+      "reasons": [
+        "Sharpen description; remove filler."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "d6b6bcd7e6dc5cb8d0aea7f0c14d885c85d7adbee5f2eb93889931f102ce41af",
+      "after_words": 800,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "data-engineering-data-pipeline",
+      "path": "collections/shared/data-engineering-data-pipeline",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "2570ee4d4edf2aa20e86f4a2dc0c6903a4729bd3097ba474a212b9ae0c9b13df",
+      "before_words": 939,
+      "reasons": [
+        "Replace persona prompt and $ARGUMENTS with a real pipeline procedure and examples; remove invented savings figure."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "b77d44641af9d1578b450f3f6325014a6bd76f01a47bf56e4350cd0b215034c0",
+      "after_words": 1203,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "database-design",
+      "path": "collections/shared/database-design",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "ad1918b9daa821388c6b9838bd739126f52cc9236ac7a7a1b14bcab055d38160",
+      "before_words": 301,
+      "reasons": [
+        "Absorb migration/HA/DR checklist from retired database-architect; real workflow; correct vendor claim."
+      ],
+      "files": [
+        "ATTRIBUTION.md",
+        "SKILL.md",
+        "database-selection.md",
+        "operations-checklist.md"
+      ],
+      "after_entry_sha256": "11fc73fbc2b55c24c14a6d873470106fc7dc3dd5b6fa38793dcac71e50d3db8c",
+      "after_words": 610,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "datadog",
+      "path": "collections/shared/datadog",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "b9e5fc4bfef17c55ee0197615d5c9476d82c733dcbbd9dabb9cd188c388f3905",
+      "before_words": 1034,
+      "reasons": [
+        "Replace deprecated tracer configuration with environment-based setup; fix related skills and boilerplate."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "de1dc73b9d1dcd8c209c877e2b01f3f52fe64438fa78ccf13e4c16addeaced5d",
+      "after_words": 1214,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "datadog-automation",
+      "path": "collections/shared/datadog-automation",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "4ff6d8d835abd6d83bd8bde0f6f2f38b1c79c76aae807db49ac324c89699fd0b",
+      "before_words": 1360,
+      "reasons": [
+        "Replace filler with real usage and safety sections."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "598c3e0b7c1c34fd0f27de932b1567c93a0ef3a29c6d493000198eac5ba40f5d",
+      "after_words": 1445,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "debugging-and-error-recovery",
+      "path": "collections/shared/debugging-and-error-recovery",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "21f3960f5d7ae2cc95c40896545004dbbcbbd752ea65fc2d53962554d4174220",
+      "before_words": 1690,
+      "reasons": [
+        "Absorb production/distributed error analysis from retired error-analysis duplicates; add ranked falsifiable hypotheses and debugger table."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/"
+      ],
+      "after_entry_sha256": "fac5d36c209fba0c6e46c847e116fca7b16d6ba5d0e4c8df74af8b07e01c7c98",
+      "after_words": 2381,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "dependency-scanning",
+      "path": "collections/shared/dependency-scanning",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "7da0103d56f87bdd2798d1079b5a6f0d3fc0b0d84bafda19322b7d17d3249206",
+      "before_words": 1069,
+      "reasons": [
+        "Add when-to-use description, pin actions, remove no-op examples and dangling skills."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "5657960e0e566968cbaa2dcb5519e1a1781723520e184b6cb51f87b81948c146",
+      "after_words": 1130,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "deploying-applications",
+      "path": "collections/shared/deploying-applications",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "7b67605c4aede5581ba65f248c887a143ef37900a15c0f7836e799a6a302c82f",
+      "before_words": 1575,
+      "reasons": [
+        "Narrow to deployment-target decisions and fix missing references."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/opentofu-guide.md",
+        "references/serverless-dbs.md"
+      ],
+      "after_entry_sha256": "6388b95e40dc519a0de72f0e7a96ebbadd067e8e6a64bd1cacba44718e015572",
+      "after_words": 798,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "deploying-on-azure",
+      "path": "collections/shared/deploying-on-azure",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "3d8a0bd8c6dfa6a30acf6820cebb711c7c04de36e02e72569fd70804d85f45e2",
+      "before_words": 2366,
+      "reasons": [
+        "Remove references to bundled files and skills that do not exist; pin deprecated action references; sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "beeb7f4432400b8c0d0b21cedc4918a18bac6ed222b4abe09d7319f216c26ec4",
+      "after_words": 2355,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "deploying-on-gcp",
+      "path": "collections/shared/deploying-on-gcp",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "9d827a99f4ee9f349f1aaeeef69883f85b46726873f685a0431ce819cb33cc1e",
+      "before_words": 2079,
+      "reasons": [
+        "Remove references to bundled files and skills that do not exist; pin deprecated action references; sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "3b1dd150adae2846e36b72392cf0d852368dfcea01e6cc005cc47218252a0df7",
+      "after_words": 2074,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "designing-apis",
+      "path": "collections/shared/designing-apis",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "8474e7e1d0196139e446390f55704b174a07ab856e93bdd793999535390f8def",
+      "before_words": 1378,
+      "reasons": [
+        "Absorb GraphQL schema, REST operations, checklist, OWASP API security testing and API reference-doc content from retired API skills; add read-only OpenAPI checker; fix dead references; RFC 9457."
+      ],
+      "files": [
+        "SKILL.md",
+        "outputs.yaml",
+        "references/ATTRIBUTION.md",
+        "references/api-design-checklist.md",
+        "references/api-reference-docs.md",
+        "references/api-security-testing.md",
+        "references/graphql-schema-patterns.md",
+        "references/protocol-selection.md",
+        "references/rest-operations.md",
+        "scripts/check_openapi.py",
+        "scripts/validate-openapi.sh"
+      ],
+      "after_entry_sha256": "0b1b603d6fa2c66867124e19430c687489bce548163c5174294ab0d0f279be15",
+      "after_words": 1686,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "designing-sdks",
+      "path": "collections/shared/designing-sdks",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "01bfebc7cbec202ef1ac6f40ac42a9c083c8b4f858e18e4a2a70407cac75c3ac",
+      "before_words": 1560,
+      "reasons": [
+        "Sharpen description; point retired API skill reference to designing-apis."
+      ],
+      "files": [
+        "SKILL.md",
+        "outputs.yaml"
+      ],
+      "after_entry_sha256": "0019d7936fd72ec852bdb47e6d735ec0917acaee72e65df69541ae186315cdc5",
+      "after_words": 1585,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "docker-compose-basics",
+      "path": "collections/shared/docker-compose-basics",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "8d55b894d80b79853ec1404017948a9fb7b8afa961915e42cda946fd6b77f43f",
+      "before_words": 184,
+      "reasons": [
+        "Expand stub into a Compose v2 core skill."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "60ad85d1cfb46cd91c3ef40bbb98c95dcec7cee52d8cb72ebde7582befe9ef5e",
+      "after_words": 860,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "docker-compose-networking",
+      "path": "collections/shared/docker-compose-networking",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "eb5a4ee0f0280effc89dd3a86fd71c899b6b9d9ae410d2b4c42e4beedf1a44e8",
+      "before_words": 2048,
+      "reasons": [
+        "Remove obsolete version keys; add decision and debugging tables."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "9674008ece0b9be9deb70defe9bdb61557958eecb09ffb97cf9f98c8966ed682",
+      "after_words": 925,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "docker-compose-production",
+      "path": "collections/shared/docker-compose-production",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "3c26fc882b15157ad72a10b417ba6f67a400fbd6c32d300a3ae61da0a8ba112c",
+      "before_words": 2361,
+      "reasons": [
+        "Fix container_name/replicas conflict, mark Swarm-only keys, replace EOL Promtail with Alloy, pin images."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/"
+      ],
+      "after_entry_sha256": "eba7ca90f0394025b005c8c0425ed128db11a25858a7407cfde2ed57de848331",
+      "after_words": 1039,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "documentation-and-adrs",
+      "path": "collections/shared/documentation-and-adrs",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "359b22460045583b0233ec3f80223459c4096b0fa513f5c29ade9c3985207d65",
+      "before_words": 1485,
+      "reasons": [
+        "Absorb verify-docs-against-code procedure from retired code-documentation-doc-generate."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/"
+      ],
+      "after_entry_sha256": "e68bb362fe03d4e55ea36ff9ef6444387db61aacb961f3343e7d591e1d0f0bd9",
+      "after_words": 1685,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "effect-concurrency",
+      "path": "collections/shared/effect-concurrency",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "5af2304fa53aab9063d1821b7bc9d7cfc406555ea8031241bdc04be669b16a40",
+      "before_words": 1502,
+      "reasons": [
+        "Label Effect-TS v3 in description with v4 rename note; typecheck examples against effect 3.",
+        "Add Queue, Deferred, Semaphore and PubSub."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "26b28af686824dc246302d95d737e25355fd5e7f1b14297c695f18d3c3f4f4d3",
+      "after_words": 1455,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "effect-core-patterns",
+      "path": "collections/shared/effect-core-patterns",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "c33056e3eceb88b68ebf20eced9a0d2814ed1e1be734aa8b3536591aaac27715",
+      "before_words": 1963,
+      "reasons": [
+        "Label Effect-TS v3 in description with v4 rename note; typecheck examples against effect 3.",
+        "Remove nonexistent API."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "e228d51470ee4a3e7a84555aa490be8b359a5637cd51aa0b9e03eaea8e2dd180",
+      "after_words": 1239,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "effect-dependency-injection",
+      "path": "collections/shared/effect-dependency-injection",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "6af87f32be5c4dff091564e48ae0c39c902ce3b26378bed67426e110a5876ab9",
+      "before_words": 1939,
+      "reasons": [
+        "Label Effect-TS v3 in description with v4 rename note; typecheck examples against effect 3.",
+        "Use Context.Tag classes and Effect.Service; warn about Layer.mergeAll."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "defdf1645868ecd73730d568b82aa023622afaed4541f54f88fc42fcf3c398da",
+      "after_words": 1554,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "effect-error-handling",
+      "path": "collections/shared/effect-error-handling",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "642ad4176f16b1afa597abe39453522bb0c4f205e683bab384677e00128a3399",
+      "before_words": 1809,
+      "reasons": [
+        "Label Effect-TS v3 in description with v4 rename note; typecheck examples against effect 3.",
+        "Sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "d17b1e8c287e6f8e98bc36fd45d4ef1097d0d376fb36e67d116ae2c79b64c631",
+      "after_words": 1074,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "effect-resource-management",
+      "path": "collections/shared/effect-resource-management",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "c8f5972f8dabd214dcb55a7a8e3a2a6bd11b04dad8215040faa73fe42c400236",
+      "before_words": 1386,
+      "reasons": [
+        "Label Effect-TS v3 in description with v4 rename note; typecheck examples against effect 3.",
+        "Use Pool module; fix typo and Exit branch."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "83d4c2fd7da57fc4f4f509c0949375d5c19eaef92b0f69a42d9ff6a394903dd3",
+      "after_words": 1136,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "effect-testing",
+      "path": "collections/shared/effect-testing",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "95614881b46cf0962f0b0b4d670bc0c3adaead3ba86b34a8b312619a0ed28eb9",
+      "before_words": 1610,
+      "reasons": [
+        "Label Effect-TS v3 in description with v4 rename note; typecheck examples against effect 3.",
+        "Use @effect/vitest, TestClock and test layers."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "4a7d46767755fe3eb8dbf98bf4ca4a3544495656825ee0da910175baaaf794dd",
+      "after_words": 1207,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "error-debugging-error-trace",
+      "path": "collections/shared/error-debugging-error-trace",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "1c3dda4788ca7886d0716afbd00585bf526d1107122008d84c750252e3819973",
+      "before_words": 295,
+      "reasons": [
+        "Replace persona prompt with a scoped error-tracker setup procedure; absorb output format from its retired duplicate; flag outdated SDK samples."
+      ],
+      "files": [
+        "SKILL.md",
+        "resources/implementation-playbook.md"
+      ],
+      "after_entry_sha256": "5157ee444afc258a67851e07e505c8cd1ae63c82e0b103404979b349a6e03b68",
+      "after_words": 1021,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "find-skills",
+      "path": "collections/shared/find-skills",
+      "source": "vercel-labs/skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "c00eeea0e13e74fe4a9d84ba0a8542205a1b736d65f13134fe1a6647eb14976f",
+      "before_words": 846,
+      "reasons": [
+        "Narrow trigger, require user confirmation instead of -y installs, explain dot-agents vendoring."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "27142931d60d6a696c5aace390d6d201077e712b2d73450b9f7fa3eb64427ca1",
+      "after_words": 1072,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "fp-async",
+      "path": "collections/shared/fp-async",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "c5281d870c75c6d12afd68743cff46cf19d94fd0f1b331203c525a71fb90353e",
+      "before_words": 928,
+      "reasons": [
+        "Label library (fp-ts, not Effect) in description; move from legacy chain to flatMap; remove risk flag and filler.",
+        "Refocus on async pipelines with retry/fallback; fix sequential batch helper."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/detailed-guide.md",
+        "references/real-api-examples.md"
+      ],
+      "after_entry_sha256": "ba56875071f0a2a2b7b156b38c90cb4acfdae94e30e23f861931949195c09c30",
+      "after_words": 825,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "fp-backend",
+      "path": "collections/shared/fp-backend",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "6fe954b16781f9f058899e2bb5c82b8b39c958c91581b41a8f326952754619c6",
+      "before_words": 195,
+      "reasons": [
+        "Label library (fp-ts, not Effect) in description; move from legacy chain to flatMap; remove risk flag and filler.",
+        "Real ReaderTaskEither entrypoint with typechecked example."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/detailed-guide.md"
+      ],
+      "after_entry_sha256": "b72b064f6e6fbba179171dc81c2faa9e6fcd1045b23ce1d3bb4209192dce991e",
+      "after_words": 635,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "fp-data-transforms",
+      "path": "collections/shared/fp-data-transforms",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "c14f60630f8cd56697e203f92eb65c61b27f7ed9c3b0bb862ad73ec7d0d556c9",
+      "before_words": 1155,
+      "reasons": [
+        "Label library (fp-ts, not Effect) in description; move from legacy chain to flatMap; remove risk flag and filler.",
+        "Prefer built-ins where appropriate; reference map."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/detailed-guide.md"
+      ],
+      "after_entry_sha256": "945df8a93aef672d8e8220f123b32538182a5ce7117153ce29d69079cc421e0b",
+      "after_words": 1284,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "fp-either-ref",
+      "path": "collections/shared/fp-either-ref",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "e54811955bfdeac24410b8702e1320f91d3c7d96a7c65a962a08615fa259252b",
+      "before_words": 364,
+      "reasons": [
+        "Label library (fp-ts, not Effect) in description; move from legacy chain to flatMap; remove risk flag and filler.",
+        "Fix examples mixing error types (apSW/bindW); add accumulating validation."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "fee1f05a9b017eeb18b3423532270a1d5c35626f745892583dbd228e604c56e1",
+      "after_words": 532,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "fp-errors",
+      "path": "collections/shared/fp-errors",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "3815ab39895ccd4fa3fa19c5c96c979a8904c4581eca21619e6cc493cb1f52cd",
+      "before_words": 232,
+      "reasons": [
+        "Label library (fp-ts, not Effect) in description; move from legacy chain to flatMap; remove risk flag and filler.",
+        "Make canonical error-modeling skill with decision table."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/detailed-guide.md"
+      ],
+      "after_entry_sha256": "36a0847642ef692de91a5db8660f7649691e0d547c9d55406091b8c07b63b6fb",
+      "after_words": 601,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "fp-option-ref",
+      "path": "collections/shared/fp-option-ref",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "3e4e143ff5548787c929cb0bda1a3a36ada74aca91bcdb622c1ea1cfc0372068",
+      "before_words": 337,
+      "reasons": [
+        "Label library (fp-ts, not Effect) in description; move from legacy chain to flatMap; remove risk flag and filler.",
+        "Fix fromPredicate example and over-strong advice against optional chaining."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "d1aa430d5b749350be1f226f7c4a7ff4450afbb875dfd9695779c4b867d7fb49",
+      "after_words": 370,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "fp-pipe-ref",
+      "path": "collections/shared/fp-pipe-ref",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "1030b90da0d7649294f047dfd88f0a4042dc3143b42e7662bb76366032eb4c52",
+      "before_words": 288,
+      "reasons": [
+        "Label library (fp-ts, not Effect) in description; move from legacy chain to flatMap; remove risk flag and filler.",
+        "Add gotchas."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "c90caab618fbdb0ffb1bd20ceb93b92d5ce7b0aa6c2359e1185d2c7ad46a7221",
+      "after_words": 334,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "fp-react",
+      "path": "collections/shared/fp-react",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "0dfe2ee85a538e61dea287d795a4e01a90744cbeadc00c7198adf9c0d23218fc",
+      "before_words": 228,
+      "reasons": [
+        "Label library (fp-ts, not Effect) in description; move from legacy chain to flatMap; remove risk flag and filler.",
+        "Real entrypoint; fix stale-response race and deprecated Eq usage."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/detailed-guide.md"
+      ],
+      "after_entry_sha256": "1956beb3238e1499de2cf0bad7cf8aa3852085674df895608b9bc02489a3ebc3",
+      "after_words": 538,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "fp-refactor",
+      "path": "collections/shared/fp-refactor",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "95ea148c3fa90db55d72360f4fb4500e9ada703f3511d16e554b1f04221b5b83",
+      "before_words": 203,
+      "reasons": [
+        "Label library (fp-ts, not Effect) in description; move from legacy chain to flatMap; remove risk flag and filler.",
+        "Absorb retired fp-pragmatic 80/20 guidance; real when-to-refactor procedure."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/detailed-guide.md",
+        "references/pragmatic-80-20.md"
+      ],
+      "after_entry_sha256": "96ecc5483d537b7913845e59e41f2a3c3327c79c0ef162b99b3c0fe1b66d7d3a",
+      "after_words": 718,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "fp-taskeither-ref",
+      "path": "collections/shared/fp-taskeither-ref",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "ff73a7f2674dc9b7b35c05f7312e4dd342a3afaaf36c648e11901603d86b0cba",
+      "before_words": 389,
+      "reasons": [
+        "Label library (fp-ts, not Effect) in description; move from legacy chain to flatMap; remove risk flag and filler.",
+        "Fix getOrElse example; add sequential vs parallel and pitfalls."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "811adb1b14062cb3ffb70ac72414f101be25013e3b6e7a5a6a49ffa24936f5cc",
+      "after_words": 434,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "frontend-design",
+      "path": "collections/shared/frontend-design",
+      "source": "davila7/claude-code-templates",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "d91970639e9f5c37682ac7ab60094d35f1c7c1f38d731bd56396563aee10c1d3",
+      "before_words": 1516,
+      "reasons": [
+        "Sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "af9a86c45d1fe7b8fea446cc16f2e744404c274f1a7350a3b1053fc492c7a4f6",
+      "after_words": 1546,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "generating-documentation",
+      "path": "collections/shared/generating-documentation",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "f6f53352abc0828aa1c4699f9302900c20f5aaec555eaa36b7cd7e24bf97dad3",
+      "before_words": 1475,
+      "reasons": [
+        "Narrow description to doc tooling; fix missing example and skill references.",
+        "Point retired api-patterns integration to designing-apis."
+      ],
+      "files": [
+        "SKILL.md",
+        "outputs.yaml"
+      ],
+      "after_entry_sha256": "ee2bb0b22988eb228336af368c5a33a2c27b7819c4673e2f9cde9052f701157e",
+      "after_words": 1498,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "git-pushing",
+      "path": "collections/shared/git-pushing",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "95b670b112b1a7742d5eeb8bf369a4eafedc7f0cdd9e38bd4cf56b149a14e4a2",
+      "before_words": 530,
+      "reasons": [
+        "Require explicit paths or --all in helper instead of defaulting to git add -A; explicit-request-only activation."
+      ],
+      "files": [
+        "SKILL.md",
+        "scripts/smart_commit.sh"
+      ],
+      "after_entry_sha256": "515e4001e628363efaac6f5c592d6ddafe9f6c787d5a8041c2ea4e8dad1cf182",
+      "after_words": 585,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "github-actions-advanced",
+      "path": "collections/shared/github-actions-advanced",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "39b1862d6ca33155809ee16c6831a2d6db2fbe087f5831cd9d8a4dad91d94af0",
+      "before_words": 624,
+      "reasons": [
+        "Absorb self-hosted runner and verification guidance from retired github-actions skills; SHA-pinning guidance; fix dangling skills."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/ATTRIBUTION.md",
+        "references/detailed-guide.md",
+        "references/runners-and-verification.md"
+      ],
+      "after_entry_sha256": "a526eb0c6a521599f154aff83a0d84699179cccc24d0ad11b98b4e9b8d80b4b9",
+      "after_words": 705,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "github-actions-debugger",
+      "path": "collections/shared/github-actions-debugger",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "846d34c6aa9cc9dd16d8751d65dc03453b9115a323b51cd1be584762e7770f4b",
+      "before_words": 778,
+      "reasons": [
+        "Rewrite around gh run logs and debug reruns; replace stale version advice; remove nonexistent skills."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "edcfb4baf889fc5263364f6081c1050d795be66b9905a1be7dd2760a8e8b03d5",
+      "after_words": 777,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "grafana-dashboards",
+      "path": "collections/shared/grafana-dashboards",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "0fda28e2b90310e8afb4f8e8dad8e87438094e6f41d7806821aaaf299eabfec1",
+      "before_words": 972,
+      "reasons": [
+        "Replace removed legacy panel alerting with Grafana-managed alert rules, provisioning and dashboards-as-code."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "7166c5842a2b37568b457478497dd16bebc6eb7fe1552a0bbfa78bfe59dcdaa2",
+      "after_words": 1086,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "grasp-knowledge",
+      "path": "collections/shared/grasp-knowledge",
+      "source": "dykyi-roman/awesome-claude-code",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "42783aaec840e9e8d265328a4b7947e63884c6b6991e9c0f5c8ebee68cbc8e0f",
+      "before_words": 730,
+      "reasons": [
+        "Language-neutral principles with PHP as example; fix broken grep patterns and invented scores."
+      ],
+      "files": [
+        "SKILL.md",
+        "assets/report-template.md"
+      ],
+      "after_entry_sha256": "bdc691817f35e9c9bab51b05ffbefa7e013f1165bd12a4dc45a4d07262c04c61",
+      "after_words": 964,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "hashicorp-vault",
+      "path": "collections/shared/hashicorp-vault",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "42a2036001d1de13a298cb06dfef697a364949d4797dc262ef924745da46ed8b",
+      "before_words": 987,
+      "reasons": [
+        "Add when-to-use description, remove no-op examples and dangling skills."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "1171411ac1c6e91cc96bb0d66c6e4bb3103c877f4bb7eba475b1c23e047ee7b8",
+      "after_words": 1034,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "human-copywrite",
+      "path": "collections/shared/human-copywrite",
+      "source": "pproenca/dot-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "4530a6d59ec2995fe5d13116c738f769811b30769c5aa05490448984016360a9",
+      "before_words": 862,
+      "reasons": [
+        "Narrow over-broad description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "838ca88906d12f34e8ac92b1c18c05de96b5678a1681264018ca138f3c7cbb3a",
+      "after_words": 804,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "idea-refine",
+      "path": "collections/shared/idea-refine",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "dfdeb5acf46ae55860d515db4b5f08479e08126a799a9604cab8210f635c8404",
+      "before_words": 1390,
+      "reasons": [
+        "Fix broken sentence and script path; remove filler."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "40b6d6a76a746d1927e7d5c1de0b0fc05409e0304246d56e77e45863576ac429",
+      "after_words": 1362,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "implementing-api-patterns",
+      "path": "collections/shared/implementing-api-patterns",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "0695ad2f71ef0cf9c4e5eaa08c41045a992d06b177c045daa66124377caa3050",
+      "before_words": 1472,
+      "reasons": [
+        "Sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "87752134829f530279f10d5f4f02aa6f392e0ffc28f81fecffe3ab12c024406f",
+      "after_words": 1461,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "implementing-compliance",
+      "path": "collections/shared/implementing-compliance",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "f4bcbad2ef400c40ba7852be99107d01bfeb453c7f7e1fecdc25fced99fff72b",
+      "before_words": 1884,
+      "reasons": [
+        "Remove references to bundled files and skills that do not exist; pin deprecated action references; sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "7f22e29f608f6b615cd919b779c5a1e03c703e88b30c2047c6db6c0a91cbdf43",
+      "after_words": 1924,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "implementing-gitops",
+      "path": "collections/shared/implementing-gitops",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "cfb364a9720f098618ce55d4652b82efd45980399b880ef10424593799ef2775",
+      "before_words": 1382,
+      "reasons": [
+        "Sharpen description to distinguish from neighboring skills."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "7d66269a898d184e743c7363dedb087ff99c2085f324b86a9ea0052903e3f152",
+      "after_words": 1397,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "implementing-observability",
+      "path": "collections/shared/implementing-observability",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "d0e6ce98e0d0d5cf75f4722a0cd75236cd6400a10e0d25eff7be1fa99fe8e62f",
+      "before_words": 1273,
+      "reasons": [
+        "Scope description to platform/backend setup versus per-feature instrumentation."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "8f2fe3de2b3909a3772628b15d534493dd832052de61a0386a4572b9dc16475a",
+      "after_words": 1284,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "implementing-realtime-sync",
+      "path": "collections/shared/implementing-realtime-sync",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "812c6ddc4738b8537099b0c126251fe5d3313af72fa6a3a56e30951817ef4369",
+      "before_words": 1055,
+      "reasons": [
+        "Replace retired Claude model id in streaming example."
+      ],
+      "files": [
+        "examples/llm-streaming-sse/backend.py",
+        "references/sse.md"
+      ],
+      "after_entry_sha256": "812c6ddc4738b8537099b0c126251fe5d3313af72fa6a3a56e30951817ef4369",
+      "after_words": 1055,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "java-concurrency",
+      "path": "collections/shared/java-concurrency",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "7c7fe5473b95e631fe60597ea62c968faea642ad37a7c17f1bad3a417b1aec3d",
+      "before_words": 2131,
+      "reasons": [
+        "Add virtual-thread caveats, structured concurrency and scoped values with version status."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "6c90a42c33c78c71d9395b90c11a8b2d45270c254a5233a8e693626f10425d96",
+      "after_words": 2491,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "java-generics",
+      "path": "collections/shared/java-generics",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "c25083fb46eea30d8dd9f4e5d5d458b9c03718304f53ad577b748b81d0d4f88f",
+      "before_words": 1957,
+      "reasons": [
+        "Sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "df41c3e36468a8cca2e62c01163369e5ba9a05eab94c7b2e328736073b2923a1",
+      "after_words": 1971,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "java-streams-api",
+      "path": "collections/shared/java-streams-api",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "3f58953314c733329918bf5d6876dd537dee7cde54b49b0bbd8ec3b8948c467f",
+      "before_words": 1961,
+      "reasons": [
+        "Prefer Stream.toList with mutability table; add mapMulti and Gatherers."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "a0b44e808b678b7e57e389dc727d928e02b78c599df2ae82c80dad62017ace20",
+      "after_words": 2233,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "javascript-pro",
+      "path": "collections/shared/javascript-pro",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "5ceade7b4e3dce38f55d199bc869c94ad4eb8b1f06f3bf16bf1ca4695e1768a9",
+      "before_words": 306,
+      "reasons": [
+        "Replace persona-only skill with concrete runtime guidance (event loop, async errors, cancellation, modules, node:test)."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "087b40746f06c238d2991648b2db9a833a3a17af2a167562de76e3d943baf5b3",
+      "after_words": 1516,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "kotlin-coroutines",
+      "path": "collections/shared/kotlin-coroutines",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "9399a6a6b2b5b6590aad7a0c2f8d8748d2660a4ee0cec59b30741fada5430ba7",
+      "before_words": 2310,
+      "reasons": [
+        "Remove GlobalScope examples, add runTest/StandardTestDispatcher testing, absorb kotlin-coroutines-expert content."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/"
+      ],
+      "after_entry_sha256": "f1f0c39056743a335c67dcfa54fb707e25bc700eae2d8432134ecc4c311e4fd7",
+      "after_words": 2751,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "kotlin-dsl-patterns",
+      "path": "collections/shared/kotlin-dsl-patterns",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "98649fe923b39d9d5399e4773fb7959e14b72d2d448ad8bf2e7e7e21ed424248",
+      "before_words": 2538,
+      "reasons": [
+        "Replace deprecated kotlinOptions with compilerOptions/jvmToolchain; remove stale version pins."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "8e30743a8087c8cebdcae1cfe8ff085b5b474674e60b671050982d4edeca4a37",
+      "after_words": 2660,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "kotlin-null-safety",
+      "path": "collections/shared/kotlin-null-safety",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "e37ecc63d58035253e1b970b4953a8d9cc8b9d47fd75f00c2fe48480d3abeae7",
+      "before_words": 2446,
+      "reasons": [
+        "Sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "150b763b2a29f2cd682fc1db89612e7aceea00854cb4e0799ce56d6106feea1f",
+      "after_words": 2456,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "kubernetes-hardening",
+      "path": "collections/shared/kubernetes-hardening",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "8c67e640ff8b9f696fa206babdcf227c87014f0c89cdcaefc8416894639771fd",
+      "before_words": 367,
+      "reasons": [
+        "Expand into full workload and cluster hardening with DNS-preserving default deny."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "db27c8d59571710d6d17b06130969d9eb72bb263252da7bbb8343d57766511fc",
+      "after_words": 1343,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "lean-build",
+      "path": "collections/shared/lean-build",
+      "source": "JuliusBrussee/caveman",
+      "license": "Apache-2.0",
+      "local_fork": true,
+      "before_entry_sha256": "4d498073c6312858b220e9a04b7456c2485c734edb077f6bb17d88a7ed96ad7a",
+      "before_words": 152,
+      "reasons": [
+        "Ship caveman's native-core.md as a reference and point to it, since the skill depends on Native Core text normally injected by caveman's proxy."
+      ],
+      "files": [
+        ""
+      ],
+      "after_entry_sha256": "83f0cc3c7ab838bcfd3a39eae713574fbb2c0d34d09bb4144292fd1b5f33763d",
+      "after_words": 171,
+      "before_after": "Reviewable patch against the pinned upstream_ref recorded in catalog.json."
+    },
+    {
+      "id": "lua-c-integration",
+      "path": "collections/shared/lua-c-integration",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "9e17173a1814687a40bd7f9255c0b018752087832de89c8193c68247ebb4eefa",
+      "before_words": 2653,
+      "reasons": [
+        "Add Lua 5.1/LuaJIT vs 5.2-5.4 C API differences and shim."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "25b089e59a93538005314f8186b187046dcd13a02b655299eb25b61694e4f8e7",
+      "after_words": 3066,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "lua-coroutines",
+      "path": "collections/shared/lua-coroutines",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "d97ea4582981b92f2c8d45aa94482fefb03248379cca18653bcf0ba7bff7a983",
+      "before_words": 2654,
+      "reasons": [
+        "Correct yield-across-C claim for Lua 5.2+; version table."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "19623f0babaff1a32f9cbedc882018e54899f4d1ba03e6936a784afd8e3b6727",
+      "after_words": 3012,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "managing-incidents",
+      "path": "collections/shared/managing-incidents",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "67ca93bc92c01cc9db79b4169be90b79561c99c017447fff821c01ebc6a45209",
+      "before_words": 1878,
+      "reasons": [
+        "Scope description to incident process design; fix integration links."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "3d880cc463155500074db4af96619882524be5523a0fc1076e81292d49b7ccd7",
+      "after_words": 1893,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "mattpocock--setup-pre-commit",
+      "path": "collections/mattpocock/misc/setup-pre-commit",
+      "source": "mattpocock/skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "c9819d7f1e3b198064edc1faa3154224ed67395e9f07f5d3cea4b67cf0a11a98",
+      "before_words": 332,
+      "reasons": [
+        "Make user-invoked only: installs packages and git hooks and commits on its own."
+      ],
+      "files": [
+        ""
+      ],
+      "after_entry_sha256": "c51651bf0382267d5ff9a0095045907f16c309d0f0a2338e6e99f12ed0538a26",
+      "after_words": 334,
+      "before_after": "Reviewable patch against the pinned upstream_ref recorded in catalog.json."
+    },
+    {
+      "id": "mattpocock--wizard",
+      "path": "collections/mattpocock/engineering/wizard",
+      "source": "mattpocock/skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "bdf31d48211ea559878f95a4f344aeabf8d85897488ba564382bab0b000daac1",
+      "before_words": 673,
+      "reasons": [
+        "Make user-invoked only: the generated wizard handles credentials and sets repository secrets."
+      ],
+      "files": [
+        ""
+      ],
+      "after_entry_sha256": "53a23f07d1b792947306465f817be90ccbba8dbf21c717afc63dff36f798e011",
+      "after_words": 675,
+      "before_after": "Reviewable patch against the pinned upstream_ref recorded in catalog.json."
+    },
+    {
+      "id": "mobile-design",
+      "path": "collections/shared/mobile-design",
+      "source": "davila7/claude-code-templates",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "ec74cda5e1954572e4282c3aaa9c1c32ec743cef83c53f8aef622c00dc8f0682",
+      "before_words": 2038,
+      "reasons": [
+        "Point reference to retired api-patterns at its canonical replacement."
+      ],
+      "files": [
+        "mobile-backend.md"
+      ],
+      "after_entry_sha256": "ec74cda5e1954572e4282c3aaa9c1c32ec743cef83c53f8aef622c00dc8f0682",
+      "after_words": 2038,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "nim-c-interop",
+      "path": "collections/shared/nim-c-interop",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "dd14642f08b21d89419ccef020cf5babeba4aac81003a261e1907ea213c2a205",
+      "before_words": 1738,
+      "reasons": [
+        "Fix double-free in copyable handle wrapper and dangling cstring return; correct GC claims."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "25bb322eeb3cd13751bd761c451520eca97d1936cb52cfda5689295c6d60bb23",
+      "after_words": 2095,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "nim-memory-management",
+      "path": "collections/shared/nim-memory-management",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "ea95e8f61a0208078d023d2294dc1fcd61fb7e4ff075ecb1cf9ad3d68ec7b603",
+      "before_words": 2134,
+      "reasons": [
+        "Rewrite for Nim 2: ORC default, --mm, current hook signatures; remove invented APIs."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "cc78b99aeb69fffa1b1b5370dd6616689abdf8ac2257c31275c27602d06c20f3",
+      "after_words": 1329,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "nim-metaprogramming",
+      "path": "collections/shared/nim-metaprogramming",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "6ce061efd028e9553e1733c19a7d676c7c442b2a63dfb6942b25d96ed635c4fc",
+      "before_words": 2111,
+      "reasons": [
+        "Remove nonexistent or wrong APIs; sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "0ad52e898c0502efa0b7ecaa6859dfbc531ffc439eba37593a79996e54895ff7",
+      "after_words": 2216,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "observability-cloud-planning",
+      "path": "collections/shared/observability-cloud-planning",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "8eba5a636dabb32c7e7cb7cb2f33a1c4c698840d10d05c853f03e24b4763be0e",
+      "before_words": 4272,
+      "reasons": [
+        "Narrow triggers to SME planning; fix malformed and dead links."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/common-pitfalls.md",
+        "references/related-skills.md",
+        "references/security-safety-notes.md"
+      ],
+      "after_entry_sha256": "373d391cd25a6937ae91b3effe0c48946cbc4e35726f04cbf1804e5b25b19d01",
+      "after_words": 4315,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "operating-kubernetes",
+      "path": "collections/shared/operating-kubernetes",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "8761716c392bf875c51acc155b9c8856dadbf445eb52ee158446b37302faf876",
+      "before_words": 1755,
+      "reasons": [
+        "Remove references to bundled files and skills that do not exist; pin deprecated action references; sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "bd5856e5ea869144e1670cfb419a361363ca3e04ada94d2dbd2df3be13a0d2a9",
+      "after_words": 1764,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "performance-engineering",
+      "path": "collections/shared/performance-engineering",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "a396452603cbbb4611462cf635ba5e72891019aa12c686773c136b22e2699b67",
+      "before_words": 1461,
+      "reasons": [
+        "Fix missing example and skill references, Python snippet import, pinned k6 install and outputs metadata."
+      ],
+      "files": [
+        "SKILL.md",
+        "outputs.yaml"
+      ],
+      "after_entry_sha256": "02e2e6e7b54c4e1e7aee2a89bbbbb6b90e908ec38a2cfaa633888c0b9965d5e5",
+      "after_words": 1507,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "platform-engineering",
+      "path": "collections/shared/platform-engineering",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "3c1ba39036c4384f04759d08da53d3361eaf40e5820747bebe03a18bc4f1b84e",
+      "before_words": 2178,
+      "reasons": [
+        "Remove references to bundled files and skills that do not exist; pin deprecated action references; sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "ca5b3d63b2138954947dbd1bb04a658ca2610c307cc443b04f98460a927ca280",
+      "after_words": 2183,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "pulumi-components",
+      "path": "collections/shared/pulumi-components",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "4b546ffc2d8f9f7d1be1589f8be70516abdabedd2d17336e86872b594d95b4e0",
+      "before_words": 3052,
+      "reasons": [
+        "Sharpen description to distinguish from neighboring skills."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "c04796b230588059728c0f78a6c15ecfe9c100e40c66f26973d63453936a4c02",
+      "after_words": 3068,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "pulumi-stacks",
+      "path": "collections/shared/pulumi-stacks",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "44939e48ce8aa53ab2b74cb232845b162f7821580c434f0627cf81090963359f",
+      "before_words": 2513,
+      "reasons": [
+        "Sharpen description to distinguish from neighboring skills."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "5f4d2e096ecad5177be8c34a15af83f89fb654d19b0253c2b84fe320a706b5ad",
+      "after_words": 2536,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "pydantic-ai",
+      "path": "collections/shared/pydantic-ai",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "d2815d98067fe13ad5c3f4ebcdbea81d00c47361599917795cc1513f177f2839",
+      "before_words": 1419,
+      "reasons": [
+        "Update to current PydanticAI API (output_type, result.output, output_validator); fix advice and dead links.",
+        "Update example model id to a current Claude model."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "28345f6a7730d172fe512458fadc68fc34e9c00620561750da324eeaf25cd2da",
+      "after_words": 1440,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "pylint-checkers",
+      "path": "collections/shared/pylint-checkers",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "3fec1f9f168ba1f2e9d208918ccd96ac3c9a150378ad41f5feecd8ead4dc070f",
+      "before_words": 1521,
+      "reasons": [
+        "Replace hollow generator template with a custom checker, registration and testutils workflow; example checker and tests executed on pylint 4.1."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "79b3014781eb3c0d364beddd3d03b6258f268528117d12d00bd164d30df6dc0c",
+      "after_words": 776,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "pylint-configuration",
+      "path": "collections/shared/pylint-configuration",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "126d256b0ba87303664cb6be46da58ab745139d44a706959b4f59fb978cd5b90",
+      "before_words": 1521,
+      "reasons": [
+        "Replace hollow generator template with real configuration, message control, false-positive and exit-code guidance verified on pylint 4.1."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "acf02766e9921968918ebac638e6b9bf2861a274810a6b8c55cb23b2b8820202",
+      "after_words": 791,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "pylint-integration",
+      "path": "collections/shared/pylint-integration",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "9289bf28859b6b5e8e6c4c4f401432e38152f288f36c4f34d4f5702d347e286b",
+      "before_words": 1521,
+      "reasons": [
+        "Replace hollow generator template with environment-correct CI, pre-commit, annotation and incremental-adoption guidance verified on pylint 4.1."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "2e168c4b1ac436da12a8b28d3de38ce641789edf31d41d748eabf3c1688f24b7",
+      "after_words": 701,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "pytest-advanced",
+      "path": "collections/shared/pytest-advanced",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "b32e96cd255d28a19e2b156f1157244b0e2b4a34e51ee9db4ab19f2d0b46bacd",
+      "before_words": 1523,
+      "reasons": [
+        "Replace hollow generator template with real configuration, markers, selection, assertion, hook and coverage guidance; examples verified on pytest 9.1."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "571bc758ca9a7790b7e790bc6816f5afdcf577fef4c1d8a516f4ac0694400f41",
+      "after_words": 762,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "pytest-fixtures",
+      "path": "collections/shared/pytest-fixtures",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "9bcff0e30ae66cefadad84e3fc6ccb8436f53c51064303810b995675f32c27fa",
+      "before_words": 1527,
+      "reasons": [
+        "Replace hollow generator template (JavaScript placeholders in python fences) with real fixture, scope, conftest and parametrization guidance."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "1f91455ee1e3b1a04215898310a77ae6e0c08ce12076391464f2fa505f95d6c4",
+      "after_words": 947,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "pytest-plugins",
+      "path": "collections/shared/pytest-plugins",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "4c88991a0d16e445c1669271dcca20f5bebcbc0372d096d98da33eae8a5e62a2",
+      "before_words": 1521,
+      "reasons": [
+        "Replace hollow generator template with plugin usage pitfalls and a pytester-tested plugin authoring workflow; examples verified on pytest 9.1."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "3a790c4bccb752a2346f9e33191f235e7444f937f80383d787d5319ec809ec04",
+      "after_words": 761,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "python-async-patterns",
+      "path": "collections/shared/python-async-patterns",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "e5748c05e88f68c6452bb3d95f3f0d4296904e0d5fdddfe971a95065b08b72f0",
+      "before_words": 1614,
+      "reasons": [
+        "Modernize for Python 3.11+: TaskGroup, asyncio.timeout, to_thread, get_running_loop; demote manual loop management."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "f33d6f826082e1808d036a959069d62975901027b8990e02e68bb492cae9e9c9",
+      "after_words": 1534,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "python-data-classes",
+      "path": "collections/shared/python-data-classes",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "8dcbe80d2e1494199ea56c49b98665c763a78e424f8ad9cf04ae3099b23307f0",
+      "before_words": 1542,
+      "reasons": [
+        "Modern typing syntax and corrected attrs claims."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "0174d4121f618fc26b47d42ce59c184bfbd10442f4de9ca8e073ed1e25a634a7",
+      "after_words": 1563,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "python-patterns",
+      "path": "collections/shared/python-patterns",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "feba490b666581bf07b7b673e5de4cd3260827b78aae35a6ae80cc0c0334ce06",
+      "before_words": 1407,
+      "reasons": [
+        "Absorb python-pro tooling stance; fix httpx ASGITransport, redis.asyncio and Flask async guidance; remove dated headers and filler."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "8cc16c77e46e31d3bdb19a6526311283cef42e206ada7c6ec010c8c3bc221230",
+      "after_words": 1658,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "python-type-system",
+      "path": "collections/shared/python-type-system",
+      "source": "thebushidocollective/han",
+      "license": "FSL-1.1-ALv2",
+      "local_fork": true,
+      "before_entry_sha256": "ba7a6e65965c1e1ea64a6694c02049727db1c9cf15f11bc2226c085b92a644b0",
+      "before_words": 1829,
+      "reasons": [
+        "Modernize for PEP 695 generics, type aliases, Self, override, TypeIs; version-agnostic checker config."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "25c60b1ef43fedd392acaf265b220ad60b055ab6b1108abf5d35fa9dc9ce9a93",
+      "after_words": 1309,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "refactoring-guru",
+      "path": "collections/shared/refactoring-guru",
+      "source": "ciembor/agent-rules-books",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "66c509c4c9977e3bc5de880968030861325698603a3e9472609a2873b2434228",
+      "before_words": 78,
+      "reasons": [
+        "Real diagnose-prove-apply-verify-stop workflow; absorb Fowler catalog from refactor and safe-refactor rules."
+      ],
+      "files": [
+        "SKILL.md",
+        "refactoring-guru.mini.md",
+        "references/"
+      ],
+      "after_entry_sha256": "c7d51a051791a6e5e13babe34e76b82d960fe49eb4eeb91be907f0951777d5de",
+      "after_words": 558,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "saga-orchestration",
+      "path": "collections/shared/saga-orchestration",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "07bb1e80b7a841f7e0acb649be09198ec89003c67931a48cc660422e0300431b",
+      "before_words": 182,
+      "reasons": [
+        "Write real SKILL.md body (orchestration vs choreography, outbox, idempotency, semantic locks, timeouts, testing); correct exactly-once claim."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/detailed-guide.md"
+      ],
+      "after_entry_sha256": "4aa7432049c8693ad0c233c2850e161503e0583955f7d541262aa13cf90a8c7b",
+      "after_words": 1124,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "security-best-practices",
+      "path": "collections/shared/security-best-practices",
+      "source": "davila7/claude-code-templates",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "93222336cbb0e6745f95ce8ca0e2095f7fcdc7fb062d8e4cf0ecb38fa01fe75b",
+      "before_words": 1433,
+      "reasons": [
+        "Sharpen description to distinguish from neighboring skills."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "26a0c3f5bff7a03b39268549459e32b021d8d7c5965280578ae847728319d117",
+      "after_words": 1424,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "skill-writer",
+      "path": "collections/shared/skill-writer",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "1d91fc490c4003e3e861ddfb71c14ab7e8bd7db68ca0ac5f32ceb4a368c1737e",
+      "before_words": 650,
+      "reasons": [
+        "Remove filler; fix nonexistent npm commands to repository checks; sharpen description."
+      ],
+      "files": [
+        "SKILL.md",
+        "references/registration-validation.md"
+      ],
+      "after_entry_sha256": "85dc06ae2f291244e63dec34031f9e995305fae7d15acd6069e7424109a1315a",
+      "after_words": 623,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "source-driven-development",
+      "path": "collections/shared/source-driven-development",
+      "source": "addyosmani/agent-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "c59faf851377f0eeda45306398d16eb96d77ab1c2fd3e1a7fb58e9a0af33c1e9",
+      "before_words": 1473,
+      "reasons": [
+        "Sharpen description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "a6ebdc0b8b1095e005325ef63350f03bd7c7597b3e47f17494d5a497f687e30d",
+      "after_words": 1478,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "testing-strategies",
+      "path": "collections/shared/testing-strategies",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "a3da25e3647dfb71795a184dcbea96f547f2d0e76d4116907861e10cd58a07ee",
+      "before_words": 2006,
+      "reasons": [
+        "Fix missing example and skill references; cross-link TDD and BDD."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "81feb07577b3bfb3a08a2bc5cfcf720da6f8b2fe1391f2e24f39c71037a33986",
+      "after_words": 2005,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "using-message-queues",
+      "path": "collections/shared/using-message-queues",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "9f7929b3d22a10c46d0f8155f0c481a4e96dd475848d7fed409ac093e311dcaf",
+      "before_words": 1273,
+      "reasons": [
+        "Point reference to retired api-patterns at its canonical replacement."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "eb48155d4ae6c8354e5835880da675df9775df2ea2c05ed29290b8c11bd5dd9f",
+      "after_words": 1273,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "using-timeseries-databases",
+      "path": "collections/shared/using-timeseries-databases",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "b859dd8a33b0080cf62c19caafeddf6a82c3af161c716070db328d1d015033a4",
+      "before_words": 895,
+      "reasons": [
+        "Point reference to retired api-patterns at its canonical replacement."
+      ],
+      "files": [
+        "README.md"
+      ],
+      "after_entry_sha256": "b859dd8a33b0080cf62c19caafeddf6a82c3af161c716070db328d1d015033a4",
+      "after_words": 895,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "using-vector-databases",
+      "path": "collections/shared/using-vector-databases",
+      "source": "ancoleman/ai-design-components",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "5495131a7c6f194391f4206cc25062420f8433c91185a7d41d97df3795de6d3f",
+      "before_words": 1677,
+      "reasons": [
+        "Point reference to retired api-patterns at its canonical replacement."
+      ],
+      "files": [
+        "SKILL.md",
+        "outputs.yaml"
+      ],
+      "after_entry_sha256": "5a1ba9e1b346f5041579a484912f19d6cffd8790ec669e5acce8e243065e01a6",
+      "after_words": 1677,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "wiki-builder",
+      "path": "collections/shared/wiki-builder",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "aadad07a33608fa707103a70b9941436e0766932d9b3a0e7dafea984bc861f58",
+      "before_words": 775,
+      "reasons": [
+        "Add when-to-use description; remove filler."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "4841e7881fd825e1d79a971ed595cc393beff957a66e0603437236ad2bd9b511",
+      "after_words": 776,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "wiki-changelog",
+      "path": "collections/shared/wiki-changelog",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "784a838ee9fcb7a03fc22eded3a13c30aec59308e8e9e0d14bad122eaeab35da",
+      "before_words": 185,
+      "reasons": [
+        "Expand into a real git-range changelog procedure with no-fabrication rule."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "897666c426adfb379432d65398795dc35f460cf773d1de7fdf369ee70ec75d8a",
+      "after_words": 650,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
+    },
+    {
+      "id": "wiki-page-writer",
+      "path": "collections/shared/wiki-page-writer",
+      "source": "sickn33/antigravity-awesome-skills",
+      "license": "MIT",
+      "local_fork": true,
+      "before_entry_sha256": "c3f139cd3d5c872d758ea74a4f28e4b2ed1559f27cd17ae3e8dff942b78c701a",
+      "before_words": 454,
+      "reasons": [
+        "Drop dark-only colors and padding-inducing minimums; add when-to-use description."
+      ],
+      "files": [
+        "SKILL.md"
+      ],
+      "after_entry_sha256": "b9335965f5bc1ce789fd26b6c25af7ec6eecb3ec41d81ca147ce4f4f924c22bb",
+      "after_words": 541,
+      "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
     }
   ]
 }

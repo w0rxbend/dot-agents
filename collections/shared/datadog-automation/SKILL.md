@@ -1,6 +1,6 @@
 ---
 name: datadog-automation
-description: "Automate Datadog tasks via Rube MCP (Composio): query metrics, search logs, manage monitors/dashboards, create events and downtimes. Always search tools first for current schemas."
+description: "Operate an existing Datadog account through the Rube MCP server (Composio Datadog toolkit): query metrics, search logs, inspect hosts and traces, and manage monitors, dashboards, events and downtimes. Use when the Rube MCP connection is available and the task is reading or changing Datadog data; to install or configure the Datadog Agent and tracers use datadog."
 risk: critical
 source: community
 date_added: "2026-02-27"
@@ -18,7 +18,7 @@ Automate Datadog monitoring and observability operations through Composio's Data
 
 ## Setup
 
-**Get Rube MCP**: Add `https://rube.app/mcp` as an MCP server in your client configuration. No API keys needed — just add the endpoint and it works.
+**Connect Rube MCP**: add `https://rube.app/mcp` as an MCP server in the client configuration (the user does this; Datadog access is then authorized through Composio's connection flow below).
 
 
 1. Verify Rube MCP is available by confirming `RUBE_SEARCH_TOOLS` responds
@@ -236,9 +236,14 @@ logs("service:web status:error").index("main").rollup("count").last("5m") > 10
 | Get trace | DATADOG_GET_TRACE_BY_ID | trace_id |
 
 ## When to Use
-This skill is applicable to execute the workflow or actions described in the overview.
 
-## Limitations
-- Use this skill only when the task clearly matches the scope described above.
-- Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
-- Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.
+- Answering questions from an existing Datadog account: metric values, log searches, monitor state, hosts, a trace by ID.
+- Making scoped changes there on request: create/update/mute monitors, schedule downtimes, post deployment events, edit dashboards.
+
+Not for installing the Agent, integrations or tracers (use `datadog`), or designing what to instrument (use `observability-and-instrumentation`).
+
+## Safety
+
+- Read before write: fetch the current monitor/dashboard and show the intended change before calling a create, update, mute or delete tool.
+- Deleting dashboards and creating indefinite downtimes or mutes are destructive or silencing actions: require explicit confirmation and always set an end time.
+- Log searches can return personal data; quote only the fields needed for the question.

@@ -691,6 +691,15 @@ intermediate collection creation.
 Parallel collections automatically distribute operations across multiple threads
 for performance on multi-core systems.
 
+Since Scala 2.13, parallel collections are **not** part of the standard
+library. They live in the separate `org.scala-lang.modules::scala-parallel-collections`
+module (also published for Scala 3), and `.par` needs the
+`CollectionConverters` import shown below. On 2.12 and earlier, `.par` is
+built in and needs no import. Before adding the dependency, consider whether
+the project's effect system (ZIO, Cats Effect, Ox, Futures) already provides
+bounded parallelism (`ZIO.foreachPar`, `parTraverse`, `par`), which is usually
+a better fit for I/O.
+
 ```scala
 import scala.collection.parallel.CollectionConverters._
 
@@ -767,6 +776,25 @@ val counts = parallelNumbers.aggregate(0)(
 Use parallel collections for CPU-intensive operations on large datasets with
 multiple cores available.
 
+## Scala 2.13 / Scala 3 Collections Migration Notes
+
+Scala 2.13 redesigned the collections library; Scala 3 uses the 2.13 library
+unchanged. When reading or porting 2.12-era code:
+
+| 2.12 and earlier | 2.13 / Scala 3 |
+|------------------|----------------|
+| `Stream` | `LazyList` (fully lazy, head included) |
+| `Traversable`, `TraversableOnce` | `Iterable`, `IterableOnce` |
+| `CanBuildFrom`, `breakOut` | `Factory` / `BuildFrom`; use `.to(Map)`, `.to(Vector)`, `.view...to(...)` |
+| `coll.to[Vector]` | `coll.to(Vector)` |
+| `map.mapValues(f)` / `filterKeys(p)` (lazy, recomputed on every access) | `map.view.mapValues(f).toMap` / `map.view.filterKeys(p).toMap` |
+| `scala.collection.JavaConverters._` | `scala.jdk.CollectionConverters._` |
+| `.par` built in | `scala-parallel-collections` module (see above) |
+| `scala.Seq` = `collection.Seq` | `scala.Seq` = `immutable.Seq`: mutable buffers no longer conform, and arrays convert only through a deprecated copying conversion; call `.toSeq` (copies) or `ArraySeq.unsafeWrapArray` |
+
+For libraries that must cross-build 2.12 and 2.13, the
+`scala-collection-compat` module backports the 2.13 API to 2.12.
+
 ## Best Practices
 
 1. **Prefer immutable collections** by default for thread safety and functional
@@ -785,7 +813,7 @@ multiple cores available.
    filtering
 
 6. **Use parallel collections** only for large, CPU-intensive operations on
-   multi-core systems
+   multi-core systems, and only after adding the separate module on 2.13+
 
 7. **Avoid size on lazy collections** as it forces evaluation of the entire
    sequence

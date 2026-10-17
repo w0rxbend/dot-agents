@@ -1,6 +1,6 @@
 ---
 name: implementing-compliance
-description: Implement and maintain compliance with SOC 2, HIPAA, PCI-DSS, and GDPR using unified control mapping, policy-as-code enforcement, and automated evidence collection. Use when building systems requiring regulatory compliance, implementing security controls across multiple frameworks, or automating audit preparation.
+description: "Implement SOC 2, HIPAA, PCI-DSS and GDPR technical controls with a unified control map, policy-as-code (OPA, Checkov) and automated evidence collection. Use when a system must pass an audit or meet a regulatory framework; use architecting-security for framework-agnostic security design."
 ---
 
 # Compliance Frameworks
@@ -147,12 +147,14 @@ For complete CI/CD patterns, see references/cicd-integration.md.
 Scan IaC with built-in compliance framework support:
 
 ```bash
-checkov -d ./terraform \
-  --check SOC2 --check HIPAA --check PCI --check GDPR \
-  --output cli --output json
+# Run all built-in checks; keep machine-readable output as audit evidence
+checkov -d ./terraform -o json > reports/checkov.json
+
+# Restrict to the checks mapped to a control (check IDs, not framework names)
+checkov -d ./terraform --check CKV_AWS_19,CKV_AWS_145
 ```
 
-Create custom policies for organization-specific requirements. See examples/checkov-policies/ for examples.
+`--check` takes check IDs; maintain your own control-to-check-ID mapping (Checkov's framework mappings require the commercial platform). Write organization-specific rules as custom Checkov policies or as OPA policies (see `examples/opa-policies/`).
 
 ### Automated Testing
 
@@ -426,12 +428,12 @@ For tool selection guidance, see references/tool-recommendations.md.
 
 **Related Skills:**
 - `security-hardening`: Technical security control implementation
-- `secret-management`: Secrets handling per HIPAA/PCI-DSS
-- `infrastructure-as-code`: IaC implementing compliance controls
-- `kubernetes-operations`: K8s RBAC, network policies
+- `hashicorp-vault`: Secrets handling per HIPAA/PCI-DSS
+- `kubernetes-hardening`: K8s RBAC, network policies, admission control
 - `building-ci-pipelines`: Policy enforcement in CI/CD
-- `siem-logging`: Audit logging and monitoring
-- `incident-management`: Incident response procedures
+- `audit-logging`: Audit logging, retention and SIEM integration
+- `managing-incidents`: Incident response procedures
+- `architecting-security`: Control-framework mapping at design time
 
 ## Quick Reference
 
@@ -481,7 +483,6 @@ For tool selection guidance, see references/tool-recommendations.md.
 
 **Code Examples:**
 - examples/opa-policies/ - OPA policy examples
-- examples/terraform/ - Terraform control implementations
 - examples/evidence-collection/ - Evidence automation
 - examples/mfa-implementation.py - TOTP MFA implementation
 

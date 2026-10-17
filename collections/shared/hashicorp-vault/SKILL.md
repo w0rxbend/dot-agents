@@ -1,6 +1,6 @@
 ---
 name: hashicorp-vault
-description: Manage secrets and PKI with HashiCorp Vault.
+description: "Operate HashiCorp Vault - KV v2, dynamic database and cloud credentials, PKI, transit encryption, auth methods, policies, audit devices and production init/unseal. Use when storing, issuing or rotating secrets and certificates through Vault."
 category: security
 risk: critical
 source: https://github.com/BagelHole/DevOps-Security-Agent-Skills
@@ -9,9 +9,7 @@ source_type: community
 date_added: '2026-09-20'
 license: MIT
 license_source: https://github.com/BagelHole/DevOps-Security-Agent-Skills/blob/main/LICENSE
-compatibility: Requires the relevant security tooling (scanners, vault CLIs) and an
-  authorized scope for any active assessment. Docs-only; helper scripts and templates
-  not bundled.
+compatibility: Requires the vault CLI and a Vault server (dev mode is fine for learning); production steps need operator access.
 metadata:
   author: devops-skills
   version: '1.0'
@@ -389,20 +387,14 @@ spec:
 
 ## Related Skills
 
-- aws-secrets-manager (`aws-secrets-manager`) - AWS native secrets
-- sops-encryption (`sops-encryption`) - File encryption
-- kubernetes-hardening (`kubernetes-hardening`) - K8s security
+- `kubernetes-hardening` - consuming Vault secrets in Kubernetes and encrypting Secrets at rest
+- `security-hardening` - host and cloud hardening around the Vault cluster
+- `deploying-on-aws` - when AWS Secrets Manager / Parameter Store is the better fit
 
-## Limitations
+## Safety
 
-- Apply guidance only within authorized scope; test destructive steps in non-production first.
-- Docs-only import: upstream scripts and templates not bundled.
+- Run `vault status` and read-only commands (`vault secrets list`, `vault policy read`, `vault audit list`) before changing anything.
+- Never paste unseal keys, root tokens or secret values into chat, tickets or logs; revoke the initial root token once admin policies exist (`vault token revoke <token>`).
+- Test policy, auth-method and seal changes on a non-production cluster; a wrong seal or storage change can make data unrecoverable.
 
-### Example
-
-```bash
-# Read-only first: inventory before any active step.
-which <tool> && <tool> --help | head -n 20
-```
-
-> Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT); frontmatter, When to Use/Limitations, and safety boundaries added for upstream compliance. Docs-only import: helper scripts and templates not bundled.
+> Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT).

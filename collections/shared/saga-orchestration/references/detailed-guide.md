@@ -1,13 +1,7 @@
 # Saga Orchestration - Detailed Guide
 
-> This file contains the detailed procedure and reference material extracted from `SKILL.md` for focused loading. The root skill defines activation, examples, safety constraints, and limitations.
 
-## Instructions
-
-- Clarify goals, constraints, and required inputs.
-- Apply relevant best practices and validate outcomes.
-- Provide actionable steps and verification.
-- If detailed examples are required, open `resources/implementation-playbook.md`.
+Code templates for the patterns summarized in `../SKILL.md`. The Python is illustrative (in-memory store and publisher interfaces); adapt persistence, messaging and error types to the target stack.
 
 
 ## Core Concepts
@@ -459,7 +453,7 @@ class TimeoutSagaOrchestrator(SagaOrchestrator):
 
 ## Durable Execution Alternative
 
-The templates above build saga infrastructure from scratch — saga stores, event publishers, compensation tracking. **Durable execution frameworks** (like DBOS) eliminate much of this boilerplate: the workflow runtime automatically persists state to a database, retries failed steps, and resumes from the last checkpoint after crashes. Instead of building a `SagaOrchestrator` base class, you write a workflow function with steps — the framework handles persistence, crash recovery, and exactly-once execution semantics. Consider durable execution when you want saga-like reliability without managing the coordination infrastructure yourself.
+The templates above build saga infrastructure from scratch — saga stores, event publishers, compensation tracking. **Durable execution frameworks** (Temporal, AWS Step Functions, Azure Durable Functions, DBOS, Restate and similar) eliminate much of this boilerplate: the workflow runtime automatically persists state to a database, retries failed steps, and resumes from the last checkpoint after crashes. Instead of building a `SagaOrchestrator` base class, you write a workflow function with steps — the framework handles persistence, crash recovery and deterministic replay of the workflow logic. Individual steps (activities) are still retried at-least-once, so they must stay idempotent. Consider durable execution when you want saga-like reliability without managing the coordination infrastructure yourself.
 
 
 ## Best Practices
@@ -482,7 +476,7 @@ The templates above build saga infrastructure from scratch — saga stores, even
 
 ## Related Skills
 
-Works well with: `event-sourcing-architect`, `workflow-automation`, `dbos-*`
+Works well with: `using-message-queues` (brokers, Temporal example), `architecture-patterns` (domain events, outbox).
 
 
 ## Resources

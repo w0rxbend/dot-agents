@@ -1,7 +1,5 @@
 # Practical Error Handling with fp-ts - Detailed Guide
 
-> This file contains the detailed procedure and reference material extracted from `SKILL.md` for focused loading. The root skill defines activation, examples, safety constraints, and limitations.
-
 ## 1. Stop Throwing Everywhere
 
 ### The Problem with Exceptions
@@ -228,14 +226,14 @@ const processUserOrder = (userId: string, productId: string): E.Either<string, O
       user => user.isActive,
       () => 'User not active'
     ),
-    E.chain(user =>
+    E.flatMap(user =>
       pipe(
         getProduct(productId),
         E.filterOrElse(
           product => product.stock >= 1,
           () => 'Out of stock'
         ),
-        E.chain(product => createOrder(user, product))
+        E.flatMap(product => createOrder(user, product))
       )
     )
   )
@@ -254,11 +252,11 @@ const processUserOrder = (userId: string, productId: string): E.Either<string, O
       ({ product }) => product.stock >= 1,
       () => 'Out of stock'
     ),
-    E.chain(({ user, product }) => createOrder(user, product))
+    E.flatMap(({ user, product }) => createOrder(user, product))
   )
 ```
 
-### Different Error Types? Use chainW
+### Different Error Types? flatMap Widens Them
 
 ```typescript
 type ValidationError = { type: 'validation'; message: string }
@@ -267,11 +265,12 @@ type DbError = { type: 'db'; message: string }
 const validateInput = (id: string): E.Either<ValidationError, string> => { ... }
 const fetchFromDb = (id: string): E.Either<DbError, User> => { ... }
 
-// chainW (W = "wider") automatically unions the error types
+// flatMap unions the error types (ValidationError | DbError).
+// Older code uses chainW for this; chain/chainW are legacy aliases since fp-ts 2.14.
 const process = (id: string): E.Either<ValidationError | DbError, User> =>
   pipe(
     validateInput(id),
-    E.chainW(validId => fetchFromDb(validId))
+    E.flatMap(validId => fetchFromDb(validId))
   )
 ```
 
@@ -408,7 +407,7 @@ const fetchUser = (id: string): TE.TaskEither<Error, User> =>
 const getUserPosts = (userId: string): TE.TaskEither<Error, Post[]> =>
   pipe(
     fetchUser(userId),
-    TE.chain(user => fetchPosts(user.id))
+    TE.flatMap(user => fetchPosts(user.id))
   )
 
 // Execute when ready
@@ -455,7 +454,7 @@ import { pipe } from 'fp-ts/function'
 const loadDashboard = (userId: string) =>
   pipe(
     fetchUser(userId),
-    TE.chain(user =>
+    TE.flatMap(user =>
       pipe(
         // Parallel fetch with sequenceS
         sequenceS(TE.ApplyPar)({
@@ -478,45 +477,9 @@ pipe(
 )()
 ```
 
-### Retry Failed Operations
+### Retries, Fallbacks and Parallel Calls
 
-```typescript
-import * as T from 'fp-ts/Task'
-import * as TE from 'fp-ts/TaskEither'
-import { pipe } from 'fp-ts/function'
-
-const retry = <E, A>(
-  task: TE.TaskEither<E, A>,
-  attempts: number,
-  delayMs: number
-): TE.TaskEither<E, A> =>
-  pipe(
-    task,
-    TE.orElse((error) =>
-      attempts > 1
-        ? pipe(
-            T.delay(delayMs)(T.of(undefined)),
-            T.chain(() => retry(task, attempts - 1, delayMs * 2))
-          )
-        : TE.left(error)
-    )
-  )
-
-// Retry up to 3 times with exponential backoff
-const fetchWithRetry = retry(fetchUser('123'), 3, 1000)
-```
-
-### Fallback to Alternative
-
-```typescript
-// Try cache first, fall back to API
-const getUserData = (id: string) =>
-  pipe(
-    fetchFromCache(id),
-    TE.orElse(() => fetchFromApi(id)),
-    TE.orElse(() => TE.right(defaultUser)) // Last resort default
-  )
-```
+Retry with backoff, cache-then-API fallbacks, batching and parallel vs sequential execution are async-pipeline concerns: see the fp-async skill (`references/detailed-guide.md`, sections 3-4). The error-modeling rule from this guide still applies there: recover only from error tags you can handle (`TE.orElse` on a specific `_tag`), and let the rest propagate.
 
 ---
 
@@ -673,7 +636,7 @@ const fetchWithErrorHandling = <T>(url: string): TE.TaskEither<ApiError, T> =>
       () => fetch(url),
       () => createApiError('Network error', 'NETWORK')
     ),
-    TE.chain(response =>
+    TE.flatMap(response =>
       response.ok
         ? TE.tryCatch(
             () => response.json() as Promise<T>,
@@ -817,8 +780,8 @@ const deleteUsers = (userIds: string[]) =>
 | `E.fromNullable(error)` | Converting nullable | `E.fromNullable('missing')(maybeValue)` |
 | `E.map(fn)` | Transform success | `pipe(result, E.map(x => x * 2))` |
 | `E.mapLeft(fn)` | Transform error | `pipe(result, E.mapLeft(addContext))` |
-| `E.chain(fn)` | Chain operations | `pipe(getA(), E.chain(a => getB(a.id)))` |
-| `E.chainW(fn)` | Chain with different error type | `pipe(validate(), E.chainW(save))` |
+| `E.flatMap(fn)` | Chain operations (error types are unioned) | `pipe(getA(), E.flatMap(a => getB(a.id)))` |
+| `E.tap(fn)` | Run a fallible check, keep the original value | `pipe(user, E.tap(assertActive))` |
 | `E.fold(onError, onSuccess)` | Handle both cases | `E.fold(showError, showData)` |
 | `E.getOrElse(onError)` | Extract with default | `E.getOrElse(() => 0)` |
 | `E.filterOrElse(pred, onFalse)` | Validate with error | `E.filterOrElse(x => x > 0, () => 'must be positive')` |
@@ -828,7 +791,7 @@ const deleteUsers = (userIds: string[]) =>
 
 All Either operations have TaskEither equivalents:
 - `TE.right`, `TE.left`, `TE.tryCatch`
-- `TE.map`, `TE.mapLeft`, `TE.chain`, `TE.chainW`
+- `TE.map`, `TE.mapLeft`, `TE.flatMap`, `TE.tap`, `TE.flatMapEither`
 - `TE.fold`, `TE.getOrElse`, `TE.filterOrElse`
 - `TE.orElse` for fallbacks
 
@@ -838,7 +801,7 @@ All Either operations have TaskEither equivalents:
 ## Summary
 
 1. **Return errors as values** - Use Either/TaskEither instead of throwing
-2. **Chain with confidence** - `chain` stops at first error automatically
+2. **Chain with confidence** - `flatMap` stops at the first error automatically
 3. **Collect all errors when needed** - Use validation applicative for forms
 4. **Wrap at boundaries** - Convert throwing/Promise code at the edges
 5. **Match at the end** - Use `fold` to handle both cases when you're ready to act

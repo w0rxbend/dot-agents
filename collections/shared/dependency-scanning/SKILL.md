@@ -1,7 +1,6 @@
 ---
 name: dependency-scanning
-description: Scan package dependencies for known vulnerabilities using Snyk, Dependabot,
-  and OWASP Dependency-Check.
+description: "Scan third-party dependencies for known vulnerabilities and generate SBOMs - Snyk, Dependabot, OWASP Dependency-Check, npm/pip/go audit tools, CycloneDX/Syft - and gate CI on the results. Use when adding or tuning software-composition analysis; use dependency-upgrade to carry out the upgrades."
 category: security
 risk: safe
 source: https://github.com/BagelHole/DevOps-Security-Agent-Skills
@@ -10,9 +9,7 @@ source_type: community
 date_added: '2026-09-20'
 license: MIT
 license_source: https://github.com/BagelHole/DevOps-Security-Agent-Skills/blob/main/LICENSE
-compatibility: Requires the relevant security tooling (scanners, vault CLIs) and an
-  authorized scope for any active assessment. Docs-only; helper scripts and templates
-  not bundled.
+compatibility: Requires the chosen scanner CLI (snyk, osv-scanner, dependency-check, govulncheck, syft) and access to the repository's lockfiles; Snyk needs an account token.
 metadata:
   author: devops-skills
   version: '1.0'
@@ -98,7 +95,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@<pinned-sha> # vX.Y.Z - never a branch ref
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -395,7 +392,7 @@ jobs:
         run: npm audit --audit-level=high
 
       - name: Snyk scan
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@<pinned-sha> # vX.Y.Z - never a branch ref
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -438,20 +435,16 @@ jobs:
 
 ## Related Skills
 
-- sast-scanning (`sast-scanning`) - Code vulnerabilities
-- container-scanning (`container-scanning`) - Container dependencies
-- github-actions (`github-actions`) - CI integration
+- `code-audit` - SAST review of first-party code
+- `dockerfile-optimise` - image scanning (rule `sec-scan-images`)
+- `github-actions-advanced` - wiring scanners into hardened workflows
+- `dependency-upgrade` - executing the major upgrades that scans call for
+- `security-and-hardening` - install-script policy and new-dependency review
 
-## Limitations
+## Done when
 
-- Apply guidance only within authorized scope; test destructive steps in non-production first.
-- Docs-only import: upstream scripts and templates not bundled.
+- A scanner runs on every pull request and on a schedule against the default branch, using the committed lockfile.
+- The build fails on new reachable critical/high findings; accepted findings are recorded in the tool's ignore file with a reason and expiry.
+- An SBOM is generated for each release artifact, and Dependabot or Renovate opens update PRs.
 
-### Example
-
-```bash
-# Read-only first: inventory before any active step.
-which <tool> && <tool> --help | head -n 20
-```
-
-> Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT); frontmatter, When to Use/Limitations, and safety boundaries added for upstream compliance. Docs-only import: helper scripts and templates not bundled.
+> Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT).

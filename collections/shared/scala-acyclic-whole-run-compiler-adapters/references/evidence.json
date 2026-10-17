@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "repository": "com-lihaoyi/acyclic",
+  "evidence": [
+    {
+      "id": "acy-review-release-exclusion",
+      "kind": "review-comment",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/pull/123#discussion_r1584142030",
+      "occurred_at": "2024-04-30T05:13:01Z",
+      "author": "lefou",
+      "role_basis": "unknown",
+      "pull_number": 123,
+      "excerpt": "A version for Scala `2.13.13` is already released.",
+      "interpretation": "The proposed self-plugin exclusion retained an already released Scala version alongside the new 2.13.14 target. The reviewer narrowed it to only 2.13.14, and the author applied that change in d5885e11ffbda148b640735f85d7e92195bdcac1. This is concrete evidence against allowing obsolete bootstrap exceptions to accumulate."
+    },
+    {
+      "id": "acy-review-port-test",
+      "kind": "review-comment",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/pull/136#discussion_r1760455092",
+      "occurred_at": "2024-09-16T02:09:31Z",
+      "author": "lihaoyi",
+      "role_basis": "Historical project stewardship is evidenced by the explicit 2018 commit-access grant at pull/28#issuecomment-425062151. This 2024 inline response itself supplies the test-review guidance being attributed.",
+      "pull_number": 136,
+      "excerpt": "Depends what `make` does. If `make` performs the assert internally, then no need to wrap in an assert. If `make` returns a `Boolean`, then you need to wrap in an assert",
+      "interpretation": "This is conditional review advice, not a requirement to wrap every test helper. The actual make call returns a diagnostic sequence, and the subsequent exists returns a Boolean. The author inspected that call path and repaired both the missing assertion and severity spelling."
+    },
+    {
+      "id": "acy-response-port-test",
+      "kind": "review-comment",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/pull/136#discussion_r1760466460",
+      "occurred_at": "2024-09-16T02:37:56Z",
+      "author": "mrdziuban",
+      "role_basis": "PR 136 detail identifies this participant as its author; this reply explains the implementation and correction. No maintainer role is inferred.",
+      "pull_number": 136,
+      "excerpt": "The call to `.exists` here then returns a `Boolean`, so it looks like we do need `assert`.",
+      "interpretation": "The author verifies the helper's actual return shape rather than treating compilation success as proof of a warning. The same reply explains the uppercase WARNING correction; commit 545b931d8b5f290c70df2912356eef6445b15bf2 records the repair."
+    },
+    {
+      "id": "acy-review-port-boundary",
+      "kind": "review-comment",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/pull/136#discussion_r1760522833",
+      "occurred_at": "2024-09-16T04:39:48Z",
+      "author": "lihaoyi",
+      "role_basis": "Historical project stewardship is evidenced by pull/28#issuecomment-425062151; this comment is a substantive request to separate compiler-specific operations from shared graph logic.",
+      "pull_number": 136,
+      "excerpt": "it seems there's a lot of stuff working with `Value`s and `DepNode`s that can be shared if properly separated out from the compiler-specific logic",
+      "interpretation": "The reviewer distinguishes symbol/type/tree handling from compiler-independent graph work. The author responds by abstracting CompilationUnit, Tree and Symbol and extracting BasePluginPhase. This is a specific refactoring boundary, not a generic instruction to maximize abstraction or share incompatible compiler APIs."
+    },
+    {
+      "id": "acy-response-port-boundary",
+      "kind": "review-comment",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/pull/136#discussion_r1761159054",
+      "occurred_at": "2024-09-16T13:28:11Z",
+      "author": "mrdziuban",
+      "role_basis": "PR 136 detail identifies this participant as the author; the recorded commits implement the abstraction described in this response.",
+      "pull_number": 136,
+      "excerpt": "Good call, I was able to share pretty much all of it by abstracting over `CompilationUnit`, `Tree`, and `Symbol`",
+      "interpretation": "The response links the requested boundary to a concrete revision. It does not assert that Scala 2 and Scala 3 execution lifecycles or reporters are interchangeable; later manual review in the same PR found both differences."
+    },
+    {
+      "id": "acy-review-port-diagnostics",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/pull/136#issuecomment-2367017360",
+      "occurred_at": "2024-09-22T23:31:23Z",
+      "author": "lihaoyi",
+      "role_basis": "Historical project stewardship is evidenced by pull/28#issuecomment-425062151. This comment includes a small consumer reproduction and comparative compiler output, rather than only an approval.",
+      "pull_number": 136,
+      "excerpt": "The Scala 3 version is missing the `More dependencies at lines...` indicator, and seems to duplicate the cycle being reported",
+      "interpretation": "A two-file consumer reproduction caught missing supplemental locations and duplicate reporting after earlier test work. It demonstrates that detecting the correct graph is insufficient: diagnostic visibility and invocation cardinality are observable contracts. The comparison is reported by the commenter, not executed in this research run."
+    },
+    {
+      "id": "acy-response-port-diagnostics",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/pull/136#issuecomment-2367130741",
+      "occurred_at": "2024-09-23T02:29:08Z",
+      "author": "mrdziuban",
+      "role_basis": "PR 136 identifies this participant as the author. This is the author's own explanation, excluding the quoted reviewer lines in the same reply.",
+      "pull_number": 136,
+      "excerpt": "It turned out this was because the \"More dependencies at...\" reporting was using `report.inform`, which only appears if the `-verbose` flag is set",
+      "interpretation": "The author explains the reporter distinction in their own words, then separately explains per-CompilationUnit invocation and the alreadyRun guard. The final source uses echo and a guard; no repeated-compiler-run lifetime guarantee is proven by that repair."
+    },
+    {
+      "id": "acy-marker-api-2022",
+      "kind": "code",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/blob/e090ee2b8de5d7c468cd4787b1820fec567c5ad4/acyclic/src/acyclic/package.scala#L17-L22",
+      "occurred_at": "2022-12-08T20:48:06Z",
+      "commit_sha": "e090ee2b8de5d7c468cd4787b1820fec567c5ad4",
+      "path": "acyclic/src/acyclic/package.scala",
+      "excerpt": "packages. Circular dependencies *within* the package are Ok.",
+      "interpretation": "The public surface is compile-time marker imports, not an application effect API. The package marker forbids external cycles while intentionally allowing internal cycles. A proposed graph cleanup must preserve this distinction and must not flag every internal package cycle."
+    },
+    {
+      "id": "acy-warning-test-2022",
+      "kind": "code",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/blob/e090ee2b8de5d7c468cd4787b1820fec567c5ad4/acyclic/test/src/acyclic/CycleTests.scala#L58-L64",
+      "occurred_at": "2022-12-08T20:48:06Z",
+      "commit_sha": "e090ee2b8de5d7c468cd4787b1820fec567c5ad4",
+      "path": "acyclic/test/src/acyclic/CycleTests.scala",
+      "excerpt": "make(\"force/simple\", force = true, warn = true).exists {\n            case (_, \"Unwanted cyclic dependency\", \"warning\") => true\n            case _ => false\n          }",
+      "interpretation": "The 2022 warning test computes but does not assert a Boolean. PR 64 introduced this expression; PR 136 later repairs it. Source observation: the test body has no assertion around exists. No Scala execution is claimed here."
+    },
+    {
+      "id": "acy-bootstrap-2022",
+      "kind": "code",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/blob/e090ee2b8de5d7c468cd4787b1820fec567c5ad4/build.sc#L35-L48",
+      "occurred_at": "2022-12-08T20:48:06Z",
+      "commit_sha": "e090ee2b8de5d7c468cd4787b1820fec567c5ad4",
+      "path": "build.sc",
+      "excerpt": "override def scalacPluginIvyDeps = Agg.empty[Dep]",
+      "interpretation": "The enclosing test module disables the bootstrapped published plugin while its compiler harness explicitly loads the plugin under test. The production module uses the same full-cross acyclic dependency for compile-time markers and plugin loading. This avoids rejecting deliberately cyclic test resources during test-module compilation."
+    },
+    {
+      "id": "acy-self-test-isolation-commit",
+      "kind": "commit",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/commit/765eb214a2de29111f0c940ca55d981ace691863",
+      "occurred_at": "2022-09-20T07:54:45Z",
+      "commit_sha": "765eb214a2de29111f0c940ca55d981ace691863",
+      "excerpt": "Do not apply acyclic to test project",
+      "interpretation": "The second commit in PR 54 explicitly separates self-application from the test project. Combined with the final build and harness sources, this supports an inferred build-isolation invariant; the PR has no substantive review exchange and must not be labelled maintainer design guidance."
+    },
+    {
+      "id": "acy-incremental-limit-2022",
+      "kind": "documentation",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/blob/e090ee2b8de5d7c468cd4787b1820fec567c5ad4/readme.adoc#L270-L278",
+      "occurred_at": "2022-12-08T20:48:06Z",
+      "commit_sha": "e090ee2b8de5d7c468cd4787b1820fec567c5ad4",
+      "path": "readme.adoc",
+      "excerpt": "If you're using incremental compilation, you may need to do a clean compile for *Acyclic* to find all unwanted cycles in the compilation run.",
+      "interpretation": "The historical documentation expressly limits incremental coverage. A passing partial compilation must not be reported as proof that the complete project dependency graph is acyclic. The same limitations section also warns about curly-braced package declarations."
+    },
+    {
+      "id": "acy-shared-boundary-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/blob/fbb60d12e73723b34ee15db3ae3231dd89b8bdc8/acyclic/src/acyclic/plugin/BasePluginPhase.scala#L6-L29",
+      "occurred_at": "2024-09-23T04:17:11Z",
+      "commit_sha": "fbb60d12e73723b34ee15db3ae3231dd89b8bdc8",
+      "path": "acyclic/src/acyclic/plugin/BasePluginPhase.scala",
+      "excerpt": "trait BasePluginPhase[CompilationUnit, Tree, Symbol] { self: GraphAnalysis[Tree] =>",
+      "interpretation": "The shared phase parameterizes compiler-specific units, trees and symbols and receives adapter operations for locations, diagnostics, imports and dependency extraction. Graph construction, package aggregation, cycle selection and reporting orchestration remain shared. Compiler integrations keep their existing direct, mutable compiler APIs rather than introducing an effect framework."
+    },
+    {
+      "id": "acy-unit-domain-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/blob/fbb60d12e73723b34ee15db3ae3231dd89b8bdc8/acyclic/src/acyclic/plugin/BasePluginPhase.scala#L56-L61",
+      "occurred_at": "2024-09-23T04:17:11Z",
+      "commit_sha": "fbb60d12e73723b34ee15db3ae3231dd89b8bdc8",
+      "path": "acyclic/src/acyclic/plugin/BasePluginPhase.scala",
+      "excerpt": "if isValidSymbol(sym)\n        if symbolPath(sym) != unitPath(unit)\n        if unitMap.contains(symbolPath(sym))",
+      "interpretation": "The graph only retains valid symbols with another source file in the current compilation unit map. This guard prevents lookup outside that map but intentionally does not make incremental compilation a whole-project analysis. This is source observation; no reviewer rationale for this particular guard was found."
+    },
+    {
+      "id": "acy-run-guard-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/blob/fbb60d12e73723b34ee15db3ae3231dd89b8bdc8/acyclic/src-3/acyclic/plugin/Plugin.scala#L14-L27",
+      "occurred_at": "2024-09-23T04:17:11Z",
+      "commit_sha": "fbb60d12e73723b34ee15db3ae3231dd89b8bdc8",
+      "path": "acyclic/src-3/acyclic/plugin/Plugin.scala",
+      "excerpt": "if (!alreadyRun) {\n        alreadyRun = true\n        new acyclic.plugin.PluginPhase(cycleReporter, force, fatal).run()\n      }",
+      "interpretation": "The historical fix gates whole-run analysis against per-unit Scala 3 invocation. The flag lives on TestPlugin and is not visibly reset in init; the patch repairs the reported single-compilation duplication, but cannot establish repeated-run safety for a reused plugin instance."
+    },
+    {
+      "id": "acy-reporter-adapter-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/blob/fbb60d12e73723b34ee15db3ae3231dd89b8bdc8/acyclic/src-3/acyclic/plugin/PluginPhase.scala#L26-L32",
+      "occurred_at": "2024-09-23T04:17:11Z",
+      "commit_sha": "fbb60d12e73723b34ee15db3ae3231dd89b8bdc8",
+      "path": "acyclic/src-3/acyclic/plugin/PluginPhase.scala",
+      "excerpt": "def reportInform(msg: String): Unit = report.echo(msg)",
+      "interpretation": "Despite the shared method's name, the Scala 3 adapter uses echo to preserve default-visible messages. Its adjacent treeLine implementation adds one to the compiler position. Semantic equivalence includes visibility and human line numbering, not merely matching method names."
+    },
+    {
+      "id": "acy-warning-test-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/blob/fbb60d12e73723b34ee15db3ae3231dd89b8bdc8/acyclic/test/src/acyclic/BaseCycleTests.scala#L57-L63",
+      "occurred_at": "2024-09-23T04:17:11Z",
+      "commit_sha": "fbb60d12e73723b34ee15db3ae3231dd89b8bdc8",
+      "path": "acyclic/test/src/acyclic/BaseCycleTests.scala",
+      "excerpt": "assert(make(\"force/simple\", force = true, warn = true).exists {\n            case (\"Unwanted cyclic dependency\", \"WARNING\") => true\n            case _ => false\n          })",
+      "interpretation": "The final shared test asserts diagnostic presence and uses uppercase WARNING. Scala-specific harnesses normalize diagnostics into message/severity pairs. The assertion proves presence if executed, not uniqueness or exact diagnostic order."
+    },
+    {
+      "id": "acy-test-canonicalization-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/blob/fbb60d12e73723b34ee15db3ae3231dd89b8bdc8/acyclic/test/src-3/acyclic/TestUtils.scala#L99-L119",
+      "occurred_at": "2024-09-23T04:17:11Z",
+      "commit_sha": "fbb60d12e73723b34ee15db3ae3231dd89b8bdc8",
+      "path": "acyclic/test/src-3/acyclic/TestUtils.scala",
+      "excerpt": "assert(fullExpected.forall(cycles.contains))",
+      "interpretation": "The helper converts actual and expected cycles to sets before checking inclusion. It tolerates extra cycles and erases duplicate cycles. Inference: a diagnostic cardinality regression needs a separate raw-event assertion rather than relying on this graph-membership helper."
+    },
+    {
+      "id": "acy-build-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/blob/fbb60d12e73723b34ee15db3ae3231dd89b8bdc8/build.sc#L47-L58",
+      "occurred_at": "2024-09-23T04:17:11Z",
+      "commit_sha": "fbb60d12e73723b34ee15db3ae3231dd89b8bdc8",
+      "path": "build.sc",
+      "excerpt": "override def sources = T.sources(super.sources() :+ PathRef(millSourcePath / \"resources\"))",
+      "interpretation": "The 2024 test module uses ScalaTests and preserves its version-specific source roots via super.sources before adding resources. The build selects scala-compiler for Scala 2 and scala3-compiler for Scala 3, uses uTest 0.8.2 and full-version publication. Unlike the 2022 build, this snapshot no longer self-applies a released Acyclic dependency to the production module."
+    },
+    {
+      "id": "acy-harness-fresh-instance-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/blob/fbb60d12e73723b34ee15db3ae3231dd89b8bdc8/acyclic/test/src-3/acyclic/TestUtils.scala#L59-L82",
+      "occurred_at": "2024-09-23T04:17:11Z",
+      "commit_sha": "fbb60d12e73723b34ee15db3ae3231dd89b8bdc8",
+      "path": "acyclic/test/src-3/acyclic/TestUtils.scala",
+      "excerpt": "List(new plugin.TestPlugin(foundCycles =>",
+      "interpretation": "The make method constructs a new ContextBase, plugin loader and Compiler, then executes one newRun. Calling make twice does not exercise two runs sharing one plugin instance. This narrows the evidence for the historical alreadyRun guard: repeated-run safety remains an unexecuted hardening question, not an observed production failure."
+    },
+    {
+      "id": "acy-provenance-report-loop-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/blob/fbb60d12e73723b34ee15db3ae3231dd89b8bdc8/acyclic/src/acyclic/plugin/BasePluginPhase.scala#L137-L146",
+      "occurred_at": "2024-09-23T04:17:11Z",
+      "commit_sha": "fbb60d12e73723b34ee15db3ae3231dd89b8bdc8",
+      "path": "acyclic/src/acyclic/plugin/BasePluginPhase.scala",
+      "excerpt": "reportInform(\"More dependencies at lines \" + otherLines.mkString(\" \"))",
+      "interpretation": "The shared algorithm retains the leading dependency tree for positioned echo and additional tree lines for a separate default-visible diagnostic. Inference: replacing dependency evidence with a bare edge set during graph extraction loses user-visible provenance even when cycle membership remains correct. Exact cross-compiler caret formatting is not the invariant."
+    },
+    {
+      "id": "acy-ci-command-2024",
+      "kind": "documentation",
+      "repository": "com-lihaoyi/acyclic",
+      "url": "https://github.com/com-lihaoyi/acyclic/blob/fbb60d12e73723b34ee15db3ae3231dd89b8bdc8/.github/workflows/actions.yml#L14-L19",
+      "occurred_at": "2024-09-23T04:17:11Z",
+      "commit_sha": "fbb60d12e73723b34ee15db3ae3231dd89b8bdc8",
+      "path": ".github/workflows/actions.yml",
+      "excerpt": "run: ./mill -i -j 0 __.publishArtifacts + __.test",
+      "interpretation": "This is the actual historical CI build/test command, not an invented selector. The separately inspected .mill-version pins 0.11.12 and this workflow declares Temurin Java 8. No execution or compatibility of that complete historical matrix is asserted here. The separate publishing job was not run."
+    }
+  ],
+  "claims": [
+    {
+      "id": "acy-claim-compiler-boundary",
+      "rule": "When refactoring Acyclic's Scala 2/3 port, separate compiler tree/symbol/unit extraction and reporter operations from the shared Value/Node graph pipeline; compare the existing file, package, force and skipped cases across both adapters before asserting semantic equivalence.",
+      "evidence_ids": [
+        "acy-review-port-boundary",
+        "acy-response-port-boundary",
+        "acy-shared-boundary-2024",
+        "acy-marker-api-2022",
+        "acy-build-2024"
+      ],
+      "applicability": "Observed review guidance in PR 136 and its implemented revision. The extension to a full parity matrix is an inference. Applies to this compiler plugin's Scala 2/3 architecture, not a requirement to introduce Ox, Cats Effect, ZIO or generic type classes into unrelated Scala applications.",
+      "counterexample": "Sharing raw compiler symbols or using one phase adapter for both compilers would erase real API and invocation differences. Package-internal cycles permitted by acyclic.pkg are not automatically failures and must not be tightened during a purported behavior-preserving extraction."
+    },
+    {
+      "id": "acy-claim-diagnostic-cardinality",
+      "rule": "For whole-compilation analysis entered through compiler callbacks, test a multi-file cyclic consumer without verbose logging and assert raw diagnostic multiplicity, supplemental dependency locations and line numbering separately from graph membership. Establish the compiler-run lifetime before choosing a guard reset policy.",
+      "evidence_ids": [
+        "acy-review-port-diagnostics",
+        "acy-response-port-diagnostics",
+        "acy-run-guard-2024",
+        "acy-reporter-adapter-2024",
+        "acy-test-canonicalization-2024",
+        "acy-harness-fresh-instance-2024",
+        "acy-provenance-report-loop-2024"
+      ],
+      "applicability": "The missing messages and duplicate invocation were observed and repaired in PR 136. Reused-instance and raw-event assertions are research inferences prompted by the flag location and set-based test helper, not historical reviewer requirements or proven historical fixes.",
+      "counterexample": "An idempotence guard is inappropriate for an analysis intentionally performed once per compilation unit. Conversely, a plugin-instance Boolean is not automatically safe for multiple compiler runs, even if the original two-file case produces a single diagnostic."
+    },
+    {
+      "id": "acy-claim-warning-test-oracle",
+      "rule": "When reviewing Acyclic diagnostic tests, trace make and the complete subsequent expression: assert a computed exists predicate, preserve the actual diagnostic severity mapping, and distinguish successful compilation from successful warning detection.",
+      "evidence_ids": [
+        "acy-review-port-test",
+        "acy-response-port-test",
+        "acy-warning-test-2022",
+        "acy-warning-test-2024",
+        "acy-test-canonicalization-2024"
+      ],
+      "applicability": "Directly supported by the 2022 warning test and PR 136's 2024 repair. A mutation that removes or changes the expected warning is a proposed validation exercise, not a Scala test executed during this research run.",
+      "counterexample": "Do not demand a redundant outer Boolean assertion around makeFail: it already intercepts CompilationException and asserts cycle inclusion internally. Its separate weakness is erased multiplicity, not the absence of any assertion."
+    },
+    {
+      "id": "acy-claim-current-unit-domain",
+      "rule": "Inference: preserve the current-unit membership guard when refactoring dependency extraction, and report clean-build coverage separately from incremental runs; a dependency outside the unit map must not become an unchecked map lookup or evidence of whole-project acyclicity.",
+      "evidence_ids": [
+        "acy-unit-domain-2024",
+        "acy-incremental-limit-2022",
+        "acy-ci-command-2024"
+      ],
+      "applicability": "Source observation plus an explicit historical documentation limitation. Applies to Acyclic's compilation-run graph. No review was found prescribing this exact membership guard, and no clean or incremental compilation was performed here.",
+      "counterexample": "An incremental run touching only one side of a source cycle can lack the full graph; accepting that result as a whole-project proof is unsound. A different analyzer with a persistent complete dependency graph need not share this limitation."
+    },
+    {
+      "id": "acy-claim-bootstrap-isolation",
+      "rule": "In Acyclic revisions that self-apply a released plugin, keep the unreleased-version exclusion minimal and synchronized with release availability, and prevent the published plugin from pre-checking intentionally cyclic test resources before the harness loads the implementation under test.",
+      "evidence_ids": [
+        "acy-review-release-exclusion",
+        "acy-self-test-isolation-commit",
+        "acy-bootstrap-2022",
+        "acy-build-2024"
+      ],
+      "applicability": "The stale exclusion correction is explicit review guidance from PR 123; test isolation is an inference supported by PR 54 and the build/harness sources. This only applies where self-application exists. The examined late-2024 build removed the production bootstrap dependency, so its absence must not be flagged as a stale exclusion defect.",
+      "counterexample": "Keeping Scala 2.13.13 excluded after its matching plugin release exists weakens self-checking unnecessarily. Conversely, demanding a bootstrap artifact for a not-yet-published compiler target would prevent bootstrapping that release at all."
+    }
+  ]
+}

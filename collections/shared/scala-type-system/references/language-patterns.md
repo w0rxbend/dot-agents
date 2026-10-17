@@ -304,118 +304,101 @@ flexibility and type safety.
 
 ## Implicit Conversions and Parameters
 
-Implicits enable automatic type conversions, provide evidence of type
-relationships, and inject dependencies.
+Scala 2 uses one keyword, `implicit`, for four different jobs. Scala 3 splits
+them into separate features; Scala 3 still accepts most Scala 2 implicits for
+migration, but new Scala 3 code should use the dedicated syntax.
+
+| Job | Scala 2 | Scala 3 |
+|-----|---------|---------|
+| Provide a type class instance | `implicit val/object/def` | `given` |
+| Require an instance | `(implicit ev: T)`, context bound `[A: Show]` | `(using ev: T)`, context bound `[A: Show]` |
+| Fetch an instance | `implicitly[Show[A]]` | `summon[Show[A]]` |
+| Add methods to a type | `implicit class X(val a: A) extends AnyVal` | `extension (a: A) def ...` |
+| Convert between types | `implicit def a2b(a: A): B` | `given Conversion[A, B]` + `import scala.language.implicitConversions` at the use site |
+
+**Extension methods** (safe, preferred over conversions):
 
 ```scala
-// Implicit conversions
-implicit def intToString(x: Int): String = x.toString
-
-val s: String = 42  // Automatically converts via implicit
-
-// Extension methods via implicit classes
-implicit class RichInt(val value: Int) extends AnyVal {
-  def times(f: => Unit): Unit = {
-    (1 to value).foreach(_ => f)
-  }
-
+// Scala 2
+implicit class RichInt(private val value: Int) extends AnyVal {
   def squared: Int = value * value
 }
 
-5.times(println("Hello"))
-println(10.squared)  // 100
+// Scala 3
+extension (value: Int)
+  def squared: Int = value * value
 
-// Implicit parameters
-def greet(name: String)(implicit greeting: String): String =
-  s"$greeting, $name!"
+extension (s: String)
+  def toIntOpt: Option[Int] = s.toIntOption   // stdlib already has toIntOption (2.13+)
 
-implicit val defaultGreeting: String = "Hello"
-println(greet("Alice"))  // "Hello, Alice!"
-
-// Multiple implicit parameters
-def format(value: Double)(implicit precision: Int, prefix: String): String =
-  s"$prefix${BigDecimal(value).setScale(precision, BigDecimal.RoundingMode.HALF_UP)}"
-
-implicit val precision: Int = 2
-implicit val prefix: String = "$"
-
-println(format(123.456))  // "$123.46"
-
-// Implicit parameters for type classes
-trait Monoid[T] {
-  def empty: T
-  def combine(a: T, b: T): T
-}
-
-implicit val intMonoid: Monoid[Int] = new Monoid[Int] {
-  def empty: Int = 0
-  def combine(a: Int, b: Int): Int = a + b
-}
-
-implicit val stringMonoid: Monoid[String] = new Monoid[String] {
-  def empty: String = ""
-  def combine(a: String, b: String): String = a + b
-}
-
-def combineAll[T](list: List[T])(implicit monoid: Monoid[T]): T =
-  list.foldLeft(monoid.empty)(monoid.combine)
-
-println(combineAll(List(1, 2, 3)))           // 6
-println(combineAll(List("a", "b", "c")))     // "abc"
-
-// Implicit evidence
-def listToString[T](list: List[T])(implicit ev: T =:= String): String =
-  list.mkString(", ")
-
-println(listToString(List("a", "b", "c")))
-// println(listToString(List(1, 2, 3)))  // Won't compile
-
-// Type constraints
-def onlyNumbers[T](value: T)(implicit ev: T <:< Number): Double =
-  value.doubleValue()
-
-// Implicit resolution
-object Implicits {
-  implicit val defaultTimeout: Int = 5000
-}
-
-def fetchData(url: String)(implicit timeout: Int): String = {
-  s"Fetching $url with timeout $timeout"
-}
-
-import Implicits._
-println(fetchData("http://example.com"))
-
-// Implicit classes for DSLs
-implicit class StringOps(val s: String) extends AnyVal {
-  def toIntOpt: Option[Int] = try Some(s.toInt)
-    catch { case _: Exception => None }
-}
-
-println("123".toIntOpt)   // Some(123)
-println("abc".toIntOpt)   // None
-
-// Implicit conversions for numeric types
-implicit def intToRational(x: Int): Rational = Rational(x, 1)
-
-case class Rational(numerator: Int, denominator: Int) {
-  def +(that: Rational): Rational =
-    Rational(
-      numerator * that.denominator + that.numerator * denominator,
-      denominator * that.denominator
-    )
-}
-
-val r = Rational(1, 2) + 3  // 3 converted to Rational(3, 1)
+10.squared  // 100
 ```
 
-Implicits enable powerful patterns like extension methods, type classes, and
-dependency injection while maintaining type safety.
+**Context parameters for type classes** (the legitimate use of implicits):
+
+```scala
+trait Monoid[T]:
+  def empty: T
+  def combine(a: T, b: T): T
+
+object Monoid:
+  given Monoid[Int] with
+    def empty = 0
+    def combine(a: Int, b: Int) = a + b
+  given Monoid[String] with
+    def empty = ""
+    def combine(a: String, b: String) = a + b
+
+def combineAll[T](list: List[T])(using m: Monoid[T]): T =
+  list.foldLeft(m.empty)(m.combine)
+
+combineAll(List(1, 2, 3))         // 6
+combineAll(List("a", "b", "c"))   // "abc"
+```
+
+Scala 2 equivalent: `implicit val intMonoid: Monoid[Int] = new Monoid[Int] { ... }`
+in the companion and `(implicit m: Monoid[T])` on the method.
+
+**Evidence parameters** (type-level constraints) work the same in both versions:
+
+```scala
+def listToString[T](list: List[T])(using ev: T =:= String): String = list.mkString(", ")
+def asDouble[T](value: T)(using ev: T <:< java.lang.Number): Double = ev(value).doubleValue
+// Scala 2: (implicit ev: T =:= String)
+```
+
+**Anti-patterns: do not write these.**
+
+```scala
+// 1. Implicit conversion between unrelated everyday types
+implicit def intToString(x: Int): String = x.toString
+val s: String = 42   // compiles, silently - hides bugs and confuses readers
+// Instead: call x.toString explicitly.
+
+// 2. Implicit parameters of common types
+def fetchData(url: String)(implicit timeout: Int): String = ???
+implicit val defaultTimeout: Int = 5000
+// Any Int in scope can be picked up; two Ints make the call ambiguous.
+// Instead: a default argument (timeout: Int = 5000) or a dedicated
+// type such as final case class Timeout(ms: Int) passed as a context
+// parameter.
+```
+
+Scala 3 warns at the definition site of an implicit conversion unless
+`scala.language.implicitConversions` is imported, and the use site needs the
+same import. Reserve conversions for narrow, well-known lifts such as
+`Int => Rational` in a numeric library, and even then prefer an explicit
+constructor or an extension (`3.toRational`).
 
 ## Type Classes
 
 Type classes provide ad-hoc polymorphism, enabling extension of types without
 modification and separation of concerns.
+
+The examples in this section use Scala 2 syntax. In Scala 3 write instances as
+`given Show[Int] with ...`, require them with `using` or a context bound, fetch
+with `summon`, and add syntax with `extension` (see the table above and
+"Scala 3 Type Features" below).
 
 ```scala
 // Define type class
@@ -779,6 +762,57 @@ class DirectedGraph extends Graph {
 Path-dependent types and abstract type members enable sophisticated type
 relationships and family polymorphism patterns.
 
+## Scala 3 Type Features
+
+These have no direct Scala 2 equivalent; mention the Scala 2 workaround when a
+project cross-builds.
+
+```scala
+// Opaque types: zero-cost newtypes (Scala 2: AnyVal value classes or tagged types)
+object Ids:
+  opaque type UserId = Long
+  object UserId:
+    def apply(value: Long): UserId = value
+  extension (id: UserId) def value: Long = id
+
+import Ids.UserId
+val id = UserId(42L)
+// val n: Long = id   // does not compile outside Ids
+
+// Enums and ADTs (Scala 2: sealed trait + case classes/objects)
+enum Shape:
+  case Circle(radius: Double)
+  case Rect(w: Double, h: Double)
+
+def area(s: Shape): Double = s match
+  case Shape.Circle(r)  => math.Pi * r * r
+  case Shape.Rect(w, h) => w * h
+
+// Type class derivation
+case class Point(x: Int, y: Int) derives CanEqual
+
+// Union and intersection types (Scala 2: Either / with)
+def parse(input: String | Int): Int = input match
+  case s: String => s.toInt
+  case i: Int    => i
+
+trait Named { def name: String }
+trait Aged  { def age: Int }
+def describe(p: Named & Aged): String = s"${p.name} (${p.age})"
+
+// Type lambdas (Scala 2: kind-projector plugin, e.g. Either[String, *])
+type StringOr = [A] =>> Either[String, A]
+
+// Match types: compute a type from a type
+type Elem[X] = X match
+  case String   => Char
+  case Array[t] => t
+  case Iterable[t] => t
+```
+
+Reach for match types, type lambdas and inline/macros only when a library API
+genuinely needs them; application code rarely does.
+
 ## Best Practices
 
 1. **Use variance annotations appropriately** on immutable containers for
@@ -790,11 +824,11 @@ relationships and family polymorphism patterns.
 3. **Apply context bounds** for type class constraints to keep signatures clean
    and readable
 
-4. **Use implicit classes** for extension methods rather than implicit
-   conversions for safety
+4. **Use extension methods** (Scala 3 `extension`, Scala 2 implicit classes)
+   rather than implicit conversions
 
-5. **Make implicit parameters explicit** in public APIs for clarity and
-   documentation
+5. **Never take implicit/using parameters of common types** such as `Int` or
+   `String`; wrap them in a dedicated type
 
 6. **Leverage type bounds** to constrain generic types and enable type-safe
    operations
@@ -863,6 +897,8 @@ Employ abstract type members when designing APIs with families of related types.
 
 ## Resources
 
+- [Scala 3 Reference - Contextual Abstractions](<https://docs.scala-lang.org/scala3/reference/contextual/index.html>)
+- [Scala 3 Migration Guide](<https://docs.scala-lang.org/scala3/guides/migration/compatibility-intro.html>)
 - [Scala Language Specification - Types](<https://scala-lang.org/files/archive/spec/2.13/03-types.html>)
 - [Scala Documentation - Generics](<https://docs.scala-lang.org/tour/generic-classes.html>)
 - [Type Classes in Scala](<https://scalac.io/blog/typeclasses-in-scala/>)

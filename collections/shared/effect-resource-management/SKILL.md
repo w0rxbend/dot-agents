@@ -1,7 +1,7 @@
 ---
 name: effect-resource-management
 user-invocable: false
-description: Use when Effect resource management patterns including Scope, addFinalizer, scoped effects, and automatic cleanup. Use for managing resources in Effect applications.
+description: "Effect-TS v3: acquire and release resources safely with Scope, acquireRelease, addFinalizer, acquireUseRelease and ensuring, pool them with the Pool module, and tie them to application lifetime with Layer.scoped. Use when Effect code opens connections, files, sockets, subscriptions or background fibers that must be cleaned up on success, failure and interruption."
 allowed-tools:
   - Bash
   - Read
@@ -11,522 +11,225 @@ allowed-tools:
 
 # Effect Resource Management
 
-Master automatic resource management in Effect using Scopes and finalizers.
-This skill covers resource acquisition, cleanup, scoped effects, and patterns
-for building leak-free Effect applications.
+> **Version:** targets `effect` 3.x (examples checked against 3.22). Check
+> `effect` in package.json; Effect 4 keeps `Scope`/`acquireRelease` but renames
+> other APIs used nearby.
 
-## Scope Fundamentals
+A `Scope` collects finalizers. When the scope closes (success, failure or
+interruption) its finalizers run in reverse order of registration. An effect
+that needs a scope has `Scope` in its `R` channel; `Effect.scoped` provides a
+fresh scope and closes it when the inner effect ends.
 
-A Scope represents the lifetime of resources. When a scope closes, all
-registered finalizers execute automatically.
+## Choosing the tool
 
-### Basic Scope Usage
+| Need | Use |
+| --- | --- |
+| Resource used inside one block of code | `Effect.acquireUseRelease(acquire, use, release)` |
+| Reusable "resource" effect that callers compose and scope | `Effect.acquireRelease(acquire, release)` -> `Effect<A, E, Scope>` |
+| Cleanup that is not tied to an acquired value | `Effect.addFinalizer((exit) => ...)` |
+| Always run something after an effect (no resource) | `Effect.ensuring(cleanup)`, `Effect.onExit`, `Effect.onInterrupt` |
+| Resource that lives as long as the app / a service | `Layer.scoped(Tag, acquireRelease(...))` (see **effect-dependency-injection**) |
+| N interchangeable expensive resources | `Pool.make` / `Pool.makeWithTTL` |
+| Background fiber that must stop with the scope | `Effect.forkScoped` (see **effect-concurrency**) |
+
+## acquireRelease + scoped
+
+```typescript
+import { Data, Effect } from "effect"
+import * as fs from "node:fs/promises"
+
+class FileError extends Data.TaggedError("FileError")<{ readonly cause: unknown }> {}
+
+// A reusable resource: acquisition is uninterruptible, release always runs
+const openFile = (path: string) =>
+  Effect.acquireRelease(
+    Effect.tryPromise({
+      try: () => fs.open(path, "r"),
+      catch: (cause) => new FileError({ cause })
+    }),
+    // release must not fail: swallow/log errors here
+    (handle) => Effect.promise(() => handle.close()).pipe(Effect.ignore)
+  )
+// Effect<FileHandle, FileError, Scope>
+
+const readFirstLine = (path: string) =>
+  Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* openFile(path)
+      const text = yield* Effect.promise(() => handle.readFile({ encoding: "utf8" }))
+      return text.split("\n")[0]
+    })
+  )
+// Effect<string, FileError, never>; the file is closed before this returns
+```
+
+- The scope ends where `Effect.scoped` ends. Returning the handle out of
+  `Effect.scoped` returns a closed handle: keep all use inside.
+- Several resources acquired in one scope are released in reverse order
+  (last acquired, first released), which matches dependency order.
+- `release` receives the `Exit` as a second argument when cleanup should differ
+  on failure (for example roll back vs commit).
+
+## acquireUseRelease (bracket)
+
+```typescript
+import { Effect } from "effect"
+
+interface Tx { commit(): Promise<void>; rollback(): Promise<void>; run(sql: string): Promise<void> }
+declare const begin: () => Promise<Tx>
+
+const transfer = Effect.acquireUseRelease(
+  Effect.promise(begin),
+  (tx) => Effect.promise(() => tx.run("UPDATE accounts ...")),
+  (tx, exit) =>
+    exit._tag === "Success"
+      ? Effect.promise(() => tx.commit())
+      : Effect.promise(() => tx.rollback())
+)
+```
+
+## Finalizers with exit information
+
+```typescript
+import { Effect, Exit, Cause } from "effect"
+
+const tracked = Effect.gen(function* () {
+  yield* Effect.addFinalizer((exit) =>
+    Exit.isSuccess(exit)
+      ? Effect.log("scope closed: success")
+      : Cause.isInterruptedOnly(exit.cause)
+        ? Effect.log("scope closed: interrupted")
+        : Effect.logError("scope closed: failure", Cause.pretty(exit.cause))
+  )
+  return 42
+})
+
+const program = Effect.scoped(tracked)
+```
+
+`Exit` has only two cases, `Success` and `Failure`; interruption is a
+`Failure` whose cause is an interruption, detected with
+`Cause.isInterruptedOnly` / `Exit.isInterrupted`.
+
+## Pooling with the Pool module
+
+Do not hand-roll pools with a `Queue`; `Pool` handles concurrent borrowers,
+lazy growth, invalidation and shutdown.
+
+```typescript
+import { Effect, Pool } from "effect"
+
+interface Conn { readonly id: number; query(sql: string): Promise<unknown[]>; close(): Promise<void> }
+declare const connect: () => Promise<Conn>
+
+// Each pool item is itself a scoped resource
+const acquireConn = Effect.acquireRelease(
+  Effect.promise(connect),
+  (c) => Effect.promise(() => c.close())
+)
+
+const program = Effect.scoped(
+  Effect.gen(function* () {
+    // Fixed size; Pool.makeWithTTL({ acquire, min, max, timeToLive }) grows and shrinks
+    const pool = yield* Pool.make({ acquire: acquireConn, size: 10 })
+
+    // Borrow: Pool.get needs a Scope; the item returns to the pool when it closes
+    const query = (sql: string) =>
+      Effect.scoped(
+        Effect.gen(function* () {
+          const conn = yield* Pool.get(pool)
+          return yield* Effect.promise(() => conn.query(sql))
+        })
+      )
+
+    return yield* Effect.all([query("select 1"), query("select 2")], { concurrency: "unbounded" })
+  })
+)
+// closing the outer scope closes every pooled connection
+```
+
+- `Pool.invalidate(pool, item)` drops a broken item; the pool replaces it.
+- Put the pool in a `Layer.scoped` service so the whole app shares one pool.
+- For keyed resources (one pool per tenant/host) use `KeyedPool`; for a single
+  shared, reference-counted resource use `RcRef`.
+
+## Nested and parallel scopes
 
 ```typescript
 import { Effect, Scope } from "effect"
 
-const program = Effect.scoped(
+declare const conn: Effect.Effect<{ q: (s: string) => Effect.Effect<void> }, never, Scope.Scope>
+
+const nested = Effect.scoped(
   Effect.gen(function* () {
-    // Resources acquired here are tied to this scope
-    const resource = yield* acquireResource()
-
-    // Use resource
-    const result = yield* useResource(resource)
-
-    return result
-    // Scope closes here, resources cleaned up automatically
-  })
-)
-```
-
-### Adding Finalizers
-
-```typescript
-import { Effect } from "effect"
-
-const acquireFile = (path: string) =>
-  Effect.gen(function* () {
-    // Acquire resource
-    const file = yield* Effect.sync(() => openFile(path))
-
-    // Register cleanup
-    yield* Effect.addFinalizer(() =>
-      Effect.sync(() => {
-        console.log(`Closing file: ${path}`)
-        file.close()
-      })
-    )
-
-    return file
-  })
-
-// Usage
-const program = Effect.scoped(
-  Effect.gen(function* () {
-    const file = yield* acquireFile("data.txt")
-    const content = yield* readFile(file)
-    return content
-    // File automatically closed on scope exit
-  })
-)
-```
-
-## Finalizer Behavior
-
-### Execution Order
-
-Finalizers execute in reverse order of registration (LIFO):
-
-```typescript
-import { Effect } from "effect"
-
-const program = Effect.scoped(
-  Effect.gen(function* () {
-    yield* Effect.addFinalizer(() =>
-      Effect.log("Finalizer 1")
-    )
-
-    yield* Effect.addFinalizer(() =>
-      Effect.log("Finalizer 2")
-    )
-
-    yield* Effect.addFinalizer(() =>
-      Effect.log("Finalizer 3")
-    )
-
-    return "done"
-  })
-)
-// Output:
-// Finalizer 3
-// Finalizer 2
-// Finalizer 1
-```
-
-### Exit Information
-
-Finalizers receive exit information:
-
-```typescript
-import { Effect, Exit } from "effect"
-
-const acquireWithContext = Effect.gen(function* () {
-  yield* Effect.addFinalizer((exit) =>
-    Effect.sync(() => {
-      if (Exit.isSuccess(exit)) {
-        console.log("Scope exited successfully:", exit.value)
-      } else if (Exit.isFailure(exit)) {
-        console.log("Scope failed:", exit.cause)
-      } else {
-        console.log("Scope interrupted")
-      }
-    })
-  )
-
-  // Acquire resource
-  const resource = yield* Effect.sync(() => createResource())
-  return resource
-})
-```
-
-## Resource Patterns
-
-### Database Connection
-
-```typescript
-import { Effect } from "effect"
-
-interface DbConnection {
-  query: <T>(sql: string) => Promise<T>
-  close: () => Promise<void>
-}
-
-const acquireConnection = (config: DbConfig) =>
-  Effect.gen(function* () {
-    // Acquire connection
-    const conn = yield* Effect.tryPromise({
-      try: () => createConnection(config),
-      catch: (error) => ({
-        _tag: "ConnectionError",
-        message: String(error)
-      })
-    })
-
-    // Register cleanup
-    yield* Effect.addFinalizer(() =>
-      Effect.tryPromise({
-        try: () => conn.close(),
-        catch: (error) => ({
-          _tag: "CloseError",
-          message: String(error)
-        })
-      }).pipe(
-        Effect.catchAll((error) =>
-          Effect.log(`Failed to close connection: ${error.message}`)
-        )
-      )
-    )
-
-    return conn
-  })
-
-// Usage
-const queryDatabase = Effect.scoped(
-  Effect.gen(function* () {
-    const conn = yield* acquireConnection(dbConfig)
-    const users = yield* Effect.tryPromise(() =>
-      conn.query<User[]>("SELECT * FROM users")
-    )
-    return users
-    // Connection automatically closed
-  })
-)
-```
-
-### File Operations
-
-```typescript
-import { Effect } from "effect"
-import * as fs from "fs/promises"
-
-const withFile = <A, E, R>(
-  path: string,
-  use: (handle: fs.FileHandle) => Effect.Effect<A, E, R>
-) =>
-  Effect.scoped(
-    Effect.gen(function* () {
-      // Acquire file handle
-      const handle = yield* Effect.tryPromise({
-        try: () => fs.open(path, "r"),
-        catch: (error) => ({
-          _tag: "FileError",
-          message: String(error)
-        })
-      })
-
-      // Register cleanup
-      yield* Effect.addFinalizer(() =>
-        Effect.tryPromise(() => handle.close()).pipe(
-          Effect.catchAll(() => Effect.void)
-        )
-      )
-
-      // Use file
-      return yield* use(handle)
-    })
-  )
-
-// Usage
-const readFileContent = withFile("data.txt", (handle) =>
-  Effect.tryPromise(() => handle.readFile({ encoding: "utf8" }))
-)
-```
-
-### Network Resources
-
-```typescript
-import { Effect } from "effect"
-
-interface WebSocket {
-  send: (data: string) => void
-  close: () => void
-  onMessage: (handler: (data: string) => void) => void
-}
-
-const acquireWebSocket = (url: string) =>
-  Effect.gen(function* () {
-    const ws = yield* Effect.async<WebSocket, never>((resume) => {
-      const socket = new WebSocket(url)
-
-      socket.onopen = () => {
-        resume(Effect.succeed(socket))
-      }
-
-      socket.onerror = () => {
-        resume(Effect.fail({ _tag: "ConnectionError" }))
-      }
-    })
-
-    yield* Effect.addFinalizer(() =>
-      Effect.sync(() => {
-        console.log("Closing WebSocket")
-        ws.close()
-      })
-    )
-
-    return ws
-  })
-```
-
-## Scoped Effects
-
-### Effect.acquireRelease
-
-Simplified resource acquisition:
-
-```typescript
-import { Effect } from "effect"
-
-const resource = Effect.acquireRelease(
-  // Acquire
-  Effect.sync(() => {
-    console.log("Acquiring resource")
-    return createResource()
-  }),
-  // Release
-  (resource) =>
-    Effect.sync(() => {
-      console.log("Releasing resource")
-      resource.cleanup()
-    })
-)
-
-// Usage
-const program = Effect.scoped(
-  Effect.gen(function* () {
-    const r = yield* resource
-    return yield* useResource(r)
-  })
-)
-```
-
-### Effect.acquireUseRelease
-
-One-shot resource usage:
-
-```typescript
-import { Effect } from "effect"
-
-const readConfig = Effect.acquireUseRelease(
-  // Acquire
-  Effect.tryPromise(() => fs.open("config.json", "r")),
-
-  // Use
-  (handle) =>
-    Effect.tryPromise(() =>
-      handle.readFile({ encoding: "utf8" })
-    ).pipe(
-      Effect.map((content) => JSON.parse(content))
-    ),
-
-  // Release
-  (handle) =>
-    Effect.tryPromise(() => handle.close()).pipe(
-      Effect.orDie
-    )
-)
-```
-
-## Nested Scopes
-
-### Scope Nesting
-
-Scopes can be nested for hierarchical cleanup:
-
-```typescript
-import { Effect } from "effect"
-
-const program = Effect.scoped(
-  Effect.gen(function* () {
-    const db = yield* acquireConnection()
-
+    const db = yield* conn // lives for the outer scope
     yield* Effect.scoped(
       Effect.gen(function* () {
-        const transaction = yield* beginTransaction(db)
-        yield* updateUsers(transaction)
-        yield* commitTransaction(transaction)
-        // Transaction scope ends, resources cleaned up
+        yield* Effect.addFinalizer(() => Effect.log("inner done"))
+        yield* db.q("BEGIN; ...; COMMIT")
       })
-    )
-
-    // DB connection still alive
-    yield* runQuery(db)
-    // DB scope ends, connection closed
+    ) // inner finalizers run here
+    yield* db.q("SELECT 1")
   })
+) // db released here
+
+// Each branch has its own scope; all are released even if one fails
+const parallel = Effect.all(
+  [Effect.scoped(conn), Effect.scoped(conn)],
+  { concurrency: 2 }
 )
 ```
 
-### Parallel Scopes
+## Long-lived resources in services
 
 ```typescript
-import { Effect } from "effect"
+import { Context, Effect, Layer } from "effect"
 
-const parallelResources = Effect.gen(function* () {
-  const results = yield* Effect.all([
-    Effect.scoped(
-      Effect.gen(function* () {
-        const conn1 = yield* acquireConnection(db1Config)
-        return yield* queryDb(conn1)
-      })
-    ),
-    Effect.scoped(
-      Effect.gen(function* () {
-        const conn2 = yield* acquireConnection(db2Config)
-        return yield* queryDb(conn2)
-      })
-    )
-  ])
+class Ws extends Context.Tag("Ws")<Ws, { readonly send: (m: string) => Effect.Effect<void> }>() {}
+declare const openSocket: (url: string) => Promise<{ send(m: string): void; close(): void }>
 
-  return results
-  // Both connections closed automatically
-})
-```
-
-## Advanced Patterns
-
-### Resource Pool
-
-```typescript
-import { Effect, Queue, Ref } from "effect"
-
-interface Pool<R> {
-  acquire: Effect.Effect<R, never, Scope.Scope>
-  release: (resource: R) => Effect.Effect<void, never, never>
-}
-
-const createPool = <R, E>(
-  create: Effect.Effect<R, E, never>,
-  destroy: (resource: R) => Effect.Effect<void, never, never>,
-  size: number
-): Effect.Effect<Pool<R>, E, Scope.Scope> =>
+const WsLive = Layer.scoped(
+  Ws,
   Effect.gen(function* () {
-    const available = yield* Queue.bounded<R>(size)
-    const counter = yield* Ref.make(0)
-
-    // Initialize pool
-    yield* Effect.forEach(
-      Array.from({ length: size }),
-      () =>
-        Effect.gen(function* () {
-          const resource = yield* create
-          yield* Queue.offer(available, resource)
-        }),
-      { concurrency: "unbounded" }
+    const sock = yield* Effect.acquireRelease(
+      Effect.promise(() => openSocket("wss://example.test")),
+      (s) => Effect.sync(() => s.close())
     )
-
-    // Register pool cleanup
-    yield* Effect.addFinalizer(() =>
-      Effect.gen(function* () {
-        const resources = yield* Queue.takeAll(available)
-        yield* Effect.forEach(
-          resources,
-          (r) => destroy(r),
-          { concurrency: "unbounded" }
-        )
-      })
-    )
-
-    return {
-      acquire: Effect.gen(function* () {
-        const resource = yield* Queue.take(available)
-        yield* Effect.addFinalizer(() => Queue.offer(available, resource))
-        return resource
-      }),
-      release: (resource) => Queue.offer(available, resource)
-    }
+    return { send: (m) => Effect.sync(() => sock.send(m)) }
   })
+)
+// Closed when the runtime/layer scope closes (app shutdown, end of test)
 ```
 
-### Cached Resource
+## Pitfalls
 
-```typescript
-import { Effect, Ref } from "effect"
+- **Unscoped acquisition:** calling `openFile(...)` and running it without
+  `Effect.scoped` (or a scoped layer) is a type error; do not silence it with
+  casts or by providing a never-closed scope.
+- **Scope confusion:** a resource returned from inside `Effect.scoped` is
+  already released. Widen the scope (or move work inside) instead.
+- **Failing finalizers:** a release that can fail turns cleanup errors into
+  defects; `Effect.ignore` or log in release.
+- **Slow finalizers:** finalizers are uninterruptible; bound them with
+  `Effect.timeout` if they do I/O.
+- **Acquire then register later:** registering a finalizer a few steps after
+  acquisition leaks on interruption in between; use `acquireRelease`, which
+  makes acquire+register atomic.
+- **Per-call `Effect.provide(LayerWithPool)`**: builds a new pool every call;
+  provide once at the edge.
 
-const cached = <A, E, R>(
-  acquire: Effect.Effect<A, E, R>
-): Effect.Effect<Effect.Effect<A, E, never>, never, Scope.Scope | R> =>
-  Effect.gen(function* () {
-    const ref = yield* Ref.make<Option<A>>(Option.none())
+## Done when
 
-    yield* Effect.addFinalizer(() =>
-      ref.set(Option.none())
-    )
+- Every acquired handle (file, socket, connection, subscription, fiber) is
+  created through `acquireRelease`, `acquireUseRelease`, `Layer.scoped` or a
+  `Pool`, and no code calls `close()` manually on the success path only.
+- A test interrupts or fails the using effect and asserts the finalizer ran
+  (see **effect-testing**).
 
-    return ref.get.pipe(
-      Effect.flatMap((option) =>
-        Option.match(option, {
-          onNone: () =>
-            acquire.pipe(
-              Effect.tap((value) => ref.set(Option.some(value)))
-            ),
-          onSome: (value) => Effect.succeed(value)
-        })
-      )
-    )
-  })
-```
+## Related skills
 
-## Best Practices
+- effect-dependency-injection - `Layer.scoped`, `ManagedRuntime.dispose`
+- effect-concurrency - `forkScoped`, interruption
+- effect-testing - asserting cleanup with `it.scoped`
 
-1. **Always Use Scoped**: Acquire resources within Effect.scoped.
-
-2. **Register Finalizers Immediately**: Add finalizers right after acquisition.
-
-3. **Handle Cleanup Errors**: Catch and log errors in finalizers.
-
-4. **Reverse Order**: Rely on LIFO finalizer execution for dependencies.
-
-5. **Use acquireRelease**: Prefer acquireRelease for simple acquire/release
-   patterns.
-
-6. **Test Cleanup**: Verify finalizers execute correctly.
-
-7. **Avoid Manual Cleanup**: Don't manually clean up scoped resources.
-
-8. **Nest Appropriately**: Use nested scopes for hierarchical resources.
-
-9. **Pool Expensive Resources**: Use resource pools for expensive acquisitions.
-
-10. **Document Scope Requirements**: Make it clear which effects need scopes.
-
-## Common Pitfalls
-
-1. **Missing Scoped**: Acquiring resources without Effect.scoped.
-
-2. **Not Adding Finalizers**: Forgetting to register cleanup.
-
-3. **Finalizer Errors**: Throwing errors in finalizers without handling.
-
-4. **Wrong Scope Nesting**: Closing scopes in wrong order.
-
-5. **Resource Leaks**: Not cleaning up on all exit paths.
-
-6. **Duplicate Cleanup**: Cleaning up resources multiple times.
-
-7. **Blocking Finalizers**: Using long-running operations in finalizers.
-
-8. **Ignoring Exit Info**: Not using exit information appropriately.
-
-9. **Scope Scope Confusion**: Confusing when scopes close.
-
-10. **Missing Error Handling**: Not handling errors during acquisition.
-
-## When to Use This Skill
-
-Use effect-resource-management when you need to:
-
-- Manage database connections
-- Handle file operations safely
-- Work with network resources
-- Implement connection pools
-- Build transaction systems
-- Ensure cleanup on all exit paths
-- Manage WebSocket connections
-- Handle distributed locks
-- Implement caching with cleanup
-- Build leak-free applications
-
-## Resources
-
-### Official Documentation
-
-- [Resource Management](https://effect.website/docs/resource-management/)
-- [Scope](https://effect.website/docs/resource-management/scope)
-- [Adding Finalizers](https://effect.website/docs/resource-management/adding-finalizers)
-- [acquireRelease](https://effect.website/docs/resource-management/acquire-release)
-
-### Related Skills
-
-- effect-core-patterns - Basic Effect operations
-- effect-concurrency - Managing fiber lifecycles
-- effect-dependency-injection - Layer cleanup with scoped
+Docs: <https://effect.website/docs/resource-management/scope/>

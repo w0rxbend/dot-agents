@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "repository": "com-lihaoyi/Ammonite",
+  "evidence": [
+    {
+      "id": "e736-capture-response",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/pull/736#issuecomment-355239967",
+      "occurred_at": "2018-01-04T09:46:40Z",
+      "excerpt": "Upon deserialization, `n` is then re-calculated via the object where its instance is created, which is not what we want here (it should be serialized / deserialized instead).",
+      "interpretation": "Author response to lihaoyi's direct-import simplification: namespace equivalence does not imply closure-capture equivalence. The response explicitly reports SerializationTests failure, which was not rerun in this research.",
+      "author": "alexarchambault",
+      "role_basis": "PR author at the time of this comment; commit access is granted later on 2018-02-11, so that later role is not projected backwards.",
+      "pull_number": 736
+    },
+    {
+      "id": "e736-symbols",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/pull/736#issuecomment-355323534",
+      "occurred_at": "2018-01-04T16:10:49Z",
+      "excerpt": "If that is the case, could you use an additional phase in `AmmonitePlugin` to capture the same information inside the compiler? That should be much more robust that trying to grep the `toString` output using a regex, since it won't get tricked by e.g. string literals containing the snippets we want, and follows the precedence since we already use a compiler plugin phase to capture information about what names imports bring into scope.",
+      "interpretation": "After accepting the capture requirement, lihaoyi proposes compiler-derived dependency metadata rather than regex matching rendered trees. The subsequent author response records a tree-traversal revision, and final source uses symbol equality.",
+      "author": "lihaoyi",
+      "role_basis": "Historical reviewer and repository decision-maker: in PR 736 issuecomment-364713178 on 2018-02-11, lihaoyi explicitly grants alexarchambault commit access and sets review expectations. The 2018 build.sbt also lists lihaoyi as a project developer. No present-day association label is used.",
+      "pull_number": 736
+    },
+    {
+      "id": "e736-metadata",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/pull/736#issuecomment-359009219",
+      "occurred_at": "2018-01-19T16:03:11Z",
+      "excerpt": "Yeah it's a bit annoying to pass it around, but I do not think it's better to sneak things through in opaque unstructured binary blobs.",
+      "interpretation": "Explicit rejection of the resource-file shortcut after the author described tuple, cache and parameter plumbing costs. Final Preprocessor reads usedEarlierDefinitions via ReplBridge; its nearby tree.txt comment is stale, so code behavior outranks that comment.",
+      "author": "lihaoyi",
+      "role_basis": "Historical reviewer and repository decision-maker: in PR 736 issuecomment-364713178 on 2018-02-11, lihaoyi explicitly grants alexarchambault commit access and sets review expectations. The 2018 build.sbt also lists lihaoyi as a project developer. No present-day association label is used.",
+      "pull_number": 736
+    },
+    {
+      "id": "e736-discovery",
+      "kind": "review-comment",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/pull/736#discussion_r160015969",
+      "occurred_at": "2018-01-06T03:06:41Z",
+      "excerpt": "I'm a bit suspicious of whether or not these are actually running the tests as desired on both wrapping levels, because the CI times haven't doubled as I would expect. But if you've tested it manually and it's doing the right thing that's good enough for me",
+      "interpretation": "Reviewer challenges test discovery, not just success status. Author answers in discussion_r160156298 that the CI output contains the tests twice. Timing is a suspicion signal, not a valid test-count assertion.",
+      "author": "lihaoyi",
+      "role_basis": "Historical reviewer and repository decision-maker: in PR 736 issuecomment-364713178 on 2018-02-11, lihaoyi explicitly grants alexarchambault commit access and sets review expectations. The 2018 build.sbt also lists lihaoyi as a project developer. No present-day association label is used.",
+      "pull_number": 736
+    },
+    {
+      "id": "e736-wrapper-code",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/74306e64a5717fa6f185ed85047b48d11c6a66b0/amm/interp/src/main/scala/ammonite/interp/Preprocessor.scala#L446-L451",
+      "occurred_at": "2018-02-15T20:10:17Z",
+      "excerpt": "        val usedThingsSet =\n          if (reqVals.isEmpty) \"\"\n          else\n            s\"\"\"\n  @_root_.scala.transient private val __amm_usedThings =\n    _root_.ammonite.repl.ReplBridge.value.usedEarlierDefinitions.toSet\"\"\"",
+      "interpretation": "Final class-wrapper code obtains used-command metadata through the existing bridge. Earlier nearby comments still mention tree.txt resources, but the executed generated expression no longer loads that resource.",
+      "commit_sha": "74306e64a5717fa6f185ed85047b48d11c6a66b0",
+      "path": "amm/interp/src/main/scala/ammonite/interp/Preprocessor.scala"
+    },
+    {
+      "id": "e736-symbol-code",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/74306e64a5717fa6f185ed85047b48d11c6a66b0/amm/interp/src/main/scala/ammonite/interp/AmmonitePlugin.scala#L144-L155",
+      "occurred_at": "2018-02-15T20:10:17Z",
+      "excerpt": "        val wrapperSym = unit.body.children.last.children\n          .last.asInstanceOf[g.ImplDef].symbol\n        val uses0 = stats\n          .flatMap(t =>\n            t.collect {\n              case g.Select(node, g.TermName(name)) if node.symbol == wrapperSym =>\n                name\n            }\n          )\n          .distinct\n\n        usedEarlierDefinitions(uses0)",
+      "interpretation": "The 2018 final plugin collects selections by wrapper receiver-symbol identity and reports distinct names through a callback. This confirms the reviewed structured-metadata revision, but is not a complete dependency oracle: PR 944 later adds type-derived references that this Select-only collector misses.",
+      "commit_sha": "74306e64a5717fa6f185ed85047b48d11c6a66b0",
+      "path": "amm/interp/src/main/scala/ammonite/interp/AmmonitePlugin.scala"
+    },
+    {
+      "id": "e736-test-code",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/74306e64a5717fa6f185ed85047b48d11c6a66b0/amm/repl/src/test/scala/ammonite/session/SerializationTests.scala#L82-L90",
+      "occurred_at": "2018-02-15T20:10:17Z",
+      "excerpt": "          @ {{\n          @   costlySideEffect.absent(\"before deserialization\")\n          @   closureClone\n          @     .getClass\n          @     .getMethod(\"apply\", classOf[Int])\n          @     .invoke(closureClone, 2: java.lang.Integer)\n          @   // calling apply should not run the side-effect again, the\n          @   // value of 'a' must come from deserialization\n          @   costlySideEffect.absent(\"after deserialization\")",
+      "interpretation": "Regression calls the deserialized closure from a cloned classloader and asserts the side effect remains absent. The same test includes an unrelated nonserializable value and configures inline delambdafy; this is source evidence, not an execution result.",
+      "commit_sha": "74306e64a5717fa6f185ed85047b48d11c6a66b0",
+      "path": "amm/repl/src/test/scala/ammonite/session/SerializationTests.scala"
+    },
+    {
+      "id": "e736-build-code",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/74306e64a5717fa6f185ed85047b48d11c6a66b0/build.sbt#L24-L35",
+      "occurred_at": "2018-02-15T20:10:17Z",
+      "excerpt": "  scalaVersion := \"2.12.4\",\n  organization := \"com.lihaoyi\",\n  version := _root_.ammonite.Constants.version,\n  libraryDependencies += \"com.lihaoyi\" %% \"utest\" % \"0.6.0\" % Test,\n  // Needed for acyclic to work...\n  testFrameworks := Seq(new TestFramework(\"utest.runner.Framework\")),\n  scalacOptions += \"-target:jvm-1.7\",\n  scalacOptions += \"-P:acyclic:force\",\n  autoCompilerPlugins := true,\n  addCompilerPlugin(\"com.lihaoyi\" %% \"acyclic\" % \"0.1.7\"),\n  ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) },\n  parallelExecution in Test := false,",
+      "interpretation": "Historical build pins Scala 2.12.4, uTest 0.6.0, acyclic 0.1.7 and JVM 1.7 bytecode. This is not a Scala 3 example or proof that later compilers require the same lambda flag.",
+      "commit_sha": "74306e64a5717fa6f185ed85047b48d11c6a66b0",
+      "path": "build.sbt"
+    },
+    {
+      "id": "e2019-capture-isolation",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/b7275a45d5aa4a2d1242e70e8a87a15c6aef0541/amm/repl/src/test/scala/ammonite/session/SerializationTests.scala#L74-L80",
+      "occurred_at": "2019-06-25T13:19:15Z",
+      "excerpt": "          @     .asInstanceOf[{ def cloneClassLoader(parent: ClassLoader): ClassLoader }]\n          @     .cloneClassLoader(null)",
+      "interpretation": "A separate 2019 test-isolation revision moves serialization utilities to a test API and uses a null-parent cloned loader. The initializer sentinel and unused nonserializable value remain. This is an observed strengthening of the capture oracle, not a new substantive reviewer exchange; no test was executed here.",
+      "commit_sha": "b7275a45d5aa4a2d1242e70e8a87a15c6aef0541",
+      "path": "amm/repl/src/test/scala/ammonite/session/SerializationTests.scala"
+    },
+    {
+      "id": "e2019-loader-assertion",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/b7275a45d5aa4a2d1242e70e8a87a15c6aef0541/amm/repl/src/test/scala/ammonite/TestRepl.scala#L54-L61",
+      "occurred_at": "2019-06-25T13:19:15Z",
+      "excerpt": "    assert(cl != Thread.currentThread().getContextClassLoader)",
+      "interpretation": "The harness asserts test API loader separation before creating the initial frame with that loader. This prevents treating any successful round-trip through the existing initialized singleton environment as equivalent to the intended isolated test.",
+      "commit_sha": "b7275a45d5aa4a2d1242e70e8a87a15c6aef0541",
+      "path": "amm/repl/src/test/scala/ammonite/TestRepl.scala"
+    },
+    {
+      "id": "e2021-capture-guard",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/5c4d79f1b023a80583444d5593073c216c325b5a/amm/repl/src/test/scala/ammonite/session/SerializationTests.scala#L7-L11",
+      "occurred_at": "2021-05-17T20:29:37Z",
+      "excerpt": "  val tests =\n    if (ammonite.compiler.CompilerBuilder.scalaVersion.startsWith(\"2.\")) scala2Tests\n    else scala3Tests",
+      "interpretation": "The same file's scala3Tests at lines 99-102 contains only a disabled test, because the historical closure test relies on Ydelambdafy. Green Scala 3 suite status therefore does not establish capture behavior. This is a version-specific test gap, not proof that Scala 3 serialization is impossible.",
+      "commit_sha": "5c4d79f1b023a80583444d5593073c216c325b5a",
+      "path": "amm/repl/src/test/scala/ammonite/session/SerializationTests.scala"
+    },
+    {
+      "id": "e736-test-command",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/pull/736#issuecomment-355246719",
+      "occurred_at": "2018-01-04T10:19:29Z",
+      "excerpt": "With direct imports, a `sbt \"ammRepl/testOnly ammonite.session.SerializationTests\"` serializes nothing (and the test fails).",
+      "interpretation": "The PR author reports a failing direct-import experiment and names the exact historical sbt test selector. The pinned build defines ammRepl. This supplies command provenance, not a claim that this research executed the command or that it applies to later Mill builds.",
+      "author": "alexarchambault",
+      "role_basis": "PR author at this timestamp; the explicit grant of commit access in PR 736 occurred later and is not projected backwards.",
+      "pull_number": 736
+    },
+    {
+      "id": "e736-command-pruning",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/74306e64a5717fa6f185ed85047b48d11c6a66b0/amm/interp/src/main/scala/ammonite/interp/Preprocessor.scala#L435-L437",
+      "occurred_at": "2018-02-15T20:10:17Z",
+      "excerpt": "              val encoded = Util.encodeScalaSourcePath(path)\n              s\"final val ${key.backticked}: $encoded.type = \" +\n                s\"if (__amm_usedThings($tq${key.raw}$tq)) $encoded else null$newLine\"",
+      "interpretation": "The generator retains or nulls an entire earlier-command instance reference. It does not prune unused fields within a retained Helper. Inference: a nonserializable sibling in a required command may remain reachable; this is not a new regression against the original per-command contract.",
+      "commit_sha": "74306e64a5717fa6f185ed85047b48d11c6a66b0",
+      "path": "amm/interp/src/main/scala/ammonite/interp/Preprocessor.scala"
+    },
+    {
+      "id": "e736-separated-commands",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/74306e64a5717fa6f185ed85047b48d11c6a66b0/amm/repl/src/test/scala/ammonite/session/SerializationTests.scala#L54-L62",
+      "occurred_at": "2018-02-15T20:10:17Z",
+      "excerpt": "          @ val d =\n          @   // serialization should succeed in spite of this\n          @   // non-serializable variable being around\n          @   new D\n\n          @ val a = {\n          @   costlySideEffect()\n          @   Option(2)\n          @ }",
+      "interpretation": "The blank transcript boundary separates unused d from captured a. This tests pruning of a wholly unused earlier command, not automatic elimination of nonserializable sibling fields in a required command. The same-command boundary fixture is a proposed inference, not an executed historical test.",
+      "commit_sha": "74306e64a5717fa6f185ed85047b48d11c6a66b0",
+      "path": "amm/repl/src/test/scala/ammonite/session/SerializationTests.scala"
+    },
+    {
+      "id": "e944-type-dependencies",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/50e075ddd8fb223046ae7be68827bc744e3c6037/amm/interp/src/main/scala/ammonite/interp/AmmonitePlugin.scala#L149-L160",
+      "occurred_at": "2019-03-20T10:34:11Z",
+      "excerpt": "            case tt @ g.TypeTree() =>\n              tt.tpe.collect {\n                case g.SingleType(pre, sym) if pre.typeSymbol == wrapperSym =>\n                  sym.name.decoded\n              }",
+      "interpretation": "PR 944 augments the existing Select branch with dependencies discovered through type trees, then deduplicates the union. Source-backed inference: symbol identity alone is insufficient if only term paths are traversed. The commit message describes incorrectly nullified previous-cell references; the PR's release/approval comments do not constitute design-review guidance.",
+      "commit_sha": "50e075ddd8fb223046ae7be68827bc744e3c6037",
+      "path": "amm/interp/src/main/scala/ammonite/interp/AmmonitePlugin.scala"
+    },
+    {
+      "id": "e944-trait-regression",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/50e075ddd8fb223046ae7be68827bc744e3c6037/amm/repl/src/test/scala/ammonite/session/EvaluatorTests.scala#L353-L367",
+      "occurred_at": "2019-03-20T10:34:11Z",
+      "excerpt": "        @ class Z[T <: A](t: T) { override def toString = s\"Z($t)\" }; val z1 = new Z(new X(7))\n        defined class Z\n        z1: Z[X] = Z(X(7))\n\n        @ val z2 = new Z(new X(7))\n        z2: Z[X] = Z(X(7))",
+      "interpretation": "referenceTraitFromPreviousCommand first defines trait A and class X, then Z bounded by A, and constructs Z in two successive commands. It exercises type-derived prior-command retention without serialization. The suite constructs DualTestRepl at line 13; this is a source-observed oracle, not a test result from this run.",
+      "commit_sha": "50e075ddd8fb223046ae7be68827bc744e3c6037",
+      "path": "amm/repl/src/test/scala/ammonite/session/EvaluatorTests.scala"
+    },
+    {
+      "id": "e944-dual-wrapper",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/50e075ddd8fb223046ae7be68827bc744e3c6037/amm/repl/src/test/scala/ammonite/DualTestRepl.scala#L13-L26",
+      "occurred_at": "2019-03-20T10:34:11Z",
+      "excerpt": "    new TestRepl {\n      override def predef = dual.predef\n      override def codeWrapper = Preprocessor.CodeClassWrapper\n    }",
+      "interpretation": "The harness contains default and class-based TestRepl instances, and session dispatches to each at lines 25-26. This establishes the intended class-wrapper coverage of the evaluator transcript, not that the suite was discovered or executed on every compiler cell.",
+      "commit_sha": "50e075ddd8fb223046ae7be68827bc744e3c6037",
+      "path": "amm/repl/src/test/scala/ammonite/DualTestRepl.scala"
+    },
+    {
+      "id": "e944-build-command",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/50e075ddd8fb223046ae7be68827bc744e3c6037/build.sc#L280-L287",
+      "occurred_at": "2019-03-20T10:34:11Z",
+      "excerpt": "def unitTest(scalaVersion: String = sys.env(\"TRAVIS_SCALA_VERSION\")) = T.command{\n  ops(scalaVersion).test.test()()\n  terminal(scalaVersion).test.test()()\n  amm.repl(scalaVersion).test.test()()",
+      "interpretation": "PR 944 uses Mill's unitTest dispatch to the REPL test module, not the earlier sbt ammRepl project. The build's primary cells are 2.11.12 and 2.12.8 with uTest 0.6.0; Git tags/master and imported ci/upload.sc are prerequisites. The command is broad, and has not been executed here.",
+      "commit_sha": "50e075ddd8fb223046ae7be68827bc744e3c6037",
+      "path": "build.sc"
+    },
+    {
+      "id": "e944-ci-matrix",
+      "kind": "documentation",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/50e075ddd8fb223046ae7be68827bc744e3c6037/.travis.yml#L16-L24",
+      "occurred_at": "2019-03-20T10:34:11Z",
+      "excerpt": "  - stage: build\n    env: CI_SCRIPT=\"mill -i unitTest\"\n    jdk: openjdk11\n    scala: 2.12.8",
+      "interpretation": "CI declares Scala 2.12.8/JDK 11 and JDK 8 unit-test cells, plus 2.11.12/JDK 8. Line 75 provisions Mill 0.3.3; no repository mill wrapper was retrieved. This documents prerequisites, not execution. Installation, publication and cache-cleanup stages are not instructions for this research. Personal notification contact is redacted in the local cache.",
+      "commit_sha": "50e075ddd8fb223046ae7be68827bc744e3c6037",
+      "path": ".travis.yml"
+    }
+  ],
+  "claims": [
+    {
+      "id": "c-capture",
+      "rule": "Preserve class-wrapper capture at command granularity: retain required earlier-command instances and exclude wholly unused commands, not individual unused fields inside a retained instance. For ordinary captured values and a serializable retained reachable graph, an independent-classloader round trip must not rerun their initialization.",
+      "evidence_ids": [
+        "e736-capture-response",
+        "e736-symbols",
+        "e736-symbol-code",
+        "e736-test-code",
+        "e736-build-code",
+        "e736-discovery",
+        "e736-test-command",
+        "e2019-capture-isolation",
+        "e2019-loader-assertion",
+        "e2021-capture-guard",
+        "e736-command-pruning",
+        "e736-separated-commands"
+      ],
+      "applicability": "Observed in the 2018 Scala 2 class-wrapper implementation and strengthened by a separate 2019 isolated-loader test revision. A 2021 guard disables the suite on Scala 3. Re-establish closure lowering and prerequisites rather than copying Ydelambdafy. Inference: the retained reachable graph must remain serializable; same-command sibling exclusion is not promised. Result assertions, literal-lookalike and cache-restore controls are proposed stronger oracles, not all historical assertions.",
+      "counterexample": "If captured a and nonserializable d share one required Helper, retaining d is not an introduced violation of the historical command-pruning contract. Intentional singleton references and object-only macro definitions retain distinct semantics; do not add field-level closure cleaning or universal serialization incidentally."
+    },
+    {
+      "id": "c-metadata",
+      "rule": "Derive used-command names from typed compiler dependencies and carry structured metadata with compilation/session state, not rendered-tree regexes or opaque classpath resources. Inference from PR 944: preserve both term selections and type-derived references before nulling earlier commands; receiver-symbol matching alone does not make a term-only collector complete.",
+      "evidence_ids": [
+        "e736-symbols",
+        "e736-metadata",
+        "e736-wrapper-code",
+        "e736-symbol-code",
+        "e944-type-dependencies",
+        "e944-trait-regression",
+        "e944-dual-wrapper",
+        "e944-build-command",
+        "e944-ci-matrix"
+      ],
+      "applicability": "Structured metadata is explicit 2018 review guidance. The 2019 TypeTree/SingleType extension and evaluator regression are source-backed inference, not a reviewer preference: PR 944 has only release coordination and approval comments. Its Mill build uses Scala 2.11.12/2.12.8 primary cells; rediscover compiler internals and test dispatch on Scala 3. Preserve cache/session association; stale tree.txt comments do not describe final behavior.",
+      "counterexample": "Generated source strings remain appropriate for emitting wrappers, but not for inferring symbol use. The 2018 Select-only collector satisfies symbol equality yet misses some type dependencies; a passing ordinary-closure sentinel test cannot justify removing the 2019 type branch."
+    }
+  ]
+}

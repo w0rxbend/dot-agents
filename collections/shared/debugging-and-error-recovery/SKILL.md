@@ -1,6 +1,6 @@
 ---
 name: debugging-and-error-recovery
-description: Guides systematic root-cause debugging. Use when tests fail, builds break, something that worked yesterday broke, behavior doesn't match expectations, or you encounter any unexpected error. Use when you need to figure out what broke and why — a systematic approach to finding and fixing the root cause rather than guessing.
+description: Root-cause a failing test, broken build, runtime error, regression or production error by reproducing, localizing (bisect), reducing, testing ranked hypotheses, fixing and adding a regression test. Use whenever something broke and the cause is not yet proven; not for setting up monitoring or error tracking.
 ---
 
 # Debugging and Error Recovery
@@ -118,6 +118,28 @@ Create the minimal failing case:
 
 A minimal reproduction makes the root cause obvious and prevents fixing symptoms instead of causes.
 
+### Step 3b: Rank and Falsify Hypotheses
+
+When the cause is not obvious from the reduced case, do not test the first idea that comes to mind:
+
+1. Write 3–5 plausible hypotheses before testing any of them.
+2. Rank them by likelihood and by how cheap they are to falsify.
+3. For each, state the prediction: "If X is the cause, then changing/observing Y should produce Z." Drop or sharpen any hypothesis without a testable prediction.
+4. Test the top one with the smallest probe, changing one variable at a time. If the prediction fails, reject it and record what it ruled out; do not stack a second fix on top.
+5. If the user is present, show the ranked list first; their domain knowledge often re-ranks it.
+
+Prefer a debugger over scattered prints when the runtime supports one: one breakpoint with inspected locals beats ten log lines.
+
+| Runtime | Interactive debugging |
+|---|---|
+| Python | `breakpoint()` / `python -m pdb script.py`; remote or container processes via `debugpy` (DAP) attached from an editor |
+| Node.js | `node --inspect` / `--inspect-brk`, then attach Chrome DevTools (`chrome://inspect`) or an editor |
+| JVM | JDWP agent (`-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005`) + IDE attach |
+| Go | `dlv debug` / `dlv attach <pid>` (Delve) |
+| Browser | DevTools Sources panel breakpoints, including XHR/event-listener breakpoints |
+
+If you must add temporary logs, tag every line with a unique prefix (e.g. `[DEBUG-a4f2]`) so cleanup is one search. Never attach a debugger or raise log verbosity on a production process without explicit approval: it can pause traffic and expose in-memory secrets.
+
 ### Step 4: Fix the Root Cause
 
 Fix the underlying issue, not the symptom:
@@ -210,6 +232,24 @@ Runtime error:
 └── Unexpected behavior (no error)
     └── Add logging at key points, verify data at each step
 ```
+
+## Production and Distributed Errors
+
+When the failure only shows up in a deployed environment, the evidence is telemetry, not a local stack trace. Apply the same triage with these extra rules:
+
+**Pin the symptom before theorizing.** Record the window (with timezone), release revision, affected route/job, expected vs observed behavior, and affected population. Keep **rate** and **count** apart: an error count without request volume is not an error rate, and sampled telemetry is not a request total. Missing data is unknown, not healthy.
+
+**Build a timeline where every entry names its source** (deploy log, metric query, trace ID, ticket). Allow for clock skew between hosts. A spike right after a deploy is a hypothesis about causality, not proof; confirm by comparing against the previous revision or by reproducing.
+
+**Don't diagnose from the error string.** A timeout can come from pool exhaustion, a lock, the network, an upstream, or a client cancellation. A `ConcurrentModificationException` can happen in a single thread. Each needs its own falsifiable test.
+
+**Collect only what you need.** Use allowlisted fields: time, service/revision, operation, bounded error class, duration, a correlation ID. Request bodies, tokens, session IDs, customer IDs, payment data, local variables and full exception messages can all hold private data; redact before sharing. A blocklist of a few header names is not enough. Heap dumps, traffic replay, verbose logging and remote debuggers all carry data-exposure and availability risk, so use them only with explicit approval and a rollback plan. Prefer a synthetic reproduction.
+
+**Mitigate first if the incident process says so.** Rollback, feature-flag disable or failover can come before diagnosis. Afterwards verify real user behavior, queues and data consistency. Never replay failed external or financial writes until their remote status and idempotency are reconciled; a timeout can occur after the side effect completed.
+
+**Worked example.** Timeouts after a release while database CPU stays flat. Pin the revision, window, route and trace/metric sources. Compare active connections, pool queue wait and queries per request against the prior revision. Hypothesis: a new N+1 query. Prediction: a fixture with N list items issues N+1 queries on the new code and one batched query on the old. If that holds, add a query-count regression test, fix, and re-measure. If the count is unchanged, reject the hypothesis and inspect the pool/lock path. Report the evidence, the reproduced trigger, the tested fix or remaining hypotheses, and any residual impact. The timeout alone did not prove an upstream outage and did not justify retrying a payment.
+
+For incident severity, roles and communication, see `managing-incidents`; for instrumentation that would have made this faster, use `observability-and-instrumentation`.
 
 ## Safe Fallback Patterns
 

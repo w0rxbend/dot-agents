@@ -204,7 +204,7 @@ Genuine Issue: "Function `processPayment` at `services/payment.ts:42` performs d
 2. **Strengths**: What's done well (positive reinforcement)
 3. **Issues**: Organized by severity with **confidence scores**:
    - **Critical** (confidence >= 90): Blocks approval (security, correctness, breaking changes)
-   - **Important** (confidence >= 80): Should be addressed (maintainability, best practices)
+   - **Major** (confidence >= 80): Should be addressed before merge (see the severity scale in SKILL.md; Minor applies only to repository-required fixes)
 4. **Actionable next steps**: Specific changes with file:line references
 5. **Decision**: Approve, Request Changes, or Needs Discussion
 
@@ -228,7 +228,7 @@ Genuine Issue: "Function `processPayment` at `services/payment.ts:42` performs d
 ### Request Changes When
 
 - [ ] Critical issues: Security holes, correctness bugs, breaking changes
-- [ ] Important issues: Pattern violations, missing tests, unclear code
+- [ ] Major issues: Pattern violations, missing tests, unclear code
 - [ ] Verification failures not addressed
 - [ ] Business logic doesn't match requirements
 - [ ] Insufficient error handling

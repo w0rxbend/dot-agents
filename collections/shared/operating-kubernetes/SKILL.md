@@ -1,6 +1,6 @@
 ---
 name: operating-kubernetes
-description: Operating production Kubernetes clusters effectively with resource management, advanced scheduling, networking, storage, security hardening, and autoscaling. Use when deploying workloads to Kubernetes, configuring cluster resources, implementing security policies, or troubleshooting operational issues.
+description: "Run workloads on Kubernetes - requests/limits and QoS, scheduling (affinity, taints, topology spread), NetworkPolicy and Gateway API, storage classes, RBAC and Pod Security, HPA/KEDA autoscaling and pod troubleshooting. Use when deploying or debugging workloads on a cluster; use kubernetes-hardening for a security review and implementing-gitops for delivery."
 ---
 
 # Kubernetes Operations
@@ -450,7 +450,6 @@ For systematic troubleshooting playbooks including networking and storage issues
 ### Examples
 - **examples/manifests/** - Copy-paste ready YAML manifests
 - **examples/python/** - Automation scripts (audit, cost analysis, validation)
-- **examples/go/** - Operator development examples
 
 ### Tools
 - **scripts/validate-resources.sh** - Audit pods without resource limits
@@ -459,12 +458,12 @@ For systematic troubleshooting playbooks including networking and storage issues
 
 ## Related Skills
 
-- **building-ci-pipelines** - Deploy to Kubernetes from CI/CD (kubectl apply, Helm, GitOps)
-- **observability** - Monitor clusters and workloads (Prometheus, Grafana, tracing)
-- **secret-management** - Secure secrets in Kubernetes (External Secrets, Sealed Secrets)
-- **testing-strategies** - Test manifests and deployments (Kubeval, Conftest, Kind)
-- **infrastructure-as-code** - Provision Kubernetes clusters (Terraform, Cluster API)
-- **gitops-workflows** - Declarative cluster management (Flux, ArgoCD)
+- **kubernetes-hardening** - Cluster and workload security (PSA, RBAC, admission, audit)
+- **implementing-gitops** - Declarative delivery with Argo CD or Flux
+- **building-ci-pipelines** - Build and test images before they reach the cluster
+- **implementing-observability** - Monitor clusters and workloads (Prometheus, Grafana, tracing)
+- **hashicorp-vault** - External secrets source for workloads
+- **pulumi-stacks** - Provision clusters per environment as code
 
 ## Best Practices Summary
 

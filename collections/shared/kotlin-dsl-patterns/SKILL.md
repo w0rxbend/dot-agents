@@ -1,7 +1,7 @@
 ---
 name: kotlin-dsl-patterns
 user-invocable: false
-description: Use when domain-specific language design in Kotlin using type-safe builders, infix functions, operator overloading, lambdas with receivers, and patterns for creating expressive, readable DSLs for configuration and domain modeling.
+description: Design type-safe Kotlin DSLs with lambdas with receiver, builders, @DslMarker scope control, infix functions and operator overloading, and apply the same patterns in Gradle Kotlin DSL build scripts and convention plugins. Use when building a configuration/domain DSL or structuring Kotlin build logic.
 allowed-tools: []
 ---
 
@@ -560,21 +560,33 @@ making DSLs safer and more maintainable.
 Gradle's Kotlin DSL demonstrates real-world DSL patterns for build
 configuration, dependency management, and task definition.
 
+Keep plugin and library versions where the project already keeps them
+(usually `gradle/libs.versions.toml`); do not copy version numbers from
+examples. Check the Kotlin and Gradle versions in the repo before using newer
+DSL APIs.
+
 ```kotlin
-// Build script DSL patterns
+// build.gradle.kts - versions come from the version catalog
 plugins {
-    kotlin("jvm") version "1.9.0"
-    id("application")
+    alias(libs.plugins.kotlin.jvm)
+    application
 }
 
 repositories {
     mavenCentral()
-    google()
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+    implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.junit.jupiter)
+}
+
+kotlin {
+    jvmToolchain(21)                       // JDK used to compile and test
+    compilerOptions {                      // replaces kotlinOptions {} (an error in recent Kotlin 2.x)
+        freeCompilerArgs.add("-Xjsr305=strict")
+        // jvmTarget.set(JvmTarget.JVM_17) // only if bytecode target must differ from the toolchain
+    }
 }
 
 // Custom task with DSL
@@ -640,39 +652,36 @@ configure<MyPluginExtension> {
     enabled.set(true)
 }
 
-// Type-safe accessors
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    jvmTarget = "17"
-    freeCompilerArgs = listOf("-Xjsr305=strict")
+// Per-task compiler options (Kotlin 2.x): configure through compilerOptions,
+// not the deprecated kotlinOptions block
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions.allWarningsAsErrors.set(true)
 }
 
-// Multiplatform DSL
+// Multiplatform DSL (separate build using the multiplatform plugin)
 kotlin {
-    jvm {
-        withJava()
-    }
-
-    js(IR) {
+    jvm()
+    js {
         browser()
         nodejs()
     }
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
-            }
+        commonMain.dependencies {
+            implementation(libs.kotlinx.coroutines.core)
         }
-
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
     }
 }
 ```
+
+Migration notes for older scripts: `kotlinOptions { jvmTarget = "17" }` becomes
+`compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }` or simply
+`jvmToolchain(17)`; `val commonMain by getting { dependencies { } }` becomes
+`commonMain.dependencies { }`; `js(IR)` is just `js()` now that IR is the only
+JS backend.
 
 Gradle Kotlin DSL combines multiple DSL patterns to create expressive,
 type-safe build configuration with excellent IDE support.

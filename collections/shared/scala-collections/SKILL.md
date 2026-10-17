@@ -1,7 +1,7 @@
 ---
 name: scala-collections
 user-invocable: false
-description: Use when scala collections including immutable/mutable variants, List, Vector, Set, Map operations, collection transformations, lazy evaluation with views, parallel collections, and custom collection builders for efficient data processing.
+description: Choose and transform Scala 2.13/3 collections - List/Vector/Array, Set/Map, transformations, views and LazyList, parallel collections (separate module on 2.13+), and 2.12-to-2.13 migration. Use when writing, reviewing or porting collection-heavy Scala code.
 allowed-tools: []
 ---
 
@@ -21,6 +21,7 @@ Read only the relevant section of [references/language-patterns.md](references/l
 - For-Comprehensions with Collections
 - Lazy Evaluation and Views
 - Parallel Collections
+- Scala 2.13 / Scala 3 Collections Migration Notes
 - Best Practices
 - Common Pitfalls
 - When to Use This Skill

@@ -1,7 +1,7 @@
 ---
 name: python-type-system
 user-invocable: false
-description: Use when Python's type system including type hints, mypy, Protocol, TypedDict, and Generics. Use when working with Python type annotations.
+description: Annotate Python code and fix type-checker errors with mypy or pyright - builtin generics, X | None, PEP 695 generics and `type` aliases, Protocol, TypedDict, Literal, overload, ParamSpec, Self, @override, TypeIs/TypeGuard. Use when adding or reviewing annotations or configuring type checking; use python-data-classes for model classes.
 allowed-tools:
   - Bash
   - Read
@@ -9,181 +9,97 @@ allowed-tools:
 
 # Python Type System
 
-Master Python's type system to write type-safe, maintainable code. This
-skill covers type hints, static type checking with mypy, and advanced
-typing features.
+Write annotations that a checker can verify and that read well. First find the
+project's minimum Python (`requires-python` in `pyproject.toml`) and the checker
+it already uses; syntax below is tagged with the version that introduced it.
+Features newer than the minimum come from `typing_extensions` (works at runtime
+on older versions) or need the legacy spelling.
 
-## Type Checking Tools
+## Version Map
+
+| Feature | Native from | Older spelling |
+|---------|-------------|----------------|
+| `list[int]`, `dict[str, int]` | 3.9 | `typing.List`, `typing.Dict` |
+| `X \| Y`, `X \| None` | 3.10 | `Union[X, Y]`, `Optional[X]` |
+| `ParamSpec`, `TypeAlias`, `TypeGuard` | 3.10 | `typing_extensions` |
+| `Self`, `Required`/`NotRequired`, `assert_never`, `reveal_type` | 3.11 | `typing_extensions` |
+| `class Box[T]:`, `def f[T](...)`, `type Alias = ...` (PEP 695) | 3.12 | `TypeVar` + `Generic[T]`, `TypeAlias` |
+| `@override` | 3.12 | `typing_extensions.override` |
+| `TypeIs`, `ReadOnly` (TypedDict), TypeVar defaults | 3.13 | `typing_extensions` |
+
+`from __future__ import annotations` lets annotations use newer syntax on older
+interpreters (they are not evaluated), but not in runtime-evaluated places such
+as base classes, `cast()` arguments, or Pydantic/dataclass field introspection.
+
+## Checkers and Configuration
 
 ```bash
-# Install mypy for static type checking
-pip install mypy
-
-# Run mypy on a file or directory
-mypy my_module.py
-mypy src/
-
-# Run with specific configuration
-mypy --config-file mypy.ini src/
-
-# Run with strict mode
-mypy --strict src/
-
-# Show type coverage report
-mypy --html-report mypy-report src/
+uv add --dev mypy        # or: uv add --dev pyright / pip install mypy
+uv run mypy src/
+uv run mypy --strict src/
+uv run pyright           # reads [tool.pyright] from pyproject.toml
 ```
-
-## mypy Configuration
-
-**mypy.ini configuration file:**
-
-```ini
-[mypy]
-# Global options
-python_version = 3.11
-warn_return_any = True
-warn_unused_configs = True
-disallow_untyped_defs = True
-disallow_any_unimported = True
-no_implicit_optional = True
-warn_redundant_casts = True
-warn_unused_ignores = True
-warn_no_return = True
-check_untyped_defs = True
-strict_equality = True
-
-# Per-module options
-[mypy-tests.*]
-disallow_untyped_defs = False
-
-[mypy-third_party.*]
-ignore_missing_imports = True
-```
-
-**pyproject.toml configuration:**
 
 ```toml
+# pyproject.toml - set python_version / pythonVersion to the project's MINIMUM
+# supported Python (omit it to use the running interpreter).
 [tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_any_unimported = true
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
-check_untyped_defs = true
-strict_equality = true
+strict = true                     # enables the disallow_untyped_*/warn_* family
+warn_unreachable = true
+# python_version = "3.X"
 
 [[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = ["some_untyped_lib.*"]   # prefer installing types-* stubs first
+ignore_missing_imports = true
+
+[tool.pyright]
+typeCheckingMode = "strict"       # or "standard" while adopting
+# pythonVersion = "3.X"
 ```
 
-## Basic Type Hints
+Pick one checker as the CI gate. Adopt gradually: enable `strict` per package
+via overrides rather than adding blanket `# type: ignore`.
 
-**Primitive types and collections:**
+## Everyday Annotations
 
 ```python
-from typing import List, Dict, Set, Tuple, Optional, Union, Any
+from collections.abc import Callable, Iterable, Mapping, Sequence
 
-# Basic types
-def greet(name: str) -> str:
-    return f"Hello, {name}"
-
-# Collections
-def process_items(items: List[str]) -> Dict[str, int]:
-    return {item: len(item) for item in items}
-
-# Optional (can be None)
-def find_user(user_id: int) -> Optional[str]:
-    users = {1: "Alice", 2: "Bob"}
-    return users.get(user_id)
-
-# Union types (multiple possible types)
-def process_value(value: Union[int, str]) -> str:
-    return str(value)
-
-# Tuple with fixed types
-def get_coordinates() -> Tuple[float, float]:
-    return (37.7749, -122.4194)
-
-# Any type (avoid when possible)
-def process_data(data: Any) -> None:
-    print(data)
+def count_words(lines: Iterable[str]) -> dict[str, int]: ...
+def find_user(user_id: int) -> User | None: ...
+def parse(value: int | str) -> str: ...
+def apply(fn: Callable[[int], str], items: Sequence[int]) -> list[str]: ...
+def render(config: Mapping[str, object]) -> str: ...
 ```
 
-## Modern Type Syntax (Python 3.10+)
+- Accept abstract types (`Iterable`, `Sequence`, `Mapping`) for parameters;
+  return concrete types (`list`, `dict`).
+- Import ABCs from `collections.abc`; the `typing` aliases are deprecated.
+- Prefer `object` over `Any` for "anything" inputs: `Any` disables checking,
+  `object` forces narrowing.
+- Annotate locals only when inference cannot (empty containers, `None` initial values).
 
-**Using PEP 604 union syntax:**
+## Generics
 
-```python
-# Python 3.10+ union syntax with |
-def process_value(value: int | str) -> str:
-    return str(value)
-
-# Optional with | None
-def find_user(user_id: int) -> str | None:
-    users = {1: "Alice", 2: "Bob"}
-    return users.get(user_id)
-
-# Multiple unions
-def handle_response(
-    response: dict | list | str | None
-) -> str:
-    if response is None:
-        return "No response"
-    return str(response)
-```
-
-**Built-in generic types (Python 3.9+):**
+PEP 695 syntax (3.12+) declares type parameters inline; variance is inferred.
 
 ```python
-# Use built-in types instead of typing module
-def process_items(items: list[str]) -> dict[str, int]:
-    return {item: len(item) for item in items}
+from collections.abc import Sequence, Sized
 
-def get_mapping() -> dict[str, list[int]]:
-    return {"numbers": [1, 2, 3]}
-
-def get_unique(items: list[str]) -> set[str]:
-    return set(items)
-
-# Nested generics
-def group_items(
-    items: list[tuple[str, int]]
-) -> dict[str, list[int]]:
-    result: dict[str, list[int]] = {}
-    for key, value in items:
-        result.setdefault(key, []).append(value)
-    return result
-```
-
-## Generic Types
-
-**Creating generic functions and classes:**
-
-```python
-from typing import TypeVar, Generic, Sequence
-
-# Type variable
-T = TypeVar("T")
-
-def first(items: Sequence[T]) -> T | None:
+def first[T](items: Sequence[T]) -> T | None:
     return items[0] if items else None
 
-def last(items: list[T]) -> T | None:
-    return items[-1] if items else None
+def longest[S: Sized](a: S, b: S) -> S:          # upper bound
+    return a if len(a) >= len(b) else b
 
-# Constrained type variable
-Number = TypeVar("Number", int, float)
+def concat[S: (str, bytes)](a: S, b: S) -> S:     # constrained: str or bytes
+    return a + b
 
-def add(a: Number, b: Number) -> Number:
-    return a + b  # type: ignore
-
-# Generic class
-class Stack(Generic[T]):
+class Stack[T]:
     def __init__(self) -> None:
         self._items: list[T] = []
 
@@ -193,431 +109,181 @@ class Stack(Generic[T]):
     def pop(self) -> T:
         return self._items.pop()
 
-    def peek(self) -> T | None:
-        return self._items[-1] if self._items else None
-
-# Usage
-stack: Stack[int] = Stack()
-stack.push(1)
-stack.push(2)
-value: int = stack.pop()
+type Pair[T] = tuple[T, T]
+type JsonValue = str | int | float | bool | None | list[JsonValue] | dict[str, JsonValue]
 ```
 
-**Bound type variables:**
+Before 3.12, the equivalent is:
 
 ```python
-from typing import TypeVar
-from collections.abc import Sized
+from typing import Generic, TypeVar
+from typing_extensions import TypeAlias
 
-# Type variable with upper bound
-TSized = TypeVar("TSized", bound=Sized)
+T = TypeVar("T")
+S = TypeVar("S", bound=Sized)
 
-def get_length(obj: TSized) -> int:
-    return len(obj)
-
-# Works with any Sized type
-get_length("hello")
-get_length([1, 2, 3])
-get_length({"a": 1})
+class Stack(Generic[T]): ...
+UserId: TypeAlias = int
 ```
 
-## Protocol (Structural Subtyping)
+Do not mix styles within one class. `type X = ...` aliases are lazily evaluated,
+so they can be recursive without string quotes.
 
-**Define interfaces using Protocol:**
-
-```python
-from typing import Protocol
-
-# Define a protocol
-class Drawable(Protocol):
-    def draw(self) -> str:
-        ...
-
-# Classes that match the protocol don't need inheritance
-class Circle:
-    def draw(self) -> str:
-        return "Drawing circle"
-
-class Square:
-    def draw(self) -> str:
-        return "Drawing square"
-
-# Function accepts any type matching the protocol
-def render(shape: Drawable) -> None:
-    print(shape.draw())
-
-# Works with any matching class
-render(Circle())
-render(Square())
-```
-
-**Protocol with properties and methods:**
-
-```python
-from typing import Protocol
-
-class Comparable(Protocol):
-    def __lt__(self, other: "Comparable") -> bool:
-        ...
-
-    def __gt__(self, other: "Comparable") -> bool:
-        ...
-
-def find_max(items: list[Comparable]) -> Comparable:
-    return max(items)
-
-class Person:
-    def __init__(self, name: str, age: int) -> None:
-        self.name = name
-        self.age = age
-
-    def __lt__(self, other: "Person") -> bool:
-        return self.age < other.age
-
-    def __gt__(self, other: "Person") -> bool:
-        return self.age > other.age
-
-# Works because Person implements Comparable protocol
-people = [Person("Alice", 30), Person("Bob", 25)]
-oldest = find_max(people)
-```
-
-**Runtime checkable protocols:**
+## Protocols (Structural Typing)
 
 ```python
 from typing import Protocol, runtime_checkable
 
+class SupportsClose(Protocol):
+    def close(self) -> None: ...
+
+def shutdown(resources: list[SupportsClose]) -> None:
+    for r in resources:
+        r.close()          # any object with close() matches, no inheritance needed
+
 @runtime_checkable
-class Serializable(Protocol):
-    def to_dict(self) -> dict[str, Any]:
-        ...
+class HasName(Protocol):
+    name: str
+```
 
-class User:
-    def __init__(self, name: str) -> None:
+Use a Protocol at boundaries where callers own the concrete type (adapters,
+test doubles). `@runtime_checkable` makes `isinstance` work, but it checks only
+that the attributes exist, not their signatures.
+
+## TypedDict, Literal, Final, Enums
+
+```python
+from typing import Final, Literal, NotRequired, TypedDict
+
+class Movie(TypedDict):
+    title: str
+    year: int
+    rating: NotRequired[float]   # key may be absent (3.11+)
+
+Mode = Literal["r", "w", "a"]
+def open_file(path: str, mode: Mode) -> None: ...
+
+MAX_RETRIES: Final = 3
+```
+
+Use TypedDict for JSON-shaped dicts you do not control. Use a dataclass or
+Pydantic model for your own data (see `python-data-classes`). Use `Literal` for
+small fixed string sets in signatures, and `enum.Enum` when values need behavior
+or iteration.
+
+## Narrowing
+
+```python
+from typing import Literal, TypeGuard, TypeIs, assert_never   # TypeIs: 3.13+ or typing_extensions
+
+def is_user(val: object) -> TypeIs[User]:            # narrowed type is a subtype of input
+    return isinstance(val, User) and val.active
+
+def is_str_list(val: list[object]) -> TypeGuard[list[str]]:   # list[str] is NOT a subtype
+    return all(isinstance(x, str) for x in val)                 # of list[object]: TypeGuard
+
+def handle(value: User | str | list[object]) -> str:
+    if is_user(value):
+        return value.name
+    if isinstance(value, str):                         # else-branch of TypeIs already
+        return value                                   # excluded User
+    if is_str_list(value):
+        return ",".join(value)
+    return repr(value)
+
+def describe(mode: Literal["r", "w"]) -> str:
+    match mode:
+        case "r": return "read"
+        case "w": return "write"
+        case _: assert_never(mode)       # checker errors if a case is missing
+```
+
+Prefer `TypeIs` over `TypeGuard`: `TypeIs` narrows in both the `if` and `else`
+branches and requires the narrowed type to be a subtype of the input.
+`TypeGuard` narrows only the positive branch; use it when the target is not a
+subtype (for example `list[object]` -> `list[str]` under invariance).
+
+## Methods: Self, @override, overload
+
+```python
+from typing import Self, overload, override
+
+class Builder:
+    def with_name(self, name: str) -> Self:      # subclasses keep their own type
         self.name = name
+        return self
 
-    def to_dict(self) -> dict[str, Any]:
-        return {"name": self.name}
+class Base:
+    def run(self) -> None: ...
 
-user = User("Alice")
-assert isinstance(user, Serializable)
+class Child(Base):
+    @override                                    # error if Base.run is renamed/removed
+    def run(self) -> None: ...
+
+@overload
+def load(path: str, *, raw: Literal[True]) -> bytes: ...
+@overload
+def load(path: str, *, raw: Literal[False] = ...) -> str: ...
+def load(path: str, *, raw: bool = False) -> bytes | str:
+    data = open(path, "rb").read()
+    return data if raw else data.decode()
 ```
 
-## TypedDict
-
-**Define dictionary shapes with TypedDict:**
+## Decorators: ParamSpec
 
 ```python
-from typing import TypedDict, NotRequired
-
-# Basic TypedDict
-class UserDict(TypedDict):
-    id: int
-    name: str
-    email: str
-
-def create_user(user: UserDict) -> UserDict:
-    return user
-
-user: UserDict = {
-    "id": 1,
-    "name": "Alice",
-    "email": "alice@example.com"
-}
-
-# Optional fields (Python 3.11+)
-class PersonDict(TypedDict):
-    name: str
-    age: int
-    email: NotRequired[str]  # Optional field
-
-person: PersonDict = {"name": "Bob", "age": 30}
-
-# Total=False makes all fields optional
-class ConfigDict(TypedDict, total=False):
-    host: str
-    port: int
-    debug: bool
-
-config: ConfigDict = {"host": "localhost"}
-```
-
-**Inheritance with TypedDict:**
-
-```python
-from typing import TypedDict
-
-class BaseUserDict(TypedDict):
-    id: int
-    name: str
-
-class ExtendedUserDict(BaseUserDict):
-    email: str
-    is_active: bool
-
-user: ExtendedUserDict = {
-    "id": 1,
-    "name": "Alice",
-    "email": "alice@example.com",
-    "is_active": True
-}
-```
-
-## Literal Types
-
-**Restrict values to specific literals:**
-
-```python
-from typing import Literal
-
-def set_mode(mode: Literal["read", "write", "append"]) -> None:
-    print(f"Mode set to {mode}")
-
-# Valid
-set_mode("read")
-
-# Type error: not a valid literal
-# set_mode("invalid")
-
-# Literal unions
-Status = Literal["pending", "active", "completed"]
-
-def update_status(status: Status) -> None:
-    print(f"Status: {status}")
-
-# Literal with multiple types
-MixedLiteral = Literal[True, 1, "one"]
-```
-
-## Type Aliases
-
-**Create type aliases for complex types:**
-
-```python
-from typing import TypeAlias
-
-# Type alias
-UserId: TypeAlias = int
-UserName: TypeAlias = str
-
-def get_user(user_id: UserId) -> UserName:
-    return f"User {user_id}"
-
-# Complex type alias
-JsonValue: TypeAlias = (
-    dict[str, "JsonValue"]
-    | list["JsonValue"]
-    | str
-    | int
-    | float
-    | bool
-    | None
-)
-
-def process_json(data: JsonValue) -> None:
-    print(data)
-
-# Generic type alias
-Vector: TypeAlias = list[float]
-Matrix: TypeAlias = list[Vector]
-
-def multiply_matrix(a: Matrix, b: Matrix) -> Matrix:
-    # Implementation
-    return [[0.0]]
-```
-
-## Callable Types
-
-**Type hints for functions and callables:**
-
-```python
-from typing import Callable
-
-# Function that takes a callback
-def apply_operation(
-    x: int,
-    y: int,
-    operation: Callable[[int, int], int]
-) -> int:
-    return operation(x, y)
-
-def add(a: int, b: int) -> int:
-    return a + b
-
-result = apply_operation(5, 3, add)
-
-# Callable with no arguments
-def execute(task: Callable[[], None]) -> None:
-    task()
-
-# Callback with multiple argument types
-Callback: TypeAlias = Callable[[str, int], bool]
-
-def register_handler(callback: Callback) -> None:
-    callback("test", 42)
-```
-
-## ParamSpec and Concatenate
-
-**Advanced callable typing:**
-
-```python
-from typing import Callable, ParamSpec, TypeVar, Concatenate
+from collections.abc import Callable
 from functools import wraps
 
-P = ParamSpec("P")
-R = TypeVar("R")
-
-# Decorator that preserves function signature
-def log_calls(
-    func: Callable[P, R]
-) -> Callable[P, R]:
-    @wraps(func)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-        print(f"Calling {func.__name__}")
-        return func(*args, **kwargs)
-    return wrapper
-
-@log_calls
-def add(a: int, b: int) -> int:
-    return a + b
-
-# Concatenate adds parameters
-def with_context(
-    func: Callable[Concatenate[str, P], R]
-) -> Callable[P, R]:
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-        return func("context", *args, **kwargs)
-    return wrapper
+def logged[**P, R](fn: Callable[P, R]) -> Callable[P, R]:    # 3.12 syntax
+    @wraps(fn)
+    def inner(*args: P.args, **kwargs: P.kwargs) -> R:
+        print(f"calling {fn.__name__}")
+        return fn(*args, **kwargs)
+    return inner
 ```
 
-## Type Guards
+Before 3.12: `P = ParamSpec("P")`, `R = TypeVar("R")`. Use
+`typing.Concatenate[Ctx, P]` when the decorator injects or removes a leading
+argument.
 
-**Create type guards for runtime type narrowing:**
-
-```python
-from typing import TypeGuard
-
-def is_str_list(val: list[object]) -> TypeGuard[list[str]]:
-    return all(isinstance(x, str) for x in val)
-
-def process_strings(values: list[object]) -> None:
-    if is_str_list(values):
-        # Type narrowed to list[str]
-        for value in values:
-            print(value.upper())
-
-# More complex type guard
-def is_non_empty_str(val: str | None) -> TypeGuard[str]:
-    return val is not None and len(val) > 0
-
-def process_name(name: str | None) -> None:
-    if is_non_empty_str(name):
-        # Type narrowed to str (non-None)
-        print(name.upper())
-```
-
-## Overload
-
-**Multiple function signatures with overload:**
-
-```python
-from typing import overload, Literal
-
-@overload
-def get_value(key: str, as_int: Literal[True]) -> int:
-    ...
-
-@overload
-def get_value(key: str, as_int: Literal[False]) -> str:
-    ...
-
-def get_value(key: str, as_int: bool) -> int | str:
-    value = "42"
-    return int(value) if as_int else value
-
-# Type checker knows return type based on literal
-int_value: int = get_value("key", True)
-str_value: str = get_value("key", False)
-```
-
-## Common Patterns
-
-**Avoiding common type checking issues:**
+## Escape Hatches
 
 ```python
 from typing import TYPE_CHECKING, cast
 
-# Avoid circular imports
-if TYPE_CHECKING:
-    from my_module import MyClass
+if TYPE_CHECKING:                     # import only for annotations; breaks cycles
+    from .models import User
 
-def process(obj: "MyClass") -> None:
-    pass
+user = cast("User", payload)          # unchecked assertion; keep rare
+reveal_type(user)                     # checker prints the inferred type
 
-# Type casting when you know better than the type checker
-def get_data() -> object:
-    return {"key": "value"}
-
-data = cast(dict[str, str], get_data())
-
-# Assert type with reveal_type (mypy only)
-x = [1, 2, 3]
-# reveal_type(x)  # Reveals: list[int]
-
-# Ignore type checking for specific line
-result = some_untyped_function()  # type: ignore[no-untyped-call]
-
-# Ignore specific error code
-value: Any = get_dynamic_value()
-processed = process_value(value)  # type: ignore[arg-type]
+x = legacy_call()  # type: ignore[no-untyped-call]   # always scope ignores to an error code
 ```
 
-## When to Use This Skill
-
-Use python-type-system when you need to:
-
-- Add type hints to Python code for better IDE support and documentation
-- Configure mypy for static type checking in your project
-- Create reusable generic functions and classes
-- Define structural interfaces using Protocol
-- Specify exact dictionary shapes with TypedDict
-- Create type-safe decorators with ParamSpec
-- Implement runtime type narrowing with TypeGuard
-- Handle complex union types and literal types
-- Build type-safe APIs and library interfaces
-
-## Best Practices
-
-- Enable strict mode in mypy for maximum type safety
-- Use Protocol for structural typing instead of ABC when possible
-- Prefer built-in generic types (list, dict) over typing module (3.9+)
-- Use TypedDict for dictionary shapes instead of Dict[str, Any]
-- Create type aliases for complex types to improve readability
-- Use TYPE_CHECKING to avoid circular import issues
-- Add type hints incrementally, starting with public APIs
-- Run mypy in CI/CD to catch type errors early
-- Use reveal_type during development to debug type inference
-- Avoid Any type except when interfacing with untyped code
+Enable `warn_unused_ignores` (part of mypy `strict`) so stale ignores get removed.
 
 ## Common Pitfalls
 
-- Forgetting to handle None in Optional types
-- Using mutable default arguments (use None and create in function)
-- Not using Protocol for duck-typed interfaces
-- Overusing Any type, reducing type safety benefits
-- Not enabling strict mode in mypy configuration
-- Ignoring type errors instead of fixing them properly
-- Using old typing syntax (List, Dict) in Python 3.9+
-- Circular import issues with forward references
-- Not understanding variance in generic types
-- Mixing runtime behavior with type hints (use TypeGuard)
+- Mutable invariance: `list[int]` is not a `list[float]`; accept `Sequence[float]`.
+- Returning `Any` from untyped libraries silently spreads; install `types-*`
+  stubs or wrap the call with a typed function.
+- Using `Optional[X]` as "optional argument": it means "may be None"; a default
+  value is what makes an argument optional.
+- `isinstance` with parameterized generics (`isinstance(x, list[int])`) raises
+  at runtime.
+- Annotating `self`-returning methods with the class name instead of `Self`.
+
+## Done When
+
+- The configured checker passes in CI at the project's minimum Python version.
+- New `# type: ignore` comments carry an error code and a reason.
+- Public functions and methods are fully annotated; `Any` appears only at
+  documented boundaries.
 
 ## Resources
 
-- [Python Type Hints Documentation](https://docs.python.org/3/library/typing.html)
-- [mypy Documentation](https://mypy.readthedocs.io/)
-- [PEP 484 - Type Hints](https://peps.python.org/pep-0484/)
-- [PEP 544 - Protocols](https://peps.python.org/pep-0544/)
-- [PEP 589 - TypedDict](https://peps.python.org/pep-0589/)
-- [PEP 604 - Union Syntax](https://peps.python.org/pep-0604/)
+- [typing module](https://docs.python.org/3/library/typing.html)
+- [Typing specification and guides](https://typing.python.org/)
+- [mypy configuration](https://mypy.readthedocs.io/en/stable/config_file.html)
+- [pyright configuration](https://microsoft.github.io/pyright/#/configuration)

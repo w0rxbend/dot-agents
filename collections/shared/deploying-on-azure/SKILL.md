@@ -1,6 +1,6 @@
 ---
 name: deploying-on-azure
-description: Design and implement Azure cloud architectures using best practices for compute, storage, databases, AI services, networking, and governance. Use when building applications on Microsoft Azure or migrating workloads to Azure cloud platform.
+description: "Select Azure services and reference architectures - App Service, Container Apps, AKS, Functions, data stores, AI services, networking, identity (Entra ID, Managed Identity) and governance, with Bicep examples. Use when designing or migrating a workload on Azure."
 ---
 
 # Azure Patterns
@@ -322,7 +322,7 @@ Reference `references/governance-compliance.md` for Azure Landing Zones, Policy 
 - Use symbolic names (not string interpolation)
 - Enable linting and validation in CI/CD
 
-Reference Bicep and Terraform examples in `examples/bicep/` and `examples/terraform/` directories.
+A Bicep example (Container Apps) is in `examples/bicep/container-apps/`.
 
 ## Security Best Practices
 
@@ -346,7 +346,7 @@ Reference Bicep and Terraform examples in `examples/bicep/` and `examples/terraf
 4. **Data:** Encryption at rest, encryption in transit (TLS 1.2+)
 5. **Monitoring:** Microsoft Defender, Azure Monitor, Sentinel
 
-Reference `references/security-architecture.md` (see also `security-hardening` and `auth-security` skills).
+Reference `references/security-architecture.md` (see also the `security-hardening` and `architecting-security` skills).
 
 ## Cost Estimation
 
@@ -437,10 +437,8 @@ For detailed implementation guidance, see:
 
 Working examples available in:
 
-- **`examples/bicep/`** - Infrastructure templates (Container Apps, AKS, networking, databases)
-- **`examples/terraform/`** - Multi-cloud IaC examples
+- **`examples/bicep/container-apps/`** - Container Apps infrastructure template
 - **`examples/sdk/python/`** - Python SDK integration (OpenAI, Managed Identity, messaging)
-- **`examples/sdk/typescript/`** - TypeScript SDK examples
 
 ## Additional Resources
 

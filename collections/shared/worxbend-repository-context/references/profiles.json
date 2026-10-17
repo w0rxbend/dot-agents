@@ -15,7 +15,7 @@
       "ci_files": [],
       "instruction_files": [],
       "skills": [
-        "python-development",
+        "python-patterns",
         "streaming-integrations",
         "scala-library-contracts"
       ],
@@ -41,7 +41,7 @@
       ],
       "review_observations": {
         "classification": "native-media",
-        "summary": "Python OpenCV+ONNX Runtime neural webcam; actual latest-frame slot locks/sequence counters decouple inference from display, BGR\u2194RGB NHWC float32 normalization and aspect-ratio scaling. Virtual camera/C++ source is roadmap only, not implemented. Camera release and worker teardown must survive failure.",
+        "summary": "Python OpenCV+ONNX Runtime neural webcam; actual latest-frame slot locks/sequence counters decouple inference from display, BGR↔RGB NHWC float32 normalization and aspect-ratio scaling. Virtual camera/C++ source is roadmap only, not implemented. Camera release and worker teardown must survive failure.",
         "review_depth": {
           "tree": "complete",
           "baseline": "README/instructions/build/CI inspection where present",
@@ -232,7 +232,7 @@
       "ci_files": [],
       "instruction_files": [],
       "skills": [
-        "data-engineer"
+        "data-engineering-data-pipeline"
       ],
       "frontend_packages": {},
       "baseline_coverage": {
@@ -599,7 +599,7 @@
       "instruction_files": [],
       "skills": [
         "scala-library-contracts",
-        "java-pro"
+        "java-concurrency"
       ],
       "frontend_packages": {},
       "baseline_coverage": {
@@ -698,7 +698,7 @@
         "mill-jvm-modules",
         "mill-monorepo",
         "mill-dependencies-and-toolchains",
-        "data-engineer"
+        "data-engineering-data-pipeline"
       ],
       "frontend_packages": {},
       "baseline_coverage": {
@@ -1442,7 +1442,7 @@
       ],
       "instruction_files": [],
       "skills": [
-        "python-development",
+        "python-patterns",
         "parametric-cad-validation"
       ],
       "frontend_packages": {},
@@ -2429,7 +2429,7 @@
       "ci_files": [],
       "instruction_files": [],
       "skills": [
-        "python-pro",
+        "python-patterns",
         "api-and-interface-design"
       ],
       "frontend_packages": {},
@@ -2620,7 +2620,7 @@
         "kotlin-coroutines",
         "kotlin-null-safety",
         "scala-library-contracts",
-        "java-pro"
+        "java-concurrency"
       ],
       "frontend_packages": {},
       "baseline_coverage": {
@@ -3262,8 +3262,7 @@
       ],
       "instruction_files": [],
       "skills": [
-        "python-development",
-        "python-pro",
+        "python-patterns",
         "analyze-performance"
       ],
       "frontend_packages": {},
@@ -3418,8 +3417,7 @@
       ],
       "instruction_files": [],
       "skills": [
-        "python-development",
-        "python-pro",
+        "python-patterns",
         "api-and-interface-design"
       ],
       "frontend_packages": {},
@@ -3487,13 +3485,12 @@
       ],
       "instruction_files": [],
       "skills": [
-        "python-development",
+        "python-patterns",
         "streaming-integrations",
         "pixijs-application",
         "pixijs-core-concepts",
         "pixijs-performance",
-        "typescript-project-contracts",
-        "python-pro"
+        "typescript-project-contracts"
       ],
       "frontend_packages": {
         "frontend/package.json": {
@@ -3798,7 +3795,7 @@
       "instruction_files": [],
       "skills": [
         "generating-documentation",
-        "github-actions"
+        "github-actions-advanced"
       ],
       "frontend_packages": {},
       "baseline_coverage": {
@@ -4562,7 +4559,7 @@
       ],
       "instruction_files": [],
       "skills": [
-        "python-development",
+        "python-patterns",
         "embedded-device-protocols"
       ],
       "frontend_packages": {
@@ -4670,7 +4667,7 @@
       "skills": [
         "kotlin-coroutines",
         "kotlin-null-safety",
-        "api-design-principles"
+        "designing-apis"
       ],
       "frontend_packages": {},
       "baseline_coverage": {
@@ -5502,7 +5499,7 @@
       "ci_files": [],
       "instruction_files": [],
       "skills": [
-        "python-development",
+        "python-patterns",
         "python-async-patterns",
         "embedded-device-protocols"
       ],
@@ -6500,7 +6497,7 @@
       ],
       "instruction_files": [],
       "skills": [
-        "python-development",
+        "python-patterns",
         "embedded-device-protocols"
       ],
       "frontend_packages": {},
@@ -7529,7 +7526,7 @@
       "ci_files": [],
       "instruction_files": [],
       "skills": [
-        "python-development"
+        "python-patterns"
       ],
       "frontend_packages": {},
       "baseline_coverage": {
@@ -8829,7 +8826,7 @@
       ],
       "instruction_files": [],
       "skills": [
-        "python-development",
+        "python-patterns",
         "streaming-integrations",
         "python-async-patterns"
       ],
@@ -8936,7 +8933,7 @@
         "mill-jvm-modules",
         "mill-monorepo",
         "scala-library-contracts",
-        "python-development",
+        "python-patterns",
         "airgradient-clients"
       ],
       "frontend_packages": {},

@@ -1,6 +1,6 @@
 ---
 name: agent-self-scheduling
-description: "Schedule AI agent runs with cron, loops, or external clocks while avoiding unsafe tight autonomous timers."
+description: "Schedule recurring or delayed AI agent runs - headless CLI runs under cron/systemd timers/loops, the Hermes built-in scheduler, and heartbeat gating - with permission flags, persisted state and a verified first fire. Use when the user wants an agent to run on a schedule, poll, or wake itself up later; not for scheduling ordinary non-agent jobs."
 category: agent-orchestration
 risk: critical
 source: community

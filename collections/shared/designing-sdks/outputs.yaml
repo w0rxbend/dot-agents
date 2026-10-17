@@ -282,7 +282,7 @@ metadata:
     - "Multi-language SDK generation"
 
   integrates_with:
-    - "api-design-principles"
+    - "designing-apis"
     - "building-clis"
     - "testing-strategies"
 

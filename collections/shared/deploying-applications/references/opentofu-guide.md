@@ -1471,8 +1471,8 @@ jobs:
   detect-drift:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: opentofu/setup-opentofu@v1
+      - uses: actions/checkout@<pinned-sha> # current release, pinned by full SHA
+      - uses: opentofu/setup-opentofu@<pinned-sha> # current release
 
       - name: Detect drift
         run: |

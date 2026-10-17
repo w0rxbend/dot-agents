@@ -1,7 +1,7 @@
 ---
 name: python-data-classes
 user-invocable: false
-description: Use when Python data modeling with dataclasses, attrs, and Pydantic. Use when creating data structures and models.
+description: Choose and write Python data models with dataclasses, attrs or Pydantic v2 - field options, frozen/slots/kw_only, validation, serialization and conversion. Use when defining or refactoring model classes; use python-type-system for general annotations.
 allowed-tools:
   - Bash
   - Read
@@ -84,13 +84,13 @@ p1 = Person(30, "Alice")
 p2 = Person(25, "Bob")
 print(p1 > p2)  # True (compares by age first)
 
-# slots=True uses __slots__ for memory efficiency
+# slots=True uses __slots__ for memory efficiency (3.10+)
 @dataclass(slots=True)
 class Coordinate:
     x: float
     y: float
 
-# kw_only=True requires keyword arguments
+# kw_only=True requires keyword arguments (3.10+)
 @dataclass(kw_only=True)
 class Config:
     host: str
@@ -105,7 +105,6 @@ config = Config(host="localhost", port=8080)
 
 ```python
 from dataclasses import dataclass, field
-from typing import List
 
 @dataclass
 class Product:
@@ -119,7 +118,7 @@ class Product:
     secret: str = field(repr=False, default="")
 
     # Default factory for mutable defaults
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
 
     # Exclude from comparison
     created_at: float = field(compare=False, default=0.0)
@@ -534,15 +533,14 @@ print(event.model_dump())
 - Simple data containers with type hints
 - Part of standard library (no dependencies)
 - Basic validation not required
-- Python 3.7+ compatibility needed
+- No third-party dependency allowed
 - Immutability with frozen=True
 
 **When to use attrs:**
 
 - More features than dataclasses (validators, converters)
-- Better performance than dataclasses
+- Slots by default (`@define`), plus converters and on-setattr hooks
 - Advanced field configuration needed
-- Backward compatibility (Python 2.7+)
 - Custom initialization logic
 
 **When to use Pydantic:**
@@ -573,23 +571,23 @@ print(event.model_dump())
 
 ```python
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Self  # 3.11+; typing_extensions on older versions
 
 @dataclass
 class QueryBuilder:
     _select: list[str] = field(default_factory=list)
     _where: list[str] = field(default_factory=list)
-    _limit: Optional[int] = None
+    _limit: int | None = None
 
-    def select(self, *columns: str) -> "QueryBuilder":
+    def select(self, *columns: str) -> Self:
         self._select.extend(columns)
         return self
 
-    def where(self, condition: str) -> "QueryBuilder":
+    def where(self, condition: str) -> Self:
         self._where.append(condition)
         return self
 
-    def limit(self, n: int) -> "QueryBuilder":
+    def limit(self, n: int) -> Self:
         self._limit = n
         return self
 

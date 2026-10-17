@@ -1,6 +1,6 @@
 ---
 name: spec-driven-development
-description: "Write requirements and acceptance criteria for a new project or substantial change when a specification is needed. Start from existing evidence and user choices; ordinary well-specified edits do not require a new PRD."
+description: "Write and gate a specification (objective, constraints, boundaries, testable success criteria, capability map for multi-module requests) before building a new project or substantial change. Use when requirements are ambiguous or span several modules; use interview-me to clarify intent first and planning-and-task-breakdown once the spec is approved. Ordinary well-specified edits do not need a spec."
 ---
 
 # Spec-Driven Development
@@ -173,45 +173,12 @@ This lets you loop, retry, and problem-solve toward a clear goal rather than gue
 2. Ask the human to approve it or request changes.
 3. **STOP YOUR TURN IMMEDIATELY.** Do NOT start Phase 2, invoke `planning-and-task-breakdown`, or write code in this turn. Planning starts only after the human approves the spec in a later turn.
 
-### Phase 2: Plan
+### Phases 2-4: Plan, Tasks, Implement
 
-With the validated spec, generate a technical implementation plan:
+After the human approves the spec (in a later turn):
 
-1. Identify the major components and their dependencies
-2. Determine the implementation order (what must be built first)
-3. Note risks and mitigation strategies
-4. Identify what can be built in parallel vs. what must be sequential
-5. Define verification checkpoints between phases
-
-> Follow `planning-and-task-breakdown` for the dependency-graph mapping and vertical-slicing mechanics behind these steps; it is the canonical source. The bullets above are a lightweight summary; if they ever diverge, `planning-and-task-breakdown` takes precedence.
->
-> **Output convention:** Save the plan to `tasks/plan.md` and record the task list in the task list target defined by `planning-and-task-breakdown` (default `tasks/todo.md`; projects may designate an external tracker instead). Create `tasks/` if it does not exist. Downstream commands (`/build`, etc.) expect these defaults.
-
-The plan should be reviewable: the human should be able to read it and say "yes, that's the right approach" or "no, change X."
-
-### Phase 3: Tasks
-
-Break the plan into discrete, implementable tasks:
-
-- Each task should be completable in a single focused session
-- Each task has explicit acceptance criteria
-- Each task includes a verification step (test, build, manual check)
-- Tasks are ordered by dependency, not by perceived importance
-- No task should require changing more than ~5 files
-
-> Follow `planning-and-task-breakdown` for the full task-sizing and dependency-ordering mechanics; it is the canonical source. The template below is a lightweight inline form; if they ever diverge, `planning-and-task-breakdown` takes precedence.
-
-**Task template:**
-```markdown
-- [ ] Task: [Description]
-  - Acceptance: [What must be true when done]
-  - Verify: [How to confirm — test command, build, manual check]
-  - Files: [Which files will be touched]
-```
-
-### Phase 4: Implement
-
-Execute tasks one at a time following `skills/incremental-implementation/SKILL.md` (`incremental-implementation`) and `skills/test-driven-development/SKILL.md` (`test-driven-development`). Use `skills/context-engineering/SKILL.md` (`context-engineering`) to load the right spec sections and source files at each step rather than flooding the agent with the entire spec.
+1. **Plan and tasks:** follow `planning-and-task-breakdown`. It owns the dependency graph, vertical slicing, task sizing and template, and where the plan and task list are stored (by default `tasks/plan.md` and `tasks/todo.md`, unless the project uses an external tracker). Each of these steps gets its own human review gate.
+2. **Implement:** run the tasks one at a time with `incremental-implementation` and `test-driven-development`. Use `context-engineering` to load only the spec sections and source files the current task needs.
 
 ## Keeping the Spec Alive
 

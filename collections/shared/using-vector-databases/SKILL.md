@@ -380,7 +380,7 @@ See `examples/qdrant-python/` for code-specific implementation.
 
 ### Backend Skills
 - **databases-relational**: Hybrid approach using pgvector extension
-- **api-patterns**: Expose semantic search via REST/GraphQL
+- **implementing-api-patterns**: Expose semantic search via REST/GraphQL
 - **observability**: Monitor embedding quality and retrieval metrics
 
 ## Multi-Language Support

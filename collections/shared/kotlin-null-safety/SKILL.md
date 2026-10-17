@@ -1,7 +1,7 @@
 ---
 name: kotlin-null-safety
 user-invocable: false
-description: Use when kotlin's null safety system including nullable types, safe calls, Elvis operator, smart casts, and patterns for eliminating NullPointerExceptions while maintaining code expressiveness and clarity.
+description: Apply Kotlin null safety - nullable types, safe calls, Elvis, smart casts, platform types from Java interop, and null-safe API design. Use when fixing NPE risks, removing `!!`, or designing Kotlin APIs that cross Java boundaries.
 allowed-tools: []
 ---
 

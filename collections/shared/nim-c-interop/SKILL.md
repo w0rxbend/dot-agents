@@ -1,7 +1,7 @@
 ---
 name: nim-c-interop
 user-invocable: false
-description: Use when nim-C interoperability including calling C from Nim, wrapping C libraries, importc/exportc pragmas, header generation, FFI patterns, and building high-performance systems code integrating Nim with existing C codebases.
+description: Nim/C interop - importc/exportc/header/dynlib pragmas, wrapping C libraries with Nim 2 destructor-based handles, callbacks, struct layout, cstring lifetimes and building Nim as a C library. Use when calling C from Nim or exposing Nim to C; use nim-memory-management for hook semantics and memory models.
 allowed-tools: []
 ---
 
@@ -157,15 +157,19 @@ proc close(curl: CurlHandle) =
 proc setUrl(curl: CurlHandle, url: string) =
   discard curl_easy_setopt(curl.handle, 10002, cstring(url))
 
-# RAII wrapper with destructor
+# RAII wrapper with destructor (Nim 2 hook signatures; Nim 1.x used
+# `=destroy(x: var T)` and reset fields inside it)
 type
   CurlSession = object
     curl: Curl
 
-proc `=destroy`(session: var CurlSession) =
+proc `=destroy`(session: CurlSession) =
   if session.curl.pointer != nil:
     curl_easy_cleanup(session.curl)
-    session.curl = Curl(nil)
+
+proc `=wasMoved`(session: var CurlSession) = session.curl = Curl(nil)
+# Without this, a copy would call curl_easy_cleanup twice.
+proc `=copy`(dst: var CurlSession; src: CurlSession) {.error: "move-only".}
 
 proc newSession(): CurlSession =
   result.curl = curl_easy_init()
@@ -197,9 +201,12 @@ proc openDatabase(filename: string): Database =
     raise newException(IOError, "Cannot open database")
   result.handle = db
 
-proc `=destroy`(db: var Database) =
+proc `=destroy`(db: Database) =
   if db.handle.pointer != nil:
     discard sqlite3_close(db.handle)
+
+proc `=wasMoved`(db: var Database) = db.handle = SqliteDb(nil)
+proc `=copy`(dst: var Database; src: Database) {.error: "move-only".}
 
 # C callback wrapping
 type
@@ -249,12 +256,27 @@ proc pointDistance(p1, p2: Point): cdouble {.exportc.} =
   let dy = (p2.y - p1.y).float
   sqrt(dx * dx + dy * dy)
 
-# Export string operations
-proc processString(input: cstring): cstring {.exportc.} =
-  let s = $input
-  result = cstring(s.toUpperAscii())
+# Export string operations. Never return cstring(someNimString): the Nim
+# string is freed when the proc returns and C gets a dangling pointer.
+# Either write into a caller-owned buffer...
+proc upperInto(input: cstring; buf: ptr char; bufLen: csize_t): cint {.exportc.} =
+  let s = toUpperAscii($input)              # import std/strutils
+  if s.len.csize_t + 1 > bufLen: return -1
+  copyMem(buf, cast[pointer](s.cstring), s.len + 1)
+  result = s.len.cint
 
-# Generating header file
+# ...or hand out a copy C must release through a matching exported free.
+proc upperDup(input: cstring): cstring {.exportc.} =
+  let s = toUpperAscii($input)
+  let p = allocShared0(s.len + 1)          # zeroed, so NUL-terminated
+  copyMem(p, cast[pointer](s.cstring), s.len)
+  result = cast[cstring](p)
+
+proc upperFree(p: cstring) {.exportc.} = deallocShared(cast[pointer](p))
+
+# Emitting C declarations into the generated code (this is not a public
+# header; write the .h for consumers yourself, or try `--header` and check
+# that your Nim version still supports it)
 {.emit: """/*TYPESECTION*/
 typedef struct {
   int x;
@@ -410,10 +432,12 @@ type
 proc acquire(): Resource =
   result.handle = malloc(1024)
 
-proc `=destroy`(r: var Resource) =
+proc `=destroy`(r: Resource) =
   if r.handle != nil:
     free(r.handle)
-    r.handle = nil
+
+proc `=wasMoved`(r: var Resource) = r.handle = nil
+proc `=copy`(dst: var Resource; src: Resource) {.error: "move-only".}
 
 # Callback with closure
 type
@@ -471,9 +495,12 @@ Safe FFI patterns prevent common C interop errors and resource leaks.
 
 6. **Test interop code** thoroughly as type mismatches cause runtime errors
 
-7. **Use const for read-only** C parameters to prevent accidental modification
+7. **Make every handle wrapper move-only** (`=copy {.error.}`) so a copy can
+   never double-free the C resource
 
-8. **Generate headers** when exporting to make C integration easier
+8. **Ship a hand-written header** for exported procs and keep it in sync with
+   the `exportc` names; call `NimMain()` once before other exports when built
+   with `--noMain`
 
 9. **Handle C errors** explicitly and convert to Nim exceptions
 
@@ -492,13 +519,17 @@ Safe FFI patterns prevent common C interop errors and resource leaks.
 
 5. **Incorrect memory layout** for C structs causes data corruption
 
-6. **Using GC types in C callbacks** causes crashes as GC may move objects
+6. **Handing a `ref` to C without keeping a Nim-side owner** lets ARC/ORC free
+   it while C still holds the pointer; keep it alive (store it, or `GC_ref`
+   and later `GC_unref`) for as long as C may call back with it
 
 7. **Not checking C return values** misses error conditions
 
 8. **Mixing Nim and C memory** management causes double-free or leaks
 
-9. **Assuming C struct padding** matches Nim without packed pragma
+9. **Re-declaring C structs by hand** instead of importing them: prefer
+   `{.importc: "struct x", header: "x.h".} = object` so the C compiler owns the
+   layout; use `{.packed.}` only when the C side is packed
 
 10. **Not testing on target platform** misses platform-specific issues
 
@@ -515,6 +546,17 @@ Integrate with system APIs only available through C interfaces.
 Optimize hot paths by calling optimized C implementations.
 
 Build upon C ecosystems while writing higher-level Nim code.
+
+## Done when
+
+- Every imported proc matches the C prototype (types, `cint`/`csize_t`,
+  calling convention) and links (`{.passL: "-lfoo".}` or `dynlib`).
+- Each owned C handle lives in a move-only wrapper with Nim 2 hooks
+  (`=destroy(x: T)`, `=wasMoved`, `=copy {.error.}`).
+- No `cstring` derived from a Nim string outlives that string, and every
+  pointer handed to C has a documented owner and free function.
+- Built and run on the target platform; examples here were not compiled while
+  editing this skill.
 
 ## Resources
 

@@ -1,6 +1,6 @@
 ---
 name: building-ci-pipelines
-description: Constructs secure, efficient CI/CD pipelines with supply chain security (SLSA), monorepo optimization, caching strategies, and parallelization patterns for GitHub Actions, GitLab CI, and Argo Workflows. Use when setting up automated testing, building, or deployment workflows.
+description: Design CI pipelines across GitHub Actions, GitLab CI and Argo Workflows - stage layout, caching, test sharding, monorepo affected builds, OIDC and SLSA provenance. Use when designing or speeding up a pipeline or choosing a CI platform; use github-actions-advanced for GitHub workflow syntax and hardening, github-actions-debugger for a failing run.
 ---
 
 # Building CI Pipelines
@@ -37,6 +37,8 @@ Invoke when:
 | Monorepo | Good | Excellent | Manual | Plugins |
 
 ## Quick Start Patterns
+
+Examples use major-version tags for readability. In real workflows pin every third-party action to the full commit SHA of its current release with a `# vX.Y.Z` comment, and declare `permissions:` (see the `github-actions-advanced` skill).
 
 ### Pattern 1: Basic CI (Lint → Test → Build)
 
@@ -142,7 +144,7 @@ jobs:
       id-token: write
       actions: read
       packages: write
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.10.0
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@vX.Y.Z  # use the current release tag; this generator must be referenced by tag, not SHA
     with:
       image: ghcr.io/${{ github.repository }}
       digest: ${{ needs.build.outputs.digest }}
@@ -196,7 +198,7 @@ security:
       uses: gitleaks/gitleaks-action@v2
 
     - name: Snyk (vulnerability scan)
-      uses: snyk/actions/node@master
+      uses: snyk/actions/node@<pinned-sha> # vX.Y.Z
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
@@ -321,7 +323,7 @@ test:
       os: [ubuntu-latest, windows-latest, macos-latest]
       rust: [stable, nightly]
   steps:
-    - uses: dtolnay/rust-toolchain@master
+    - uses: dtolnay/rust-toolchain@<pinned-sha> # mutable branch refs like @master/@stable must be pinned
       with:
         toolchain: ${{ matrix.rust }}
         components: rustfmt, clippy
@@ -341,7 +343,7 @@ test:
         go-version: '1.23'
         cache: true
     - run: go mod verify
-    - uses: golangci/golangci-lint-action@v4
+    - uses: golangci/golangci-lint-action@<pinned-sha> # current major
     - run: go test -v -race -coverprofile=coverage.txt ./...
 ```
 
@@ -353,9 +355,9 @@ test:
     matrix:
       node-version: [18, 20, 22]
   steps:
-    - uses: pnpm/action-setup@v3
+    - uses: pnpm/action-setup@<pinned-sha> # current major
       with:
-        version: 8
+        version: <pnpm-version>   # or omit to use packageManager from package.json
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
@@ -372,7 +374,7 @@ test:
 
 **DO:**
 - Use OIDC instead of long-lived credentials
-- Pin actions to commit SHA: `actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11`
+- Pin actions to a full commit SHA with a version comment: `actions/checkout@<sha> # vX.Y.Z`
 - Restrict permissions: `permissions: { contents: read }`
 - Scan secrets (Gitleaks) on every commit
 - Generate SLSA provenance for releases
@@ -398,56 +400,39 @@ test:
 
 ### Debugging
 
-```yaml
-# Enable debug logging
-env:
-  ACTIONS_STEP_DEBUG: true
-  ACTIONS_RUNNER_DEBUG: true
-
-# SSH into runner
-- uses: mxschmitt/action-tmate@v3
+```bash
+# Rerun failed jobs with runner and step debug logging
+gh run rerun <run-id> --failed --debug
+# Or set repository variables ACTIONS_STEP_DEBUG=true / ACTIONS_RUNNER_DEBUG=true
 ```
+
+For diagnosing a specific failing run, use the `github-actions-debugger` skill.
 
 ## Advanced Patterns
 
-For detailed guides, see references:
+Read the matching reference when the task goes deeper than the patterns above:
 
-- **github-actions-patterns.md** - Reusable workflows, composite actions, matrix strategies, OIDC setup
-- **gitlab-ci-patterns.md** - Parent-child pipelines, dynamic generation, runner configuration
-- **argo-workflows-guide.md** - DAG templates, artifact passing, event-driven triggers
-- **slsa-security-framework.md** - SLSA Levels 1-4, provenance generation, cosign verification
-- **monorepo-ci-strategies.md** - Turborepo/Nx/Bazel affected detection algorithms
-- **caching-strategies.md** - Multi-layer caching, Docker optimization, cache invalidation
-- **parallelization-patterns.md** - Test sharding, job dependencies, DAG design
-- **secrets-management.md** - OIDC for AWS/GCP/Azure, Vault integration, rotation
+- [references/github-actions-patterns.md](references/github-actions-patterns.md) - reusable workflows, composite actions, matrix strategies, OIDC setup
+- [references/slsa-security-framework.md](references/slsa-security-framework.md) - SLSA levels, provenance generation, cosign verification
+- [references/monorepo-ci-strategies.md](references/monorepo-ci-strategies.md) - Turborepo/Nx/Bazel affected detection
+- [references/caching-strategies.md](references/caching-strategies.md) - multi-layer caching, Docker layer caching, invalidation
 
-## Examples
+## Examples and helpers
 
-Complete runnable workflows:
+- [examples/github-actions-basic/](examples/github-actions-basic/) - starter lint/test/build workflow
+- [examples/github-actions-monorepo/](examples/github-actions-monorepo/) - Turborepo with remote caching
+- [scripts/validate_workflow.py](scripts/validate_workflow.py) - validate workflow YAML and common best practices; `actionlint` is the more complete linter when installed
 
-- **examples/github-actions-basic/** - Starter template (lint/test/build)
-- **examples/github-actions-monorepo/** - Turborepo with remote caching
-- **examples/github-actions-slsa/** - SLSA Level 3 provenance
-- **examples/gitlab-ci-monorepo/** - Parent-child dynamic pipeline
-- **examples/argo-workflows-dag/** - Diamond DAG parallelization
-- **examples/multi-language-matrix/** - Cross-platform testing
+## Done when
 
-## Utility Scripts
-
-Token-free execution:
-
-- **scripts/validate_workflow.py** - Validate YAML syntax and best practices
-- **scripts/generate_github_workflow.py** - Generate workflow from template
-- **scripts/analyze_ci_performance.py** - CI metrics analysis
-- **scripts/setup_oidc_aws.py** - Automate AWS OIDC setup
+- Pipeline stages run in dependency order with independent jobs parallel, and the critical path is measured before and after changes.
+- Dependency and build caches hit on a second run of an unchanged commit.
+- Credentials come from OIDC or scoped secrets, actions are SHA-pinned, and release artifacts carry provenance where required.
 
 ## Related Skills
 
-**testing-strategies** - Test execution strategies (unit, integration, E2E)
-**deploying-applications** - Deployment automation and GitOps
-**auth-security** - Secrets management and authentication
-**observability** - Pipeline monitoring and alerting
-
-## Helper availability
-
-The helper names marked **not shipped** describe possible project automation. Do not run those commands as installed tooling. Use the bundled helpers that exist, or implement and verify the missing behavior in the task workspace when it is actually needed.
+- `github-actions-advanced` - GitHub workflow syntax, hardening and self-hosted runners
+- `github-actions-debugger` - diagnosing a failing run
+- `testing-strategies` - what to run at which pipeline stage
+- `implementing-gitops` - continuous delivery to Kubernetes after CI
+- `dependency-scanning` - vulnerability and SBOM scanning stages

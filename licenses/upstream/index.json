@@ -151,5 +151,26 @@
     "spdx": "LicenseRef-Private-Local",
     "distribution": "external",
     "reason": "Locally authored private-repository context; excluded from public exports."
+  },
+  "mattpocock/skills": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "f1dd2c09108dde1a5f56097cee8461b3ea834499",
+    "html_url": "https://github.com/mattpocock/skills/blob/main/LICENSE",
+    "file": "licenses/upstream/mattpocock--skills.txt"
+  },
+  "DietrichGebert/ponytail": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "715d483338cea4365f0d91a27799cf61226d6bcf",
+    "html_url": "https://github.com/DietrichGebert/ponytail/blob/main/LICENSE",
+    "file": "licenses/upstream/DietrichGebert--ponytail.txt"
+  },
+  "ayghri/i-have-adhd": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "19db5f1b0ca65e277c158bd4c4263139ccfd859c",
+    "html_url": "https://github.com/ayghri/i-have-adhd/blob/main/LICENSE",
+    "file": "licenses/upstream/ayghri--i-have-adhd.txt"
   }
 }

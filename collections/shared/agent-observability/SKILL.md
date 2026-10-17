@@ -1,18 +1,16 @@
 ---
 name: agent-observability
-description: Instrument AI agents with tracing, token metrics, latency, and cost visibility.
-  Use for reliability and debugging.
+description: Instrument LLM apps and AI agents with per-call and per-turn latency, token and cost metrics, OpenTelemetry spans for model and tool calls, SLOs and prompt/PII redaction. Use when you cannot answer what an agent did, how long it took or what it cost; for general service instrumentation use observability-and-instrumentation.
 category: devops
-risk: critical
+risk: safe
 source: https://github.com/BagelHole/DevOps-Security-Agent-Skills
 source_repo: BagelHole/DevOps-Security-Agent-Skills
 source_type: community
 date_added: '2026-09-20'
 license: MIT
 license_source: https://github.com/BagelHole/DevOps-Security-Agent-Skills/blob/main/LICENSE
-compatibility: Requires the relevant platform CLIs (kubectl, helm, terraform, git,
-  CI runners) and authorized access to the target environment. Docs-only; helper scripts
-  and templates not bundled.
+compatibility: Python examples using prometheus_client and the OpenTelemetry SDK; adapt
+  to your language and backend. Docs-only; helper scripts and templates not bundled.
 metadata:
   author: devops-skills
   version: '2.0'
@@ -215,6 +213,8 @@ def traced_llm_call(client, messages, model="gpt-4o", **kwargs):
             raise
 ```
 
+The `llm.*` attribute names above are illustrative. OpenTelemetry's GenAI semantic conventions define standard names (for example `gen_ai.request.model`, `gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`); they are still evolving, so check the current spec and your backend's expectations, and prefer an existing instrumentation library for your LLM SDK over hand-rolled wrappers when one is available.
+
 ### Tracing Tool Execution
 
 ```python
@@ -300,17 +300,12 @@ def extract_context_from_request(request_headers: dict):
 ---
 
 
-## Contents
+## More in references/details.md
 
-- [Structured Logging](references/details.md)
-- [Grafana Dashboards](references/details.md)
-- [Cost Tracking](references/details.md)
-- [Langfuse / Helicone Integration](references/details.md)
-- [SLO Definition](references/details.md)
-- [Debugging Workflows](references/details.md)
-- [PII Redaction in Traces](references/details.md)
-- [Best Practices](references/details.md)
-- [Related Skills](references/details.md)
+Read `references/details.md` when you need any of the following; it is one file with these sections:
+structured logging of agent actions, a Grafana agent-overview dashboard, per-model cost calculation and budget alert rules,
+Langfuse / Helicone integration, SLO recording and alert rules (plus a Sloth spec), debugging workflows for slow responses,
+high token usage and tool failures, and an OpenTelemetry span processor for PII redaction.
 
 ## When to Use
 
@@ -333,14 +328,8 @@ Key signals that you need this skill:
 
 ## Limitations
 
-- Guidance executes against real environments: confirm target, blast radius, and rollback plan before applying anything.
-- Never deploy to production without explicit approval. Docs-only import: upstream scripts and templates not bundled.
-
-### Example
-
-```bash
-git status && git diff --stat
-kubectl diff -f manifest.yaml
-```
+- Prompts, completions and tool arguments routinely contain user data and secrets: do not record them as span attributes or log fields by default; redact (see the PII section in `references/details.md`) and check what actually reaches the backend.
+- Cost figures are estimates from token counts and a pricing table you maintain; reconcile against provider invoices.
+- Keep model and agent names as metric labels only while their sets stay small; never label by user, session or prompt.
 
 > Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT); frontmatter, When to Use/Limitations, and safety boundaries added for upstream compliance. Docs-only import: helper scripts and templates not bundled.

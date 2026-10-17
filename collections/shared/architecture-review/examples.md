@@ -1,4 +1,4 @@
-# Architecture Review Examples
+# Architecture Review and Dependency Analysis Examples
 
 Each example is graph-first and MCP-first.
 
@@ -9,3 +9,12 @@ Each example is graph-first and MCP-first.
 | durable-local | Find storage APIs and consumers before a refactor. | Follow shared workflow, run `EvidencePack` first, then `ExplainArchitecture` then `GraphStatistics` then `FindCycles` then `FindDependencies`, inspect files only if graph evidence is missing. | `EvidencePack`, `ExplainArchitecture`, `GraphStatistics`, `FindCycles`, `FindDependencies` | functions, interfaces, dependents, configuration; graph hash; confidence. | A concise architecture summary with graph-backed boundaries, risks, evidence node ids, and confidence. |
 | 0xsarwagya | Summarize workspace packages and package dependencies. | Follow shared workflow, run `EvidencePack` first, then `ExplainArchitecture` then `GraphStatistics` then `FindCycles` then `FindDependencies`, inspect files only if graph evidence is missing. | `EvidencePack`, `ExplainArchitecture`, `GraphStatistics`, `FindCycles`, `FindDependencies` | workspace, packages, framework nodes, dependency edges; graph hash; confidence. | A concise architecture summary with graph-backed boundaries, risks, evidence node ids, and confidence. |
 | Innosphere | Identify application modules and request ownership. | Follow shared workflow, run `EvidencePack` first, then `ExplainArchitecture` then `GraphStatistics` then `FindCycles` then `FindDependencies`, inspect files only if graph evidence is missing. | `EvidencePack`, `ExplainArchitecture`, `GraphStatistics`, `FindCycles`, `FindDependencies` | controllers, modules, routes, services; graph hash; confidence. | A concise architecture summary with graph-backed boundaries, risks, evidence node ids, and confidence. |
+
+## Dependency-Analysis Mode
+
+For "what depends on X / what does X depend on" questions, use the dependency order instead:
+
+| Repository | Questions | Expected workflow | Capabilities invoked | Expected evidence | Expected answer |
+| --- | --- | --- | --- | --- | --- |
+| durable-local | Find storage APIs and consumers before a refactor. | Follow shared workflow, run `EvidencePack` first, then `FindDependencies` then `FindDependents` then `FindCycles` then `GraphStatistics`, inspect files only if graph evidence is missing. | `EvidencePack`, `FindDependencies`, `FindDependents`, `FindCycles`, `GraphStatistics` | functions, interfaces, dependents, configuration; graph hash; confidence. | A deterministic dependency report with direct/transitive edges, cycles, and confidence. |
+| 0xsarwagya | Summarize workspace packages and package dependencies. | Follow shared workflow, run `EvidencePack` first, then `FindDependencies` then `FindDependents` then `FindCycles` then `GraphStatistics`, inspect files only if graph evidence is missing. | `EvidencePack`, `FindDependencies`, `FindDependents`, `FindCycles`, `GraphStatistics` | workspace, packages, framework nodes, dependency edges; graph hash; confidence. | A deterministic dependency report with direct/transitive edges, cycles, and confidence. |

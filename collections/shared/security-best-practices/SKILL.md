@@ -1,6 +1,6 @@
 ---
 name: "security-best-practices"
-description: "Perform language and framework specific security best-practice reviews and suggest improvements. Trigger only when the user explicitly requests security best practices guidance, a security review/report, or secure-by-default coding help. Trigger only for supported languages (python, javascript/typescript, go). Do not trigger for general code review, debugging, or non-security tasks."
+description: "Language- and framework-specific secure-coding review using bundled per-framework references for Python (Django/Flask/FastAPI), JavaScript/TypeScript (Express/Next.js/React/Vue/jQuery) and Go. Use only when a security review or secure-by-default guidance is explicitly requested for one of those stacks; use security-and-hardening for framework-agnostic boundary hardening."
 author: openai
 ---
 

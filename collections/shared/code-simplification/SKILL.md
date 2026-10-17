@@ -1,6 +1,6 @@
 ---
 name: code-simplification
-description: Simplifies code for clarity. Use when refactoring code for clarity without changing behavior. Use when code works but is harder to read, maintain, or extend than it should be. Use when reviewing code that has accumulated unnecessary complexity.
+description: "Simplify working code without changing behavior. Defaults to recently changed code; flattens control flow, removes dead code and needless abstraction, clarifies names, and matches project conventions. Use when code works but is harder to read or maintain than it should be; for smell-driven structural refactoring use refactoring-guru."
 ---
 
 # Code Simplification
@@ -183,6 +183,10 @@ COMPARE BEFORE AND AFTER:
 ```
 
 If the "simplified" version is harder to understand or review, revert. Not every simplification attempt succeeds.
+
+## Rule Reference
+
+[references/rules-index.md](references/rules-index.md) indexes 47 focused rules, each with incorrect/correct examples and a "When NOT to use" section. The rules cover context discovery, behavior preservation, scope, control flow, naming, duplication, dead code, and language idioms (TypeScript, Python, Go, Rust). Open the index during Step 2 when you need the exact treatment for a pattern, then read only the matching rule file.
 
 ## Language-Specific Guidance
 

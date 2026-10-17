@@ -1,7 +1,7 @@
 ---
 name: pulumi-components
 user-invocable: false
-description: Use when building reusable infrastructure components with Pulumi for modular, composable cloud resources.
+description: "Build reusable Pulumi ComponentResources - typed inputs/outputs, child-resource parenting, resource options, packaging and testing of modular cloud infrastructure. Use when authoring shareable Pulumi abstractions; use pulumi-stacks for per-environment configuration."
 allowed-tools: [Bash, Read]
 ---
 

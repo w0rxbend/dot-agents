@@ -248,7 +248,7 @@ npm install pg @influxdata/influxdb-client @clickhouse/client
 | **feedback**         | Powers alerting thresholds (CPU > 80%, latency > 500ms)  |
 | **ai-chat**          | Enables "Show me last hour's error rate" queries         |
 | **observability**    | Stores Prometheus metrics, traces, logs                  |
-| **api-patterns**     | Exposes time-series data via REST/GraphQL                |
+| **implementing-api-patterns** | Exposes time-series data via REST/GraphQL                |
 | **realtime-sync**    | Streams live metrics via WebSocket/SSE                   |
 
 ## Validation Checklist

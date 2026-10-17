@@ -1,6 +1,6 @@
 ---
 name: implementing-observability
-description: Monitoring, logging, and tracing implementation using OpenTelemetry as the unified standard. Use when building production systems requiring visibility into performance, errors, and behavior. Covers OpenTelemetry (metrics, logs, traces), Prometheus, Grafana, Loki, Jaeger, Tempo, structured logging (structlog, tracing, slog, pino), and alerting.
+description: Stand up the observability platform - OpenTelemetry SDK and Collector wiring, a Grafana LGTM stack (Loki, Grafana, Tempo, Mimir/Prometheus), log-trace correlation and alert rules - with bundled setup scripts and examples. Use when deploying or wiring the telemetry backend; for deciding what a feature should log, measure and alert on use observability-and-instrumentation.
 ---
 
 # Production Observability with OpenTelemetry

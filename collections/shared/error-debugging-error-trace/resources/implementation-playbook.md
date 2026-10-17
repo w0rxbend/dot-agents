@@ -2,6 +2,8 @@
 
 This file contains detailed patterns, checklists, and code samples referenced by the skill.
 
+> **Version caveat:** these samples are starting templates, not drop-in code. Some target older SDK majors (for example, the Sentry JavaScript samples use `new Sentry.Integrations.*` classes, which Sentry JS v8 replaced with functional integrations such as `Sentry.httpIntegration()`). Check every call against the installed SDK version's documentation before use.
+
 ## Instructions
 
 ### 1. Error Tracking Analysis

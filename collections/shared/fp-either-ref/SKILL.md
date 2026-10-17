@@ -1,96 +1,93 @@
 ---
 name: fp-either-ref
-description: Quick reference for Either type. Use when user needs error handling, validation, or operations that can fail with typed errors.
+description: "fp-ts cheat sheet: Either operators for synchronous typed errors - create, transform, chain with flatMap, accumulate validation errors, extract. Use for a quick lookup while writing fp-ts code; not for Effect (use effect-error-handling), and see fp-errors for the full error-handling approach."
 risk: none
 source: community
 date_added: "2026-09-04"
-version: 1.0.0
+version: 1.1.0
 tags: [fp-ts, either, error-handling, validation, quick-reference]
 ---
 
-# Either Quick Reference
+# Either Quick Reference (fp-ts 2.x)
 
-Either = success or failure. `Right(value)` or `Left(error)`.
+`Either<E, A>` is `Left<E>` (failure) or `Right<A>` (success). Use it when a synchronous operation can fail and the caller needs to know why. For async work use `TaskEither` (fp-taskeither-ref); for "missing, no reason needed" use `Option` (fp-option-ref).
 
-## When to Use
-- You need a quick fp-ts reference for typed synchronous error handling.
-- The task involves validation, fallible operations, or converting throwing code to `Either`.
-- You want a compact cheat sheet rather than a long tutorial.
+`chain`/`chainW` are legacy aliases of `flatMap` (fp-ts 2.14+). Write `flatMap`; it already unions error types.
 
 ## Create
 
 ```typescript
 import * as E from 'fp-ts/Either'
 
-E.right(value)           // Success
-E.left(error)            // Failure
-E.fromNullable(err)(x)   // null → Left(err), else Right(x)
-E.tryCatch(fn, toError)  // try/catch → Either
+E.right(42)                                   // Right(42)
+E.left('not found')                           // Left('not found')
+E.fromNullable('missing')(maybeValue)         // null/undefined -> Left
+E.fromPredicate((n: number) => n > 0, (n) => `${n} is not positive`)(x)
+E.tryCatch(() => JSON.parse(raw), E.toError)  // throwing code -> Either<Error, unknown>
 ```
 
-## Transform
+## Transform and chain
+
+| Operator | Use when |
+|---|---|
+| `E.map(f)` | `f` cannot fail |
+| `E.mapLeft(f)` | Reshape or add context to the error |
+| `E.flatMap(f)` | `f` returns an `Either`; stops at the first `Left`, error types are unioned |
+| `E.tap(f)` | Run a fallible check but keep the original value |
+| `E.filterOrElse(pred, onFalse)` | Turn a `Right` into a `Left` when a predicate fails |
+| `E.orElse(f)` | Recover from a `Left` with another `Either` |
+| `E.Do`, `E.bind`/`E.bindW`, `E.apS`/`E.apSW` | Build an object from several results (`W` = widen error type; `flatMap` widens by default) |
+
+## Extract (only at the edge)
 
 ```typescript
-E.map(fn)                // Transform Right value
-E.mapLeft(fn)            // Transform Left error
-E.flatMap(fn)            // Chain (fn returns Either)
-E.filterOrElse(pred, toErr) // Right → Left if pred fails
+E.getOrElse((err: string) => fallback)(result) // A
+E.match(onLeft, onRight)(result)               // handle both cases
+E.isLeft(result) / E.isRight(result)           // type guards for if/else code
 ```
 
-## Extract
-
-```typescript
-E.getOrElse(err => default)  // Get Right or default
-E.match(onLeft, onRight)     // Pattern match
-E.toUnion(either)            // E | A (loses type info)
-```
-
-## Common Patterns
+## Common patterns
 
 ```typescript
 import { pipe } from 'fp-ts/function'
 import * as E from 'fp-ts/Either'
 
-// Validation
-const validateEmail = (s: string): E.Either<string, string> =>
-  s.includes('@') ? E.right(s) : E.left('Invalid email')
+type InvalidEmail = { _tag: 'InvalidEmail' }
+type TooYoung = { _tag: 'TooYoung'; age: number }
 
-// Chain validations (stops at first error)
-pipe(
-  E.right({ email: 'test@example.com', age: 25 }),
-  E.flatMap(d => pipe(validateEmail(d.email), E.map(() => d))),
-  E.flatMap(d => d.age >= 18 ? E.right(d) : E.left('Must be 18+'))
-)
+const validateEmail = (s: string): E.Either<InvalidEmail, string> =>
+  s.includes('@') ? E.right(s) : E.left({ _tag: 'InvalidEmail' })
 
-// Convert throwing code
-const parseJson = (s: string) => E.tryCatch(
-  () => JSON.parse(s),
-  (e) => `Parse error: ${e}`
-)
+const validateAge = (n: number): E.Either<TooYoung, number> =>
+  n >= 18 ? E.right(n) : E.left({ _tag: 'TooYoung', age: n })
+
+// Fail fast: first error wins, error type is InvalidEmail | TooYoung
+const signup = (email: string, age: number) =>
+  pipe(
+    E.Do,
+    E.apS('email', validateEmail(email)),
+    E.apSW('age', validateAge(age)) // apS needs one error type; apSW/bindW widen it
+  )
+
+// Collect every error (forms): accumulate into a NonEmptyArray
+import { sequenceS } from 'fp-ts/Apply'
+import * as NEA from 'fp-ts/NonEmptyArray'
+
+const V = E.getApplicativeValidation(NEA.getSemigroup<string>())
+const lift = <A>(e: E.Either<string, A>) => pipe(e, E.mapLeft(NEA.of))
+
+const signupAll = (email: string, age: number) =>
+  sequenceS(V)({
+    email: lift(email.includes('@') ? E.right(email) : E.left('email: missing @')),
+    age: lift(age >= 18 ? E.right(age) : E.left('age: must be 18+')),
+  }) // Either<NonEmptyArray<string>, { email: string; age: number }>
 ```
 
-## vs try/catch
+## Decide
 
-```typescript
-// ❌ try/catch - errors not in types
-try {
-  const data = JSON.parse(input)
-  process(data)
-} catch (e) {
-  handleError(e)
-}
+- Only absence matters, no reason: `Option`.
+- One error is enough: `flatMap` / `Do` + `apS`.
+- User needs every error at once: `getApplicativeValidation` + `sequenceS`.
+- Plain `if (!x) return` code is clearer for a two-line function: keep it (see fp-refactor, "When NOT to refactor").
 
-// ✅ Either - errors explicit in types
-pipe(
-  E.tryCatch(() => JSON.parse(input), String),
-  E.map(process),
-  E.match(handleError, identity)
-)
-```
-
-Use Either when **error type matters** and you want to chain operations.
-
-## Limitations
-- Use this skill only when the task clearly matches the scope described above.
-- Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
-- Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.
+Full patterns, typed error unions and real scenarios: fp-errors.

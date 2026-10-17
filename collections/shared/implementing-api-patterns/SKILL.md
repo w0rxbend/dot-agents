@@ -1,6 +1,6 @@
 ---
 name: implementing-api-patterns
-description: API design and implementation across REST, GraphQL, gRPC, and tRPC patterns. Use when building backend services, public APIs, or service-to-service communication. Covers REST frameworks (FastAPI, Axum, Gin, Hono), GraphQL libraries (Strawberry, async-graphql, gqlgen, Pothos), gRPC (Tonic, Connect-Go), tRPC for TypeScript, pagination strategies (cursor-based, offset-based), rate limiting, caching, versioning, and OpenAPI documentation generation. Includes frontend integration patterns for forms, tables, dashboards, and ai-chat skills.
+description: "Implement API servers in code: choose and scaffold FastAPI, Hono, Axum, Gin, tRPC, gRPC (Tonic, Connect-Go) or GraphQL libraries (Strawberry, async-graphql, gqlgen, Pothos), with pagination, rate limiting, caching, OpenAPI generation and frontend integration. Use when writing or changing server-side API code; use designing-apis for the contract and backend-dev-guidelines for Express/Prisma house conventions."
 ---
 
 # API Patterns Skill

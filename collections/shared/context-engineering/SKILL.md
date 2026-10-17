@@ -1,6 +1,6 @@
 ---
 name: context-engineering
-description: Optimizes agent context setup. Use when starting a new session, when agent output quality degrades, when switching between tasks, or when you need to configure rules files and context for a project.
+description: Curate what an agent sees - rules files, task-scoped file loading, context budgets, compaction, and subagent hand-offs. Use when starting or restarting a session, when output quality degrades as context grows, when delegating to subagents, or when setting up rules files for a project.
 ---
 
 # Context Engineering
@@ -229,6 +229,23 @@ After:  "Import issue traced to a circular dependency in src/lib/db.ts —
 
 The detail is gone; the decision is preserved. If the detail turns out to matter, the summary is a breadcrumb for re-investigation.
 
+### Hand off by reference when delegating
+
+When a coordinating agent delegates to subagents, their full reports must not land in the coordinator's window. Keep the artifact outside the conversation and carry only a pointer plus a digest:
+
+1. Have each subagent write its full output to a durable location (a file in the scratch directory, a plan or spec file, a PR comment) under a stable, versioned name such as `notes/plan-v2.md`.
+2. Keep only a short digest in the coordinator's context:
+   ```
+   plan-v2 (notes/plan-v2.md) - status: complete | partial | blocked
+   Result: <two or three facts the next step depends on>
+   Open: <blockers or decisions the user must make>
+   Next: <who or what acts next>
+   ```
+3. Brief the next subagent with the digests it needs, the paths of the full artifacts it may read, its specific task, and the constraints it must not change. Do not paste earlier reports into the brief.
+4. When reporting to the user, summarize and cite the artifact path; do not relay a raw subagent report.
+
+If an artifact is revised, write a new version instead of overwriting the one another agent was briefed with, so digests and files stay consistent.
+
 ### Order for recency
 
 Put the most task-critical content **last** in context. Models recall content at the start and end of the window more reliably than the middle (the lost-in-the-middle effect — Liu et al., 2023). Keep stable rules and specs at the start; put the active task material last, closest to the generation point:
@@ -351,3 +368,4 @@ After setting up context, confirm:
 - [ ] Context is refreshed when switching between major tasks
 - [ ] During long sessions, context is actively managed: failed attempts and replaced drafts removed, live error and task definition protected
 - [ ] Task-critical content (current error, active constraint) is positioned last in context, not buried under background material
+- [ ] When delegating, full subagent outputs live in files and the coordinator holds only digests and paths

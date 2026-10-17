@@ -16,40 +16,18 @@
     ~/.agents/skills/agent-memory-systems: collections/shared/agent-memory-systems
     ~/.agents/skills/agent-observability: collections/shared/agent-observability
     ~/.agents/skills/agent-orchestration-improve-agent: collections/shared/agent-orchestration-improve-agent
-    ~/.agents/skills/agent-orchestration-multi-agent-optimize: collections/shared/agent-orchestration-multi-agent-optimize
-    ~/.agents/skills/agent-orchestrator: collections/shared/agent-orchestrator
     ~/.agents/skills/agent-self-scheduling: collections/shared/agent-self-scheduling
-    ~/.agents/skills/agent-squad: collections/shared/agent-squad
-    ~/.agents/skills/agent-squad--alex: collections/shared/agent-squad/alex
-    ~/.agents/skills/agent-squad--aria: collections/shared/agent-squad/aria
-    ~/.agents/skills/agent-squad--dep: collections/shared/agent-squad/dep
-    ~/.agents/skills/agent-squad--luna: collections/shared/agent-squad/luna
-    ~/.agents/skills/agent-squad--mason: collections/shared/agent-squad/mason
-    ~/.agents/skills/agent-squad--max: collections/shared/agent-squad/max
-    ~/.agents/skills/agent-squad--quinn: collections/shared/agent-squad/quinn
-    ~/.agents/skills/agent-squad--rex: collections/shared/agent-squad/rex
-    ~/.agents/skills/ai-analyzer: collections/shared/ai-analyzer
-    ~/.agents/skills/ai-engineer: collections/shared/ai-engineer
     ~/.agents/skills/airgradient-clients: collections/shared/airgradient-clients
     ~/.agents/skills/ameba-configuration: collections/shared/ameba-configuration
     ~/.agents/skills/ameba-custom-rules: collections/shared/ameba-custom-rules
     ~/.agents/skills/ameba-integration: collections/shared/ameba-integration
     ~/.agents/skills/analytics: collections/shared/analytics
-    ~/.agents/skills/analytics-product: collections/shared/analytics-product
-    ~/.agents/skills/analytics-tracking: collections/shared/analytics-tracking
     ~/.agents/skills/analyze-performance: collections/shared/analyze-performance
-    ~/.agents/skills/analyze-project: collections/shared/analyze-project
     ~/.agents/skills/andrej-karpathy: collections/shared/andrej-karpathy
     ~/.agents/skills/api-analyzer: collections/shared/api-analyzer
     ~/.agents/skills/api-and-interface-design: collections/shared/api-and-interface-design
-    ~/.agents/skills/api-design-principles: collections/shared/api-design-principles
-    ~/.agents/skills/api-designer: collections/shared/api-designer
-    ~/.agents/skills/api-documentation: collections/shared/api-documentation
-    ~/.agents/skills/api-documenter: collections/shared/api-documenter
-    ~/.agents/skills/api-patterns: collections/shared/api-patterns
     ~/.agents/skills/api-security: collections/shared/api-security
     ~/.agents/skills/api-security-best-practices: collections/shared/api-security-best-practices
-    ~/.agents/skills/architect-review: collections/shared/architect-review
     ~/.agents/skills/architecting-data: collections/shared/architecting-data
     ~/.agents/skills/architecting-networks: collections/shared/architecting-networks
     ~/.agents/skills/architecting-security: collections/shared/architecting-security
@@ -57,22 +35,17 @@
     ~/.agents/skills/architecture-patterns: collections/shared/architecture-patterns
     ~/.agents/skills/architecture-review: collections/shared/architecture-review
     ~/.agents/skills/astro: collections/shared/astro
-    ~/.agents/skills/audit-log: collections/shared/audit-log
     ~/.agents/skills/audit-logging: collections/shared/audit-logging
     ~/.agents/skills/audit-skills: collections/shared/audit-skills
     ~/.agents/skills/aws-ec2: collections/shared/aws-ec2
     ~/.agents/skills/aws-iam: collections/shared/aws-iam
     ~/.agents/skills/aws-rds: collections/shared/aws-rds
     ~/.agents/skills/aws-s3: collections/shared/aws-s3
-    ~/.agents/skills/aws-skills: collections/shared/aws-skills
-    ~/.agents/skills/backend-architect: collections/shared/backend-architect
     ~/.agents/skills/backend-dev-guidelines: collections/shared/backend-dev-guidelines
     ~/.agents/skills/backend-patterns: collections/shared/backend-patterns
     ~/.agents/skills/bash-linux: collections/shared/bash-linux
     ~/.agents/skills/bash-pro: collections/shared/bash-pro
-    ~/.agents/skills/bdd-patterns: collections/shared/bdd-patterns
     ~/.agents/skills/bdd-principles: collections/shared/bdd-principles
-    ~/.agents/skills/bdd-scenarios: collections/shared/bdd-scenarios
     ~/.agents/skills/browser-testing-with-devtools: collections/shared/browser-testing-with-devtools
     ~/.agents/skills/building-ai-chat: collections/shared/building-ai-chat
     ~/.agents/skills/building-ci-pipelines: collections/shared/building-ci-pipelines
@@ -94,25 +67,13 @@
     ~/.agents/skills/caveman-setup: collections/shared/caveman-setup
     ~/.agents/skills/caveman-stats: collections/shared/caveman-stats
     ~/.agents/skills/ci-cd-and-automation: collections/shared/ci-cd-and-automation
-    ~/.agents/skills/clean-code: collections/shared/clean-code
     ~/.agents/skills/clean-code-guard: collections/shared/clean-code-guard
-    ~/.agents/skills/clean-code-principles: collections/shared/clean-code-principles
     ~/.agents/skills/code-audit: collections/shared/code-audit
     ~/.agents/skills/code-complete: collections/shared/code-complete
-    ~/.agents/skills/code-documentation-code-explain: collections/shared/code-documentation-code-explain
-    ~/.agents/skills/code-documentation-doc-generate: collections/shared/code-documentation-doc-generate
-    ~/.agents/skills/code-refactoring-refactor-clean: collections/shared/code-refactoring-refactor-clean
     ~/.agents/skills/code-refactoring-tech-debt: collections/shared/code-refactoring-tech-debt
     ~/.agents/skills/code-review: collections/shared/code-review
-    ~/.agents/skills/code-review-ai-ai-review: collections/shared/code-review-ai-ai-review
     ~/.agents/skills/code-review-and-quality: collections/shared/code-review-and-quality
-    ~/.agents/skills/code-review-checklist: collections/shared/code-review-checklist
-    ~/.agents/skills/code-review-excellence: collections/shared/code-review-excellence
-    ~/.agents/skills/code-review-sensei: collections/shared/code-review-sensei
-    ~/.agents/skills/code-reviewer: collections/shared/code-reviewer
     ~/.agents/skills/code-simplification: collections/shared/code-simplification
-    ~/.agents/skills/code-simplifier: collections/shared/code-simplifier
-    ~/.agents/skills/codebase-cleanup-refactor-clean: collections/shared/codebase-cleanup-refactor-clean
     ~/.agents/skills/comment: collections/shared/comment
     ~/.agents/skills/compatibility-ports: collections/shared/compatibility-ports
     ~/.agents/skills/constraint-driven-development: collections/shared/constraint-driven-development
@@ -121,15 +82,11 @@
     ~/.agents/skills/cpp-obs-plugin-development: collections/shared/cpp-obs-plugin-development
     ~/.agents/skills/creating-dashboards: collections/shared/creating-dashboards
     ~/.agents/skills/crystal-build-and-test: collections/shared/crystal-build-and-test
-    ~/.agents/skills/data-engineer: collections/shared/data-engineer
     ~/.agents/skills/data-engineering-data-pipeline: collections/shared/data-engineering-data-pipeline
-    ~/.agents/skills/data-scientist: collections/shared/data-scientist
-    ~/.agents/skills/database-architect: collections/shared/database-architect
     ~/.agents/skills/database-design: collections/shared/database-design
     ~/.agents/skills/datadog: collections/shared/datadog
     ~/.agents/skills/datadog-automation: collections/shared/datadog-automation
     ~/.agents/skills/debugging-and-error-recovery: collections/shared/debugging-and-error-recovery
-    ~/.agents/skills/dependency-analysis: collections/shared/dependency-analysis
     ~/.agents/skills/dependency-scanning: collections/shared/dependency-scanning
     ~/.agents/skills/dependency-upgrade: collections/shared/dependency-upgrade
     ~/.agents/skills/deploying-applications: collections/shared/deploying-applications
@@ -144,7 +101,6 @@
     ~/.agents/skills/docker-compose-networking: collections/shared/docker-compose-networking
     ~/.agents/skills/docker-compose-production: collections/shared/docker-compose-production
     ~/.agents/skills/dockerfile-optimise: collections/shared/dockerfile-optimise
-    ~/.agents/skills/docs-generator: collections/shared/docs-generator
     ~/.agents/skills/documentation-and-adrs: collections/shared/documentation-and-adrs
     ~/.agents/skills/doubt-driven-development: collections/shared/doubt-driven-development
     ~/.agents/skills/effect-concurrency: collections/shared/effect-concurrency
@@ -156,11 +112,7 @@
     ~/.agents/skills/effect-testing: collections/shared/effect-testing
     ~/.agents/skills/elixir-project-workflow: collections/shared/elixir-project-workflow
     ~/.agents/skills/embedded-device-protocols: collections/shared/embedded-device-protocols
-    ~/.agents/skills/error-debugging-error-analysis: collections/shared/error-debugging-error-analysis
     ~/.agents/skills/error-debugging-error-trace: collections/shared/error-debugging-error-trace
-    ~/.agents/skills/error-debugging-multi-agent-review: collections/shared/error-debugging-multi-agent-review
-    ~/.agents/skills/error-diagnostics-error-analysis: collections/shared/error-diagnostics-error-analysis
-    ~/.agents/skills/error-diagnostics-error-trace: collections/shared/error-diagnostics-error-trace
     ~/.agents/skills/find-skills: collections/shared/find-skills
     ~/.agents/skills/fp-async: collections/shared/fp-async
     ~/.agents/skills/fp-backend: collections/shared/fp-backend
@@ -169,24 +121,17 @@
     ~/.agents/skills/fp-errors: collections/shared/fp-errors
     ~/.agents/skills/fp-option-ref: collections/shared/fp-option-ref
     ~/.agents/skills/fp-pipe-ref: collections/shared/fp-pipe-ref
-    ~/.agents/skills/fp-pragmatic: collections/shared/fp-pragmatic
     ~/.agents/skills/fp-react: collections/shared/fp-react
     ~/.agents/skills/fp-refactor: collections/shared/fp-refactor
     ~/.agents/skills/fp-taskeither-ref: collections/shared/fp-taskeither-ref
     ~/.agents/skills/frontend-design: collections/shared/frontend-design
     ~/.agents/skills/frontend-dev-guidelines: collections/shared/frontend-dev-guidelines
-    ~/.agents/skills/frontend-patterns: collections/shared/frontend-patterns
     ~/.agents/skills/frontend-ui-engineering: collections/shared/frontend-ui-engineering
     ~/.agents/skills/generating-documentation: collections/shared/generating-documentation
     ~/.agents/skills/git-pushing: collections/shared/git-pushing
-    ~/.agents/skills/git-storytelling-commit-messages: collections/shared/git-storytelling-commit-messages
-    ~/.agents/skills/git-storytelling-commit-strategy: collections/shared/git-storytelling-commit-strategy
     ~/.agents/skills/git-workflow-and-versioning: collections/shared/git-workflow-and-versioning
-    ~/.agents/skills/github: collections/shared/github
-    ~/.agents/skills/github-actions: collections/shared/github-actions
     ~/.agents/skills/github-actions-advanced: collections/shared/github-actions-advanced
     ~/.agents/skills/github-actions-debugger: collections/shared/github-actions-debugger
-    ~/.agents/skills/github-actions-templates: collections/shared/github-actions-templates
     ~/.agents/skills/gof-patterns: collections/shared/gof-patterns
     ~/.agents/skills/golang-benchmark: collections/shared/golang-benchmark
     ~/.agents/skills/golang-cli: collections/shared/golang-cli
@@ -240,6 +185,7 @@
     ~/.agents/skills/hashicorp-vault: collections/shared/hashicorp-vault
     ~/.agents/skills/homelab-operations: collections/shared/homelab-operations
     ~/.agents/skills/human-copywrite: collections/shared/human-copywrite
+    ~/.agents/skills/i-have-adhd: collections/shared/i-have-adhd
     ~/.agents/skills/idea-refine: collections/shared/idea-refine
     ~/.agents/skills/implementing-api-patterns: collections/shared/implementing-api-patterns
     ~/.agents/skills/implementing-compliance: collections/shared/implementing-compliance
@@ -251,17 +197,16 @@
     ~/.agents/skills/incremental-implementation: collections/shared/incremental-implementation
     ~/.agents/skills/ingesting-data: collections/shared/ingesting-data
     ~/.agents/skills/interview-me: collections/shared/interview-me
+    ~/.agents/skills/investigate-first: collections/shared/investigate-first
     ~/.agents/skills/java-concurrency: collections/shared/java-concurrency
     ~/.agents/skills/java-generics: collections/shared/java-generics
-    ~/.agents/skills/java-pro: collections/shared/java-pro
     ~/.agents/skills/java-streams-api: collections/shared/java-streams-api
     ~/.agents/skills/javascript-pro: collections/shared/javascript-pro
     ~/.agents/skills/kotlin-coroutines: collections/shared/kotlin-coroutines
-    ~/.agents/skills/kotlin-coroutines-expert: collections/shared/kotlin-coroutines-expert
     ~/.agents/skills/kotlin-dsl-patterns: collections/shared/kotlin-dsl-patterns
     ~/.agents/skills/kotlin-null-safety: collections/shared/kotlin-null-safety
-    ~/.agents/skills/kubernetes-architect: collections/shared/kubernetes-architect
     ~/.agents/skills/kubernetes-hardening: collections/shared/kubernetes-hardening
+    ~/.agents/skills/lean-build: collections/shared/lean-build
     ~/.agents/skills/load-balancing-patterns: collections/shared/load-balancing-patterns
     ~/.agents/skills/lua-c-integration: collections/shared/lua-c-integration
     ~/.agents/skills/lua-coroutines: collections/shared/lua-coroutines
@@ -269,6 +214,7 @@
     ~/.agents/skills/managing-incidents: collections/shared/managing-incidents
     ~/.agents/skills/managing-media: collections/shared/managing-media
     ~/.agents/skills/megacave: collections/shared/megacave
+    ~/.agents/skills/migration: collections/shared/migration
     ~/.agents/skills/mill-build-logic: collections/shared/mill-build-logic
     ~/.agents/skills/mill-cli-and-ide: collections/shared/mill-cli-and-ide
     ~/.agents/skills/mill-dependencies-and-toolchains: collections/shared/mill-dependencies-and-toolchains
@@ -289,15 +235,10 @@
     ~/.agents/skills/nim-metaprogramming: collections/shared/nim-metaprogramming
     ~/.agents/skills/observability-and-instrumentation: collections/shared/observability-and-instrumentation
     ~/.agents/skills/observability-cloud-planning: collections/shared/observability-cloud-planning
-    ~/.agents/skills/observability-engineer: collections/shared/observability-engineer
     ~/.agents/skills/operating-kubernetes: collections/shared/operating-kubernetes
     ~/.agents/skills/parametric-cad-validation: collections/shared/parametric-cad-validation
-    ~/.agents/skills/performance-engineer: collections/shared/performance-engineer
     ~/.agents/skills/performance-engineering: collections/shared/performance-engineering
-    ~/.agents/skills/performance-management: collections/shared/performance-management
     ~/.agents/skills/performance-optimization: collections/shared/performance-optimization
-    ~/.agents/skills/performance-optimizer: collections/shared/performance-optimizer
-    ~/.agents/skills/performance-profiling: collections/shared/performance-profiling
     ~/.agents/skills/pixijs-application: collections/shared/pixijs-application
     ~/.agents/skills/pixijs-assets: collections/shared/pixijs-assets
     ~/.agents/skills/pixijs-core-concepts: collections/shared/pixijs-core-concepts
@@ -309,6 +250,10 @@
     ~/.agents/skills/pixijs-ticker: collections/shared/pixijs-ticker
     ~/.agents/skills/planning-and-task-breakdown: collections/shared/planning-and-task-breakdown
     ~/.agents/skills/platform-engineering: collections/shared/platform-engineering
+    ~/.agents/skills/ponytail: collections/shared/ponytail
+    ~/.agents/skills/ponytail-audit: collections/shared/ponytail-audit
+    ~/.agents/skills/ponytail-debt: collections/shared/ponytail-debt
+    ~/.agents/skills/ponytail-review: collections/shared/ponytail-review
     ~/.agents/skills/providing-feedback: collections/shared/providing-feedback
     ~/.agents/skills/pulumi-components: collections/shared/pulumi-components
     ~/.agents/skills/pulumi-stacks: collections/shared/pulumi-stacks
@@ -321,47 +266,62 @@
     ~/.agents/skills/pytest-plugins: collections/shared/pytest-plugins
     ~/.agents/skills/python-async-patterns: collections/shared/python-async-patterns
     ~/.agents/skills/python-data-classes: collections/shared/python-data-classes
-    ~/.agents/skills/python-development: collections/shared/python-development
     ~/.agents/skills/python-patterns: collections/shared/python-patterns
-    ~/.agents/skills/python-pro: collections/shared/python-pro
     ~/.agents/skills/python-type-system: collections/shared/python-type-system
-    ~/.agents/skills/refactor: collections/shared/refactor
     ~/.agents/skills/refactoring-guru: collections/shared/refactoring-guru
     ~/.agents/skills/rust-linux-apps: collections/shared/rust-linux-apps
     ~/.agents/skills/rust-systems-contracts: collections/shared/rust-systems-contracts
     ~/.agents/skills/safe-refactor: collections/shared/safe-refactor
     ~/.agents/skills/saga-orchestration: collections/shared/saga-orchestration
+    ~/.agents/skills/scala-acyclic-whole-run-compiler-adapters: collections/shared/scala-acyclic-whole-run-compiler-adapters
+    ~/.agents/skills/scala-ammonite-static-script-dependency-propagation: collections/shared/scala-ammonite-static-script-dependency-propagation
+    ~/.agents/skills/scala-ammonite-symbol-derived-closure-capture: collections/shared/scala-ammonite-symbol-derived-closure-capture
+    ~/.agents/skills/scala-cask-route-trie-validation-order: collections/shared/scala-cask-route-trie-validation-order
+    ~/.agents/skills/scala-castor-platform-mixin-dispatch-accounting: collections/shared/scala-castor-platform-mixin-dispatch-accounting
+    ~/.agents/skills/scala-cats-effect-cleanup-error-provenance: collections/shared/scala-cats-effect-cleanup-error-provenance
+    ~/.agents/skills/scala-cats-effect-outcome-sensitive-concurrency: collections/shared/scala-cats-effect-outcome-sensitive-concurrency
+    ~/.agents/skills/scala-cats-effect-runtime-benchmark-review: collections/shared/scala-cats-effect-runtime-benchmark-review
+    ~/.agents/skills/scala-cats-erased-runtime-compatibility: collections/shared/scala-cats-erased-runtime-compatibility
+    ~/.agents/skills/scala-cats-law-backed-instance-surface: collections/shared/scala-cats-law-backed-instance-surface
+    ~/.agents/skills/scala-cats-traversal-branch-isolation: collections/shared/scala-cats-traversal-branch-isolation
     ~/.agents/skills/scala-collections: collections/shared/scala-collections
+    ~/.agents/skills/scala-fastparse-diagnostic-mode-review: collections/shared/scala-fastparse-diagnostic-mode-review
+    ~/.agents/skills/scala-fastparse-hot-path-cost-review: collections/shared/scala-fastparse-hot-path-cost-review
+    ~/.agents/skills/scala-fastparse-shared-run-combinator-extraction: collections/shared/scala-fastparse-shared-run-combinator-extraction
+    ~/.agents/skills/scala-fs2-foreign-callback-lanes: collections/shared/scala-fs2-foreign-callback-lanes
+    ~/.agents/skills/scala-fs2-per-element-scope-propagation: collections/shared/scala-fs2-per-element-scope-propagation
+    ~/.agents/skills/scala-fs2-sink-emission-cardinality: collections/shared/scala-fs2-sink-emission-cardinality
     ~/.agents/skills/scala-functional-patterns: collections/shared/scala-functional-patterns
+    ~/.agents/skills/scala-http4s-http1-bodyless-connection-framing: collections/shared/scala-http4s-http1-bodyless-connection-framing
+    ~/.agents/skills/scala-http4s-stateful-factory-acquisition: collections/shared/scala-http4s-stateful-factory-acquisition
+    ~/.agents/skills/scala-http4s-uri-segment-representation: collections/shared/scala-http4s-uri-segment-representation
     ~/.agents/skills/scala-library-contracts: collections/shared/scala-library-contracts
-    ~/.agents/skills/scala-pro: collections/shared/scala-pro
+    ~/.agents/skills/scala-oss-library-review: collections/shared/scala-oss-library-review
+    ~/.agents/skills/scala-play-cors-csrf-policy-matrix: collections/shared/scala-play-cors-csrf-policy-matrix
+    ~/.agents/skills/scala-play-partial-startup-shutdown-completion: collections/shared/scala-play-partial-startup-shutdown-completion
+    ~/.agents/skills/scala-sourcecode-args-capture-review: collections/shared/scala-sourcecode-args-capture-review
     ~/.agents/skills/scala-type-system: collections/shared/scala-type-system
+    ~/.agents/skills/scala-zio-canceler-evaluation-owner: collections/shared/scala-zio-canceler-evaluation-owner
+    ~/.agents/skills/scala-zio-diagnostic-reader-progress: collections/shared/scala-zio-diagnostic-reader-progress
+    ~/.agents/skills/scala-zio-http-channel-handoff-completion: collections/shared/scala-zio-http-channel-handoff-completion
+    ~/.agents/skills/scala-zio-http-middleware-execution-boundaries: collections/shared/scala-zio-http-middleware-execution-boundaries
+    ~/.agents/skills/scala-zio-http-request-local-error-disclosure: collections/shared/scala-zio-http-request-local-error-disclosure
     ~/.agents/skills/scala-zio-skills--zio-reference: collections/scala-zio-skills/skills/zio-reference
     ~/.agents/skills/security-and-hardening: collections/shared/security-and-hardening
     ~/.agents/skills/security-best-practices: collections/shared/security-best-practices
     ~/.agents/skills/security-hardening: collections/shared/security-hardening
-    ~/.agents/skills/security-review: collections/shared/security-review
-    ~/.agents/skills/senior-architect: collections/shared/senior-architect
-    ~/.agents/skills/senior-backend: collections/shared/senior-backend
-    ~/.agents/skills/senior-data-engineer: collections/shared/senior-data-engineer
-    ~/.agents/skills/senior-data-scientist: collections/shared/senior-data-scientist
-    ~/.agents/skills/senior-devops: collections/shared/senior-devops
-    ~/.agents/skills/senior-qa: collections/shared/senior-qa
-    ~/.agents/skills/senior-security: collections/shared/senior-security
     ~/.agents/skills/shipping-and-launch: collections/shared/shipping-and-launch
-    ~/.agents/skills/skill-router: collections/shared/skill-router
-    ~/.agents/skills/skill-seekers: collections/shared/skill-seekers
     ~/.agents/skills/skill-writer: collections/shared/skill-writer
     ~/.agents/skills/sonar-issue-prevention: collections/shared/sonar-issue-prevention
     ~/.agents/skills/sonarcloud-triage: collections/shared/sonarcloud-triage
     ~/.agents/skills/source-driven-development: collections/shared/source-driven-development
     ~/.agents/skills/spec-driven-development: collections/shared/spec-driven-development
     ~/.agents/skills/streaming-integrations: collections/shared/streaming-integrations
-    ~/.agents/skills/telegram-bot-builder: collections/shared/telegram-bot-builder
-    ~/.agents/skills/telegram-mini-app: collections/shared/telegram-mini-app
+    ~/.agents/skills/surgical-patch: collections/shared/surgical-patch
     ~/.agents/skills/test-driven-development: collections/shared/test-driven-development
     ~/.agents/skills/testing-strategies: collections/shared/testing-strategies
     ~/.agents/skills/theming-components: collections/shared/theming-components
+    ~/.agents/skills/tui-design-systems: collections/shared/tui-design-systems
     ~/.agents/skills/typescript-project-contracts: collections/shared/typescript-project-contracts
     ~/.agents/skills/ultracave: collections/shared/ultracave
     ~/.agents/skills/using-agent-skills: collections/shared/using-agent-skills
@@ -371,13 +331,13 @@
     ~/.agents/skills/using-relational-databases: collections/shared/using-relational-databases
     ~/.agents/skills/using-timeseries-databases: collections/shared/using-timeseries-databases
     ~/.agents/skills/using-vector-databases: collections/shared/using-vector-databases
+    ~/.agents/skills/verify-and-stop: collections/shared/verify-and-stop
     ~/.agents/skills/visualizing-data: collections/shared/visualizing-data
     ~/.agents/skills/wiki-builder: collections/shared/wiki-builder
     ~/.agents/skills/wiki-changelog: collections/shared/wiki-changelog
     ~/.agents/skills/wiki-page-writer: collections/shared/wiki-page-writer
     ~/.agents/skills/workstation-installers: collections/shared/workstation-installers
     ~/.agents/skills/worxbend-repository-context: collections/shared/worxbend-repository-context
-    ~/.agents/skills/writing-dockerfiles: collections/shared/writing-dockerfiles
     ~/.agents/skills/zig-build-and-memory: collections/shared/zig-build-and-memory
     ~/.agents/skills/zio-skills--docs-add-missing-section: collections/zio-skills/plugins/documentation/skills/docs-add-missing-section
     ~/.agents/skills/zio-skills--docs-ascii-diagram: collections/zio-skills/plugins/documentation/skills/docs-ascii-diagram
@@ -414,40 +374,18 @@
     ~/.claude/skills/agent-memory-systems: collections/shared/agent-memory-systems
     ~/.claude/skills/agent-observability: collections/shared/agent-observability
     ~/.claude/skills/agent-orchestration-improve-agent: collections/shared/agent-orchestration-improve-agent
-    ~/.claude/skills/agent-orchestration-multi-agent-optimize: collections/shared/agent-orchestration-multi-agent-optimize
-    ~/.claude/skills/agent-orchestrator: collections/shared/agent-orchestrator
     ~/.claude/skills/agent-self-scheduling: collections/shared/agent-self-scheduling
-    ~/.claude/skills/agent-squad: collections/shared/agent-squad
-    ~/.claude/skills/agent-squad--alex: collections/shared/agent-squad/alex
-    ~/.claude/skills/agent-squad--aria: collections/shared/agent-squad/aria
-    ~/.claude/skills/agent-squad--dep: collections/shared/agent-squad/dep
-    ~/.claude/skills/agent-squad--luna: collections/shared/agent-squad/luna
-    ~/.claude/skills/agent-squad--mason: collections/shared/agent-squad/mason
-    ~/.claude/skills/agent-squad--max: collections/shared/agent-squad/max
-    ~/.claude/skills/agent-squad--quinn: collections/shared/agent-squad/quinn
-    ~/.claude/skills/agent-squad--rex: collections/shared/agent-squad/rex
-    ~/.claude/skills/ai-analyzer: collections/shared/ai-analyzer
-    ~/.claude/skills/ai-engineer: collections/shared/ai-engineer
     ~/.claude/skills/airgradient-clients: collections/shared/airgradient-clients
     ~/.claude/skills/ameba-configuration: collections/shared/ameba-configuration
     ~/.claude/skills/ameba-custom-rules: collections/shared/ameba-custom-rules
     ~/.claude/skills/ameba-integration: collections/shared/ameba-integration
     ~/.claude/skills/analytics: collections/shared/analytics
-    ~/.claude/skills/analytics-product: collections/shared/analytics-product
-    ~/.claude/skills/analytics-tracking: collections/shared/analytics-tracking
     ~/.claude/skills/analyze-performance: collections/shared/analyze-performance
-    ~/.claude/skills/analyze-project: collections/shared/analyze-project
     ~/.claude/skills/andrej-karpathy: collections/shared/andrej-karpathy
     ~/.claude/skills/api-analyzer: collections/shared/api-analyzer
     ~/.claude/skills/api-and-interface-design: collections/shared/api-and-interface-design
-    ~/.claude/skills/api-design-principles: collections/shared/api-design-principles
-    ~/.claude/skills/api-designer: collections/shared/api-designer
-    ~/.claude/skills/api-documentation: collections/shared/api-documentation
-    ~/.claude/skills/api-documenter: collections/shared/api-documenter
-    ~/.claude/skills/api-patterns: collections/shared/api-patterns
     ~/.claude/skills/api-security: collections/shared/api-security
     ~/.claude/skills/api-security-best-practices: collections/shared/api-security-best-practices
-    ~/.claude/skills/architect-review: collections/shared/architect-review
     ~/.claude/skills/architecting-data: collections/shared/architecting-data
     ~/.claude/skills/architecting-networks: collections/shared/architecting-networks
     ~/.claude/skills/architecting-security: collections/shared/architecting-security
@@ -455,22 +393,17 @@
     ~/.claude/skills/architecture-patterns: collections/shared/architecture-patterns
     ~/.claude/skills/architecture-review: collections/shared/architecture-review
     ~/.claude/skills/astro: collections/shared/astro
-    ~/.claude/skills/audit-log: collections/shared/audit-log
     ~/.claude/skills/audit-logging: collections/shared/audit-logging
     ~/.claude/skills/audit-skills: collections/shared/audit-skills
     ~/.claude/skills/aws-ec2: collections/shared/aws-ec2
     ~/.claude/skills/aws-iam: collections/shared/aws-iam
     ~/.claude/skills/aws-rds: collections/shared/aws-rds
     ~/.claude/skills/aws-s3: collections/shared/aws-s3
-    ~/.claude/skills/aws-skills: collections/shared/aws-skills
-    ~/.claude/skills/backend-architect: collections/shared/backend-architect
     ~/.claude/skills/backend-dev-guidelines: collections/shared/backend-dev-guidelines
     ~/.claude/skills/backend-patterns: collections/shared/backend-patterns
     ~/.claude/skills/bash-linux: collections/shared/bash-linux
     ~/.claude/skills/bash-pro: collections/shared/bash-pro
-    ~/.claude/skills/bdd-patterns: collections/shared/bdd-patterns
     ~/.claude/skills/bdd-principles: collections/shared/bdd-principles
-    ~/.claude/skills/bdd-scenarios: collections/shared/bdd-scenarios
     ~/.claude/skills/browser-testing-with-devtools: collections/shared/browser-testing-with-devtools
     ~/.claude/skills/building-ai-chat: collections/shared/building-ai-chat
     ~/.claude/skills/building-ci-pipelines: collections/shared/building-ci-pipelines
@@ -513,25 +446,13 @@
     ~/.claude/skills/claude-productivity--start: collections/claude-plugins/productivity/start
     ~/.claude/skills/claude-productivity--task-management: collections/claude-plugins/productivity/task-management
     ~/.claude/skills/claude-productivity--update: collections/claude-plugins/productivity/update
-    ~/.claude/skills/clean-code: collections/shared/clean-code
     ~/.claude/skills/clean-code-guard: collections/shared/clean-code-guard
-    ~/.claude/skills/clean-code-principles: collections/shared/clean-code-principles
     ~/.claude/skills/code-audit: collections/shared/code-audit
     ~/.claude/skills/code-complete: collections/shared/code-complete
-    ~/.claude/skills/code-documentation-code-explain: collections/shared/code-documentation-code-explain
-    ~/.claude/skills/code-documentation-doc-generate: collections/shared/code-documentation-doc-generate
-    ~/.claude/skills/code-refactoring-refactor-clean: collections/shared/code-refactoring-refactor-clean
     ~/.claude/skills/code-refactoring-tech-debt: collections/shared/code-refactoring-tech-debt
     ~/.claude/skills/code-review: collections/shared/code-review
-    ~/.claude/skills/code-review-ai-ai-review: collections/shared/code-review-ai-ai-review
     ~/.claude/skills/code-review-and-quality: collections/shared/code-review-and-quality
-    ~/.claude/skills/code-review-checklist: collections/shared/code-review-checklist
-    ~/.claude/skills/code-review-excellence: collections/shared/code-review-excellence
-    ~/.claude/skills/code-review-sensei: collections/shared/code-review-sensei
-    ~/.claude/skills/code-reviewer: collections/shared/code-reviewer
     ~/.claude/skills/code-simplification: collections/shared/code-simplification
-    ~/.claude/skills/code-simplifier: collections/shared/code-simplifier
-    ~/.claude/skills/codebase-cleanup-refactor-clean: collections/shared/codebase-cleanup-refactor-clean
     ~/.claude/skills/codex-render--render-background-workers: collections/render/render-background-workers
     ~/.claude/skills/codex-render--render-blueprints: collections/render/render-blueprints
     ~/.claude/skills/codex-render--render-cli: collections/render/render-cli
@@ -565,15 +486,11 @@
     ~/.claude/skills/cpp-obs-plugin-development: collections/shared/cpp-obs-plugin-development
     ~/.claude/skills/creating-dashboards: collections/shared/creating-dashboards
     ~/.claude/skills/crystal-build-and-test: collections/shared/crystal-build-and-test
-    ~/.claude/skills/data-engineer: collections/shared/data-engineer
     ~/.claude/skills/data-engineering-data-pipeline: collections/shared/data-engineering-data-pipeline
-    ~/.claude/skills/data-scientist: collections/shared/data-scientist
-    ~/.claude/skills/database-architect: collections/shared/database-architect
     ~/.claude/skills/database-design: collections/shared/database-design
     ~/.claude/skills/datadog: collections/shared/datadog
     ~/.claude/skills/datadog-automation: collections/shared/datadog-automation
     ~/.claude/skills/debugging-and-error-recovery: collections/shared/debugging-and-error-recovery
-    ~/.claude/skills/dependency-analysis: collections/shared/dependency-analysis
     ~/.claude/skills/dependency-scanning: collections/shared/dependency-scanning
     ~/.claude/skills/dependency-upgrade: collections/shared/dependency-upgrade
     ~/.claude/skills/deploying-applications: collections/shared/deploying-applications
@@ -588,7 +505,6 @@
     ~/.claude/skills/docker-compose-networking: collections/shared/docker-compose-networking
     ~/.claude/skills/docker-compose-production: collections/shared/docker-compose-production
     ~/.claude/skills/dockerfile-optimise: collections/shared/dockerfile-optimise
-    ~/.claude/skills/docs-generator: collections/shared/docs-generator
     ~/.claude/skills/documentation-and-adrs: collections/shared/documentation-and-adrs
     ~/.claude/skills/doubt-driven-development: collections/shared/doubt-driven-development
     ~/.claude/skills/effect-concurrency: collections/shared/effect-concurrency
@@ -600,11 +516,7 @@
     ~/.claude/skills/effect-testing: collections/shared/effect-testing
     ~/.claude/skills/elixir-project-workflow: collections/shared/elixir-project-workflow
     ~/.claude/skills/embedded-device-protocols: collections/shared/embedded-device-protocols
-    ~/.claude/skills/error-debugging-error-analysis: collections/shared/error-debugging-error-analysis
     ~/.claude/skills/error-debugging-error-trace: collections/shared/error-debugging-error-trace
-    ~/.claude/skills/error-debugging-multi-agent-review: collections/shared/error-debugging-multi-agent-review
-    ~/.claude/skills/error-diagnostics-error-analysis: collections/shared/error-diagnostics-error-analysis
-    ~/.claude/skills/error-diagnostics-error-trace: collections/shared/error-diagnostics-error-trace
     ~/.claude/skills/find-skills: collections/shared/find-skills
     ~/.claude/skills/fp-async: collections/shared/fp-async
     ~/.claude/skills/fp-backend: collections/shared/fp-backend
@@ -613,24 +525,17 @@
     ~/.claude/skills/fp-errors: collections/shared/fp-errors
     ~/.claude/skills/fp-option-ref: collections/shared/fp-option-ref
     ~/.claude/skills/fp-pipe-ref: collections/shared/fp-pipe-ref
-    ~/.claude/skills/fp-pragmatic: collections/shared/fp-pragmatic
     ~/.claude/skills/fp-react: collections/shared/fp-react
     ~/.claude/skills/fp-refactor: collections/shared/fp-refactor
     ~/.claude/skills/fp-taskeither-ref: collections/shared/fp-taskeither-ref
     ~/.claude/skills/frontend-design: collections/shared/frontend-design
     ~/.claude/skills/frontend-dev-guidelines: collections/shared/frontend-dev-guidelines
-    ~/.claude/skills/frontend-patterns: collections/shared/frontend-patterns
     ~/.claude/skills/frontend-ui-engineering: collections/shared/frontend-ui-engineering
     ~/.claude/skills/generating-documentation: collections/shared/generating-documentation
     ~/.claude/skills/git-pushing: collections/shared/git-pushing
-    ~/.claude/skills/git-storytelling-commit-messages: collections/shared/git-storytelling-commit-messages
-    ~/.claude/skills/git-storytelling-commit-strategy: collections/shared/git-storytelling-commit-strategy
     ~/.claude/skills/git-workflow-and-versioning: collections/shared/git-workflow-and-versioning
-    ~/.claude/skills/github: collections/shared/github
-    ~/.claude/skills/github-actions: collections/shared/github-actions
     ~/.claude/skills/github-actions-advanced: collections/shared/github-actions-advanced
     ~/.claude/skills/github-actions-debugger: collections/shared/github-actions-debugger
-    ~/.claude/skills/github-actions-templates: collections/shared/github-actions-templates
     ~/.claude/skills/gof-patterns: collections/shared/gof-patterns
     ~/.claude/skills/golang-benchmark: collections/shared/golang-benchmark
     ~/.claude/skills/golang-cli: collections/shared/golang-cli
@@ -742,6 +647,7 @@
     ~/.claude/skills/hermes--youtube-content: collections/hermes/media/youtube-content
     ~/.claude/skills/homelab-operations: collections/shared/homelab-operations
     ~/.claude/skills/human-copywrite: collections/shared/human-copywrite
+    ~/.claude/skills/i-have-adhd: collections/shared/i-have-adhd
     ~/.claude/skills/idea-refine: collections/shared/idea-refine
     ~/.claude/skills/implementing-api-patterns: collections/shared/implementing-api-patterns
     ~/.claude/skills/implementing-compliance: collections/shared/implementing-compliance
@@ -753,24 +659,53 @@
     ~/.claude/skills/incremental-implementation: collections/shared/incremental-implementation
     ~/.claude/skills/ingesting-data: collections/shared/ingesting-data
     ~/.claude/skills/interview-me: collections/shared/interview-me
+    ~/.claude/skills/investigate-first: collections/shared/investigate-first
     ~/.claude/skills/java-concurrency: collections/shared/java-concurrency
     ~/.claude/skills/java-generics: collections/shared/java-generics
-    ~/.claude/skills/java-pro: collections/shared/java-pro
     ~/.claude/skills/java-streams-api: collections/shared/java-streams-api
     ~/.claude/skills/javascript-pro: collections/shared/javascript-pro
     ~/.claude/skills/kotlin-coroutines: collections/shared/kotlin-coroutines
-    ~/.claude/skills/kotlin-coroutines-expert: collections/shared/kotlin-coroutines-expert
     ~/.claude/skills/kotlin-dsl-patterns: collections/shared/kotlin-dsl-patterns
     ~/.claude/skills/kotlin-null-safety: collections/shared/kotlin-null-safety
-    ~/.claude/skills/kubernetes-architect: collections/shared/kubernetes-architect
     ~/.claude/skills/kubernetes-hardening: collections/shared/kubernetes-hardening
+    ~/.claude/skills/lean-build: collections/shared/lean-build
     ~/.claude/skills/load-balancing-patterns: collections/shared/load-balancing-patterns
     ~/.claude/skills/lua-c-integration: collections/shared/lua-c-integration
     ~/.claude/skills/lua-coroutines: collections/shared/lua-coroutines
     ~/.claude/skills/lua-tables-patterns: collections/shared/lua-tables-patterns
     ~/.claude/skills/managing-incidents: collections/shared/managing-incidents
     ~/.claude/skills/managing-media: collections/shared/managing-media
+    ~/.claude/skills/mattpocock--ask-matt: collections/mattpocock/engineering/ask-matt
+    ~/.claude/skills/mattpocock--code-review: collections/mattpocock/engineering/code-review
+    ~/.claude/skills/mattpocock--codebase-design: collections/mattpocock/engineering/codebase-design
+    ~/.claude/skills/mattpocock--diagnosing-bugs: collections/mattpocock/engineering/diagnosing-bugs
+    ~/.claude/skills/mattpocock--domain-modeling: collections/mattpocock/engineering/domain-modeling
+    ~/.claude/skills/mattpocock--git-guardrails-claude-code: collections/mattpocock/misc/git-guardrails-claude-code
+    ~/.claude/skills/mattpocock--grill-me: collections/mattpocock/productivity/grill-me
+    ~/.claude/skills/mattpocock--grill-with-docs: collections/mattpocock/engineering/grill-with-docs
+    ~/.claude/skills/mattpocock--grilling: collections/mattpocock/productivity/grilling
+    ~/.claude/skills/mattpocock--handoff: collections/mattpocock/productivity/handoff
+    ~/.claude/skills/mattpocock--implement: collections/mattpocock/engineering/implement
+    ~/.claude/skills/mattpocock--implement-spec: collections/mattpocock/engineering/implement-spec
+    ~/.claude/skills/mattpocock--improve-codebase-architecture: collections/mattpocock/engineering/improve-codebase-architecture
+    ~/.claude/skills/mattpocock--pr: collections/mattpocock/engineering/pr
+    ~/.claude/skills/mattpocock--prototype: collections/mattpocock/engineering/prototype
+    ~/.claude/skills/mattpocock--research: collections/mattpocock/engineering/research
+    ~/.claude/skills/mattpocock--retro: collections/mattpocock/engineering/retro
+    ~/.claude/skills/mattpocock--setup-matt-pocock-skills: collections/mattpocock/engineering/setup-matt-pocock-skills
+    ~/.claude/skills/mattpocock--setup-pre-commit: collections/mattpocock/misc/setup-pre-commit
+    ~/.claude/skills/mattpocock--tdd: collections/mattpocock/engineering/tdd
+    ~/.claude/skills/mattpocock--teach: collections/mattpocock/productivity/teach
+    ~/.claude/skills/mattpocock--to-questionnaire: collections/mattpocock/productivity/to-questionnaire
+    ~/.claude/skills/mattpocock--to-spec: collections/mattpocock/engineering/to-spec
+    ~/.claude/skills/mattpocock--to-tickets: collections/mattpocock/engineering/to-tickets
+    ~/.claude/skills/mattpocock--triage: collections/mattpocock/engineering/triage
+    ~/.claude/skills/mattpocock--wait-what: collections/mattpocock/productivity/wait-what
+    ~/.claude/skills/mattpocock--wayfinder: collections/mattpocock/engineering/wayfinder
+    ~/.claude/skills/mattpocock--wizard: collections/mattpocock/engineering/wizard
+    ~/.claude/skills/mattpocock--writing-for-agents: collections/mattpocock/productivity/writing-for-agents
     ~/.claude/skills/megacave: collections/shared/megacave
+    ~/.claude/skills/migration: collections/shared/migration
     ~/.claude/skills/mill-build-logic: collections/shared/mill-build-logic
     ~/.claude/skills/mill-cli-and-ide: collections/shared/mill-cli-and-ide
     ~/.claude/skills/mill-dependencies-and-toolchains: collections/shared/mill-dependencies-and-toolchains
@@ -791,15 +726,10 @@
     ~/.claude/skills/nim-metaprogramming: collections/shared/nim-metaprogramming
     ~/.claude/skills/observability-and-instrumentation: collections/shared/observability-and-instrumentation
     ~/.claude/skills/observability-cloud-planning: collections/shared/observability-cloud-planning
-    ~/.claude/skills/observability-engineer: collections/shared/observability-engineer
     ~/.claude/skills/operating-kubernetes: collections/shared/operating-kubernetes
     ~/.claude/skills/parametric-cad-validation: collections/shared/parametric-cad-validation
-    ~/.claude/skills/performance-engineer: collections/shared/performance-engineer
     ~/.claude/skills/performance-engineering: collections/shared/performance-engineering
-    ~/.claude/skills/performance-management: collections/shared/performance-management
     ~/.claude/skills/performance-optimization: collections/shared/performance-optimization
-    ~/.claude/skills/performance-optimizer: collections/shared/performance-optimizer
-    ~/.claude/skills/performance-profiling: collections/shared/performance-profiling
     ~/.claude/skills/pixijs-application: collections/shared/pixijs-application
     ~/.claude/skills/pixijs-assets: collections/shared/pixijs-assets
     ~/.claude/skills/pixijs-core-concepts: collections/shared/pixijs-core-concepts
@@ -811,6 +741,10 @@
     ~/.claude/skills/pixijs-ticker: collections/shared/pixijs-ticker
     ~/.claude/skills/planning-and-task-breakdown: collections/shared/planning-and-task-breakdown
     ~/.claude/skills/platform-engineering: collections/shared/platform-engineering
+    ~/.claude/skills/ponytail: collections/shared/ponytail
+    ~/.claude/skills/ponytail-audit: collections/shared/ponytail-audit
+    ~/.claude/skills/ponytail-debt: collections/shared/ponytail-debt
+    ~/.claude/skills/ponytail-review: collections/shared/ponytail-review
     ~/.claude/skills/providing-feedback: collections/shared/providing-feedback
     ~/.claude/skills/pulumi-components: collections/shared/pulumi-components
     ~/.claude/skills/pulumi-stacks: collections/shared/pulumi-stacks
@@ -823,47 +757,62 @@
     ~/.claude/skills/pytest-plugins: collections/shared/pytest-plugins
     ~/.claude/skills/python-async-patterns: collections/shared/python-async-patterns
     ~/.claude/skills/python-data-classes: collections/shared/python-data-classes
-    ~/.claude/skills/python-development: collections/shared/python-development
     ~/.claude/skills/python-patterns: collections/shared/python-patterns
-    ~/.claude/skills/python-pro: collections/shared/python-pro
     ~/.claude/skills/python-type-system: collections/shared/python-type-system
-    ~/.claude/skills/refactor: collections/shared/refactor
     ~/.claude/skills/refactoring-guru: collections/shared/refactoring-guru
     ~/.claude/skills/rust-linux-apps: collections/shared/rust-linux-apps
     ~/.claude/skills/rust-systems-contracts: collections/shared/rust-systems-contracts
     ~/.claude/skills/safe-refactor: collections/shared/safe-refactor
     ~/.claude/skills/saga-orchestration: collections/shared/saga-orchestration
+    ~/.claude/skills/scala-acyclic-whole-run-compiler-adapters: collections/shared/scala-acyclic-whole-run-compiler-adapters
+    ~/.claude/skills/scala-ammonite-static-script-dependency-propagation: collections/shared/scala-ammonite-static-script-dependency-propagation
+    ~/.claude/skills/scala-ammonite-symbol-derived-closure-capture: collections/shared/scala-ammonite-symbol-derived-closure-capture
+    ~/.claude/skills/scala-cask-route-trie-validation-order: collections/shared/scala-cask-route-trie-validation-order
+    ~/.claude/skills/scala-castor-platform-mixin-dispatch-accounting: collections/shared/scala-castor-platform-mixin-dispatch-accounting
+    ~/.claude/skills/scala-cats-effect-cleanup-error-provenance: collections/shared/scala-cats-effect-cleanup-error-provenance
+    ~/.claude/skills/scala-cats-effect-outcome-sensitive-concurrency: collections/shared/scala-cats-effect-outcome-sensitive-concurrency
+    ~/.claude/skills/scala-cats-effect-runtime-benchmark-review: collections/shared/scala-cats-effect-runtime-benchmark-review
+    ~/.claude/skills/scala-cats-erased-runtime-compatibility: collections/shared/scala-cats-erased-runtime-compatibility
+    ~/.claude/skills/scala-cats-law-backed-instance-surface: collections/shared/scala-cats-law-backed-instance-surface
+    ~/.claude/skills/scala-cats-traversal-branch-isolation: collections/shared/scala-cats-traversal-branch-isolation
     ~/.claude/skills/scala-collections: collections/shared/scala-collections
+    ~/.claude/skills/scala-fastparse-diagnostic-mode-review: collections/shared/scala-fastparse-diagnostic-mode-review
+    ~/.claude/skills/scala-fastparse-hot-path-cost-review: collections/shared/scala-fastparse-hot-path-cost-review
+    ~/.claude/skills/scala-fastparse-shared-run-combinator-extraction: collections/shared/scala-fastparse-shared-run-combinator-extraction
+    ~/.claude/skills/scala-fs2-foreign-callback-lanes: collections/shared/scala-fs2-foreign-callback-lanes
+    ~/.claude/skills/scala-fs2-per-element-scope-propagation: collections/shared/scala-fs2-per-element-scope-propagation
+    ~/.claude/skills/scala-fs2-sink-emission-cardinality: collections/shared/scala-fs2-sink-emission-cardinality
     ~/.claude/skills/scala-functional-patterns: collections/shared/scala-functional-patterns
+    ~/.claude/skills/scala-http4s-http1-bodyless-connection-framing: collections/shared/scala-http4s-http1-bodyless-connection-framing
+    ~/.claude/skills/scala-http4s-stateful-factory-acquisition: collections/shared/scala-http4s-stateful-factory-acquisition
+    ~/.claude/skills/scala-http4s-uri-segment-representation: collections/shared/scala-http4s-uri-segment-representation
     ~/.claude/skills/scala-library-contracts: collections/shared/scala-library-contracts
-    ~/.claude/skills/scala-pro: collections/shared/scala-pro
+    ~/.claude/skills/scala-oss-library-review: collections/shared/scala-oss-library-review
+    ~/.claude/skills/scala-play-cors-csrf-policy-matrix: collections/shared/scala-play-cors-csrf-policy-matrix
+    ~/.claude/skills/scala-play-partial-startup-shutdown-completion: collections/shared/scala-play-partial-startup-shutdown-completion
+    ~/.claude/skills/scala-sourcecode-args-capture-review: collections/shared/scala-sourcecode-args-capture-review
     ~/.claude/skills/scala-type-system: collections/shared/scala-type-system
+    ~/.claude/skills/scala-zio-canceler-evaluation-owner: collections/shared/scala-zio-canceler-evaluation-owner
+    ~/.claude/skills/scala-zio-diagnostic-reader-progress: collections/shared/scala-zio-diagnostic-reader-progress
+    ~/.claude/skills/scala-zio-http-channel-handoff-completion: collections/shared/scala-zio-http-channel-handoff-completion
+    ~/.claude/skills/scala-zio-http-middleware-execution-boundaries: collections/shared/scala-zio-http-middleware-execution-boundaries
+    ~/.claude/skills/scala-zio-http-request-local-error-disclosure: collections/shared/scala-zio-http-request-local-error-disclosure
     ~/.claude/skills/scala-zio-skills--zio-reference: collections/scala-zio-skills/skills/zio-reference
     ~/.claude/skills/security-and-hardening: collections/shared/security-and-hardening
     ~/.claude/skills/security-best-practices: collections/shared/security-best-practices
     ~/.claude/skills/security-hardening: collections/shared/security-hardening
-    ~/.claude/skills/security-review: collections/shared/security-review
-    ~/.claude/skills/senior-architect: collections/shared/senior-architect
-    ~/.claude/skills/senior-backend: collections/shared/senior-backend
-    ~/.claude/skills/senior-data-engineer: collections/shared/senior-data-engineer
-    ~/.claude/skills/senior-data-scientist: collections/shared/senior-data-scientist
-    ~/.claude/skills/senior-devops: collections/shared/senior-devops
-    ~/.claude/skills/senior-qa: collections/shared/senior-qa
-    ~/.claude/skills/senior-security: collections/shared/senior-security
     ~/.claude/skills/shipping-and-launch: collections/shared/shipping-and-launch
-    ~/.claude/skills/skill-router: collections/shared/skill-router
-    ~/.claude/skills/skill-seekers: collections/shared/skill-seekers
     ~/.claude/skills/skill-writer: collections/shared/skill-writer
     ~/.claude/skills/sonar-issue-prevention: collections/shared/sonar-issue-prevention
     ~/.claude/skills/sonarcloud-triage: collections/shared/sonarcloud-triage
     ~/.claude/skills/source-driven-development: collections/shared/source-driven-development
     ~/.claude/skills/spec-driven-development: collections/shared/spec-driven-development
     ~/.claude/skills/streaming-integrations: collections/shared/streaming-integrations
-    ~/.claude/skills/telegram-bot-builder: collections/shared/telegram-bot-builder
-    ~/.claude/skills/telegram-mini-app: collections/shared/telegram-mini-app
+    ~/.claude/skills/surgical-patch: collections/shared/surgical-patch
     ~/.claude/skills/test-driven-development: collections/shared/test-driven-development
     ~/.claude/skills/testing-strategies: collections/shared/testing-strategies
     ~/.claude/skills/theming-components: collections/shared/theming-components
+    ~/.claude/skills/tui-design-systems: collections/shared/tui-design-systems
     ~/.claude/skills/typescript-project-contracts: collections/shared/typescript-project-contracts
     ~/.claude/skills/ultracave: collections/shared/ultracave
     ~/.claude/skills/using-agent-skills: collections/shared/using-agent-skills
@@ -873,13 +822,13 @@
     ~/.claude/skills/using-relational-databases: collections/shared/using-relational-databases
     ~/.claude/skills/using-timeseries-databases: collections/shared/using-timeseries-databases
     ~/.claude/skills/using-vector-databases: collections/shared/using-vector-databases
+    ~/.claude/skills/verify-and-stop: collections/shared/verify-and-stop
     ~/.claude/skills/visualizing-data: collections/shared/visualizing-data
     ~/.claude/skills/wiki-builder: collections/shared/wiki-builder
     ~/.claude/skills/wiki-changelog: collections/shared/wiki-changelog
     ~/.claude/skills/wiki-page-writer: collections/shared/wiki-page-writer
     ~/.claude/skills/workstation-installers: collections/shared/workstation-installers
     ~/.claude/skills/worxbend-repository-context: collections/shared/worxbend-repository-context
-    ~/.claude/skills/writing-dockerfiles: collections/shared/writing-dockerfiles
     ~/.claude/skills/zig-build-and-memory: collections/shared/zig-build-and-memory
     ~/.claude/skills/zio-skills--docs-add-missing-section: collections/zio-skills/plugins/documentation/skills/docs-add-missing-section
     ~/.claude/skills/zio-skills--docs-ascii-diagram: collections/zio-skills/plugins/documentation/skills/docs-ascii-diagram
@@ -916,40 +865,18 @@
     ~/.codex/skills/agent-memory-systems: collections/shared/agent-memory-systems
     ~/.codex/skills/agent-observability: collections/shared/agent-observability
     ~/.codex/skills/agent-orchestration-improve-agent: collections/shared/agent-orchestration-improve-agent
-    ~/.codex/skills/agent-orchestration-multi-agent-optimize: collections/shared/agent-orchestration-multi-agent-optimize
-    ~/.codex/skills/agent-orchestrator: collections/shared/agent-orchestrator
     ~/.codex/skills/agent-self-scheduling: collections/shared/agent-self-scheduling
-    ~/.codex/skills/agent-squad: collections/shared/agent-squad
-    ~/.codex/skills/agent-squad--alex: collections/shared/agent-squad/alex
-    ~/.codex/skills/agent-squad--aria: collections/shared/agent-squad/aria
-    ~/.codex/skills/agent-squad--dep: collections/shared/agent-squad/dep
-    ~/.codex/skills/agent-squad--luna: collections/shared/agent-squad/luna
-    ~/.codex/skills/agent-squad--mason: collections/shared/agent-squad/mason
-    ~/.codex/skills/agent-squad--max: collections/shared/agent-squad/max
-    ~/.codex/skills/agent-squad--quinn: collections/shared/agent-squad/quinn
-    ~/.codex/skills/agent-squad--rex: collections/shared/agent-squad/rex
-    ~/.codex/skills/ai-analyzer: collections/shared/ai-analyzer
-    ~/.codex/skills/ai-engineer: collections/shared/ai-engineer
     ~/.codex/skills/airgradient-clients: collections/shared/airgradient-clients
     ~/.codex/skills/ameba-configuration: collections/shared/ameba-configuration
     ~/.codex/skills/ameba-custom-rules: collections/shared/ameba-custom-rules
     ~/.codex/skills/ameba-integration: collections/shared/ameba-integration
     ~/.codex/skills/analytics: collections/shared/analytics
-    ~/.codex/skills/analytics-product: collections/shared/analytics-product
-    ~/.codex/skills/analytics-tracking: collections/shared/analytics-tracking
     ~/.codex/skills/analyze-performance: collections/shared/analyze-performance
-    ~/.codex/skills/analyze-project: collections/shared/analyze-project
     ~/.codex/skills/andrej-karpathy: collections/shared/andrej-karpathy
     ~/.codex/skills/api-analyzer: collections/shared/api-analyzer
     ~/.codex/skills/api-and-interface-design: collections/shared/api-and-interface-design
-    ~/.codex/skills/api-design-principles: collections/shared/api-design-principles
-    ~/.codex/skills/api-designer: collections/shared/api-designer
-    ~/.codex/skills/api-documentation: collections/shared/api-documentation
-    ~/.codex/skills/api-documenter: collections/shared/api-documenter
-    ~/.codex/skills/api-patterns: collections/shared/api-patterns
     ~/.codex/skills/api-security: collections/shared/api-security
     ~/.codex/skills/api-security-best-practices: collections/shared/api-security-best-practices
-    ~/.codex/skills/architect-review: collections/shared/architect-review
     ~/.codex/skills/architecting-data: collections/shared/architecting-data
     ~/.codex/skills/architecting-networks: collections/shared/architecting-networks
     ~/.codex/skills/architecting-security: collections/shared/architecting-security
@@ -957,22 +884,17 @@
     ~/.codex/skills/architecture-patterns: collections/shared/architecture-patterns
     ~/.codex/skills/architecture-review: collections/shared/architecture-review
     ~/.codex/skills/astro: collections/shared/astro
-    ~/.codex/skills/audit-log: collections/shared/audit-log
     ~/.codex/skills/audit-logging: collections/shared/audit-logging
     ~/.codex/skills/audit-skills: collections/shared/audit-skills
     ~/.codex/skills/aws-ec2: collections/shared/aws-ec2
     ~/.codex/skills/aws-iam: collections/shared/aws-iam
     ~/.codex/skills/aws-rds: collections/shared/aws-rds
     ~/.codex/skills/aws-s3: collections/shared/aws-s3
-    ~/.codex/skills/aws-skills: collections/shared/aws-skills
-    ~/.codex/skills/backend-architect: collections/shared/backend-architect
     ~/.codex/skills/backend-dev-guidelines: collections/shared/backend-dev-guidelines
     ~/.codex/skills/backend-patterns: collections/shared/backend-patterns
     ~/.codex/skills/bash-linux: collections/shared/bash-linux
     ~/.codex/skills/bash-pro: collections/shared/bash-pro
-    ~/.codex/skills/bdd-patterns: collections/shared/bdd-patterns
     ~/.codex/skills/bdd-principles: collections/shared/bdd-principles
-    ~/.codex/skills/bdd-scenarios: collections/shared/bdd-scenarios
     ~/.codex/skills/browser-testing-with-devtools: collections/shared/browser-testing-with-devtools
     ~/.codex/skills/building-ai-chat: collections/shared/building-ai-chat
     ~/.codex/skills/building-ci-pipelines: collections/shared/building-ci-pipelines
@@ -1015,25 +937,13 @@
     ~/.codex/skills/claude-productivity--start: collections/claude-plugins/productivity/start
     ~/.codex/skills/claude-productivity--task-management: collections/claude-plugins/productivity/task-management
     ~/.codex/skills/claude-productivity--update: collections/claude-plugins/productivity/update
-    ~/.codex/skills/clean-code: collections/shared/clean-code
     ~/.codex/skills/clean-code-guard: collections/shared/clean-code-guard
-    ~/.codex/skills/clean-code-principles: collections/shared/clean-code-principles
     ~/.codex/skills/code-audit: collections/shared/code-audit
     ~/.codex/skills/code-complete: collections/shared/code-complete
-    ~/.codex/skills/code-documentation-code-explain: collections/shared/code-documentation-code-explain
-    ~/.codex/skills/code-documentation-doc-generate: collections/shared/code-documentation-doc-generate
-    ~/.codex/skills/code-refactoring-refactor-clean: collections/shared/code-refactoring-refactor-clean
     ~/.codex/skills/code-refactoring-tech-debt: collections/shared/code-refactoring-tech-debt
     ~/.codex/skills/code-review: collections/shared/code-review
-    ~/.codex/skills/code-review-ai-ai-review: collections/shared/code-review-ai-ai-review
     ~/.codex/skills/code-review-and-quality: collections/shared/code-review-and-quality
-    ~/.codex/skills/code-review-checklist: collections/shared/code-review-checklist
-    ~/.codex/skills/code-review-excellence: collections/shared/code-review-excellence
-    ~/.codex/skills/code-review-sensei: collections/shared/code-review-sensei
-    ~/.codex/skills/code-reviewer: collections/shared/code-reviewer
     ~/.codex/skills/code-simplification: collections/shared/code-simplification
-    ~/.codex/skills/code-simplifier: collections/shared/code-simplifier
-    ~/.codex/skills/codebase-cleanup-refactor-clean: collections/shared/codebase-cleanup-refactor-clean
     ~/.codex/skills/codex-render--render-background-workers: collections/render/render-background-workers
     ~/.codex/skills/codex-render--render-blueprints: collections/render/render-blueprints
     ~/.codex/skills/codex-render--render-cli: collections/render/render-cli
@@ -1067,15 +977,11 @@
     ~/.codex/skills/cpp-obs-plugin-development: collections/shared/cpp-obs-plugin-development
     ~/.codex/skills/creating-dashboards: collections/shared/creating-dashboards
     ~/.codex/skills/crystal-build-and-test: collections/shared/crystal-build-and-test
-    ~/.codex/skills/data-engineer: collections/shared/data-engineer
     ~/.codex/skills/data-engineering-data-pipeline: collections/shared/data-engineering-data-pipeline
-    ~/.codex/skills/data-scientist: collections/shared/data-scientist
-    ~/.codex/skills/database-architect: collections/shared/database-architect
     ~/.codex/skills/database-design: collections/shared/database-design
     ~/.codex/skills/datadog: collections/shared/datadog
     ~/.codex/skills/datadog-automation: collections/shared/datadog-automation
     ~/.codex/skills/debugging-and-error-recovery: collections/shared/debugging-and-error-recovery
-    ~/.codex/skills/dependency-analysis: collections/shared/dependency-analysis
     ~/.codex/skills/dependency-scanning: collections/shared/dependency-scanning
     ~/.codex/skills/dependency-upgrade: collections/shared/dependency-upgrade
     ~/.codex/skills/deploying-applications: collections/shared/deploying-applications
@@ -1090,7 +996,6 @@
     ~/.codex/skills/docker-compose-networking: collections/shared/docker-compose-networking
     ~/.codex/skills/docker-compose-production: collections/shared/docker-compose-production
     ~/.codex/skills/dockerfile-optimise: collections/shared/dockerfile-optimise
-    ~/.codex/skills/docs-generator: collections/shared/docs-generator
     ~/.codex/skills/documentation-and-adrs: collections/shared/documentation-and-adrs
     ~/.codex/skills/doubt-driven-development: collections/shared/doubt-driven-development
     ~/.codex/skills/effect-concurrency: collections/shared/effect-concurrency
@@ -1102,11 +1007,7 @@
     ~/.codex/skills/effect-testing: collections/shared/effect-testing
     ~/.codex/skills/elixir-project-workflow: collections/shared/elixir-project-workflow
     ~/.codex/skills/embedded-device-protocols: collections/shared/embedded-device-protocols
-    ~/.codex/skills/error-debugging-error-analysis: collections/shared/error-debugging-error-analysis
     ~/.codex/skills/error-debugging-error-trace: collections/shared/error-debugging-error-trace
-    ~/.codex/skills/error-debugging-multi-agent-review: collections/shared/error-debugging-multi-agent-review
-    ~/.codex/skills/error-diagnostics-error-analysis: collections/shared/error-diagnostics-error-analysis
-    ~/.codex/skills/error-diagnostics-error-trace: collections/shared/error-diagnostics-error-trace
     ~/.codex/skills/find-skills: collections/shared/find-skills
     ~/.codex/skills/fp-async: collections/shared/fp-async
     ~/.codex/skills/fp-backend: collections/shared/fp-backend
@@ -1115,24 +1016,17 @@
     ~/.codex/skills/fp-errors: collections/shared/fp-errors
     ~/.codex/skills/fp-option-ref: collections/shared/fp-option-ref
     ~/.codex/skills/fp-pipe-ref: collections/shared/fp-pipe-ref
-    ~/.codex/skills/fp-pragmatic: collections/shared/fp-pragmatic
     ~/.codex/skills/fp-react: collections/shared/fp-react
     ~/.codex/skills/fp-refactor: collections/shared/fp-refactor
     ~/.codex/skills/fp-taskeither-ref: collections/shared/fp-taskeither-ref
     ~/.codex/skills/frontend-design: collections/shared/frontend-design
     ~/.codex/skills/frontend-dev-guidelines: collections/shared/frontend-dev-guidelines
-    ~/.codex/skills/frontend-patterns: collections/shared/frontend-patterns
     ~/.codex/skills/frontend-ui-engineering: collections/shared/frontend-ui-engineering
     ~/.codex/skills/generating-documentation: collections/shared/generating-documentation
     ~/.codex/skills/git-pushing: collections/shared/git-pushing
-    ~/.codex/skills/git-storytelling-commit-messages: collections/shared/git-storytelling-commit-messages
-    ~/.codex/skills/git-storytelling-commit-strategy: collections/shared/git-storytelling-commit-strategy
     ~/.codex/skills/git-workflow-and-versioning: collections/shared/git-workflow-and-versioning
-    ~/.codex/skills/github: collections/shared/github
-    ~/.codex/skills/github-actions: collections/shared/github-actions
     ~/.codex/skills/github-actions-advanced: collections/shared/github-actions-advanced
     ~/.codex/skills/github-actions-debugger: collections/shared/github-actions-debugger
-    ~/.codex/skills/github-actions-templates: collections/shared/github-actions-templates
     ~/.codex/skills/gof-patterns: collections/shared/gof-patterns
     ~/.codex/skills/golang-benchmark: collections/shared/golang-benchmark
     ~/.codex/skills/golang-cli: collections/shared/golang-cli
@@ -1244,6 +1138,7 @@
     ~/.codex/skills/hermes--youtube-content: collections/hermes/media/youtube-content
     ~/.codex/skills/homelab-operations: collections/shared/homelab-operations
     ~/.codex/skills/human-copywrite: collections/shared/human-copywrite
+    ~/.codex/skills/i-have-adhd: collections/shared/i-have-adhd
     ~/.codex/skills/idea-refine: collections/shared/idea-refine
     ~/.codex/skills/implementing-api-patterns: collections/shared/implementing-api-patterns
     ~/.codex/skills/implementing-compliance: collections/shared/implementing-compliance
@@ -1255,24 +1150,53 @@
     ~/.codex/skills/incremental-implementation: collections/shared/incremental-implementation
     ~/.codex/skills/ingesting-data: collections/shared/ingesting-data
     ~/.codex/skills/interview-me: collections/shared/interview-me
+    ~/.codex/skills/investigate-first: collections/shared/investigate-first
     ~/.codex/skills/java-concurrency: collections/shared/java-concurrency
     ~/.codex/skills/java-generics: collections/shared/java-generics
-    ~/.codex/skills/java-pro: collections/shared/java-pro
     ~/.codex/skills/java-streams-api: collections/shared/java-streams-api
     ~/.codex/skills/javascript-pro: collections/shared/javascript-pro
     ~/.codex/skills/kotlin-coroutines: collections/shared/kotlin-coroutines
-    ~/.codex/skills/kotlin-coroutines-expert: collections/shared/kotlin-coroutines-expert
     ~/.codex/skills/kotlin-dsl-patterns: collections/shared/kotlin-dsl-patterns
     ~/.codex/skills/kotlin-null-safety: collections/shared/kotlin-null-safety
-    ~/.codex/skills/kubernetes-architect: collections/shared/kubernetes-architect
     ~/.codex/skills/kubernetes-hardening: collections/shared/kubernetes-hardening
+    ~/.codex/skills/lean-build: collections/shared/lean-build
     ~/.codex/skills/load-balancing-patterns: collections/shared/load-balancing-patterns
     ~/.codex/skills/lua-c-integration: collections/shared/lua-c-integration
     ~/.codex/skills/lua-coroutines: collections/shared/lua-coroutines
     ~/.codex/skills/lua-tables-patterns: collections/shared/lua-tables-patterns
     ~/.codex/skills/managing-incidents: collections/shared/managing-incidents
     ~/.codex/skills/managing-media: collections/shared/managing-media
+    ~/.codex/skills/mattpocock--ask-matt: collections/mattpocock/engineering/ask-matt
+    ~/.codex/skills/mattpocock--code-review: collections/mattpocock/engineering/code-review
+    ~/.codex/skills/mattpocock--codebase-design: collections/mattpocock/engineering/codebase-design
+    ~/.codex/skills/mattpocock--diagnosing-bugs: collections/mattpocock/engineering/diagnosing-bugs
+    ~/.codex/skills/mattpocock--domain-modeling: collections/mattpocock/engineering/domain-modeling
+    ~/.codex/skills/mattpocock--git-guardrails-claude-code: collections/mattpocock/misc/git-guardrails-claude-code
+    ~/.codex/skills/mattpocock--grill-me: collections/mattpocock/productivity/grill-me
+    ~/.codex/skills/mattpocock--grill-with-docs: collections/mattpocock/engineering/grill-with-docs
+    ~/.codex/skills/mattpocock--grilling: collections/mattpocock/productivity/grilling
+    ~/.codex/skills/mattpocock--handoff: collections/mattpocock/productivity/handoff
+    ~/.codex/skills/mattpocock--implement: collections/mattpocock/engineering/implement
+    ~/.codex/skills/mattpocock--implement-spec: collections/mattpocock/engineering/implement-spec
+    ~/.codex/skills/mattpocock--improve-codebase-architecture: collections/mattpocock/engineering/improve-codebase-architecture
+    ~/.codex/skills/mattpocock--pr: collections/mattpocock/engineering/pr
+    ~/.codex/skills/mattpocock--prototype: collections/mattpocock/engineering/prototype
+    ~/.codex/skills/mattpocock--research: collections/mattpocock/engineering/research
+    ~/.codex/skills/mattpocock--retro: collections/mattpocock/engineering/retro
+    ~/.codex/skills/mattpocock--setup-matt-pocock-skills: collections/mattpocock/engineering/setup-matt-pocock-skills
+    ~/.codex/skills/mattpocock--setup-pre-commit: collections/mattpocock/misc/setup-pre-commit
+    ~/.codex/skills/mattpocock--tdd: collections/mattpocock/engineering/tdd
+    ~/.codex/skills/mattpocock--teach: collections/mattpocock/productivity/teach
+    ~/.codex/skills/mattpocock--to-questionnaire: collections/mattpocock/productivity/to-questionnaire
+    ~/.codex/skills/mattpocock--to-spec: collections/mattpocock/engineering/to-spec
+    ~/.codex/skills/mattpocock--to-tickets: collections/mattpocock/engineering/to-tickets
+    ~/.codex/skills/mattpocock--triage: collections/mattpocock/engineering/triage
+    ~/.codex/skills/mattpocock--wait-what: collections/mattpocock/productivity/wait-what
+    ~/.codex/skills/mattpocock--wayfinder: collections/mattpocock/engineering/wayfinder
+    ~/.codex/skills/mattpocock--wizard: collections/mattpocock/engineering/wizard
+    ~/.codex/skills/mattpocock--writing-for-agents: collections/mattpocock/productivity/writing-for-agents
     ~/.codex/skills/megacave: collections/shared/megacave
+    ~/.codex/skills/migration: collections/shared/migration
     ~/.codex/skills/mill-build-logic: collections/shared/mill-build-logic
     ~/.codex/skills/mill-cli-and-ide: collections/shared/mill-cli-and-ide
     ~/.codex/skills/mill-dependencies-and-toolchains: collections/shared/mill-dependencies-and-toolchains
@@ -1293,15 +1217,10 @@
     ~/.codex/skills/nim-metaprogramming: collections/shared/nim-metaprogramming
     ~/.codex/skills/observability-and-instrumentation: collections/shared/observability-and-instrumentation
     ~/.codex/skills/observability-cloud-planning: collections/shared/observability-cloud-planning
-    ~/.codex/skills/observability-engineer: collections/shared/observability-engineer
     ~/.codex/skills/operating-kubernetes: collections/shared/operating-kubernetes
     ~/.codex/skills/parametric-cad-validation: collections/shared/parametric-cad-validation
-    ~/.codex/skills/performance-engineer: collections/shared/performance-engineer
     ~/.codex/skills/performance-engineering: collections/shared/performance-engineering
-    ~/.codex/skills/performance-management: collections/shared/performance-management
     ~/.codex/skills/performance-optimization: collections/shared/performance-optimization
-    ~/.codex/skills/performance-optimizer: collections/shared/performance-optimizer
-    ~/.codex/skills/performance-profiling: collections/shared/performance-profiling
     ~/.codex/skills/pixijs-application: collections/shared/pixijs-application
     ~/.codex/skills/pixijs-assets: collections/shared/pixijs-assets
     ~/.codex/skills/pixijs-core-concepts: collections/shared/pixijs-core-concepts
@@ -1313,6 +1232,10 @@
     ~/.codex/skills/pixijs-ticker: collections/shared/pixijs-ticker
     ~/.codex/skills/planning-and-task-breakdown: collections/shared/planning-and-task-breakdown
     ~/.codex/skills/platform-engineering: collections/shared/platform-engineering
+    ~/.codex/skills/ponytail: collections/shared/ponytail
+    ~/.codex/skills/ponytail-audit: collections/shared/ponytail-audit
+    ~/.codex/skills/ponytail-debt: collections/shared/ponytail-debt
+    ~/.codex/skills/ponytail-review: collections/shared/ponytail-review
     ~/.codex/skills/providing-feedback: collections/shared/providing-feedback
     ~/.codex/skills/pulumi-components: collections/shared/pulumi-components
     ~/.codex/skills/pulumi-stacks: collections/shared/pulumi-stacks
@@ -1325,47 +1248,62 @@
     ~/.codex/skills/pytest-plugins: collections/shared/pytest-plugins
     ~/.codex/skills/python-async-patterns: collections/shared/python-async-patterns
     ~/.codex/skills/python-data-classes: collections/shared/python-data-classes
-    ~/.codex/skills/python-development: collections/shared/python-development
     ~/.codex/skills/python-patterns: collections/shared/python-patterns
-    ~/.codex/skills/python-pro: collections/shared/python-pro
     ~/.codex/skills/python-type-system: collections/shared/python-type-system
-    ~/.codex/skills/refactor: collections/shared/refactor
     ~/.codex/skills/refactoring-guru: collections/shared/refactoring-guru
     ~/.codex/skills/rust-linux-apps: collections/shared/rust-linux-apps
     ~/.codex/skills/rust-systems-contracts: collections/shared/rust-systems-contracts
     ~/.codex/skills/safe-refactor: collections/shared/safe-refactor
     ~/.codex/skills/saga-orchestration: collections/shared/saga-orchestration
+    ~/.codex/skills/scala-acyclic-whole-run-compiler-adapters: collections/shared/scala-acyclic-whole-run-compiler-adapters
+    ~/.codex/skills/scala-ammonite-static-script-dependency-propagation: collections/shared/scala-ammonite-static-script-dependency-propagation
+    ~/.codex/skills/scala-ammonite-symbol-derived-closure-capture: collections/shared/scala-ammonite-symbol-derived-closure-capture
+    ~/.codex/skills/scala-cask-route-trie-validation-order: collections/shared/scala-cask-route-trie-validation-order
+    ~/.codex/skills/scala-castor-platform-mixin-dispatch-accounting: collections/shared/scala-castor-platform-mixin-dispatch-accounting
+    ~/.codex/skills/scala-cats-effect-cleanup-error-provenance: collections/shared/scala-cats-effect-cleanup-error-provenance
+    ~/.codex/skills/scala-cats-effect-outcome-sensitive-concurrency: collections/shared/scala-cats-effect-outcome-sensitive-concurrency
+    ~/.codex/skills/scala-cats-effect-runtime-benchmark-review: collections/shared/scala-cats-effect-runtime-benchmark-review
+    ~/.codex/skills/scala-cats-erased-runtime-compatibility: collections/shared/scala-cats-erased-runtime-compatibility
+    ~/.codex/skills/scala-cats-law-backed-instance-surface: collections/shared/scala-cats-law-backed-instance-surface
+    ~/.codex/skills/scala-cats-traversal-branch-isolation: collections/shared/scala-cats-traversal-branch-isolation
     ~/.codex/skills/scala-collections: collections/shared/scala-collections
+    ~/.codex/skills/scala-fastparse-diagnostic-mode-review: collections/shared/scala-fastparse-diagnostic-mode-review
+    ~/.codex/skills/scala-fastparse-hot-path-cost-review: collections/shared/scala-fastparse-hot-path-cost-review
+    ~/.codex/skills/scala-fastparse-shared-run-combinator-extraction: collections/shared/scala-fastparse-shared-run-combinator-extraction
+    ~/.codex/skills/scala-fs2-foreign-callback-lanes: collections/shared/scala-fs2-foreign-callback-lanes
+    ~/.codex/skills/scala-fs2-per-element-scope-propagation: collections/shared/scala-fs2-per-element-scope-propagation
+    ~/.codex/skills/scala-fs2-sink-emission-cardinality: collections/shared/scala-fs2-sink-emission-cardinality
     ~/.codex/skills/scala-functional-patterns: collections/shared/scala-functional-patterns
+    ~/.codex/skills/scala-http4s-http1-bodyless-connection-framing: collections/shared/scala-http4s-http1-bodyless-connection-framing
+    ~/.codex/skills/scala-http4s-stateful-factory-acquisition: collections/shared/scala-http4s-stateful-factory-acquisition
+    ~/.codex/skills/scala-http4s-uri-segment-representation: collections/shared/scala-http4s-uri-segment-representation
     ~/.codex/skills/scala-library-contracts: collections/shared/scala-library-contracts
-    ~/.codex/skills/scala-pro: collections/shared/scala-pro
+    ~/.codex/skills/scala-oss-library-review: collections/shared/scala-oss-library-review
+    ~/.codex/skills/scala-play-cors-csrf-policy-matrix: collections/shared/scala-play-cors-csrf-policy-matrix
+    ~/.codex/skills/scala-play-partial-startup-shutdown-completion: collections/shared/scala-play-partial-startup-shutdown-completion
+    ~/.codex/skills/scala-sourcecode-args-capture-review: collections/shared/scala-sourcecode-args-capture-review
     ~/.codex/skills/scala-type-system: collections/shared/scala-type-system
+    ~/.codex/skills/scala-zio-canceler-evaluation-owner: collections/shared/scala-zio-canceler-evaluation-owner
+    ~/.codex/skills/scala-zio-diagnostic-reader-progress: collections/shared/scala-zio-diagnostic-reader-progress
+    ~/.codex/skills/scala-zio-http-channel-handoff-completion: collections/shared/scala-zio-http-channel-handoff-completion
+    ~/.codex/skills/scala-zio-http-middleware-execution-boundaries: collections/shared/scala-zio-http-middleware-execution-boundaries
+    ~/.codex/skills/scala-zio-http-request-local-error-disclosure: collections/shared/scala-zio-http-request-local-error-disclosure
     ~/.codex/skills/scala-zio-skills--zio-reference: collections/scala-zio-skills/skills/zio-reference
     ~/.codex/skills/security-and-hardening: collections/shared/security-and-hardening
     ~/.codex/skills/security-best-practices: collections/shared/security-best-practices
     ~/.codex/skills/security-hardening: collections/shared/security-hardening
-    ~/.codex/skills/security-review: collections/shared/security-review
-    ~/.codex/skills/senior-architect: collections/shared/senior-architect
-    ~/.codex/skills/senior-backend: collections/shared/senior-backend
-    ~/.codex/skills/senior-data-engineer: collections/shared/senior-data-engineer
-    ~/.codex/skills/senior-data-scientist: collections/shared/senior-data-scientist
-    ~/.codex/skills/senior-devops: collections/shared/senior-devops
-    ~/.codex/skills/senior-qa: collections/shared/senior-qa
-    ~/.codex/skills/senior-security: collections/shared/senior-security
     ~/.codex/skills/shipping-and-launch: collections/shared/shipping-and-launch
-    ~/.codex/skills/skill-router: collections/shared/skill-router
-    ~/.codex/skills/skill-seekers: collections/shared/skill-seekers
     ~/.codex/skills/skill-writer: collections/shared/skill-writer
     ~/.codex/skills/sonar-issue-prevention: collections/shared/sonar-issue-prevention
     ~/.codex/skills/sonarcloud-triage: collections/shared/sonarcloud-triage
     ~/.codex/skills/source-driven-development: collections/shared/source-driven-development
     ~/.codex/skills/spec-driven-development: collections/shared/spec-driven-development
     ~/.codex/skills/streaming-integrations: collections/shared/streaming-integrations
-    ~/.codex/skills/telegram-bot-builder: collections/shared/telegram-bot-builder
-    ~/.codex/skills/telegram-mini-app: collections/shared/telegram-mini-app
+    ~/.codex/skills/surgical-patch: collections/shared/surgical-patch
     ~/.codex/skills/test-driven-development: collections/shared/test-driven-development
     ~/.codex/skills/testing-strategies: collections/shared/testing-strategies
     ~/.codex/skills/theming-components: collections/shared/theming-components
+    ~/.codex/skills/tui-design-systems: collections/shared/tui-design-systems
     ~/.codex/skills/typescript-project-contracts: collections/shared/typescript-project-contracts
     ~/.codex/skills/ultracave: collections/shared/ultracave
     ~/.codex/skills/using-agent-skills: collections/shared/using-agent-skills
@@ -1375,13 +1313,13 @@
     ~/.codex/skills/using-relational-databases: collections/shared/using-relational-databases
     ~/.codex/skills/using-timeseries-databases: collections/shared/using-timeseries-databases
     ~/.codex/skills/using-vector-databases: collections/shared/using-vector-databases
+    ~/.codex/skills/verify-and-stop: collections/shared/verify-and-stop
     ~/.codex/skills/visualizing-data: collections/shared/visualizing-data
     ~/.codex/skills/wiki-builder: collections/shared/wiki-builder
     ~/.codex/skills/wiki-changelog: collections/shared/wiki-changelog
     ~/.codex/skills/wiki-page-writer: collections/shared/wiki-page-writer
     ~/.codex/skills/workstation-installers: collections/shared/workstation-installers
     ~/.codex/skills/worxbend-repository-context: collections/shared/worxbend-repository-context
-    ~/.codex/skills/writing-dockerfiles: collections/shared/writing-dockerfiles
     ~/.codex/skills/zig-build-and-memory: collections/shared/zig-build-and-memory
     ~/.codex/skills/zio-skills--docs-add-missing-section: collections/zio-skills/plugins/documentation/skills/docs-add-missing-section
     ~/.codex/skills/zio-skills--docs-ascii-diagram: collections/zio-skills/plugins/documentation/skills/docs-ascii-diagram
@@ -1426,47 +1364,8 @@
     ~/.config/opencode/skills/agent-orchestration-improve-agent:
       path: collections/shared/agent-orchestration-improve-agent
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/agent-orchestration-multi-agent-optimize:
-      path: collections/shared/agent-orchestration-multi-agent-optimize
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/agent-orchestrator:
-      path: collections/shared/agent-orchestrator
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/agent-self-scheduling:
       path: collections/shared/agent-self-scheduling
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/agent-squad:
-      path: collections/shared/agent-squad
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/agent-squad--alex:
-      path: collections/shared/agent-squad/alex
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/agent-squad--aria:
-      path: collections/shared/agent-squad/aria
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/agent-squad--dep:
-      path: collections/shared/agent-squad/dep
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/agent-squad--luna:
-      path: collections/shared/agent-squad/luna
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/agent-squad--mason:
-      path: collections/shared/agent-squad/mason
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/agent-squad--max:
-      path: collections/shared/agent-squad/max
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/agent-squad--quinn:
-      path: collections/shared/agent-squad/quinn
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/agent-squad--rex:
-      path: collections/shared/agent-squad/rex
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/ai-analyzer:
-      path: collections/shared/ai-analyzer
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/ai-engineer:
-      path: collections/shared/ai-engineer
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/airgradient-clients:
       path: collections/shared/airgradient-clients
@@ -1483,17 +1382,8 @@
     ~/.config/opencode/skills/analytics:
       path: collections/shared/analytics
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/analytics-product:
-      path: collections/shared/analytics-product
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/analytics-tracking:
-      path: collections/shared/analytics-tracking
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/analyze-performance:
       path: collections/shared/analyze-performance
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/analyze-project:
-      path: collections/shared/analyze-project
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/andrej-karpathy:
       path: collections/shared/andrej-karpathy
@@ -1504,29 +1394,11 @@
     ~/.config/opencode/skills/api-and-interface-design:
       path: collections/shared/api-and-interface-design
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/api-design-principles:
-      path: collections/shared/api-design-principles
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/api-designer:
-      path: collections/shared/api-designer
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/api-documentation:
-      path: collections/shared/api-documentation
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/api-documenter:
-      path: collections/shared/api-documenter
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/api-patterns:
-      path: collections/shared/api-patterns
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/api-security:
       path: collections/shared/api-security
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/api-security-best-practices:
       path: collections/shared/api-security-best-practices
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/architect-review:
-      path: collections/shared/architect-review
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/architecting-data:
       path: collections/shared/architecting-data
@@ -1549,9 +1421,6 @@
     ~/.config/opencode/skills/astro:
       path: collections/shared/astro
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/audit-log:
-      path: collections/shared/audit-log
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/audit-logging:
       path: collections/shared/audit-logging
       if: test -d "$HOME/.config/opencode"
@@ -1570,12 +1439,6 @@
     ~/.config/opencode/skills/aws-s3:
       path: collections/shared/aws-s3
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/aws-skills:
-      path: collections/shared/aws-skills
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/backend-architect:
-      path: collections/shared/backend-architect
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/backend-dev-guidelines:
       path: collections/shared/backend-dev-guidelines
       if: test -d "$HOME/.config/opencode"
@@ -1588,14 +1451,8 @@
     ~/.config/opencode/skills/bash-pro:
       path: collections/shared/bash-pro
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/bdd-patterns:
-      path: collections/shared/bdd-patterns
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/bdd-principles:
       path: collections/shared/bdd-principles
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/bdd-scenarios:
-      path: collections/shared/bdd-scenarios
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/browser-testing-with-devtools:
       path: collections/shared/browser-testing-with-devtools
@@ -1723,14 +1580,8 @@
     ~/.config/opencode/skills/claude-productivity--update:
       path: collections/claude-plugins/productivity/update
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/clean-code:
-      path: collections/shared/clean-code
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/clean-code-guard:
       path: collections/shared/clean-code-guard
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/clean-code-principles:
-      path: collections/shared/clean-code-principles
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/code-audit:
       path: collections/shared/code-audit
@@ -1738,47 +1589,17 @@
     ~/.config/opencode/skills/code-complete:
       path: collections/shared/code-complete
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/code-documentation-code-explain:
-      path: collections/shared/code-documentation-code-explain
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/code-documentation-doc-generate:
-      path: collections/shared/code-documentation-doc-generate
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/code-refactoring-refactor-clean:
-      path: collections/shared/code-refactoring-refactor-clean
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/code-refactoring-tech-debt:
       path: collections/shared/code-refactoring-tech-debt
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/code-review:
       path: collections/shared/code-review
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/code-review-ai-ai-review:
-      path: collections/shared/code-review-ai-ai-review
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/code-review-and-quality:
       path: collections/shared/code-review-and-quality
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/code-review-checklist:
-      path: collections/shared/code-review-checklist
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/code-review-excellence:
-      path: collections/shared/code-review-excellence
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/code-review-sensei:
-      path: collections/shared/code-review-sensei
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/code-reviewer:
-      path: collections/shared/code-reviewer
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/code-simplification:
       path: collections/shared/code-simplification
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/code-simplifier:
-      path: collections/shared/code-simplifier
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/codebase-cleanup-refactor-clean:
-      path: collections/shared/codebase-cleanup-refactor-clean
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/codex-render--render-background-workers:
       path: collections/render/render-background-workers
@@ -1879,17 +1700,8 @@
     ~/.config/opencode/skills/crystal-build-and-test:
       path: collections/shared/crystal-build-and-test
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/data-engineer:
-      path: collections/shared/data-engineer
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/data-engineering-data-pipeline:
       path: collections/shared/data-engineering-data-pipeline
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/data-scientist:
-      path: collections/shared/data-scientist
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/database-architect:
-      path: collections/shared/database-architect
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/database-design:
       path: collections/shared/database-design
@@ -1902,9 +1714,6 @@
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/debugging-and-error-recovery:
       path: collections/shared/debugging-and-error-recovery
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/dependency-analysis:
-      path: collections/shared/dependency-analysis
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/dependency-scanning:
       path: collections/shared/dependency-scanning
@@ -1948,9 +1757,6 @@
     ~/.config/opencode/skills/dockerfile-optimise:
       path: collections/shared/dockerfile-optimise
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/docs-generator:
-      path: collections/shared/docs-generator
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/documentation-and-adrs:
       path: collections/shared/documentation-and-adrs
       if: test -d "$HOME/.config/opencode"
@@ -1984,20 +1790,8 @@
     ~/.config/opencode/skills/embedded-device-protocols:
       path: collections/shared/embedded-device-protocols
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/error-debugging-error-analysis:
-      path: collections/shared/error-debugging-error-analysis
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/error-debugging-error-trace:
       path: collections/shared/error-debugging-error-trace
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/error-debugging-multi-agent-review:
-      path: collections/shared/error-debugging-multi-agent-review
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/error-diagnostics-error-analysis:
-      path: collections/shared/error-diagnostics-error-analysis
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/error-diagnostics-error-trace:
-      path: collections/shared/error-diagnostics-error-trace
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/find-skills:
       path: collections/shared/find-skills
@@ -2023,9 +1817,6 @@
     ~/.config/opencode/skills/fp-pipe-ref:
       path: collections/shared/fp-pipe-ref
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/fp-pragmatic:
-      path: collections/shared/fp-pragmatic
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/fp-react:
       path: collections/shared/fp-react
       if: test -d "$HOME/.config/opencode"
@@ -2041,9 +1832,6 @@
     ~/.config/opencode/skills/frontend-dev-guidelines:
       path: collections/shared/frontend-dev-guidelines
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/frontend-patterns:
-      path: collections/shared/frontend-patterns
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/frontend-ui-engineering:
       path: collections/shared/frontend-ui-engineering
       if: test -d "$HOME/.config/opencode"
@@ -2053,29 +1841,14 @@
     ~/.config/opencode/skills/git-pushing:
       path: collections/shared/git-pushing
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/git-storytelling-commit-messages:
-      path: collections/shared/git-storytelling-commit-messages
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/git-storytelling-commit-strategy:
-      path: collections/shared/git-storytelling-commit-strategy
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/git-workflow-and-versioning:
       path: collections/shared/git-workflow-and-versioning
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/github:
-      path: collections/shared/github
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/github-actions:
-      path: collections/shared/github-actions
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/github-actions-advanced:
       path: collections/shared/github-actions-advanced
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/github-actions-debugger:
       path: collections/shared/github-actions-debugger
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/github-actions-templates:
-      path: collections/shared/github-actions-templates
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/gof-patterns:
       path: collections/shared/gof-patterns
@@ -2410,6 +2183,9 @@
     ~/.config/opencode/skills/human-copywrite:
       path: collections/shared/human-copywrite
       if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/i-have-adhd:
+      path: collections/shared/i-have-adhd
+      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/idea-refine:
       path: collections/shared/idea-refine
       if: test -d "$HOME/.config/opencode"
@@ -2443,14 +2219,14 @@
     ~/.config/opencode/skills/interview-me:
       path: collections/shared/interview-me
       if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/investigate-first:
+      path: collections/shared/investigate-first
+      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/java-concurrency:
       path: collections/shared/java-concurrency
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/java-generics:
       path: collections/shared/java-generics
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/java-pro:
-      path: collections/shared/java-pro
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/java-streams-api:
       path: collections/shared/java-streams-api
@@ -2461,20 +2237,17 @@
     ~/.config/opencode/skills/kotlin-coroutines:
       path: collections/shared/kotlin-coroutines
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/kotlin-coroutines-expert:
-      path: collections/shared/kotlin-coroutines-expert
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/kotlin-dsl-patterns:
       path: collections/shared/kotlin-dsl-patterns
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/kotlin-null-safety:
       path: collections/shared/kotlin-null-safety
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/kubernetes-architect:
-      path: collections/shared/kubernetes-architect
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/kubernetes-hardening:
       path: collections/shared/kubernetes-hardening
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/lean-build:
+      path: collections/shared/lean-build
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/load-balancing-patterns:
       path: collections/shared/load-balancing-patterns
@@ -2494,8 +2267,98 @@
     ~/.config/opencode/skills/managing-media:
       path: collections/shared/managing-media
       if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--ask-matt:
+      path: collections/mattpocock/engineering/ask-matt
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--code-review:
+      path: collections/mattpocock/engineering/code-review
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--codebase-design:
+      path: collections/mattpocock/engineering/codebase-design
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--diagnosing-bugs:
+      path: collections/mattpocock/engineering/diagnosing-bugs
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--domain-modeling:
+      path: collections/mattpocock/engineering/domain-modeling
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--git-guardrails-claude-code:
+      path: collections/mattpocock/misc/git-guardrails-claude-code
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--grill-me:
+      path: collections/mattpocock/productivity/grill-me
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--grill-with-docs:
+      path: collections/mattpocock/engineering/grill-with-docs
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--grilling:
+      path: collections/mattpocock/productivity/grilling
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--handoff:
+      path: collections/mattpocock/productivity/handoff
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--implement:
+      path: collections/mattpocock/engineering/implement
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--implement-spec:
+      path: collections/mattpocock/engineering/implement-spec
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--improve-codebase-architecture:
+      path: collections/mattpocock/engineering/improve-codebase-architecture
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--pr:
+      path: collections/mattpocock/engineering/pr
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--prototype:
+      path: collections/mattpocock/engineering/prototype
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--research:
+      path: collections/mattpocock/engineering/research
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--retro:
+      path: collections/mattpocock/engineering/retro
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--setup-matt-pocock-skills:
+      path: collections/mattpocock/engineering/setup-matt-pocock-skills
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--setup-pre-commit:
+      path: collections/mattpocock/misc/setup-pre-commit
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--tdd:
+      path: collections/mattpocock/engineering/tdd
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--teach:
+      path: collections/mattpocock/productivity/teach
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--to-questionnaire:
+      path: collections/mattpocock/productivity/to-questionnaire
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--to-spec:
+      path: collections/mattpocock/engineering/to-spec
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--to-tickets:
+      path: collections/mattpocock/engineering/to-tickets
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--triage:
+      path: collections/mattpocock/engineering/triage
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--wait-what:
+      path: collections/mattpocock/productivity/wait-what
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--wayfinder:
+      path: collections/mattpocock/engineering/wayfinder
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--wizard:
+      path: collections/mattpocock/engineering/wizard
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/mattpocock--writing-for-agents:
+      path: collections/mattpocock/productivity/writing-for-agents
+      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/megacave:
       path: collections/shared/megacave
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/migration:
+      path: collections/shared/migration
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/mill-build-logic:
       path: collections/shared/mill-build-logic
@@ -2557,32 +2420,17 @@
     ~/.config/opencode/skills/observability-cloud-planning:
       path: collections/shared/observability-cloud-planning
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/observability-engineer:
-      path: collections/shared/observability-engineer
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/operating-kubernetes:
       path: collections/shared/operating-kubernetes
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/parametric-cad-validation:
       path: collections/shared/parametric-cad-validation
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/performance-engineer:
-      path: collections/shared/performance-engineer
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/performance-engineering:
       path: collections/shared/performance-engineering
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/performance-management:
-      path: collections/shared/performance-management
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/performance-optimization:
       path: collections/shared/performance-optimization
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/performance-optimizer:
-      path: collections/shared/performance-optimizer
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/performance-profiling:
-      path: collections/shared/performance-profiling
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/pixijs-application:
       path: collections/shared/pixijs-application
@@ -2616,6 +2464,18 @@
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/platform-engineering:
       path: collections/shared/platform-engineering
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/ponytail:
+      path: collections/shared/ponytail
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/ponytail-audit:
+      path: collections/shared/ponytail-audit
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/ponytail-debt:
+      path: collections/shared/ponytail-debt
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/ponytail-review:
+      path: collections/shared/ponytail-review
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/providing-feedback:
       path: collections/shared/providing-feedback
@@ -2653,20 +2513,11 @@
     ~/.config/opencode/skills/python-data-classes:
       path: collections/shared/python-data-classes
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/python-development:
-      path: collections/shared/python-development
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/python-patterns:
       path: collections/shared/python-patterns
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/python-pro:
-      path: collections/shared/python-pro
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/python-type-system:
       path: collections/shared/python-type-system
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/refactor:
-      path: collections/shared/refactor
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/refactoring-guru:
       path: collections/shared/refactoring-guru
@@ -2683,20 +2534,104 @@
     ~/.config/opencode/skills/saga-orchestration:
       path: collections/shared/saga-orchestration
       if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-acyclic-whole-run-compiler-adapters:
+      path: collections/shared/scala-acyclic-whole-run-compiler-adapters
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-ammonite-static-script-dependency-propagation:
+      path: collections/shared/scala-ammonite-static-script-dependency-propagation
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-ammonite-symbol-derived-closure-capture:
+      path: collections/shared/scala-ammonite-symbol-derived-closure-capture
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-cask-route-trie-validation-order:
+      path: collections/shared/scala-cask-route-trie-validation-order
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-castor-platform-mixin-dispatch-accounting:
+      path: collections/shared/scala-castor-platform-mixin-dispatch-accounting
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-cats-effect-cleanup-error-provenance:
+      path: collections/shared/scala-cats-effect-cleanup-error-provenance
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-cats-effect-outcome-sensitive-concurrency:
+      path: collections/shared/scala-cats-effect-outcome-sensitive-concurrency
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-cats-effect-runtime-benchmark-review:
+      path: collections/shared/scala-cats-effect-runtime-benchmark-review
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-cats-erased-runtime-compatibility:
+      path: collections/shared/scala-cats-erased-runtime-compatibility
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-cats-law-backed-instance-surface:
+      path: collections/shared/scala-cats-law-backed-instance-surface
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-cats-traversal-branch-isolation:
+      path: collections/shared/scala-cats-traversal-branch-isolation
+      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/scala-collections:
       path: collections/shared/scala-collections
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-fastparse-diagnostic-mode-review:
+      path: collections/shared/scala-fastparse-diagnostic-mode-review
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-fastparse-hot-path-cost-review:
+      path: collections/shared/scala-fastparse-hot-path-cost-review
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-fastparse-shared-run-combinator-extraction:
+      path: collections/shared/scala-fastparse-shared-run-combinator-extraction
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-fs2-foreign-callback-lanes:
+      path: collections/shared/scala-fs2-foreign-callback-lanes
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-fs2-per-element-scope-propagation:
+      path: collections/shared/scala-fs2-per-element-scope-propagation
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-fs2-sink-emission-cardinality:
+      path: collections/shared/scala-fs2-sink-emission-cardinality
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/scala-functional-patterns:
       path: collections/shared/scala-functional-patterns
       if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-http4s-http1-bodyless-connection-framing:
+      path: collections/shared/scala-http4s-http1-bodyless-connection-framing
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-http4s-stateful-factory-acquisition:
+      path: collections/shared/scala-http4s-stateful-factory-acquisition
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-http4s-uri-segment-representation:
+      path: collections/shared/scala-http4s-uri-segment-representation
+      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/scala-library-contracts:
       path: collections/shared/scala-library-contracts
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/scala-pro:
-      path: collections/shared/scala-pro
+    ~/.config/opencode/skills/scala-oss-library-review:
+      path: collections/shared/scala-oss-library-review
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-play-cors-csrf-policy-matrix:
+      path: collections/shared/scala-play-cors-csrf-policy-matrix
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-play-partial-startup-shutdown-completion:
+      path: collections/shared/scala-play-partial-startup-shutdown-completion
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-sourcecode-args-capture-review:
+      path: collections/shared/scala-sourcecode-args-capture-review
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/scala-type-system:
       path: collections/shared/scala-type-system
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-zio-canceler-evaluation-owner:
+      path: collections/shared/scala-zio-canceler-evaluation-owner
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-zio-diagnostic-reader-progress:
+      path: collections/shared/scala-zio-diagnostic-reader-progress
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-zio-http-channel-handoff-completion:
+      path: collections/shared/scala-zio-http-channel-handoff-completion
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-zio-http-middleware-execution-boundaries:
+      path: collections/shared/scala-zio-http-middleware-execution-boundaries
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/scala-zio-http-request-local-error-disclosure:
+      path: collections/shared/scala-zio-http-request-local-error-disclosure
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/scala-zio-skills--zio-reference:
       path: collections/scala-zio-skills/skills/zio-reference
@@ -2710,38 +2645,8 @@
     ~/.config/opencode/skills/security-hardening:
       path: collections/shared/security-hardening
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/security-review:
-      path: collections/shared/security-review
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/senior-architect:
-      path: collections/shared/senior-architect
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/senior-backend:
-      path: collections/shared/senior-backend
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/senior-data-engineer:
-      path: collections/shared/senior-data-engineer
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/senior-data-scientist:
-      path: collections/shared/senior-data-scientist
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/senior-devops:
-      path: collections/shared/senior-devops
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/senior-qa:
-      path: collections/shared/senior-qa
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/senior-security:
-      path: collections/shared/senior-security
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/shipping-and-launch:
       path: collections/shared/shipping-and-launch
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/skill-router:
-      path: collections/shared/skill-router
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/skill-seekers:
-      path: collections/shared/skill-seekers
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/skill-writer:
       path: collections/shared/skill-writer
@@ -2761,11 +2666,8 @@
     ~/.config/opencode/skills/streaming-integrations:
       path: collections/shared/streaming-integrations
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/telegram-bot-builder:
-      path: collections/shared/telegram-bot-builder
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/telegram-mini-app:
-      path: collections/shared/telegram-mini-app
+    ~/.config/opencode/skills/surgical-patch:
+      path: collections/shared/surgical-patch
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/test-driven-development:
       path: collections/shared/test-driven-development
@@ -2775,6 +2677,9 @@
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/theming-components:
       path: collections/shared/theming-components
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/tui-design-systems:
+      path: collections/shared/tui-design-systems
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/typescript-project-contracts:
       path: collections/shared/typescript-project-contracts
@@ -2803,6 +2708,9 @@
     ~/.config/opencode/skills/using-vector-databases:
       path: collections/shared/using-vector-databases
       if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/verify-and-stop:
+      path: collections/shared/verify-and-stop
+      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/visualizing-data:
       path: collections/shared/visualizing-data
       if: test -d "$HOME/.config/opencode"
@@ -2820,9 +2728,6 @@
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/worxbend-repository-context:
       path: collections/shared/worxbend-repository-context
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/writing-dockerfiles:
-      path: collections/shared/writing-dockerfiles
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/zig-build-and-memory:
       path: collections/shared/zig-build-and-memory
@@ -2932,47 +2837,8 @@
     ~/.hermes/skills/agent-orchestration-improve-agent:
       path: collections/shared/agent-orchestration-improve-agent
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/agent-orchestration-multi-agent-optimize:
-      path: collections/shared/agent-orchestration-multi-agent-optimize
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/agent-orchestrator:
-      path: collections/shared/agent-orchestrator
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/agent-self-scheduling:
       path: collections/shared/agent-self-scheduling
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/agent-squad:
-      path: collections/shared/agent-squad
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/agent-squad--alex:
-      path: collections/shared/agent-squad/alex
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/agent-squad--aria:
-      path: collections/shared/agent-squad/aria
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/agent-squad--dep:
-      path: collections/shared/agent-squad/dep
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/agent-squad--luna:
-      path: collections/shared/agent-squad/luna
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/agent-squad--mason:
-      path: collections/shared/agent-squad/mason
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/agent-squad--max:
-      path: collections/shared/agent-squad/max
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/agent-squad--quinn:
-      path: collections/shared/agent-squad/quinn
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/agent-squad--rex:
-      path: collections/shared/agent-squad/rex
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/ai-analyzer:
-      path: collections/shared/ai-analyzer
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/ai-engineer:
-      path: collections/shared/ai-engineer
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/airgradient-clients:
       path: collections/shared/airgradient-clients
@@ -2989,17 +2855,8 @@
     ~/.hermes/skills/analytics:
       path: collections/shared/analytics
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/analytics-product:
-      path: collections/shared/analytics-product
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/analytics-tracking:
-      path: collections/shared/analytics-tracking
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/analyze-performance:
       path: collections/shared/analyze-performance
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/analyze-project:
-      path: collections/shared/analyze-project
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/andrej-karpathy:
       path: collections/shared/andrej-karpathy
@@ -3010,29 +2867,11 @@
     ~/.hermes/skills/api-and-interface-design:
       path: collections/shared/api-and-interface-design
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/api-design-principles:
-      path: collections/shared/api-design-principles
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/api-designer:
-      path: collections/shared/api-designer
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/api-documentation:
-      path: collections/shared/api-documentation
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/api-documenter:
-      path: collections/shared/api-documenter
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/api-patterns:
-      path: collections/shared/api-patterns
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/api-security:
       path: collections/shared/api-security
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/api-security-best-practices:
       path: collections/shared/api-security-best-practices
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/architect-review:
-      path: collections/shared/architect-review
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/architecting-data:
       path: collections/shared/architecting-data
@@ -3055,9 +2894,6 @@
     ~/.hermes/skills/astro:
       path: collections/shared/astro
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/audit-log:
-      path: collections/shared/audit-log
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/audit-logging:
       path: collections/shared/audit-logging
       if: test -d "$HOME/.hermes"
@@ -3076,12 +2912,6 @@
     ~/.hermes/skills/aws-s3:
       path: collections/shared/aws-s3
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/aws-skills:
-      path: collections/shared/aws-skills
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/backend-architect:
-      path: collections/shared/backend-architect
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/backend-dev-guidelines:
       path: collections/shared/backend-dev-guidelines
       if: test -d "$HOME/.hermes"
@@ -3094,14 +2924,8 @@
     ~/.hermes/skills/bash-pro:
       path: collections/shared/bash-pro
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/bdd-patterns:
-      path: collections/shared/bdd-patterns
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/bdd-principles:
       path: collections/shared/bdd-principles
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/bdd-scenarios:
-      path: collections/shared/bdd-scenarios
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/browser-testing-with-devtools:
       path: collections/shared/browser-testing-with-devtools
@@ -3229,14 +3053,8 @@
     ~/.hermes/skills/claude-productivity--update:
       path: collections/claude-plugins/productivity/update
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/clean-code:
-      path: collections/shared/clean-code
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/clean-code-guard:
       path: collections/shared/clean-code-guard
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/clean-code-principles:
-      path: collections/shared/clean-code-principles
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/code-audit:
       path: collections/shared/code-audit
@@ -3244,47 +3062,17 @@
     ~/.hermes/skills/code-complete:
       path: collections/shared/code-complete
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/code-documentation-code-explain:
-      path: collections/shared/code-documentation-code-explain
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/code-documentation-doc-generate:
-      path: collections/shared/code-documentation-doc-generate
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/code-refactoring-refactor-clean:
-      path: collections/shared/code-refactoring-refactor-clean
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/code-refactoring-tech-debt:
       path: collections/shared/code-refactoring-tech-debt
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/code-review:
       path: collections/shared/code-review
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/code-review-ai-ai-review:
-      path: collections/shared/code-review-ai-ai-review
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/code-review-and-quality:
       path: collections/shared/code-review-and-quality
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/code-review-checklist:
-      path: collections/shared/code-review-checklist
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/code-review-excellence:
-      path: collections/shared/code-review-excellence
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/code-review-sensei:
-      path: collections/shared/code-review-sensei
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/code-reviewer:
-      path: collections/shared/code-reviewer
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/code-simplification:
       path: collections/shared/code-simplification
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/code-simplifier:
-      path: collections/shared/code-simplifier
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/codebase-cleanup-refactor-clean:
-      path: collections/shared/codebase-cleanup-refactor-clean
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/codex-render--render-background-workers:
       path: collections/render/render-background-workers
@@ -3385,17 +3173,8 @@
     ~/.hermes/skills/crystal-build-and-test:
       path: collections/shared/crystal-build-and-test
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/data-engineer:
-      path: collections/shared/data-engineer
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/data-engineering-data-pipeline:
       path: collections/shared/data-engineering-data-pipeline
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/data-scientist:
-      path: collections/shared/data-scientist
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/database-architect:
-      path: collections/shared/database-architect
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/database-design:
       path: collections/shared/database-design
@@ -3408,9 +3187,6 @@
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/debugging-and-error-recovery:
       path: collections/shared/debugging-and-error-recovery
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/dependency-analysis:
-      path: collections/shared/dependency-analysis
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/dependency-scanning:
       path: collections/shared/dependency-scanning
@@ -3454,9 +3230,6 @@
     ~/.hermes/skills/dockerfile-optimise:
       path: collections/shared/dockerfile-optimise
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/docs-generator:
-      path: collections/shared/docs-generator
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/documentation-and-adrs:
       path: collections/shared/documentation-and-adrs
       if: test -d "$HOME/.hermes"
@@ -3490,20 +3263,8 @@
     ~/.hermes/skills/embedded-device-protocols:
       path: collections/shared/embedded-device-protocols
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/error-debugging-error-analysis:
-      path: collections/shared/error-debugging-error-analysis
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/error-debugging-error-trace:
       path: collections/shared/error-debugging-error-trace
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/error-debugging-multi-agent-review:
-      path: collections/shared/error-debugging-multi-agent-review
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/error-diagnostics-error-analysis:
-      path: collections/shared/error-diagnostics-error-analysis
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/error-diagnostics-error-trace:
-      path: collections/shared/error-diagnostics-error-trace
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/find-skills:
       path: collections/shared/find-skills
@@ -3529,9 +3290,6 @@
     ~/.hermes/skills/fp-pipe-ref:
       path: collections/shared/fp-pipe-ref
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/fp-pragmatic:
-      path: collections/shared/fp-pragmatic
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/fp-react:
       path: collections/shared/fp-react
       if: test -d "$HOME/.hermes"
@@ -3547,9 +3305,6 @@
     ~/.hermes/skills/frontend-dev-guidelines:
       path: collections/shared/frontend-dev-guidelines
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/frontend-patterns:
-      path: collections/shared/frontend-patterns
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/frontend-ui-engineering:
       path: collections/shared/frontend-ui-engineering
       if: test -d "$HOME/.hermes"
@@ -3559,29 +3314,14 @@
     ~/.hermes/skills/git-pushing:
       path: collections/shared/git-pushing
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/git-storytelling-commit-messages:
-      path: collections/shared/git-storytelling-commit-messages
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/git-storytelling-commit-strategy:
-      path: collections/shared/git-storytelling-commit-strategy
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/git-workflow-and-versioning:
       path: collections/shared/git-workflow-and-versioning
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/github:
-      path: collections/shared/github
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/github-actions:
-      path: collections/shared/github-actions
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/github-actions-advanced:
       path: collections/shared/github-actions-advanced
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/github-actions-debugger:
       path: collections/shared/github-actions-debugger
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/github-actions-templates:
-      path: collections/shared/github-actions-templates
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/gof-patterns:
       path: collections/shared/gof-patterns
@@ -3916,6 +3656,9 @@
     ~/.hermes/skills/human-copywrite:
       path: collections/shared/human-copywrite
       if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/i-have-adhd:
+      path: collections/shared/i-have-adhd
+      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/idea-refine:
       path: collections/shared/idea-refine
       if: test -d "$HOME/.hermes"
@@ -3949,14 +3692,14 @@
     ~/.hermes/skills/interview-me:
       path: collections/shared/interview-me
       if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/investigate-first:
+      path: collections/shared/investigate-first
+      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/java-concurrency:
       path: collections/shared/java-concurrency
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/java-generics:
       path: collections/shared/java-generics
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/java-pro:
-      path: collections/shared/java-pro
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/java-streams-api:
       path: collections/shared/java-streams-api
@@ -3967,20 +3710,17 @@
     ~/.hermes/skills/kotlin-coroutines:
       path: collections/shared/kotlin-coroutines
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/kotlin-coroutines-expert:
-      path: collections/shared/kotlin-coroutines-expert
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/kotlin-dsl-patterns:
       path: collections/shared/kotlin-dsl-patterns
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/kotlin-null-safety:
       path: collections/shared/kotlin-null-safety
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/kubernetes-architect:
-      path: collections/shared/kubernetes-architect
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/kubernetes-hardening:
       path: collections/shared/kubernetes-hardening
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/lean-build:
+      path: collections/shared/lean-build
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/load-balancing-patterns:
       path: collections/shared/load-balancing-patterns
@@ -4000,8 +3740,98 @@
     ~/.hermes/skills/managing-media:
       path: collections/shared/managing-media
       if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--ask-matt:
+      path: collections/mattpocock/engineering/ask-matt
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--code-review:
+      path: collections/mattpocock/engineering/code-review
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--codebase-design:
+      path: collections/mattpocock/engineering/codebase-design
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--diagnosing-bugs:
+      path: collections/mattpocock/engineering/diagnosing-bugs
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--domain-modeling:
+      path: collections/mattpocock/engineering/domain-modeling
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--git-guardrails-claude-code:
+      path: collections/mattpocock/misc/git-guardrails-claude-code
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--grill-me:
+      path: collections/mattpocock/productivity/grill-me
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--grill-with-docs:
+      path: collections/mattpocock/engineering/grill-with-docs
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--grilling:
+      path: collections/mattpocock/productivity/grilling
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--handoff:
+      path: collections/mattpocock/productivity/handoff
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--implement:
+      path: collections/mattpocock/engineering/implement
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--implement-spec:
+      path: collections/mattpocock/engineering/implement-spec
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--improve-codebase-architecture:
+      path: collections/mattpocock/engineering/improve-codebase-architecture
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--pr:
+      path: collections/mattpocock/engineering/pr
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--prototype:
+      path: collections/mattpocock/engineering/prototype
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--research:
+      path: collections/mattpocock/engineering/research
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--retro:
+      path: collections/mattpocock/engineering/retro
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--setup-matt-pocock-skills:
+      path: collections/mattpocock/engineering/setup-matt-pocock-skills
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--setup-pre-commit:
+      path: collections/mattpocock/misc/setup-pre-commit
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--tdd:
+      path: collections/mattpocock/engineering/tdd
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--teach:
+      path: collections/mattpocock/productivity/teach
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--to-questionnaire:
+      path: collections/mattpocock/productivity/to-questionnaire
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--to-spec:
+      path: collections/mattpocock/engineering/to-spec
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--to-tickets:
+      path: collections/mattpocock/engineering/to-tickets
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--triage:
+      path: collections/mattpocock/engineering/triage
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--wait-what:
+      path: collections/mattpocock/productivity/wait-what
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--wayfinder:
+      path: collections/mattpocock/engineering/wayfinder
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--wizard:
+      path: collections/mattpocock/engineering/wizard
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/mattpocock--writing-for-agents:
+      path: collections/mattpocock/productivity/writing-for-agents
+      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/megacave:
       path: collections/shared/megacave
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/migration:
+      path: collections/shared/migration
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/mill-build-logic:
       path: collections/shared/mill-build-logic
@@ -4063,32 +3893,17 @@
     ~/.hermes/skills/observability-cloud-planning:
       path: collections/shared/observability-cloud-planning
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/observability-engineer:
-      path: collections/shared/observability-engineer
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/operating-kubernetes:
       path: collections/shared/operating-kubernetes
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/parametric-cad-validation:
       path: collections/shared/parametric-cad-validation
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/performance-engineer:
-      path: collections/shared/performance-engineer
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/performance-engineering:
       path: collections/shared/performance-engineering
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/performance-management:
-      path: collections/shared/performance-management
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/performance-optimization:
       path: collections/shared/performance-optimization
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/performance-optimizer:
-      path: collections/shared/performance-optimizer
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/performance-profiling:
-      path: collections/shared/performance-profiling
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/pixijs-application:
       path: collections/shared/pixijs-application
@@ -4122,6 +3937,18 @@
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/platform-engineering:
       path: collections/shared/platform-engineering
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/ponytail:
+      path: collections/shared/ponytail
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/ponytail-audit:
+      path: collections/shared/ponytail-audit
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/ponytail-debt:
+      path: collections/shared/ponytail-debt
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/ponytail-review:
+      path: collections/shared/ponytail-review
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/providing-feedback:
       path: collections/shared/providing-feedback
@@ -4159,20 +3986,11 @@
     ~/.hermes/skills/python-data-classes:
       path: collections/shared/python-data-classes
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/python-development:
-      path: collections/shared/python-development
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/python-patterns:
       path: collections/shared/python-patterns
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/python-pro:
-      path: collections/shared/python-pro
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/python-type-system:
       path: collections/shared/python-type-system
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/refactor:
-      path: collections/shared/refactor
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/refactoring-guru:
       path: collections/shared/refactoring-guru
@@ -4189,20 +4007,104 @@
     ~/.hermes/skills/saga-orchestration:
       path: collections/shared/saga-orchestration
       if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-acyclic-whole-run-compiler-adapters:
+      path: collections/shared/scala-acyclic-whole-run-compiler-adapters
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-ammonite-static-script-dependency-propagation:
+      path: collections/shared/scala-ammonite-static-script-dependency-propagation
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-ammonite-symbol-derived-closure-capture:
+      path: collections/shared/scala-ammonite-symbol-derived-closure-capture
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-cask-route-trie-validation-order:
+      path: collections/shared/scala-cask-route-trie-validation-order
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-castor-platform-mixin-dispatch-accounting:
+      path: collections/shared/scala-castor-platform-mixin-dispatch-accounting
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-cats-effect-cleanup-error-provenance:
+      path: collections/shared/scala-cats-effect-cleanup-error-provenance
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-cats-effect-outcome-sensitive-concurrency:
+      path: collections/shared/scala-cats-effect-outcome-sensitive-concurrency
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-cats-effect-runtime-benchmark-review:
+      path: collections/shared/scala-cats-effect-runtime-benchmark-review
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-cats-erased-runtime-compatibility:
+      path: collections/shared/scala-cats-erased-runtime-compatibility
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-cats-law-backed-instance-surface:
+      path: collections/shared/scala-cats-law-backed-instance-surface
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-cats-traversal-branch-isolation:
+      path: collections/shared/scala-cats-traversal-branch-isolation
+      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/scala-collections:
       path: collections/shared/scala-collections
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-fastparse-diagnostic-mode-review:
+      path: collections/shared/scala-fastparse-diagnostic-mode-review
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-fastparse-hot-path-cost-review:
+      path: collections/shared/scala-fastparse-hot-path-cost-review
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-fastparse-shared-run-combinator-extraction:
+      path: collections/shared/scala-fastparse-shared-run-combinator-extraction
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-fs2-foreign-callback-lanes:
+      path: collections/shared/scala-fs2-foreign-callback-lanes
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-fs2-per-element-scope-propagation:
+      path: collections/shared/scala-fs2-per-element-scope-propagation
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-fs2-sink-emission-cardinality:
+      path: collections/shared/scala-fs2-sink-emission-cardinality
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/scala-functional-patterns:
       path: collections/shared/scala-functional-patterns
       if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-http4s-http1-bodyless-connection-framing:
+      path: collections/shared/scala-http4s-http1-bodyless-connection-framing
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-http4s-stateful-factory-acquisition:
+      path: collections/shared/scala-http4s-stateful-factory-acquisition
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-http4s-uri-segment-representation:
+      path: collections/shared/scala-http4s-uri-segment-representation
+      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/scala-library-contracts:
       path: collections/shared/scala-library-contracts
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/scala-pro:
-      path: collections/shared/scala-pro
+    ~/.hermes/skills/scala-oss-library-review:
+      path: collections/shared/scala-oss-library-review
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-play-cors-csrf-policy-matrix:
+      path: collections/shared/scala-play-cors-csrf-policy-matrix
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-play-partial-startup-shutdown-completion:
+      path: collections/shared/scala-play-partial-startup-shutdown-completion
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-sourcecode-args-capture-review:
+      path: collections/shared/scala-sourcecode-args-capture-review
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/scala-type-system:
       path: collections/shared/scala-type-system
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-zio-canceler-evaluation-owner:
+      path: collections/shared/scala-zio-canceler-evaluation-owner
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-zio-diagnostic-reader-progress:
+      path: collections/shared/scala-zio-diagnostic-reader-progress
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-zio-http-channel-handoff-completion:
+      path: collections/shared/scala-zio-http-channel-handoff-completion
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-zio-http-middleware-execution-boundaries:
+      path: collections/shared/scala-zio-http-middleware-execution-boundaries
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/scala-zio-http-request-local-error-disclosure:
+      path: collections/shared/scala-zio-http-request-local-error-disclosure
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/scala-zio-skills--zio-reference:
       path: collections/scala-zio-skills/skills/zio-reference
@@ -4216,38 +4118,8 @@
     ~/.hermes/skills/security-hardening:
       path: collections/shared/security-hardening
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/security-review:
-      path: collections/shared/security-review
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/senior-architect:
-      path: collections/shared/senior-architect
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/senior-backend:
-      path: collections/shared/senior-backend
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/senior-data-engineer:
-      path: collections/shared/senior-data-engineer
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/senior-data-scientist:
-      path: collections/shared/senior-data-scientist
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/senior-devops:
-      path: collections/shared/senior-devops
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/senior-qa:
-      path: collections/shared/senior-qa
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/senior-security:
-      path: collections/shared/senior-security
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/shipping-and-launch:
       path: collections/shared/shipping-and-launch
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/skill-router:
-      path: collections/shared/skill-router
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/skill-seekers:
-      path: collections/shared/skill-seekers
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/skill-writer:
       path: collections/shared/skill-writer
@@ -4267,11 +4139,8 @@
     ~/.hermes/skills/streaming-integrations:
       path: collections/shared/streaming-integrations
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/telegram-bot-builder:
-      path: collections/shared/telegram-bot-builder
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/telegram-mini-app:
-      path: collections/shared/telegram-mini-app
+    ~/.hermes/skills/surgical-patch:
+      path: collections/shared/surgical-patch
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/test-driven-development:
       path: collections/shared/test-driven-development
@@ -4281,6 +4150,9 @@
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/theming-components:
       path: collections/shared/theming-components
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/tui-design-systems:
+      path: collections/shared/tui-design-systems
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/typescript-project-contracts:
       path: collections/shared/typescript-project-contracts
@@ -4309,6 +4181,9 @@
     ~/.hermes/skills/using-vector-databases:
       path: collections/shared/using-vector-databases
       if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/verify-and-stop:
+      path: collections/shared/verify-and-stop
+      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/visualizing-data:
       path: collections/shared/visualizing-data
       if: test -d "$HOME/.hermes"
@@ -4326,9 +4201,6 @@
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/worxbend-repository-context:
       path: collections/shared/worxbend-repository-context
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/writing-dockerfiles:
-      path: collections/shared/writing-dockerfiles
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/zig-build-and-memory:
       path: collections/shared/zig-build-and-memory
@@ -4438,47 +4310,8 @@
     ~/.pi/agent/skills/agent-orchestration-improve-agent:
       path: collections/shared/agent-orchestration-improve-agent
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/agent-orchestration-multi-agent-optimize:
-      path: collections/shared/agent-orchestration-multi-agent-optimize
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/agent-orchestrator:
-      path: collections/shared/agent-orchestrator
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/agent-self-scheduling:
       path: collections/shared/agent-self-scheduling
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/agent-squad:
-      path: collections/shared/agent-squad
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/agent-squad--alex:
-      path: collections/shared/agent-squad/alex
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/agent-squad--aria:
-      path: collections/shared/agent-squad/aria
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/agent-squad--dep:
-      path: collections/shared/agent-squad/dep
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/agent-squad--luna:
-      path: collections/shared/agent-squad/luna
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/agent-squad--mason:
-      path: collections/shared/agent-squad/mason
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/agent-squad--max:
-      path: collections/shared/agent-squad/max
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/agent-squad--quinn:
-      path: collections/shared/agent-squad/quinn
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/agent-squad--rex:
-      path: collections/shared/agent-squad/rex
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/ai-analyzer:
-      path: collections/shared/ai-analyzer
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/ai-engineer:
-      path: collections/shared/ai-engineer
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/airgradient-clients:
       path: collections/shared/airgradient-clients
@@ -4495,17 +4328,8 @@
     ~/.pi/agent/skills/analytics:
       path: collections/shared/analytics
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/analytics-product:
-      path: collections/shared/analytics-product
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/analytics-tracking:
-      path: collections/shared/analytics-tracking
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/analyze-performance:
       path: collections/shared/analyze-performance
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/analyze-project:
-      path: collections/shared/analyze-project
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/andrej-karpathy:
       path: collections/shared/andrej-karpathy
@@ -4516,29 +4340,11 @@
     ~/.pi/agent/skills/api-and-interface-design:
       path: collections/shared/api-and-interface-design
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/api-design-principles:
-      path: collections/shared/api-design-principles
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/api-designer:
-      path: collections/shared/api-designer
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/api-documentation:
-      path: collections/shared/api-documentation
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/api-documenter:
-      path: collections/shared/api-documenter
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/api-patterns:
-      path: collections/shared/api-patterns
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/api-security:
       path: collections/shared/api-security
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/api-security-best-practices:
       path: collections/shared/api-security-best-practices
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/architect-review:
-      path: collections/shared/architect-review
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/architecting-data:
       path: collections/shared/architecting-data
@@ -4561,9 +4367,6 @@
     ~/.pi/agent/skills/astro:
       path: collections/shared/astro
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/audit-log:
-      path: collections/shared/audit-log
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/audit-logging:
       path: collections/shared/audit-logging
       if: test -d "$HOME/.pi/agent"
@@ -4582,12 +4385,6 @@
     ~/.pi/agent/skills/aws-s3:
       path: collections/shared/aws-s3
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/aws-skills:
-      path: collections/shared/aws-skills
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/backend-architect:
-      path: collections/shared/backend-architect
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/backend-dev-guidelines:
       path: collections/shared/backend-dev-guidelines
       if: test -d "$HOME/.pi/agent"
@@ -4600,14 +4397,8 @@
     ~/.pi/agent/skills/bash-pro:
       path: collections/shared/bash-pro
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/bdd-patterns:
-      path: collections/shared/bdd-patterns
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/bdd-principles:
       path: collections/shared/bdd-principles
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/bdd-scenarios:
-      path: collections/shared/bdd-scenarios
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/browser-testing-with-devtools:
       path: collections/shared/browser-testing-with-devtools
@@ -4672,14 +4463,8 @@
     ~/.pi/agent/skills/ci-cd-and-automation:
       path: collections/shared/ci-cd-and-automation
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/clean-code:
-      path: collections/shared/clean-code
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/clean-code-guard:
       path: collections/shared/clean-code-guard
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/clean-code-principles:
-      path: collections/shared/clean-code-principles
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/code-audit:
       path: collections/shared/code-audit
@@ -4687,47 +4472,17 @@
     ~/.pi/agent/skills/code-complete:
       path: collections/shared/code-complete
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/code-documentation-code-explain:
-      path: collections/shared/code-documentation-code-explain
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/code-documentation-doc-generate:
-      path: collections/shared/code-documentation-doc-generate
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/code-refactoring-refactor-clean:
-      path: collections/shared/code-refactoring-refactor-clean
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/code-refactoring-tech-debt:
       path: collections/shared/code-refactoring-tech-debt
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/code-review:
       path: collections/shared/code-review
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/code-review-ai-ai-review:
-      path: collections/shared/code-review-ai-ai-review
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/code-review-and-quality:
       path: collections/shared/code-review-and-quality
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/code-review-checklist:
-      path: collections/shared/code-review-checklist
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/code-review-excellence:
-      path: collections/shared/code-review-excellence
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/code-review-sensei:
-      path: collections/shared/code-review-sensei
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/code-reviewer:
-      path: collections/shared/code-reviewer
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/code-simplification:
       path: collections/shared/code-simplification
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/code-simplifier:
-      path: collections/shared/code-simplifier
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/codebase-cleanup-refactor-clean:
-      path: collections/shared/codebase-cleanup-refactor-clean
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/comment:
       path: collections/shared/comment
@@ -4753,17 +4508,8 @@
     ~/.pi/agent/skills/crystal-build-and-test:
       path: collections/shared/crystal-build-and-test
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/data-engineer:
-      path: collections/shared/data-engineer
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/data-engineering-data-pipeline:
       path: collections/shared/data-engineering-data-pipeline
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/data-scientist:
-      path: collections/shared/data-scientist
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/database-architect:
-      path: collections/shared/database-architect
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/database-design:
       path: collections/shared/database-design
@@ -4776,9 +4522,6 @@
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/debugging-and-error-recovery:
       path: collections/shared/debugging-and-error-recovery
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/dependency-analysis:
-      path: collections/shared/dependency-analysis
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/dependency-scanning:
       path: collections/shared/dependency-scanning
@@ -4822,9 +4565,6 @@
     ~/.pi/agent/skills/dockerfile-optimise:
       path: collections/shared/dockerfile-optimise
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/docs-generator:
-      path: collections/shared/docs-generator
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/documentation-and-adrs:
       path: collections/shared/documentation-and-adrs
       if: test -d "$HOME/.pi/agent"
@@ -4858,20 +4598,8 @@
     ~/.pi/agent/skills/embedded-device-protocols:
       path: collections/shared/embedded-device-protocols
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/error-debugging-error-analysis:
-      path: collections/shared/error-debugging-error-analysis
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/error-debugging-error-trace:
       path: collections/shared/error-debugging-error-trace
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/error-debugging-multi-agent-review:
-      path: collections/shared/error-debugging-multi-agent-review
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/error-diagnostics-error-analysis:
-      path: collections/shared/error-diagnostics-error-analysis
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/error-diagnostics-error-trace:
-      path: collections/shared/error-diagnostics-error-trace
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/find-skills:
       path: collections/shared/find-skills
@@ -4897,9 +4625,6 @@
     ~/.pi/agent/skills/fp-pipe-ref:
       path: collections/shared/fp-pipe-ref
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/fp-pragmatic:
-      path: collections/shared/fp-pragmatic
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/fp-react:
       path: collections/shared/fp-react
       if: test -d "$HOME/.pi/agent"
@@ -4915,9 +4640,6 @@
     ~/.pi/agent/skills/frontend-dev-guidelines:
       path: collections/shared/frontend-dev-guidelines
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/frontend-patterns:
-      path: collections/shared/frontend-patterns
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/frontend-ui-engineering:
       path: collections/shared/frontend-ui-engineering
       if: test -d "$HOME/.pi/agent"
@@ -4927,29 +4649,14 @@
     ~/.pi/agent/skills/git-pushing:
       path: collections/shared/git-pushing
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/git-storytelling-commit-messages:
-      path: collections/shared/git-storytelling-commit-messages
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/git-storytelling-commit-strategy:
-      path: collections/shared/git-storytelling-commit-strategy
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/git-workflow-and-versioning:
       path: collections/shared/git-workflow-and-versioning
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/github:
-      path: collections/shared/github
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/github-actions:
-      path: collections/shared/github-actions
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/github-actions-advanced:
       path: collections/shared/github-actions-advanced
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/github-actions-debugger:
       path: collections/shared/github-actions-debugger
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/github-actions-templates:
-      path: collections/shared/github-actions-templates
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/gof-patterns:
       path: collections/shared/gof-patterns
@@ -5110,6 +4817,9 @@
     ~/.pi/agent/skills/human-copywrite:
       path: collections/shared/human-copywrite
       if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/i-have-adhd:
+      path: collections/shared/i-have-adhd
+      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/idea-refine:
       path: collections/shared/idea-refine
       if: test -d "$HOME/.pi/agent"
@@ -5143,14 +4853,14 @@
     ~/.pi/agent/skills/interview-me:
       path: collections/shared/interview-me
       if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/investigate-first:
+      path: collections/shared/investigate-first
+      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/java-concurrency:
       path: collections/shared/java-concurrency
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/java-generics:
       path: collections/shared/java-generics
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/java-pro:
-      path: collections/shared/java-pro
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/java-streams-api:
       path: collections/shared/java-streams-api
@@ -5161,20 +4871,17 @@
     ~/.pi/agent/skills/kotlin-coroutines:
       path: collections/shared/kotlin-coroutines
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/kotlin-coroutines-expert:
-      path: collections/shared/kotlin-coroutines-expert
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/kotlin-dsl-patterns:
       path: collections/shared/kotlin-dsl-patterns
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/kotlin-null-safety:
       path: collections/shared/kotlin-null-safety
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/kubernetes-architect:
-      path: collections/shared/kubernetes-architect
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/kubernetes-hardening:
       path: collections/shared/kubernetes-hardening
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/lean-build:
+      path: collections/shared/lean-build
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/load-balancing-patterns:
       path: collections/shared/load-balancing-patterns
@@ -5196,6 +4903,9 @@
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/megacave:
       path: collections/shared/megacave
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/migration:
+      path: collections/shared/migration
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/mill-build-logic:
       path: collections/shared/mill-build-logic
@@ -5257,32 +4967,17 @@
     ~/.pi/agent/skills/observability-cloud-planning:
       path: collections/shared/observability-cloud-planning
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/observability-engineer:
-      path: collections/shared/observability-engineer
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/operating-kubernetes:
       path: collections/shared/operating-kubernetes
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/parametric-cad-validation:
       path: collections/shared/parametric-cad-validation
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/performance-engineer:
-      path: collections/shared/performance-engineer
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/performance-engineering:
       path: collections/shared/performance-engineering
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/performance-management:
-      path: collections/shared/performance-management
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/performance-optimization:
       path: collections/shared/performance-optimization
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/performance-optimizer:
-      path: collections/shared/performance-optimizer
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/performance-profiling:
-      path: collections/shared/performance-profiling
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/pixijs-application:
       path: collections/shared/pixijs-application
@@ -5316,6 +5011,18 @@
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/platform-engineering:
       path: collections/shared/platform-engineering
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/ponytail:
+      path: collections/shared/ponytail
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/ponytail-audit:
+      path: collections/shared/ponytail-audit
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/ponytail-debt:
+      path: collections/shared/ponytail-debt
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/ponytail-review:
+      path: collections/shared/ponytail-review
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/providing-feedback:
       path: collections/shared/providing-feedback
@@ -5353,20 +5060,11 @@
     ~/.pi/agent/skills/python-data-classes:
       path: collections/shared/python-data-classes
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/python-development:
-      path: collections/shared/python-development
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/python-patterns:
       path: collections/shared/python-patterns
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/python-pro:
-      path: collections/shared/python-pro
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/python-type-system:
       path: collections/shared/python-type-system
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/refactor:
-      path: collections/shared/refactor
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/refactoring-guru:
       path: collections/shared/refactoring-guru
@@ -5383,20 +5081,104 @@
     ~/.pi/agent/skills/saga-orchestration:
       path: collections/shared/saga-orchestration
       if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-acyclic-whole-run-compiler-adapters:
+      path: collections/shared/scala-acyclic-whole-run-compiler-adapters
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-ammonite-static-script-dependency-propagation:
+      path: collections/shared/scala-ammonite-static-script-dependency-propagation
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-ammonite-symbol-derived-closure-capture:
+      path: collections/shared/scala-ammonite-symbol-derived-closure-capture
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-cask-route-trie-validation-order:
+      path: collections/shared/scala-cask-route-trie-validation-order
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-castor-platform-mixin-dispatch-accounting:
+      path: collections/shared/scala-castor-platform-mixin-dispatch-accounting
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-cats-effect-cleanup-error-provenance:
+      path: collections/shared/scala-cats-effect-cleanup-error-provenance
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-cats-effect-outcome-sensitive-concurrency:
+      path: collections/shared/scala-cats-effect-outcome-sensitive-concurrency
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-cats-effect-runtime-benchmark-review:
+      path: collections/shared/scala-cats-effect-runtime-benchmark-review
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-cats-erased-runtime-compatibility:
+      path: collections/shared/scala-cats-erased-runtime-compatibility
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-cats-law-backed-instance-surface:
+      path: collections/shared/scala-cats-law-backed-instance-surface
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-cats-traversal-branch-isolation:
+      path: collections/shared/scala-cats-traversal-branch-isolation
+      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/scala-collections:
       path: collections/shared/scala-collections
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-fastparse-diagnostic-mode-review:
+      path: collections/shared/scala-fastparse-diagnostic-mode-review
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-fastparse-hot-path-cost-review:
+      path: collections/shared/scala-fastparse-hot-path-cost-review
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-fastparse-shared-run-combinator-extraction:
+      path: collections/shared/scala-fastparse-shared-run-combinator-extraction
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-fs2-foreign-callback-lanes:
+      path: collections/shared/scala-fs2-foreign-callback-lanes
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-fs2-per-element-scope-propagation:
+      path: collections/shared/scala-fs2-per-element-scope-propagation
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-fs2-sink-emission-cardinality:
+      path: collections/shared/scala-fs2-sink-emission-cardinality
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/scala-functional-patterns:
       path: collections/shared/scala-functional-patterns
       if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-http4s-http1-bodyless-connection-framing:
+      path: collections/shared/scala-http4s-http1-bodyless-connection-framing
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-http4s-stateful-factory-acquisition:
+      path: collections/shared/scala-http4s-stateful-factory-acquisition
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-http4s-uri-segment-representation:
+      path: collections/shared/scala-http4s-uri-segment-representation
+      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/scala-library-contracts:
       path: collections/shared/scala-library-contracts
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/scala-pro:
-      path: collections/shared/scala-pro
+    ~/.pi/agent/skills/scala-oss-library-review:
+      path: collections/shared/scala-oss-library-review
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-play-cors-csrf-policy-matrix:
+      path: collections/shared/scala-play-cors-csrf-policy-matrix
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-play-partial-startup-shutdown-completion:
+      path: collections/shared/scala-play-partial-startup-shutdown-completion
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-sourcecode-args-capture-review:
+      path: collections/shared/scala-sourcecode-args-capture-review
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/scala-type-system:
       path: collections/shared/scala-type-system
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-zio-canceler-evaluation-owner:
+      path: collections/shared/scala-zio-canceler-evaluation-owner
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-zio-diagnostic-reader-progress:
+      path: collections/shared/scala-zio-diagnostic-reader-progress
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-zio-http-channel-handoff-completion:
+      path: collections/shared/scala-zio-http-channel-handoff-completion
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-zio-http-middleware-execution-boundaries:
+      path: collections/shared/scala-zio-http-middleware-execution-boundaries
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/scala-zio-http-request-local-error-disclosure:
+      path: collections/shared/scala-zio-http-request-local-error-disclosure
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/scala-zio-skills--zio-reference:
       path: collections/scala-zio-skills/skills/zio-reference
@@ -5410,38 +5192,8 @@
     ~/.pi/agent/skills/security-hardening:
       path: collections/shared/security-hardening
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/security-review:
-      path: collections/shared/security-review
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/senior-architect:
-      path: collections/shared/senior-architect
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/senior-backend:
-      path: collections/shared/senior-backend
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/senior-data-engineer:
-      path: collections/shared/senior-data-engineer
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/senior-data-scientist:
-      path: collections/shared/senior-data-scientist
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/senior-devops:
-      path: collections/shared/senior-devops
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/senior-qa:
-      path: collections/shared/senior-qa
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/senior-security:
-      path: collections/shared/senior-security
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/shipping-and-launch:
       path: collections/shared/shipping-and-launch
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/skill-router:
-      path: collections/shared/skill-router
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/skill-seekers:
-      path: collections/shared/skill-seekers
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/skill-writer:
       path: collections/shared/skill-writer
@@ -5461,11 +5213,8 @@
     ~/.pi/agent/skills/streaming-integrations:
       path: collections/shared/streaming-integrations
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/telegram-bot-builder:
-      path: collections/shared/telegram-bot-builder
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/telegram-mini-app:
-      path: collections/shared/telegram-mini-app
+    ~/.pi/agent/skills/surgical-patch:
+      path: collections/shared/surgical-patch
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/test-driven-development:
       path: collections/shared/test-driven-development
@@ -5475,6 +5224,9 @@
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/theming-components:
       path: collections/shared/theming-components
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/tui-design-systems:
+      path: collections/shared/tui-design-systems
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/typescript-project-contracts:
       path: collections/shared/typescript-project-contracts
@@ -5503,6 +5255,9 @@
     ~/.pi/agent/skills/using-vector-databases:
       path: collections/shared/using-vector-databases
       if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/verify-and-stop:
+      path: collections/shared/verify-and-stop
+      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/visualizing-data:
       path: collections/shared/visualizing-data
       if: test -d "$HOME/.pi/agent"
@@ -5520,9 +5275,6 @@
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/worxbend-repository-context:
       path: collections/shared/worxbend-repository-context
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/writing-dockerfiles:
-      path: collections/shared/writing-dockerfiles
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/zig-build-and-memory:
       path: collections/shared/zig-build-and-memory

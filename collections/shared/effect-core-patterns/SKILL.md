@@ -1,7 +1,7 @@
 ---
 name: effect-core-patterns
 user-invocable: false
-description: Use when Effect core patterns including Effect<A, E, R> type, succeed, fail, sync, promise, and Effect.gen for composing effects. Use for basic Effect operations.
+description: "Effect-TS v3: the Effect<A, E, R> type, constructors (succeed, fail, sync, try, tryPromise, async), composing with Effect.gen/Effect.fn and pipe, and running effects at the program edge. Start here for any Effect code; for fp-ts (pipe/TaskEither) code use the fp-* skills instead."
 allowed-tools:
   - Bash
   - Read
@@ -11,618 +11,214 @@ allowed-tools:
 
 # Effect Core Patterns
 
-Master the core Effect patterns for building type-safe, composable applications
-with Effect. This skill covers the Effect type, constructors, and composition
-patterns using Effect.gen.
+> **Version:** targets `effect` 3.x (`import { Effect } from "effect"`). Effect 4
+> renames many APIs (`Context.Tag` -> `Context.Service`, `Effect.catchAll` ->
+> `Effect.catch`, `Effect.fork` -> `Effect.forkChild`, `Either` -> `Result`).
+> Check `effect` in package.json before copying signatures.
 
-## The Effect Type
+## The Effect type
 
-The Effect type has three type parameters:
+`Effect<A, E, R>` is a lazy, immutable description of a program:
 
-```typescript
-Effect<Success, Error, Requirements>
-```
+| Param | Meaning | `never` means |
+| --- | --- | --- |
+| `A` | success value | it never succeeds (e.g. `Effect.never`, infinite loop) |
+| `E` | expected, typed failures | it cannot fail with an expected error |
+| `R` | services it needs from context | it is ready to run |
 
-- **Success (A)**: The type of value that an effect can succeed with
-- **Error (E)**: The expected errors that can occur (use `never` for no errors)
-- **Requirements (R)**: The contextual dependencies required (use `never` for no dependencies)
+Nothing runs until a `run*` function executes it. Unexpected failures (thrown
+exceptions, bugs) are *defects* and do not appear in `E`.
 
-```typescript
-import { Effect } from "effect"
+## Choosing a constructor
 
-// Effect that succeeds with number, never fails, no requirements
-const simpleEffect: Effect.Effect<number, never, never> = Effect.succeed(42)
+| Situation | Use |
+| --- | --- |
+| Pure value already in hand | `Effect.succeed(x)` / `Effect.void` |
+| Expected failure | `Effect.fail(new MyError(...))` |
+| Sync side effect that cannot throw | `Effect.sync(() => ...)` |
+| Sync code that may throw | `Effect.try({ try, catch })` |
+| Promise that cannot reject | `Effect.promise(() => ...)` |
+| Promise that may reject | `Effect.tryPromise({ try: (signal) => ..., catch })` |
+| Callback API | `Effect.async<A, E>((resume, signal) => ...)` |
+| Build lazily / recursion | `Effect.suspend(() => ...)` |
 
-// Effect that can fail with string error
-const failableEffect: Effect.Effect<number, string, never> =
-  Effect.fail("Something went wrong")
-
-// Effect that requires a UserService
-interface UserService {
-  getUser: (id: string) => Effect.Effect<User, DbError, never>
-}
-
-const effectWithDeps: Effect.Effect<User, DbError, UserService> =
-  Effect.gen(function* () {
-    const userService = yield* Effect.service(UserService)
-    const user = yield* userService.getUser("123")
-    return user
-  })
-```
-
-## Creating Effects
-
-### Effect.succeed - Always Succeeds
-
-Use when you have a pure value and need an Effect:
+A throw inside `sync`/`promise` (or a rejected `promise`) becomes a defect, not
+a typed error. Use `try`/`tryPromise` whenever the call can fail for an
+expected reason.
 
 ```typescript
-import { Effect } from "effect"
+import { Data, Effect } from "effect"
 
-const result = Effect.succeed(42)
-// Effect<number, never, never>
+class ParseError extends Data.TaggedError("ParseError")<{ readonly cause: unknown }> {}
+class HttpError extends Data.TaggedError("HttpError")<{ readonly status: number }> {}
 
-const user = Effect.succeed({ id: "1", name: "Alice" })
-// Effect<User, never, never>
-
-// Void effect (produces no useful value)
-const voidEffect = Effect.succeed(undefined)
-// Effect<void, never, never>
-```
-
-### Effect.fail - Expected Failure
-
-Use for recoverable, expected errors:
-
-```typescript
-import { Effect } from "effect"
-
-interface ValidationError {
-  _tag: "ValidationError"
-  message: string
-}
-
-const validateAge = (age: number): Effect.Effect<number, ValidationError, never> => {
-  if (age < 0) {
-    return Effect.fail({
-      _tag: "ValidationError",
-      message: "Age must be positive"
-    })
-  }
-  return Effect.succeed(age)
-}
-
-// Usage with Effect.gen
-const program = Effect.gen(function* () {
-  const age = yield* validateAge(-5) // This will fail
-  return age
-})
-```
-
-### Effect.sync - Synchronous Side Effects
-
-Use for synchronous operations with side effects:
-
-```typescript
-import { Effect } from "effect"
-
-// Reading from a mutable variable
-let counter = 0
-
-const incrementCounter = Effect.sync(() => {
-  counter++
-  return counter
-})
-
-// Logging
-const log = (message: string) =>
-  Effect.sync(() => {
-    console.log(message)
-  })
-
-// Current timestamp
-const now = Effect.sync(() => Date.now())
-
-// IMPORTANT: The function should not throw
-// Thrown errors become "defects" (unexpected failures)
-```
-
-### Effect.try - Synchronous Operations That May Fail
-
-Use for sync operations that might throw:
-
-```typescript
-import { Effect } from "effect"
-
-// Parse JSON safely
-const parseJSON = (text: string): Effect.Effect<unknown, Error, never> =>
-  Effect.try(() => JSON.parse(text))
-
-// With custom error mapping
-interface ParseError {
-  _tag: "ParseError"
-  message: string
-}
-
-const parseJSONCustom = (text: string): Effect.Effect<unknown, ParseError, never> =>
+const parseJson = (text: string) =>
   Effect.try({
-    try: () => JSON.parse(text),
-    catch: (error) => ({
-      _tag: "ParseError",
-      message: error instanceof Error ? error.message : String(error)
-    })
+    try: (): unknown => JSON.parse(text),
+    catch: (cause) => new ParseError({ cause })
   })
+// Effect<unknown, ParseError, never>
 
-// Usage
-const program = Effect.gen(function* () {
-  const data = yield* parseJSON('{"name": "Alice"}')
-  return data
-})
-```
-
-### Effect.promise - Async Operations (No Errors)
-
-Use for promises that should never reject:
-
-```typescript
-import { Effect } from "effect"
-
-// Delayed execution
-const delay = (ms: number): Effect.Effect<void, never, never> =>
-  Effect.promise(() =>
-    new Promise<void>((resolve) => setTimeout(resolve, ms))
-  )
-
-// Fetch with assumption it won't fail
-const fetchData = (url: string): Effect.Effect<Response, never, never> =>
-  Effect.promise(() => fetch(url))
-
-// IMPORTANT: If promise rejects, it becomes a "defect"
-// Use Effect.tryPromise for operations that can fail
-```
-
-### Effect.tryPromise - Async Operations That May Fail
-
-Use for promises that might reject:
-
-```typescript
-import { Effect } from "effect"
-
-interface NetworkError {
-  _tag: "NetworkError"
-  message: string
-  statusCode?: number
-}
-
-const fetchUser = (id: string): Effect.Effect<User, NetworkError, never> =>
+const fetchJson = (url: string) =>
   Effect.tryPromise({
-    try: async () => {
-      const response = await fetch(`/api/users/${id}`)
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
-      return response.json()
-    },
-    catch: (error) => ({
-      _tag: "NetworkError",
-      message: error instanceof Error ? error.message : String(error),
-      statusCode: error instanceof Error && 'status' in error
-        ? (error as any).status
-        : undefined
-    })
-  })
+    // the AbortSignal fires if the fiber is interrupted (timeout, race loser)
+    try: (signal) => fetch(url, { signal }),
+    catch: () => new HttpError({ status: 0 })
+  }).pipe(
+    Effect.filterOrFail(
+      (res) => res.ok,
+      (res) => new HttpError({ status: res.status })
+    ),
+    Effect.flatMap((res) => Effect.promise(() => res.text()))
+  )
+// Effect<string, HttpError, never>
 
-// Simplified version (errors become UnknownException)
-const fetchUserSimple = (id: string): Effect.Effect<User, UnknownException, never> =>
-  Effect.tryPromise(() => fetch(`/api/users/${id}`).then(r => r.json()))
-```
-
-### Effect.async - Callback-Based APIs
-
-Use for wrapping callback-style APIs:
-
-```typescript
-import { Effect } from "effect"
-
-// Wrap setTimeout
-const sleep = (ms: number): Effect.Effect<void, never, never> =>
+// Callback API; the returned effect is the interruption cleanup
+const sleepMs = (ms: number) =>
   Effect.async<void>((resume) => {
-    const timeoutId = setTimeout(() => {
-      resume(Effect.succeed(undefined))
-    }, ms)
-
-    // Optional cleanup on interruption
-    return Effect.sync(() => {
-      clearTimeout(timeoutId)
-    })
-  })
-
-// Wrap Node.js callback API
-interface FileError {
-  _tag: "FileError"
-  message: string
-}
-
-const readFile = (path: string): Effect.Effect<string, FileError, never> =>
-  Effect.async<string, FileError>((resume) => {
-    fs.readFile(path, 'utf8', (error, data) => {
-      if (error) {
-        resume(Effect.fail({
-          _tag: "FileError",
-          message: error.message
-        }))
-      } else {
-        resume(Effect.succeed(data))
-      }
-    })
+    const id = setTimeout(() => resume(Effect.void), ms)
+    return Effect.sync(() => clearTimeout(id))
   })
 ```
 
-## Composing Effects with Effect.gen
+`Effect.tryPromise(() => p)` without `catch` fails with `UnknownException`;
+prefer the object form so `E` stays meaningful. Tagged error classes are
+covered in **effect-error-handling**.
 
-Effect.gen allows you to write effect code using generator syntax:
+## Composing with Effect.gen
+
+`Effect.gen` reads like async/await: `yield*` an effect to get its value; the
+first failure short-circuits. Errors and requirements of every yielded effect
+are unioned into the result type.
 
 ```typescript
-import { Effect } from "effect"
+import { Data, Effect } from "effect"
 
-// Basic composition
-const program = Effect.gen(function* () {
-  const a = yield* Effect.succeed(10)
-  const b = yield* Effect.succeed(20)
-  return a + b
-})
+class DivideByZero extends Data.TaggedError("DivideByZero") {}
 
-// With error handling
-const programWithErrors = Effect.gen(function* () {
-  const age = yield* validateAge(25)
-  const user = yield* createUser({ age })
-  return user
-})
-
-// Sequential operations
-const fetchUserProfile = (userId: string) =>
-  Effect.gen(function* () {
-    const user = yield* fetchUser(userId)
-    const posts = yield* fetchPosts(user.id)
-    const comments = yield* fetchComments(user.id)
-    return { user, posts, comments }
-  })
-
-// Using control flow
-const processData = (data: unknown) =>
-  Effect.gen(function* () {
-    const validated = yield* validateData(data)
-
-    if (validated.type === "user") {
-      const user = yield* createUser(validated)
-      return { type: "user", user }
-    } else {
-      const post = yield* createPost(validated)
-      return { type: "post", post }
-    }
-  })
-
-// Error handling with short-circuiting
-const safeDivide = (a: number, b: number) =>
+const divide = (a: number, b: number) =>
   Effect.gen(function* () {
     if (b === 0) {
-      yield* Effect.fail({ _tag: "DivideByZero" })
-      return // Explicit return for type narrowing
+      // `return yield*` makes TypeScript narrow and stops the generator
+      return yield* new DivideByZero()
     }
     return a / b
   })
-```
-
-## Running Effects
-
-### Effect.runSync - Synchronous Execution
-
-Use for effects with no async operations or requirements:
-
-```typescript
-import { Effect } from "effect"
-
-const result = Effect.runSync(Effect.succeed(42))
-// 42
-
-// Throws if effect can fail
-try {
-  Effect.runSync(Effect.fail("error"))
-} catch (error) {
-  // Caught
-}
-
-// CANNOT use with async effects or requirements
-// Effect.runSync(Effect.promise(() => fetch("..."))) // Runtime error!
-```
-
-### Effect.runPromise - Async Execution
-
-Use for async effects without requirements:
-
-```typescript
-import { Effect } from "effect"
+// Effect<number, DivideByZero, never>
 
 const program = Effect.gen(function* () {
-  yield* delay(1000)
-  return "Done"
-})
-
-const result = await Effect.runPromise(program)
-// "Done" after 1 second
-
-// Rejects on failure
-try {
-  await Effect.runPromise(Effect.fail("error"))
-} catch (error) {
-  // error === "error"
-}
-```
-
-### Effect.runPromiseExit - Get Full Exit Information
-
-Use when you need detailed success/failure information:
-
-```typescript
-import { Effect, Exit } from "effect"
-
-const program = Effect.succeed(42)
-
-const exit = await Effect.runPromiseExit(program)
-
-if (Exit.isSuccess(exit)) {
-  console.log("Success:", exit.value)
-} else if (Exit.isFailure(exit)) {
-  console.log("Failure:", exit.cause)
-}
-```
-
-## Building Pipelines
-
-### Effect.map - Transform Success Values
-
-```typescript
-import { Effect, pipe } from "effect"
-
-const double = (n: number) => n * 2
-
-// Using pipe
-const result = pipe(
-  Effect.succeed(21),
-  Effect.map(double)
-)
-// Effect<42, never, never>
-
-// Using method
-const result2 = Effect.succeed(21).pipe(
-  Effect.map(double)
-)
-
-// Chaining transformations
-const program = pipe(
-  Effect.succeed("hello"),
-  Effect.map(s => s.toUpperCase()),
-  Effect.map(s => s.length)
-)
-// Effect<5, never, never>
-```
-
-### Effect.flatMap - Chain Dependent Effects
-
-```typescript
-import { Effect, pipe } from "effect"
-
-const getUser = (id: string): Effect.Effect<User, DbError, never> => {
-  // ...
-}
-
-const getUserPosts = (userId: string): Effect.Effect<Post[], DbError, never> => {
-  // ...
-}
-
-// Using pipe
-const program = pipe(
-  getUser("123"),
-  Effect.flatMap(user => getUserPosts(user.id))
-)
-
-// Using Effect.gen (more readable)
-const program2 = Effect.gen(function* () {
-  const user = yield* getUser("123")
-  const posts = yield* getUserPosts(user.id)
-  return posts
+  const x = yield* divide(10, 2)
+  const y = yield* divide(x, 0)
+  return x + y
 })
 ```
 
-### Effect.andThen - Sequential Composition
+Rules:
+
+- Always `return yield* Effect.fail(...)` (or `return yield* new TaggedErr()`);
+  a bare `yield*` without `return` leaves the code after it reachable in the
+  types.
+- Do not `await` inside `Effect.gen`; wrap promises with `tryPromise`.
+- Independent steps written one after another run *sequentially*. Use
+  `Effect.all` (see **effect-concurrency**) when they can run in parallel.
+
+### Effect.fn for named functions
+
+For functions that return effects, `Effect.fn` (v3.11+) combines `gen` with a
+tracing span named after the function, which shows up in stack traces and
+OpenTelemetry:
 
 ```typescript
-import { Effect, pipe } from "effect"
+import { Effect } from "effect"
 
-// Chain effects, ignoring previous result
-const program = pipe(
-  log("Starting..."),
-  Effect.andThen(processData()),
-  Effect.andThen(log("Done!"))
-)
-
-// Provide value to next effect
-const program2 = pipe(
-  Effect.succeed(5),
-  Effect.andThen(n => Effect.succeed(n * 2))
-)
+const getUserName = Effect.fn("getUserName")(function* (id: string) {
+  yield* Effect.annotateCurrentSpan("userId", id)
+  return `user-${id}`
+})
+// (id: string) => Effect<string, never, never>
 ```
 
-### Effect.tap - Side Effects Without Changing Value
+## Pipelines
+
+Use `pipe`/`.pipe` for short transformations; switch to `Effect.gen` once
+there are more than two or three dependent steps.
+
+| Operator | Does |
+| --- | --- |
+| `Effect.map(f)` | transform success value |
+| `Effect.flatMap(f)` | next step depends on the value and returns an effect |
+| `Effect.andThen(x)` | flexible sequencing; `x` may be a value, a function, a promise-returning function or an effect |
+| `Effect.tap(f)` | run a side effect, keep the original value |
+| `Effect.mapError(f)` | transform the error |
+| `Effect.mapBoth({ onFailure, onSuccess })` | transform both channels |
+| `Effect.orElse(() => fallback)` | replace any failure with another effect |
+| `Effect.as(v)` / `Effect.asVoid` | replace the value |
 
 ```typescript
-import { Effect, pipe } from "effect"
+import { Effect } from "effect"
 
-const program = pipe(
-  fetchUser("123"),
-  Effect.tap(user => log(`Fetched user: ${user.name}`)),
-  Effect.tap(user => saveToCache(user)),
-  Effect.map(user => user.email)
+const program = Effect.succeed("hello").pipe(
+  Effect.map((s) => s.toUpperCase()),
+  Effect.tap((s) => Effect.log(`got ${s}`)),
+  Effect.flatMap((s) => (s.length > 3 ? Effect.succeed(s.length) : Effect.fail("too short" as const)))
 )
-
-// The taps run but don't change the flowing value
+// Effect<number, "too short", never>
 ```
 
-## Effect Transformations
+## Running effects
 
-### Effect.mapError - Transform Errors
+Run once, at the edge (main, request handler, test). Inside effects, compose;
+never call `runPromise` from within an effect.
+
+| Runner | Use when | On failure |
+| --- | --- | --- |
+| `Effect.runPromise(e)` | async entry point, `R` must be `never` | rejects with a `FiberFailure` wrapper |
+| `Effect.runPromiseExit(e)` | you need the typed error or cause | resolves with `Exit` |
+| `Effect.runSync(e)` | effect is fully synchronous | throws; also throws if it hits async work |
+| `Effect.runFork(e)` | fire-and-forget, get a `RuntimeFiber` | observe via the fiber |
+| `NodeRuntime.runMain(e)` (`@effect/platform-node`) | Node CLI/server main | logs, sets exit code, handles SIGINT |
 
 ```typescript
-import { Effect, pipe } from "effect"
+import { Effect, Exit, Cause } from "effect"
 
-interface DbError {
-  _tag: "DbError"
-  message: string
+const exit = await Effect.runPromiseExit(Effect.fail("boom" as const))
+if (Exit.isFailure(exit)) {
+  // Cause.failureOption extracts the typed error, if the cause is a Fail
+  console.log(Cause.failureOption(exit.cause)) // { _id: 'Option', _tag: 'Some', value: 'boom' }
 }
-
-interface AppError {
-  _tag: "AppError"
-  message: string
-  context: string
-}
-
-const program = pipe(
-  queryDatabase(),
-  Effect.mapError((dbError: DbError): AppError => ({
-    _tag: "AppError",
-    message: dbError.message,
-    context: "user-service"
-  }))
-)
 ```
 
-### Effect.mapBoth - Transform Success and Error
+Do not `try/catch` around `runPromise` and expect your tagged error: the
+rejection is a `FiberFailure`. Handle errors inside the effect, or use
+`runPromiseExit`. If `R` is not `never`, provide layers first (see
+**effect-dependency-injection**); a missing service is a compile-time error,
+not a runtime one.
 
-```typescript
-import { Effect, pipe } from "effect"
+## Pitfalls
 
-const program = pipe(
-  Effect.succeed(10),
-  Effect.mapBoth({
-    onSuccess: (n) => n * 2,
-    onFailure: (e) => ({ _tag: "MappedError", original: e })
-  })
-)
-```
+- `Effect.runSync` on an effect that sleeps, awaits a promise or uses async
+  callbacks throws ("cannot be resolved synchronously").
+- Side effects outside constructors (`const x = Date.now()` at module level)
+  run once at import, not on each execution. Wrap in `Effect.sync`.
+- `Effect.promise` around a call that can reject hides the failure as a defect.
+- Long `pipe(flatMap(... flatMap(...)))` chains: rewrite with `Effect.gen`.
+- Using plain objects `{ _tag: "X" }` as errors works with `catchTag`, but
+  `Data.TaggedError` gives stack traces, `instanceof`, and structural equality.
 
-### Effect.orElse - Fallback on Failure
+## Done when
 
-```typescript
-import { Effect, pipe } from "effect"
+- Every async/throwing boundary is wrapped in `try`/`tryPromise` with a typed
+  error, and the `E` channel lists only meaningful failures.
+- `run*` is called only at the program edge with `R = never`.
+- `tsc --noEmit` passes without `any` casts on effect types.
 
-const program = pipe(
-  fetchFromPrimaryDb(),
-  Effect.orElse(() => fetchFromSecondaryDb())
-)
+## Related skills
 
-// Fallback to different effect based on error
-const programWithCheck = pipe(
-  riskyOperation(),
-  Effect.orElse((error) =>
-    error._tag === "Timeout"
-      ? retryOperation()
-      : Effect.fail(error)
-  )
-)
-```
+- effect-error-handling - tagged errors, catchTag, retries, causes
+- effect-dependency-injection - services and layers (`R`)
+- effect-concurrency - `Effect.all`, fibers, queues
+- effect-resource-management - scopes and finalizers
+- effect-schema - decoding unknown input
+- effect-testing - `@effect/vitest`, TestClock
 
-## Best Practices
-
-1. **Use Effect.gen for Readability**: Prefer Effect.gen over pipe for complex
-   compositions with multiple steps.
-
-2. **Type Your Errors**: Always use tagged unions for error types to enable
-   catchTag and better error handling.
-
-3. **Distinguish Errors from Defects**: Use Effect.try/tryPromise for operations
-   that can fail. Let unexpected errors become defects.
-
-4. **Keep Effects Pure**: Don't perform side effects outside of Effect
-   constructors. Use Effect.sync for side effects.
-
-5. **Use Descriptive Names**: Name effects based on what they do, not how they
-   do it (e.g., `fetchUser` not `makeHttpRequest`).
-
-6. **Compose Small Effects**: Build complex operations from small, focused
-   effects that do one thing well.
-
-7. **Handle Requirements Explicitly**: Use Effect.service and layers to manage
-   dependencies rather than importing directly.
-
-8. **Document Effect Types**: Explicitly type effects to make requirements,
-   errors, and success types clear.
-
-9. **Use pipe for Transformations**: For simple transformations, pipe is more
-   concise than Effect.gen.
-
-10. **Test Effects Independently**: Design effects to be testable by injecting
-    dependencies via requirements.
-
-## Common Pitfalls
-
-1. **Using runSync on Async Effects**: runSync throws on async effects. Use
-   runPromise instead.
-
-2. **Not Handling Errors**: Forgetting that effects can fail. Always consider
-   the error channel.
-
-3. **Mixing Promises and Effects**: Converting between promises and effects
-   incorrectly. Use Effect.promise/tryPromise.
-
-4. **Ignoring Requirements**: Not providing required services causes runtime
-   errors. Use layers properly.
-
-5. **Throwing in Effect.sync**: Thrown errors become defects. Use Effect.try
-   for operations that can throw.
-
-6. **Not Using Effect.gen**: Complex pipe chains are hard to read. Use
-   Effect.gen for better readability.
-
-7. **Incorrect Error Types**: Using `unknown` or `Error` instead of specific
-   tagged error types.
-
-8. **Sequential When Parallel Is Better**: Using Effect.gen sequentially when
-   operations could run in parallel with Effect.all.
-
-9. **Over-Using map/flatMap**: Effect.gen is clearer for multi-step operations
-   than nested maps.
-
-10. **Not Leveraging Type Safety**: Not using TypeScript's type system to catch
-    errors at compile time.
-
-## When to Use This Skill
-
-Use effect-core-patterns when you need to:
-
-- Build type-safe applications with Effect
-- Create and compose effectful operations
-- Handle errors in a type-safe manner
-- Work with async operations and promises
-- Manage side effects explicitly
-- Create pipelines of transformations
-- Convert callback-based APIs to Effect
-- Build maintainable, composable code
-- Leverage functional programming patterns
-- Ensure compile-time safety for effects
-
-## Resources
-
-### Official Documentation
-
-- [Effect Website](https://effect.website/)
-- [Getting Started](https://effect.website/docs/quickstart)
-- [The Effect Type](https://effect.website/docs/getting-started/the-effect-type)
-- [Creating Effects](https://effect.website/docs/getting-started/creating-effects)
-- [Using Generators](https://effect.website/docs/getting-started/using-generators)
-- [Running Effects](https://effect.website/docs/getting-started/running-effects)
-
-### Guides
-
-- [Effect GitHub](https://github.com/Effect-TS/effect)
-- [Effect Discord](https://discord.gg/effect-ts)
-- [Effect Examples](https://github.com/Effect-TS/examples)
+Docs: <https://effect.website/docs/getting-started/the-effect-type/>

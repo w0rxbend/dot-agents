@@ -1,7 +1,7 @@
 ---
 name: idea-refine
-description: "Refines raw ideas into sharp, actionable concepts through structured divergent and convergent thinking. Use when an idea is still vague, when you need to stress-test assumptions before committing to a plan, or when you want to expand options before converging on one."
-risk: critical
+description: "Refine a raw idea into a one-page brief (problem statement, recommended direction, assumptions to validate, MVP scope, not-doing list) through divergent then convergent thinking. Use when an idea is still vague or you want options and a stress test before committing; use interview-me when the goal itself is unclear and spec-driven-development once the direction is chosen."
+risk: safe
 source: https://github.com/addyosmani/agent-skills/tree/main/skills/idea-refine
 source_repo: addyosmani/agent-skills
 source_type: community
@@ -11,12 +11,15 @@ license_source: https://github.com/addyosmani/agent-skills/blob/main/LICENSE
 ---
 
 # Idea Refine
+
+Turn a raw idea into a sharp, buildable concept through divergent then convergent thinking, ending in a one-page brief.
+
 ## When to Use
 
-Use this skill when you need refines raw ideas into sharp, actionable concepts through structured divergent and convergent thinking. Use when an idea is still vague, when you need to stress-test assumptions before committing to a plan, or when you want to expand options before converging on one. Triggers on...
+- An idea is still vague and you need options before committing to one.
+- You want to stress-test assumptions behind a direction before planning it.
 
-
-Refines raw ideas into sharp, actionable concepts worth building through structured divergent and convergent thinking.
+Do not use it when the user already knows what they want (use `spec-driven-development`), or when the goal itself is unclear (use `interview-me` first).
 
 ## How It Works
 
@@ -30,7 +33,7 @@ This skill is primarily an interactive dialogue. Invoke it with an idea, and the
 
 ```bash
 # Optional: Initialize the ideas directory
-bash skills/idea-refine/scripts/idea-refine.sh
+bash "<skill-directory>/scripts/idea-refine.sh"   # run from the project root; creates docs/ideas/
 ```
 
 **Trigger Phrases:**
@@ -187,9 +190,3 @@ After completing an ideation session:
 - [ ] A "Not Doing" list makes trade-offs explicit
 - [ ] The output is a concrete artifact (markdown one-pager), not just conversation
 - [ ] The user confirmed the final direction before any implementation work
-
-## Limitations
-
-- Use this skill only when the task clearly matches its upstream source and local project context.
-- Verify commands, generated code, dependencies, credentials, and external service behavior before applying changes.
-- Do not treat examples as a substitute for environment-specific tests, security review, or user approval for destructive or costly actions.

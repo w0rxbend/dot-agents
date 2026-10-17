@@ -1,6 +1,6 @@
 ---
 name: security-and-hardening
-description: Hardens code against vulnerabilities. Use when auditing an input handler for vulnerabilities, when handling user input, authentication, data storage, or external integrations, or when checking a login flow is safe against the OWASP Top Ten. Use when building any feature that accepts untrusted data, manages user sessions, or interacts with third-party services. Use when auditing dependencies for known vulnerabilities, triaging package-manager audit findings, or assessing supply-chain risk in a new package. Use when personal data or privacy compliance (GDPR, CCPA) is involved.
+description: Secure application code at trust boundaries - input validation, authn/authz, sessions, secrets, SSRF, uploads, personal data and LLM features. Use while building or reviewing features that touch untrusted data or user sessions, or before a production release; use dependency-scanning for CVE/SBOM scanning in CI and security-hardening for infrastructure.
 ---
 
 # Security and Hardening
@@ -137,7 +137,7 @@ Pattern: [Secrets management](references/hardening-patterns.md#secrets-managemen
 3. **Run the native audit against the committed lockfile before every release.** Triage critical/high by **reachability** (runtime, build, test, deploy paths) and fix availability. Never apply forced remediation (`npm audit fix --force` or equivalent) automatically, since forced fixes may cross declared dependency ranges; preview, read changelogs, test each upgrade. Document every deferral with a reason and a review date.
 4. **Audits only match known advisories.** They do not catch a newly malicious or typosquatted package (`cross-env` vs `crossenv`). Review new dependencies, lockfile diffs, and script-policy changes together: ownership, maintenance, release age, provenance, transitive graph. Verify registry signatures where supported (`npm audit signatures`, `pnpm audit signatures`) and treat their absence as a signal to investigate, not automatic proof of compromise (A06, LLM03).
 
-Triage decision tree: [Dependency audit triage](references/hardening-patterns.md#dependency-audit-triage). Manager matrix and install-script gate: the security checks above and the repository's documented requirements.
+Triage decision tree: [Dependency audit triage](references/hardening-patterns.md#dependency-audit-triage). For scanner setup in CI (Snyk, Dependabot, OSV, SBOM generation), use the `dependency-scanning` skill.
 
 ### Personal data and privacy
 
@@ -163,7 +163,9 @@ Pattern: [LLM output handling](references/hardening-patterns.md#llm-output-handl
 
 ## Review Checklist
 
-Before sign-off, walk the security checks above and the repository's documented requirements: it covers authentication, authorization, input, data protection and privacy, headers and CORS, dependencies and supply chain, AI/LLM, and error handling, plus the OWASP quick-reference tables.
+Before sign-off, walk the security checks above and the repository's documented requirements: authentication, authorization, input, data protection and privacy, headers and CORS, dependencies and supply chain, AI/LLM, and error handling.
+
+Before a production release, or when the project authorizes through Supabase/Postgres row-level security, run [the pre-deployment checklist and RLS rules](references/predeploy-and-supabase.md).
 
 ## Common Rationalizations
 

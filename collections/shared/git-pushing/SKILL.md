@@ -1,6 +1,6 @@
 ---
 name: git-pushing
-description: "Safely stage, commit, and push intended git changes with conventional commit messages. Use for ordinary non-release pushes when explicitly asked to push, save work remotely, or share a completed change."
+description: "Commit explicitly named paths with a Conventional Commit message and push them through a race-safe helper (isolated index, hooks, atomic ref update). Use only when the user explicitly asks to commit and push or to save work to the remote; use git-workflow-and-versioning to plan commits and messages, and the repository's own release flow for tags and releases."
 risk: critical
 source: community
 date_added: "2026-02-27"
@@ -8,52 +8,52 @@ date_added: "2026-02-27"
 
 # Git Push Workflow
 
-Stage only intended changes, create a conventional commit, and push to the remote branch.
+Stage only the intended changes, create one Conventional Commit, and push it to the branch's remote.
 
 ## When to Use
-Automatically activate when the user:
 
-- Explicitly asks to push changes ("push this", "commit and push")
-- Mentions saving work to remote ("save to github", "push to remote")
-- Completes a feature and wants to share it
-- Says phrases like "let's push this up" or "commit these changes"
+Only on an explicit request: "push this", "commit and push", "save this to GitHub/the remote". Finishing a feature is not a request to push; ask, or stop at a local commit if the user asked for one.
+
+Do not use it for a maintainer merge batch, canonical synchronization, versioned release, tag publication, or a repository with an explicit `merge:batch`, `release:prepare` or `release:publish` workflow. Use that repository's maintainer/release flow, which owns pull-request evidence, protected-branch checks, generated files, tags and publication verification.
 
 ## Safety Gates
 
-Before staging, inspect `git status --short --branch`, confirm the intended files, and fetch the upstream branch when a concurrent push is plausible. Do not absorb unrelated dirty files.
-
-Read repository policy before choosing the destination branch. If `main` or `master` is protected, or the repository defines a maintainer command such as `merge:batch`, create or use a topic branch and finish through the required pull-request checks. A user request to “push to main” describes the desired final state; it does not authorize bypassing server-side protection. Never keep retrying a direct push after a protected-branch rejection.
-
-The helper requires an empty live index and a conventional commit message before it stages anything. It locks the live index, builds and validates the commit in an isolated temporary index, rejects `--` without paths, and atomically updates the branch only if its parent is unchanged.
-
-The helper honors `branch.<name>.pushRemote`, `remote.pushDefault`, and the branch's configured upstream, in that order. For a new branch without those settings, it requires `origin` and establishes `origin/<branch>`. It rejects detached HEAD and invalid remote configurations before staging.
-
-Do not use this skill for a maintainer merge batch, canonical synchronization, versioned repository release, tag publication, or a repository with an explicit `merge:batch`, `release:prepare`, or `release:publish` workflow. Use that repository's maintainer/release flow instead; it owns pull-request evidence, protected-branch checks, generated files, tags, and publication verification.
+1. Inspect `git status --short --branch` and list the files that belong to this change. Leave unrelated dirty files out.
+2. Fetch the upstream branch when a concurrent push is plausible.
+3. Read repository policy before choosing the destination branch. If `main`/`master` is protected, or the repository defines a maintainer command such as `merge:batch`, use a topic branch and finish through the required pull-request checks. "Push to main" describes the desired end state; it does not authorize bypassing server-side protection. Never keep retrying a direct push after a protected-branch rejection.
+4. Write the message in the repository's convention (see `git-workflow-and-versioning`). The helper accepts only `<type>(<scope>)?!?: <subject>`.
 
 ## Workflow
 
-Use the helper only after the safety gates pass. Resolve the installed directory that contains this `SKILL.md` and substitute its absolute path for `<skill-directory>` below; do not assume the current working directory is the catalog repository. With no paths the helper stages all current changes, so use that form only when every dirty file belongs to the requested commit:
+Resolve the directory that contains this `SKILL.md` and substitute its absolute path for `<skill-directory>`. Do not assume the current directory is the catalog repository.
+
+Stage named paths (the default):
 
 ```bash
-bash "<skill-directory>/scripts/smart_commit.sh"
+bash "<skill-directory>/scripts/smart_commit.sh" "fix(parser): handle empty input" -- src/parser.ts test/parser.test.ts
 ```
 
-With custom message:
+Stage every change, only when the user said to include everything and `git status` shows nothing unrelated:
 
 ```bash
-bash "<skill-directory>/scripts/smart_commit.sh" "feat: add feature"
+bash "<skill-directory>/scripts/smart_commit.sh" "chore: regenerate lockfile" --all
 ```
 
-To stage only named files, pass them after `--`:
+The message and one of `-- <paths>` or `--all` are required. The helper exits with usage text otherwise.
 
-```bash
-bash "<skill-directory>/scripts/smart_commit.sh" "fix: scope change" -- path/to/file
-```
+## What the helper guarantees
 
-The helper handles isolated staging, commit creation, and push; it does not replace validation, release tooling, or a rebase required by an advanced upstream branch.
+- It refuses to run if the live index already has staged changes, or if HEAD is detached.
+- It builds the commit in an isolated temporary index while holding the index lock. It runs `pre-commit`, `prepare-commit-msg` and `commit-msg` hooks, and aborts if a hook modifies the staged tree.
+- It re-validates the message after hooks run, and signs the commit when `commit.gpgsign` is true.
+- It updates the branch ref atomically, only if its parent is unchanged, and refuses to push if the branch moved concurrently.
+- It pushes to `branch.<name>.pushRemote`, then `remote.pushDefault`, then the configured upstream. A new branch requires `origin` and gets `origin/<branch>` as its upstream.
+- It requires Git's `files` ref backend and rejects `reftable` repositories before creating a commit.
 
-## Limitations
-- The helper currently requires Git's `files` ref backend; it rejects `reftable` repositories before creating a commit because their refs cannot use the filesystem lock protocol.
-- Use this skill only when the task clearly matches the scope described above.
-- Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
-- Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.
+It does not run the project's tests or replace release tooling. Run the required checks before pushing. If the push is rejected because the upstream advanced, fetch and integrate (rebase or merge per repository policy), then rerun.
+
+## Done When
+
+- `git log -1` shows the new commit containing only the intended paths.
+- The helper printed `Successfully pushed <branch> to <remote>/<branch>`, and `git status` still shows any unrelated dirty files untouched.
+- You report the commit hash, the branch and remote, and any checks that were run or skipped.

@@ -1,7 +1,6 @@
 ---
 name: analytics
-description: "When the user wants to set up, improve, or audit analytics tracking and measurement."
-risk: critical
+description: "Design or audit an event tracking plan (naming, properties, GA4/GTM, UTMs, validation); use when adding or fixing product or marketing analytics."
 source: https://github.com/coreyhaines31/marketingskills/tree/main/skills/analytics
 source_repo: coreyhaines31/marketingskills
 source_type: community
@@ -11,12 +10,10 @@ license_source: https://github.com/coreyhaines31/marketingskills/blob/main/LICEN
 ---
 
 # Analytics Tracking
-## When to Use
 
-Use this skill when you need when the user wants to set up, improve, or audit analytics tracking and measurement. Also use when the user mentions "set up tracking," "GA4," "Google Analytics," "conversion tracking," "event tracking," "UTM parameters," "tag manager," "GTM," "analytics implementation," "tracking...
+Set up tracking that produces trustworthy, decision-ready data. Start from the decisions the data must inform and the instrumentation that already exists; do not propose another analytics service before auditing the current one.
 
-
-You are an expert in analytics implementation and measurement. Your goal is to help set up tracking that provides actionable insights for marketing and product decisions.
+For in-product analytics (activation funnels, cohort retention, North Star metric, PostHog capture and flags, A/B significance), read [references/product-analytics.md](references/product-analytics.md).
 
 ## Initial Assessment
 
@@ -141,6 +138,24 @@ checkout_payment_completed
 
 ---
 
+## Conversion Strategy
+
+### What qualifies as a conversion
+
+A conversion marks real value, completed intent and progress that is not undone by a reload: `signup_completed`, `purchase_completed`, `demo_booked`. Page views, button clicks and form starts are intent signals, not conversions.
+
+### Counting rules
+
+- Decide per conversion whether it counts once per session, once per user, or every occurrence, and write that in the tracking plan.
+- Use the same rule in every tool (GA4, ad platforms, product analytics, BI); mismatched rules are the most common source of "the numbers disagree".
+- Give transactional conversions a deduplication key (order or transaction ID) so redirects, reloads and retries do not double-count.
+- Fire on confirmed success (server response, payment confirmation), not on the button click that started it.
+- Document how refunds, cancellations and test transactions are excluded.
+
+**Worked example.** `purchase_completed` fires on both the payment redirect and a page reload. Use the paid transaction ID as the dedup key, fire only after payment success, and reconcile one transaction plus two reloads against the order database: expected one counted purchase, no card data, email or raw URL query in properties. Record source count, accepted events, rejected duplicates and unexplained differences for the same window. Test consent denied, consent granted and delayed backend confirmation separately; a `dataLayer.push` alone does not prove delivery.
+
+---
+
 ## GA4 Implementation
 
 ### Quick Setup
@@ -237,6 +252,23 @@ dataLayer.push({
 
 ---
 
+## Measurement Readiness Review (optional rubric)
+
+When auditing an existing setup, score each area from evidence (event definitions, sample payloads, reconciliation against the source of truth). This is a review aid with no validated thresholds; leave an area "unknown" rather than guessing, and never let a high total override a failed reconciliation, duplicate purchases, missing exposures or a consent violation.
+
+| Area | Weight | Look for |
+|------|--------|----------|
+| Decision alignment | 25 | Business questions written down; every event maps to a decision; nothing tracked "just in case" |
+| Event model clarity | 20 | Events are meaningful state changes; consistent naming; properties carry context, not noise |
+| Data accuracy | 20 | Fires reliably; no duplication or inflation; values complete; cross-browser and mobile checked |
+| Conversion definitions | 15 | Conversions represent real success; counting rules explicit; funnel stages distinguishable |
+| Attribution and context | 10 | UTMs consistent; source context preserved; cross-domain/device handled where needed |
+| Governance | 10 | Plan documented; owner named; changes versioned and monitored |
+
+Rough reading of the total: 85+ usable for decisions if the evidence holds; 70-84 fix gaps before major decisions; 55-69 unreliable; below 55 do not act on the data. Report remediation in priority order of concrete defects, not by score.
+
+---
+
 ## Privacy and Compliance
 
 ### Considerations
@@ -296,29 +328,14 @@ dataLayer.push({
 
 ---
 
-## Tool Integrations
+## Tools
 
-For implementation, see the [tools registry](https://github.com/coreyhaines31/marketingskills/tree/main/skills/analytics/../../tools/REGISTRY.md). Key analytics tools:
+GA4 (web, Google ecosystem), Mixpanel and Amplitude (product analytics, cohorts), PostHog (open-source analytics, flags, session replay), Segment (event routing to several destinations). Prefer the tool already installed; check each SDK's current API in its official docs before writing code.
 
-| Tool | Best For | MCP | Guide |
-|------|----------|:---:|-------|
-| **GA4** | Web analytics, Google ecosystem | ✓ | [ga4.md](https://github.com/coreyhaines31/marketingskills/tree/main/skills/analytics/../../tools/integrations/ga4.md) |
-| **Mixpanel** | Product analytics, event tracking | - | [mixpanel.md](https://github.com/coreyhaines31/marketingskills/tree/main/skills/analytics/../../tools/integrations/mixpanel.md) |
-| **Amplitude** | Product analytics, cohort analysis | - | [amplitude.md](https://github.com/coreyhaines31/marketingskills/tree/main/skills/analytics/../../tools/integrations/amplitude.md) |
-| **PostHog** | Open-source analytics, session replay | - | [posthog.md](https://github.com/coreyhaines31/marketingskills/tree/main/skills/analytics/../../tools/integrations/posthog.md) |
-| **Segment** | Customer data platform, routing | - | [segment.md](https://github.com/coreyhaines31/marketingskills/tree/main/skills/analytics/../../tools/integrations/segment.md) |
+## Done when
 
----
-
-## Related Skills
-
-- **ab-testing**: For experiment tracking
-- **seo-audit**: For organic traffic analysis
-- **cro**: For conversion optimization (uses this data)
-- **revops**: For pipeline metrics, CRM tracking, and revenue attribution
-
-## Limitations
-
-- Use this skill only when the task clearly matches its upstream source and local project context.
-- Verify commands, generated code, dependencies, credentials, and external service behavior before applying changes.
-- Do not treat examples as a substitute for environment-specific tests, security review, or user approval for destructive or costly actions.
+- Every event in the plan names the decision it supports, its trigger and its properties
+- Conversions have explicit counting and dedup rules, identical across tools
+- Events were observed in DebugView / GTM preview / the tool's live view with correct values, and consent-denied behavior was tested
+- Counts for at least one key conversion reconcile with the source of truth for the same window, with differences explained
+- No PII or free text in event properties

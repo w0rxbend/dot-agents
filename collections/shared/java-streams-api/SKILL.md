@@ -1,7 +1,7 @@
 ---
 name: java-streams-api
 user-invocable: false
-description: Use when Java Streams API for functional-style data processing. Use when processing collections with streams.
+description: Process collections with Java Streams - intermediate/terminal operations, collectors and grouping, primitive streams, Stream.toList vs Collectors.toList, mapMulti, Gatherers, and parallel-stream pitfalls. Use when writing or reviewing stream pipelines in Java 8-25.
 allowed-tools:
   - Bash
   - Read
@@ -69,14 +69,14 @@ public class FilterExample {
         // Filter even numbers
         List<Integer> evenNumbers = numbers.stream()
             .filter(n -> n % 2 == 0)
-            .collect(Collectors.toList());
+            .toList();
         // Result: [2, 4, 6, 8]
 
         // Multiple filters can be chained
         List<Integer> result = numbers.stream()
             .filter(n -> n > 3)
             .filter(n -> n < 7)
-            .collect(Collectors.toList());
+            .toList();
         // Result: [4, 5, 6]
     }
 }
@@ -92,19 +92,19 @@ public class MapExample {
         // Convert to uppercase
         List<String> uppercase = words.stream()
             .map(String::toUpperCase)
-            .collect(Collectors.toList());
+            .toList();
         // Result: ["HELLO", "WORLD"]
 
         // Get string lengths
         List<Integer> lengths = words.stream()
             .map(String::length)
-            .collect(Collectors.toList());
+            .toList();
         // Result: [5, 5]
 
         // Chain transformations
         List<Integer> doubled = List.of(1, 2, 3).stream()
             .map(n -> n * 2)
-            .collect(Collectors.toList());
+            .toList();
         // Result: [2, 4, 6]
     }
 }
@@ -124,14 +124,14 @@ public class FlatMapExample {
         // Flatten to single list
         List<Integer> flattened = nested.stream()
             .flatMap(List::stream)
-            .collect(Collectors.toList());
+            .toList();
         // Result: [1, 2, 3, 4, 5, 6]
 
         // Split strings and flatten
         List<String> sentences = List.of("hello world", "foo bar");
         List<String> words = sentences.stream()
             .flatMap(s -> Arrays.stream(s.split(" ")))
-            .collect(Collectors.toList());
+            .toList();
         // Result: ["hello", "world", "foo", "bar"]
     }
 }
@@ -147,25 +147,25 @@ public class DistinctSortedExample {
         // Remove duplicates
         List<Integer> distinct = numbers.stream()
             .distinct()
-            .collect(Collectors.toList());
+            .toList();
         // Result: [5, 2, 8, 1, 3]
 
         // Sort ascending
         List<Integer> sorted = numbers.stream()
             .sorted()
-            .collect(Collectors.toList());
+            .toList();
         // Result: [1, 2, 2, 3, 5, 5, 8]
 
         // Sort descending
         List<Integer> descending = numbers.stream()
             .sorted((a, b) -> b - a)
-            .collect(Collectors.toList());
+            .toList();
 
         // Distinct and sorted
         List<Integer> distinctSorted = numbers.stream()
             .distinct()
             .sorted()
-            .collect(Collectors.toList());
+            .toList();
         // Result: [1, 2, 3, 5, 8]
     }
 }
@@ -185,7 +185,7 @@ public class PeekExample {
             .peek(n -> System.out.println("Doubled: " + n))
             .filter(n -> n > 5)
             .peek(n -> System.out.println("Filtered: " + n))
-            .collect(Collectors.toList());
+            .toList();
     }
 }
 ```
@@ -197,6 +197,7 @@ Terminal operations produce a result or side effect and close the stream.
 **collect() - Gather results:**
 
 ```java
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.Set;
@@ -205,9 +206,13 @@ public class CollectExample {
     public static void main(String[] args) {
         List<String> words = List.of("apple", "banana", "cherry");
 
-        // To List
+        // To List (Java 16+): unmodifiable, allows nulls
         List<String> list = words.stream()
-            .collect(Collectors.toList());
+            .toList();
+
+        // Mutable list, or code that must compile on Java 8-15
+        List<String> mutable = words.stream()
+            .collect(Collectors.toCollection(ArrayList::new));
 
         // To Set
         Set<String> set = words.stream()
@@ -233,6 +238,18 @@ public class CollectExample {
     }
 }
 ```
+
+**Choosing a list collector:**
+
+| Call | Java | Result list | Use when |
+|------|------|-------------|----------|
+| `stream.toList()` | 16+ | Unmodifiable; `add`/`set` throw | Default for new code that only reads the result |
+| `Collectors.toList()` | 8+ | Unspecified mutability (an `ArrayList` in practice) | Pre-16 code; do not rely on mutating it |
+| `Collectors.toCollection(ArrayList::new)` | 8+ | Guaranteed mutable `ArrayList` | Caller adds/removes afterwards |
+| `Collectors.toUnmodifiableList()` | 10+ | Unmodifiable; **rejects nulls** with NPE | Want immutability and null rejection |
+
+When replacing `collect(Collectors.toList())` with `toList()` in existing code,
+check that no caller mutates the returned list.
 
 **reduce() - Combine elements:**
 
@@ -417,6 +434,41 @@ public class StatisticsExample {
 }
 ```
 
+## mapMulti and Gatherers
+
+`mapMulti` (Java 16+) is an imperative alternative to `flatMap` that avoids
+creating a stream per element:
+
+```java
+List<Integer> evensDoubled = List.of(1, 2, 3, 4).stream()
+    .<Integer>mapMulti((n, downstream) -> {
+        if (n % 2 == 0) {
+            downstream.accept(n);
+            downstream.accept(n * 2);
+        }
+    })
+    .toList();   // [2, 4, 4, 8]
+```
+
+`Stream.gather(Gatherer)` adds custom intermediate operations (windowing,
+scanning, stateful dedup, bounded-concurrency mapping). It was a preview in
+JDK 22-23 and is final in JDK 24; check the project's `--release` level before
+using it.
+
+```java
+import java.util.stream.Gatherers;
+
+List<List<Integer>> windows = Stream.of(1, 2, 3, 4, 5)
+    .gather(Gatherers.windowFixed(2))
+    .toList();   // [[1, 2], [3, 4], [5]]
+
+List<Integer> runningTotals = Stream.of(1, 2, 3)
+    .gather(Gatherers.scan(() -> 0, Integer::sum))
+    .toList();   // [1, 3, 6]
+```
+
+Before JDK 24, write a custom `Collector` or a plain loop instead.
+
 ## Parallel Streams
 
 Parallel streams automatically partition data and process in parallel.
@@ -447,7 +499,7 @@ public class ParallelStreamExample {
         // Back to sequential
         List<Integer> result = numbers.parallelStream()
             .sequential()
-            .collect(Collectors.toList());
+            .toList();
     }
 }
 ```
@@ -462,12 +514,12 @@ public class ParallelPerformance {
         // Small dataset - sequential is faster
         List<Integer> small = IntStream.range(0, 100)
             .boxed()
-            .collect(Collectors.toList());
+            .toList();
 
         // Large dataset - parallel may be faster
         List<Integer> large = IntStream.range(0, 1_000_000)
             .boxed()
-            .collect(Collectors.toList());
+            .toList();
 
         // Sequential
         long start = System.nanoTime();
@@ -588,7 +640,7 @@ public class EmployeeProcessing {
         List<String> highEarners = employees.stream()
             .filter(e -> e.getSalary() > 75000)
             .map(Employee::getName)
-            .collect(Collectors.toList());
+            .toList();
     }
 }
 ```
@@ -665,7 +717,7 @@ Use java-streams-api when you need to:
 
 ## Resources
 
-- [Java Streams Documentation](<https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/package-summary.html>)
+- [Java Streams Documentation](<https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/stream/package-summary.html>)
 - [Java Stream API Guide](<https://www.oracle.com/technical-resources/articles/java/ma14-java-se-8-streams.html>)
-- [Collectors Documentation](<https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Collectors.html>)
-- [Parallel Streams Guide](<https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/package-summary.html#StreamOps>)
+- [Collectors Documentation](<https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/stream/Collectors.html>)
+- [Parallel Streams Guide](<https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/stream/package-summary.html#StreamOps>)

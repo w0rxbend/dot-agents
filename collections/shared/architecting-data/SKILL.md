@@ -1,6 +1,6 @@
 ---
 name: architecting-data
-description: Strategic guidance for designing modern data platforms, covering storage paradigms (data lake, warehouse, lakehouse), modeling approaches (dimensional, normalized, data vault, wide tables), data mesh principles, and medallion architecture patterns. Use when architecting data platforms, choosing between centralized vs decentralized patterns, selecting table formats (Iceberg, Delta Lake), or designing data governance frameworks.
+description: "Choose a data platform architecture: lake vs warehouse vs lakehouse, medallion layers, modeling approach (dimensional, normalized, data vault, wide tables), table formats (Iceberg, Delta), centralized vs data mesh, and governance. Use for platform-level analytics architecture decisions; use data-engineering-data-pipeline to build pipelines and database-design for operational databases."
 ---
 
 # Data Architecture
@@ -344,34 +344,32 @@ For complete examples, see [examples/](examples/).
 
 ## Integration with Other Skills
 
-**Direct Dependencies:**
-- **ingesting-data:** ETL/ELT mechanics, Fivetran, Airbyte implementation
-- **data-transformation:** dbt and Dataform detailed implementation
-- **streaming-data:** Kafka, Flink for real-time pipelines
+**Direct dependencies:**
+- **ingesting-data:** ETL/ELT mechanics, Fivetran, Airbyte, dlt implementation
+- **data-engineering-data-pipeline:** Orchestration (Airflow/Prefect), dbt transformations, data-quality gates, table maintenance
+- **using-message-queues:** Kafka and other brokers feeding real-time pipelines
 
 **Complementary:**
-- **databases-relational:** PostgreSQL, MySQL as source systems
-- **databases-document:** MongoDB, DynamoDB as sources
-- **ai-data-engineering:** Feature stores, ML training pipelines
-- **designing-distributed-systems:** CAP theorem, consistency models
-- **observability:** Monitoring pipeline health, data quality metrics
+- **using-relational-databases:** PostgreSQL, MySQL as source systems
+- **using-document-databases:** MongoDB, DynamoDB as sources
+- **database-design:** Operational (OLTP) schema and HA/DR decisions
+- **observability-and-instrumentation:** Monitoring pipeline health and data-quality metrics
 
 **Downstream:**
 - **visualizing-data:** BI and dashboard patterns
-- **sql-optimization:** Query performance tuning
 
 **Common Workflows:**
 
 **End-to-End Analytics:**
 ```
-data-architecture (warehouse) → ingesting-data (Fivetran) →
-data-transformation (dbt) → visualizing-data (Tableau)
+architecting-data (warehouse) -> ingesting-data (Fivetran/Airbyte) ->
+data-engineering-data-pipeline (dbt, quality gates) -> visualizing-data
 ```
 
 **Data Platform for AI/ML:**
 ```
-data-architecture (lakehouse) → ingesting-data (Kafka) →
-data-transformation (dbt features) → ai-data-engineering (feature store)
+architecting-data (lakehouse) -> ingesting-data (CDC/Kafka) ->
+data-engineering-data-pipeline (dbt features, Iceberg/Delta maintenance)
 ```
 
 ## Further Reading

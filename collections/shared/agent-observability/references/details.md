@@ -280,28 +280,27 @@ Save this JSON as `agent-overview.json` and import it into Grafana.
 # cost_tracker.py
 from dataclasses import dataclass
 
+from prometheus_client import Counter
+
+UNPRICED_CALLS = Counter("llm_unpriced_calls_total", "LLM calls with no configured pricing", ["model"])
+
 @dataclass
 class ModelPricing:
     prompt_cost_per_1k: float    # USD per 1,000 prompt tokens
     completion_cost_per_1k: float  # USD per 1,000 completion tokens
 
-# Updated pricing as of early 2026 -- adjust to your negotiated rates
+# Fill from each provider's current price list (and your negotiated rates) and record the
+# date you copied it. Prices change often, and caching/batch discounts are not modelled here.
+# Use the exact model IDs your client sends, e.g. the dated ID returned in the API response.
 MODEL_PRICING: dict[str, ModelPricing] = {
-    "gpt-4o":           ModelPricing(0.0025, 0.0100),
-    "gpt-4o-mini":      ModelPricing(0.00015, 0.0006),
-    "gpt-4.1":          ModelPricing(0.002, 0.008),
-    "gpt-4.1-mini":     ModelPricing(0.0004, 0.0016),
-    "gpt-4.1-nano":     ModelPricing(0.0001, 0.0004),
-    "claude-sonnet-4":  ModelPricing(0.003, 0.015),
-    "claude-haiku-3.5": ModelPricing(0.0008, 0.004),
-    "claude-opus-4":    ModelPricing(0.015, 0.075),
+    # "<model-id>": ModelPricing(prompt_cost_per_1k=..., completion_cost_per_1k=...),
 }
 
 def calculate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> float:
-    """Return estimated cost in USD. Falls back to zero if model is unknown."""
+    """Return estimated cost in USD. Raises for unknown models so cost is never silently zero."""
     pricing = MODEL_PRICING.get(model)
     if pricing is None:
-        return 0.0
+        raise KeyError(f"no pricing configured for model {model!r}")
     prompt_cost = (prompt_tokens / 1000) * pricing.prompt_cost_per_1k
     completion_cost = (completion_tokens / 1000) * pricing.completion_cost_per_1k
     return prompt_cost + completion_cost
@@ -310,6 +309,7 @@ def record_cost(model: str, prompt_tokens: int, completion_tokens: int, agent_na
     """Calculate cost and record it in the Prometheus counter."""
     pricing = MODEL_PRICING.get(model)
     if pricing is None:
+        UNPRICED_CALLS.labels(model=model).inc()   # alert on this: cost dashboards are incomplete
         return
     prompt_cost = (prompt_tokens / 1000) * pricing.prompt_cost_per_1k
     completion_cost = (completion_tokens / 1000) * pricing.completion_cost_per_1k
@@ -780,7 +780,6 @@ logger.addFilter(PIIRedactingFilter())
 
 ## Related Skills
 
-- alerting-oncall (`alerting-oncall`) - Alert workflows and on-call routing
-- agent-evals (`agent-evals`) - Quality verification and evaluation pipelines
-- sre-dashboards (`sre-dashboards`) - General SRE dashboard patterns
-
+- `observability-and-instrumentation` - general logging, metrics, tracing and alert design
+- `grafana-dashboards` - building and provisioning the dashboards above
+- `agent-orchestration-improve-agent` - using these traces to evaluate and improve an agent

@@ -1,20 +1,17 @@
 ---
 name: audit-skills
-description: "Expert security auditor for AI Skills and Bundles. Performs non-intrusive static analysis to identify malicious patterns, data leaks, system stability risks, and obfuscated payloads across Windows, macOS, Linux/Unix, and Mobile (Android/iOS)."
+description: "Statically audit a third-party agent skill or bundle before installing it - detect malicious commands, data exfiltration, privilege escalation, destructive or persistence behavior and obfuscated payloads across Windows, macOS, Linux and mobile, without executing it. Use when vetting an untrusted skill or bundle for safety."
 category: security
 risk: safe
 source: community
 date_added: "2026-03-07"
 author: MAIOStudio
 tags: [security, audit, skills, bundles, cross-platform]
-tools: [claude, gemini, gpt, llama, mistral, etc]
 ---
 
-# Audit Skills (Premium Universal Security)
+# Audit Skills
 
-## Overview
-
-Expert security auditor for AI Skills and Bundles. Performs non-intrusive static analysis to identify malicious patterns, data leaks, system stability risks, and obfuscated payloads across Windows, macOS, Linux/Unix, and Mobile (Android/iOS).
+Statically audit a third-party agent skill or bundle before installing it: read its files and flag malicious commands, data exfiltration, destructive or persistence behavior, and obfuscated payloads. Never execute the code under review.
 
 ## When to Use This Skill
 
@@ -25,13 +22,9 @@ Expert security auditor for AI Skills and Bundles. Performs non-intrusive static
 
 ## How It Works
 
-### Step 1: Static Analysis
+Read every file in the skill or bundle (SKILL.md, scripts, bundled binaries, manifests) without running any of it, and check for the patterns below across the platforms it targets.
 
-Performs non-intrusive static analysis to identify malicious patterns, data leaks, system stability risks, and obfuscated payloads.
-
-### Step 2: Platform-Specific Threat Detection
-
-Analyzes code for platform-specific security issues across Windows, macOS, Linux/Unix, and Mobile (Android/iOS).
+### Platform-specific threats
 
 #### 1. Privilege, Ownership & Metadata Manipulation
 - **Elevated Access**: `sudo`, `chown`, `chmod`, `TakeOwnership`, `icacls`, `Set-ExecutionPolicy`.
@@ -87,46 +80,18 @@ Analyzes code for platform-specific security issues across Windows, macOS, Linux
 
 Generates a security report with a score (0-10), platform target identification, flagged actions, threat analysis, and mitigation recommendations.
 
-## Examples
+## Rules
 
-### Example 1: Security Review
+- Never execute the code under review, and never modify it.
+- Decode obfuscation before judging: Base64, hex, XOR loops, `atob()`, `eval` of assembled strings.
+- Judge by scope: a "UI design" skill requesting `adb shell`, `sudo`, network egress or filesystem writes outside its directory is a red flag.
 
-```markdown
-"Perform a security audit on this skill bundle"
-```
+## Done when
 
-### Example 2: Cross-Platform Threat Analysis
-
-```markdown
-"Scan for mobile threats in this AI skill"
-```
-
-## Best Practices
-
-- ✅ Perform non-intrusive analysis
-- ✅ Check for privilege escalation patterns
-- ✅ Look for information disclosure vulnerabilities
-- ✅ Analyze cross-platform threats
-- ❌ Don't execute potentially malicious code during audit
-- ❌ Don't modify the code being audited
-- ❌ Don't ignore mobile-specific security concerns
-
-## Common Pitfalls
-
-- **Problem:** Executing code during audit
-  **Solution:** Stick to static analysis methods only
-
-- **Problem:** Missing cross-platform threats
-  **Solution:** Check for platform-specific security issues on all supported platforms
-
-- **Problem:** Failing to detect obfuscated payloads
- **Solution:** Look for encoding patterns like Base64, Hex, XOR loops, and atob()
+- Every file was read and any obfuscated payload decoded.
+- The report gives a risk rating, the platforms targeted, each flagged action with its file and line, and a recommendation (safe to install, install with changes, or reject).
 
 ## Related Skills
 
-- `@security-scanner` - Additional security scanning capabilities
-
-## Limitations
-- Use this skill only when the task clearly matches the scope described above.
-- Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
-- Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.
+- `code-audit` - SAST of first-party source code.
+- `dependency-scanning` - third-party CVEs and SBOMs.

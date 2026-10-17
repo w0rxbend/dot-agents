@@ -1,6 +1,6 @@
 ---
 name: frontend-design
-description: Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.
+description: Set the visual direction for a new or redesigned UI - subject-grounded aesthetic, palette, typography, layout and motion choices that do not read as templated defaults. Use when the request is about how an interface should look or feel (landing page, app shell, redesign) and no established design system dictates it; for implementing components, accessibility and state use frontend-ui-engineering.
 license: Complete terms in LICENSE.txt
 ---
 

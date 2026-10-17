@@ -1,13 +1,13 @@
 ---
 name: grasp-knowledge
-description: GRASP principles knowledge base for PHP 8.4 projects. Provides quick reference for 9 responsibility assignment patterns (Information Expert, Creator, Controller, Low Coupling, High Cohesion, Polymorphism, Pure Fabrication, Indirection, Protected Variations). Use for architecture audits and design decisions.
+description: "GRASP responsibility-assignment audit and design guidance (Information Expert, Creator, Controller, Low Coupling, High Cohesion, Polymorphism, Pure Fabrication, Indirection, Protected Variations) for object-oriented code. Use when deciding which class should own a behavior or auditing responsibility placement; examples and search commands use PHP 8.4 and need translating to other languages."
 ---
 
 # GRASP Principles Knowledge Base
 
 ## Overview
 
-GRASP (General Responsibility Assignment Software Patterns) provides guidelines for assigning responsibilities to classes and objects in object-oriented design.
+GRASP (General Responsibility Assignment Software Patterns, Craig Larman) gives guidelines for assigning responsibilities to classes and objects in object-oriented design. The principles are language-neutral. The examples here and in `references/` are written in PHP 8.4, so translate them to the project's language and idioms.
 
 | Principle | Core Question | Goal |
 |-----------|---------------|------|
@@ -21,66 +21,29 @@ GRASP (General Responsibility Assignment Software Patterns) provides guidelines 
 | **Indirection** | How to decouple? | Add intermediate object |
 | **Protected Variations** | How to handle change? | Hide variation points |
 
-## Quick Detection Patterns
+## Workflow
 
-### Information Expert Violations
+1. **Scope.** Pick the module or use case to audit. For a design question, start from the responsibility in question ("who should compute the order total?").
+2. **Gather signals.** Use the violation signals below. Text search only produces leads. Confirm each one by reading the code and its callers.
+3. **Map to a principle.** Name which principle is violated, the evidence (`file:line`), and the cost it causes today (change ripple, untestable unit, duplicated rule).
+4. **Recommend the smallest move.** Move behavior to the data owner, extract a handler, inject an abstraction, or replace a type switch. Principles trade off against each other: Indirection and Pure Fabrication add coupling points, and Protected Variations is worth it only at real, recurring variation points.
+5. **Report.** Use [assets/report-template.md](assets/report-template.md). Report confirmed findings only and do not compute scores.
 
-```bash
-# Feature Envy: Class uses other class's data more
-Grep: "->get.*->get.*->get" --glob "**/*.php"
+## Violation Signals (language-neutral)
 
-# Train wreck calls
-Grep: "->.*()->.*()->.*()->" --glob "**/*.php"
-```
+| Principle | Signals in the code | Search hints (adapt syntax) |
+|---|---|---|
+| Information Expert | A method mostly reads another object's fields or getters; chains like `a.getB().getC().x`; data classes with all logic in a "service" | two or more chained getter calls, e.g. `getB().getC()` |
+| Creator | Objects constructed far from the aggregate or container that owns them; the same construction repeated in many places | `new [A-Z]\w+\(` (or the language's constructor syntax) |
+| Controller | Controllers or handlers that contain business rules, persistence, and formatting; one controller handling unrelated use cases | file sizes under controller or handler directories |
+| Low Coupling | Constructors with many dependencies; depending on concrete infrastructure classes (ORM, SDK clients) from domain code | constructor parameter lists; imports of infrastructure packages in domain modules |
+| High Cohesion | Vague names (`*Manager`, `*Helper`, `*Utils`, `*Processor`); methods that share no fields; method names joined with "And" | class names; largest files |
+| Polymorphism | `switch`/`match`/`if` chains on a type or kind field repeated across several sites; `instanceof` ladders | `instanceof`, `switch`/`match` on `type`/`kind` |
+| Protected Variations | Third-party SDKs or unstable APIs instantiated directly throughout the code | direct SDK constructors |
 
-**Signs:** Method accesses other object's data extensively, data and behavior separated.
+Thresholds such as "more than 7 dependencies" or "controllers over 100 lines" are inspection prompts, not rules. Judge them against the project's norms. For runnable PHP search commands, see the appendix of [assets/report-template.md](assets/report-template.md).
 
-### Creator Violations
-
-```bash
-# Random creation locations
-Grep: "new\s\+[A-Z][a-z]*[A-Z]" --glob "**/*.php"
-```
-
-**Signs:** Objects created in unexpected places, no clear creation ownership.
-
-### Controller Violations
-
-```bash
-# Fat controllers (>100 lines)
-find . -path "*/Controller/*.php" -exec wc -l {} \; | awk '$1 > 100'
-
-# Business logic in controllers
-Grep: "if.*&&.*||" --glob "*Controller.php"
-```
-
-**Signs:** Controller has >100 lines, business logic in controller.
-
-### Low Coupling Violations
-
-```bash
-# High dependency count (>7)
-Grep: "__construct" --glob "**/*.php" -A 15
-
-# Concrete type dependencies
-Grep: "function.*([A-Z][a-z]*[A-Z]" --glob "**/*.php"
-```
-
-**Signs:** Class has >7 dependencies, depends on concrete classes.
-
-### High Cohesion Violations
-
-```bash
-# Unrelated method names
-Grep: "public function" --glob "**/*.php" | grep -E "And[A-Z]|Or[A-Z]"
-
-# Multiple responsibilities in class name
-Grep: "class.*Manager|class.*Handler|class.*Processor" --glob "**/*.php"
-```
-
-**Signs:** Methods don't relate to each other, class does many unrelated things.
-
-## Quick PHP 8.4 Examples
+## Quick Examples (PHP 8.4)
 
 ### Information Expert
 

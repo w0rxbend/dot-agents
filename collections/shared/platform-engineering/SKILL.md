@@ -1,6 +1,6 @@
 ---
 name: platform-engineering
-description: Design and implement Internal Developer Platforms (IDPs) with self-service capabilities, golden paths, and developer experience optimization. Covers platform strategy, IDP architecture (Backstage, Port), infrastructure orchestration (Crossplane), GitOps (Argo CD), and adoption patterns. Use when building developer platforms, improving DevEx, or establishing platform teams.
+description: "Design an internal developer platform - platform-as-product strategy, golden paths, developer portals (Backstage, Port), infrastructure orchestration (Crossplane), GitOps integration, maturity assessment and adoption. Use when planning or evolving an IDP or platform team; use implementing-gitops or operating-kubernetes for the underlying delivery and cluster work."
 ---
 
 # Platform Engineering
@@ -361,29 +361,29 @@ For adoption metrics, tracking dashboards, and success patterns, see `references
 
 **Related Skills:**
 
-- `kubernetes-operations`: Cluster operations, namespace management, RBAC, network policies
-- `infrastructure-as-code`: Terraform, Pulumi for infrastructure provisioning integrated with platform
-- `gitops-workflows`: GitOps principles, Argo CD / Flux implementation patterns
+- `operating-kubernetes`: Cluster operations, namespace management, RBAC, network policies
+- `pulumi-components` / `pulumi-stacks`: Infrastructure provisioning integrated with the platform
+- `implementing-gitops`: Argo CD / Flux implementation patterns
 - `building-ci-pipelines`: CI/CD pipeline design integrated into platform templates
-- `security-hardening`: Security best practices enforced through golden paths
-- `secret-management`: Secrets management integrated into platform (Vault, cloud providers)
-- `observability`: Monitoring, logging, tracing integrated into developer portal
+- `security-hardening` / `kubernetes-hardening`: Security defaults enforced through golden paths
+- `hashicorp-vault`: Secrets management integrated into the platform
+- `implementing-observability`: Monitoring, logging, tracing integrated into the developer portal
 
 **Cross-Skill Workflows:**
 
 **Platform Bootstrapping:**
-1. Use `infrastructure-as-code` to provision platform infrastructure
-2. Use `kubernetes-operations` to configure clusters
+1. Use `pulumi-stacks` (or your IaC tool) to provision platform infrastructure
+2. Use `operating-kubernetes` to configure clusters
 3. Deploy developer portal (Backstage) on platform infrastructure
-4. Integrate `gitops-workflows` (Argo CD) for continuous delivery
-5. Add `observability` integrations (Prometheus, Grafana plugins)
+4. Integrate `implementing-gitops` (Argo CD) for continuous delivery
+5. Add `implementing-observability` integrations (Prometheus, Grafana plugins)
 
 **Golden Path Creation:**
 1. Design template based on common use case
 2. Use `building-ci-pipelines` patterns for CI/CD configuration
 3. Apply `security-hardening` best practices (SAST, container scanning)
-4. Integrate `secret-management` (Vault, encrypted configs)
-5. Add `observability` instrumentation (metrics, logging, tracing)
+4. Integrate `hashicorp-vault` (or the cloud secret manager)
+5. Add `observability-and-instrumentation` defaults (metrics, logging, tracing)
 
 ## Example Use Cases
 

@@ -1,6 +1,6 @@
 ---
 name: code-complete
-description: Apply Steve McConnell-inspired construction rules when implementing routines, variables, classes, control flow, defensive code, or tests.
+description: "Construction discipline from Steve McConnell's Code Complete for implementing code: routine and class design, variable naming and data types, simple control flow, defensive checks at trust boundaries, and pseudocode-first design for complex routines. Use while writing or restructuring routines; for a post-edit quality pass use clean-code-guard."
 license: MIT
 ---
 

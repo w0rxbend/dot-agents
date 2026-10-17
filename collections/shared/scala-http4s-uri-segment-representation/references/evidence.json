@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "repository": "http4s/http4s",
+  "evidence": [
+    {
+      "id": "e3221-representation",
+      "kind": "review",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/3221#pullrequestreview-403779674",
+      "occurred_at": "2020-04-30T18:43:44Z",
+      "excerpt": "We should internally store a newtype of encoded strings, or store decoded strings and encode them on the fly.",
+      "interpretation": "Review accepts two representations with explicit encoding state, rather than unmarked encoded Strings. The final patch chooses Segment with distinct encoded and encoding constructors.",
+      "author": "rossabaker",
+      "role_basis": "unknown",
+      "pull_number": 3221,
+      "provenance": {
+        "corpus_path": "pulls/3221-4f555fc13ddc6edfcfea.json",
+        "collection": "reviews",
+        "record_id": 403779674
+      }
+    },
+    {
+      "id": "e3221-empty-segments",
+      "kind": "review-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/3221#discussion_r418401915",
+      "occurred_at": "2020-05-01T03:34:01Z",
+      "excerpt": "What in the model depends on this?  `//` is not semantically equivalent to `/` in a Uri, even if they're often the same.",
+      "interpretation": "Review challenges implicit normalization. Author subsequently proposes explicit normalize and acknowledges the fix; this is not evidence of complete losslessness for every trailing-slash edge in the historical implementation.",
+      "author": "rossabaker",
+      "role_basis": "unknown",
+      "pull_number": 3221,
+      "provenance": {
+        "corpus_path": "pulls/3221-4f555fc13ddc6edfcfea.json",
+        "collection": "review_comments",
+        "record_id": 418401915
+      }
+    },
+    {
+      "id": "e3221-equality",
+      "kind": "issue-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/3221#issuecomment-630286898",
+      "occurred_at": "2020-05-18T16:12:27Z",
+      "excerpt": "I think an asymmetric equals, which violates both the laws of Scala and Java, would be more problematic in the long run.",
+      "interpretation": "Review rejects preserving String-alias behavior via asymmetric equals and suggests a Scalafix lint/fix instead; migration ergonomics do not justify violating equality symmetry.",
+      "author": "rossabaker",
+      "role_basis": "unknown",
+      "pull_number": 3221,
+      "provenance": {
+        "corpus_path": "pulls/3221-4f555fc13ddc6edfcfea.json",
+        "collection": "issue_comments",
+        "record_id": 630286898
+      }
+    },
+    {
+      "id": "e2020-module-tests",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/7775249e97abcb951c596a1f9a6104bf53bcc498/build.sbt#L144-L151",
+      "occurred_at": "2020-12-31T23:35:56Z",
+      "excerpt": "// Defined outside core/src/test so it can depend on published testing\nlazy val tests = libraryProject(\"tests\")\n  .enablePlugins(NoPublishPlugin)\n  .settings(\n    description := \"Tests for core project\",\n    startYear := Some(2013),\n  )\n  .dependsOn(core, testing % \"test->test\")",
+      "interpretation": "Source observation: core contract tests live in a separate tests project so they can depend on published testing helpers. Test discovery must follow module ownership, not assume core/test contains the regression suite.",
+      "commit_sha": "7775249e97abcb951c596a1f9a6104bf53bcc498",
+      "path": "build.sbt",
+      "provenance": {
+        "corpus_path": "snapshots/2020-e74efa86b06f27a8db6d.json",
+        "source_path": "build.sbt"
+      }
+    },
+    {
+      "id": "e2020-segment-constructors",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/7775249e97abcb951c596a1f9a6104bf53bcc498/core/src/main/scala/org/http4s/Uri.scala#L426-L430",
+      "occurred_at": "2020-12-31T23:35:56Z",
+      "excerpt": "    object Segment extends (String => Segment) {\n      def apply(value: String): Segment = new Segment(pathEncode(value))\n      def encoded(value: String): Segment = new Segment(value)\n\n      val empty: Segment = Segment(\"\")",
+      "interpretation": "Source observation: Segment.apply encodes a raw value; Segment.encoded preserves an already encoded value. Confusing these constructors double-encodes percent sequences or loses segment boundaries.",
+      "commit_sha": "7775249e97abcb951c596a1f9a6104bf53bcc498",
+      "path": "core/src/main/scala/org/http4s/Uri.scala",
+      "provenance": {
+        "corpus_path": "snapshots/2020-e74efa86b06f27a8db6d.json",
+        "source_path": "core/src/main/scala/org/http4s/Uri.scala"
+      }
+    },
+    {
+      "id": "e2020-path-equality",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/7775249e97abcb951c596a1f9a6104bf53bcc498/core/src/main/scala/org/http4s/Uri.scala#L326-L333",
+      "occurred_at": "2020-12-31T23:35:56Z",
+      "excerpt": "    override def equals(obj: Any): Boolean =\n      obj match {\n        case p: Path => doEquals(p)\n        case _ => false\n      }\n\n    private def doEquals(path: Path): Boolean =\n      this.segments == path.segments && path.absolute == this.absolute && path.endsWithSlash == this.endsWithSlash",
+      "interpretation": "Source observation: Path equality only accepts another Path and compares segments and both flags. The obsolete String-alias equality is not emulated.",
+      "commit_sha": "7775249e97abcb951c596a1f9a6104bf53bcc498",
+      "path": "core/src/main/scala/org/http4s/Uri.scala",
+      "provenance": {
+        "corpus_path": "snapshots/2020-e74efa86b06f27a8db6d.json",
+        "source_path": "core/src/main/scala/org/http4s/Uri.scala"
+      }
+    },
+    {
+      "id": "e2020-path-laws",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/7775249e97abcb951c596a1f9a6104bf53bcc498/tests/src/test/scala/org/http4s/PathSuite.scala#L23-L26",
+      "occurred_at": "2020-12-31T23:35:56Z",
+      "excerpt": "class PathSuite extends Http4sSuite {\n  checkAll(\"Order[Path]\", OrderTests[Path].order)\n  checkAll(\"Semigroup[Path]\", SemigroupTests[Path].semigroup)\n}",
+      "interpretation": "Source observation: this historical suite registers Order and Semigroup law checks, not a Monoid. Presence of a suite is not evidence that this run executed it.",
+      "commit_sha": "7775249e97abcb951c596a1f9a6104bf53bcc498",
+      "path": "tests/src/test/scala/org/http4s/PathSuite.scala",
+      "provenance": {
+        "corpus_path": "snapshots/2020-e74efa86b06f27a8db6d.json",
+        "source_path": "tests/src/test/scala/org/http4s/PathSuite.scala"
+      }
+    },
+    {
+      "id": "e2020-encoded-path-tests",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/7775249e97abcb951c596a1f9a6104bf53bcc498/tests/src/test/scala/org/http4s/UriSpec.scala#L1113-L1122",
+      "occurred_at": "2020-12-31T23:35:56Z",
+      "excerpt": "  \"Uri.Path\" should {\n    \"check that we store the encoded path from parsed\" in {\n      val uriReference = uri\"https://example.com/auth0%7Cdsfhsklh46ksx/we-have-a%2Ftest\"\n      uriReference.path.segments must_== List(\"auth0%7Cdsfhsklh46ksx\", \"we-have-a%2Ftest\").map(\n        Uri.Path.Segment.encoded)\n    }\n    \"check that we store the encoded \" in {\n      val uriReference = uri\"https://example.com/test\" / \"auth0|dsfhsklh46ksx\" / \"we-have-a/test\"\n      uriReference.path.segments must_== List(\"test\", \"auth0%7Cdsfhsklh46ksx\", \"we-have-a%2Ftest\")\n        .map(Uri.Path.Segment.encoded)",
+      "interpretation": "Source observation: regression examples distinguish parsing already encoded URI segments from appending decoded segment text containing a slash.",
+      "commit_sha": "7775249e97abcb951c596a1f9a6104bf53bcc498",
+      "path": "tests/src/test/scala/org/http4s/UriSpec.scala",
+      "provenance": {
+        "corpus_path": "snapshots/2020-e74efa86b06f27a8db6d.json",
+        "source_path": "tests/src/test/scala/org/http4s/UriSpec.scala"
+      }
+    },
+    {
+      "id": "e2020-effect-pins",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/7775249e97abcb951c596a1f9a6104bf53bcc498/project/Http4sPlugin.scala#L293-L302",
+      "occurred_at": "2020-12-31T23:35:56Z",
+      "excerpt": "    val cats = \"2.3.1\"\n    val catsEffect = \"2.3.1\"\n    val catsEffectTesting = \"0.5.0\"\n    val circe = \"0.13.0\"\n    val cryptobits = \"1.3\"\n    val disciplineCore = \"1.1.3\"\n    val disciplineSpecs2 = \"1.1.3\"\n    val dropwizardMetrics = \"4.1.16\"\n    val fs2 = \"2.5.0\"\n    val jacksonDatabind = \"2.12.0\"",
+      "interpretation": "Source observation: these dependency pins belong to this exact commit, not to every branch in the calendar year. The separate version matrix records compiler/platform context and known gaps.",
+      "commit_sha": "7775249e97abcb951c596a1f9a6104bf53bcc498",
+      "path": "project/Http4sPlugin.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/7775249e97abcb951c596a1f9a6104bf53bcc498/project/Http4sPlugin.scala",
+        "source_path": "project/Http4sPlugin.scala"
+      }
+    }
+  ],
+  "claims": [
+    {
+      "id": "c-uri-representation-laws",
+      "rule": "When changing URI path representation, distinguish encoded segments from decoded inputs, test delimiters and empty segments, preserve equality symmetry, and use explicit migration support rather than String-compatible asymmetric equals.",
+      "evidence_ids": [
+        "e3221-representation",
+        "e3221-empty-segments",
+        "e3221-equality",
+        "e2020-segment-constructors",
+        "e2020-path-equality",
+        "e2020-path-laws",
+        "e2020-encoded-path-tests",
+        "e2020-module-tests",
+        "e2020-effect-pins"
+      ],
+      "applicability": "Applies to path construction/parsing, routing refactors and alias-to-wrapper migration. The 2020 evidence establishes review intent and selected regressions, not complete correctness of that historical Path implementation.",
+      "counterexample": "An application may deliberately normalize repeated slashes at an explicit routing boundary. Do not prohibit such policy or demand a Monoid merely because concatenation has a Semigroup."
+    }
+  ]
+}

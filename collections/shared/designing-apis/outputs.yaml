@@ -228,12 +228,12 @@ metadata:
     - "GraphQL schema design and N+1 problem mitigation"
 
   integration_points:
-    - "API implementation (api-patterns skill for Express, FastAPI, Go)"
-    - "Authentication implementation (auth-security skill for JWT, OAuth2)"
+    - "API implementation (implementing-api-patterns skill for FastAPI, Hono, Axum, Gin, tRPC, gRPC)"
+    - "Authentication implementation (api-security-best-practices skill for JWT, OAuth2)"
     - "Database design (database-design skill for resource schemas)"
     - "API testing (testing-strategies skill for integration, contract testing)"
     - "API deployment (deploying-applications skill for API gateways)"
-    - "API monitoring (observability skill for performance, errors)"
+    - "API monitoring (observability-and-instrumentation skill for performance, errors)"
     - "CI/CD pipelines (building-ci-pipelines skill for spec validation)"
 
   validation_tools:

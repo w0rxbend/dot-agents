@@ -1,7 +1,6 @@
 ---
 name: skill-writer
-description: Create and improve agent skills following the Agent Skills specification. Use when asked to create, write, or update skills.
-risk: critical
+description: Create, update or evaluate a SKILL.md, including trigger-precise descriptions, focused references, and validation against the repository's checks. Use when asked to write a new skill, fix or extend an existing one, or tune when a skill triggers; to find or install third-party skills use find-skills.
 source: community
 date_added: "2026-09-04"
 ---
@@ -44,8 +43,8 @@ Read `references/synthesis-path.md`.
 2. Apply trust and safety rules when ingesting external content.
 3. Produce source-backed decisions and coverage/gap status.
 4. Load one or more profiles from `references/examples/*.md` when the skill is hybrid.
-5. Enforce baseline source pack for skill-authoring workflows.
-6. Enforce depth gates before moving to authoring.
+5. For skill-authoring skills, use the Agent Skills specification and two or three strong existing skills in the repository as the baseline sources.
+6. Enforce the depth gates in `references/synthesis-path.md` before moving to authoring.
 
 ## Step 3: Run iteration first when improving from outcomes/examples
 
@@ -104,11 +103,3 @@ Return:
 2. `Changes Made`
 3. `Validation Results`
 4. `Open Gaps`
-
-## When to Use
-Use this skill when tackling tasks related to its primary domain or functionality as described above.
-
-## Limitations
-- Use this skill only when the task clearly matches the scope described above.
-- Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
-- Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.

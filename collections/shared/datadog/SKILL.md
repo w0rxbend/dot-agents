@@ -1,6 +1,6 @@
 ---
 name: datadog
-description: Implement Datadog monitoring and APM for infrastructure and applications.
+description: Install and configure the Datadog Agent (host, Docker, Kubernetes), integrations, log collection, APM tracers (Python, Node.js, Go), DogStatsD custom metrics, dashboards and monitors. Use when setting up or fixing Datadog data collection; to query or manage an existing Datadog account through MCP use datadog-automation.
 category: devops
 risk: critical
 source: https://github.com/BagelHole/DevOps-Security-Agent-Skills
@@ -24,11 +24,11 @@ Monitor infrastructure and applications with Datadog's unified observability pla
 ## When to Use This Skill
 
 Use this skill when:
-- Implementing enterprise-grade monitoring
-- Setting up APM and distributed tracing
-- Creating unified dashboards for infrastructure and apps
-- Configuring intelligent alerting
-- Monitoring cloud infrastructure (AWS, Azure, GCP)
+- Installing or configuring the Datadog Agent and its integrations
+- Enabling APM tracing and log-trace correlation in an application
+- Sending custom metrics through DogStatsD or the API
+- Defining Datadog dashboards and monitors as JSON/code
+- Diagnosing missing data (agent not reporting, traces missing, metrics dropped)
 
 ## Prerequisites
 
@@ -237,40 +237,33 @@ metadata:
 
 ### Python
 
-```python
-from ddtrace import patch_all, tracer
-
-# Automatic instrumentation
-patch_all()
-
-# Configure tracer
-tracer.configure(
-    hostname='localhost',
-    port=8126,
-    service='myapp',
-    env='production',
-    version='1.0.0'
-)
-
-# Manual instrumentation
-@tracer.wrap(service='myapp', resource='process_order')
-def process_order(order_id):
-    with tracer.trace('validate_order') as span:
-        span.set_tag('order_id', order_id)
-        # Validation logic
-    
-    with tracer.trace('save_order'):
-        # Save logic
-        pass
-```
+Configure the tracer with environment variables (unified service tagging) and let `ddtrace-run` auto-instrument supported libraries. Passing `hostname`/`port` to `tracer.configure()` is the old API and is removed in current ddtrace majors.
 
 ```bash
-# Install library
 pip install ddtrace
 
-# Run with auto-instrumentation
+export DD_SERVICE=myapp DD_ENV=production DD_VERSION=1.4.2   # version from CI, not hard-coded
+export DD_AGENT_HOST=localhost DD_TRACE_AGENT_PORT=8126       # or DD_TRACE_AGENT_URL=http://host:8126 / a UDS path
+export DD_LOGS_INJECTION=true                                 # trace IDs in log records
 ddtrace-run python app.py
 ```
+
+Manual spans for business-critical units of work:
+
+```python
+# ddtrace 3.x exposes the tracer as ddtrace.trace.tracer; on 2.x use `from ddtrace import tracer`.
+from ddtrace.trace import tracer
+
+@tracer.wrap(resource="process_order")
+def process_order(order_id):
+    with tracer.trace("validate_order") as span:
+        span.set_tag("order.id", order_id)   # bounded, non-PII identifiers only
+        ...
+    with tracer.trace("save_order"):
+        ...
+```
+
+Check the installed `ddtrace` version (`pip show ddtrace`) against Datadog's Python tracer docs before copying configuration.
 
 ### Node.js
 
@@ -300,11 +293,16 @@ DD_TRACE_ENABLED=true node --require dd-trace/init app.js
 ### Go
 
 ```go
+// dd-trace-go v1 import path shown; v2 lives at github.com/DataDog/dd-trace-go/v2/ddtrace/tracer
+// with a similar API. Use the major already in go.mod.
 import (
+    "context"
+
     "gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 )
 
 func main() {
+    ctx := context.Background()
     tracer.Start(
         tracer.WithService("myapp"),
         tracer.WithEnv("production"),
@@ -315,7 +313,7 @@ func main() {
     // Manual span
     span, ctx := tracer.StartSpanFromContext(ctx, "process_request")
     defer span.Finish()
-    span.SetTag("user_id", userID)
+    span.SetTag("order.id", orderID)
 }
 ```
 
@@ -468,20 +466,13 @@ with ApiClient(configuration) as api_client:
 
 ## Related Skills
 
-- prometheus-grafana (`prometheus-grafana`) - Open source alternative
-- alerting-oncall (`alerting-oncall`) - Alert management
-- aws-vpc (`aws-vpc`) - AWS monitoring
+- `datadog-automation`: query metrics/logs and manage monitors, dashboards and downtimes in an existing account through an MCP connection.
+- `implementing-observability`: vendor-neutral OpenTelemetry + Grafana LGTM alternative (Datadog can also ingest OTLP).
+- `observability-and-instrumentation`: what to instrument and how to design symptom-based alerts, independent of vendor.
 
 ## Limitations
 
-- Guidance executes against real environments: confirm target, blast radius, and rollback plan before applying anything.
-- Never deploy to production without explicit approval. Docs-only import: upstream scripts and templates not bundled.
-
-### Example
-
-```bash
-git status && git diff --stat
-kubectl diff -f manifest.yaml
-```
+- Agent installs, integration configs with database credentials, and monitor changes affect shared environments: confirm the target org/site (`DD_SITE`), get approval, and keep API/app keys in a secret store, never in committed YAML.
+- Custom metrics and indexed logs are billed by volume and cardinality; estimate tag cardinality before shipping new metrics.
 
 > Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT); frontmatter, When to Use/Limitations, and safety boundaries added for upstream compliance. Docs-only import: helper scripts and templates not bundled.

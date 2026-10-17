@@ -1,6 +1,6 @@
 skill: "performance-engineering"
 version: "1.0"
-domain: "data"
+domain: "backend"
 
 base_outputs:
   # Load testing scripts

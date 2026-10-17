@@ -1,7 +1,7 @@
 ---
 name: lua-coroutines
 user-invocable: false
-description: Use when lua coroutines for cooperative multitasking including coroutine creation, yielding and resuming, passing values, generators, iterators, asynchronous patterns, state machines, and producer-consumer implementations.
+description: Lua coroutines for generators, iterators, producer-consumer pipelines, schedulers, async wrappers and state machines, with version differences across 5.1, LuaJIT and 5.4. Use when writing or debugging code that yields and resumes; use lua-c-integration for the C API and lua-tables-patterns for data structures.
 allowed-tools: []
 ---
 
@@ -22,6 +22,32 @@ This enables elegant implementations of generators, iterators, and state machine
 This skill covers coroutine basics, yielding and resuming with values, generators
 and iterators, producer-consumer patterns, asynchronous I/O simulation, state
 machines, error handling, and practical coroutine patterns.
+
+## Version differences
+
+Identify the runtime first (`print(_VERSION, jit and jit.version)`); Neovim,
+OpenResty and LÖVE run LuaJIT.
+
+| Behavior | Lua 5.1 | LuaJIT 2.x | Lua 5.2 / 5.3 / 5.4 |
+|----------|---------|------------|---------------------|
+| `coroutine.running()` in main thread | `nil` | `nil` (5.1 API) | main thread + `true` as second result |
+| `coroutine.isyieldable()` | absent | absent unless built with 5.2 compat | 5.3+ |
+| Yield across `pcall`/`xpcall` | error ("attempt to yield across metamethod/C-call boundary") | allowed | allowed |
+| Yield from metamethods and `for` iterators | not allowed | allowed | allowed |
+| Yield from callbacks invoked by C library functions (e.g. `table.sort` comparator, `string.gsub` replacement function) | not allowed | not allowed | not allowed (those functions have no continuation) |
+| Yield through C functions | not possible | not possible | possible when the C function uses `lua_callk` / `lua_pcallk` / `lua_yieldk` continuations |
+| `coroutine.close(co)` | absent | absent | 5.4: closes a suspended/dead coroutine and runs pending `<close>` variables |
+| `table.unpack` | use global `unpack` | use global `unpack` | `table.unpack` |
+
+Portable "am I in a coroutine?" check:
+
+```lua
+local function in_coroutine()
+  local co, ismain = coroutine.running()
+  if ismain == nil then return co ~= nil end -- 5.1 / LuaJIT
+  return not ismain                            -- 5.2+
+end
+```
 
 ## Coroutine Fundamentals
 
@@ -90,9 +116,11 @@ print(f())  -- 10
 print(f())  -- 20
 print(f())  -- 30
 
--- Running coroutine
+-- Running coroutine (in_coroutine() from "Version differences"; a bare
+-- `if coroutine.running()` is always true on 5.2+ because the main thread
+-- is returned too)
 local function self_aware()
-  if coroutine.running() then
+  if in_coroutine() then
     print("Running in coroutine")
   else
     print("Running in main")
@@ -879,7 +907,9 @@ tracking structures.
 2. **Check coroutine.resume return values** to handle errors and detect
    completion
 
-3. **Avoid yielding across C boundaries** as it's not supported in standard Lua
+3. **Do not yield through C functions** unless they use continuations
+   (`lua_callk`/`lua_pcallk`/`lua_yieldk`, Lua 5.2+); in 5.1 even `pcall`
+   blocks a yield
 
 4. **Pass data through yield and resume** rather than using global or upvalue
    variables
@@ -892,7 +922,8 @@ tracking structures.
 
 8. **Avoid nested coroutine.resume** calls as they complicate control flow
 
-9. **Use coroutine.running** to check execution context and avoid invalid yields
+9. **Use `coroutine.isyieldable()` (5.3+) or the `in_coroutine()` shim** to
+   check execution context before yielding
 
 10. **Document yield points** clearly to help readers understand suspension
     points
@@ -903,9 +934,13 @@ tracking structures.
 
 2. **Not checking resume success** misses errors thrown inside coroutines
 
-3. **Creating new coroutines in loops** without cleanup causes memory leaks
+3. **Keeping references to abandoned suspended coroutines** keeps their whole
+   stack alive; drop the reference (and on 5.4 call `coroutine.close` so
+   `<close>` resources run)
 
-4. **Yielding across C call boundaries** fails in standard Lua (works in LuaJIT)
+4. **Yielding across a C call boundary** fails in Lua 5.1 everywhere (including
+   inside `pcall`) and in 5.2+ whenever the C function was not written with
+   `lua_callk`/`lua_pcallk`/`lua_yieldk` continuations
 
 5. **Assuming coroutines are threads** leads to race condition concerns that
    don't exist
@@ -942,10 +977,19 @@ pipelines.
 Apply coroutine-based schedulers for managing multiple concurrent operations
 cooperatively.
 
+## Done when
+
+- The target runtime is named and the code avoids features it lacks
+  (`coroutine.close`, `isyieldable`, `table.unpack` on 5.1/LuaJIT).
+- Every `coroutine.resume` result is checked, and errors are re-raised or
+  logged with `debug.traceback(co, err)`.
+- No yield passes through a C function without continuations (sort
+  comparators, `gsub` callbacks, 5.1 `pcall`).
+
 ## Resources
 
 - [Programming in Lua - Coroutines](<https://www.lua.org/pil/9.html>)
 - [Lua Reference Manual - Coroutines](<https://www.lua.org/manual/5.4/manual.html#2.6>)
 - [Lua Users Wiki - Coroutines](<http://lua-users.org/wiki/CoroutinesTutorial>)
 - [Revisiting Coroutines (PDF)](<https://www.inf.puc-rio.br/~roberto/docs/MCC15-04.pdf>)
-- [LuaJIT Coroutines](<http://luajit.org/ext_ffi_semantics.html#callback>)
+- [LuaJIT extensions (coroutine and pcall behavior)](<https://luajit.org/extensions.html>)

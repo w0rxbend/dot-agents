@@ -1,6 +1,6 @@
 ---
 name: security-hardening
-description: Reduces attack surface across OS, container, cloud, network, and database layers using CIS Benchmarks and zero-trust principles. Use when hardening production infrastructure, meeting compliance requirements, or implementing defense-in-depth security.
+description: "Harden hosts, containers, cloud accounts, networks and databases against CIS Benchmarks and least-privilege defaults, with scanning to verify. Use for infrastructure hardening or a pre-production infrastructure review; use security-and-hardening for application code and kubernetes-hardening for cluster-specific controls."
 ---
 
 # Security Hardening
@@ -243,7 +243,7 @@ jobs:
         run: docker build -t myapp:test .
 
       - name: Scan with Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@<pinned-sha> # vX.Y.Z - never a branch ref
         with:
           image-ref: 'myapp:test'
           severity: 'CRITICAL,HIGH'
@@ -255,7 +255,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Scan IaC with Checkov
-        uses: bridgecrewio/checkov-action@master
+        uses: bridgecrewio/checkov-action@<pinned-sha> # vX.Y.Z - never a branch ref
         with:
           directory: terraform/
           framework: terraform
@@ -270,15 +270,11 @@ Generate compliance reports from scan results:
 # Generate CIS compliance report
 kube-bench run --json > cis-report.json
 
-# Generate vulnerability report
-trivy image --format json --output vuln-report.json myapp:latest
-
-# Aggregate reports for compliance dashboard
-python scripts/generate-compliance-report.py \
-  --cis cis-report.json \
-  --vulns vuln-report.json \
-  --output compliance-dashboard.html
+# Generate vulnerability report for the exact image you ship
+trivy image --format json --output vuln-report.json myapp@sha256:<digest>
 ```
+
+Store these JSON reports as build artifacts or evidence; aggregate them in your compliance tooling (see the `implementing-compliance` skill).
 
 ## Automation Tools
 
@@ -413,24 +409,21 @@ For layer-specific hardening guidance:
 
 For automation scripts:
 - **Python automation:** See `scripts/harden-linux.py`
-- **Container host setup:** See `scripts/harden-container-host.sh` (illustrative helper; not shipped)
-- **Compliance reporting:** See `scripts/generate-compliance-report.py` (illustrative helper; not shipped)
 - **Infrastructure scanning:** See `scripts/scan-infrastructure.sh`
 
 For working examples:
 - **Linux configurations:** See `examples/linux/`
 - **Kubernetes manifests:** See `examples/kubernetes/`
-- **Terraform modules:** See `examples/terraform/`
 
 ## Integration with Related Skills
 
-- **auth-security:** Authentication and authorization patterns complement hardening
-- **secret-management:** Secure secrets handling is essential for hardening
-- **kubernetes-operations:** Pod security and RBAC hardening
-- **infrastructure-as-code:** Security scanning in IaC pipelines
-- **building-ci-pipelines:** Automated security scanning integration
-- **observability:** Security monitoring and alerting
-- **compliance-frameworks:** Mapping hardening to compliance requirements
+- **security-and-hardening:** Application-code controls (input, authn/authz, secrets in code)
+- **hashicorp-vault:** Secrets storage and rotation
+- **kubernetes-hardening:** Pod security, RBAC, admission and network policy in Kubernetes
+- **dockerfile-optimise:** Hardened, minimal container images
+- **building-ci-pipelines:** Automated security scanning stages
+- **audit-logging:** Security monitoring and SIEM integration
+- **implementing-compliance:** Mapping hardening to compliance requirements
 
 ## Anti-Patterns to Avoid
 
@@ -464,6 +457,3 @@ For working examples:
 
 For step-by-step implementation, start with `references/linux-hardening.md` or `references/container-hardening.md` based on infrastructure type.
 
-## Helper availability
-
-The helper names marked **not shipped** describe possible project automation. Do not run those commands as installed tooling. Use the bundled helpers that exist, or implement and verify the missing behavior in the task workspace when it is actually needed.

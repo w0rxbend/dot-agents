@@ -1,6 +1,6 @@
 ---
 name: backend-patterns
-description: Backend architecture patterns, API design, database optimization, and server-side best practices for Node.js, Express, and Next.js API routes.
+description: "Copy-ready Node.js/Express/Next.js API-route snippets: repository and service layers, middleware, N+1 prevention, transactions, Redis cache-aside, centralized errors, retry with backoff, JWT/RBAC checks, rate limiting, background jobs and structured logging. Use when writing TypeScript server code in a repo without its own conventions; use backend-dev-guidelines when the repo follows BaseController/Prisma/Zod layering."
 author: affaan-m
 version: "1.0"
 ---

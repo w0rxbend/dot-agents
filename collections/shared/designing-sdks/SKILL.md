@@ -1,6 +1,6 @@
 ---
 name: designing-sdks
-description: Design production-ready SDKs with retry logic, error handling, pagination, and multi-language support. Use when building client libraries for APIs or creating developer-facing SDK interfaces.
+description: "Design client libraries (SDKs) for an API: client/resource layout, auth handling, retries with backoff and jitter, typed error hierarchies, auto-pagination iterators, streaming, idempotency keys and versioning across TypeScript, Python and Go. Use when building or reviewing an API client library; use designing-apis for the server-side contract."
 ---
 
 # SDK Design
@@ -476,7 +476,7 @@ Avoid these mistakes:
 
 ## Integration with Other Skills
 
-- **api-design-principles**: API design complements SDK design (error codes → error classes)
+- **designing-apis**: The API contract the SDK wraps (error codes → error classes, pagination, idempotency)
 - **building-clis**: CLIs wrap SDKs for command-line access
 - **testing-strategies**: Test SDKs with mocked HTTP, retry scenarios
 

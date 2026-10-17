@@ -1,6 +1,6 @@
 ---
 name: implementing-gitops
-description: Implement GitOps continuous delivery for Kubernetes using ArgoCD or Flux. Use for automated deployments with Git as single source of truth, pull-based delivery, drift detection, multi-cluster management, and progressive rollouts.
+description: "Set up GitOps continuous delivery for Kubernetes with Argo CD or Flux - bootstrap, Git-as-source-of-truth, pull-based sync, environment promotion, drift detection, multi-cluster and progressive rollouts. Use when wiring declarative delivery to clusters; use operating-kubernetes for workload operations and building-ci-pipelines for the CI that builds images."
 ---
 
 # GitOps Workflows

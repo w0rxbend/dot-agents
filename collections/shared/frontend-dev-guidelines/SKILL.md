@@ -1,6 +1,6 @@
 ---
 name: frontend-dev-guidelines
-description: Frontend development guidelines for React/TypeScript applications. Modern patterns including Suspense, lazy loading, useSuspenseQuery, file organization with features directory, MUI v7 styling, TanStack Router, performance optimization, and TypeScript best practices. Use when creating components, pages, features, fetching data, styling, routing, or working with frontend code.
+description: House conventions for React + TypeScript apps built on MUI v7, TanStack Router and TanStack Query - Suspense with useSuspenseQuery, lazy routes, a features/ directory layout, sx styling, loading/error states and performance. Use only in repositories that already use (or explicitly adopt) that stack; for other frontends use frontend-ui-engineering.
 ---
 
 # Frontend Development Guidelines
@@ -10,6 +10,8 @@ description: Frontend development guidelines for React/TypeScript applications. 
 Comprehensive guide for modern React development, emphasizing Suspense-based data fetching, lazy loading, proper file organization, and performance optimization.
 
 ## When to Use This Skill
+
+Use in a repository whose `package.json` includes `@mui/material` (v7), `@tanstack/react-router` and `@tanstack/react-query`, or when the user chooses this stack. Otherwise follow the repository's existing conventions and use frontend-ui-engineering. Within that stack:
 
 - Creating new components or pages
 - Building new features
@@ -391,7 +393,7 @@ For complete examples, see [resources/complete-examples.md](resources/complete-e
 
 ## Related Skills
 
-- **error-tracking**: Error tracking with Sentry (applies to frontend too)
+- **error-debugging-error-trace**: Error tracking setup (Sentry-style capture, release tagging, alerting), frontend included
 - **backend-dev-guidelines**: Backend API patterns that frontend consumes
 
 ---

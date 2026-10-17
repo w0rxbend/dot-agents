@@ -1,7 +1,7 @@
 ---
 name: pulumi-stacks
 user-invocable: false
-description: Use when managing multiple environments with Pulumi stacks for development, staging, and production deployments.
+description: "Manage Pulumi stacks across environments - per-stack config and secrets, stack references between projects, transformations and promotion from dev to staging to production. Use when organizing multi-environment Pulumi deployments; use pulumi-components to build the resources they instantiate."
 allowed-tools: [Bash, Read]
 ---
 

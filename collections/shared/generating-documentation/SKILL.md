@@ -1,6 +1,6 @@
 ---
 name: generating-documentation
-description: Generate comprehensive technical documentation including API docs (OpenAPI/Swagger), code documentation (TypeDoc/Sphinx), documentation sites (Docusaurus/MkDocs), Architecture Decision Records (ADRs), and diagrams (Mermaid/PlantUML). Use when documenting APIs, libraries, systems architecture, or building developer-facing documentation sites.
+description: Set up and automate documentation tooling - OpenAPI renderers (Swagger UI, Redoc, Scalar), API reference generators (TypeDoc, Sphinx, godoc, rustdoc), docs sites (Docusaurus, MkDocs), diagrams-as-code (Mermaid, PlantUML, D2) and docs CI. Use when building, choosing or automating a docs site or reference pipeline; for writing ADRs, READMEs and the content of a change use documentation-and-adrs.
 ---
 
 # Documentation Generation
@@ -426,11 +426,10 @@ For detailed guides:
 
 ## Examples
 
-- **`examples/openapi/`** - Complete OpenAPI specifications
-- **`examples/typescript/`** - TypeDoc configuration and TSDoc examples
-- **`examples/python/`** - Sphinx configuration and docstring examples
-- **`examples/adr/`** - Real-world Architecture Decision Records
-- **`examples/diagrams/`** - Mermaid, PlantUML, D2 examples
+- **`examples/typescript/tsdoc-examples.ts`** - TSDoc comment examples
+- **`examples/adr/0001-database-selection.md`** - A complete ADR
+
+OpenAPI, Python (Sphinx) and diagram examples are inline in `references/api-documentation.md`, `references/code-documentation.md` and `references/diagram-generation.md`.
 
 ## Tool Recommendations
 
@@ -458,10 +457,10 @@ Based on research (December 2025):
 
 ## Integration with Other Skills
 
-- **`api-patterns`** - API implementation and documentation
+- **`documentation-and-adrs`** - ADRs, READMEs, changelog entries and keeping examples true to the code
+- **`designing-apis`** - API design that the reference documents
 - **`building-ci-pipelines`** - Automate documentation generation
-- **`testing-strategies`** - Document test patterns
-- **`sdk-design`** - Generate SDK documentation
+- **`designing-sdks`** - SDK documentation and generated clients
 
 ## Best Practices
 

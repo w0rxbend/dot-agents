@@ -322,7 +322,7 @@ metadata:
       - "Automated releases"
       - "Package publishing"
 
-    api-patterns:
+    implementing-api-patterns:
       - "API client CLIs"
       - "Authentication handling"
       - "Response formatting"

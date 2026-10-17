@@ -1,6 +1,6 @@
 ---
 name: incremental-implementation
-description: Delivers changes incrementally in thin, verifiable slices. Use when implementing any feature or change that touches more than one file, or when picking up the next task from a plan. Use when rolling a change out behind a feature flag, when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+description: Deliver a feature or change in thin, verifiable slices (implement, test, verify, then expand), optionally behind a feature flag. Use when a change is too large to write and verify in one step - roughly more than ~100 lines or several components - or when executing the next task from a plan; small, well-scoped edits do not need it.
 ---
 
 # Incremental Implementation
@@ -11,12 +11,12 @@ Build in thin vertical slices — implement one piece, test it, verify it, then 
 
 ## When to Use
 
-- Implementing any multi-file change
+- Implementing a change that spans several components or would exceed ~100 lines before the first test
 - Building a new feature from a task breakdown
 - Refactoring existing code
 - Any time you're tempted to write more than ~100 lines before testing
 
-**When NOT to use:** Single-file, single-function changes where the scope is already minimal.
+**When NOT to use:** Small, well-scoped edits that can be written and verified in one step, even if they touch a few files (a rename, a config tweak, a one-function fix plus its test).
 
 ## The Increment Cycle
 

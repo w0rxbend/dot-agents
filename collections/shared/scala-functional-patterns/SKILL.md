@@ -1,7 +1,7 @@
 ---
 name: scala-functional-patterns
 user-invocable: false
-description: Use when functional programming patterns in Scala including higher-order functions, immutability, pattern matching, algebraic data types, monads, for-comprehensions, and functional composition for building robust, type-safe applications.
+description: Apply functional patterns in plain Scala 2/3 - immutability, higher-order functions, pattern matching, ADTs (sealed traits or Scala 3 enums), Option/Either/Try, for-comprehensions and composition. Use for pure domain logic; follow the project's ZIO, Cats Effect or Ox conventions for effects.
 allowed-tools: []
 ---
 
@@ -24,6 +24,7 @@ Read only the relevant section of [references/language-patterns.md](references/l
 - Best Practices
 - Common Pitfalls
 - When to Use This Skill
+- Scala Version and Effect-System Notes
 - Resources
 
 Verify the affected behavior with the project's compiler, tests, or runtime checks. A syntax illustration does not override the version or abstractions already chosen by the repository.

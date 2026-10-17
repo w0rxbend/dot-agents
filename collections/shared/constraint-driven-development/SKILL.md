@@ -24,7 +24,7 @@ Apply this skill when:
 - An agent is producing volume nobody is reading line by line
 - CI has checks but nobody can say which ones block a merge and which ones are decoration
 - Coverage, performance, or accessibility numbers get argued about per-PR instead of decided once
-- You're about to run `/build auto` or any autonomous loop, and the only thing standing between it and main is a test suite the agent also wrote
+- You're about to start an autonomous agent loop, and the only thing standing between it and main is a test suite the agent also wrote
 
 **When NOT to use:**
 
@@ -35,7 +35,7 @@ Apply this skill when:
 
 ## Loading Constraints
 
-The interview needs a live user. **Don't run it in non-interactive contexts** (CI, `/loop`, autonomous runs). If constraints are missing and you're in one of those, apply the Floor below, note that you did, and flag the rest for a human.
+The interview needs a live user. **Don't run it in non-interactive contexts** (CI, scheduled or looping agent runs, other autonomous runs). If constraints are missing and you're in one of those, apply the Floor below, note that you did, and flag the rest for a human.
 
 ## The Process
 
@@ -187,12 +187,12 @@ The commands now live in two places — the `Checked by` column in `CONSTRAINTS.
 
 The single biggest mistake is running everything everywhere. A check that stalls the agent gets switched off, and a gate people switched off is worse than no gate, because the bar still looks like it exists.
 
-| Phase | Command | What runs | Budget |
-|-------|---------|-----------|--------|
-| BUILD | `/build` | Types, lint, secrets, the floor | under 5s, changed file only |
-| VERIFY | `/test` | Related tests, coverage on changed lines | under 90s |
-| REVIEW | `/review` | Everything, plus the guards below | minutes |
-| SHIP | `/ship` | Direction checks, no regressions | CI |
+| Phase | Where it runs | What runs | Budget |
+|-------|---------------|-----------|--------|
+| BUILD | After each edit (editor/agent hook or the build script) | Types, lint, secrets, the floor | under 5s, changed file only |
+| VERIFY | The project's test command | Related tests, coverage on changed lines | under 90s |
+| REVIEW | Before opening or merging a PR | Everything, plus the guards below | minutes |
+| SHIP | CI on the merge target | Direction checks, no regressions | CI |
 
 Two rules that keep this tolerable:
 

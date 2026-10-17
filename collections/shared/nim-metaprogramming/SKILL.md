@@ -1,7 +1,7 @@
 ---
 name: nim-metaprogramming
 user-invocable: false
-description: Use when nim's metaprogramming including macros, templates, compile-time evaluation, AST manipulation, code generation, DSL creation, and leveraging compile-time computation for performance and abstraction in systems programming.
+description: Nim templates, macros (quote, AST construction, typed vs untyped parameters), compile-time evaluation (const, static, when, staticRead) and DSL building. Use when writing or debugging Nim code generation; prefer a plain proc or generic when no AST rewriting is needed.
 allowed-tools: []
 ---
 
@@ -127,7 +127,7 @@ template `~=`(a, b: float): bool =
 
 echo 1.0 ~= 1.00001  # true
 
-# Template with immediate parameter
+# Template that compiles to nothing unless -d:debug
 template log(msg: string): untyped =
   when defined(debug):
     echo "[LOG] ", msg
@@ -197,49 +197,19 @@ property(count, int)
 setCount(42)
 echo getCount()
 
-# Case statement macro
-macro switch(value: typed, branches: varargs[untyped]): untyped =
-  result = nnkCaseStmt.newTree(value)
+# Compile-time assertions need no macro: use `static: doAssert cond, msg`,
+# or `{.error: "msg".}` inside a `when` branch.
 
-  for branch in branches:
-    expectKind(branch, nnkCall)
-    let pattern = branch[0]
-    let body = branch[1]
-    result.add nnkOfBranch.newTree(pattern, body)
+# Unrolling loop macro (std/macros has no generic replace; write a helper)
+proc subst(n: NimNode; name: string; by: NimNode): NimNode =
+  if n.kind == nnkIdent and n.eqIdent(name): return by.copyNimTree
+  result = n.copyNimNode
+  for child in n: result.add subst(child, name, by)
 
-switch(5):
-  1: echo "one"
-  2: echo "two"
-  5: echo "five"
-
-# Builder pattern macro
-macro build(typ: typedesc, fields: varargs[untyped]): untyped =
-  result = nnkObjConstr.newTree(typ)
-
-  for field in fields:
-    expectKind(field, nnkExprEqExpr)
-    result.add field
-
-type Person = object
-  name: string
-  age: int
-
-let p = build(Person, name = "Alice", age = 30)
-
-# Compile-time assertion macro
-macro staticAssert(condition: bool, message: string): untyped =
-  if not condition.boolVal:
-    error(message.strVal)
-  result = newEmptyNode()
-
-staticAssert sizeof(int) >= 4, "int must be at least 4 bytes"
-
-# Unrolling loop macro
 macro unroll(count: static[int], body: untyped): untyped =
   result = newStmtList()
   for i in 0..<count:
-    let iNode = newLit(i)
-    result.add body.replace(ident("it"), iNode)
+    result.add subst(body, "it", newLit(i))
 
 unroll 5:
   echo "Iteration: ", it
@@ -284,8 +254,8 @@ static:
 
 # Compile-time type information
 proc sizeInfo[T](x: T): string =
-  static:
-    "Size of " & $T & " is " & $sizeof(T) & " bytes"
+  const info = "Size of " & $T & " is " & $sizeof(T) & " bytes"
+  info
 
 echo sizeInfo(5)
 echo sizeInfo(5.0)
@@ -296,7 +266,7 @@ when sizeof(int) == 8:
 else:
   proc printSize() = echo "32-bit platform"
 
-# Compile-time string operations
+# Compile-time string operations (import std/strutils)
 const
   version = "1.0.0"
   parts = version.split('.')
@@ -305,16 +275,19 @@ const
 when major >= 1:
   echo "Version 1.0 or later"
 
-# Compile-time file reading
+# Compile-time file reading (path is relative to this source file; a missing
+# file is a compile error)
 const configData = staticRead("config.txt")
 
 proc getConfig(): string =
   configData
 
-# Compile-time HTTP requests (with stdlib)
-const apiResponse = staticExec("curl -s https://api.example.com/data")
+# Running a command at compile time. Keep builds hermetic: prefer reading a
+# checked-in file over network access.
+const gitRev = staticExec("git rev-parse --short HEAD")
 
-# Compile-time code generation
+# Generating source text at compile time (import std/strformat); turn the
+# string into code inside a macro with parseStmt(accessors)
 proc generateAccessors(fields: seq[string]): string =
   result = ""
   for field in fields:
@@ -337,21 +310,10 @@ processArray([1, 2, 3, 4, 5])
 # Compile-time assertions
 static:
   doAssert sizeof(int) >= 4, "int too small"
-  doAssert sizeof(ptr) == sizeof(int), "pointer size mismatch"
+  doAssert sizeof(pointer) == sizeof(int), "pointer size mismatch"
 
-# Compile-time regex compilation
-import re
-
-const emailPattern = re"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
-
-proc validateEmail(email: string): bool =
-  email.match(emailPattern)
-
-# Compile-time validation
-proc validateConfig() =
-  static:
-    when not fileExists("config.txt"):
-      {.fatal: "config.txt not found".}
+# std/re and std/nre wrap PCRE through C, so they cannot run at compile time;
+# build those patterns at runtime (e.g. in a `let` at module level).
 
 # Compile-time optimization
 proc optimizedPower(base: float, exp: static[int]): float =
@@ -599,8 +561,9 @@ implementations.
 1. **Use templates for simple substitutions** to avoid macro complexity when AST
    manipulation isn't needed
 
-2. **Prefer typed macro parameters** over untyped when possible for better type
-   checking
+2. **Choose parameter kinds deliberately**: `untyped` for DSL syntax that is not
+   semantically valid yet (it is not type-checked), `typed` when the macro needs
+   resolved symbols or types (`getType`, `getImpl`), `static[T]` for values
 
 3. **Test macros thoroughly** as compile-time errors are harder to debug than
    runtime errors
@@ -645,8 +608,8 @@ implementations.
 7. **Assuming AST structure** without checking node kinds breaks on different
    inputs
 
-8. **Not using result variable** in templates returns last statement
-   unexpectedly
+8. **Evaluating a template argument twice**: a template pastes the expression at
+   every use, so bind it once (`let v = arg`) when it has side effects
 
 9. **Creating DSLs that are too magical** reduces code readability and
    maintainability
@@ -674,4 +637,13 @@ Use metaprogramming for performance-critical abstractions with zero runtime cost
 - [Nim Macros Module](<https://nim-lang.org/docs/macros.html>)
 - [Nim Manual - Macros](<https://nim-lang.org/docs/manual.html#macros>)
 - [Nim by Example - Metaprogramming](<https://nim-by-example.github.io/macros/>)
-- [Nim AST Pattern Matching](<https://nim-lang.org/docs/ast_pattern_matching.html>)
+
+## Done when
+
+- A template or generic was tried first and the macro is justified by AST
+  rewriting or compile-time introspection.
+- The expansion was inspected (`expandMacros:` block, `dumpTree`/`dumpAstGen`,
+  or `--expandMacro:name`) and malformed input produces an `error(msg, node)`
+  pointing at the user's code.
+- Code was compiled with the project's Nim version (`nim -v`); nothing here was
+  compiled while editing this skill, so check examples before copying.

@@ -1,6 +1,6 @@
 ---
 name: wiki-builder
-description: "Create and maintain reusable research wikis with source provenance, configurable structure, and local markdown outputs."
+description: "Create and maintain a local Markdown research wiki (sources with provenance, compiled concept/source pages, index, maintenance log) driven by a per-wiki config. Use when the user wants to start a wiki or knowledge base, ingest sources into one, or query and update it; use wiki-page-writer for a single code deep-dive page."
 category: "knowledge-management"
 risk: "safe"
 source: "official"
@@ -149,9 +149,4 @@ Use `references/wiki-flavors.md` when choosing or adapting wiki types. The refer
 - Mark speculation and unknowns clearly.
 - Avoid rewriting the same source summary in many places.
 - Keep generated pages navigable for future agents and humans.
-
-## Limitations
-
-- Requires the upstream tool, account, API key, or local setup when the workflow names one.
-- Does not authorize destructive, production, paid, or external-message actions without explicit user approval.
-- Validate generated artifacts or recommendations against the user's real sources before treating them as final.
+- Validate compiled pages against the real sources before treating them as final.

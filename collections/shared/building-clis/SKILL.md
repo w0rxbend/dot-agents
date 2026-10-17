@@ -422,7 +422,7 @@ See [references/distribution.md](references/distribution.md) for comprehensive p
 - Automated releases via GitHub Actions
 - See [references/distribution.md](references/distribution.md)
 
-**api-patterns:**
+**implementing-api-patterns:**
 - Building API client CLIs
 - Authentication and token management
 - Formatting API responses

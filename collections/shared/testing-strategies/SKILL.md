@@ -1,6 +1,6 @@
 ---
 name: testing-strategies
-description: Strategic guidance for choosing and implementing testing approaches across the test pyramid. Use when building comprehensive test suites that balance unit, integration, E2E, and contract testing for optimal speed and confidence. Covers multi-language patterns (TypeScript, Python, Go, Rust) and modern best practices including property-based testing, test data management, and CI/CD integration.
+description: Choose the mix of unit, integration, E2E and contract tests for a project, plus mocking, test-data, coverage/mutation and CI test-stage strategy (TypeScript, Python, Go, Rust). Use when designing, auditing or rebalancing a test suite; for writing one test first use test-driven-development and for browser runtime checks use browser-testing-with-devtools.
 ---
 
 # Testing Strategies
@@ -403,7 +403,9 @@ For detailed coverage strategies, see `references/coverage-strategies.md`.
 
 **For form testing**: See `building-forms` skill for form-specific validation and submission testing patterns.
 
-**For API testing**: See `api-patterns` skill for REST/GraphQL endpoint testing and contract validation.
+**For API testing**: See the `designing-apis` skill for the REST/GraphQL contract that endpoint and contract tests verify.
+
+**For test-first work on one behavior**: See `test-driven-development`. For stakeholder-readable acceptance scenarios, see `bdd-principles`.
 
 **For CI/CD pipelines**: See `building-ci-pipelines` skill for test automation, parallel execution, and coverage reporting.
 
@@ -425,11 +427,10 @@ For deeper exploration of specific topics:
 
 ## Working Examples
 
-Complete, runnable code examples are available in the `examples/` directory:
+Code examples in the `examples/` directory:
 
-- **`examples/typescript/`** - Vitest unit/integration, Playwright E2E, MSW mocking, fast-check property tests
-- **`examples/python/`** - pytest unit/integration, fixtures, Playwright E2E, hypothesis property tests
-- **`examples/go/`** - stdlib testing, testify assertions, httptest integration
-- **`examples/rust/`** - cargo test unit tests, proptest property tests, integration patterns
+- **`examples/typescript/vitest-unit.test.ts`** and **`examples/typescript/vitest-integration.test.ts`** - Vitest unit and integration tests
+- **`examples/python/pytest_unit_test.py`** - pytest unit tests and fixtures
+- **`examples/python/hypothesis_property_test.py`** - Hypothesis property-based tests
 
-All examples include dependencies, usage instructions, and error handling.
+For Go and Rust, see the examples in `references/test-data-strategies.md` and the "Go and Rust" quick-start section above.

@@ -1,7 +1,6 @@
 ---
 name: aws-iam
-description: Manage IAM users, roles, and policies. Implement least-privilege access
-  and security best practices. Use when configuring AWS identity and access management.
+description: "Write and audit AWS IAM - least-privilege policies, roles and trust policies, OIDC federation for CI, permission boundaries, cross-account access, MFA conditions and Access Analyzer. Use when creating or debugging IAM access; use deploying-on-aws for overall account architecture."
 category: devops
 risk: critical
 source: https://github.com/BagelHole/DevOps-Security-Agent-Skills
@@ -10,8 +9,7 @@ source_type: community
 date_added: '2026-09-20'
 license: MIT
 license_source: https://github.com/BagelHole/DevOps-Security-Agent-Skills/blob/main/LICENSE
-compatibility: Requires the relevant OS/platform tooling and privileged access where
-  noted. Docs-only; helper scripts and templates not bundled.
+compatibility: Requires AWS CLI v2 with credentials for the target account; mutating commands need the corresponding IAM permissions.
 metadata:
   author: devops-skills
   version: '1.0'
@@ -450,14 +448,14 @@ resource "aws_iam_policy" "boundary" {
 
 ## Related Skills
 
-- terraform-aws (`terraform-aws`) - IaC deployment of IAM resources
-- aws-ec2 (`aws-ec2`) - Instance profiles and roles
-- aws-lambda (`aws-lambda`) - Lambda execution roles
-- aws-ecs-fargate (`aws-ecs-fargate`) - ECS task and execution roles
-- access-review (`access-review`) - Access auditing and governance
+- `aws-ec2` - instance profiles and roles
+- `aws-s3` - bucket policies combined with IAM policies
+- `deploying-on-aws` - service selection, including Lambda and ECS execution roles
+- `github-actions-advanced` - OIDC federation from GitHub Actions
+- `pulumi-components` - IAM resources as code
 
-## Limitations
+## Safety
 
-- Infrastructure commands can disrupt services: confirm target host/scope and have backups/snapshots before mutating state.
-- Docs-only import: upstream scripts and templates not bundled.
+- Run `aws sts get-caller-identity` and confirm the account, region and profile before any change.
+- Use `describe`/`list`/`get` calls and `--dry-run` (EC2) first; snapshot or back up before deleting or modifying stateful resources.
 

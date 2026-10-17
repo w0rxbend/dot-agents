@@ -1,32 +1,27 @@
 ---
 name: python-patterns
-description: "Python development principles and decision-making. Framework selection, async patterns, type hints, project structure. Teaches thinking, not copying."
-risk: critical
+description: "Make Python architecture decisions - FastAPI vs Django vs Flask, sync vs async, project layout, tooling (uv, ruff, mypy/pyright), background jobs, error handling and test strategy. Use when starting or restructuring a Python service, not for line-level async or typing questions (see python-async-patterns, python-type-system)."
 source: community
 date_added: "2026-02-27"
 ---
 
 # Python Patterns
 
-> Python development principles and decision-making for 2025.
-> **Learn to THINK, not memorize patterns.**
+Decision guide for structuring Python applications. It complements the focused
+skills: `python-async-patterns` (asyncio code), `python-type-system` (annotations
+and checkers), `python-data-classes` (models), `pytest-fixtures` /
+`pytest-advanced` (tests).
 
-## When to Use
-Use this skill when making Python architecture decisions, choosing frameworks, designing async patterns, or structuring Python projects.
+## How to Use This Skill
 
----
-
-## ⚠️ How to Use This Skill
-
-This skill teaches **decision-making principles**, not fixed code to copy.
-
-- ASK user for framework preference when unclear
-- Choose async vs sync based on CONTEXT
-- Don't default to same framework every time
+- Inspect the repository first: `pyproject.toml`, lock files, CI config and the
+  framework already in use. An existing choice wins unless migration is requested.
+- Ask for the framework preference when it is unclear and nothing exists yet.
+- Choose async vs sync from the workload, not by habit.
 
 ---
 
-## 1. Framework Selection (2025)
+## 1. Framework Selection
 
 ### Decision Tree
 
@@ -54,7 +49,7 @@ What are you building?
 | Factor | FastAPI | Django | Flask |
 |--------|---------|--------|-------|
 | **Best for** | APIs, microservices | Full-stack, CMS | Simple, learning |
-| **Async** | Native | Django 5.0+ | Via extensions |
+| **Async** | Native (ASGI) | Async views (3.1+), async ORM API (4.1+, still runs sync DB drivers in threads) | Native `async def` views (2.0+), but still WSGI: one request per worker; use Quart for full ASGI |
 | **Admin** | Manual | Built-in | Via extensions |
 | **ORM** | Choose your own | Django ORM | Choose your own |
 | **Learning curve** | Low | Medium | Low |
@@ -105,7 +100,7 @@ Don't:
 |------|---------------|
 | HTTP client | httpx |
 | PostgreSQL | asyncpg |
-| Redis | aioredis / redis-py async |
+| Redis | `redis.asyncio` (redis-py 4.2+; `aioredis` is deprecated and merged into it) |
 | File I/O | aiofiles |
 | Database ORM | SQLAlchemy 2.0 async, Tortoise |
 
@@ -133,9 +128,8 @@ Can skip:
 ```python
 # These are patterns, understand them:
 
-# Optional → might be None
-from typing import Optional
-def find_user(id: int) -> Optional[User]: ...
+# Might be None (3.10+ syntax; use Optional[User] only on older targets)
+def find_user(id: int) -> User | None: ...
 
 # Union → one of multiple types
 def process(data: str | dict) -> None: ...
@@ -145,7 +139,7 @@ def get_items() -> list[Item]: ...
 def get_mapping() -> dict[str, int]: ...
 
 # Callable
-from typing import Callable
+from collections.abc import Callable
 def apply(fn: Callable[[int], str]) -> str: ...
 ```
 
@@ -175,7 +169,7 @@ Benefits:
 Small project / Script:
 ├── main.py
 ├── utils.py
-└── requirements.txt
+└── pyproject.toml   (or PEP 723 inline script metadata for single files)
 
 Medium API:
 ├── app/
@@ -221,18 +215,33 @@ By feature:
     └── ...
 ```
 
+### Tooling Stance
+
+Keep whatever the repository already uses. For a new project:
+
+| Concern | Default | Notes |
+|---------|---------|-------|
+| Environments, deps, lock | `uv` (`uv init`, `uv add`, `uv lock`, `uv run`) | Commit `uv.lock`; Poetry/PDM/pip-tools are fine if already present |
+| Lint + format | `ruff check` + `ruff format` | Replaces flake8/isort/black in most setups; configure in `pyproject.toml` |
+| Type checking | `mypy --strict` or `pyright` | Pick one as the CI gate; see `python-type-system` |
+| Tests | `pytest` (+ `pytest-asyncio` or `anyio` plugin for async) | See `pytest-fixtures`, `pytest-advanced` |
+| Python version | Declare `requires-python` and test the minimum in CI | Use syntax available at that minimum |
+
+Run lint, type check and tests in CI with the same commands developers run locally.
+
 ---
 
-## 5. Django Principles (2025)
+## 5. Django Principles
 
-### Django Async (Django 5.0+)
+### Django Async
 
 ```
 Django supports async:
-├── Async views
+├── Async views (3.1+)
 ├── Async middleware
-├── Async ORM (limited)
-└── ASGI deployment
+├── Async ORM API (aget, acreate, asave, `async for` over querysets; 4.1+) - DB I/O still
+│   runs in a thread pool, transactions need sync_to_async
+└── ASGI deployment (uvicorn/daphne/granian)
 
 When to use async in Django:
 ├── External API calls
@@ -386,17 +395,21 @@ Include:
 ### Async Testing
 
 ```python
-# Use pytest-asyncio for async tests
-
+# pytest-asyncio (or anyio's pytest plugin); httpx >= 0.28 requires an explicit transport
 import pytest
-from httpx import AsyncClient
+from httpx import ASGITransport, AsyncClient
 
 @pytest.mark.asyncio
 async def test_endpoint():
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
         response = await client.get("/users")
         assert response.status_code == 200
 ```
+
+For sync tests, FastAPI's `TestClient` is simpler. `ASGITransport` does not run
+lifespan events; use `asgi-lifespan`'s `LifespanManager` or `TestClient` as a
+context manager when startup/shutdown hooks matter.
 
 ### Fixtures Strategy
 
@@ -418,7 +431,7 @@ Before implementing:
 - [ ] **Chosen framework for THIS context?** (not just default)
 - [ ] **Decided async vs sync?**
 - [ ] **Planned type hint strategy?**
-- [ ] **Defined project structure?**
+- [ ] **Defined project structure and tooling (deps, lint, types, tests in CI)?**
 - [ ] **Planned error handling?**
 - [ ] **Considered background tasks?**
 
@@ -426,15 +439,16 @@ Before implementing:
 
 ## 11. Anti-Patterns to Avoid
 
-### ❌ DON'T:
+### Don't
 - Default to Django for simple APIs (FastAPI may be better)
 - Use sync libraries in async code
 - Skip type hints for public APIs
 - Put business logic in routes/views
 - Ignore N+1 queries
+- Call blocking libraries (requests, sync DB drivers, time.sleep) inside `async def`
 - Mix async and sync carelessly
 
-### ✅ DO:
+### Do
 - Choose framework based on context
 - Ask about async requirements
 - Use Pydantic for validation
@@ -443,9 +457,8 @@ Before implementing:
 
 ---
 
-> **Remember**: Python patterns are about decision-making for YOUR specific context. Don't copy code—think about what serves your application best.
+## Done When
 
-## Limitations
-- Use this skill only when the task clearly matches the scope described above.
-- Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
-- Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.
+- The framework, async model and tooling choice are stated with the reason tied
+  to this project's workload and existing setup.
+- `ruff check`, the type checker and `pytest` pass locally and are wired into CI.

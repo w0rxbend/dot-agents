@@ -1,7 +1,6 @@
 ---
 name: aws-ec2
-description: Manage EC2 instances, AMIs, and auto-scaling groups. Configure security
-  groups, key pairs, and instance types. Use when deploying compute resources on AWS.
+description: "Operate EC2 with the AWS CLI - launch templates, AMIs, instance types, security groups, IMDSv2, Auto Scaling groups, Spot and EBS volumes - and troubleshoot launch and connectivity failures. Use for hands-on EC2 changes; use deploying-on-aws to choose between EC2 and other compute."
 category: devops
 risk: critical
 source: https://github.com/BagelHole/DevOps-Security-Agent-Skills
@@ -10,8 +9,7 @@ source_type: community
 date_added: '2026-09-20'
 license: MIT
 license_source: https://github.com/BagelHole/DevOps-Security-Agent-Skills/blob/main/LICENSE
-compatibility: Requires the relevant OS/platform tooling and privileged access where
-  noted. Docs-only; helper scripts and templates not bundled.
+compatibility: Requires AWS CLI v2 with credentials for the target account; mutating commands need the corresponding IAM permissions.
 metadata:
   author: devops-skills
   version: '1.0'
@@ -413,14 +411,14 @@ resource "aws_autoscaling_policy" "cpu" {
 
 ## Related Skills
 
-- aws-vpc (`aws-vpc`) - VPC networking, subnets, and security groups
-- aws-iam (`aws-iam`) - Instance profiles and roles
-- aws-cost-optimization (`aws-cost-optimization`) - Rightsizing and Spot strategies
-- terraform-aws (`terraform-aws`) - Infrastructure as Code deployment
-- cloudformation (`cloudformation`) - AWS-native IaC templates
+- `aws-iam` - instance profiles and roles
+- `architecting-networks` - VPC, subnet and security-group design
+- `deploying-on-aws` - choosing EC2 versus Fargate, Lambda or EKS
+- `security-hardening` - OS and instance hardening
+- `pulumi-components` - EC2 resources as code
 
-## Limitations
+## Safety
 
-- Infrastructure commands can disrupt services: confirm target host/scope and have backups/snapshots before mutating state.
-- Docs-only import: upstream scripts and templates not bundled.
+- Run `aws sts get-caller-identity` and confirm the account, region and profile before any change.
+- Use `describe`/`list`/`get` calls and `--dry-run` (EC2) first; snapshot or back up before deleting or modifying stateful resources.
 

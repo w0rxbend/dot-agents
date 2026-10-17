@@ -1,6 +1,6 @@
 ---
 name: "clean-code-guard"
-description: "Review generated or changed production code with Clean Code, SOLID, DRY, KISS, YAGNI, and LLM-specific failure-mode checks."
+description: "Guard pass after writing or editing production code: catches LLM failure modes (swallowed errors, hallucinated APIs, speculative abstractions, fake success returns) plus Clean Code, SOLID, DRY, KISS, and YAGNI violations before delivery. Also has a review mode for auditing code quality of specific files."
 risk: "critical"
 source: "community"
 source_repo: "amElnagdy/guard-skills"
@@ -20,12 +20,14 @@ You are reviewing generated or changed code before it ships. Apply the rules bel
 
 Use this skill when reviewing generated or changed code before it ships. Activate it reactively after an agent writes, edits, or refactors production code — especially after a first implementation pass. Re-run the guard pass before delivery after each edit.
 
+**Do not use** for conceptual questions, CI or git workflow, prose, data analysis, or test-running tasks. For a full merge review of a PR, use `code-review-and-quality`; this skill only covers code quality.
+
 ## Compatibility
 
 This is a portable instruction skill. It requires no MCP server, network access,
 API key, shell command, local executable, or bundled script. It can be used in
 any runtime that supports `SKILL.md` plus directly linked [references/](references/)
-files; `agents/openai.yaml` is lightweight display metadata.
+files.
 
 This skill does not replace project linters, formatters, type checkers, or test
 runners. Use the project's own tools for mechanical verification; use this skill
@@ -54,6 +56,8 @@ The reference files are:
 - [references/dry-kiss-yagni.md](references/dry-kiss-yagni.md) — knowledge vs code duplication, Sandi Metz's re-inline rule, McCabe complexity, Fowler's YAGNI cost categories.
 - [references/ai-failure-modes.md](references/ai-failure-modes.md) — the 14 systematic ways LLMs produce bad code. **Read this one first if you are an AI agent reading this skill.** It is the highest-leverage file in the skill.
 - [references/review-checklist.md](references/review-checklist.md) — structured walk-through for review mode.
+- [references/law-of-demeter.md](references/law-of-demeter.md) — reaching through object chains; when it is and is not a coupling problem.
+- [references/fail-fast.md](references/fail-fast.md) — where to detect and report invalid state; read it together with imperative 16.
 - [references/sources.md](references/sources.md) — central bibliography for source URLs. Read it only when you need to verify or cite an external source.
 
 ## Examples
@@ -74,7 +78,7 @@ This skill is working when code-writing tasks avoid the listed failure modes,
 code-review tasks produce prioritized findings with concrete evidence, and
 refactors preserve behavior unless the user explicitly asks for a behavior
 change. It should stay silent for conceptual, CI, git workflow, prose, data
-analysis, and test-running tasks covered by the frontmatter exclusions.
+analysis, and test-running tasks listed under "Do not use" in When to Use.
 
 ## Why this skill exists
 
@@ -174,7 +178,7 @@ Refer them to the source name in the relevant [references/](references/) file an
 - If a rule conflicts with an explicit project convention, follow the project
   convention and document the exception only when it would otherwise surprise a
   future maintainer.
-- If the skill feels too broad, use the frontmatter exclusions first; do not add
+- If the skill feels too broad, apply the "Do not use" list in When to Use first; do not add
   runtime-specific rules to this general guard skill.
 
 ## What this skill does not do

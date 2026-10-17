@@ -61,7 +61,7 @@ def relevant_skills(repository, paths):
     if any(name in {'build.gradle.kts', 'build.gradle', 'settings.gradle.kts'} for name in names):
         skills += ['kotlin-coroutines', 'kotlin-null-safety']
     if any(name in {'pyproject.toml', 'requirements.txt'} for name in names):
-        skills += ['python-development']
+        skills += ['python-patterns']
     if any(word in repository.lower() for word in ['obs', 'twitch', 'scenedeck', 'multistream', 'prismcast', 'streaming', 'bounce-io', 'twi', '/yc']):
         skills += ['streaming-integrations']
     if 'airgradient' in repository.lower():
@@ -150,7 +150,14 @@ def merge_analysis(rows, analyses):
                        'elixir-expert': 'elixir-project-workflow',
                        'typescript-expert': 'typescript-project-contracts',
                        'skill-creator': 'codex-system--skill-creator',
-                       'skill-installer': 'codex-system--skill-installer'}
+                       'skill-installer': 'codex-system--skill-installer',
+                       # Retired duplicates route to their canonical skill.
+                       'python-development': 'python-patterns',
+                       'python-pro': 'python-patterns',
+                       'java-pro': 'java-concurrency',
+                       'data-engineer': 'data-engineering-data-pipeline',
+                       'github-actions': 'github-actions-advanced',
+                       'api-design-principles': 'designing-apis'}
             candidates = row['skills'] + item.get('skill_routes', []) + item.get('skill_routing', [])
             row['skills'] = list(dict.fromkeys(aliases.get(name, name) for name in candidates))
     return rows

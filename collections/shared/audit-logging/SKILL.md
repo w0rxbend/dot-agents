@@ -1,7 +1,6 @@
 ---
 name: audit-logging
-description: Implement centralized audit logging and SIEM integration. Configure log
-  retention and security monitoring. Use when implementing audit trail requirements.
+description: Implement technical audit and security-event logging for systems and applications - event taxonomy, structured audit records, rsyslog/journald/Fluent Bit shipping, SIEM integration, retention by framework (SOC 2, HIPAA, PCI DSS) and tamper evidence. Use when a system must produce a trustworthy who-did-what trail; for general application logs, metrics and traces use observability-and-instrumentation.
 category: security
 risk: safe
 source: https://github.com/BagelHole/DevOps-Security-Agent-Skills

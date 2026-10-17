@@ -1,7 +1,6 @@
 ---
 name: aws-rds
-description: Provision and manage RDS databases. Configure backups, replication, and
-  security. Use when deploying managed relational databases on AWS.
+description: "Operate Amazon RDS - provisioning, Multi-AZ, read replicas, parameter groups, backups, snapshots and point-in-time recovery, IAM auth, Performance Insights and connection troubleshooting. Use for hands-on RDS changes; use deploying-on-aws to choose a database service."
 category: devops
 risk: critical
 source: https://github.com/BagelHole/DevOps-Security-Agent-Skills
@@ -10,8 +9,7 @@ source_type: community
 date_added: '2026-09-20'
 license: MIT
 license_source: https://github.com/BagelHole/DevOps-Security-Agent-Skills/blob/main/LICENSE
-compatibility: Requires the relevant OS/platform tooling and privileged access where
-  noted. Docs-only; helper scripts and templates not bundled.
+compatibility: Requires AWS CLI v2 with credentials for the target account; mutating commands need the corresponding IAM permissions.
 metadata:
   author: devops-skills
   version: '1.0'
@@ -367,14 +365,14 @@ resource "aws_db_instance" "read_replica" {
 
 ## Related Skills
 
-- terraform-aws (`terraform-aws`) - IaC deployment for RDS
-- aws-vpc (`aws-vpc`) - Subnet groups and security groups
-- aws-iam (`aws-iam`) - RDS IAM authentication
-- aws-cost-optimization (`aws-cost-optimization`) - Reserved instances for RDS
-- aws-s3 (`aws-s3`) - Export snapshots to S3
+- `aws-iam` - RDS IAM authentication
+- `aws-s3` - exporting snapshots to S3
+- `architecting-networks` - subnet groups and security groups
+- `deploying-on-aws` - choosing RDS versus Aurora or DynamoDB
+- `database-design` - schema, indexing and migration planning
 
-## Limitations
+## Safety
 
-- Infrastructure commands can disrupt services: confirm target host/scope and have backups/snapshots before mutating state.
-- Docs-only import: upstream scripts and templates not bundled.
+- Run `aws sts get-caller-identity` and confirm the account, region and profile before any change.
+- Use `describe`/`list`/`get` calls and `--dry-run` (EC2) first; snapshot or back up before deleting or modifying stateful resources.
 

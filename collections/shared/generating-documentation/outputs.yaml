@@ -325,7 +325,7 @@ metadata:
       paths: ["typedoc.json", "docs/conf.py"]
 
   integration_points:
-    - skill: "api-patterns"
+    - skill: "designing-apis"
       connection: "Documents API endpoints and patterns"
 
     - skill: "building-ci-pipelines"

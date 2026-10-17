@@ -1,6 +1,6 @@
 ---
 name: dependency-upgrade
-description: "Master major dependency version upgrades, compatibility analysis, staged upgrade strategies, and comprehensive testing approaches."
+description: "Plan and execute a major dependency version upgrade - semver and breaking-change review, compatibility matrix, one-major-at-a-time staged rollout, and test/verification strategy. Use when bumping a dependency across a major version or a framework migration; use dependency-scanning to find which dependencies are vulnerable."
 risk: critical
 source: community
 date_added: "2026-02-27"

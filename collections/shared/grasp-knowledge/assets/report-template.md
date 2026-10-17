@@ -7,7 +7,7 @@
 | Project | `{project_name}` |
 | Date | `{date}` |
 | Scope | `{scope}` |
-| Auditor | Claude Code |
+| Auditor | `{auditor}` |
 
 ---
 
@@ -25,7 +25,7 @@
 | Indirection | {status} | {count} | {count} | {count} |
 | Protected Variations | {status} | {count} | {count} | {count} |
 
-**Overall Score:** {score}/100
+Counts are findings you confirmed by reading the code, not search hits. Do not compute an overall score.
 
 ---
 
@@ -187,40 +187,29 @@ Entity approaching size limit. Monitor for cohesion degradation.
 
 ---
 
-## Skills for Remediation
-
-| Violation Type | Recommended Skill |
-|----------------|-------------------|
-| Feature Envy | `create-entity`, `create-value-object` |
-| Fat Controller | `create-use-case`, `create-command` |
-| Type Switch | `create-strategy` |
-| Missing Indirection | `create-anti-corruption-layer` |
-| Low Cohesion | `create-domain-service` |
-| Object Creation | `create-factory` |
-
----
-
 ## Appendix: Detection Commands Used
 
+Search hits are leads only; confirm each by reading the code. Adjust `--include` to the project's language.
+
 ```bash
-# Information Expert: Feature Envy
-grep -rn "->get.*()->get.*()->" --include="*.php"
+# Information Expert: getter chains (feature envy / train wrecks)
+grep -rnE --include='*.php' -e '->get[A-Za-z]*\(\)->get[A-Za-z]*\(\)->' .
 
-# Creator: Random creation
-grep -rn "new\s\+[A-Z][a-z]*[A-Z]" --include="*.php"
+# Creator: direct instantiation sites
+grep -rnE --include='*.php' -e 'new [A-Z][A-Za-z]+\(' .
 
-# Controller: Fat controllers
-find . -path "*/Controller/*.php" -exec wc -l {} \;
+# Controller: controller file sizes
+find . -path '*/Controller/*.php' -exec wc -l {} + | sort -n | tail -20
 
-# Low Coupling: Dependency count
-grep -rn "__construct" --include="*.php" -A 15
+# Low Coupling: constructor parameter lists
+grep -rnE --include='*.php' -A 15 -e 'function __construct' .
 
-# High Cohesion: Large classes
-find . -name "*.php" -exec wc -l {} \; | awk '$1 > 400'
+# High Cohesion: largest classes
+find . -name '*.php' -exec wc -l {} + | sort -n | tail -20
 
-# Polymorphism: Type switches
-grep -rn "match.*type\|switch.*instanceof" --include="*.php"
+# Polymorphism: type switches
+grep -rnE --include='*.php' -e 'instanceof|match *\(.*(type|kind)' .
 
-# Indirection: Direct external
-grep -rn "new.*\\\\Stripe\|new.*\\\\Aws" --include="*.php"
+# Indirection: direct SDK instantiation
+grep -rnE --include='*.php' -e 'new \\?(Stripe|Aws)\\' .
 ```

@@ -1,6 +1,6 @@
 ---
 name: deploying-on-gcp
-description: Implement applications using Google Cloud Platform (GCP) services. Use when building on GCP infrastructure, selecting compute/storage/database services, designing data analytics pipelines, implementing ML workflows, or architecting cloud-native applications with BigQuery, Cloud Run, GKE, Vertex AI, and other GCP services.
+description: "Select GCP services and reference architectures - Cloud Run, GKE, Cloud Functions, Cloud SQL/Spanner/Firestore, BigQuery and Pub/Sub, Vertex AI, networking and IAM/Workload Identity. Use when designing or migrating a workload on Google Cloud."
 ---
 
 # GCP Patterns
@@ -322,7 +322,7 @@ topic_path = publisher.topic_path('project', 'topic-name')
 future = publisher.publish(topic_path, b'message data')
 ```
 
-For complete Python examples, see `examples/python/`.
+Python client libraries follow the same pattern for other services; see the per-service references below.
 
 ### Terraform Quick Start
 
@@ -405,8 +405,7 @@ For detailed documentation:
 
 For working examples:
 
-- **Terraform configurations:** See `examples/terraform/` for infrastructure templates
-- **Python SDK usage:** See `examples/python/` for client library examples
+- **Terraform configuration:** See `examples/terraform/cloud-run-service.tf` for a Cloud Run service
 - **gcloud CLI commands:** See `examples/gcloud/common-commands.sh` for command reference
 
 ## Key Decisions Summary

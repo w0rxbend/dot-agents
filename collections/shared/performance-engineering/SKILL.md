@@ -1,6 +1,6 @@
 ---
 name: performance-engineering
-description: When validating system performance under load, identifying bottlenecks through profiling, or optimizing application responsiveness. Covers load testing (k6, Locust), profiling (CPU, memory, I/O), and optimization strategies (caching, query optimization, Core Web Vitals). Use for capacity planning, regression detection, and establishing performance SLOs.
+description: Plan and run load, stress, soak and spike tests (k6, Locust), profile backend CPU/memory/I/O (py-spy, pprof, clinic.js), and set performance SLOs and CI performance gates. Use for capacity validation, pre-launch load checks and regression gates; to fix one known slow page, query or endpoint use performance-optimization.
 ---
 
 # Performance Engineering
@@ -74,7 +74,7 @@ For detailed testing patterns, load scenarios, and interpreting results, see `re
 **Installation:**
 ```bash
 brew install k6  # macOS
-sudo apt-get install k6  # Linux
+sudo apt-get install k6  # Debian/Ubuntu, after adding Grafana's k6 apt repository (see k6 install docs)
 ```
 
 **Basic Load Test:**
@@ -105,7 +105,7 @@ export default function () {
 
 **Run:** `k6 run script.js`
 
-For stress, soak, and spike testing examples, see `examples/k6/`.
+For stress and soak scripts, see `examples/k6/` (`stress-test.js`, `soak-test.js`); for spike profiles, see `references/testing-types.md`.
 
 ### Locust (Python)
 
@@ -133,7 +133,7 @@ class WebsiteUser(HttpUser):
 
 **Run:** `locust -f locustfile.py --headless -u 100 -r 10 --run-time 10m`
 
-For REST API testing and data-driven testing, see `examples/locust/`.
+For a fuller Locust example, see `examples/locust/load_test.py`.
 
 ## Profiling Quick Starts
 
@@ -214,7 +214,7 @@ npm install -g clinic
 clinic doctor -- node app.js
 ```
 
-For detailed profiling workflows and analysis, see `references/profiling-guide.md` and `examples/profiling/`.
+For detailed profiling workflows across Python, Go and Node.js, see `references/profiling-guide.md`; a runnable py-spy script is in `examples/profiling/python/pyspy_example.sh`.
 
 ## Optimization Strategies
 
@@ -226,12 +226,14 @@ For detailed profiling workflows and analysis, see `references/profiling-guide.m
 
 **Redis example:**
 ```python
+import json
 import redis
+
 r = redis.Redis()
 
 def get_cached_data(key, fn, ttl=300):
     cached = r.get(key)
-    if cached:
+    if cached is not None:
         return json.loads(cached)
     data = fn()
     r.setex(key, ttl, json.dumps(data))
@@ -330,9 +332,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install k6
-        run: |
-          curl https://github.com/grafana/k6/releases/download/v0.48.0/k6-v0.48.0-linux-amd64.tar.gz -L | tar xvz
-          sudo mv k6-v0.48.0-linux-amd64/k6 /usr/local/bin/
+        uses: grafana/setup-k6-action@v1   # pin a k6 version via its `k6-version` input for reproducible runs
 
       - name: Run load test
         run: k6 run tests/load/api-test.js
@@ -413,10 +413,10 @@ For detailed tool comparisons, see `references/testing-types.md` and `references
 - `references/benchmarking.md` - Benchmarking best practices
 
 **Examples:**
-- `examples/k6/` - Load, stress, soak, spike tests
-- `examples/locust/` - Python-based load testing
-- `examples/profiling/` - Profiling examples (Python, Go, TypeScript)
-- `examples/optimization/` - Caching, query, API optimization
+- `examples/k6/` - Load, stress and soak tests
+- `examples/locust/load_test.py` - Python-based load testing
+- `examples/profiling/python/pyspy_example.sh` - py-spy CPU profiling (Go and Node.js workflows are in `references/profiling-guide.md`)
+- `examples/optimization/api_optimization.ts` - API caching and pagination patterns
 
 ## Related Skills
 
@@ -424,6 +424,6 @@ For comprehensive testing strategies, see the `testing-strategies` skill.
 
 For CI/CD integration patterns, see the `building-ci-pipelines` skill.
 
-For infrastructure sizing based on load tests, see the `infrastructure-as-code` skill.
+For fixing a specific measured bottleneck (frontend, query, algorithm), see the `performance-optimization` skill.
 
-For Kubernetes performance testing, see the `kubernetes-operations` skill.
+For Kubernetes resource requests/limits and autoscaling validated by load tests, see the `operating-kubernetes` skill.

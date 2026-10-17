@@ -1,6 +1,6 @@
 ---
 name: observability-and-instrumentation
-description: Instruments code so production behavior is visible and diagnosable. Use when adding logging, metrics, tracing, or alerting. Use when shipping any feature that runs in production and you need evidence it works. Use when production issues are reported but you can't tell what happened from the available data.
+description: Add structured logs, RED/USE metrics, traces, SLO-based alerts and runbooks to application code while building or reviewing a feature (on-call questions first, bounded cardinality, correlation IDs). Use when shipping production code or when an incident showed you couldn't tell what happened; for deploying the OTel/LGTM backend use implementing-observability, for error-tracker setup use error-debugging-error-trace.
 ---
 
 # Observability and Instrumentation
@@ -162,6 +162,8 @@ queue age > 10 min               disk at 70%
 
 Cause-based alerts fire when nothing is wrong and miss failures you didn't predict. Symptom-based alerts fire exactly when users are hurt, regardless of the cause.
 
+**Error-budget worked example.** A checkout API has an agreed 99.9% success SLO. In the window, 100,000 eligible requests had 120 failures: observed success 99.88%, error ratio 0.12%, which is 1.2× the permitted 0.1%, so the window is consuming budget faster than allowed. Before turning that into an alert, write down which requests count as eligible, how retries are counted, and whether failures are measured at the user or the server boundary. Check that numerator and denominator cover the same population, and decide how the alert behaves with no traffic or a missing series. This arithmetic is an illustration, not a prescribed paging threshold.
+
 Rules for every alert you create:
 
 1. **It must be actionable.** If the response is "ignore it, it self-heals", delete the alert.
@@ -235,4 +237,8 @@ After instrumenting a feature, confirm:
 - [ ] Every new alert is symptom-based, has a runbook link, and was test-fired once
 - [ ] An induced failure in staging was located via telemetry alone, without reading the source
 
-For the at-a-glance version of this list, including the pre-launch instrumentation gate, see the instrumentation checklist above and the repository's operational requirements.
+## Limitations
+
+- Missing telemetry is unknown health, not zero errors. Alerts and dashboards must show "no data" distinctly from "healthy".
+- Sampled traces cannot supply an unbiased total request or error count without a justified estimator; compute SLO ratios from unsampled metrics.
+- Production instrumentation changes, alert delivery to real channels, and test-firing pages need authorization for that environment.

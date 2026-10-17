@@ -1,6 +1,6 @@
 ---
 name: frontend-ui-engineering
-description: Builds production-quality, accessible, responsive user-facing UIs. Use when building or modifying interfaces and pages, creating components, implementing layouts, meeting WCAG accessibility requirements, managing state, or when the output needs to look and feel production-quality rather than AI-generated.
+description: Implement accessible, responsive UI components and pages that follow the project's design system - component structure, state placement, WCAG 2.1 AA keyboard/ARIA/focus, loading/empty/error states, and compound-component and virtualized-list patterns. Use when writing or changing user-facing frontend code; use frontend-design for visual direction and frontend-dev-guidelines in React + MUI + TanStack repos.
 ---
 
 # Frontend UI Engineering
@@ -305,7 +305,7 @@ function useToggleTask() {
 
 ## See Also
 
-For detailed accessibility requirements and testing tools, see the repository's accessibility requirements and the component guidance above.
+- [references/component-patterns.md](references/component-patterns.md): read when building a multi-part widget (tabs, accordion, menu) as compound components, or when a list may render hundreds of rows and needs virtualization.
 
 ## Common Rationalizations
 

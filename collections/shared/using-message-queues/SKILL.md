@@ -405,7 +405,7 @@ Use scripts for setup automation:
 
 ## Related Skills
 
-- **api-patterns**: API design for async job submission
+- **designing-apis**: API design for async job submission
 - **realtime-sync**: WebSocket/SSE for job status updates
 - **feedback**: Toast notifications for job completion
 - **databases-***: Persistent storage for event logs

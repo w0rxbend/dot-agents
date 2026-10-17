@@ -1,7 +1,7 @@
 # Mobile Backend Patterns
 
 > **This file covers backend/API patterns SPECIFIC to mobile clients.**
-> Generic backend patterns are in `nodejs-best-practices` and `api-patterns`.
+> Generic backend patterns are in `backend-patterns` and `designing-apis`.
 > **Mobile backend is NOT the same as web backend. Different constraints, different patterns.**
 
 ---

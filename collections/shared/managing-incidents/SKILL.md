@@ -1,6 +1,6 @@
 ---
 name: managing-incidents
-description: Guide incident response from detection to post-mortem using SRE principles, severity classification, on-call management, blameless culture, and communication protocols. Use when setting up incident processes, designing escalation policies, or conducting post-mortems.
+description: Design a team's incident-management process - severity levels, incident roles, on-call rotations and escalation, communication templates, runbooks, blameless postmortems and incident metrics (MTTA/MTTR). Use when setting up or improving that process or writing a postmortem after resolution; to root-cause the failure itself use debugging-and-error-recovery.
 ---
 
 # Incident Management
@@ -377,15 +377,11 @@ For detailed escalation guidance, see `references/escalation-matrix.md`.
 
 ## Integration with Other Skills
 
-**Observability:** Monitoring alerts trigger incidents → Use incident-management for response
-
-**Disaster Recovery:** DR provides recovery procedures → Incident-management provides operational response
-
-**Security Incident Response:** Similar process with added compliance/forensics
-
-**Infrastructure-as-Code:** IaC enables fast recovery via automated rebuild
-
-**Performance Engineering:** Performance incidents trigger response → Performance team investigates post-mitigation
+- `observability-and-instrumentation`: symptom-based alerts and runbooks that open incidents.
+- `debugging-and-error-recovery`: root-causing the failure once impact is mitigated.
+- `error-debugging-error-trace`: error-tracker alert routing and ownership.
+- `performance-engineering`: capacity and load findings that feed incident prevention.
+- Security incidents follow the same structure plus evidence preservation and legal/compliance notification; see `architecting-security`.
 
 ## Examples and Templates
 

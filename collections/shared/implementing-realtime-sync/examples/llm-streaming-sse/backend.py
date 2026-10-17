@@ -92,7 +92,7 @@ async def stream_chat(
             elif PROVIDER == "anthropic":
                 # Anthropic streaming
                 async with client.messages.stream(
-                    model="claude-3-5-sonnet-20241022",
+                    model="claude-sonnet-5-5",
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=1024
                 ) as stream:

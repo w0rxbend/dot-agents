@@ -1,7 +1,6 @@
 ---
 name: aws-s3
-description: Configure S3 buckets, policies, and lifecycle rules. Implement versioning,
-  replication, and security. Use when managing object storage on AWS.
+description: "Operate Amazon S3 - secure bucket defaults (Block Public Access, encryption, versioning), bucket policies, lifecycle rules, replication, presigned URLs, Object Lock and access-denied troubleshooting. Use for hands-on S3 changes; use deploying-on-aws for storage-service selection."
 category: devops
 risk: critical
 source: https://github.com/BagelHole/DevOps-Security-Agent-Skills
@@ -10,8 +9,7 @@ source_type: community
 date_added: '2026-09-20'
 license: MIT
 license_source: https://github.com/BagelHole/DevOps-Security-Agent-Skills/blob/main/LICENSE
-compatibility: Requires the relevant OS/platform tooling and privileged access where
-  noted. Docs-only; helper scripts and templates not bundled.
+compatibility: Requires AWS CLI v2 with credentials for the target account; mutating commands need the corresponding IAM permissions.
 metadata:
   author: devops-skills
   version: '1.0'
@@ -421,14 +419,13 @@ resource "aws_s3_bucket_policy" "enforce_https" {
 
 ## Related Skills
 
-- aws-iam (`aws-iam`) - Bucket and object access policies
-- aws-vpc (`aws-vpc`) - VPC endpoints for private S3 access
-- aws-cost-optimization (`aws-cost-optimization`) - Storage class optimization
-- terraform-aws (`terraform-aws`) - IaC deployment for S3
-- cloudformation (`cloudformation`) - AWS-native S3 templates
+- `aws-iam` - identity policies that combine with bucket policies
+- `architecting-networks` - VPC endpoints for private S3 access
+- `deploying-on-aws` - storage-service selection and storage classes
+- `pulumi-components` - S3 resources as code
 
-## Limitations
+## Safety
 
-- Infrastructure commands can disrupt services: confirm target host/scope and have backups/snapshots before mutating state.
-- Docs-only import: upstream scripts and templates not bundled.
+- Run `aws sts get-caller-identity` and confirm the account, region and profile before any change.
+- Use `describe`/`list`/`get` calls and `--dry-run` (EC2) first; snapshot or back up before deleting or modifying stateful resources.
 

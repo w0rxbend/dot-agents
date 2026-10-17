@@ -1,6 +1,6 @@
 ---
 name: api-and-interface-design
-description: Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts between modules, or establishing boundaries between frontend and backend.
+description: "Design stable in-process interfaces and type contracts - module boundaries, library public APIs, TypeScript types between layers or frontend and backend - using contract-first design, Hyrum's Law, additive evolution, boundary validation, idempotency keys and branded IDs. Use when defining or changing a code-level interface; use designing-apis for HTTP/GraphQL network API design."
 ---
 
 # API and Interface Design
