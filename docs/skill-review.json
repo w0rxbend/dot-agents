@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-10-18T08:55:42.361823+00:00",
+  "reviewed_at": "2026-10-18T13:22:12.719575+00:00",
   "summary": {
     "baseline_catalog_skills": 509,
     "canonical_entrypoint_files_read": 583,
@@ -592,7 +592,7 @@
       "path": "collections/shared/api-and-interface-design",
       "entry_sha256": "d1f9a1a20ab755e425574e8dfc3787eeffc8215232b6b9a5ba838c1eb09c25f8",
       "words": 2184,
-      "line_count": 368,
+      "line_count": 374,
       "explicit_only": false,
       "reviewed": true,
       "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
@@ -607,14 +607,26 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "7b07a765c0a50489026be02e3fcd7d7ce688b503182d9d54f57826256d41f147",
-      "current_entry_sha256": "d1f9a1a20ab755e425574e8dfc3787eeffc8215232b6b9a5ba838c1eb09c25f8",
-      "current_entry_words": 2184,
+      "sha256": "056dc7ff4cdfae9b569c360336869fcc650efdf19211b53403073669c0ce6143",
+      "current_entry_sha256": "2e2d5a90c21314e31ccff84a6cdcf8aa90be9cf3aa1179501bcaf441e5999232",
+      "current_entry_words": 2273,
       "post_review_changes": [
         {
           "at": "2026-10-17T21:22:59.322596+00:00",
           "note": "2026-10 optimization pass: consolidated duplicate skills, fixed broken or outdated content, and vendored Matt Pocock, ponytail, i-have-adhd and current caveman skills.",
           "tree_sha256": "7b07a765c0a50489026be02e3fcd7d7ce688b503182d9d54f57826256d41f147"
+        },
+        {
+          "at": "2026-10-18T13:21:42.757890+00:00",
+          "from_sha256": "7b07a765c0a50489026be02e3fcd7d7ce688b503182d9d54f57826256d41f147",
+          "tree_sha256": "056dc7ff4cdfae9b569c360336869fcc650efdf19211b53403073669c0ce6143"
+        }
+      ],
+      "review_log": [
+        {
+          "at": "2026-10-18T13:21:43.044050+00:00",
+          "note": "Read the added Scala specifics section (default-argument getters, overload defaults, companion apply); accurate for Scala 2/3.",
+          "sha256": "056dc7ff4cdfae9b569c360336869fcc650efdf19211b53403073669c0ce6143"
         }
       ]
     },
@@ -14883,7 +14895,7 @@
       "path": "collections/shared/mill-testing",
       "entry_sha256": "16d5d9ced1d6a227074e3efc7d59dc675e06a3867a0babb044b723e7be140058",
       "words": 196,
-      "line_count": 16,
+      "line_count": 18,
       "explicit_only": false,
       "reviewed": true,
       "review_method": "Static entrypoint and resource/authority/routing analysis; no installed helper executed.",
@@ -14898,14 +14910,19 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "309926c79065e7597a6b38505a8e830d600954c7ea1cf6bd56ffc011ca2e88de",
-      "current_entry_sha256": "f75aae7b4db06a19f106b8bbd8b9aef6f329939a8b6710fcaaa8e5cd47abc74b",
-      "current_entry_words": 207,
+      "sha256": "92dd36d2338aa14d364cb026d10fd45661811d033ad72c76c73a081a2cb48913",
+      "current_entry_sha256": "dbd35488306a0d2a016225e75307003267db528354f9d915ce922a71bcdba384",
+      "current_entry_words": 356,
       "post_review_changes": [
         {
           "at": "2026-10-18T08:54:56.406090+00:00",
           "from_sha256": "4b2bc78034836944a52678b7a6dc959d2a47e532d38f3a4de1aab777a8b1711f",
           "tree_sha256": "309926c79065e7597a6b38505a8e830d600954c7ea1cf6bd56ffc011ca2e88de"
+        },
+        {
+          "at": "2026-10-18T13:22:12.644529+00:00",
+          "from_sha256": "309926c79065e7597a6b38505a8e830d600954c7ea1cf6bd56ffc011ca2e88de",
+          "tree_sha256": "92dd36d2338aa14d364cb026d10fd45661811d033ad72c76c73a081a2cb48913"
         }
       ],
       "review_log": [
@@ -14913,6 +14930,11 @@
           "at": "2026-10-18T08:55:42.361595+00:00",
           "note": "2026-10-18 review-fix round: 13 independent reviewers audited every vendored skill and the codebase; fix agents applied verified fixes (toolchain-checked where available); main agent re-scanned all skills, syntax-checked every changed script and spot-ran the guardrails hook and hardening script.",
           "sha256": "309926c79065e7597a6b38505a8e830d600954c7ea1cf6bd56ffc011ca2e88de"
+        },
+        {
+          "at": "2026-10-18T13:22:12.719384+00:00",
+          "note": "Read the late edits: mill-testing pitfalls (Mill 1.1.9), scala-library-contracts bytecode-golden notes, docs-mdoc-conventions skill-relative checker path.",
+          "sha256": "92dd36d2338aa14d364cb026d10fd45661811d033ad72c76c73a081a2cb48913"
         }
       ]
     },
@@ -16994,7 +17016,7 @@
       "name": "scala-library-contracts",
       "source": "local",
       "distribution": "vendored",
-      "sha256": "101fc276ba1396a4c6e64f346a35e60f2d74a527d99e27cdc22a903cdaf8643e",
+      "sha256": "15bc14b627c0a567ec55f39733d0701289aa786cfd00e95c5aa374016296f0af",
       "reviewed": true,
       "path": "collections/shared/scala-library-contracts",
       "decision": "add",
@@ -17002,7 +17024,22 @@
         "Repository-specific context derived from all accessible repositories; preserve existing build, runtime, and operational boundaries."
       ],
       "current_entry_sha256": "993f21a609753d22f8c6b794b4ae3951a27d77d104ff690c2dd7eaaca0566b93",
-      "current_entry_words": 231
+      "current_entry_words": 231,
+      "post_review_changes": [
+        {
+          "at": "2026-10-18T13:22:12.644953+00:00",
+          "from_sha256": "101fc276ba1396a4c6e64f346a35e60f2d74a527d99e27cdc22a903cdaf8643e",
+          "tree_sha256": "15bc14b627c0a567ec55f39733d0701289aa786cfd00e95c5aa374016296f0af"
+        }
+      ],
+      "line_count": 18,
+      "review_log": [
+        {
+          "at": "2026-10-18T13:22:12.719409+00:00",
+          "note": "Read the late edits: mill-testing pitfalls (Mill 1.1.9), scala-library-contracts bytecode-golden notes, docs-mdoc-conventions skill-relative checker path.",
+          "sha256": "15bc14b627c0a567ec55f39733d0701289aa786cfd00e95c5aa374016296f0af"
+        }
+      ]
     },
     {
       "id": "scala-oss-library-review",
@@ -19172,14 +19209,19 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "e266f9f3aebd194e086dd7b541af391448904de8ccdaa499c757208daae8fb0a",
-      "current_entry_sha256": "f2f59a2ff58fab25ebe931437c087b431cdc7bbeaa3ec1da9bbdb78b743a6316",
-      "current_entry_words": 2374,
+      "sha256": "20d7d7746b5c4658b0609473d1a43a448ee00a27d88be8adf9ca3e2926b7e5d5",
+      "current_entry_sha256": "e8268c6fefcbf71c457857426d50cfdf103b497fb48cec3b3305c6e786162a59",
+      "current_entry_words": 2423,
       "post_review_changes": [
         {
           "at": "2026-10-18T08:54:56.444287+00:00",
           "from_sha256": "2fb4ac2f4cd39bcf1436ab3513ccd47dce7df7ce96ad7bff84c2c8007b818e2c",
           "tree_sha256": "e266f9f3aebd194e086dd7b541af391448904de8ccdaa499c757208daae8fb0a"
+        },
+        {
+          "at": "2026-10-18T13:22:12.645121+00:00",
+          "from_sha256": "e266f9f3aebd194e086dd7b541af391448904de8ccdaa499c757208daae8fb0a",
+          "tree_sha256": "20d7d7746b5c4658b0609473d1a43a448ee00a27d88be8adf9ca3e2926b7e5d5"
         }
       ],
       "review_log": [
@@ -19187,6 +19229,11 @@
           "at": "2026-10-18T08:55:42.361690+00:00",
           "note": "2026-10-18 review-fix round: 13 independent reviewers audited every vendored skill and the codebase; fix agents applied verified fixes (toolchain-checked where available); main agent re-scanned all skills, syntax-checked every changed script and spot-ran the guardrails hook and hardening script.",
           "sha256": "e266f9f3aebd194e086dd7b541af391448904de8ccdaa499c757208daae8fb0a"
+        },
+        {
+          "at": "2026-10-18T13:22:12.719413+00:00",
+          "note": "Read the late edits: mill-testing pitfalls (Mill 1.1.9), scala-library-contracts bytecode-golden notes, docs-mdoc-conventions skill-relative checker path.",
+          "sha256": "20d7d7746b5c4658b0609473d1a43a448ee00a27d88be8adf9ca3e2926b7e5d5"
         }
       ]
     },

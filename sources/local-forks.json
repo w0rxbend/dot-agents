@@ -2034,13 +2034,14 @@
       "before_entry_sha256": "e83d34f52ff12dd8a7c5134cd7e8140ea4541ec65e204f8a1e4cd366e30c4192",
       "before_words": 2168,
       "reasons": [
-        "Sharpen description versus network API design."
+        "Sharpen description versus network API design.",
+        "Added Scala specifics: default-argument getters and binary compatibility, overload defaults, companion apply."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "d1f9a1a20ab755e425574e8dfc3787eeffc8215232b6b9a5ba838c1eb09c25f8",
-      "after_words": 2184,
+      "after_entry_sha256": "2e2d5a90c21314e31ccff84a6cdcf8aa90be9cf3aa1179501bcaf441e5999232",
+      "after_words": 2273,
       "before_after": "Reviewable patch in listed files; consolidated overlapping skills and corrected outdated or broken content during the 2026-10 optimization pass."
     },
     {
@@ -7263,13 +7264,14 @@
         "Decision tree no longer calls plain mdoc 'isolated'",
         "'person' -> 'user' to match example",
         "'sbt docs' / 'sbt mdoc' -> scoped sbt \"docs/mdoc --in X --out website/X\"",
-        "showLineNumbers note made version-conditional"
+        "showLineNumbers note made version-conditional",
+        "Removed ${CLAUDE_PLUGIN_ROOT} from the checker invocation, fixed allowed-tools key and clarified the companion-example modifier."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "f2f59a2ff58fab25ebe931437c087b431cdc7bbeaa3ec1da9bbdb78b743a6316",
-      "after_words": 2374,
+      "after_entry_sha256": "e8268c6fefcbf71c457857426d50cfdf103b497fb48cec3b3305c6e786162a59",
+      "after_words": 2423,
       "before_after": "Reviewable patch in listed files; fixes from the 2026-10 independent skill review (correctness, safety, triggering, dead references)."
     },
     {

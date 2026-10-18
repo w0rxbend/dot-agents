@@ -190,7 +190,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "7b07a765c0a50489026be02e3fcd7d7ce688b503182d9d54f57826256d41f147",
+      "sha256": "056dc7ff4cdfae9b569c360336869fcc650efdf19211b53403073669c0ce6143",
       "local_globs": [
         "~/.agents/skills/api-and-interface-design"
       ],
@@ -5490,7 +5490,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "309926c79065e7597a6b38505a8e830d600954c7ea1cf6bd56ffc011ca2e88de",
+      "sha256": "92dd36d2338aa14d364cb026d10fd45661811d033ad72c76c73a081a2cb48913",
       "local_globs": [
         "~/.agents/skills/mill-testing",
         "~/.hermes/skills/mill-testing"
@@ -6236,7 +6236,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "101fc276ba1396a4c6e64f346a35e60f2d74a527d99e27cdc22a903cdaf8643e",
+      "sha256": "15bc14b627c0a567ec55f39733d0701289aa786cfd00e95c5aa374016296f0af",
       "local_globs": [
         "~/.agents/skills/scala-library-contracts",
         "~/.hermes/skills/scala-library-contracts"
@@ -7017,7 +7017,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "e266f9f3aebd194e086dd7b541af391448904de8ccdaa499c757208daae8fb0a",
+      "sha256": "20d7d7746b5c4658b0609473d1a43a448ee00a27d88be8adf9ca3e2926b7e5d5",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-mdoc-conventions"
       ],
