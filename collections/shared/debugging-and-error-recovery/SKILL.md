@@ -74,14 +74,17 @@ Cannot reproduce on demand:
 
 For test failures (npm shown — substitute the repository's own test command, per the test-driven-development skill's Discover the Stack First section):
 ```bash
-# Run the specific failing test
-npm test -- --grep "test name"
+# Run the specific failing test (flags differ per runner)
+npx jest -t "test name"                 # Jest
+npx vitest run -t "test name"           # Vitest
+npx mocha --grep "test name"            # Mocha
 
 # Run with verbose output
-npm test -- --verbose
+npx jest --verbose                      # Jest (Vitest: --reporter=verbose)
 
-# Run in isolation (rules out test pollution)
-npm test -- --testPathPattern="specific-file" --runInBand
+# Run one file in isolation (rules out test pollution)
+npx jest path/to/specific.test.ts --runInBand   # Jest: a positional path works in every version
+npx vitest run path/to/specific.test.ts --no-file-parallelism
 ```
 
 ### Step 2: Localize
@@ -105,7 +108,7 @@ git bisect start
 git bisect bad                    # Current commit is broken
 git bisect good <known-good-sha> # This commit worked
 # Git will checkout midpoint commits; run your test at each
-git bisect run npm test -- --grep "failing test"  # substitute the repository's focused-test command
+git bisect run npx jest -t "failing test"  # substitute the repository's focused-test command
 ```
 
 ### Step 3: Reduce
@@ -267,16 +270,22 @@ function getConfig(key: string): string {
 }
 
 // Graceful degradation (instead of broken feature)
-function renderChart(data: ChartData[]) {
+// A try/catch around `return <Chart />` cannot catch render errors: React
+// renders <Chart> later. Use an error boundary (react-error-boundary shown).
+import { ErrorBoundary } from 'react-error-boundary';
+
+function ChartPanel({ data }: { data: ChartData[] }) {
   if (data.length === 0) {
     return <EmptyState message="No data available for this period" />;
   }
-  try {
-    return <Chart data={data} />;
-  } catch (error) {
-    console.error('Chart render failed:', error);
-    return <ErrorState message="Unable to display chart" />;
-  }
+  return (
+    <ErrorBoundary
+      fallback={<ErrorState message="Unable to display chart" />}
+      onError={(error) => console.error('Chart render failed:', error)}
+    >
+      <Chart data={data} />
+    </ErrorBoundary>
+  );
 }
 ```
 

@@ -102,9 +102,10 @@ Retry only operations that are safe to repeat (GET, idempotent writes with an id
 
 ## References
 
+- [references/taskeither-cheatsheet.md](references/taskeither-cheatsheet.md) - one-page TaskEither operator cheat sheet (create, transform, sequential vs parallel, recover, run) for quick lookups.
 - [references/detailed-guide.md](references/detailed-guide.md) - read the section you need: 1 wrapping Promises, 2 chaining and Do notation, 3 parallel vs sequential and batching, 4 recovery (typed recovery, backoff, defaults), 5 handling results in Express/Hono handlers, 6 common patterns and a quick reference card.
 - [references/real-api-examples.md](references/real-api-examples.md) - complete fetch client, Prisma repository and Node file I/O wrappers; read when building one of those layers.
-- Related skills: fp-taskeither-ref (operator lookup), fp-errors (error modeling), fp-backend (ReaderTaskEither services and DI).
+- Related skills: fp-errors (error modeling), fp-backend (ReaderTaskEither services and DI).
 
 ## Pitfalls
 

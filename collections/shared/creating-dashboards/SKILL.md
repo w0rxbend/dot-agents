@@ -1,13 +1,13 @@
 ---
 name: creating-dashboards
-description: Creates comprehensive dashboard and analytics interfaces that combine data visualization, KPI cards, real-time updates, and interactive layouts. Use this skill when building business intelligence dashboards, monitoring systems, executive reports, or any interface that requires multiple coordinated data displays with filters, metrics, and visualizations working together.
+description: Build React dashboard UIs (Tremor, react-grid-layout) that combine KPI cards, charts, tables, shared filters, real-time updates and draggable layouts. Use when writing a dashboard as part of a React application; for Grafana use grafana-dashboards, for Datadog dashboards use datadog, for single-chart design use visualizing-data.
 ---
 
 # Creating Dashboards
 
 ## Purpose
 
-This skill enables the creation of sophisticated dashboard interfaces that aggregate and present data through coordinated widgets including KPI cards, charts, tables, and filters. Dashboards serve as centralized command centers for data-driven decision making, combining multiple component types from other skills (data-viz, tables, design-tokens) into unified analytics experiences with real-time updates, responsive layouts, and interactive filtering.
+This skill enables the creation of sophisticated dashboard interfaces that aggregate and present data through coordinated widgets including KPI cards, charts, tables, and filters. Dashboards serve as centralized command centers for data-driven decision making, combining multiple component types from other skills (visualizing-data, building-tables, theming-components) into unified analytics experiences with real-time updates, responsive layouts, and interactive filtering.
 
 ## When to Use
 
@@ -63,14 +63,16 @@ Activate this skill when:
 **For Quick Analytics Dashboard → Use Tremor**
 Pre-built KPI cards, charts, and tables with minimal code:
 ```bash
-npm install @tremor/react
+npm install @tremor/react@3   # legacy npm package, built for Tailwind CSS v3
 ```
+Tremor's current releases are copy-paste components (tremor.so) rather than this npm package; check which one the project already uses before adding either.
 
 **For Customizable Dashboard → Use react-grid-layout**
 Drag-and-drop, resizable widgets, user-defined layouts:
 ```bash
-npm install react-grid-layout
+npm install react-grid-layout@1   # the examples below use the v1 WidthProvider/Responsive API
 ```
+react-grid-layout v2 changed the HOC API; if the project is on v2, follow its README instead of these snippets.
 
 ### 2. Set Up Global State Management
 
@@ -255,9 +257,9 @@ For detailed patterns including error handling and reconnection, see `references
 
 ### Lazy Loading Strategy
 ```tsx
-function DashboardGrid({ widgets }) {
-  const [visibleWidgets, setVisibleWidgets] = useState(new Set());
+import LazyLoad from 'react-lazyload'; // npm install react-lazyload (or use an IntersectionObserver hook)
 
+function DashboardGrid({ widgets }) {
   return widgets.map(widget => (
     <LazyLoad
       key={widget.id}
@@ -287,66 +289,35 @@ const loadDashboard = async () => {
 ```
 
 ### Widget-Level Caching
+Keep fetched data in React state (or a query cache) so a refresh re-renders; a `useRef` update alone never does.
 ```tsx
+import { useQuery } from '@tanstack/react-query';
+
 function CachedWidget({ id, fetcher, ttl = 60000 }) {
-  const cache = useRef({ data: null, timestamp: 0 });
+  const { data, refetch } = useQuery({
+    queryKey: ['widget', id],
+    queryFn: fetcher,
+    staleTime: ttl, // serve cached data for `ttl` ms before refetching
+  });
 
-  const getData = async () => {
-    const now = Date.now();
-    if (cache.current.data && now - cache.current.timestamp < ttl) {
-      return cache.current.data;
-    }
-
-    const fresh = await fetcher();
-    cache.current = { data: fresh, timestamp: now };
-    return fresh;
-  };
-
-  // Use cached data while fetching fresh
-  return <Widget data={cache.current.data} onRefresh={getData} />;
+  return <Widget data={data} onRefresh={() => refetch()} />;
 }
 ```
 
 To analyze and optimize dashboard performance, run:
 ```bash
-python scripts/optimize-dashboard-performance.py --analyze dashboard-config.json
+python scripts/optimize-dashboard-performance.py --config dashboard-config.json
+# or estimate without a config: --widgets 12 --auto-refresh-count 4
 ```
 
 ## Cross-Skill Integration
 
-### Using Data Visualization Components
-Reference the `data-viz` skill for chart widgets:
+These are other skills in this collection; load them for the widget internals. They are guidance, not importable modules, so build or install the components in the user's project.
+
+- **Charts**: `visualizing-data` for chart type selection and chart components (Recharts, Nivo, D3).
+- **Data grids**: `building-tables` for sortable, filterable, paginated tables (e.g. TanStack Table).
+- **Theming**: `theming-components` for design tokens. Dashboard-specific tokens can map onto existing ones:
 ```tsx
-// Use charts from data-viz skill
-import { createChart } from '../data-viz/chart-factory';
-
-const revenueChart = createChart('area', {
-  data: revenueData,
-  xAxis: 'date',
-  yAxis: 'revenue',
-  theme: dashboardTheme
-});
-```
-
-### Integrating Data Tables
-Reference the `tables` skill for data grids:
-```tsx
-// Use advanced tables from tables skill
-import { DataGrid } from '../tables/data-grid';
-
-<DataGrid
-  data={transactions}
-  columns={columnDefs}
-  pagination={true}
-  sorting={true}
-  filtering={true}
-/>
-```
-
-### Applying Design Tokens
-Use the `design-tokens` skill for consistent theming:
-```tsx
-// Dashboard-specific tokens from design-tokens skill
 const dashboardTokens = {
   '--dashboard-bg': 'var(--color-bg-secondary)',
   '--widget-bg': 'var(--color-white)',
@@ -356,18 +327,7 @@ const dashboardTokens = {
   '--kpi-trend-negative': 'var(--color-error)'
 };
 ```
-
-### Filter Input Components
-Optionally use the `forms` skill for filter controls:
-```tsx
-// Advanced filter inputs from forms skill
-import { DateRangePicker, MultiSelect } from '../forms/inputs';
-
-<FilterPanel>
-  <DateRangePicker onChange={handleDateChange} />
-  <MultiSelect options={categories} onChange={handleCategoryFilter} />
-</FilterPanel>
-```
+- **Filter inputs**: `building-forms` for date-range pickers, multi-selects and other filter controls.
 
 ## Library Selection Guide
 
@@ -432,11 +392,11 @@ python scripts/calculate-kpi-metrics.py --data metrics.json --period monthly
 1. **Define Requirements**: Fixed or customizable? Real-time or static?
 2. **Choose Libraries**: Tremor for quick, react-grid-layout for flexible
 3. **Set Up Structure**: Global state, filter context, layout system
-4. **Build Widgets**: KPI cards, charts (data-viz), tables (tables skill)
+4. **Build Widgets**: KPI cards, charts (visualizing-data), tables (building-tables)
 5. **Implement Data Flow**: Fetching strategy, caching, updates
 6. **Add Interactivity**: Filters, drill-downs, exports
 7. **Optimize Performance**: Lazy loading, parallel fetching, caching
-8. **Apply Theming**: Use design-tokens for consistent styling
+8. **Apply Theming**: Use theming-components for consistent styling
 9. **Test Responsiveness**: Desktop, tablet, mobile breakpoints
 10. **Deploy & Monitor**: Track performance, user engagement
 

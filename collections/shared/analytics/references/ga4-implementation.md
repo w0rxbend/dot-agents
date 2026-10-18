@@ -140,7 +140,7 @@ dataLayer.push({
 ### Creating Conversions
 
 1. **Collect the event** - Ensure event is firing in GA4
-2. **Mark as conversion** - Admin > Events > Mark as conversion
+2. **Mark as key event** - Admin > Events > Mark as key event (GA4 calls conversions "key events" since 2024; "conversion" now refers to the Google Ads side)
 3. **Set counting method**:
    - Once per session (leads, signups)
    - Every event (purchases)
@@ -156,7 +156,7 @@ gtag('event', 'purchase', {
 });
 ```
 
-Or set default value in GA4 Admin when marking conversion.
+Or set a default value in GA4 Admin when marking the key event.
 
 ---
 
@@ -250,7 +250,7 @@ Reports > Real-time
 - Data still processing (24-48 hrs)
 
 **Conversions not recording:**
-- Event not marked as conversion
+- Event not marked as a key event
 - Event name doesn't match
 - Counting method (once vs. every)
 

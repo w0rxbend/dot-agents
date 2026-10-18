@@ -52,8 +52,6 @@ OpenTelemetry is the CNCF graduated project unifying observability:
 └────────────────────────────────────────────────────────┘
 ```
 
-**Context7 Reference**: `/websites/opentelemetry_io` (Trust: High, Snippets: 5,888, Score: 85.9)
-
 ## The Three Pillars of Observability
 
 ### 1. Metrics (What is happening?)
@@ -181,7 +179,9 @@ use tracing::{info, instrument};
 
 #[instrument(fields(user_id = %user_id))]
 async fn process_request(user_id: u64) -> Result<Response> {
-    // trace_id/span_id automatically included
+    // Spans become OTel spans only with a tracing-opentelemetry layer installed,
+    // and log lines carry trace_id/span_id only if your formatter writes the
+    // OTel ids (see references/trace-context.md)
     info!(user_id = user_id, "processing request");
     Ok(result)
 }
@@ -192,7 +192,10 @@ async fn process_request(user_id: u64) -> Result<Response> {
 ### Query in Grafana
 
 ```logql
-{job="api-service"} |= "trace_id=4bf92f3577b34da6a3ce929d0e0e4736"
+# JSON logs (the structlog setup above)
+{job="api-service"} | json | trace_id="4bf92f3577b34da6a3ce929d0e0e4736"
+# Any format: plain substring match on the id
+{job="api-service"} |= "4bf92f3577b34da6a3ce929d0e0e4736"
 ```
 
 ## Quick Setup Guide
@@ -294,7 +297,8 @@ with tracer.start_as_current_span("process_payment") as span:
 # Test log-trace correlation
 # 1. Make request to your app
 # 2. Copy trace_id from logs
-# 3. Query in Grafana: {job="myapp"} |= "trace_id=<TRACE_ID>"
+# 3. Query in Grafana: {job="myapp"} | json | trace_id="<TRACE_ID>"
+#    (or {job="myapp"} |= "<TRACE_ID>" for non-JSON logs)
 
 # Validate metrics
 python scripts/validate_metrics.py
@@ -320,7 +324,7 @@ python scripts/validate_metrics.py
 **Examples**:
 - `examples/fastapi-otel/` - FastAPI + OpenTelemetry + LGTM
 - `examples/axum-tracing/` - Rust Axum + tracing + LGTM
-- `examples/lgtm-docker-compose/` - Production-ready LGTM stack
+- `examples/lgtm-docker-compose/` - Local development LGTM stack (default admin/admin credentials, pinned to older image versions: harden and update before any shared use)
 
 **Scripts**:
 - `scripts/setup_otel.py` - Bootstrap OpenTelemetry SDK

@@ -106,7 +106,7 @@ if err := app.Stop(stopCtx); err != nil {
 | Option                     | Purpose                                     |
 | -------------------------- | ------------------------------------------- |
 | `fx.Provide(ctors...)`     | Register constructors                       |
-| `fx.Invoke(fns...)`        | Run functions during Start                  |
+| `fx.Invoke(fns...)`        | Run functions eagerly inside `fx.New`       |
 | `fx.Supply(values...)`     | Provide pre-built values                    |
 | `fx.Replace(values...)`    | Replace previously-provided values (tests)  |
 | `fx.Decorate(fn)`          | Wrap an existing value (module-scoped)      |

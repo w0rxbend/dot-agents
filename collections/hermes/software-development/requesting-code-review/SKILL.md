@@ -1,6 +1,6 @@
 ---
 name: requesting-code-review
-description: "Pre-commit review: security scan, quality gates, auto-fix."
+description: "Pre-commit review of your own changes: security scan, quality gates, independent reviewer, auto-fix. Use before committing or pushing finished work, not for reviewing others' PRs."
 version: 2.1.0
 author: Hermes Agent (adapted from obra/superpowers + MorAlekss)
 license: MIT
@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [code-review, security, verification, quality, pre-commit, auto-fix]
-    related_skills: [subagent-driven-development, test-driven-development, github]
+    related_skills: [test-driven-development, github]
 ---
 
 # Pre-Commit Code Verification
@@ -21,9 +21,9 @@ quality gates, an independent reviewer subagent, and an auto-fix loop.
 ## When to Use
 
 - After implementing a feature or bug fix, before `git commit` or `git push`
-- When user says "commit", "push", "ship", "done", "verify", or "review before merge"
+- When user asks to commit, push, verify, or "review before merge"
 - After completing a task with 2+ file edits in a git repo
-- After each task in subagent-driven-development (the two-stage review)
+- After each task of a multi-task implementation plan, as the quality gate
 
 **Skip for:** documentation-only changes, pure config tweaks, or when user says "skip verification".
 
@@ -232,10 +232,18 @@ After the fix agent completes, re-run Steps 1-6 (full verification cycle).
 
 ## Step 8 — Commit
 
-If verification passed:
+If verification passed, show the user the summary and the list of files that
+would be committed (`git status --short`), and ask before committing. Never
+commit or push without explicit approval.
+
+Once approved, stage only the files that belong to this change, by name (never
+`git add -A`/`git add .`, which can sweep in secrets, scratch files or unrelated
+work), and commit what is staged:
 
 ```bash
-git add -A && git commit -m "[verified] <description>"
+git add <file> [<file> ...]
+git diff --cached --stat        # confirm exactly what will be committed
+git commit -m "[verified] <description>"
 ```
 
 The `[verified]` prefix indicates an independent reviewer approved this change.
@@ -265,13 +273,11 @@ element.textContent = userInput;
 
 ## Integration with Other Skills
 
-**subagent-driven-development:** Run this after EACH task as the quality gate.
-The two-stage review (spec compliance + code quality) uses this pipeline.
-
 **test-driven-development:** This pipeline verifies TDD discipline was followed —
 tests exist, tests pass, no regressions.
 
-**plan:** Validates implementation matches the plan requirements.
+**Implementation plans:** When the work follows a written plan, also check that
+the change matches the plan's requirements.
 
 ## Pitfalls
 

@@ -7,8 +7,10 @@ description: Use when extracting and categorizing public members from a Scala da
 
 Parses a Scala source file and prints public members of the named type, grouped into sections for easy auditing.
 
+Paths: `<this-skill-dir>` is this skill's own directory (where this file lives).
+
 ```bash
-scala-cli ${CLAUDE_PLUGIN_ROOT}/skills/docs-data-type-list-members/extract-members.scala \
+scala-cli <this-skill-dir>/extract-members.scala \
   -- <source-file> [<type-name>]
 ```
 
@@ -26,7 +28,7 @@ Excludes private/protected members and internal helpers.
 For machine-readable output (e.g., when piping into other scripts or filtering with `jq`), pass `--json`:
 
 ```bash
-scala-cli ${CLAUDE_PLUGIN_ROOT}/skills/docs-data-type-list-members/extract-members.scala \
+scala-cli <this-skill-dir>/extract-members.scala \
   -- --json <source-file> [<type-name>] | jq '.publicApi'
 ```
 

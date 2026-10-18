@@ -36,15 +36,19 @@ requires the external `himalaya` CLI.
 ### Installation
 
 ```bash
-# Pre-built binary (Linux/macOS — recommended)
-curl -sSL https://raw.githubusercontent.com/pimalaya/himalaya/master/install.sh | PREFIX=~/.local sh
-
-# macOS via Homebrew
+# macOS / Linux via Homebrew (recommended)
 brew install himalaya
 
 # Or via cargo (any platform with Rust)
 cargo install himalaya --locked
+
+# Or your distro's package manager, if it packages himalaya
 ```
+
+Pre-built binaries: download a pinned release from
+https://github.com/pimalaya/himalaya/releases, verify it against the published
+checksum if one is provided, and put it on `PATH`. Do not pipe the upstream
+`install.sh` straight into `sh`; if you need it, download it, read it, then run it.
 
 ## Configuration Setup
 
@@ -100,6 +104,11 @@ folder.aliases.trash = "Trash"
 > keys, directly under `[accounts.NAME]`).
 
 ## Hermes Integration Notes
+
+- **Confirm before side effects.** Before `template send` / `message send`, show the
+  user the final headers and body and get an explicit yes. Before `message delete`,
+  `message move`, or bulk flag changes, list the affected IDs (subject + sender) and
+  get confirmation. Never send or delete on inferred intent.
 
 - **Reading, listing, searching, moving, deleting** all work directly through the terminal tool
 - **Composing/replying/forwarding** — piped input (`cat << EOF | himalaya template send`) is recommended for reliability. Interactive `$EDITOR` mode works with `pty=true` + background + process tool, but requires knowing the editor and its commands
@@ -159,8 +168,12 @@ himalaya message export 42 --full
 To reply non-interactively from Hermes, read the original message, compose a reply, and pipe it:
 
 ```bash
-# Get the reply template, edit it, and send
-himalaya template reply 42 | sed 's/^$/\nYour reply text here\n/' | himalaya template send
+# 1. Save the reply template (headers + quoted original)
+reply=$(mktemp) && himalaya template reply 42 > "$reply"
+# 2. Insert your text after the header block only (the first blank line)
+awk '{print} !done && /^$/ {print "Your reply text here"; print ""; done=1}' "$reply" > "$reply.new" && mv "$reply.new" "$reply"
+# 3. Show "$reply" to the user, get confirmation, then send
+himalaya template send < "$reply" && rm -f "$reply"
 ```
 
 Or build the reply manually:
@@ -185,8 +198,10 @@ himalaya message reply 42 --all
 ### Forward an Email
 
 ```bash
-# Get forward template and pipe with modifications
-himalaya template forward 42 | sed 's/^To:.*/To: newrecipient@example.com/' | himalaya template send
+# Get the forward template, set the recipient, review, then send after confirmation
+fwd=$(mktemp) && himalaya template forward 42 | sed '1,/^$/ s/^To:.*/To: newrecipient@example.com/' > "$fwd"
+cat "$fwd"   # show to the user before sending
+himalaya template send < "$fwd" && rm -f "$fwd"
 ```
 
 ### Write a New Email
@@ -226,6 +241,8 @@ himalaya message copy "Important" 42
 ```
 
 ### Delete an Email
+
+Confirm the message (ID, sender, subject) with the user first:
 
 ```bash
 himalaya message delete 42

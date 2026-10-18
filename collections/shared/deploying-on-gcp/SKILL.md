@@ -31,7 +31,7 @@ Use this skill when:
 **Compute Options:**
 - **Cloud Run:** Serverless containers for stateless HTTP services (auto-scale to zero)
 - **GKE (Google Kubernetes Engine):** Managed Kubernetes for complex orchestration
-- **Cloud Functions:** Event-driven functions for simple processing
+- **Cloud Run functions (formerly Cloud Functions):** Event-driven functions for simple processing
 - **Compute Engine:** Virtual machines for full OS control
 - **App Engine:** Platform-as-a-Service for web applications
 
@@ -65,14 +65,14 @@ Need to run code in GCP?
 │  │  ├─ YES → Cloud Run (auto-scale to zero)
 │  │  └─ NO → Need Kubernetes? → GKE | Compute Engine
 │  └─ NO (Event-driven)
-│     ├─ Simple function? → Cloud Functions
+│     ├─ Simple function? → Cloud Run functions (formerly Cloud Functions)
 │     └─ Complex orchestration? → GKE | Cloud Run Jobs
 ```
 
 **Selection Guide:**
 - **First choice:** Cloud Run (unless state or Kubernetes required)
 - **Need Kubernetes:** GKE Autopilot (managed) or Standard (full control)
-- **Simple events:** Cloud Functions (60-min max execution)
+- **Simple events:** Cloud Run functions, formerly Cloud Functions (HTTP functions up to 60 min; event-driven functions up to 9 min)
 - **Full control:** Compute Engine (VMs with custom configuration)
 
 ### Decision Framework: Database Selection
@@ -116,7 +116,7 @@ Storage type needed?
 |----------|-----|-----|-------|
 | **Serverless Containers** | Cloud Run | Fargate | Container Instances |
 | **Kubernetes** | GKE | EKS | AKS |
-| **Functions** | Cloud Functions | Lambda | Functions |
+| **Functions** | Cloud Run functions | Lambda | Functions |
 | **VMs** | Compute Engine | EC2 | Virtual Machines |
 | **Object Storage** | Cloud Storage | S3 | Blob Storage |
 | **SQL Database** | Cloud SQL | RDS | SQL Database |
@@ -225,7 +225,7 @@ For GKE setup and best practices, see `references/compute-services.md`.
 - BigQuery: Use partitioned and clustered tables
 - Query only needed columns (avoid `SELECT *`)
 - Use BI Engine for caching (up to 10TB free)
-- Consider flat-rate pricing for heavy BigQuery usage
+- Consider BigQuery Editions (slot-based capacity with commitments) for heavy, steady usage; flat-rate pricing was retired
 
 For detailed cost strategies, see `references/cost-optimization.md`.
 
@@ -285,8 +285,8 @@ gcloud container clusters create-auto CLUSTER_NAME --region REGION
 gcloud container clusters get-credentials CLUSTER_NAME --region REGION
 
 # Cloud Storage
-gsutil mb gs://BUCKET_NAME
-gsutil cp FILE gs://BUCKET_NAME/
+gcloud storage buckets create gs://BUCKET_NAME --location=REGION
+gcloud storage cp FILE gs://BUCKET_NAME/
 
 # BigQuery
 bq mk DATASET_NAME
@@ -332,7 +332,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "~> 5.0"
+      version = ">= 6.0"  # pin to the major version you test against
     }
   }
 }
@@ -342,16 +342,14 @@ provider "google" {
   region  = "us-central1"
 }
 
-# Cloud Run service
-resource "google_cloud_run_service" "api" {
+# Cloud Run service (v2 resource; Container Registry gcr.io is shut down, use Artifact Registry)
+resource "google_cloud_run_v2_service" "api" {
   name     = "api-service"
   location = "us-central1"
 
   template {
-    spec {
-      containers {
-        image = "gcr.io/project/api:latest"
-      }
+    containers {
+      image = "us-central1-docker.pkg.dev/my-project-id/my-repo/api:1.0.0"
     }
   }
 }
@@ -365,7 +363,7 @@ For complete Terraform examples, see `examples/terraform/`.
 |-------------|---------------------|-------------|
 | Stateless HTTP API | Cloud Run | App Engine |
 | Complex orchestration | GKE Autopilot | GKE Standard |
-| Event processing | Cloud Functions | Cloud Run Jobs |
+| Event processing | Cloud Run functions | Cloud Run Jobs |
 | Object storage | Cloud Storage | N/A |
 | Relational database | Cloud SQL | AlloyDB, Spanner |
 | NoSQL document | Firestore | MongoDB Atlas |
@@ -381,15 +379,14 @@ For complete Terraform examples, see `examples/terraform/`.
 
 **Related Skills:**
 
-- **infrastructure-as-code:** Use Terraform to provision GCP resources (see `examples/terraform/`)
-- **kubernetes-operations:** Deploy and manage applications on GKE
+- **deploying-applications:** OpenTofu/Terraform and Pulumi workflows to provision GCP resources (see also `examples/terraform/`)
+- **operating-kubernetes:** Deploy and manage applications on GKE
 - **building-ci-pipelines:** Use Cloud Build for CI/CD to Cloud Run or GKE
-- **secret-management:** Use Secret Manager for sensitive configuration
-- **observability:** Use Cloud Monitoring and Cloud Logging for metrics and logs
-- **data-architecture:** Design data lakes and warehouses using BigQuery and Cloud Storage
-- **mlops-patterns:** Implement ML pipelines using Vertex AI
-- **aws-patterns:** Compare AWS and GCP service equivalents for multi-cloud
-- **azure-patterns:** Compare Azure and GCP service equivalents
+- **hashicorp-vault:** Secret-management patterns (Secret Manager itself is covered in this skill)
+- **observability-and-instrumentation:** Use Cloud Monitoring and Cloud Logging for metrics and logs
+- **architecting-data:** Design data lakes and warehouses using BigQuery and Cloud Storage
+- **deploying-on-aws:** Compare AWS and GCP service equivalents for multi-cloud
+- **deploying-on-azure:** Compare Azure and GCP service equivalents
 
 ## Progressive Disclosure
 

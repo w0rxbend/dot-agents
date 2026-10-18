@@ -281,9 +281,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             max_length = ctx.get('max_length', 0)
             message = f"Must be less than {max_length} characters long"
 
-        elif error['type'] == 'value_error.email':
-            message = "Please enter a valid email address"
-
         elif error['type'] == 'value_error':
             # Custom validation error messages (from validators)
             message = str(error.get('ctx', {}).get('error', message))

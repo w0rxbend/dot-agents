@@ -9,6 +9,8 @@ from pathlib import Path
 from common import REPO, IGNORED, dump_json, frontmatter, tree_hash
 import json
 
+STAGING = '.collections.import'
+
 
 def slug(value):
     return re.sub(r'[^a-z0-9]+', '-', value.lower()).strip('-')
@@ -36,6 +38,9 @@ def copy_tree(source, dest):
         }]
         if source.name == 'zio-skills' and Path(directory) == source:
             skipped += [n for n in names if n == 'flowrite']
+        # Links installed by ./install.sh point back into this repository.
+        skipped += [n for n in names
+                    if (Path(directory) / n).is_symlink() and in_repo(Path(directory) / n)]
         return skipped
     shutil.copytree(source, dest, symlinks=True, ignore=ignore)
 
@@ -95,18 +100,72 @@ def omit_external_copies(copies, external_roots):
                     shutil.rmtree(excluded)
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--home', type=Path, default=Path.home())
     parser.add_argument('--replace', action='store_true', help='replace existing repository snapshot')
-    args = parser.parse_args()
+    parser.add_argument('--allow-shrink', action='store_true',
+                        help='accept a snapshot with less than half of the current vendored skills')
+    args = parser.parse_args(argv)
     home = args.home.resolve()
-    destination = REPO / 'collections'
+    final = REPO / 'collections'
+    if final.exists() and not args.replace:
+        parser.error('collections already exists; use --replace after reviewing local edits')
+    # Build the snapshot beside the repository copy and swap it in only after a
+    # complete, plausible inventory; a failed or empty scan never deletes it.
+    destination = REPO / STAGING
     if destination.exists():
-        if not args.replace:
-            parser.error('collections already exists; use --replace after reviewing local edits')
         shutil.rmtree(destination)
     destination.mkdir()
+    try:
+        installed = scan(home, destination)
+        commit(installed, destination, final, args.allow_shrink)
+    finally:
+        if destination.exists():
+            shutil.rmtree(destination)
+    print(f'Inventoried {len(installed)} unique skills: ' +
+          f"{sum(x['distribution'] == 'vendored' for x in installed)} vendored, " +
+          f"{sum(x['distribution'] == 'external' for x in installed)} provider-managed")
+
+
+def in_repo(path):
+    """Installed links point back into this repository: they are not a new source."""
+    return path.resolve().is_relative_to(REPO)
+
+
+def commit(installed, destination, final, allow_shrink=False):
+    vendored = sum(item['distribution'] == 'vendored' for item in installed)
+    if not vendored:
+        raise SystemExit('import found no vendorable skills; keeping the existing snapshot '
+                         '(global roots that only link into this repository are skipped)')
+    catalog = REPO / 'catalog.json'
+    if catalog.exists() and not allow_shrink:
+        previous = sum(item.get('distribution') == 'vendored'
+                       for item in json.loads(catalog.read_text())['skills'])
+        if vendored * 2 < previous:
+            raise SystemExit(f'import would shrink the snapshot from {previous} to {vendored} '
+                             'vendored skills; rerun with --allow-shrink if intended')
+    previous_tree = REPO / (STAGING + '.previous')
+    if previous_tree.exists():
+        shutil.rmtree(previous_tree)
+    if final.exists():
+        final.rename(previous_tree)
+    destination.rename(final)
+    if previous_tree.exists():
+        shutil.rmtree(previous_tree)
+    dump_json(catalog, dict(schema_version=1, skills=installed, excluded=[
+        'project-local skills', 'marketplace catalogs and temporary staging directories',
+        'deleted .trash skills', 'dependency package examples', 'optional Hermes skills not installed',
+        'flowrite development source skills and duplicate .opencode mirrors'
+    ]))
+
+
+def snapshot_path(destination, path):
+    """Repository-relative path a staged file will have after the swap."""
+    return 'collections/' + path.relative_to(destination).as_posix()
+
+
+def scan(home, destination):
     lock_path = home / '.agents/.skill-lock.json'
     lock = json.loads(lock_path.read_text())['skills'] if lock_path.exists() else {}
     licenses = json.loads((REPO / 'licenses/upstream/index.json').read_text())
@@ -157,7 +216,7 @@ def main():
                 copied.add(dest_root)
                 copies[src_root.resolve()] = dest_root
             path = dest_root / doc.parent.relative_to(src_root)
-            item['path'] = path.relative_to(REPO).as_posix()
+            item['path'] = snapshot_path(destination, path)
             item['distribution'] = 'vendored'
             item['sha256'] = tree_hash(path)
             if source in licenses:
@@ -165,7 +224,7 @@ def main():
             else:
                 local_licenses = [p for p in path.iterdir() if p.name.lower().startswith('license')]
                 if local_licenses:
-                    item['license_file'] = local_licenses[0].relative_to(REPO).as_posix()
+                    item['license_file'] = snapshot_path(destination, local_licenses[0])
         else:
             item['distribution'] = 'external'
             item['reason'] = 'provider-managed or redistribution permission not established'
@@ -176,7 +235,7 @@ def main():
     shared = home / '.agents/skills'
     if shared.exists():
         for child in sorted(shared.iterdir()):
-            if child.name in IGNORED or not child.is_dir():
+            if child.name in IGNORED or not child.is_dir() or in_repo(child):
                 continue
             if (child / 'SKILL.md').exists():
                 info = frontmatter(child / 'SKILL.md')
@@ -270,7 +329,8 @@ def main():
     hermes_docs = set(hermes.rglob('SKILL.md'))
     if hermes.is_dir():
         hermes_docs.update(child / 'SKILL.md' for child in hermes.iterdir()
-                           if child.is_symlink() and (child / 'SKILL.md').is_file())
+                           if child.is_symlink() and (child / 'SKILL.md').is_file()
+                           and not in_repo(child))
     for doc in sorted(hermes_docs):
         add(doc, 'hermes', '~/.hermes/skills/' + doc.parent.relative_to(hermes).as_posix(),
             'NousResearch/hermes-agent', 'MIT', destination / 'hermes', hermes)
@@ -284,16 +344,9 @@ def main():
     make_links_portable(destination, copies, external_roots)
     for item in installed:
         if item['distribution'] == 'vendored':
-            item['sha256'] = tree_hash(REPO / item['path'])
+            item['sha256'] = tree_hash(destination / Path(item['path']).relative_to('collections'))
     installed.sort(key=lambda item: item['id'])
-    dump_json(REPO / 'catalog.json', dict(schema_version=1, skills=installed, excluded=[
-        'project-local skills', 'marketplace catalogs and temporary staging directories',
-        'deleted .trash skills', 'dependency package examples', 'optional Hermes skills not installed',
-        'flowrite development source skills and duplicate .opencode mirrors'
-    ]))
-    print(f'Inventoried {len(installed)} unique skills: ' +
-          f"{sum(x['distribution'] == 'vendored' for x in installed)} vendored, " +
-          f"{sum(x['distribution'] == 'external' for x in installed)} provider-managed")
+    return installed
 
 
 if __name__ == '__main__':

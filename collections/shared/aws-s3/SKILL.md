@@ -1,6 +1,6 @@
 ---
 name: aws-s3
-description: "Operate Amazon S3 - secure bucket defaults (Block Public Access, encryption, versioning), bucket policies, lifecycle rules, replication, presigned URLs, Object Lock and access-denied troubleshooting. Use for hands-on S3 changes; use deploying-on-aws for storage-service selection."
+description: "Operate Amazon S3 - secure bucket defaults (Block Public Access, encryption, versioning), bucket policies, lifecycle rules, replication, presigned URLs and access-denied troubleshooting. Use for hands-on S3 changes; use deploying-on-aws for storage-service selection."
 category: devops
 risk: critical
 source: https://github.com/BagelHole/DevOps-Security-Agent-Skills
@@ -102,8 +102,16 @@ aws s3api put-bucket-tagging \
 
 ## Bucket Policies
 
+> **Lockout warning:** a `Deny` on `s3:*` for `"Principal": "*"` also applies to the
+> console, CI runners and your own admin session whenever they do not come through the
+> VPC endpoint - including the very next `put-bucket-policy`/`delete-bucket-policy` call.
+> Recovery then needs the account root user. Keep a break-glass exception (below,
+> `ArnNotLike aws:PrincipalArn`) for an admin role, and apply the policy from a session
+> that matches that exception.
+
 ```bash
-# Apply a bucket policy (enforce HTTPS and restrict to VPC endpoint)
+# Apply a bucket policy (enforce HTTPS and restrict to VPC endpoint,
+# with a break-glass exception for an admin role)
 aws s3api put-bucket-policy \
   --bucket my-app-data-prod \
   --policy '{
@@ -134,6 +142,9 @@ aws s3api put-bucket-policy \
         "Condition": {
           "StringNotEquals": {
             "aws:sourceVpce": "vpce-abc123"
+          },
+          "ArnNotLike": {
+            "aws:PrincipalArn": "arn:aws:iam::123456789012:role/S3BreakGlassAdmin"
           }
         }
       }
@@ -191,8 +202,7 @@ aws s3api put-bucket-lifecycle-configuration \
         "Filter": {"Prefix": "logs/"},
         "Expiration": {"Days": 90},
         "Transitions": [
-          {"Days": 7, "StorageClass": "STANDARD_IA"},
-          {"Days": 30, "StorageClass": "GLACIER"}
+          {"Days": 30, "StorageClass": "STANDARD_IA"}
         ]
       },
       {
@@ -220,6 +230,11 @@ aws s3api put-bucket-lifecycle-configuration \
     ]
   }'
 ```
+
+S3 rejects the whole configuration if any transition to `STANDARD_IA` or `ONEZONE_IA`
+is earlier than 30 days after creation. Also mind minimum storage durations
+(Standard-IA 30 days, Glacier Flexible Retrieval 90, Deep Archive 180): expiring an
+object before that is billed as if it stayed the full minimum.
 
 ## Cross-Region Replication
 
@@ -266,26 +281,36 @@ aws s3api head-object \
 aws s3 presign s3://my-app-data-prod/reports/quarterly.pdf \
   --expires-in 3600
 
-# Generate a presigned URL for uploading
-aws s3 presign s3://my-app-data-prod/uploads/user-file.zip \
-  --expires-in 3600
+```
 
-# Presigned URL with specific content type (using the API directly)
-aws s3api generate-presigned-url \
-  --client-method put_object \
-  --params '{"Bucket":"my-app-data-prod","Key":"uploads/photo.jpg","ContentType":"image/jpeg"}' \
-  --expires-in 3600
+`aws s3 presign` only produces GET (download) URLs, and the CLI has no command for
+upload URLs. Generate PUT URLs with an SDK, for example boto3:
+
+```python
+import boto3
+
+s3 = boto3.client("s3")
+url = s3.generate_presigned_url(
+    "put_object",
+    Params={"Bucket": "my-app-data-prod", "Key": "uploads/photo.jpg",
+            "ContentType": "image/jpeg"},
+    ExpiresIn=3600,
+)
+# The uploader must send the same Content-Type header:
+#   curl -X PUT -H "Content-Type: image/jpeg" --upload-file photo.jpg "$url"
 ```
 
 ## Common S3 Operations
 
 ```bash
-# Sync a local directory to S3
+# Sync a local directory to S3. --delete removes remote objects missing locally:
+# preview with --dryrun, review the output, then rerun without it.
 aws s3 sync ./build s3://my-app-data-prod/static/ \
   --delete \
   --exclude "*.tmp" \
   --cache-control "max-age=31536000" \
-  --content-encoding "gzip"
+  --dryrun
+# Only add --content-encoding gzip when every uploaded file is actually gzip-compressed.
 
 # Copy with storage class
 aws s3 cp large-archive.tar.gz s3://my-app-data-prod/archives/ \
@@ -294,8 +319,8 @@ aws s3 cp large-archive.tar.gz s3://my-app-data-prod/archives/ \
 # List objects with size summary
 aws s3 ls s3://my-app-data-prod/ --recursive --summarize --human-readable
 
-# Remove all objects with a prefix
-aws s3 rm s3://my-app-data-prod/temp/ --recursive
+# Remove all objects with a prefix (preview first, then rerun without --dryrun)
+aws s3 rm s3://my-app-data-prod/temp/ --recursive --dryrun
 
 # Get bucket size via CloudWatch (most efficient for large buckets)
 aws cloudwatch get-metric-statistics \
@@ -427,5 +452,5 @@ resource "aws_s3_bucket_policy" "enforce_https" {
 ## Safety
 
 - Run `aws sts get-caller-identity` and confirm the account, region and profile before any change.
-- Use `describe`/`list`/`get` calls and `--dry-run` (EC2) first; snapshot or back up before deleting or modifying stateful resources.
+- Use `list`/`get`/`head` calls first and `--dryrun` on `aws s3 cp/mv/sync/rm`; snapshot or back up before deleting or modifying stateful resources.
 

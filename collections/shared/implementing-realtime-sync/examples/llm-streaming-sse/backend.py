@@ -8,6 +8,7 @@ from fastapi import FastAPI, Query
 from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 import os
+import json
 from dotenv import load_dotenv
 import asyncio
 
@@ -20,7 +21,7 @@ app = FastAPI(title="LLM Streaming SSE Server")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Configure for production
-    allow_credentials=True,
+    allow_credentials=False,  # browsers reject credentials with a wildcard origin
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -28,6 +29,15 @@ app.add_middleware(
 # Choose LLM provider based on available API key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+# Model names change often: set them in .env instead of editing code
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5-5")
+
+
+def sse(event: str, data) -> str:
+    """Format one SSE event. JSON-encoding the payload keeps newlines inside
+    tokens from ending the event early (a raw newline would split `data:`)."""
+    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
 
 if OPENAI_API_KEY:
     from openai import AsyncOpenAI
@@ -75,7 +85,7 @@ async def stream_chat(
             if PROVIDER == "openai":
                 # OpenAI streaming
                 stream = await client.chat.completions.create(
-                    model="gpt-4",
+                    model=OPENAI_MODEL,
                     messages=[{"role": "user", "content": prompt}],
                     stream=True,
                     max_tokens=1024
@@ -85,20 +95,17 @@ async def stream_chat(
                     if chunk.choices[0].delta.content is not None:
                         content = chunk.choices[0].delta.content
 
-                        # SSE format
-                        yield f"event: token\n"
-                        yield f"data: {content}\n\n"
+                        yield sse("token", content)
 
             elif PROVIDER == "anthropic":
                 # Anthropic streaming
                 async with client.messages.stream(
-                    model="claude-sonnet-5-5",
+                    model=ANTHROPIC_MODEL,
                     messages=[{"role": "user", "content": prompt}],
                     max_tokens=1024
                 ) as stream:
                     async for text in stream.text_stream:
-                        yield f"event: token\n"
-                        yield f"data: {text}\n\n"
+                        yield sse("token", text)
 
             else:
                 # Mock mode - simulate streaming
@@ -107,18 +114,15 @@ async def stream_chat(
                 mock_response += "Add your API key to .env to test real streaming."
 
                 for token in mock_response.split():
-                    yield f"event: token\n"
-                    yield f"data: {token} \n\n"
+                    yield sse("token", token + " ")
                     await asyncio.sleep(0.05)  # Simulate streaming delay
 
             # Done signal
-            yield f"event: done\n"
-            yield f"data: [DONE]\n\n"
+            yield sse("done", "[DONE]")
 
         except Exception as e:
             # Error event
-            yield f"event: error\n"
-            yield f"data: {str(e)}\n\n"
+            yield sse("error", str(e))
 
     return StreamingResponse(
         generate(),
@@ -149,7 +153,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         app,
-        host="0.0.0.0",
+        host="127.0.0.1",  # use 0.0.0.0 only when you mean to expose it
         port=8000,
         log_level="info"
     )

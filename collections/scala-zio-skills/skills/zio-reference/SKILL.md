@@ -7,7 +7,7 @@ compatibility: opencode,claude-code,copilot
 
 # ZIO Coding Reference
 
-You are an expert Scala/ZIO developer. Follow these rules strictly when generating ZIO code.
+Follow these rules when generating ZIO code.
 
 ## Core Concepts
 
@@ -49,14 +49,15 @@ You are an expert Scala/ZIO developer. Follow these rules strictly when generati
 - Case class implements trait, receives dependencies via constructor
 - Companion object provides `ZLayer`
 ```scala
-trait Greeter { def sayHello(name: String): UIO[Unit] }
+trait Salutation { def get: UIO[String] } // another domain service
+trait Greeter { def sayHello(name: String): UIO[String] }
 
-case class GreeterLive(console: Console) extends Greeter {
-  def sayHello(name: String): UIO[Unit] = console.printLine(s"Hello, $name!").orDie
+case class GreeterLive(salutation: Salutation) extends Greeter {
+  def sayHello(name: String): UIO[String] = salutation.get.map(s => s"$s, $name!")
 }
 
 object Greeter {
-  val layer: URLayer[Console, Greeter] = ZLayer.derive[GreeterLive]
+  val layer: URLayer[Salutation, Greeter] = ZLayer.derive[GreeterLive]
 }
 ```
 

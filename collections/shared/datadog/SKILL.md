@@ -41,14 +41,17 @@ Use this skill when:
 ### Linux
 
 ```bash
-# Install agent
-DD_API_KEY=<YOUR_API_KEY> DD_SITE="datadoghq.com" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh)"
+# Official installer: download, inspect, then run (the script adds Datadog's apt/yum repo and signing key)
+curl -fsSL -o install_script_agent7.sh https://install.datadoghq.com/scripts/install_script_agent7.sh
+less install_script_agent7.sh
+DD_API_KEY="$DD_API_KEY" DD_SITE="datadoghq.com" bash install_script_agent7.sh
 
-# Or via package manager
-apt-get update && apt-get install datadog-agent
+# Package-manager install: datadog-agent is NOT in distro repos. First add Datadog's apt/yum
+# repository and GPG keys as described in the Agent install docs for your distro, then:
+#   sudo apt-get update && sudo apt-get install datadog-agent
 
-# Configure API key
-echo "api_key: YOUR_API_KEY" >> /etc/datadog-agent/datadog.yaml
+# Configure API key (set the existing api_key line rather than appending a duplicate)
+sudo sed -i "s/^api_key:.*/api_key: ${DD_API_KEY}/" /etc/datadog-agent/datadog.yaml
 
 # Start agent
 systemctl start datadog-agent
@@ -59,8 +62,6 @@ systemctl enable datadog-agent
 
 ```yaml
 # docker-compose.yml
-version: '3.8'
-
 services:
   datadog-agent:
     image: gcr.io/datadoghq/agent:7
@@ -85,14 +86,17 @@ services:
 # Using Helm
 helm repo add datadog https://helm.datadoghq.com
 
+# Keep the key out of shell history and Helm values: store it in a Secret
+kubectl create namespace datadog
+kubectl create secret generic datadog-secret -n datadog --from-literal api-key="$DD_API_KEY"
+
 helm install datadog datadog/datadog \
-  --set datadog.apiKey=${DD_API_KEY} \
+  --set datadog.apiKeyExistingSecret=datadog-secret \
   --set datadog.site=datadoghq.com \
   --set datadog.logs.enabled=true \
   --set datadog.apm.portEnabled=true \
   --set datadog.processAgent.enabled=true \
-  --namespace datadog \
-  --create-namespace
+  --namespace datadog
 ```
 
 ## Agent Configuration
@@ -117,7 +121,7 @@ logs_enabled: true
 # APM
 apm_config:
   enabled: true
-  apm_dd_url: https://trace.agent.datadoghq.com
+  # apm_dd_url is derived from `site`; only override it for proxies
 
 # Process monitoring
 process_config:
@@ -347,6 +351,8 @@ from datadog_api_client.v2.api.metrics_api import MetricsApi
 from datadog_api_client.v2.model.metric_payload import MetricPayload
 from datadog_api_client.v2.model.metric_series import MetricSeries
 from datadog_api_client.v2.model.metric_point import MetricPoint
+from datadog_api_client.v2.model.metric_intake_type import MetricIntakeType
+import time
 
 configuration = Configuration()
 with ApiClient(configuration) as api_client:
@@ -356,7 +362,7 @@ with ApiClient(configuration) as api_client:
         series=[
             MetricSeries(
                 metric="custom.metric.name",
-                type=MetricSeries.GAUGE,
+                type=MetricIntakeType.GAUGE,
                 points=[MetricPoint(value=42.0, timestamp=int(time.time()))],
                 tags=["env:production"]
             )
@@ -410,7 +416,7 @@ with ApiClient(configuration) as api_client:
   "name": "High Error Rate",
   "type": "metric alert",
   "query": "sum(last_5m):sum:trace.http.request.errors{service:myapp}.as_count() / sum:trace.http.request.hits{service:myapp}.as_count() > 0.05",
-  "message": "Error rate is {{value}}% for {{service.name}}. @slack-alerts",
+  "message": "Error rate is {{value}} (fraction of requests) for service:myapp. @slack-alerts",
   "tags": ["service:myapp", "env:production"],
   "options": {
     "thresholds": {

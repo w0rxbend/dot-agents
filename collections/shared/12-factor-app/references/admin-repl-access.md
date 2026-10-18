@@ -35,16 +35,9 @@ kubectl exec -it deployment/web -- flask shell
 heroku run python manage.py shell
 ```
 
-**Python REPL access:
+**Python REPL with app context:**
 
 ```bash
-# Django shell
-kubectl exec -it deployment/web -- python manage.py shell
-
-# Flask shell
-kubectl exec -it deployment/web -- flask shell
-
-# Generic Python with app context
 kubectl exec -it deployment/web -- python
 >>> from app import create_app, db
 >>> app = create_app()

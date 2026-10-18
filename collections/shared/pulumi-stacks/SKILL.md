@@ -44,8 +44,9 @@ pulumi stack rm dev
 pulumi config set aws:region us-east-1
 pulumi config set instanceType t3.micro
 
-# Set secret values (encrypted)
-pulumi config set --secret dbPassword mySecurePassword123
+# Set secret values (encrypted). Omit the value so the CLI prompts for it
+# (or pipe it in) instead of leaving it in shell history.
+pulumi config set --secret dbPassword
 
 # Get configuration values
 pulumi config get aws:region
@@ -63,7 +64,6 @@ pulumi config rm instanceType
 
 ```yaml
 name: my-infrastructure
-user-invocable: false
 runtime: nodejs
 description: Multi-environment infrastructure
 
@@ -134,10 +134,17 @@ const enableMonitoring = config.getBoolean("enableMonitoring") || false;
 // Get secret
 const dbPassword = config.requireSecret("dbPassword");
 
+// Look up a current AMI instead of hardcoding an ID (IDs are per-region and go stale)
+const ami = aws.ec2.getAmiOutput({
+    mostRecent: true,
+    owners: ["amazon"],
+    filters: [{ name: "name", values: ["al2023-ami-2023.*-x86_64"] }],
+});
+
 // Use configuration
 const instance = new aws.ec2.Instance("web-server", {
     instanceType: instanceType,
-    ami: "ami-0c55b159cbfafe1f0",
+    ami: ami.id,
     tags: {
         Name: `web-server-${environment}`,
         Environment: environment,
@@ -167,11 +174,18 @@ enable_monitoring = config.get_bool("enableMonitoring") or False
 # Get secret
 db_password = config.require_secret("dbPassword")
 
+# Look up a current AMI instead of hardcoding an ID
+ami = aws.ec2.get_ami_output(
+    most_recent=True,
+    owners=["amazon"],
+    filters=[{"name": "name", "values": ["al2023-ami-2023.*-x86_64"]}],
+)
+
 # Use configuration
 instance = aws.ec2.Instance(
     "web-server",
     instance_type=instance_type,
-    ami="ami-0c55b159cbfafe1f0",
+    ami=ami.id,
     tags={
         "Name": f"web-server-{environment}",
         "Environment": environment,
@@ -205,7 +219,9 @@ const vpc = new aws.ec2.Vpc("main", {
     },
 });
 
-// Production gets multiple availability zones
+// Production gets multiple availability zones. Look the AZs up for the stack's
+// configured region (prod runs in us-west-2) instead of hardcoding names.
+const azs = aws.getAvailabilityZonesOutput({ state: "available" }).names;
 const azCount = environment === "production" ? 3 : 1;
 const subnets: aws.ec2.Subnet[] = [];
 
@@ -213,7 +229,7 @@ for (let i = 0; i < azCount; i++) {
     const subnet = new aws.ec2.Subnet(`subnet-${i}`, {
         vpcId: vpc.id,
         cidrBlock: `10.0.${i}.0/24`,
-        availabilityZone: `us-east-1${String.fromCharCode(97 + i)}`,
+        availabilityZone: azs[i],
         tags: {
             Name: `subnet-${environment}-${i}`,
             Environment: environment,
@@ -226,7 +242,7 @@ for (let i = 0; i < azCount; i++) {
 let natGateway: aws.ec2.NatGateway | undefined;
 if (environment === "production") {
     const eip = new aws.ec2.Eip("nat-eip", {
-        vpc: true,
+        domain: "vpc", // `vpc: true` is deprecated
     });
 
     natGateway = new aws.ec2.NatGateway("nat", {
@@ -242,11 +258,11 @@ if (environment === "production") {
 // Create RDS with multi-AZ only in production
 const db = new aws.rds.Instance("database", {
     engine: "postgres",
-    engineVersion: "14.7",
+    engineVersion: "16", // major only: RDS picks the default minor; check `aws rds describe-db-engine-versions`
     instanceClass: environment === "production" ? "db.t3.medium" : "db.t3.micro",
     allocatedStorage: environment === "production" ? 100 : 20,
     dbName: "myapp",
-    username: "admin",
+    username: "appadmin", // "admin" is reserved by RDS for PostgreSQL
     password: config.requireSecret("dbPassword"),
     multiAz: environment === "production",
     backupRetentionPeriod: environment === "production" ? 30 : 7,
@@ -316,9 +332,16 @@ const securityGroup = new aws.ec2.SecurityGroup("app-sg", {
     }],
 });
 
+// Look up a current AMI instead of hardcoding an ID
+const ami = aws.ec2.getAmiOutput({
+    mostRecent: true,
+    owners: ["amazon"],
+    filters: [{ name: "name", values: ["al2023-ami-2023.*-x86_64"] }],
+});
+
 const instance = new aws.ec2.Instance("app-server", {
     instanceType: "t3.micro",
-    ami: "ami-0c55b159cbfafe1f0",
+    ami: ami.id,
     subnetId: subnetId,
     vpcSecurityGroupIds: [securityGroup.id],
     tags: {
@@ -371,7 +394,7 @@ const db = new aws.rds.Instance("database", {
     instanceClass: "db.t3.micro",
     allocatedStorage: 20,
     dbName: "myapp",
-    username: "admin",
+    username: "appadmin", // "admin" is reserved by RDS for PostgreSQL
     password: config.requireSecret("dbPassword"),
     skipFinalSnapshot: true,
 });
@@ -385,12 +408,12 @@ export const dbEndpoint = db.endpoint;
 export const dbPort = db.port;
 
 // Export computed values
-export const dbConnectionString = pulumi.interpolate`postgresql://admin@${db.endpoint}/myapp`;
+export const dbConnectionString = pulumi.interpolate`postgresql://appadmin@${db.endpoint}/myapp`;
 
 // Export stack metadata
 export const stackName = pulumi.getStack();
 export const projectName = pulumi.getProject();
-export const region = aws.getRegion().then(r => r.name);
+export const region = aws.getRegionOutput().region; // pulumi-aws v6 and older: `.name`
 ```
 
 ### Accessing Stack Outputs
@@ -424,9 +447,12 @@ import * as aws from "@pulumi/aws";
 const config = new pulumi.Config();
 const environment = config.require("environment");
 
-// Register global transformation to add tags
-pulumi.runtime.registerStackTransformation((args) => {
-    if (args.type.startsWith("aws:")) {
+// Register a stack-wide transform to add tags. registerResourceTransform replaces the
+// legacy registerStackTransformation (it also applies to packaged/MLC components).
+// Only tag resources that accept `tags`; for plain AWS tagging, provider-level
+// `defaultTags` (aws:defaultTags in stack config) is simpler.
+pulumi.runtime.registerResourceTransform((args) => {
+    if (args.custom && args.type.startsWith("aws:") && "tags" in args.props) {
         args.props.tags = {
             ...args.props.tags,
             Environment: environment,
@@ -460,18 +486,8 @@ import * as aws from "@pulumi/aws";
 const config = new pulumi.Config();
 const environment = config.require("environment");
 
-// Transformation to enforce encryption
-const enforceEncryption = (args: pulumi.ResourceTransformationArgs) => {
-    if (args.type === "aws:s3/bucket:Bucket") {
-        args.props.serverSideEncryptionConfiguration = {
-            rule: {
-                applyServerSideEncryptionByDefault: {
-                    sseAlgorithm: "AES256",
-                },
-            },
-        };
-    }
-
+// Transform to enforce encryption on RDS instances
+const enforceEncryption: pulumi.ResourceTransform = (args) => {
     if (args.type === "aws:rds/instance:Instance") {
         args.props.storageEncrypted = true;
     }
@@ -482,14 +498,22 @@ const enforceEncryption = (args: pulumi.ResourceTransformationArgs) => {
     };
 };
 
-pulumi.runtime.registerStackTransformation(enforceEncryption);
+pulumi.runtime.registerResourceTransform(enforceEncryption);
 
-// Resources will be automatically encrypted
-const bucket = new aws.s3.Bucket("data");
+// The database is encrypted by the transform
 const db = new aws.rds.Instance("database", {
     engine: "postgres",
     instanceClass: "db.t3.micro",
     allocatedStorage: 20,
+});
+
+// S3 encrypts new objects with SSE-S3 by default, and the inline
+// `serverSideEncryptionConfiguration` arg on Bucket is deprecated. For KMS, add a
+// separate resource instead of mutating Bucket props:
+const bucket = new aws.s3.Bucket("data");
+new aws.s3.BucketServerSideEncryptionConfiguration("data-sse", {
+    bucket: bucket.id,
+    rules: [{ applyServerSideEncryptionByDefault: { sseAlgorithm: "aws:kms" } }],
 });
 ```
 
@@ -705,8 +729,10 @@ const db = new aws.rds.Instance("database", {
     engine: "postgres",
     instanceClass: "db.t3.micro",
     allocatedStorage: 20,
+    // Deterministic name: `Date.now()` would change on every run and show a diff each `pulumi up`.
+    // Snapshot identifiers must be unique, so delete/rename an old one before re-creating the stack.
     finalSnapshotIdentifier: environment === "production"
-        ? `final-snapshot-${Date.now()}`
+        ? `${pulumi.getProject()}-${pulumi.getStack()}-final`
         : undefined,
     skipFinalSnapshot: environment !== "production",
 }, {
@@ -719,15 +745,17 @@ const db = new aws.rds.Instance("database", {
 ### Using Encrypted Secrets
 
 ```bash
-# Set encrypted secrets
-pulumi config set --secret dbPassword mySecurePassword123
-pulumi config set --secret apiKey sk_live_abc123xyz789
+# Set encrypted secrets: omit the value and the CLI prompts for it,
+# or pipe it from a secret manager so it never lands in shell history
+pulumi config set --secret dbPassword
+op read "op://infra/db/password" | pulumi config set --secret dbPassword   # example source
 
-# View config (secrets are encrypted)
+# View config (secret values are masked)
 pulumi config
 
 # View secrets in plaintext (use carefully!)
-pulumi config get dbPassword --show-secrets
+pulumi config --show-secrets      # whole config
+pulumi config get dbPassword      # single key prints the decrypted value
 ```
 
 ### Secrets in Code
@@ -747,7 +775,7 @@ const db = new aws.rds.Instance("database", {
     engine: "postgres",
     instanceClass: "db.t3.micro",
     allocatedStorage: 20,
-    username: "admin",
+    username: "appadmin", // "admin" is reserved by RDS for PostgreSQL
     password: dbPassword,
 });
 
@@ -766,9 +794,33 @@ const apiKeyParam = new aws.ssm.Parameter("api-key", {
 
 // Secrets are encrypted in state
 export const connectionString = pulumi.secret(
-    pulumi.interpolate`postgresql://admin:${dbPassword}@${db.endpoint}/myapp`
+    pulumi.interpolate`postgresql://appadmin:${dbPassword}@${db.endpoint}/myapp`
 );
 ```
+
+## Promoting Changes Across Stacks
+
+Promote the *same commit* through dev, staging and prod; only stack config differs.
+
+```bash
+# 1. Deploy and verify in dev
+pulumi up --stack dev --yes
+pulumi stack output --stack dev            # smoke-test the outputs
+
+# 2. Preview staging/prod from the same commit and review the diff before applying
+pulumi preview --stack staging --diff
+pulumi up --stack staging                  # interactive confirmation
+
+# 3. Production: save the reviewed plan and apply exactly that plan
+#    (update plans; on CLIs where they are still experimental set PULUMI_EXPERIMENTAL=true,
+#    otherwise just run an interactive `pulumi up --stack prod` after the preview)
+pulumi preview --stack prod --save-plan prod-plan.json
+pulumi up --stack prod --plan prod-plan.json
+```
+
+- In CI, gate each stage on the previous one passing (and on a manual approval for prod); never run `--yes` against prod without a reviewed preview.
+- Copy shared config between stacks with `pulumi config cp --stack dev --dest staging <key>`; set per-environment values and secrets explicitly.
+- Done when: prod's preview shows only the changes already seen in staging, and staging outputs passed their checks.
 
 ## Stack Refresh and State
 
@@ -800,9 +852,9 @@ pulumi stack --show-urns | grep my-bucket
 # Remove resource from state (doesn't delete cloud resource)
 pulumi state delete 'urn:pulumi:dev::myapp::aws:s3/bucket:Bucket::my-bucket'
 
-# Rename resource in state
-pulumi state rename 'urn:pulumi:dev::myapp::aws:s3/bucket:Bucket::old-name' \
-                     'urn:pulumi:dev::myapp::aws:s3/bucket:Bucket::new-name'
+# Rename resource in state: first arg is the URN, second is the new *name* (not a URN).
+# Update the program to the new name too, or the next `up` will recreate it.
+pulumi state rename 'urn:pulumi:dev::myapp::aws:s3/bucket:Bucket::old-name' new-name
 ```
 
 ## When to Use This Skill

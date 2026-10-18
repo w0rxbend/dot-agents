@@ -262,12 +262,12 @@ RETURN u.name, u.city
 ```cypher
 // Users who have purchased something
 MATCH (u:User)
-WHERE exists((u)-[:PURCHASED]->(:Product))
+WHERE EXISTS { (u)-[:PURCHASED]->(:Product) }
 RETURN u.name
 
 // Users who have NOT purchased anything
 MATCH (u:User)
-WHERE NOT exists((u)-[:PURCHASED]->(:Product))
+WHERE NOT EXISTS { (u)-[:PURCHASED]->(:Product) }
 RETURN u.name
 
 // Complex existence check
@@ -393,7 +393,7 @@ WITH similar, count(p) AS similarity
 ORDER BY similarity DESC
 LIMIT 100
 MATCH (similar)-[r:PURCHASED]->(rec:Product)
-WHERE NOT exists((u)-[:PURCHASED]->(rec))
+WHERE NOT EXISTS { (u)-[:PURCHASED]->(rec) }
   AND r.rating >= 4
 RETURN rec.name, avg(r.rating) AS avg_rating, count(*) AS purchase_count
 ORDER BY purchase_count DESC, avg_rating DESC
@@ -409,7 +409,7 @@ WHERE r.rating >= 4
 WITH c, count(p) AS category_score
 ORDER BY category_score DESC
 MATCH (c)<-[:IN_CATEGORY]-(rec:Product)
-WHERE NOT exists((u)-[:PURCHASED]->(rec))
+WHERE NOT EXISTS { (u)-[:PURCHASED]->(rec) }
 RETURN rec.name, sum(category_score) AS relevance
 ORDER BY relevance DESC
 LIMIT 10
@@ -424,13 +424,13 @@ MATCH (u:User {id: $userId})
 // Collaborative component
 OPTIONAL MATCH (u)-[:PURCHASED]->(p1:Product)<-[:PURCHASED]-(similar)
 OPTIONAL MATCH (similar)-[:PURCHASED]->(collab_rec:Product)
-WHERE NOT exists((u)-[:PURCHASED]->(collab_rec))
+WHERE NOT EXISTS { (u)-[:PURCHASED]->(collab_rec) }
 WITH u, collab_rec, count(*) AS collab_score
 
 // Content-based component
 OPTIONAL MATCH (u)-[:PURCHASED]->(p2)-[:IN_CATEGORY]->(c)
 OPTIONAL MATCH (c)<-[:IN_CATEGORY]-(content_rec)
-WHERE NOT exists((u)-[:PURCHASED]->(content_rec))
+WHERE NOT EXISTS { (u)-[:PURCHASED]->(content_rec) }
 WITH collab_rec, collab_score, content_rec, count(*) AS content_score
 
 // Combine scores
@@ -449,7 +449,7 @@ LIMIT 10
 ```cypher
 // Friends of friends who aren't already friends
 MATCH (u:User {id: $userId})-[:FRIEND]->()-[:FRIEND]->(suggestion)
-WHERE NOT exists((u)-[:FRIEND]-(suggestion))
+WHERE NOT EXISTS { (u)-[:FRIEND]-(suggestion) }
   AND u <> suggestion
 WITH suggestion, count(*) AS mutual_friends
 WHERE mutual_friends >= 2

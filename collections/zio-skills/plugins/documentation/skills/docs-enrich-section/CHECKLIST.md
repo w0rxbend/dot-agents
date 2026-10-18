@@ -33,9 +33,11 @@ If a part is intentionally omitted (e.g., no naive approach because the API has 
 
 ## Compliance Checks (Mandatory Gates)
 
-- [ ] `bash ${CLAUDE_PLUGIN_ROOT}/skills/docs-writing-style/check-docs-style.sh <doc-file>` → exit 0
-- [ ] `bash ${CLAUDE_PLUGIN_ROOT}/skills/docs-mdoc-conventions/check-mdoc-conventions.sh <doc-file>` → exit 0
-- [ ] `sbt "docs/mdoc --in <doc-file>"` → zero `[error]` lines
+Paths: `<docs-mdoc-conventions-skill-dir>` is the directory of the `docs-mdoc-conventions` skill from the same zio-skills set (installed next to this one, e.g. as `zio-skills--docs-mdoc-conventions`); `<docs-writing-style-skill-dir>` is the directory of the `docs-writing-style` skill from the same zio-skills set (installed next to this one, e.g. as `zio-skills--docs-writing-style`).
+
+- [ ] `bash <docs-writing-style-skill-dir>/check-docs-style.sh <doc-file>` → exit 0
+- [ ] `bash <docs-mdoc-conventions-skill-dir>/check-mdoc-conventions.sh <doc-file>` → exit 0
+- [ ] `sbt "docs/mdoc --in <doc-file> --out website/<doc-file>"` → zero `[error]` lines
 
 ## Avoid Bloat
 

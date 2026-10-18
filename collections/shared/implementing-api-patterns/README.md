@@ -87,12 +87,7 @@ All framework recommendations validated with Context7:
 
 ### Performance Benchmarks
 
-| Framework | Req/s | Latency | Cold Start | Best For |
-|-----------|-------|---------|------------|----------|
-| Axum (Rust) | ~140k | <1ms | N/A | Max throughput |
-| Gin (Go) | ~100k+ | 1-2ms | N/A | Mature ecosystem |
-| Hono (TS) | ~50k | <5ms | <5ms | Edge deployment |
-| FastAPI (Python) | ~40k | 5-10ms | 1-2s | Developer experience |
+Rough throughput ordering (not measured numbers; benchmark your own workload): Axum (Rust) > Gin (Go) > Hono (TS, runtime-dependent) > FastAPI (Python).
 
 ### Pagination Strategies
 

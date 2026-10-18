@@ -200,7 +200,7 @@ function LoginForm() {
 **Detailed JavaScript/React Documentation:**
 - `references/javascript/react-hook-form.md` - Complete React Hook Form guide
 - `references/javascript/zod-validation.md` - Zod schema validation patterns
-- `references/javascript/examples/` - Working code examples
+- `examples/` - Working React code examples (`examples/javascript/` for async validation and file upload)
 
 ### Python (PRIMARY)
 
@@ -209,10 +209,10 @@ function LoginForm() {
 - **FastAPI** - Modern async web framework with automatic validation
 - **WTForms** - Flask/Django form handling (when using traditional frameworks)
 
-**Quick Start (FastAPI + Pydantic):**
+**Quick Start (FastAPI + Pydantic v2):**
 ```python
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, EmailStr, Field, field_validator  # EmailStr needs: pip install 'pydantic[email]'
 
 app = FastAPI()
 
@@ -221,8 +221,9 @@ class LoginForm(BaseModel):
     email: EmailStr  # Validates email format
     password: str = Field(..., min_length=8, description="Password must be at least 8 characters")
 
-    @validator('password')
-    def validate_password_strength(cls, v):
+    @field_validator('password')
+    @classmethod
+    def validate_password_strength(cls, v: str) -> str:
         if not any(char.isdigit() for char in v):
             raise ValueError('Password must contain at least one number')
         if not any(char.isupper() for char in v):
@@ -235,13 +236,15 @@ async def login(form_data: LoginForm):
     # If validation fails, returns 422 with error details
     return {"message": "Login successful", "email": form_data.email}
 
-# Example error response (automatic):
+# Example error response (automatic, HTTP 422):
 # {
 #   "detail": [
 #     {
+#       "type": "value_error",
 #       "loc": ["body", "email"],
-#       "msg": "value is not a valid email address",
-#       "type": "value_error.email"
+#       "msg": "value is not a valid email address: An email address must have an @-sign.",
+#       "input": "bad",
+#       "ctx": {"reason": "An email address must have an @-sign."}
 #     }
 #   ]
 # }
@@ -250,7 +253,7 @@ async def login(form_data: LoginForm):
 **Detailed Python Documentation:**
 - `references/python/pydantic-forms.md` - Pydantic validation patterns
 - `references/python/wtforms.md` - WTForms for Flask/Django
-- `references/python/examples/` - Working code examples
+- `examples/python/` - Working Python code examples
 
 ### Rust (FUTURE)
 
@@ -343,7 +346,7 @@ async def login(form_data: LoginForm):
 
 ## Integration with Design Tokens
 
-All form components use the `design-tokens` skill for visual styling, enabling theme switching (light/dark/high-contrast/custom brands).
+Style form components with design tokens (CSS custom properties) so they support theme switching (light/dark/high-contrast/custom brands); the theming-components skill covers the token system.
 
 **Key Token Categories:**
 - **Color** - Input backgrounds, borders, text, error/success states
@@ -352,38 +355,38 @@ All form components use the `design-tokens` skill for visual styling, enabling t
 - **Borders** - Border width, radius, focus ring
 - **Shadows** - Focus indicators, elevation
 
-**See:** `skills/design-tokens/` for complete theming documentation.
+**See:** the theming-components skill for complete theming documentation.
 
 ## Common Use Cases
 
 ### Contact Form
 ```tsx
 // Basic contact form with validation
-// See: references/javascript/examples/basic-form.tsx
+// See: examples/basic-form.tsx
 ```
 
 ### Registration Flow
 ```tsx
 // Multi-step registration with password strength
-// See: references/javascript/examples/multi-step-wizard.tsx
+// See: examples/multi-step-wizard.tsx
 ```
 
 ### Inline Validation
 ```tsx
 // Real-time validation with debouncing
-// See: references/javascript/examples/inline-validation.tsx
+// See: examples/inline-validation.tsx
 ```
 
 ### Survey with Conditional Logic
 ```tsx
 // Dynamic form with conditional fields
-// See: references/javascript/examples/conditional-form.tsx
+// See: examples/conditional-form.tsx
 ```
 
 ### Settings Page
 ```tsx
 // Mixed input types with autosave
-// See: references/javascript/examples/settings-form.tsx
+// See: examples/settings-form.tsx
 ```
 
 ## Quick Decision Guide
@@ -405,7 +408,7 @@ All form components use the `design-tokens` skill for visual styling, enabling t
 
 **Question: How do I build a multi-step form?**
 → Use state management with progress tracking
-→ See `references/javascript/examples/multi-step-wizard.tsx`
+→ See `examples/multi-step-wizard.tsx`
 
 ## Best Practices Summary
 

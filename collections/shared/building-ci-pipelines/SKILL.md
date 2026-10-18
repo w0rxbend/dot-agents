@@ -47,11 +47,19 @@ Examples use major-version tags for readability. In real workflows pin every thi
 name: CI
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
       - run: npm run lint
 
   test:
@@ -59,6 +67,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
       - run: npm test
 
   build:
@@ -66,8 +79,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
       - run: npm run build
 ```
+
+Each job runs on a fresh runner, so every job installs its own toolchain and dependencies.
 
 ### Pattern 2: Matrix Strategy (Multi-Platform)
 
@@ -77,7 +97,7 @@ test:
   strategy:
     matrix:
       os: [ubuntu-latest, windows-latest, macos-latest]
-      node-version: [18, 20, 22]
+      node-version: [22, 24]
   steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
@@ -86,7 +106,7 @@ test:
     - run: npm test
 ```
 
-9 jobs (3 OS × 3 versions) in parallel: 5 min vs 45 min sequential.
+6 jobs (3 OS × 2 Node LTS lines) run in parallel, so wall-clock time is roughly that of the slowest job. Keep the matrix on currently supported Node releases (see the Node.js release schedule).
 
 ### Pattern 3: Monorepo Affected (Turborepo)
 
@@ -100,7 +120,10 @@ build:
 
     - uses: actions/setup-node@v4
       with:
-        node-version: 20
+        node-version: 24
+        cache: npm
+
+    - run: npm ci
 
     - name: Build affected
       run: npx turbo run build --filter='...[origin/main]'
@@ -131,9 +154,15 @@ jobs:
       digest: ${{ steps.build.outputs.digest }}
     steps:
       - uses: actions/checkout@v4
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build container
         id: build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
@@ -216,12 +245,12 @@ security:
 ```yaml
 - uses: actions/setup-node@v4
   with:
-    node-version: 20
+    node-version: 24
     cache: 'npm'  # Auto-caches ~/.npm
 - run: npm ci
 ```
 
-Supported: npm, yarn, pnpm, pip, poetry, cargo, go
+The `cache:` input is per setup action: `actions/setup-node` supports npm, yarn and pnpm; `actions/setup-python` supports pip, pipenv and poetry; `actions/setup-go` caches Go modules by default (`cache: true`). For Rust or anything else use `actions/cache` (below) or a dedicated action such as `Swatinem/rust-cache`.
 
 ### Manual Cache Control
 
@@ -353,7 +382,7 @@ test:
 test:
   strategy:
     matrix:
-      node-version: [18, 20, 22]
+      node-version: [22, 24]
   steps:
     - uses: pnpm/action-setup@<pinned-sha> # current major
       with:

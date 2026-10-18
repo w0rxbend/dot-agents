@@ -10,6 +10,7 @@
 - [Video Input](#video-input)
 - [Multi-Modal Message Display](#multi-modal-message-display)
 - [Drag & Drop Support](#drag--drop-support)
+- [Additional Patterns](#additional-patterns)
 
 ## Image Handling
 
@@ -1448,3 +1449,73 @@ function UniversalDropZone({ onDrop, children }) {
 8. **Metadata extraction** - Show relevant info (dimensions, pages, duration)
 9. **Voice feedback** - Visual audio levels, transcription preview
 10. **Accessibility** - Keyboard support, ARIA labels, focus management
+
+## Additional Patterns
+
+### Camera Capture (Mobile)
+
+```tsx
+function CameraInput({ onCapture }: Props) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+
+  const startCamera = async () => {
+    const mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' },  // Back camera on mobile
+    });
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = mediaStream;
+      setStream(mediaStream);
+    }
+  };
+
+  const capturePhoto = () => {
+    const canvas = document.createElement('canvas');
+    const video = videoRef.current!;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(video, 0, 0);
+
+    canvas.toBlob((blob) => {
+      onCapture(blob!);
+      stopCamera();
+    }, 'image/jpeg', 0.9);
+  };
+
+  const stopCamera = () => {
+    stream?.getTracks().forEach((track) => track.stop());
+    setStream(null);
+  };
+
+  return (
+    <div>
+      <button onClick={startCamera}>📷 Open Camera</button>
+
+      {stream && (
+        <div>
+          <video ref={videoRef} autoPlay playsInline />
+          <button onClick={capturePhoto}>Capture</button>
+          <button onClick={stopCamera}>Cancel</button>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### Best Practices
+
+1. **Validate file types** - Check MIME type and extension
+2. **Enforce size limits** - Prevent large uploads
+3. **Show previews** - Let users confirm before sending
+4. **Compress images** - Client-side compression before upload
+5. **Handle errors** - Clear messages for unsupported formats
+6. **Loading states** - Show progress during upload
+7. **Allow removal** - Users can remove attachments before send
+8. **Mobile-friendly** - Camera access, photo library
+9. **Accessibility** - Alt text, ARIA labels
+10. **Secure upload** - Validate server-side, scan for malware

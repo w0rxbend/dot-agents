@@ -37,15 +37,16 @@ DETECT ──→ FETCH ──→ IMPLEMENT ──→ CITE
 
 ### Step 1: Detect Stack and Versions
 
-Read the project's dependency file to identify exact versions:
+Read the resolved version from the lockfile first; manifests usually hold ranges (`^18.2.0`, `>=4.2`), not the version actually installed. Fall back to the manifest only when there is no lockfile, and say that the version is a range:
 
 ```
-package.json    → Node/React/Vue/Angular/Svelte
-composer.json   → PHP/Symfony/Laravel
-requirements.txt / pyproject.toml → Python/Django/Flask
-go.mod          → Go
-Cargo.toml      → Rust
-Gemfile         → Ruby/Rails
+Lockfile (exact)                                        Manifest (ranges)
+package-lock.json / pnpm-lock.yaml / yarn.lock / bun.lock → package.json    (Node/React/Vue/Angular/Svelte)
+composer.lock                                           → composer.json   (PHP/Symfony/Laravel)
+poetry.lock / uv.lock / pinned requirements.txt         → pyproject.toml  (Python/Django/Flask)
+go.mod (selected versions) + go.sum                     → go.mod          (Go)
+Cargo.lock                                              → Cargo.toml      (Rust)
+Gemfile.lock                                            → Gemfile         (Ruby/Rails)
 ```
 
 State what you found explicitly:

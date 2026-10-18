@@ -61,7 +61,7 @@
       "id": 3,
       "name": "doc-comment-why-not-what",
       "prompt": "Write a godoc comment for this Go function. Make it comprehensive:\n\n```go\nfunc Merge(dst, src map[string]interface{}, overwrite bool) map[string]interface{} {\n    if dst == nil {\n        dst = make(map[string]interface{})\n    }\n    for k, v := range src {\n        if _, exists := dst[k]; !exists || overwrite {\n            dst[k] = v\n        }\n    }\n    return dst\n}\n```",
-      "trap": "Model might just restate: 'Merge merges two maps'. Skill teaches why/when/constraints, Parameters section, Returns section, error cases",
+      "trap": "Model might just restate: 'Merge merges two maps'. Skill teaches why/when/constraints and error cases in Go-style prose",
       "assertions": [
         {
           "id": "3.1",
@@ -69,7 +69,7 @@
         },
         {
           "id": "3.2",
-          "text": "Includes a Parameters section listing dst, src, and overwrite with descriptions"
+          "text": "Describes what dst, src, and overwrite do in prose (no need for a Parameters heading)"
         },
         {
           "id": "3.3",
@@ -78,7 +78,7 @@
         { "id": "3.4", "text": "Documents nil dst handling (creates new map)" },
         {
           "id": "3.5",
-          "text": "Includes an inline code Example section showing usage"
+          "text": "Uses Go doc style (prose, no restating the signature); suggests an ExampleMerge test function if an example is wanted"
         }
       ]
     },
@@ -226,7 +226,7 @@
       "id": 9,
       "name": "brief-doc-comment-trap",
       "prompt": "Write a brief, one-line doc comment for this exported Go function. Keep it short — I don't want verbose documentation cluttering the code:\n\n```go\npackage retry\n\nfunc Do(ctx context.Context, maxAttempts int, delay time.Duration, backoff float64, fn func() error) error {\n    var lastErr error\n    for i := 0; i < maxAttempts; i++ {\n        if err := fn(); err != nil {\n            lastErr = err\n            select {\n            case <-ctx.Done():\n                return ctx.Err()\n            case <-time.After(delay):\n                delay = time.Duration(float64(delay) * backoff)\n            }\n            continue\n        }\n        return nil\n    }\n    return lastErr\n}\n```",
-      "trap": "User explicitly asks for 'brief, one-line'. Without skill, model complies and writes a minimal one-liner. With skill, the model should STILL write a comprehensive comment because the skill says every exported function MUST have a doc comment with Parameters, Returns, and Example sections",
+      "trap": "User explicitly asks for 'brief, one-line'. The model should honor that and write one accurate sentence that still captures the non-obvious behavior (backoff, context cancellation), rather than a vague restatement",
       "assertions": [
         {
           "id": "9.1",
@@ -234,19 +234,19 @@
         },
         {
           "id": "9.2",
-          "text": "Includes a Parameters section or describes each parameter (ctx, maxAttempts, delay, backoff, fn)"
+          "text": "Keeps the comment to one line (or one short sentence) as the user asked"
         },
         {
           "id": "9.3",
-          "text": "Documents the exponential backoff behavior (delay multiplied by backoff factor)"
+          "text": "Mentions retrying fn up to maxAttempts with backoff-multiplied delay"
         },
         {
           "id": "9.4",
-          "text": "Documents context cancellation behavior (returns ctx.Err())"
+          "text": "Does not add Parameters/Returns/Example sections the user did not want"
         },
         {
           "id": "9.5",
-          "text": "Includes an inline Example section showing a realistic usage pattern"
+          "text": "May optionally note (outside the code) that context cancellation behavior could be documented if the user wants more detail"
         }
       ]
     },

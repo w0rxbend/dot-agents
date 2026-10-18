@@ -174,7 +174,7 @@ from opentelemetry.trace import StatusCode
 
 tracer = trace.get_tracer("agent.llm")
 
-def traced_llm_call(client, messages, model="gpt-4o", **kwargs):
+def traced_llm_call(client, messages, model, **kwargs):
     """Wrap an LLM completion call with a full OpenTelemetry span."""
     with tracer.start_as_current_span("llm.chat_completion") as span:
         span.set_attribute("llm.model", model)

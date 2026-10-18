@@ -50,7 +50,7 @@ Create a rules file that persists across sessions. This is the highest-leverage 
 ## Commands
 - Build: `npm run build`
 - Test: `npm test`
-- Lint: `npm run lint --fix`
+- Lint: `npm run lint -- --fix`
 - Dev: `npm run dev`
 - Type check: `npx tsc --noEmit`
 
@@ -72,7 +72,7 @@ Create a rules file that persists across sessions. This is the highest-leverage 
 ```
 
 **Equivalent files for other tools:**
-- `.cursorrules` or `.cursor/rules/*.md` (Cursor)
+- `.cursor/rules/*.mdc` (Cursor project rules; the single `.cursorrules` file is the deprecated legacy form)
 - `.windsurfrules` (Windsurf)
 - `.github/copilot-instructions.md` (GitHub Copilot)
 - `AGENTS.md` (OpenAI Codex)
@@ -199,7 +199,7 @@ Load only the relevant section when working on a specific area.
 
 The context window is not a filing cabinet — it's a working desk. As a session runs, conversation history, tool output, and exploration accumulate. Most of it becomes deadweight. Budget proactively: waiting until the window is full causes abrupt quality drops; managing regularly keeps the agent coherent through long tasks.
 
-**Start trimming at 75% capacity, not 100%.** By the time the window is genuinely full, the model's attention is already fragmented across too many signals. The 75% threshold gives room to compress gracefully rather than cut desperately mid-task.
+**Act at about 75% capacity, not 100%.** By the time the window is genuinely full, the model's attention is already fragmented across too many signals. An agent usually cannot delete past messages itself, so "cutting" means: stop pulling in more raw output, write the conclusions down (in a notes file or the task's plan), then compact the session (for example `/compact` in Claude Code) or start a fresh session at the next task boundary with that summary. The 75% threshold gives room to do this gracefully rather than desperately mid-task.
 
 ### What to cut first
 
@@ -338,7 +338,7 @@ This catches wrong directions before you've built on them. It's a 30-second inve
 | Missing examples | Agent invents a new style instead of following yours | Include one example of the pattern to follow |
 | Implicit knowledge | Agent doesn't know project-specific rules | Write it down in rules files — if it's not written, it doesn't exist |
 | Silent confusion | Agent guesses when it should ask | Surface ambiguity explicitly using the confusion management patterns above |
-| Context cliff | Waiting until the window is full before managing it — attention fragments and output quality drops abruptly at the limit | Start trimming at 75% capacity; compress rather than cut |
+| Context cliff | Waiting until the window is full before managing it — attention fragments and output quality drops abruptly at the limit | At about 75% capacity, summarize and compact or start a fresh session at a task boundary |
 
 ## Common Rationalizations
 

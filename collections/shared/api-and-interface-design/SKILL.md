@@ -143,6 +143,12 @@ interface CreateTaskInput {
 }
 ```
 
+### Scala specifics
+
+- Default arguments compile to `$default$N` getters whose numbering shifts when a parameter is inserted (a binary break), and whose values are invisible to bytecode gates such as japicmp or a JVM-signature golden.
+- Only one overload alternative may declare defaults, which constrains additive typed overloads and one-parameter conveniences: `foreach(f)` next to `foreach(attempts)(f)` works because the new alternative carries no defaults.
+- A companion `apply` with the same signature as the synthetic case-class one is binary-compatible and is the place for defensive copies of caller-supplied collections.
+
 ### 5. Predictable Naming
 
 | Pattern | Convention | Example |

@@ -82,9 +82,11 @@ To benchmark performance:
 # Generate test data
 python scripts/generate_mock_data.py --rows 10000
 
-# Analyze rendering performance
-node scripts/analyze_performance.js
+# Time in-memory sort/filter/search for given sizes (Node.js; not DOM rendering)
+node scripts/analyze_performance.js --rows 1000,10000,100000
 ```
+
+Rendering and scroll performance can only be measured in a browser (DevTools Performance panel, React Profiler).
 
 For optimization strategies, reference `references/performance-optimization.md`.
 
@@ -134,9 +136,9 @@ Essential WCAG compliance:
 - Full keyboard navigation
 - Screen reader announcements
 
-To validate accessibility:
+To check table markup (static heuristics for caption, headers, `scope` and ARIA roles; contrast, focus and keyboard behaviour still need a browser check with axe or Lighthouse):
 ```bash
-node scripts/validate_accessibility.js
+node scripts/validate_accessibility.js path/to/table.html
 ```
 
 For complete requirements, reference `references/accessibility-patterns.md`.
@@ -184,26 +186,32 @@ For detailed comparison, reference `references/library-comparison.md`.
 
 ## Design Token Integration
 
-Tables use the design-tokens skill for consistent theming:
+Style tables with design tokens (CSS custom properties) for consistent theming:
 - Color tokens for backgrounds, borders, and states
 - Spacing tokens for cell padding
 - Typography tokens for text styling
 - Shadow tokens for elevation
 
 Supports light, dark, high-contrast, and custom themes.
-Reference the design-tokens skill for theme switching.
+Use the theming-components skill for the token system and theme switching.
 
 ## Working Examples
 
 Start with the example matching the requirements:
 
 ```
-simple-responsive-table.tsx    # Basic HTML table
-sortable-filtered-table.tsx    # With sorting and filtering
-paginated-server-table.tsx      # Server-side pagination
-virtual-scrolling-grid.tsx      # High-performance for 100K+ rows
-editable-data-grid.tsx         # Inline editing with validation
-grouped-aggregated-table.tsx   # Hierarchical with aggregations
+examples/simple-responsive-table.tsx   # Basic HTML table
+examples/basic-sortable-table.tsx      # Client-side sorting
+examples/sortable-filtered-table.tsx   # Sorting and filtering
+examples/tanstack-basic.tsx            # TanStack Table setup
+examples/paginated-table.tsx           # Pagination
+examples/server-side-sorting.tsx       # Server-side sorting
+examples/virtual-scrolling.tsx         # Virtualized rows
+examples/virtual-scrolling-grid.tsx    # High-performance grid for 100K+ rows
+examples/editable-cells.tsx            # Inline editing
+examples/table-state-persistence.tsx   # Persisting sort/filter/column state
+examples/responsive-patterns.tsx       # Responsive layouts
+examples/ag-grid-enterprise.tsx        # AG Grid with grouping and aggregation
 ```
 
 ## Testing Tools
@@ -213,14 +221,14 @@ Generate test data:
 python scripts/generate_mock_data.py --rows 100000 --columns 20
 ```
 
-Benchmark performance:
+Benchmark in-memory data operations (not rendering):
 ```bash
 node scripts/analyze_performance.js --rows 10000
 ```
 
-Validate accessibility:
+Check table markup accessibility:
 ```bash
-node scripts/validate_accessibility.js
+node scripts/validate_accessibility.js path/to/table.html
 ```
 
 ## Next Steps

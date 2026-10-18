@@ -128,6 +128,4 @@ docker exec kafka kafka-consumer-groups \
 
 ## References
 
-- Confluent Kafka Python: `/confluentinc/confluent-kafka-python`
-- Trust Score: 68.8/100
-- Code Snippets: 192+
+- Confluent Kafka Python: https://github.com/confluentinc/confluent-kafka-python

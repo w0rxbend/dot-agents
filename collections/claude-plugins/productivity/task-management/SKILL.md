@@ -10,7 +10,7 @@ Tasks are tracked in a simple `TASKS.md` file that both you and the user can edi
 
 ## File Location
 
-**Always use `TASKS.md` in the current working directory.**
+**Always use `TASKS.md` in the user's productivity workspace directory** (the directory set up by the start skill; if unsure, ask). Do not create it inside a code repository unless the user asks for that.
 
 - If it exists, read/write to it
 - If it doesn't exist, create it with the template below
@@ -19,9 +19,9 @@ Tasks are tracked in a simple `TASKS.md` file that both you and the user can edi
 
 A visual dashboard is available for managing tasks and memory. **On first interaction with tasks:**
 
-1. Check if `dashboard.html` exists in the current working directory
-2. If not, copy it from `${CLAUDE_PLUGIN_ROOT}/skills/dashboard.html` to the current working directory
-3. Inform the user: "I've added the dashboard. Run `/productivity:start` to set up the full system."
+1. Check if `dashboard.html` exists next to `TASKS.md`
+2. If not, copy `dashboard.html` from this skill's directory (it ships next to this SKILL.md) to that directory
+3. Inform the user: "I've added the dashboard. Use the start skill (`start`) to set up the full system."
 
 The task board:
 - Reads and writes to the same `TASKS.md` file

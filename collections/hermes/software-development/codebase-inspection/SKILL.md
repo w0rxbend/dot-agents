@@ -28,7 +28,9 @@ Analyze repositories for lines of code, language breakdown, file counts, and cod
 ## Prerequisites
 
 ```bash
-pip install --break-system-packages pygount 2>/dev/null || pip install pygount
+# Isolated CLI install (preferred) — do not disable the PEP 668 guard on system Python
+pipx install pygount   # or: uv tool install pygount
+# Inside an already-active virtualenv, plain `pip install pygount` is fine
 ```
 
 ## 1. Basic Summary (Most Common)

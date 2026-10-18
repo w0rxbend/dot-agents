@@ -75,12 +75,9 @@ class MarketService {
     // Fetch full data
     const markets = await this.marketRepo.findByIds(results.map(r => r.id))
 
-    // Sort by similarity
-    return markets.sort((a, b) => {
-      const scoreA = results.find(r => r.id === a.id)?.score || 0
-      const scoreB = results.find(r => r.id === b.id)?.score || 0
-      return scoreA - scoreB
-    })
+    // Sort by similarity, most similar first
+    const scores = new Map(results.map(r => [r.id, r.score]))
+    return markets.sort((a, b) => (scores.get(b.id) ?? 0) - (scores.get(a.id) ?? 0))
   }
 
   private async vectorSearch(embedding: number[], limit: number) {
@@ -182,14 +179,16 @@ RETURNS jsonb
 LANGUAGE plpgsql
 AS $$
 BEGIN
-  -- Start transaction automatically
-  INSERT INTO markets VALUES (market_data);
-  INSERT INTO positions VALUES (position_data);
+  -- The function body runs in one transaction: if any statement raises,
+  -- both inserts are rolled back and the error reaches the caller.
+  INSERT INTO markets
+    SELECT * FROM jsonb_populate_record(NULL::markets, market_data);
+  INSERT INTO positions
+    SELECT * FROM jsonb_populate_record(NULL::positions, position_data);
   RETURN jsonb_build_object('success', true);
-EXCEPTION
-  WHEN OTHERS THEN
-    -- Rollback happens automatically
-    RETURN jsonb_build_object('success', false, 'error', SQLERRM);
+  -- Do not add `EXCEPTION WHEN OTHERS THEN RETURN ...` here: swallowing the
+  -- error makes the RPC succeed, so the caller would treat a failed write as success.
+  -- If you need to log or wrap the error, RAISE again after handling it.
 END;
 $$;
 ```
@@ -280,7 +279,7 @@ export function errorHandler(error: unknown, req: Request): Response {
     return NextResponse.json({
       success: false,
       error: 'Validation failed',
-      details: error.errors
+      details: error.issues  // `.errors` was removed in Zod 4; `.issues` works in Zod 3 and 4
     }, { status: 400 })
   }
 
@@ -396,27 +395,36 @@ export function hasPermission(user: User, permission: Permission): boolean {
   return rolePermissions[user.role].includes(permission)
 }
 
-export function requirePermission(permission: Permission) {
-  return async (request: Request) => {
-    const user = await requireAuth(request)
+type AuthedHandler = (request: Request, user: User) => Promise<Response>
 
-    if (!hasPermission(user, permission)) {
-      throw new ApiError(403, 'Insufficient permissions')
+export function requirePermission(permission: Permission, handler: AuthedHandler) {
+  return async (request: Request): Promise<Response> => {
+    try {
+      const user = await requireAuth(request)
+
+      if (!hasPermission(user, permission)) {
+        throw new ApiError(403, 'Insufficient permissions')
+      }
+
+      return await handler(request, user)
+    } catch (error) {
+      return errorHandler(error, request)
     }
-
-    return user
   }
 }
 
 // Usage
-export const DELETE = requirePermission('delete')(async (request: Request) => {
-  // Handler with permission check
+export const DELETE = requirePermission('delete', async (request, user) => {
+  // Runs only after authentication and the permission check pass
+  return NextResponse.json({ success: true, deletedBy: user.id })
 })
 ```
 
 ## Rate Limiting
 
 ### Simple In-Memory Rate Limiter
+
+> Single-process sketch only. State lives in one server's memory, so limits reset on restart and are not shared across instances or serverless invocations, and the map grows with every new key. In production use a shared store (Redis, your API gateway or edge provider's limiter).
 
 ```typescript
 class RateLimiter {
@@ -448,7 +456,10 @@ class RateLimiter {
 const limiter = new RateLimiter()
 
 export async function GET(request: Request) {
-  const ip = request.headers.get('x-forwarded-for') || 'unknown'
+  // `x-forwarded-for` is client-controlled unless your own proxy overwrites it.
+  // Prefer the authenticated user ID, or the client IP your platform/proxy sets
+  // (for example the right-most trusted hop), over the raw header.
+  const ip = request.headers.get('x-forwarded-for')?.split(',').pop()?.trim() || 'unknown'
 
   const allowed = await limiter.checkLimit(ip, 100, 60000)  // 100 req/min
 
@@ -465,6 +476,8 @@ export async function GET(request: Request) {
 ## Background Jobs & Queues
 
 ### Simple Queue Pattern
+
+> In-memory sketch only: queued jobs are lost on restart or deploy, are not shared across instances, and serverless platforms may freeze the process after the response is sent. For real background work use a durable queue (BullMQ, SQS, Cloud Tasks, a database-backed job table).
 
 ```typescript
 class JobQueue<T> {

@@ -75,7 +75,7 @@ For detailed service comparisons including cost examples, performance characteri
 | Document Storage | JSON/BSON | DynamoDB | Flexibility vs. MongoDB compat |
 | Caching | In-Memory | ElastiCache Redis | Speed + durability |
 | Analytics (OLAP) | Columnar | Redshift/Athena | Dedicated vs. serverless |
-| Time-Series | Timestamped | Timestream | Purpose-built |
+| Time-Series | Timestamped | Timestream for InfluxDB | Purpose-built (Timestream for LiveAnalytics is closed to new customers) |
 
 **Query Complexity Guide:**
 
@@ -166,7 +166,7 @@ S3 Upload → EventBridge Rule → Lambda (process) → DynamoDB (metadata)
 
 **Key Features (2025):**
 - **EventBridge Pipes:** Simplified source → filter → enrichment → target
-- **Lambda Response Streaming:** Stream responses up to 20MB
+- **Lambda Response Streaming:** Stream responses beyond the 6 MB buffered limit (check current Lambda quotas for the streaming maximum)
 - **Step Functions Distributed Map:** Process millions of items in parallel
 
 See `references/serverless-patterns.md` for additional patterns including Step Functions orchestration, API Gateway WebSockets, and Lambda SnapStart configuration.
@@ -193,7 +193,7 @@ ALB → ECS Service (Fargate tasks) → RDS Aurora
 - ECS Cluster with Fargate launch type
 - Task definitions (CPU, memory, container image)
 - Auto-scaling based on CPU/memory or custom metrics
-- Service Connect for built-in service mesh (2025 feature)
+- Service Connect for built-in service mesh
 
 **Cost Model (2 vCPU, 4GB RAM, 24/7):**
 - Fargate: ~$70/month
@@ -337,7 +337,7 @@ For WAF rules, GuardDuty configuration, and network security patterns, see `refe
 - Storage optimization (S3 Intelligent-Tiering, lifecycle policies)
 - Cost monitoring (Cost Explorer, Budgets, Trusted Advisor)
 
-**6. Sustainability (Added 2024)**
+**6. Sustainability (added 2021)**
 - Use Graviton processors (60% less energy, 25% better performance)
 - Optimize workload placement (renewable energy regions)
 - Storage efficiency (delete unused data, compression)
@@ -527,12 +527,12 @@ See `references/serverless-patterns.md` for EventBridge and Firehose patterns.
 - **CloudFormation Example:** `examples/cloudformation/lambda-api.yaml` - Lambda behind an HTTP API
 
 
-## AWS Service Updates (2025)
+## Notable AWS Features (verify current status before relying on them)
 
 **Recent Innovations to Consider:**
 
 - **Lambda SnapStart:** Near-instant cold starts for Java functions
-- **Lambda Response Streaming:** Stream responses up to 20MB
+- **Lambda Response Streaming:** Stream responses beyond the 6 MB buffered limit (check current Lambda quotas for the streaming maximum)
 - **EventBridge Pipes:** Simplified event processing (source → filter → enrichment → target)
 - **S3 Express One Zone:** 10x faster S3, single-digit millisecond latency
 - **ECS Service Connect:** Built-in service mesh for ECS

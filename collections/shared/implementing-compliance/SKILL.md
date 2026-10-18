@@ -30,7 +30,7 @@ Invoke when:
 - Audience: SaaS vendors, cloud service providers
 - When required: Enterprise B2B sales, handling customer data
 - Timeline: 6-12 month observation period
-- 2025 updates: Monthly control testing, AI governance, 72-hour breach disclosure
+- No fixed testing cadence or breach-notification deadline in the Trust Services Criteria; auditors and customer contracts set those expectations (often a defined notification window such as 72 hours)
 
 **ISO 27001**
 - Audience: Global enterprises
@@ -42,12 +42,12 @@ Invoke when:
 **HIPAA (Healthcare)**
 - Audience: Healthcare providers, health tech handling PHI
 - When required: Processing Protected Health Information
-- 2025 focus: Zero Trust Architecture, EDR/XDR, AI assessments
+- Security Rule changes were proposed in 2025 (stricter MFA, encryption, asset inventory); check the current status before treating them as mandatory
 
 **PCI-DSS 4.0 (Payment Card Industry)**
 - Audience: Merchants, payment processors
 - When required: Processing, storing, transmitting cardholder data
-- Effective: April 1, 2025 (mandatory)
+- Future-dated v4.0 requirements became mandatory after March 31, 2025
 - Key changes: Client-side security, 12-char passwords, enhanced MFA
 
 ### Tier 3: Privacy Regulations
@@ -55,13 +55,13 @@ Invoke when:
 **GDPR (EU Privacy)**
 - Audience: Organizations processing EU residents' data
 - When required: EU customers/users (extraterritorial)
-- 2025 updates: 48-hour breach reporting, 6% revenue fines, AI transparency
+- Breach notice to the supervisory authority within 72 hours (Art. 33); fines up to EUR 20M or 4% of global annual turnover (Art. 83)
 
 **CCPA/CPRA (California Privacy)**
 - Audience: Businesses serving California residents
 - When required: Revenue >$25M, or 100K+ CA residents, or 50%+ revenue from data sales
 
-For detailed framework requirements, see references/soc2-controls.md, references/hipaa-safeguards.md, references/pci-dss-requirements.md, and references/gdpr-articles.md.
+For detailed framework requirements, see [references/soc2-controls.md](references/soc2-controls.md), [references/hipaa-safeguards.md](references/hipaa-safeguards.md), [references/pci-dss-requirements.md](references/pci-dss-requirements.md), and [references/gdpr-articles.md](references/gdpr-articles.md).
 
 ## Universal Control Implementation
 
@@ -72,7 +72,7 @@ Implement controls once, map to multiple frameworks. Reduces effort by 60-80%.
 **Implementation Priority:**
 1. **Encryption** (ENC-001, ENC-002): AES-256 at rest, TLS 1.3 in transit
 2. **Access Control** (MFA-001, RBAC-001): MFA, RBAC, least privilege
-3. **Audit Logging** (LOG-001): Centralized, immutable, 7-year retention
+3. **Audit Logging** (LOG-001): Centralized, immutable, retention set per framework (see below)
 4. **Monitoring** (MON-001): SIEM, intrusion detection, alerting
 5. **Incident Response** (IR-001): Detection, escalation, breach notification
 
@@ -92,7 +92,7 @@ Implement controls once, map to multiple frameworks. Reduces effort by 60-80%.
 
 **Logging & Monitoring:**
 - Centralized audit logging (all auth and data access)
-- 7-year retention (satisfies all frameworks)
+- Retention per framework minimum: PCI-DSS 12 months (3 months immediately available, Req 10.5.1); HIPAA keeps required documentation 6 years (§164.316(b)(2)); SOC 2 and ISO 27001 set no fixed period (your policy, covering the audit period); GDPR storage limitation (Art. 5(1)(e)) means minimizing or pseudonymizing personal data in long-lived logs. See the `audit-logging` skill, which is the authority on retention
 - Immutable storage (S3 Object Lock)
 - Real-time alerting
 
@@ -105,14 +105,14 @@ Implement controls once, map to multiple frameworks. Reduces effort by 60-80%.
 **Incident Response:**
 - Documented incident response plan
 - Automated detection and alerting
-- Breach notification: HIPAA 60d, GDPR 48h, SOC 2 72h, PCI-DSS immediate
+- Breach notification: HIPAA without unreasonable delay and within 60 days; GDPR 72h to the supervisory authority; SOC 2 per contract/policy; PCI-DSS immediately to the acquirer and card brands
 
 **Business Continuity:**
 - Automated backups with defined RPO/RTO
 - Multi-region disaster recovery
 - Regular failover testing
 
-For complete control implementations, see references/control-mapping-matrix.md.
+For complete control implementations, see [references/control-mapping-matrix.md](references/control-mapping-matrix.md).
 
 ## Compliance as Code
 
@@ -137,10 +137,13 @@ See examples/opa-policies/encryption.rego for complete implementation.
 ```bash
 terraform plan -out=tfplan.binary
 terraform show -json tfplan.binary > tfplan.json
-opa eval --data policies/ --input tfplan.json 'data.compliance.main.deny'
+# Fails the job (exit 1) if any compliance.* package produces a deny message
+opa eval --data policies/ --input tfplan.json --fail-defined 'data.compliance[_].deny[_]'
+# Print every message as a JSON array
+opa eval --data policies/ --input tfplan.json --format raw '[m | m := data.compliance[_].deny[_]]'
 ```
 
-For complete CI/CD patterns, see references/cicd-integration.md.
+The example policies use Rego v1 syntax (`deny contains msg if { ... }`), which OPA 1.0+ requires by default.
 
 ### Static Analysis with Checkov
 
@@ -168,12 +171,12 @@ def test_s3_encrypted(terraform_plan):
     assert all_buckets_encrypted(buckets, encrypted)
 
 def test_opa_policies():
-    result = subprocess.run(["opa", "eval", "--data", "policies/",
-        "--input", "tfplan.json", "data.compliance.main.deny"])
-    assert not json.loads(result.stdout)
+    result = subprocess.run(
+        ["opa", "eval", "--data", "policies/", "--input", "tfplan.json",
+         "--format", "raw", "[m | m := data.compliance[_].deny[_]]"],
+        capture_output=True, text=True, check=True)
+    assert json.loads(result.stdout) == []
 ```
-
-For complete test patterns, see references/compliance-testing.md.
 
 ## Technical Control Implementations
 
@@ -204,7 +207,7 @@ resource "aws_db_instance" "main" {
 }
 ```
 
-For complete encryption implementations including Azure and GCP, see references/encryption-implementations.md.
+For complete encryption implementations including Azure and GCP, see [references/encryption-implementations.md](references/encryption-implementations.md).
 
 ### Encryption in Transit
 
@@ -261,11 +264,11 @@ rules:
   verbs: ["get", "list"]  # Read-only
 ```
 
-For complete RBAC patterns including AWS IAM and OPA policies, see references/access-control-patterns.md.
+For OPA access-control policies, see examples/opa-policies/access_control.rego.
 
 ### Audit Logging
 
-**Standards:** Structured JSON, 7-year retention, immutable storage
+**Standards:** Structured JSON, retention set per framework, immutable storage
 
 **Required Events:** Authentication, authorization, data access, administrative actions, security events
 
@@ -289,19 +292,24 @@ class AuditLogger:
 **Log Retention:**
 ```hcl
 resource "aws_cloudwatch_log_group" "audit" {
-  retention_in_days = 2555  # 7 years
+  # Allowed values are fixed (..., 365, 731, 1096, 1827, 2192, 2557, ...).
+  # 2192 = 6 years, a common policy for HIPAA scope; PCI-DSS alone needs 365.
+  retention_in_days = 2192
   kms_key_id        = aws_kms_key.logs.arn
 }
 
 resource "aws_s3_bucket_object_lock_configuration" "audit" {
   bucket = aws_s3_bucket.audit_logs.id
   rule {
-    default_retention { mode = "COMPLIANCE"; years = 7 }
+    default_retention {
+      mode  = "COMPLIANCE"
+      years = 6
+    }
   }
 }
 ```
 
-For complete audit logging patterns including HIPAA PHI access logging, see references/audit-logging-patterns.md.
+For audit-event taxonomy, shipping, SIEM integration and per-framework retention, use the `audit-logging` skill.
 
 ## Evidence Collection Automation
 
@@ -367,15 +375,16 @@ Unified control mapping across frameworks:
 
 **Strategy:** Implement once with proper tagging, map to all applicable frameworks.
 
-For complete control mapping with 45+ controls, see references/control-mapping-matrix.md.
+For complete control mapping with 45+ controls, see [references/control-mapping-matrix.md](references/control-mapping-matrix.md).
 
 ## Breach Notification Requirements
 
 **Framework-Specific Timelines:**
-- HIPAA: 60 days to HHS and affected individuals
-- GDPR: 48 hours to supervisory authority (2025 update)
-- SOC 2: 72 hours to affected customers
-- PCI-DSS: Immediate to payment brands
+- HIPAA: affected individuals without unreasonable delay and no later than 60 days after discovery; HHS within 60 days if 500+ individuals are affected (smaller breaches: annual log to HHS)
+- GDPR: 72 hours to the supervisory authority (Art. 33); affected individuals without undue delay when the risk is high (Art. 34)
+- SOC 2: no regulatory deadline; follow customer contracts and your own policy
+- PCI-DSS: immediately to the acquirer and card brands, per their rules
+- US state breach laws and sector rules add their own deadlines; confirm with counsel
 
 **Required Elements:**
 - Description of incident and data involved
@@ -384,7 +393,7 @@ For complete control mapping with 45+ controls, see references/control-mapping-m
 - Contact information for questions
 - Remediation actions and timeline
 
-For incident response templates, see references/incident-response-templates.md.
+For incident response process and postmortems, use the `managing-incidents` skill.
 
 ## Vendor Management
 
@@ -407,7 +416,6 @@ For incident response templates, see references/incident-response-templates.md.
 4. SOC 2 report collection (≤90 days old)
 5. Annual re-assessment
 
-For vendor management templates, see references/vendor-management.md.
 
 ## Tools & Libraries
 
@@ -422,7 +430,6 @@ For vendor management templates, see references/vendor-management.md.
 - Cloud Custodian: Multi-cloud compliance automation
 - Drata/Vanta/Secureframe: Continuous compliance platforms
 
-For tool selection guidance, see references/tool-recommendations.md.
 
 ## Integration with Other Skills
 
@@ -442,7 +449,7 @@ For tool selection guidance, see references/tool-recommendations.md.
 - [ ] Implement encryption (AES-256, TLS 1.3)
 - [ ] Configure MFA for privileged access
 - [ ] Implement RBAC with least privilege
-- [ ] Set up audit logging (7-year retention)
+- [ ] Set up audit logging (retention per framework minimums)
 - [ ] Configure security monitoring/alerting
 - [ ] Create incident response plan
 - [ ] Execute vendor agreements (BAAs, DPAs)
@@ -455,7 +462,7 @@ For tool selection guidance, see references/tool-recommendations.md.
 - Treating compliance as one-time project vs continuous process
 - Implementing per-framework vs unified controls
 - Manual evidence collection vs automation
-- Insufficient log retention (<7 years)
+- Log retention below a framework minimum (e.g. under 12 months for PCI-DSS), or keeping personal data in logs longer than needed (GDPR)
 - Missing MFA enforcement
 - Not encrypting backups/logs
 - Inadequate vendor due diligence
@@ -463,23 +470,14 @@ For tool selection guidance, see references/tool-recommendations.md.
 ## References
 
 **Framework Details:**
-- references/soc2-controls.md - SOC 2 TSC control catalog
-- references/hipaa-safeguards.md - HIPAA safeguards
-- references/pci-dss-requirements.md - PCI-DSS 4.0 requirements
-- references/gdpr-articles.md - GDPR key articles
+- [references/soc2-controls.md](references/soc2-controls.md) - SOC 2 TSC control catalog
+- [references/hipaa-safeguards.md](references/hipaa-safeguards.md) - HIPAA safeguards
+- [references/pci-dss-requirements.md](references/pci-dss-requirements.md) - PCI-DSS 4.0 requirements
+- [references/gdpr-articles.md](references/gdpr-articles.md) - GDPR key articles
 
 **Implementation Patterns:**
-- references/control-mapping-matrix.md - Unified control mapping
-- references/encryption-implementations.md - Encryption patterns
-- references/access-control-patterns.md - MFA, RBAC implementations
-- references/audit-logging-patterns.md - Logging requirements
-- references/incident-response-templates.md - IR procedures
-
-**Automation:**
-- references/cicd-integration.md - OPA/Checkov CI/CD integration
-- references/compliance-testing.md - Automated test patterns
-- references/vendor-management.md - Vendor assessment templates
-- references/tool-recommendations.md - Tool selection guide
+- [references/control-mapping-matrix.md](references/control-mapping-matrix.md) - Unified control mapping
+- [references/encryption-implementations.md](references/encryption-implementations.md) - Encryption patterns
 
 **Code Examples:**
 - examples/opa-policies/ - OPA policy examples

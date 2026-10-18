@@ -138,4 +138,3 @@ If you encounter a bug or unexpected behavior in samber/hot, open an issue at <h
 - → See `samber/cc-skills-golang@golang-performance` skill for general caching strategy and when to use in-memory cache vs Redis vs CDN
 - → See `samber/cc-skills-golang@golang-observability` skill for Prometheus metrics integration and monitoring
 - → See `samber/cc-skills-golang@golang-database` skill for database query patterns that pair with cache loaders
-- → See `samber/cc-skills@promql-cli` skill for querying Prometheus cache metrics via CLI

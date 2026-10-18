@@ -163,7 +163,7 @@ vault write aws/roles/deploy \
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": ["s3:*"],
+      "Action": ["s3:GetObject", "s3:PutObject"],
       "Resource": ["arn:aws:s3:::my-bucket/*"]
     }
   ]
@@ -308,6 +308,22 @@ vault policy list
 vault policy read myapp
 ```
 
+## Audit Devices
+
+Enable at least one audit device before production traffic; Vault logs every request and response with secret values HMAC'd.
+
+```bash
+# File audit device (ship the file with your log agent)
+vault audit enable file file_path=/var/log/vault/audit.log
+
+# Optional second device: if every enabled device fails to write, Vault refuses requests
+vault audit enable -path=syslog syslog tag="vault" facility="AUTH"
+
+vault audit list -detailed
+```
+
+Rotate the audit file with logrotate and send `SIGHUP` to Vault afterwards so it reopens the file.
+
 ## Application Integration
 
 ### Python
@@ -350,7 +366,7 @@ metadata:
     vault.hashicorp.com/agent-inject-secret-config: "secret/data/myapp/config"
     vault.hashicorp.com/agent-inject-template-config: |
       {{- with secret "secret/data/myapp/config" -}}
-      export DB_PASSWORD  # populated from the referenced Vault/K8s Secret at deploy time
+      export DB_PASSWORD="{{ .Data.data.password }}"
       {{- end }}
 spec:
   serviceAccountName: myapp
@@ -379,8 +395,8 @@ spec:
 - Use short-lived tokens
 - Implement auto-unseal
 - Enable audit logging
-- Use namespaces for isolation
-- Rotate root tokens regularly
+- Use namespaces for isolation (Vault Enterprise / HCP only; use separate mounts and policies on Community Edition)
+- Revoke the initial root token; when one is needed again, generate a short-lived one with `vault operator generate-root` and revoke it afterwards
 - Implement least-privilege policies
 - Use dynamic secrets where possible
 - Regular backup and DR testing

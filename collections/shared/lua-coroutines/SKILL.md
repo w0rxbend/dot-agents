@@ -31,7 +31,7 @@ OpenResty and LÖVE run LuaJIT.
 | Behavior | Lua 5.1 | LuaJIT 2.x | Lua 5.2 / 5.3 / 5.4 |
 |----------|---------|------------|---------------------|
 | `coroutine.running()` in main thread | `nil` | `nil` (5.1 API) | main thread + `true` as second result |
-| `coroutine.isyieldable()` | absent | absent unless built with 5.2 compat | 5.3+ |
+| `coroutine.isyieldable()` | absent | 2.1: available (2.0: absent) | 5.3+ |
 | Yield across `pcall`/`xpcall` | error ("attempt to yield across metamethod/C-call boundary") | allowed | allowed |
 | Yield from metamethods and `for` iterators | not allowed | allowed | allowed |
 | Yield from callbacks invoked by C library functions (e.g. `table.sort` comparator, `string.gsub` replacement function) | not allowed | not allowed | not allowed (those functions have no continuation) |
@@ -441,20 +441,12 @@ local function pipeline(...)
   return function(input)
     local current = input
     for _, stage in ipairs(stages) do
-      local co = coroutine.create(stage)
-      local results = {}
-
-      for value in current do
-        local success, result = coroutine.resume(co, value)
-        if success and result then
-          table.insert(results, result)
-        end
-      end
-
-      -- Convert results to generator
+      local source = current
+      -- Each stage is a lazy generator that pulls from the previous one;
+      -- the loop keeps the coroutine alive for every input value
       current = coroutine.wrap(function()
-        for _, v in ipairs(results) do
-          coroutine.yield(v)
+        for value in source do
+          coroutine.yield(stage(value))
         end
       end)
     end
@@ -463,13 +455,13 @@ local function pipeline(...)
   end
 end
 
--- Data processing pipeline
+-- Data processing pipeline (stages are plain transforms)
 local function double(n)
-  coroutine.yield(n * 2)
+  return n * 2
 end
 
 local function add_ten(n)
-  coroutine.yield(n + 10)
+  return n + 10
 end
 
 local process = pipeline(double, add_ten)
@@ -585,7 +577,8 @@ function Async.run(tasks)
     waiting = still_waiting
 
     if #waiting > 0 then
-      -- Sleep briefly to avoid busy waiting
+      -- Demo only: os.execute spawns a shell and is POSIX-only. In a real host
+      -- use its timer (vim.uv timers, ngx.sleep, socket.sleep, love.timer.sleep)
       os.execute("sleep 0.1")
     end
   end
@@ -634,6 +627,7 @@ end
 -- Promise-like pattern
 local Promise = {}
 Promise.__index = Promise
+Promise.pending = {} -- executors suspended mid-work
 
 function Promise.new(executor)
   local self = setmetatable({
@@ -652,11 +646,31 @@ function Promise.new(executor)
     end
   end
 
-  coroutine.resume(coroutine.create(function()
+  local co = coroutine.create(function()
     executor(resolve)
-  end))
+  end)
+  local ok, err = coroutine.resume(co)
+  if not ok then error(err, 0) end
+  if coroutine.status(co) ~= "dead" then
+    table.insert(Promise.pending, co)
+  end
 
   return self
+end
+
+-- Minimal event loop: resume suspended executors until all have finished
+function Promise.run_pending()
+  while #Promise.pending > 0 do
+    local queue = Promise.pending
+    Promise.pending = {}
+    for _, co in ipairs(queue) do
+      local ok, err = coroutine.resume(co)
+      if not ok then error(err, 0) end
+      if coroutine.status(co) ~= "dead" then
+        table.insert(Promise.pending, co)
+      end
+    end
+  end
 end
 
 function Promise:andThen(callback)
@@ -679,19 +693,28 @@ p:andThen(function(value)
   print("Resolved: " .. value)
 end)
 
+Promise.run_pending() -- resumes the executor: prints "Resolved: 42"
+
 -- Async/await pattern
 local function async(fn)
   return function(...)
     local args = {...}
     return coroutine.create(function()
-      fn(table.unpack(args))
+      return fn(table.unpack(args))
     end)
   end
 end
 
+-- Resume the inner task until it finishes; whenever it is waiting, suspend
+-- the caller too so the outer scheduler can run other work in between
 local function await(co)
-  local success, result = coroutine.resume(co)
-  return result
+  local ok, result = coroutine.resume(co)
+  while true do
+    if not ok then error(result, 0) end
+    if coroutine.status(co) == "dead" then return result end
+    coroutine.yield(result)
+    ok, result = coroutine.resume(co)
+  end
 end
 
 local fetch_user = async(function(id)
@@ -705,7 +728,14 @@ local main = async(function()
   print("Got user: " .. user.name)
 end)
 
-coroutine.resume(main())
+-- Drive the outer task (a real app resumes it from its event loop)
+local task = main()
+repeat
+  local ok, err = coroutine.resume(task)
+  if not ok then error(err, 0) end
+until coroutine.status(task) == "dead"
+-- Fetching user 1
+-- Got user: User 1
 ```
 
 Async patterns with coroutines provide sequential code style for asynchronous
@@ -759,6 +789,7 @@ local function connection_state_machine()
 end
 
 local conn = connection_state_machine()
+conn()                      -- prime: run to the first yield ("disconnected")
 print(conn("connect"))      -- "connecting"
 print(conn("connected"))    -- "connected"
 print(conn("send"))         -- "connected"

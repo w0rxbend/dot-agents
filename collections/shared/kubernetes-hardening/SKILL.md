@@ -42,6 +42,7 @@ kind: Namespace
 metadata:
   name: production
   labels:
+    env: production   # selected by the admission policy binding in section 6
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/enforce-version: latest
     pod-security.kubernetes.io/audit: restricted
@@ -211,8 +212,11 @@ spec:
         operations: ["CREATE", "UPDATE"]
         resources: ["deployments"]
   validations:
-    - expression: "object.spec.template.spec.containers.all(c, c.image.contains('@sha256:'))"
-      message: "images must be pinned by digest"
+    - expression: >-
+        object.spec.template.spec.containers.all(c, c.image.contains('@sha256:')) &&
+        (!has(object.spec.template.spec.initContainers) ||
+         object.spec.template.spec.initContainers.all(c, c.image.contains('@sha256:')))
+      message: "images (including init containers) must be pinned by digest"
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingAdmissionPolicyBinding
@@ -222,8 +226,10 @@ spec:
   validationActions: ["Deny"]
   matchResources:
     namespaceSelector:
-      matchLabels: { env: production }
+      matchLabels: { env: production }   # the Namespace in section 1 carries this label
 ```
+
+This example matches Deployments only; add StatefulSets, DaemonSets, Jobs and CronJobs (CronJob pods live under `spec.jobTemplate.spec.template`), or match `pods` directly so every workload kind is covered.
 
 Kyverno or OPA Gatekeeper add mutation, generation and image-signature checks. Start in audit mode (`validationActions: ["Audit"]`, Kyverno `Audit`) and switch to deny after reviewing reports.
 

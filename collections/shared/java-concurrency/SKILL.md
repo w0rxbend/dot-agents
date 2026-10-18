@@ -2,11 +2,7 @@
 name: java-concurrency
 user-invocable: false
 description: Write correct concurrent Java - ExecutorService, CompletableFuture, locks, atomics, concurrent collections, synchronizers, and virtual threads with their pinning/pooling caveats plus structured concurrency and scoped values. Use when building or debugging multithreaded JVM code.
-allowed-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
+allowed-tools: []
 ---
 
 # Java Concurrency
@@ -810,7 +806,7 @@ Use java-concurrency when you need to:
 ## Common Pitfalls
 
 - Not shutting down executors (resource leak)
-- Blocking virtual threads with synchronized blocks
+- Before JDK 24, blocking virtual threads inside synchronized blocks (pins the carrier thread; JEP 491 removed most of this)
 - Deadlocks from incorrect lock ordering
 - Race conditions from improper synchronization
 - Thread pool exhaustion from blocking tasks

@@ -157,17 +157,16 @@ type SyntaxError struct {
 
 ### Error Strings
 
-Error strings MUST be **fully lowercase — including acronyms** — and MUST NOT **end with punctuation**, because they are often printed following other context (`fmt.Errorf("parsing config: %w", err)`). Acronyms that would normally be capitalized in identifiers (`ID`, `URL`, `HTTP`) become lowercase in error strings.
+Error strings MUST NOT be **capitalized** and MUST NOT **end with punctuation**, because they are often printed following other context (`fmt.Errorf("parsing config: %w", err)`). Per Go Code Review Comments, proper nouns and initialisms (`ID`, `URL`, `HTTP`) keep their usual case.
 
 ```go
-// Good — lowercase including acronyms, no punctuation
+// Good — lowercase start, initialisms keep their case, no punctuation
 errors.New("image: unknown format")
-errors.New("mypackage: invalid message id")     // "id" not "ID"
-errors.New("mypackage: invalid url")             // "url" not "URL"
+errors.New("mypackage: invalid message ID")
+errors.New("mypackage: invalid URL")
 fmt.Errorf("decoding config: %w", err)
 
-// Bad — capitalized, acronyms, punctuation
+// Bad — capitalized start, punctuation
 errors.New("Image: Unknown format.")
-errors.New("mypackage: invalid message ID")      // ID should be lowercase in error strings
 fmt.Errorf("Failed to decode config: %w.", err)
 ```

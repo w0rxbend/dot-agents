@@ -13,40 +13,40 @@ Never assume a simplification preserves behavior - verify it. Run existing tests
 ```typescript
 // Developer thinks: "This is obviously the same"
 // Before
-function isValid(x: number): boolean {
-  if (x > 0) {
-    if (x < 100) {
-      return true;
-    }
+function getLimit(limit: number | undefined): number {
+  if (limit) {
+    return limit;
   }
-  return false;
+  return 50;
 }
 
 // After "simplification" - commits directly
-function isValid(x: number): boolean {
-  return x > 0 && x < 100;
+function getLimit(limit: number | undefined): number {
+  return limit ?? 50;
 }
-// Forgot to run tests, missed that NaN handling differs
+// Forgot to run tests, missed that 0 is handled differently:
+// `if (limit)` treats 0 as "unset", `??` keeps 0
 ```
 
 **Correct (verifies before committing):**
 
 ```typescript
 // 1. Run existing tests first
-// $ npm test -- --grep "isValid"
+// $ npm test -- --grep "getLimit"
 
 // 2. Check edge cases manually
-console.log(isValid(NaN));     // Before: false, After: false ✓
-console.log(isValid(0));       // Before: false, After: false ✓
-console.log(isValid(100));     // Before: false, After: false ✓
-console.log(isValid(50));      // Before: true,  After: true  ✓
+console.log(getLimit(undefined)); // Before: 50, After: 50 ✓
+console.log(getLimit(10));        // Before: 10, After: 10 ✓
+console.log(getLimit(0));         // Before: 50, After: 0  ✗ behavior change
+console.log(getLimit(NaN));       // Before: 50, After: NaN ✗ behavior change
 
 // 3. Review diff for semantic changes
 // git diff --word-diff
 
-// 4. Then commit with verification note
-function isValid(x: number): boolean {
-  return x > 0 && x < 100;
+// 4. Keep the simplification only if the change is intended; otherwise keep
+//    the falsy check (`return limit || 50;`) and commit with a verification note
+function getLimit(limit: number | undefined): number {
+  return limit || 50;
 }
 ```
 

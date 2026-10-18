@@ -240,7 +240,7 @@ metadata:
 
   related_skills:
     - "building-forms"  # For inline editing
-    - "building-data-viz"  # For data visualization in cells
-    - "design-tokens"  # For theming and styling
-    - "implementing-apis"  # For server-side operations
-    - "optimizing-sql"  # For backend query optimization
+    - "visualizing-data"  # For data visualization in cells
+    - "theming-components"  # For theming and styling
+    - "implementing-api-patterns"  # For server-side operations
+    - "using-relational-databases"  # For backend query optimization

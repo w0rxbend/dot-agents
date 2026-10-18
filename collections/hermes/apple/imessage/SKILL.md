@@ -1,6 +1,6 @@
 ---
 name: imessage
-description: Send and receive iMessages/SMS via the imsg CLI on macOS.
+description: "Send and receive iMessages/SMS via the imsg CLI on macOS. Use when the user asks to read, search or send iMessages or SMS from a Mac."
 version: 1.0.0
 author: Hermes Agent
 license: MIT

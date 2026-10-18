@@ -37,8 +37,10 @@ class PromotionTests(unittest.TestCase):
         for path in ('collections/shared/scala-library-contracts', 'collections/hermes', 'docs'):
             (self.checkout / path).mkdir(parents=True)
         (self.checkout / 'collections/shared/scala-library-contracts/LICENSE').write_text('Synthetic MIT fixture')
-        for path in ('docs/skill-review.json', 'docs/catalog.md', 'install.conf.yaml'):
+        for path in ('docs/catalog.md', 'install.conf.yaml'):
             (self.checkout / path).write_text('Synthetic generated-file fixture')
+        self.unrelated = {'id': 'unrelated-user-skill', 'decision': 'retain', 'note': 'uncommitted user edit'}
+        s.atomic_json(self.checkout / 'docs/skill-review.json', {'skills': [self.unrelated], 'summary': {}})
         s.atomic_json(self.checkout / 'catalog.json', {'skills': []})
         skill = self.state / 'candidates/zio--zio/skills' / self.sid
         skill.mkdir(parents=True)
@@ -94,7 +96,11 @@ class PromotionTests(unittest.TestCase):
         self.assertEqual(['pre-existing-user-change', self.sid],
                          [row['id'] for row in s.load(self.checkout / 'catalog.json')['skills']])
         self.assertTrue((self.checkout / 'collections/hermes' / self.sid).is_symlink())
-        self.assertEqual(5, len(self.runner.calls))
+        self.assertEqual(4, len(self.runner.calls))
+        self.assertFalse(any('refresh_review.py' in ' '.join(c) for c in self.runner.calls))
+        rows = {row['id']: row for row in s.load(self.checkout / 'docs/skill-review.json')['skills']}
+        self.assertEqual(self.unrelated, rows['unrelated-user-skill'])
+        self.assertIn('zio/zio', rows[self.sid]['reasons'][0])
         self.assertIn(self.sid, result['artifact_sha256'])
 
     def test_receipt_reuse_requires_unchanged_portfolio(self):

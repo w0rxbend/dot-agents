@@ -9,6 +9,7 @@
 - [Loading & Thinking States](#loading--thinking-states)
 - [Performance Optimization](#performance-optimization)
 - [Streaming Cursor Behavior](#streaming-cursor-behavior)
+- [Additional Patterns](#additional-patterns)
 
 ## Progressive Text Rendering
 
@@ -17,16 +18,18 @@
 Stream tokens as they arrive from the AI model:
 
 ```tsx
-import { useChat } from 'ai/react';
-import { Streamdown } from '@vercel/streamdown';
+import { Streamdown } from 'streamdown';
+import type { UIMessage } from 'ai';
 
-function StreamingMessage({ message }) {
+// With AI SDK 5+, text lives in message.parts and
+// useChat's `status === 'streaming'` tells you a reply is in progress.
+function StreamingMessage({ message, isStreaming }: { message: UIMessage; isStreaming: boolean }) {
   return (
     <div className="message ai">
-      <Streamdown>
-        {message.content}
-      </Streamdown>
-      {message.isStreaming && <StreamingCursor />}
+      {message.parts.map((part, i) =>
+        part.type === 'text' ? <Streamdown key={i}>{part.text}</Streamdown> : null
+      )}
+      {isStreaming && <StreamingCursor />}
     </div>
   );
 }
@@ -768,3 +771,81 @@ const cursorStyles = `
 8. **Use virtual scrolling** for conversations >100 messages
 9. **Consider Web Workers** for heavy markdown processing
 10. **Test with slow connections** - Ensure graceful degradation
+
+## Additional Patterns
+
+### Core Principles
+
+1. **Show immediate feedback** - Don't wait for first token
+2. **Stream progressively** - Append tokens as they arrive
+3. **Indicate completion** - Clear visual cue when done
+4. **Handle errors gracefully** - Don't leave users hanging
+5. **Enable interruption** - Allow users to stop generation
+
+### Regenerate Response
+
+```tsx
+function MessageActions({ messageId, onRegenerate }: Props) {
+  return (
+    <div className="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition">
+      <button onClick={() => onRegenerate(messageId)} className="text-sm">
+        🔄 Regenerate
+      </button>
+      <button className="text-sm">📋 Copy</button>
+      <button className="text-sm">👍 Good</button>
+      <button className="text-sm">👎 Bad</button>
+    </div>
+  );
+}
+```
+
+### Error Handling
+
+#### Network Error Display
+
+```tsx
+{error && (
+  <div className="error-message">
+    <span>⚠️ Connection error. </span>
+    <button onClick={retry}>Try again</button>
+  </div>
+)}
+```
+
+#### Partial Response Recovery
+
+```tsx
+async function streamWithRecovery(prompt: string) {
+  let partialResponse = '';
+
+  try {
+    for await (const token of streamTokens(prompt)) {
+      partialResponse += token;
+      setResponse(partialResponse);
+    }
+  } catch (error) {
+    // Keep partial response, allow retry
+    console.error('Stream interrupted:', error);
+    setError('Connection lost. Partial response saved.');
+    // partialResponse is still available
+  }
+}
+```
+
+### Anti-Patterns
+
+**❌ Don't:**
+- Wait for complete response before displaying
+- Re-render entire component on every token
+- Scroll to top on each update
+- Block UI during streaming
+- Hide partial responses on error
+- Use polling instead of streaming
+
+**✅ Do:**
+- Stream progressively with SSE/WebSocket
+- Update UI efficiently (throttle, memo)
+- Auto-scroll smoothly to bottom
+- Allow interaction during streaming
+- Preserve partial content
+- Use proper streaming protocols

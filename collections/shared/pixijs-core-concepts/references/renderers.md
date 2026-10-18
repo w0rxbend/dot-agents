@@ -63,7 +63,7 @@ Each renderer is composed of a fixed set of `System`s (lifecycle services: textu
 - `Systems` run once per renderer lifecycle and manage GPU state.
 - `RenderPipes` run every frame, one per renderable type. They batch instructions for their object class and flush them to the GPU.
 
-Writing a custom renderable means implementing a `RenderPipe`, a `BatchableX` class, and registering both via the extensions system. See `pixijs-custom-rendering`.
+Writing a custom renderable means implementing a `RenderPipe`, a `BatchableX` class, and registering both via the extensions system. These skills do not cover it further; see the [RenderPipe API](https://pixijs.download/release/docs/rendering.RenderPipe.html.md).
 
 ### Lazy-loading backend-specific systems and pipes
 

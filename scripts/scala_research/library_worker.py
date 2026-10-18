@@ -9,10 +9,30 @@ The enclosing supervisor still owns the process cgroup and its finite deadline.
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
 from datetime import datetime, timezone
+
+# The supervisor pauses the fleet only on this exact line, never on free-form output
+# (which can quote upstream text). Keep in sync with supervisor.EXHAUSTED_MARKER.
+EXHAUSTED_MARKER = 'scala-research: provider-exhausted'
+EXHAUSTED = re.compile(r'usage limit has been reached|quota exhausted|insufficient_quota|'
+                       r'credit balance is too low|credential pool exhausted', re.I)
+
+
+def provider_exhausted(error):
+    """True for a provider quota/credit failure (an exception or a result error string)."""
+    if isinstance(error, BaseException):
+        if type(error).__name__ == 'ProviderCredentialsExhaustedError':
+            return True
+        error = str(error)
+    return isinstance(error, str) and bool(EXHAUSTED.search(error))
+
+
+def report_exhausted(kind):
+    print(f'{EXHAUSTED_MARKER} error_type={kind}', flush=True)
 
 
 def runtime_command(args):
@@ -77,11 +97,14 @@ def run_library(args):
                       session_id=agent.session_id, mode='AIAgent-library', authoring_capability=True)
         result = agent.run_conversation(args.query_file.read_text(encoding='utf-8'))
         ok = completed(result)
+        exhausted = not ok and isinstance(result, dict) and provider_exhausted(result.get('error'))
         write_receipt(args.receipt, status='completed' if ok else 'failed',
                       model=agent.model, provider=agent.provider, session_id=agent.session_id,
                       mode='AIAgent-library', authoring_capability=True,
                       completed=ok, api_calls=result.get('api_calls'),
-                      message_count=len(result.get('messages', [])))
+                      message_count=len(result.get('messages', [])), provider_exhausted=exhausted)
+        if exhausted:
+            report_exhausted('result')
         print(json.dumps({'status': 'completed' if ok else 'failed',
                           'session_id': agent.session_id, 'receipt': str(args.receipt)}), flush=True)
         return 0 if ok else 2
@@ -115,9 +138,13 @@ def main():
                               timeout=args.run_budget + 90).returncode
     except Exception as exc:
         # Do not persist provider response bodies, credentials, prompt or argv values.
+        exhausted = provider_exhausted(exc)
         write_receipt(args.receipt, status='failed', error_type=type(exc).__name__,
-                      model=args.model, provider=args.provider, mode='AIAgent-library')
+                      model=args.model, provider=args.provider, mode='AIAgent-library',
+                      provider_exhausted=exhausted)
         print(f'library worker failed: {type(exc).__name__}', file=sys.stderr)
+        if exhausted:
+            report_exhausted(type(exc).__name__)
         return 2
 
 

@@ -60,6 +60,8 @@ const toStatus = (e: GetUserError): number => {
 
 ## References
 
+[references/either-cheatsheet.md](references/either-cheatsheet.md) is a one-page Either operator cheat sheet (create, transform, flatMap, accumulate, extract) for quick lookups.
+
 [references/detailed-guide.md](references/detailed-guide.md) has before/after code for every step. Load the section you need:
 
 | Need | Section |
@@ -71,7 +73,7 @@ const toStatus = (e: GetUserError): number => {
 | Converting nullable / throwing / Promise code and back (escape hatches) | 6 |
 | Parsing input, full API call, lists where some items fail, bulk partial success | Real Scenarios |
 
-Operator lookups: fp-either-ref, fp-taskeither-ref. Moving a whole codebase over gradually: fp-refactor.
+Operator lookups: [references/either-cheatsheet.md](references/either-cheatsheet.md) here, and the TaskEither cheat sheet in fp-async (`references/taskeither-cheatsheet.md`). Moving a whole codebase over gradually: fp-refactor.
 
 ## Done when
 

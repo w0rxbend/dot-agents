@@ -5,27 +5,27 @@ description: Set up and automate documentation tooling - OpenAPI renderers (Swag
 
 # Documentation Generation
 
-Generate comprehensive technical documentation across multiple layers: API documentation, code documentation, documentation sites, architecture decisions, and system diagrams.
+Generate comprehensive technical documentation across multiple layers: API documentation, code documentation, documentation sites, and system diagrams. Writing ADRs belongs to the documentation-and-adrs skill; this skill only covers publishing them in a docs site.
 
 ## When to Use This Skill
 
 Use this skill when:
 
-- Documenting REST or GraphQL APIs with OpenAPI specifications
+- Documenting REST APIs with OpenAPI specifications (GraphQL APIs: generate reference docs from the schema with a GraphQL doc generator)
 - Creating code documentation for libraries (TypeScript, Python, Go, Rust)
 - Building documentation sites for projects or products
-- Recording architectural decisions (ADRs) for system design choices
+- Publishing existing ADRs in a docs site, or setting up ADR tooling (writing ADRs: documentation-and-adrs)
 - Generating diagrams to visualize system architecture or data flows
 - Setting up automated documentation pipelines in CI/CD
 
 ## Documentation Layers Overview
 
-Technical documentation operates at five distinct layers:
+Technical documentation operates at these layers:
 
-**Layer 1: API Documentation** - OpenAPI specs for REST/GraphQL APIs (Swagger UI, Redoc, Scalar)
+**Layer 1: API Documentation** - OpenAPI specs for REST APIs (Swagger UI, Redoc, Scalar); GraphQL schemas are documented from the SDL/introspection instead
 **Layer 2: Code Documentation** - Generated from code comments (TypeDoc, Sphinx, godoc, rustdoc)
 **Layer 3: Documentation Sites** - Comprehensive guides and tutorials (Docusaurus, MkDocs)
-**Layer 4: Architecture Decisions** - ADRs using MADR template format
+**Layer 4: Architecture Decisions** - write with documentation-and-adrs; publish via the site (see `references/adr-guide.md`)
 **Layer 5: Diagrams** - Visual architecture (Mermaid, PlantUML, D2)
 
 See `references/api-documentation.md`, `references/code-documentation.md`, and `references/documentation-sites.md` for detailed guides.
@@ -45,7 +45,7 @@ Comprehensive guides?
   → Layer 3: Documentation Site (Docusaurus/MkDocs)
 
 Architectural decision?
-  → Layer 4: ADR (MADR template)
+  → Write the ADR with documentation-and-adrs; publish it in the site (Layer 4)
 
 Visual system design?
   → Layer 5: Diagrams (Mermaid/PlantUML/D2)
@@ -249,50 +249,7 @@ See `references/documentation-sites.md` for versioning and deployment.
 
 ## Architecture Decision Records
 
-Use MADR template for recording decisions:
-
-```markdown
-# Use PostgreSQL for Primary Database
-
-* Status: accepted
-* Deciders: Engineering Team, CTO
-* Date: 2025-01-15
-
-## Context and Problem Statement
-
-Application requires relational database with complex queries,
-ACID transactions, JSON support, and full-text search.
-
-## Decision Drivers
-
-* Data integrity (ACID compliance)
-* Performance (10K+ queries/second)
-* Cost (open-source preferred)
-* Features (JSONB, full-text search)
-
-## Considered Options
-
-* PostgreSQL
-* MySQL
-* Amazon Aurora
-
-## Decision Outcome
-
-Chosen "PostgreSQL" for best balance of features and cost.
-
-### Positive Consequences
-
-* Open-source with no licensing costs
-* Advanced features (JSONB, full-text search)
-* Strong ACID compliance
-
-### Negative Consequences
-
-* Self-hosting requires DevOps investment
-* Horizontal scaling requires changes
-```
-
-Copy full template from `templates/adr-template.md`. See `references/adr-guide.md` for workflow and `examples/adr/0001-database-selection.md` for complete example.
+Write ADRs with the **documentation-and-adrs** skill (it defines when to write one, the template, and how to follow the repository's existing ADR convention). This skill only publishes them: see `references/adr-guide.md` for adr-tools, log4brains, and Docusaurus/MkDocs navigation for an ADR directory.
 
 ## Diagrams Quick Start
 
@@ -391,23 +348,6 @@ jobs:
 
 See `references/ci-cd-integration.md` for validation and versioning.
 
-### When to Write an ADR
-
-**Write ADRs for:**
-
-✅ Technology selection (database, framework, cloud)
-✅ Architecture patterns (microservices, event-driven)
-✅ Decisions with trade-offs (pros/cons)
-✅ Team alignment needed
-
-**Don't write ADRs for:**
-
-❌ Trivial decisions (naming, formatting)
-❌ Easily reversible (config tweaks)
-❌ Implementation details (document in code)
-
-See `references/adr-guide.md` for workflow and examples.
-
 ## Reference Documentation
 
 For detailed guides:
@@ -415,19 +355,17 @@ For detailed guides:
 - **`references/api-documentation.md`** - OpenAPI, Swagger UI, Redoc, Scalar, design-first vs code-first
 - **`references/code-documentation.md`** - TypeDoc, Sphinx, godoc, rustdoc with examples
 - **`references/documentation-sites.md`** - Docusaurus and MkDocs setup, versioning, deployment
-- **`references/adr-guide.md`** - MADR template, workflow, when to write ADRs
+- **`references/adr-guide.md`** - ADR tooling (adr-tools, log4brains) and publishing ADRs in Docusaurus/MkDocs
 - **`references/diagram-generation.md`** - Mermaid, PlantUML, D2 syntax and integration
 - **`references/ci-cd-integration.md`** - Automation, validation, deployment strategies
 
 ## Templates
 
-- **`templates/adr-template.md`** - MADR template for Architecture Decision Records
 - **`templates/openapi-template.yaml`** - OpenAPI 3.1 specification starter
 
 ## Examples
 
 - **`examples/typescript/tsdoc-examples.ts`** - TSDoc comment examples
-- **`examples/adr/0001-database-selection.md`** - A complete ADR
 
 OpenAPI, Python (Sphinx) and diagram examples are inline in `references/api-documentation.md`, `references/code-documentation.md` and `references/diagram-generation.md`.
 

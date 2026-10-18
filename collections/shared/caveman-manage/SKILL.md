@@ -1,12 +1,28 @@
 ---
 name: caveman-manage
 description: >
-  Inspect Caveman Cloud's experiment lifecycle and block unsafe execution. Use
-  when asked to start, approve, cancel, promote or roll back a Caveman
-  experiment.
+  Inspect Caveman Cloud's experiment lifecycle and block unsafe execution
+  (read-only). Use only when asked to start, approve, cancel, promote or roll
+  back a Caveman experiment and the caveman CLI or Caveman Cloud MCP is
+  available.
 ---
 
 # Manage eval-gated experiments
+
+## Prerequisite: the Caveman CLI or the Caveman Cloud MCP server
+
+This skill drives the third-party Caveman Cloud service (https://github.com/JuliusBrussee/caveman). dot-agents
+vendors only this instruction file; it does not install the `caveman` CLI, the
+Caveman Cloud MCP server, or an account. Check before doing anything else:
+
+- `command -v caveman` prints a path and `caveman cloud whoami` succeeds, or
+- the Caveman Cloud MCP tools (`caveman_context`, `caveman_report`, ...) appear
+  in your tool list.
+
+If the check fails, stop without reading project data or editing files, and tell
+the user: "This skill needs the Caveman CLI or the Caveman Cloud MCP server, which is not available here. Install and log
+in to Caveman first (https://github.com/JuliusBrussee/caveman)." Never emulate `caveman` commands or invent
+their output.
 
 Treat every lifecycle change as a production control action. Read current state
 and results, then report one supported recommendation or block.

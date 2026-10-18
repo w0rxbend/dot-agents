@@ -72,13 +72,13 @@ Read every file in the skill or bundle (SKILL.md, scripts, bundled binaries, man
 - **Remote script piping**: network fetch commands that stream directly into a shell or PowerShell evaluator.
 
 #### 9. Legitimacy & Scope (Universal)
-- **Registry Alignment**: Cross-reference with `CATALOG.md`.
+- **Registry Alignment**: If the skill came from a registry or catalog (in dot-agents, `catalog.json`), check that its recorded source, license and name match the files under review.
 - **Structural Integrity**: Does it follow the standard repo layout?
 - **Healthy Scope**: Does a "UI Design" skill need `adb shell` or `sudo`?
 
-### Step 3: Reporting
+### Reporting
 
-Generates a security report with a score (0-10), platform target identification, flagged actions, threat analysis, and mitigation recommendations.
+Write a security report with one verdict (safe to install, install with changes, or reject), the platforms targeted, each flagged action with its file and line and the threat it poses, and mitigation recommendations. Use the verdict as the only rating; do not add a separate numeric score.
 
 ## Rules
 
@@ -89,7 +89,7 @@ Generates a security report with a score (0-10), platform target identification,
 ## Done when
 
 - Every file was read and any obfuscated payload decoded.
-- The report gives a risk rating, the platforms targeted, each flagged action with its file and line, and a recommendation (safe to install, install with changes, or reject).
+- The report gives the verdict, the platforms targeted, each flagged action with its file and line,.
 
 ## Related Skills
 

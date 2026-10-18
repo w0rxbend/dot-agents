@@ -115,8 +115,10 @@ const user = db.prepare('SELECT * FROM users WHERE email = ?').get('user@example
 ### Setup
 
 ```bash
-# Install Turso CLI
-curl -sSfL https://get.tur.so/install.sh | bash
+# Install Turso CLI via a package manager (macOS/Linux with Homebrew)
+brew install tursodatabase/tap/turso
+# Without Homebrew: download the vendor installer, read it, then run it
+#   curl -sSfLo turso-install.sh https://get.tur.so/install.sh && less turso-install.sh && bash turso-install.sh
 
 # Create database
 turso db create myapp

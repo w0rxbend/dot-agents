@@ -35,7 +35,17 @@ EXIT_PROVIDER_EXHAUSTED = 75
 # Final quota/credit failures only. Transient per-minute 429s that exhaust Hermes
 # retries still fail one attempt; they must not pause every sibling worker.
 EXHAUSTED = re.compile(r'ProviderCredentialsExhaustedError|usage limit has been reached|'
-                       r'quota exhausted|insufficient_quota|credit balance is too low', re.I)
+                       r'quota exhausted|insufficient_quota|credit balance is too low|'
+                       r'credential pool exhausted|\b402\b|billing', re.I)
+# Only structured failure lines count, never free-form agent output that may quote
+# upstream text: library_worker's marker, or Hermes one-shot's own failure line.
+EXHAUSTED_MARKER = 'scala-research: provider-exhausted'
+ONESHOT_FAILURE = 'hermes -z: agent failed:'
+# Agent units must not reach these even read-only (gh/ssh/gpg credentials).
+SECRET_PATHS = ('.config/gh', '.ssh', '.gnupg', '.git-credentials', '.netrc')
+# Hermes state that, if writable, would let one agent steer later sessions or reviewers.
+HERMES_READ_ONLY = ('skills', 'config.yaml', 'hermes-agent', 'plugins', 'hooks', 'memories')
+SANDBOX_PATH = re.compile(r'/[^\s"\'\\%;]*\Z')
 
 
 class ProviderExhausted(RuntimeError):
@@ -97,6 +107,30 @@ def process_identity(pid):
         return None
 
 
+def provider_exhausted(segment):
+    for line in segment.splitlines():
+        line = line.strip()
+        if line.startswith(EXHAUSTED_MARKER):
+            return True
+        if line.startswith(ONESHOT_FAILURE) and EXHAUSTED.search(line[len(ONESHOT_FAILURE):]):
+            return True
+    return False
+
+
+def integration_lock_path(root):
+    """Lock in the git common dir, so every worktree of one checkout serializes too."""
+    root = Path(root)
+    git = root / '.git'
+    if git.is_file():
+        try:
+            out = subprocess.run(['git', '-C', str(root), 'rev-parse', '--git-common-dir'],
+                                 capture_output=True, text=True, timeout=30, check=True).stdout.strip()
+        except (OSError, subprocess.SubprocessError) as exc:
+            raise RuntimeError('cannot locate the shared git directory for the integration lock') from exc
+        git = Path(out) if Path(out).is_absolute() else root / out
+    return git / 'scala-research-integration.lock'
+
+
 def same_process(record):
     return bool(record and process_identity(record.get('pid', -1)) ==
                 {k: record.get(k) for k in ('pid', 'start_ticks', 'boot_id')})
@@ -141,7 +175,8 @@ def accepted_job(state, repository):
 class Supervisor:
     def __init__(self, state, *, workers=6, per_year=6, attempts=3,
                  job_seconds=2700, hours=48, model='gpt-6-astra-900k',
-                 provider='openai-codex', max_turns=100, deepen=False, consolidate=False):
+                 provider='openai-codex', max_turns=100, deepen=False, consolidate=False,
+                 require_sandbox=False):
         self.state = Path(state).resolve()
         self.state.mkdir(parents=True, exist_ok=True)
         self.workers, self.per_year, self.attempts = workers, per_year, attempts
@@ -156,6 +191,7 @@ class Supervisor:
         self.exhausted = None
         self.deepen = deepen
         self.consolidate = consolidate
+        self.require_sandbox = require_sandbox
 
     def check_running(self):
         if self.deadline is not None and time.monotonic() >= self.deadline:
@@ -197,7 +233,7 @@ class Supervisor:
             except RuntimeError as exc:
                 self.event('cleanup_blocked', error=str(exc))
 
-    def command(self, label, command, seconds):
+    def command(self, label, command, seconds, properties=()):
         self.check_running()
         if self.deadline is not None:
             seconds = min(seconds, max(0.01, self.deadline - time.monotonic()))
@@ -210,7 +246,8 @@ class Supervisor:
             with self.mutex:
                 self.check_running()
                 process, record = managed.start(command, label=label, state=self.state,
-                                                cwd=ROOT, seconds=seconds, stdout=stream)
+                                                cwd=ROOT, seconds=seconds, stdout=stream,
+                                                properties=properties)
                 self.active[label] = (process, record)
             self.event('process_started', label=label, pid=process.pid,
                        unit=record['unit'], log=str(log))
@@ -229,7 +266,7 @@ class Supervisor:
             with log.open('rb') as stream:
                 stream.seek(offset)
                 segment = stream.read().decode('utf-8', 'replace')
-            if EXHAUSTED.search(segment):
+            if provider_exhausted(segment):
                 with self.mutex:
                     first = self.exhausted is None
                     if first:
@@ -241,6 +278,26 @@ class Supervisor:
                 self.stopping.set()
                 raise ProviderExhausted(f'{self.provider} unavailable during {label}')
         return result
+
+    def sandbox(self, writable, read_only=()):
+        """systemd namespace properties for one agent unit.
+
+        Only effective where the user manager can create mount namespaces; `run` probes
+        that and records `sandbox_enforced`. Paths are absolute and specifier-free.
+        """
+        home = Path.home()
+        hermes = Path(os.environ.get('HERMES_HOME') or home / '.hermes')
+        groups = {'ReadWritePaths': [self.state / 'processes', hermes, *writable],
+                  'ReadOnlyPaths': [*(hermes / name for name in HERMES_READ_ONLY), *read_only],
+                  'InaccessiblePaths': [home / name for name in SECRET_PATHS]}
+        properties = ['ProtectSystem=strict', 'ProtectHome=read-only', 'PrivateTmp=yes', 'NoNewPrivileges=yes']
+        for name, paths in groups.items():
+            paths = [str(Path(path).absolute()) for path in paths]
+            if any(not SANDBOX_PATH.fullmatch(path) for path in paths):
+                raise ValueError('sandbox paths must be absolute without whitespace, quotes or %')
+            # "-" ignores a missing path instead of failing the unit start.
+            properties.append(name + '=' + ' '.join('-' + path for path in paths))
+        return properties
 
     def agent(self, label, template, variables):
         prompt = self.state / 'prompts' / f'{label}.txt'
@@ -257,13 +314,24 @@ class Supervisor:
                        '--max-turns', str(self.max_turns), '--run-budget', str(self.job_seconds),
                        '--query-file', str(prompt), '--cwd', str(ROOT),
                        '--receipt', str(self.state / 'receipts' / f'{label}.json')]
+            (self.state / 'receipts').mkdir(parents=True, exist_ok=True)
+            properties = self.sandbox([variables['candidate'], self.state / 'receipts'])
         else:
             # Read-only review remains a one-shot task; only authors need library mode.
             command = ['hermes', 'chat', '--provider', self.provider, '--model', self.model,
                        '--reasoning', 'high', '--toolsets', 'terminal,file,skills',
                        '--max-turns', str(self.max_turns), '--run-budget', str(self.job_seconds),
                        '--oneshot', '--quiet', '--query-file', str(prompt)]
-        return self.command(label, command, self.job_seconds + 120)
+            if template == 'portfolio-prompt.txt':
+                # Writes portfolio.json in the state root; every research artifact stays read-only.
+                protected = ('jobs', 'candidates', 'reviews', 'corpus', 'deepen', 'deepen-snapshots',
+                             'deepen-attempts', 'feedback', 'receipts', 'prompts', 'review-history',
+                             'portfolio-input.json', 'inventory.json', 'supervisor.json')
+                properties = self.sandbox([self.state], [self.state / name for name in protected])
+            else:
+                (self.state / 'reviews').mkdir(parents=True, exist_ok=True)
+                properties = self.sandbox([self.state / 'reviews'])
+        return self.command(label, command, self.job_seconds + 120, properties=properties)
 
     def repository(self, repository):
         from .quality import validate_candidate, validate_review
@@ -306,7 +374,8 @@ class Supervisor:
                 result = self.agent(f'{repo_key}-research-{attempt}', 'research-prompt.txt', variables)
                 # A worker killed by cancellation is not an evidence/quality failure.
                 self.check_running()
-                errors = validate_candidate(candidate, repository)
+                # New candidates are cross-checked against the cached corpus they cite.
+                errors = validate_candidate(candidate, repository, corpus=corpus.parent)
                 if result:
                     errors.insert(0, f'research process exit {result}; artifacts are not accepted')
                 if errors:
@@ -315,6 +384,10 @@ class Supervisor:
                     continue
                 report = load(candidate / 'report.json')
                 if report['status'] == 'blocked':
+                    if deepening:
+                        # An honest "no deeper evidence" still restores the accepted package.
+                        self.restore_deepen(repository, 'blocked', reason=report['summary'])
+                        return
                     self.checkpoint(repository, 'blocked', reason=report['summary'],
                                     gaps=report['gaps'], candidate_sha256=tree_sha(candidate))
                     return
@@ -439,6 +512,18 @@ class Supervisor:
         atomic_json(paths['record'], dict(record, status=status, finished_at=now()))
         self.event('deepen_finished', repository=repository, status=status)
 
+    def recover_all_deepen(self):
+        """Restore every deepen pass an unclean exit left active, scheduled or not."""
+        directory = self.state / 'deepen'
+        for path in sorted(directory.glob('*.json')) if directory.is_dir() else []:
+            record = load(path)
+            if record.get('status') != 'active':
+                continue
+            repository = record.get('repository', '')
+            if f'{key(repository)}.json' != path.name:
+                raise ValueError(f'deepen record does not match its repository: {path.name}')
+            self.recover_deepen(repository)
+
     def recover_deepen(self, repository):
         """An active record at startup means an unclean exit; restore before any new work."""
         path = self.deepen_paths(repository)['record']
@@ -490,11 +575,15 @@ class Supervisor:
             identity = process_identity(os.getpid())
             if identity is None:
                 raise RuntimeError('cannot identify supervisor process')
+            sandboxed = managed.sandbox_enforced(self.state)
+            if self.require_sandbox and not sandboxed:
+                raise RuntimeError('this systemd user manager does not enforce agent sandbox properties '
+                                   '(mount namespaces unavailable); refusing --require-sandbox run')
             self.deadline = time.monotonic() + self.hours * 3600
             run_record = dict(identity, model=self.model, provider=self.provider,
                               workers=self.workers, per_year=self.per_year, attempts=self.attempts,
                               job_seconds=self.job_seconds, hours=self.hours, deepen=self.deepen,
-                              started_at=now())
+                              sandbox_enforced=sandboxed, started_at=now())
             atomic_json(self.state / 'supervisor.json', run_record)
             previous = {}
             for sig in (signal.SIGINT, signal.SIGTERM):
@@ -506,8 +595,13 @@ class Supervisor:
             watcher.start()
             try:
                 self.event('run_started', **run_record)
+                if not sandboxed:
+                    self.event('sandbox_unenforced', detail='agent units run without namespace isolation; '
+                               'write limits are prompt policy only')
                 if self.deepen and repositories is None:
                     raise ValueError('deepen requires explicit --repo selections')
+                # Before any new work: never leave another repository's deepen half-written.
+                self.recover_all_deepen()
                 if promotion_only:
                     result = promote_portfolio(self.state, self)
                     self.event('promotion_finished', status=result['status'])
@@ -566,7 +660,10 @@ class Supervisor:
                     try:
                         result = promote_accepted(self.state, self)
                         self.event('consolidated', status=result['status'], added=result.get('added'),
-                                   updated=result.get('updated'), total=result.get('promoted_total'))
+                                   updated=result.get('updated'), total=result.get('promoted_total'),
+                                   merged_needs_manual_fold=result.get('merged_needs_manual_fold'))
+                        if result.get('merged_needs_manual_fold'):
+                            exit_code = exit_code or 3
                     except (OSError, ValueError, RuntimeError) as exc:
                         # Research results stay intact in state; integration can be rerun by hand.
                         self.event('consolidation_failed', error=f'{type(exc).__name__}: {exc}')
@@ -695,7 +792,7 @@ def promote_portfolio(state, runner):
     from scripts.common import frontmatter, tree_hash
     state = Path(state)
     runner.check_running()
-    with exclusive_lock(ROOT / '.git/scala-research-integration.lock'):
+    with exclusive_lock(integration_lock_path(ROOT)):
         decision = validate_portfolio(state)
         if decision['verdict'] != 'accept':
             raise ValueError('portfolio is not accepted')
@@ -734,12 +831,14 @@ def promote_portfolio(state, runner):
                 return previous
         if selected & set(existing):
             raise ValueError('refusing to overwrite existing catalog skills; reconcile interrupted promotion first')
-        sources = {}
+        sources, provenance = {}, {}
         for row in load(state / 'portfolio-input.json')['jobs']:
             if row['status'] == 'accepted':
                 for sid in row['skill_ids']:
                     if sid in selected:
                         sources[sid] = state / 'candidates' / key(row['repository']) / 'skills' / sid
+                        provenance[sid] = dict(repository=row['repository'],
+                                               review_sha256=row.get('review_sha256') or '')
         if set(sources) != selected:
             raise ValueError('selected skills lack source artifacts')
         shared_paths = [ROOT / 'collections/shared' / sid for sid in selected]
@@ -780,10 +879,13 @@ def promote_portfolio(state, runner):
             catalog['skills'].sort(key=lambda row: row['id'])
             atomic_json(catalog_path, catalog)
             expected['catalog.json'] = sha(catalog_path)
-            commands = [([sys.executable, 'scripts/refresh_review.py', '--note',
-                         'Historical Scala research: independent source audit and behavioral case review.'],
-                         {'docs/skill-review.json'}),
-                        ([sys.executable, 'scripts/catalog.py'], {'docs/catalog.md'}),
+            # Owned rows only: refresh_review.py diffs against git HEAD and would stamp this
+            # pipeline's note on unrelated uncommitted skills.
+            from .consolidate import review_row, update_review
+            entries = {row['id']: row for row in catalog['skills']}
+            update_review(ROOT, {sid: review_row(ROOT, sid, entries[sid], provenance[sid]) for sid in selected})
+            expected['docs/skill-review.json'] = sha(ROOT / 'docs/skill-review.json')
+            commands = [([sys.executable, 'scripts/catalog.py'], {'docs/catalog.md'}),
                         (['./install.sh', 'render'], {'install.conf.yaml'}),
                         (['make', 'test'], set()), (['make', 'check'], set())]
             for index, (command, allowed_changes) in enumerate(commands):
@@ -834,12 +936,33 @@ def summary(state):
     return result
 
 
+def _terminate(record):
+    """SIGTERM the recorded supervisor; pidfd closes the check-then-signal PID-reuse window."""
+    pid = record['pid']
+    if not (hasattr(os, 'pidfd_open') and hasattr(signal, 'pidfd_send_signal')):
+        os.kill(pid, signal.SIGTERM)
+        return True
+    try:
+        fd = os.pidfd_open(pid)
+    except ProcessLookupError:
+        return False
+    try:
+        # Re-verify through the pinned pidfd: a reused PID no longer matches.
+        if not same_process(record):
+            return False
+        signal.pidfd_send_signal(fd, signal.SIGTERM)
+        return True
+    except ProcessLookupError:
+        return False
+    finally:
+        os.close(fd)
+
+
 def stop(state):
     state = Path(state)
     path = state / 'supervisor.json'
     record = load(path) if path.exists() else None
-    if record and same_process(record) and not record.get('finished_at'):
-        os.kill(record['pid'], signal.SIGTERM)
+    if record and same_process(record) and not record.get('finished_at') and _terminate(record):
         return {'status': 'cancellation_requested', 'pid': record['pid']}
     orphans = live_workers(state)
     for row in orphans:
@@ -864,6 +987,8 @@ def main():
     run.add_argument('--promote', action='store_true')
     run.add_argument('--consolidate', action='store_true',
                      help='after the run, integrate every verified accepted skill into the catalog')
+    run.add_argument('--require-sandbox', action='store_true',
+                     help='refuse to run unless the user manager enforces agent sandbox properties')
     run.add_argument('--deepen', action='store_true',
                      help='re-research accepted --repo selections for more skills; failure restores prior acceptance')
     for action in ('status', 'stop', 'promote', 'consolidate'):
@@ -878,7 +1003,8 @@ def main():
             result = Supervisor(args.state, workers=args.workers, per_year=args.per_year,
                        attempts=args.attempts, job_seconds=args.job_seconds, hours=args.hours,
                        model=args.model, provider=args.provider, max_turns=args.max_turns,
-                       deepen=args.deepen, consolidate=args.consolidate).run(
+                       deepen=args.deepen, consolidate=args.consolidate,
+                       require_sandbox=args.require_sandbox).run(
                            repositories=args.repo, promote=args.promote)
             raise SystemExit(result)
         elif args.action == 'status':
@@ -891,6 +1017,9 @@ def main():
             from .consolidate import LocalRunner
             result = promote_accepted(args.state, LocalRunner(ROOT, args.state))
             print(json.dumps(result, indent=2))
+            if result.get('merged_needs_manual_fold'):
+                # Everything else was integrated; these acceptances wait for a hand fold.
+                raise SystemExit(2)
     except (OSError, ValueError, RuntimeError) as exc:
         print(f'{type(exc).__name__}: {exc}', file=sys.stderr)
         raise SystemExit(1) from exc

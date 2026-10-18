@@ -8,7 +8,7 @@ Demonstrates:
 - Debouncing database queries
 """
 
-from pydantic import BaseModel, EmailStr, validator, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 from typing import Optional
 import asyncio
 import re
@@ -35,18 +35,21 @@ class UserRegistrationAsync(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
 
-    class Config:
-        # Enable validation on assignment for better UX
-        validate_assignment = True
+    # Enable validation on assignment for better UX
+    model_config = ConfigDict(validate_assignment=True)
 
-    @validator('username')
+    @field_validator('username')
+
+    @classmethod
     def validate_username_format(cls, v):
         """Synchronous format validation"""
         if not re.match(r'^[a-zA-Z0-9_-]+$', v):
             raise ValueError('Username can only contain letters, numbers, underscores, and hyphens')
         return v
 
-    @validator('password')
+    @field_validator('password')
+
+    @classmethod
     def validate_password_strength(cls, v):
         """Synchronous password strength validation"""
         if not re.search(r'[A-Z]', v):
@@ -132,16 +135,16 @@ async def register_with_async_validation(user_data: UserRegistrationAsync):
     # Pydantic validation happens automatically
 
     # Additional async validation
-    is_valid, errors = await validate_user_registration(user_data.dict())
+    is_valid, errors = await validate_user_registration(user_data.model_dump())
 
     if not is_valid:
         raise HTTPException(
-            status_code=400,
+            status_code=409,  # conflict: value already taken
             detail=errors
         )
 
     # Create user
-    # In production: await database.users.insert_one(user_data.dict())
+    # In production: await database.users.insert_one(user_data.model_dump())
 
     return {
         "success": True,
@@ -152,4 +155,3 @@ async def register_with_async_validation(user_data: UserRegistrationAsync):
 # Run async example
 if __name__ == "__main__":
     asyncio.run(register_user_example())
-```

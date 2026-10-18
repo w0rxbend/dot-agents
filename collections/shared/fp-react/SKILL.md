@@ -39,7 +39,7 @@ Use fp-ts types where they make UI states explicit: a value that may be missing,
 
 [references/detailed-guide.md](references/detailed-guide.md) - load the section you need: 1 Option state, 2 form validation, 3 data fetching with TaskEither (hook, chaining, parallel), 4 RemoteData, 5 referential stability, 6 DI with context and testing, 7 React 19 patterns (`use`, `useActionState`, `useOptimistic`), 8 render cheat sheet, plus a library list.
 
-Related: fp-errors (error modeling), fp-async (parallel requests, retries), fp-option-ref / fp-either-ref.
+Related: fp-errors (error modeling), fp-async (parallel requests, retries), and the Option/Either cheat sheets in fp-data-transforms (`references/option-cheatsheet.md`) and fp-errors (`references/either-cheatsheet.md`).
 
 ## Done when
 

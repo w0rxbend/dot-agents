@@ -24,8 +24,6 @@ failure, then builds it only when asked. The default output is a short recommend
 a service register. The register - CSV, SQL DDL, JSON Schema, Notion mapping - is produced
 on request, from one field list so the four cannot drift apart.
 
-Layer: Layer 8: Operate. Fits: Growth stage. Table code: n/a.
-
 **The rule this table exists to enforce:** an alert is a human cost, so `Alert Channel` and
 `Severity` decide whether a person is woken at 3am. Everything else in this table exists to
 make that decision possible: what the service does (`SLI Definition`), what good looks like
@@ -33,8 +31,9 @@ make that decision possible: what the service does (`SLI Definition`), what good
 and - the field most tables leave out - what happens when the alert fires (`Runbook URL`).
 An alert with no runbook converts a technical problem into a panicked one.
 
-**The second rule:** `Phase` is the field that keeps this affordable. A ten-service stack
-with four signals each, on a plan tier, ordered by what would hurt the business most. A
+**The second rule:** `Phase` is the field that keeps this affordable. Phase 1 holds only the
+few signals whose failure would hurt the business most; everything else waits for phase 2 or
+3, so a ten-service stack does not turn into forty alerts on day one. A
 business with no developer should be running a managed platform and three alerts, not a
 stack of collectors.
 
@@ -72,7 +71,7 @@ Ask only if this is the highest-value missing fact; otherwise proceed without an
 
 ### Step 2 - Ask only what is missing
 
-Treat ambiguous replies as unanswered and ask which explicit option the user means. Record unknown values as `Unknown`; `Unknown` is not zero. A record must not be `Done` when a required check fails.
+Treat ambiguous replies as unanswered and ask which explicit option the user means. Record unknown values as `Unknown` in text fields and leave numeric fields (`Monthly Cost Estimate`) blank/NULL; unknown is not zero. A record must not be `Done` when a required check fails.
 
 Skip anything already answered. Ask the rest one at a time, and stop as soon as the
 remaining answers would not change the plan.
@@ -155,14 +154,16 @@ an MCP/tool connection you have actually verified, after confirming the target; 
 
 ```csv
 Service ID,Service Name,Purpose,Criticality,Owner,Environment,Monitored From,SLI Definition,SLO Target,Dashboard URL,Log Source,Alert Channel,Severity,Alert Threshold,Runbook URL,Escalation Path,Monthly Cost Estimate,Data Handled,Deployment Method,Dependencies,Phase,Review Date,Status,Notes
-,Example Booking Service,Takes customer bookings and confirms by email,High,Example Owner,Production,External region outside the hosting provider,Uptime of the public booking page,99.5% monthly,Not yet created,Application and web server logs,Email and SMS to on-call,Critical,3 consecutive failed checks or 5 minutes above target,Not yet created,On-call then business owner,Unknown,Payment card details,Managed platform,None,1,2026-10-27,Not started,Example row - replace every value before use.
+,Example Booking Service,Takes customer bookings and confirms by email,High,Example Owner,Production,External region outside the hosting provider,Uptime of the public booking page,99.5% monthly,Not yet created,Application and web server logs,Email and SMS to on-call,Critical,3 consecutive failed checks or 5 minutes above target,Not yet created,On-call then business owner,"",Payment card details,Managed platform,None,1 - core,2026-10-27,Not started,Example row - replace every value before use.
 ```
 
 ```sql
--- Engine assumption: PostgreSQL. For another engine use the engine's auto-increment
--- equivalent and keep the rest portable.
+-- Engine assumption: PostgreSQL 10+. For another engine use the engine's auto-increment
+-- equivalent and keep the rest portable. Import the CSV with a column list that omits
+-- service_id (the CSV leaves it blank) and treat blank cost as NULL (unknown), e.g.
+-- \copy obs_service (service_name, ..., notes) FROM 'plan.csv' CSV HEADER
 CREATE TABLE obs_service (
-  service_id BIGINT PRIMARY KEY,
+  service_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   service_name VARCHAR(100) NOT NULL,
   purpose TEXT NOT NULL,
   criticality VARCHAR(50) NOT NULL,
@@ -223,7 +224,7 @@ CREATE INDEX idx_obs_service_review ON obs_service (review_date);
       "Alert Threshold": { "type": "string" },
       "Runbook URL": { "type": "string" },
       "Escalation Path": { "type": "string" },
-      "Monthly Cost Estimate": { "type": "number" },
+      "Monthly Cost Estimate": { "type": ["number", "null"], "description": "null or omitted when unknown" },
       "Data Handled": { "type": "string" },
       "Deployment Method": { "type": "string" },
       "Dependencies": { "type": "string" },
@@ -272,7 +273,7 @@ CREATE INDEX idx_obs_service_review ON obs_service (review_date);
 | Alert Threshold | Text | Leave as Text. The condition that fires, written so it is unambiguous and testable |
 | Runbook URL | Text | Leave as Text. Blank is a finding, not a formatting gap. An alert with no runbook must not ship |
 | Escalation Path | Text | Leave as Text. Who is woken first, then who, then who gives up and calls the host |
-| Monthly Cost Estimate | Number | Convert to Number, two decimal places. An estimate against a ceiling, in the business's own currency |
+| Monthly Cost Estimate | Number | Convert to Number, two decimal places. Leave blank when unknown (never the word "Unknown"). An estimate against a ceiling, in the business's own currency |
 | Data Handled | Select (add options after import) | Convert to Select, add options: "None", "Personal data", "Payment card details", "Health data", "Credentials or secrets", "Business confidential", "Public only". Drives the log retention and access rules |
 | Deployment Method | Text | Leave as Text. How a change reaches this service, and by whom |
 | Dependencies | Text | Leave as Text. What this needs to work. "None" is a valid and worth recording answer |
@@ -290,7 +291,7 @@ column is worse than an obvious gap.
 
 | # | Field | Type | SQL | JSON Schema | Notion | CSV example |
 |---:|---|---|---|---|---|---|
-| 1 | Service ID | `id` | `BIGINT PRIMARY KEY` | `integer` | Text or Notion auto-ID | (blank) |
+| 1 | Service ID | `id` | `BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY` | `integer` | Text or Notion auto-ID | (blank) |
 | 2 | Service Name | `text` | `VARCHAR(100)` | `string` | Text | *(blank)* |
 | 3 | Purpose | `long_text` | `TEXT` | `string` | Text | *(blank)* |
 | 4 | Criticality | `select` | `VARCHAR(50)` | `string` | Select | High |
@@ -306,7 +307,7 @@ column is worse than an obvious gap.
 | 14 | Alert Threshold | `text` | `VARCHAR(255)` | `string` | Text | *(blank)* |
 | 15 | Runbook URL | `text` | `VARCHAR(255)` | `string` | Text | *(blank)* |
 | 16 | Escalation Path | `long_text` | `TEXT` | `string` | Text | *(blank)* |
-| 17 | Monthly Cost Estimate | `number` | `NUMERIC(10,2)` | `number` | Number | Unknown |
+| 17 | Monthly Cost Estimate | `number` | `NUMERIC(10,2)` | `number` (null when unknown) | Number | *(blank = unknown)* |
 | 18 | Data Handled | `select` | `VARCHAR(255)` | `string` | Select | Personal data |
 | 19 | Deployment Method | `text` | `VARCHAR(100)` | `string` | Text | *(blank)* |
 | 20 | Dependencies | `long_text` | `TEXT` | `string` | Text | None |

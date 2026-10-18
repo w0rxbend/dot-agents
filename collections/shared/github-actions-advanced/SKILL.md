@@ -32,7 +32,7 @@ Commit SHAs in examples are illustrative. Resolve the SHA of the current release
 - User wants to automate builds, tests, deployments, or releases via GitHub
 - User asks about matrix builds, reusable workflows, composite actions, or self-hosted runners
 - User needs help with OIDC authentication, caching strategies, or secrets management
-- User says "my GitHub pipeline is failing" or "set up CI for my repo"
+- User says "set up CI for my repo"
 - User asks about workflow security, hardening, or environment protection rules
 
 ## When NOT to Use This Skill
@@ -74,7 +74,9 @@ jobs:
 
 # Tool to automate SHA pinning:
 # npx pin-github-action .github/workflows/*.yml
-# or: pip install ratchet && ratchet pin .github/workflows/
+# or sethvargo/ratchet (a Go binary - NOT the unrelated `ratchet` package on PyPI):
+#   go install github.com/sethvargo/ratchet@v0.12.0
+#   ratchet pin .github/workflows/*.yml
 ```
 
 ### 3. Prevent Script Injection

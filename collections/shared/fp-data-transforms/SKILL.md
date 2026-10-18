@@ -31,6 +31,8 @@ Reshape arrays and objects with small, composable, immutable steps. Native array
 
 ## References
 
+Quick-lookup cheat sheets: [references/option-cheatsheet.md](references/option-cheatsheet.md) (Option operators, when Option beats `?.`/`??`) and [references/pipe-cheatsheet.md](references/pipe-cheatsheet.md) (`pipe` vs `flow`, data-last operators, gotchas).
+
 Read [the detailed guide](references/detailed-guide.md) for imperative-vs-functional side-by-sides. Load only the section you need:
 
 | Task | Section |
@@ -41,7 +43,7 @@ Read [the detailed guide](references/detailed-guide.md) for imperative-vs-functi
 | groupBy, countBy, sumBy, multi-metric aggregation | 4. Grouping and Aggregation |
 | `Option` vs `?.`, safe array/record lookups, combining optionals | 5. Null-Safe Access |
 
-Related: fp-option-ref and fp-pipe-ref for operator lookups; fp-errors when a transformation step can fail with a reason.
+Related: the Option and pipe cheat sheets under References; fp-errors when a transformation step can fail with a reason.
 
 ## Real-World Examples
 
@@ -186,6 +188,8 @@ const finalSettings = deepMergeSettings(DEFAULT_SETTINGS, userPreferences);
 ### Example 3: Group Orders by Customer with Totals
 
 ```typescript
+import * as NEA from 'fp-ts/NonEmptyArray';
+
 interface Order {
   id: string;
   customerId: string;
@@ -206,7 +210,9 @@ const calculateOrderTotal = (order: Order): number =>
   order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
 const groupOrdersByCustomer = (orders: Order[]): CustomerOrderSummary[] => {
-  const grouped = groupBy((order: Order) => order.customerId)(orders);
+  // NEA.groupBy gives non-empty groups, so customerOrders[0] is always defined.
+  // (Native Object.groupBy works too on ES2024+, but its groups are typed as possibly undefined.)
+  const grouped = NEA.groupBy((order: Order) => order.customerId)(orders);
 
   return Object.entries(grouped).map(([customerId, customerOrders]) => ({
     customerId,
@@ -224,6 +230,9 @@ const groupOrdersByCustomer = (orders: Order[]): CustomerOrderSummary[] => {
 ### Example 4: Safely Access Deeply Nested Config
 
 ```typescript
+import * as O from 'fp-ts/Option';
+import { pipe } from 'fp-ts/function';
+
 interface AppConfig {
   services?: {
     api?: {
@@ -247,8 +256,7 @@ interface AppConfig {
   };
 }
 
-import * as O from 'fp-ts/Option';
-import { pipe } from 'fp-ts/function';
+declare const config: AppConfig; // loaded elsewhere
 
 // Create a type-safe config accessor
 const getConfigValue = <T>(

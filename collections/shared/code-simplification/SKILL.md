@@ -193,7 +193,10 @@ If the "simplified" version is harder to understand or review, revert. Not every
 ### TypeScript / JavaScript
 
 ```typescript
-// SIMPLIFY: Unnecessary async wrapper
+// SIMPLIFY: Unnecessary async wrapper (only when findById always returns a
+// promise and never throws synchronously, and there is no try/catch/finally
+// around the return; otherwise `return await` changes error behavior and
+// async stack traces, so keep it)
 // Before
 async function getUser(id: string): Promise<User> {
   return await userService.findById(id);

@@ -11,13 +11,12 @@ Write a structured specification before writing any code. The spec is the shared
 
 ## When to Use
 
-- Starting a new project or feature
+- Starting a new project or a substantial feature
 - Requirements are ambiguous or incomplete
-- The change touches multiple files or modules
+- The change spans several modules or services and the boundaries between them are not yet decided
 - You're about to make an architectural decision
-- The task would take more than 30 minutes to implement
 
-**When NOT to use:** Single-line fixes, typo corrections, or changes where requirements are unambiguous and self-contained.
+**When NOT to use:** Single-line fixes, typo corrections, or well-specified edits, even multi-file ones, where the requirements are unambiguous and self-contained.
 
 ## The Gated Workflow
 
@@ -89,7 +88,7 @@ Don't silently fill in ambiguous requirements. The spec's entire purpose is to s
    ```
    Build: npm run build
    Test: npm test -- --coverage
-   Lint: npm run lint --fix
+   Lint: npm run lint -- --fix
    Dev: npm run dev
    ```
 

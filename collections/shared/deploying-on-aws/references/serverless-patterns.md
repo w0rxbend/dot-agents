@@ -34,7 +34,7 @@ API Gateway HTTP API → Lambda Function → DynamoDB/RDS
 **Key Configuration:**
 ```yaml
 # Lambda configuration
-Runtime: python3.12 or nodejs20.x
+Runtime: python3.13 or nodejs22.x  # use a runtime not nearing deprecation
 Memory: 1024 MB (price-performance sweet spot)
 Timeout: 30 seconds (API Gateway limit)
 ReservedConcurrency: null (unlimited scaling)
@@ -659,12 +659,12 @@ private static HttpClient getClient() {
 
 **Maximum Size:**
 - Standard response: 6 MB
-- Streaming response: 20 MB
+- Streaming response: larger than buffered (see current Lambda quotas; the limit has been raised over time)
 
 **Configuration:**
 ```yaml
 Function:
-  Runtime: nodejs20.x or python3.12
+  Runtime: nodejs22.x or python3.13  # use a runtime not nearing deprecation
   InvokeMode: RESPONSE_STREAM
 ```
 

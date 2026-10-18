@@ -2,7 +2,7 @@
 
 This file contains detailed patterns, checklists, and code samples referenced by the skill.
 
-> **Version caveat:** these samples are starting templates, not drop-in code. Some target older SDK majors (for example, the Sentry JavaScript samples use `new Sentry.Integrations.*` classes, which Sentry JS v8 replaced with functional integrations such as `Sentry.httpIntegration()`). Check every call against the installed SDK version's documentation before use.
+> **Version caveat:** these samples are starting templates, not drop-in code. The Sentry Node.js sample targets `@sentry/node` v8+ (functional integrations, `setupExpressErrorHandler`); the other samples are SDK-agnostic patterns. Check every call against the installed SDK version's documentation before use.
 
 ## Instructions
 
@@ -99,184 +99,75 @@ class ErrorTrackingAnalyzer:
 
 Implement integrations with popular error tracking services:
 
-**Sentry Integration**
+**Sentry Integration (Node.js, `@sentry/node` v8+)**
+
+Sentry JS v8 replaced the `new Sentry.Integrations.*` classes and `Sentry.Handlers.*` middleware with functional integrations and `Sentry.setupExpressErrorHandler`. HTTP, Express, Postgres, MySQL and MongoDB instrumentation, plus uncaught-exception and unhandled-rejection capture, are enabled by default, so do not add your own `process.on(...)` handlers that report the same errors again. Check option names against the installed major (profiling options in particular changed in later majors).
+
 ```javascript
-// sentry-setup.js
+// instrument.mjs - load before any other module: node --import ./instrument.mjs app.mjs
 import * as Sentry from "@sentry/node";
-import { ProfilingIntegration } from "@sentry/profiling-node";
+import { nodeProfilingIntegration } from "@sentry/profiling-node";
 
-class SentryErrorTracker {
-    constructor(config) {
-        this.config = config;
-        this.initialized = false;
-    }
-    
-    initialize() {
-        Sentry.init({
-            dsn: this.config.dsn,
-            environment: this.config.environment,
-            release: this.config.release,
-            
-            // Performance Monitoring
-            tracesSampleRate: this.config.tracesSampleRate || 0.1,
-            profilesSampleRate: this.config.profilesSampleRate || 0.1,
-            
-            // Integrations
-            integrations: [
-                // HTTP integration
-                new Sentry.Integrations.Http({ tracing: true }),
-                
-                // Express integration
-                new Sentry.Integrations.Express({
-                    app: this.config.app,
-                    router: true,
-                    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
-                }),
-                
-                // Database integration
-                new Sentry.Integrations.Postgres(),
-                new Sentry.Integrations.Mysql(),
-                new Sentry.Integrations.Mongo(),
-                
-                // Profiling
-                new ProfilingIntegration(),
-                
-                // Custom integrations
-                ...this.getCustomIntegrations()
-            ],
-            
-            // Filtering
-            beforeSend: (event, hint) => {
-                // Filter sensitive data
-                if (event.request?.cookies) {
-                    delete event.request.cookies;
-                }
-                
-                // Filter out specific errors
-                if (this.shouldFilterError(event, hint)) {
-                    return null;
-                }
-                
-                // Enhance error context
-                return this.enhanceErrorEvent(event, hint);
-            },
-            
-            // Breadcrumbs
-            beforeBreadcrumb: (breadcrumb, hint) => {
-                // Filter sensitive breadcrumbs
-                if (breadcrumb.category === 'console' && breadcrumb.level === 'debug') {
-                    return null;
-                }
-                
-                return breadcrumb;
-            },
-            
-            // Options
-            attachStacktrace: true,
-            shutdownTimeout: 5000,
-            maxBreadcrumbs: 100,
-            debug: this.config.debug || false,
-            
-            // Tags
-            initialScope: {
-                tags: {
-                    component: this.config.component,
-                    version: this.config.version
-                },
-                user: {
-                    id: this.config.userId,
-                    segment: this.config.userSegment
-                }
-            }
-        });
-        
-        this.initialized = true;
-        this.setupErrorHandlers();
-    }
-    
-    setupErrorHandlers() {
-        // Global error handler
-        process.on('uncaughtException', (error) => {
-            console.error('Uncaught Exception:', error);
-            Sentry.captureException(error, {
-                tags: { type: 'uncaught_exception' },
-                level: 'fatal'
-            });
-            
-            // Graceful shutdown
-            this.gracefulShutdown();
-        });
-        
-        // Promise rejection handler
-        process.on('unhandledRejection', (reason, promise) => {
-            console.error('Unhandled Rejection:', reason);
-            Sentry.captureException(reason, {
-                tags: { type: 'unhandled_rejection' },
-                extra: { promise: promise.toString() }
-            });
-        });
-    }
-    
-    enhanceErrorEvent(event, hint) {
-        // Add custom context
-        event.extra = {
-            ...event.extra,
-            memory: process.memoryUsage(),
-            uptime: process.uptime(),
-            nodeVersion: process.version
-        };
-        
-        // Add user context
-        if (this.config.getUserContext) {
-            event.user = this.config.getUserContext();
+Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV,
+    release: process.env.RELEASE,
+
+    tracesSampleRate: 0.1,
+    profilesSampleRate: 0.1,          // v8/v9 option; newer majors use profile-session options
+    integrations: [nodeProfilingIntegration()],
+
+    sendDefaultPii: false,            // keep request bodies, cookies and IPs out by default
+    maxBreadcrumbs: 100,
+
+    beforeSend(event, hint) {
+        if (event.request?.cookies) delete event.request.cookies;
+
+        const error = hint.originalException;
+        if (error instanceof Error) {
+            event.fingerprint = generateFingerprint(error);
         }
-        
-        // Add custom fingerprinting
-        if (hint.originalException) {
-            event.fingerprint = this.generateFingerprint(hint.originalException);
-        }
-        
         return event;
-    }
-    
-    generateFingerprint(error) {
-        // Custom fingerprinting logic
-        const fingerprint = [];
-        
-        // Group by error type
-        fingerprint.push(error.name || 'Error');
-        
-        // Group by error location
-        if (error.stack) {
-            const match = error.stack.match(/at\s+(.+?)\s+\(/);
-            if (match) {
-                fingerprint.push(match[1]);
-            }
-        }
-        
-        // Group by custom properties
-        if (error.code) {
-            fingerprint.push(error.code);
-        }
-        
-        return fingerprint;
-    }
-}
+    },
 
-// Express middleware
-export const sentryMiddleware = {
-    requestHandler: Sentry.Handlers.requestHandler(),
-    tracingHandler: Sentry.Handlers.tracingHandler(),
-    errorHandler: Sentry.Handlers.errorHandler({
-        shouldHandleError(error) {
-            // Capture 4xx and 5xx errors
-            if (error.status >= 400) {
-                return true;
-            }
-            return false;
-        }
-    })
-};
+    beforeBreadcrumb(breadcrumb) {
+        if (breadcrumb.category === "console" && breadcrumb.level === "debug") return null;
+        return breadcrumb;
+    },
+
+    initialScope: {
+        tags: { component: process.env.COMPONENT ?? "api" },
+    },
+});
+
+function generateFingerprint(error) {
+    const fingerprint = [error.name || "Error"];
+    const match = error.stack?.match(/at\s+(.+?)\s+\(/);
+    if (match) fingerprint.push(match[1]);
+    if (error.code) fingerprint.push(String(error.code));
+    return fingerprint;
+}
+```
+
+```javascript
+// app.mjs - Express: register the error handler after all routes, before other error middleware
+import express from "express";
+import * as Sentry from "@sentry/node";
+
+const app = express();
+// ... routes ...
+
+Sentry.setupExpressErrorHandler(app, {
+    // Report 5xx only; expected 4xx client errors are not incidents
+    shouldHandleError(error) {
+        const status = Number(error.status ?? error.statusCode ?? 500);
+        return status >= 500;
+    },
+});
+
+app.use((err, req, res, next) => {
+    res.status(err.status ?? 500).json({ error: "Internal error", eventId: res.sentry });
+});
 ```
 
 **Custom Error Tracking Service**

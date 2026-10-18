@@ -6,7 +6,7 @@ argument-hint: "<research data, transcripts, or survey results>"
 
 # /research-synthesis
 
-> If you see unfamiliar placeholders or need to check which tools are connected, see [CONNECTORS.md](../../CONNECTORS.md).
+> `~~category` placeholders stand for whatever tool the user has connected in that category (usually via MCP): `~~user feedback` (e.g. Intercom, Productboard, Dovetail), `~~product analytics` (e.g. Amplitude, Mixpanel), `~~knowledge base` (e.g. Notion, Confluence). If nothing in a category is connected, ask the user for that input or skip the step and say so.
 
 Synthesize user research data into actionable insights. See the **user-research** skill for research methods, interview guides, and analysis frameworks.
 

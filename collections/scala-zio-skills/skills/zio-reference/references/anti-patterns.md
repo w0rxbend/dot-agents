@@ -46,8 +46,8 @@
     *   *Anti-pattern*:
         ```scala
         object Greeter {
-          val layer: URLayer[Console, Greeter] = ZLayer.derive[GreeterLive]
-          def sayHello(name: String): URIO[Greeter, Unit] = ZIO.serviceWithZIO(_.sayHello(name))
+          val layer: URLayer[Salutation, Greeter] = ZLayer.derive[GreeterLive]
+          def sayHello(name: String): URIO[Greeter, String] = ZIO.serviceWithZIO(_.sayHello(name))
         }
         // call site:
         Greeter.sayHello("World")
@@ -55,7 +55,7 @@
     *   *Idiomatic*:
         ```scala
         object Greeter {
-          val layer: URLayer[Console, Greeter] = ZLayer.derive[GreeterLive]
+          val layer: URLayer[Salutation, Greeter] = ZLayer.derive[GreeterLive]
         }
         // call site:
         ZIO.serviceWithZIO[Greeter](_.sayHello("World"))

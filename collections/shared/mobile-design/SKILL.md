@@ -13,46 +13,32 @@ allowed-tools: Read, Glob, Grep, Bash
 
 ## 🔧 Runtime Scripts
 
-**Execute these for validation (don't read, just run):**
-
 | Script | Purpose | Usage |
 |--------|---------|-------|
-| `scripts/mobile_audit.py` | Mobile UX & Touch Audit | `python scripts/mobile_audit.py <project_path>` |
+| `scripts/mobile_audit.py` | Read-only regex scan for common mobile UX/touch issues | `python3 scripts/mobile_audit.py <project_path>` (run from this skill's directory) |
 
 ---
 
-## 🔴 MANDATORY: Read Reference Files Before Working!
+## 📖 Reference Files: Load on Demand
 
-**⛔ DO NOT start development until you read the relevant files:**
+Read only the files relevant to the task at hand. A small edit needs none of them; a new screen or app needs the ones matching its topics.
 
-### Universal (Always Read)
+| File | Read when |
+|------|-----------|
+| [mobile-design-thinking.md](mobile-design-thinking.md) | Starting a new app or screen design; avoiding default patterns |
+| [touch-psychology.md](touch-psychology.md) | Touch targets, gestures, haptics, thumb zone |
+| [mobile-performance.md](mobile-performance.md) | Lists, animations, memory, 60fps work in RN/Flutter |
+| [mobile-backend.md](mobile-backend.md) | Push notifications, offline sync, mobile API design |
+| [mobile-testing.md](mobile-testing.md) | Test strategy, E2E, platform-specific tests |
+| [mobile-debugging.md](mobile-debugging.md) | Native vs JS debugging, React Native DevTools, Logcat |
+| [mobile-navigation.md](mobile-navigation.md) | Tab/Stack/Drawer, deep linking |
+| [mobile-typography.md](mobile-typography.md) | System fonts, Dynamic Type, a11y |
+| [mobile-color-system.md](mobile-color-system.md) | OLED, dark mode, battery-aware color |
+| [decision-trees.md](decision-trees.md) | Framework/state/storage selection |
+| [platform-ios.md](platform-ios.md) | Building for iPhone/iPad (HIG, SF Pro, SwiftUI) |
+| [platform-android.md](platform-android.md) | Building for Android (Material 3, Roboto, Compose) |
 
-| File | Content | Status |
-|------|---------|--------|
-| **[mobile-design-thinking.md](mobile-design-thinking.md)** | **⚠️ ANTI-MEMORIZATION: Forces thinking, prevents AI defaults** | **⬜ CRITICAL FIRST** |
-| **[touch-psychology.md](touch-psychology.md)** | **Fitts' Law, gestures, haptics, thumb zone** | **⬜ CRITICAL** |
-| **[mobile-performance.md](mobile-performance.md)** | **RN/Flutter performance, 60fps, memory** | **⬜ CRITICAL** |
-| **[mobile-backend.md](mobile-backend.md)** | **Push notifications, offline sync, mobile API** | **⬜ CRITICAL** |
-| **[mobile-testing.md](mobile-testing.md)** | **Testing pyramid, E2E, platform-specific** | **⬜ CRITICAL** |
-| **[mobile-debugging.md](mobile-debugging.md)** | **Native vs JS debugging, Flipper, Logcat** | **⬜ CRITICAL** |
-| [mobile-navigation.md](mobile-navigation.md) | Tab/Stack/Drawer, deep linking | ⬜ Read |
-| [mobile-typography.md](mobile-typography.md) | System fonts, Dynamic Type, a11y | ⬜ Read |
-| [mobile-color-system.md](mobile-color-system.md) | OLED, dark mode, battery-aware | ⬜ Read |
-| [decision-trees.md](decision-trees.md) | Framework/state/storage selection | ⬜ Read |
-
-> 🧠 **mobile-design-thinking.md is PRIORITY!** This file ensures AI thinks instead of using memorized patterns.
-
-### Platform-Specific (Read Based on Target)
-
-| Platform | File | Content | When to Read |
-|----------|------|---------|--------------|
-| **iOS** | [platform-ios.md](platform-ios.md) | Human Interface Guidelines, SF Pro, SwiftUI patterns | Building for iPhone/iPad |
-| **Android** | [platform-android.md](platform-android.md) | Material Design 3, Roboto, Compose patterns | Building for Android |
-| **Cross-Platform** | Both above | Platform divergence points | React Native / Flutter |
-
-> 🔴 **If building for iOS → Read platform-ios.md FIRST!**
-> 🔴 **If building for Android → Read platform-android.md FIRST!**
-> 🔴 **If cross-platform → Read BOTH and apply conditional platform logic!**
+For cross-platform (React Native / Flutter) UI work, consult both platform files where the platforms diverge.
 
 ---
 
@@ -71,7 +57,7 @@ allowed-tools: Read, Glob, Grep, Bash
 | **Offline** | "Does this need to work offline?" | Affects data strategy |
 | **Target devices** | "Phone only, or tablet support?" | Layout complexity |
 
-### ⛔ AI MOBILE ANTI-PATTERNS (YASAK LİSTESİ)
+### ⛔ AI MOBILE ANTI-PATTERNS (FORBIDDEN LIST)
 
 > 🚫 **These are AI default tendencies that MUST be avoided!**
 
@@ -84,7 +70,7 @@ allowed-tools: Read, Glob, Grep, Bash
 | **Missing keyExtractor** | Index-based keys cause bugs on reorder | Unique, stable ID from data |
 | **Skip getItemLayout** | Async layout = janky scroll | Provide when items have fixed height |
 | **setState() everywhere** | Unnecessary widget rebuilds | Targeted state, `const` constructors |
-| **Native driver: false** | Animations blocked by JS thread | `useNativeDriver: true` always |
+| **Native driver: false** | Animations blocked by JS thread | `useNativeDriver: true` for transform/opacity; layout props (width, height, top...) are not supported by the native driver, so use Reanimated or the JS driver for them |
 | **console.log in production** | Blocks JS thread severely | Remove before release build |
 | **Skip React.memo/const** | Every item re-renders on any change | Memoize list items ALWAYS |
 
@@ -92,8 +78,8 @@ allowed-tools: Read, Glob, Grep, Bash
 
 | ❌ NEVER DO | Why It's Wrong | ✅ ALWAYS DO |
 |-------------|----------------|--------------|
-| **Touch target < 44px** | Impossible to tap accurately, frustrating | Minimum 44pt (iOS) / 48dp (Android) |
-| **Spacing < 8px between targets** | Accidental taps on neighbors | Minimum 8-12px gap |
+| **Touch target < 44pt/48dp** | Impossible to tap accurately, frustrating | Minimum 44pt (iOS) / 48dp (Android) |
+| **Spacing < 8pt/dp between targets** | Accidental taps on neighbors | Minimum 8-12pt/dp gap |
 | **Gesture-only interactions** | Motor impaired users excluded | Always provide button alternative |
 | **No loading state** | User thinks app crashed | ALWAYS show loading feedback |
 | **No error state** | User stuck, no recovery path | Show error with retry option |
@@ -105,7 +91,7 @@ allowed-tools: Read, Glob, Grep, Bash
 | ❌ NEVER DO | Why It's Wrong | ✅ ALWAYS DO |
 |-------------|----------------|--------------|
 | **Token in AsyncStorage** | Easily accessible, stolen on rooted device | `SecureStore` / `Keychain` / `EncryptedSharedPreferences` |
-| **Hardcode API keys** | Reverse engineered from APK/IPA | Environment variables, secure storage |
+| **Ship API secrets in the app** | Anything in the bundle, including build-time env vars (`EXPO_PUBLIC_*`, react-native-config), can be extracted from the APK/IPA | Keep secrets on a backend you control and proxy calls through it, or issue short-lived per-user tokens; only publishable keys belong in the client |
 | **Skip SSL pinning** | MITM attacks possible | Pin certificates in production |
 | **Log sensitive data** | Logs can be extracted | Never log tokens, passwords, PII |
 
@@ -148,9 +134,9 @@ Error Dialogs       -                             ✅ Platform conventions for a
 | **Min Touch Target** | 44pt × 44pt | 48dp × 48dp |
 | **Back Navigation** | Edge swipe left | System back button/gesture |
 | **Bottom Tab Icons** | SF Symbols | Material Symbols |
-| **Action Sheet** | UIActionSheet from bottom | Bottom Sheet / Dialog |
+| **Action Sheet** | `UIAlertController` (`.actionSheet`) / SwiftUI `confirmationDialog` | Bottom Sheet / Dialog |
 | **Progress** | Spinner | Linear progress (Material) |
-| **Pull to Refresh** | Native UIRefreshControl | SwipeRefreshLayout |
+| **Pull to Refresh** | Native UIRefreshControl / SwiftUI `.refreshable` | Compose `PullToRefreshBox` (Views: SwipeRefreshLayout) |
 
 ---
 
@@ -162,7 +148,7 @@ Error Dialogs       -                             ✅ Platform conventions for a
 Desktop: Cursor is precise (1px)
 Mobile:  Finger is imprecise (~7mm contact area)
 
-→ Touch targets MUST be 44-48px minimum
+→ Touch targets MUST be 44pt (iOS) / 48dp (Android) minimum
 → Important actions in THUMB ZONE (bottom of screen)
 → Destructive actions AWAY from easy reach
 ```
@@ -270,16 +256,16 @@ For complete guide: [mobile-performance.md](mobile-performance.md)
 
 ---
 
-## 📝 CHECKPOINT (MANDATORY Before Any Mobile Work)
+## 📝 CHECKPOINT (New Apps and Screens)
 
-> **Before writing ANY mobile code, you MUST complete this checkpoint:**
+> **Before building a new app or screen, fill in this checkpoint. Skip it for small edits and bug fixes.**
 
 ```
 🧠 CHECKPOINT:
 
 Platform:   [ iOS / Android / Both ]
 Framework:  [ React Native / Flutter / SwiftUI / Kotlin ]
-Files Read: [ List the skill files you've read ]
+Files Read: [ List the reference files relevant to this task ]
 
 3 Principles I Will Apply:
 1. _______________
@@ -310,7 +296,7 @@ Anti-Patterns I Will Avoid:
 3. AsyncStorage for tokens → SecureStore
 ```
 
-> 🔴 **Can't fill the checkpoint? → GO BACK AND READ THE SKILL FILES.**
+> **Can't fill the checkpoint? → Read the reference files for the topics involved.**
 
 ---
 
@@ -354,7 +340,7 @@ For complete decision trees: [decision-trees.md](decision-trees.md)
 
 ### Before Every Screen
 
-- [ ] **Touch targets ≥ 44-48px?**
+- [ ] **Touch targets ≥ 44pt (iOS) / 48dp (Android)?**
 - [ ] **Primary CTA in thumb zone?**
 - [ ] **Loading state exists?**
 - [ ] **Error state with retry exists?**

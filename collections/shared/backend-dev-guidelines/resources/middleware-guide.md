@@ -180,8 +180,8 @@ router.post('/:formID/submit',
 ### Critical Order (Must Follow)
 
 ```typescript
-// 1. Sentry request handler (FIRST)
-app.use(Sentry.Handlers.requestHandler());
+// 1. Sentry (@sentry/node v8+): no request middleware. Import ./instrument
+//    (which calls Sentry.init) as the very first import of server.ts instead.
 
 // 2. Body parsing
 app.use(express.json());
@@ -196,11 +196,11 @@ app.use(SSOMiddleware.initialize());
 // 5. Routes registered here
 app.use('/api/users', userRoutes);
 
-// 6. Error handler (AFTER routes)
-app.use(errorBoundary);
+// 6. Sentry error handler (after routes, before your own error handler)
+Sentry.setupExpressErrorHandler(app);
 
-// 7. Sentry error handler (LAST)
-app.use(Sentry.Handlers.errorHandler());
+// 7. Own error handler (LAST)
+app.use(errorBoundary);
 ```
 
 **Rule:** Error handlers MUST be registered AFTER all routes!
@@ -208,6 +208,6 @@ app.use(Sentry.Handlers.errorHandler());
 ---
 
 **Related Files:**
-- [SKILL.md](SKILL.md)
+- [SKILL.md](../SKILL.md)
 - [routing-and-controllers.md](routing-and-controllers.md)
 - [async-and-errors.md](async-and-errors.md)

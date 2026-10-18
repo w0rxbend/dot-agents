@@ -166,7 +166,7 @@ features/
     components/
       UserProfile.tsx           # Main component (from Example 1)
       UserList.tsx              # List component
-      UserBlog.tsx              # Blog component
+      UserForm.tsx              # Form component
       modals/
         DeleteUserModal.tsx     # Modal component
     hooks/
@@ -380,13 +380,13 @@ export const UserList: React.FC = () => {
 
 ---
 
-## Example 5: Blog with Validation
+## Example 5: Form with Validation
 
 ```typescript
 import React from 'react';
 import { Box, TextField, Button, Paper } from '@mui/material';
-import { useBlog } from 'react-hook-blog';
-import { zodResolver } from '@hookblog/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { userApi } from '../api/userApi';
@@ -399,17 +399,17 @@ const userSchema = z.object({
     lastName: z.string().min(1),
 });
 
-type UserBlogData = z.infer<typeof userSchema>;
+type UserFormValues = z.infer<typeof userSchema>;
 
-interface CreateUserBlogProps {
+interface CreateUserFormProps {
     onSuccess?: () => void;
 }
 
-export const CreateUserBlog: React.FC<CreateUserBlogProps> = ({ onSuccess }) => {
+export const CreateUserForm: React.FC<CreateUserFormProps> = ({ onSuccess }) => {
     const queryClient = useQueryClient();
     const { showSuccess, showError } = useMuiSnackbar();
 
-    const { register, handleSubmit, blogState: { errors }, reset } = useBlog<UserBlogData>({
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<UserFormValues>({
         resolver: zodResolver(userSchema),
         defaultValues: {
             username: '',
@@ -420,7 +420,7 @@ export const CreateUserBlog: React.FC<CreateUserBlogProps> = ({ onSuccess }) => 
     });
 
     const createMutation = useMutation({
-        mutationFn: (data: UserBlogData) => userApi.createUser(data),
+        mutationFn: (data: UserFormValues) => userApi.createUser(data),
 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -434,13 +434,13 @@ export const CreateUserBlog: React.FC<CreateUserBlogProps> = ({ onSuccess }) => 
         },
     });
 
-    const onSubmit = (data: UserBlogData) => {
+    const onSubmit = (data: UserFormValues) => {
         createMutation.mutate(data);
     };
 
     return (
         <Paper sx={{ p: 3, maxWidth: 500 }}>
-            <blog onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit)}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <TextField
                         {...register('username')}
@@ -483,17 +483,17 @@ export const CreateUserBlog: React.FC<CreateUserBlogProps> = ({ onSuccess }) => 
                         {createMutation.isPending ? 'Creating...' : 'Create User'}
                     </Button>
                 </Box>
-            </blog>
+            </form>
         </Paper>
     );
 };
 
-export default CreateUserBlog;
+export default CreateUserForm;
 ```
 
 ---
 
-## Example 2: Parent Container with Lazy Loading
+## Example 6: Parent Container with Lazy Loading
 
 ```typescript
 import React from 'react';
@@ -535,11 +535,13 @@ export default UserDashboard;
 **Benefits:**
 - Each section loads independently
 - User sees partial content sooner
-- Better perceived perblogance
+- Better perceived performance
 
 ---
 
-## Example 3: Cache-First Strategy Implementation
+## Example 7: Cache-First Strategy Implementation
+
+> Project-specific example: it assumes list data cached under a `posts-v2` "grid" query. Adapt or skip it if your app has no such list query.
 
 Complete example based on useSuspensePost.ts:
 
@@ -597,7 +599,7 @@ export function useSuspensePost(blogId: number, postId: number) {
 
 ---
 
-## Example 4: Complete Route File
+## Example 8: Complete Route File
 
 ```typescript
 /**
@@ -642,7 +644,7 @@ export default ProjectCatalogPage;
 
 ---
 
-## Example 5: Dialog with Blog
+## Example 9: Dialog with Form
 
 ```typescript
 import React from 'react';
@@ -657,21 +659,21 @@ import {
     IconButton,
 } from '@mui/material';
 import { Close, PersonAdd } from '@mui/icons-material';
-import { useBlog } from 'react-hook-blog';
-import { zodResolver } from '@hookblog/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-const blogSchema = z.object({
+const formSchema = z.object({
     name: z.string().min(1),
     email: z.string().email(),
 });
 
-type BlogData = z.infer<typeof blogSchema>;
+type FormValues = z.infer<typeof formSchema>;
 
 interface AddUserDialogProps {
     open: boolean;
     onClose: () => void;
-    onSubmit: (data: BlogData) => Promise<void>;
+    onSubmit: (data: FormValues) => Promise<void>;
 }
 
 export const AddUserDialog: React.FC<AddUserDialogProps> = ({
@@ -679,8 +681,8 @@ export const AddUserDialog: React.FC<AddUserDialogProps> = ({
     onClose,
     onSubmit,
 }) => {
-    const { register, handleSubmit, blogState: { errors }, reset } = useBlog<BlogData>({
-        resolver: zodResolver(blogSchema),
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
     });
 
     const handleClose = () => {
@@ -688,7 +690,7 @@ export const AddUserDialog: React.FC<AddUserDialogProps> = ({
         onClose();
     };
 
-    const handleBlogSubmit = async (data: BlogData) => {
+    const handleFormSubmit = async (data: FormValues) => {
         await onSubmit(data);
         handleClose();
     };
@@ -707,7 +709,7 @@ export const AddUserDialog: React.FC<AddUserDialogProps> = ({
                 </Box>
             </DialogTitle>
 
-            <blog onSubmit={handleSubmit(handleBlogSubmit)}>
+            <form onSubmit={handleSubmit(handleFormSubmit)}>
                 <DialogContent>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <TextField
@@ -736,7 +738,7 @@ export const AddUserDialog: React.FC<AddUserDialogProps> = ({
                         Add User
                     </Button>
                 </DialogActions>
-            </blog>
+            </form>
         </Dialog>
     );
 };
@@ -744,7 +746,7 @@ export const AddUserDialog: React.FC<AddUserDialogProps> = ({
 
 ---
 
-## Example 6: Parallel Data Fetching
+## Example 10: Parallel Data Fetching
 
 ```typescript
 import React from 'react';
@@ -809,7 +811,7 @@ export const Dashboard: React.FC = () => {
 
 ---
 
-## Example 7: Optimistic Update
+## Example 11: Optimistic Update
 
 ```typescript
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -863,10 +865,10 @@ export const useToggleUserStatus = () => {
 1. **Component Pattern**: React.FC + lazy + Suspense + useSuspenseQuery
 2. **Feature Structure**: Organized subdirectories (api/, components/, hooks/, etc.)
 3. **Routing**: Folder-based with lazy loading
-4. **Data Fetching**: useSuspenseQuery with cache-first strategy
-5. **Blogs**: React Hook Blog + Zod validation
-6. **Error Handling**: useMuiSnackbar + onError callbacks
-7. **Perblogance**: useMemo, useCallback, React.memo, debouncing
+4. **Data Fetching**: useSuspenseQuery (optionally seeded from a list query)
+5. **Forms**: React Hook Form + Zod validation
+6. **Error Handling**: useMuiSnackbar + mutation onError + error boundaries for queries
+7. **Performance**: useMemo, useCallback, React.memo, debouncing
 8. **Styling**: Inline <100 lines, sx prop, MUI v7 syntax
 
 **See other resources for detailed explanations of each pattern.**

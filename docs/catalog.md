@@ -1,6 +1,6 @@
 # Skill catalog
 
-528 unique installed skills: 469 included, 59 external (provider-managed, direct-source, or local-only).
+509 unique installed skills: 450 included, 59 external (provider-managed, direct-source, or local-only).
 
 Install IDs keep same-named skills from different collections in separate directories. The upstream `name` in each skill remains unchanged.
 
@@ -27,7 +27,7 @@ Install IDs keep same-named skills from different collections in separate direct
 | `architecting-security` | architecting-security | shared | MIT | [SKILL.md](../collections/shared/architecting-security/SKILL.md) |
 | `architecture` | architecture | shared | MIT | [SKILL.md](../collections/shared/architecture/SKILL.md) |
 | `architecture-patterns` | architecture-patterns | shared | MIT | [SKILL.md](../collections/shared/architecture-patterns/SKILL.md) |
-| `architecture-review` | architecture-review | shared | MIT | [SKILL.md](../collections/shared/architecture-review/SKILL.md) |
+| `architecture-review` | architecture-review | shared | AGPL-3.0-only | [SKILL.md](../collections/shared/architecture-review/SKILL.md) |
 | `astro` | astro | shared | MIT | [SKILL.md](../collections/shared/astro/SKILL.md) |
 | `audit-logging` | audit-logging | shared | MIT | [SKILL.md](../collections/shared/audit-logging/SKILL.md) |
 | `audit-skills` | audit-skills | shared | MIT | [SKILL.md](../collections/shared/audit-skills/SKILL.md) |
@@ -52,7 +52,6 @@ Install IDs keep same-named skills from different collections in separate direct
 | `caveman-compress` | caveman-compress | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-compress/SKILL.md) |
 | `caveman-discover` | caveman-discover | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-discover/SKILL.md) |
 | `caveman-evidence-review` | caveman-evidence-review | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-evidence-review/SKILL.md) |
-| `caveman-explore` | caveman-explore | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-explore/SKILL.md) |
 | `caveman-help` | caveman-help | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-help/SKILL.md) |
 | `caveman-learn` | caveman-learn | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-learn/SKILL.md) |
 | `caveman-manage` | caveman-manage | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-manage/SKILL.md) |
@@ -68,16 +67,7 @@ Install IDs keep same-named skills from different collections in separate direct
 | `claude-design--research-synthesis` | research-synthesis | claude-design | Apache-2.0 | [SKILL.md](../collections/claude-plugins/design/research-synthesis/SKILL.md) |
 | `claude-design--user-research` | user-research | claude-design | Apache-2.0 | [SKILL.md](../collections/claude-plugins/design/user-research/SKILL.md) |
 | `claude-design--ux-copy` | ux-copy | claude-design | Apache-2.0 | [SKILL.md](../collections/claude-plugins/design/ux-copy/SKILL.md) |
-| `claude-engineering--architecture` | architecture | claude-engineering | Apache-2.0 | [SKILL.md](../collections/claude-plugins/engineering/architecture/SKILL.md) |
-| `claude-engineering--code-review` | code-review | claude-engineering | Apache-2.0 | [SKILL.md](../collections/claude-plugins/engineering/code-review/SKILL.md) |
-| `claude-engineering--debug` | debug | claude-engineering | Apache-2.0 | [SKILL.md](../collections/claude-plugins/engineering/debug/SKILL.md) |
-| `claude-engineering--deploy-checklist` | deploy-checklist | claude-engineering | Apache-2.0 | [SKILL.md](../collections/claude-plugins/engineering/deploy-checklist/SKILL.md) |
-| `claude-engineering--documentation` | documentation | claude-engineering | Apache-2.0 | [SKILL.md](../collections/claude-plugins/engineering/documentation/SKILL.md) |
-| `claude-engineering--incident-response` | incident-response | claude-engineering | Apache-2.0 | [SKILL.md](../collections/claude-plugins/engineering/incident-response/SKILL.md) |
 | `claude-engineering--standup` | standup | claude-engineering | Apache-2.0 | [SKILL.md](../collections/claude-plugins/engineering/standup/SKILL.md) |
-| `claude-engineering--system-design` | system-design | claude-engineering | Apache-2.0 | [SKILL.md](../collections/claude-plugins/engineering/system-design/SKILL.md) |
-| `claude-engineering--tech-debt` | tech-debt | claude-engineering | Apache-2.0 | [SKILL.md](../collections/claude-plugins/engineering/tech-debt/SKILL.md) |
-| `claude-engineering--testing-strategy` | testing-strategy | claude-engineering | Apache-2.0 | [SKILL.md](../collections/claude-plugins/engineering/testing-strategy/SKILL.md) |
 | `claude-hosted--consolidate-memory` | consolidate-memory | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
 | `claude-hosted--docs` | docs | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
 | `claude-hosted--docx` | docx | claude-hosted | LicenseRef-Provider | [Provider](providers.md) |
@@ -215,13 +205,9 @@ Install IDs keep same-named skills from different collections in separate direct
 | `fp-async` | fp-async | shared | MIT | [SKILL.md](../collections/shared/fp-async/SKILL.md) |
 | `fp-backend` | fp-backend | shared | MIT | [SKILL.md](../collections/shared/fp-backend/SKILL.md) |
 | `fp-data-transforms` | fp-data-transforms | shared | MIT | [SKILL.md](../collections/shared/fp-data-transforms/SKILL.md) |
-| `fp-either-ref` | fp-either-ref | shared | MIT | [SKILL.md](../collections/shared/fp-either-ref/SKILL.md) |
 | `fp-errors` | fp-errors | shared | MIT | [SKILL.md](../collections/shared/fp-errors/SKILL.md) |
-| `fp-option-ref` | fp-option-ref | shared | MIT | [SKILL.md](../collections/shared/fp-option-ref/SKILL.md) |
-| `fp-pipe-ref` | fp-pipe-ref | shared | MIT | [SKILL.md](../collections/shared/fp-pipe-ref/SKILL.md) |
 | `fp-react` | fp-react | shared | MIT | [SKILL.md](../collections/shared/fp-react/SKILL.md) |
 | `fp-refactor` | fp-refactor | shared | MIT | [SKILL.md](../collections/shared/fp-refactor/SKILL.md) |
-| `fp-taskeither-ref` | fp-taskeither-ref | shared | MIT | [SKILL.md](../collections/shared/fp-taskeither-ref/SKILL.md) |
 | `frontend-design` | frontend-design | shared | MIT | [SKILL.md](../collections/shared/frontend-design/SKILL.md) |
 | `frontend-dev-guidelines` | frontend-dev-guidelines | shared | MIT | [SKILL.md](../collections/shared/frontend-dev-guidelines/SKILL.md) |
 | `frontend-ui-engineering` | frontend-ui-engineering | shared | MIT | [SKILL.md](../collections/shared/frontend-ui-engineering/SKILL.md) |
@@ -334,7 +320,6 @@ Install IDs keep same-named skills from different collections in separate direct
 | `hermes--spike` | spike | hermes | MIT | [SKILL.md](../collections/hermes/software-development/spike/SKILL.md) |
 | `hermes--systematic-debugging` | systematic-debugging | hermes | MIT | [SKILL.md](../collections/hermes/software-development/systematic-debugging/SKILL.md) |
 | `hermes--teams-meeting-pipeline` | teams-meeting-pipeline | hermes | MIT | [SKILL.md](../collections/hermes/productivity/teams-meeting-pipeline/SKILL.md) |
-| `hermes--test-driven-development` | test-driven-development | hermes | MIT | [SKILL.md](../collections/hermes/software-development/test-driven-development/SKILL.md) |
 | `hermes--weekly-review-planning` | weekly-review-planning | hermes | MIT | [SKILL.md](../collections/hermes/productivity/weekly-review-planning/SKILL.md) |
 | `hermes--xlsx` | xlsx | hermes | MIT | [SKILL.md](../collections/hermes/productivity/xlsx/SKILL.md) |
 | `hermes--xurl` | xurl | hermes | MIT | [SKILL.md](../collections/hermes/social-media/xurl/SKILL.md) |
@@ -456,7 +441,6 @@ Install IDs keep same-named skills from different collections in separate direct
 | `refactoring-guru` | refactoring-guru | shared | MIT | [SKILL.md](../collections/shared/refactoring-guru/SKILL.md) |
 | `rust-linux-apps` | rust-linux-apps | shared | MIT | [SKILL.md](../collections/shared/rust-linux-apps/SKILL.md) |
 | `rust-systems-contracts` | rust-systems-contracts | shared | MIT | [SKILL.md](../collections/shared/rust-systems-contracts/SKILL.md) |
-| `safe-refactor` | safe-refactor | shared | Apache-2.0 | [SKILL.md](../collections/shared/safe-refactor/SKILL.md) |
 | `saga-orchestration` | saga-orchestration | shared | MIT | [SKILL.md](../collections/shared/saga-orchestration/SKILL.md) |
 | `scala-collections` | scala-collections | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/scala-collections/SKILL.md) |
 | `scala-compiler-macro-refactoring` | scala-compiler-macro-refactoring | shared | MIT | [SKILL.md](../collections/shared/scala-compiler-macro-refactoring/SKILL.md) |
@@ -522,15 +506,12 @@ Install IDs keep same-named skills from different collections in separate direct
 | `zio-skills--docs-mdoc-conventions` | docs-mdoc-conventions | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-mdoc-conventions/SKILL.md) |
 | `zio-skills--docs-module-ref` | docs-module-ref | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-module-ref/SKILL.md) |
 | `zio-skills--docs-organize-reference-docs` | docs-organize-reference-docs | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-organize-reference-docs/SKILL.md) |
-| `zio-skills--docs-organize-types` | docs-organize-types | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-organize-types/SKILL.md) |
 | `zio-skills--docs-pr-subsection` | docs-pr-subsection | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-pr-subsection/SKILL.md) |
 | `zio-skills--docs-reduce-redundancy` | docs-reduce-redundancy | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-reduce-redundancy/SKILL.md) |
 | `zio-skills--docs-report-method-coverage` | docs-report-method-coverage | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-report-method-coverage/SKILL.md) |
 | `zio-skills--docs-research` | docs-research | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-research/SKILL.md) |
 | `zio-skills--docs-skill-retrospection` | docs-skill-retrospection | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-skill-retrospection/SKILL.md) |
 | `zio-skills--docs-tutorial` | docs-tutorial | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-tutorial/SKILL.md) |
-| `zio-skills--docs-verify-compliance` | docs-verify-compliance | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-verify-compliance/SKILL.md) |
 | `zio-skills--docs-writing-style` | docs-writing-style | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/docs-writing-style/SKILL.md) |
-| `zio-skills--setup-skill-hook` | setup-skill-hook | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/documentation/skills/setup-skill-hook/SKILL.md) |
 | `zio-skills--zio-http-knowledge` | zio-http-knowledge | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/zio-skills/skills/zio-http-knowledge/SKILL.md) |
 | `zio-skills--zio-knowledge` | zio-knowledge | zio-skills | Apache-2.0 | [SKILL.md](../collections/zio-skills/plugins/zio-skills/skills/zio-knowledge/SKILL.md) |

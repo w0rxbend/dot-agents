@@ -105,11 +105,14 @@ Solution: Downsample to 500-1000 points preserving visual fidelity
 
 ```sql
 -- TimescaleDB toolkit LTTB
+-- lttb(time, value, resolution) is an aggregate returning a timevector;
+-- unnest() turns it back into (time, value) rows
 SELECT time, value
-FROM lttb(
-  'SELECT time, temperature FROM sensor_data WHERE sensor_id = 1',
-  1000  -- target number of points
-);
+FROM unnest((
+  SELECT lttb(time, temperature, 1000)  -- 1000 = target number of points
+  FROM sensor_data
+  WHERE sensor_id = 1
+));
 ```
 
 Thresholds:

@@ -93,6 +93,9 @@ def validate_prisma_schema(file_path: Path) -> list:
 
 def main():
     project_path = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
+    if not project_path.is_dir():
+        print(f"error: project path does not exist or is not a directory: {project_path}", file=sys.stderr)
+        sys.exit(2)
     
     print(f"\n{'='*60}")
     print(f"[SCHEMA VALIDATOR] Database Schema Validation")

@@ -83,8 +83,8 @@ Then store `max(updated_at)` from the batch as the new watermark in the same tra
 - Alert on failure and on SLA/freshness misses, not on every retry.
 
 ```python
-# Airflow 2.x TaskFlow sketch; check the installed version for parameter names
-from airflow.decorators import dag, task
+# Airflow TaskFlow sketch; check the installed version for parameter names
+from airflow.sdk import dag, task  # Airflow 3; on Airflow 2.x: from airflow.decorators import dag, task
 import pendulum
 
 @dag(schedule="@daily", start_date=pendulum.datetime(2026, 1, 1, tz="UTC"),

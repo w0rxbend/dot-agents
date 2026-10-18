@@ -4,6 +4,7 @@ import os
 import shutil
 import sys
 import tempfile
+import time
 import types
 import unittest
 from pathlib import Path
@@ -14,15 +15,18 @@ from scripts.scala_research import supervisor as s
 
 
 class Runner:
-    def __init__(self, fail_on=None):
+    def __init__(self, fail_on=None, during=None):
         self.calls = []
         self.fail_on = fail_on
+        self.during = during
 
     def check_running(self):
         pass
 
     def command(self, label, command, seconds):
         self.calls.append(command)
+        if self.during:
+            self.during(command)
         return 2 if self.fail_on and self.fail_on in command else 0
 
 
@@ -267,15 +271,127 @@ class ConsolidationTests(unittest.TestCase):
         self.assertIn('merged into `scala-zio-merged`', knowledge)
         self.assertIn('Installed as 2 skills', knowledge)
 
-    def test_new_acceptance_for_merged_skill_is_refused(self):
+    def test_new_acceptance_for_merged_skill_is_skipped_without_blocking_others(self):
         candidate, _ = self.accept('zio/zio', [('scala-zio-a', 'review')])
         s.promote_accepted(self.state, Runner())
         self.merge_by_hand('scala-zio-a', 'scala-zio-merged')
+        ledger_before = s.load(self.checkout / 'research/scala-history/promoted-skills.json')
         (candidate / 'skills/scala-zio-a/references/evidence.json').write_text('{"changed": true}\n')
-        self.accept('zio/zio', [('scala-zio-a', 'review')], write=False)
-        with self.assertRaisesRegex(ValueError, 'merged into scala-zio-merged'):
-            s.promote_accepted(self.state, Runner())
+        self.accept('zio/zio', [('scala-zio-a', 'review'), ('scala-zio-new', 'development')], write=False)
+        self.accept('typelevel/cats-effect', [('scala-ce-a', 'review')])
+        result = s.promote_accepted(self.state, Runner())
+        self.assertEqual('passed', result['status'])
+        self.assertEqual(['scala-ce-a', 'scala-zio-new'], result['added'])
+        self.assertEqual([('scala-zio-a', 'zio/zio', 'scala-zio-merged')],
+                         [(r['id'], r['repository'], r['merged_into']) for r in result['merged_needs_manual_fold']])
+        self.assertNotIn('scala-zio-a', result['unchanged'])
         self.assertFalse((self.checkout / 'collections/shared/scala-zio-a').exists())
+        self.assertNotIn('scala-zio-a', self.catalog_ids())
+        ledger = s.load(self.checkout / 'research/scala-history/promoted-skills.json')['skills']
+        self.assertEqual(ledger_before['skills']['scala-zio-a'], ledger['scala-zio-a'])
+        recorded = s.load(self.state / 'consolidation.json')
+        self.assertEqual(['scala-zio-a'], [r['id'] for r in recorded['merged_needs_manual_fold']])
+        # Nothing else changed: the fold is still reported on every rerun until done by hand.
+        again = s.promote_accepted(self.state, Runner())
+        self.assertEqual('unchanged', again['status'])
+        self.assertEqual(['scala-zio-a'], [r['id'] for r in again['merged_needs_manual_fold']])
+
+    def test_rollback_never_overwrites_a_concurrent_edit(self):
+        candidate, _ = self.accept('zio/zio', [('scala-zio-a', 'review')])
+        s.promote_accepted(self.state, Runner())
+        review_path = self.checkout / 'docs/skill-review.json'
+        catalog_before = (self.checkout / 'catalog.json').read_bytes()
+        (candidate / 'skills/scala-zio-a/SKILL.md').write_text(
+            '---\nname: scala-zio-a\ndescription: Use when testing changed text.\nlicense: MIT\n---\nNew.\n')
+        self.accept('zio/zio', [('scala-zio-a', 'review'), ('scala-zio-b', 'hardening')], write=False)
+        def user_edit(command):
+            if 'test' in command:
+                review = s.load(review_path)
+                review['summary']['user_note'] = 'edited during the make test gate'
+                s.atomic_json(review_path, review)
+        with self.assertRaisesRegex(RuntimeError, 'left concurrently edited paths untouched'):
+            s.promote_accepted(self.state, Runner(during=user_edit))
+        self.assertEqual('edited during the make test gate', s.load(review_path)['summary']['user_note'])
+        self.assertEqual(catalog_before, (self.checkout / 'catalog.json').read_bytes())
+        self.assertFalse((self.checkout / 'collections/shared/scala-zio-b').exists())
+        recorded = s.load(self.state / 'consolidation.json')
+        self.assertEqual(('rolled_back', ['docs/skill-review.json']), (recorded['status'], recorded['rollback_conflicts']))
+
+    def test_concurrent_edit_between_gates_stops_before_next_gate(self):
+        self.accept('zio/zio', [('scala-zio-a', 'review')])
+        catalog = self.checkout / 'catalog.json'
+        def user_edit(command):
+            if 'render' in command:
+                data = s.load(catalog)
+                data['skills'].append({'id': 'user-added-during-gate'})
+                s.atomic_json(catalog, data)
+        runner = Runner(during=user_edit)
+        with self.assertRaisesRegex(RuntimeError, 'shared files changed'):
+            s.promote_accepted(self.state, runner)
+        self.assertEqual(2, len(runner.calls))
+        self.assertIn('user-added-during-gate', self.catalog_ids())
+        self.assertEqual(['catalog.json'], s.load(self.state / 'consolidation.json')['rollback_conflicts'])
+
+    def test_skill_dir_edited_during_gates_is_not_removed_by_rollback(self):
+        self.accept('zio/zio', [('scala-zio-a', 'review')])
+        dest = self.checkout / 'collections/shared/scala-zio-a/SKILL.md'
+        def user_edit(command):
+            if 'test' in command:
+                dest.write_text(dest.read_text() + '\nUser edit during gate.\n')
+        with self.assertRaises(RuntimeError):
+            s.promote_accepted(self.state, Runner(fail_on='check', during=user_edit))
+        self.assertIn('User edit during gate.', dest.read_text())
+        self.assertIn('collections/shared/scala-zio-a', s.load(self.state / 'consolidation.json')['rollback_conflicts'])
+
+    def test_orphaned_ledger_row_fails_with_a_named_error(self):
+        self.accept('zio/zio', [('scala-zio-a', 'review')])
+        s.promote_accepted(self.state, Runner())
+        shutil.rmtree(self.checkout / 'collections/shared/scala-zio-a')
+        s.atomic_json(self.state / 'jobs/zio--zio.json', {'repository': 'zio/zio', 'status': 'researching'})
+        with self.assertRaisesRegex(ValueError, r"no promoted skill directory.*scala-zio-a"):
+            s.promote_accepted(self.state, Runner())
+
+    def test_public_outcomes_drop_local_paths_and_exception_text(self):
+        s.atomic_json(self.state / 'jobs/lihaoyi--empty.json', {'repository': 'lihaoyi/empty', 'status': 'blocked',
+                      'reason': 'Gaps recorded in /home/someone/.local/share/state/feedback.json for 2018/2024.'})
+        s.atomic_json(self.state / 'jobs/typelevel--cats-effect.json', {
+            'repository': 'typelevel/cats-effect', 'status': 'blocked',
+            'reason': 'FileNotFoundError: [Errno 2] No such file: /home/someone/state/corpus/index.json'})
+        self.accept('zio/zio', [('scala-zio-a', 'review')])
+        s.promote_accepted(self.state, Runner())
+        knowledge = (self.checkout / 'research/scala-history/KNOWLEDGE.md').read_text()
+        self.assertNotIn('/home/someone', knowledge)
+        self.assertNotIn('FileNotFoundError', knowledge)
+        self.assertIn('Gaps recorded in <local path> for 2018/2024.', knowledge)
+        self.assertIn('pipeline error before acceptance', knowledge)
+
+    def test_symlinked_state_path_is_resolved_before_validation(self):
+        self.accept('zio/zio', [('scala-zio-a', 'review')])
+        link = Path(self.temp.name) / 'state-link'
+        link.symlink_to(self.state)
+        seen = []
+        def accepted(state, repository):
+            seen.append(Path(state))
+            return self.accepted(state, repository)
+        with patch.object(s, 'accepted_job', side_effect=accepted):
+            self.assertEqual('passed', s.promote_accepted(link, Runner())['status'])
+        self.assertEqual([self.state.resolve()], seen)
+
+
+class LocalRunnerTests(unittest.TestCase):
+    def test_timeout_kills_the_whole_gate_process_group(self):
+        from scripts.scala_research.consolidate import LocalRunner
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            marker = root / 'grandchild-survived'
+            script = ('import subprocess, sys, time\n'
+                      f'subprocess.Popen([sys.executable, "-c", "import time, pathlib; time.sleep(2); '
+                      f'pathlib.Path({str(marker)!r}).write_text(\'x\')"])\n'
+                      'time.sleep(60)\n')
+            runner = LocalRunner(root, root / 'state')
+            self.assertEqual(124, runner.command('gate', [sys.executable, '-c', script], 1))
+            time.sleep(2.5)
+            self.assertFalse(marker.exists())
 
 
 if __name__ == '__main__':

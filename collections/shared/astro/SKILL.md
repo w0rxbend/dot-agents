@@ -1,6 +1,6 @@
 ---
 name: astro
-description: "Build content-focused websites with Astro — zero JS by default, islands architecture, multi-framework components, and Markdown/MDX support."
+description: "Build content-focused websites with Astro 5+ - .astro components, file routing, content collections (Content Layer), client: island directives, on-demand rendering with adapters, and Markdown/MDX. Use when working in an Astro project or choosing Astro for a blog, docs or marketing site; not for SPA-style React/Next.js apps."
 category: frontend
 risk: safe
 source: community
@@ -52,8 +52,9 @@ src/
   pages/          ← File-based routing (.astro, .md, .mdx)
   layouts/        ← Reusable page shells
   components/     ← UI components (.astro, .tsx, .vue, etc.)
-  content/        ← Type-safe content collections (Markdown/MDX)
+  content/        ← Markdown/MDX files (any folder works with the glob loader)
   styles/         ← Global CSS
+  content.config.ts ← Content collection definitions (Astro 5+)
 public/           ← Static assets (copied as-is)
 astro.config.mjs  ← Framework config
 ```
@@ -91,7 +92,7 @@ const { title, href, description } = Astro.props;
 ```
 src/pages/index.astro          → /
 src/pages/about.astro          → /about
-src/pages/blog/[slug].astro    → /blog/:slug (dynamic)
+src/pages/blog/[id].astro      → /blog/:id (dynamic)
 src/pages/blog/[...path].astro → /blog/* (catch-all)
 ```
 
@@ -99,17 +100,19 @@ Dynamic route with `getStaticPaths`:
 
 ```astro
 ---
-// src/pages/blog/[slug].astro
+// src/pages/blog/[id].astro
+import { getCollection, render } from 'astro:content';
+
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
   return posts.map(post => ({
-    params: { slug: post.slug },
+    params: { id: post.id },
     props: { post },
   }));
 }
 
 const { post } = Astro.props;
-const { Content } = await post.render();
+const { Content } = await render(post);
 ---
 
 <h1>{post.data.title}</h1>
@@ -118,14 +121,16 @@ const { Content } = await post.render();
 
 ### Step 4: Content Collections
 
-Content collections give you type-safe access to Markdown and MDX files:
+Content collections give you type-safe access to Markdown and MDX files. This is the Content Layer API (Astro 5+; the legacy `type: 'content'` collections in `src/content/config.ts`, `post.slug` and `post.render()` are gone in current versions):
 
 ```typescript
-// src/content/config.ts
-import { z, defineCollection } from 'astro:content';
+// src/content.config.ts
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
 
 const blog = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
@@ -150,7 +155,7 @@ const posts = (await getCollection('blog'))
 <ul>
   {posts.map(post => (
     <li>
-      <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+      <a href={`/blog/${post.id}/`}>{post.data.title}</a>
       <time>{post.data.date.toLocaleDateString()}</time>
     </li>
   ))}
@@ -225,20 +230,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 ### Step 7: SSR Mode (On-Demand Rendering)
 
-Enable SSR for dynamic pages by setting an adapter:
+Enable on-demand rendering by adding an adapter:
 
 ```javascript
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
-import vercel from '@astrojs/vercel/serverless';
+import vercel from '@astrojs/vercel';
 
 export default defineConfig({
-  output: 'hybrid',  // 'static' | 'server' | 'hybrid'
+  output: 'static',  // 'static' (default) | 'server'; 'hybrid' was removed in Astro 5
   adapter: vercel(),
 });
 ```
 
-Opt individual pages into SSR with `export const prerender = false`.
+With `output: 'static'` plus an adapter, opt individual pages or endpoints into on-demand rendering with `export const prerender = false`. With `output: 'server'`, everything renders on demand unless a page sets `export const prerender = true`.
 
 ## Examples
 
@@ -258,7 +263,7 @@ export async function GET(context) {
     items: posts.map(post => ({
       title: post.data.title,
       pubDate: post.data.date,
-      link: `/blog/${post.slug}/`,
+      link: `/blog/${post.id}/`,
     })),
   });
 }
@@ -269,6 +274,8 @@ export async function GET(context) {
 ```typescript
 // src/pages/api/subscribe.ts
 import type { APIRoute } from 'astro';
+
+export const prerender = false; // needed unless output: 'server'
 
 export const POST: APIRoute = async ({ request }) => {
   const { email } = await request.json();
@@ -325,7 +332,7 @@ import SearchBox from '../components/SearchBox.tsx';
 - ✅ Use content collections for all Markdown/MDX content — you get type safety and auto-validation
 - ✅ Prefer `client:visible` over `client:load` for below-the-fold components to reduce initial JS
 - ✅ Use `import.meta.env` for environment variables — prefix public vars with `PUBLIC_`
-- ✅ Add `<ViewTransitions />` from `astro:transitions` for smooth page navigation without a full SPA
+- ✅ Add `<ClientRouter />` from `astro:transitions` (named `<ViewTransitions />` before Astro 5) for smooth page navigation without a full SPA
 - ❌ Don't use `client:load` on every component — this defeats Astro's performance advantage
 - ❌ Don't put secrets in `.astro` frontmatter that gets used in client-facing templates
 - ❌ Don't skip `getStaticPaths` for dynamic routes in static mode — builds will fail
@@ -343,7 +350,7 @@ import SearchBox from '../components/SearchBox.tsx';
   **Solution:** Add a `client:` directive (`client:load`, `client:visible`, etc.) — without it, components render as static HTML only.
 
 - **Problem:** `getStaticPaths` data is stale after content updates during dev
-  **Solution:** Astro's dev server watches content files — restart if changes to `content/config.ts` are not reflected.
+  **Solution:** Astro's dev server watches content files — restart if changes to `src/content.config.ts` are not reflected.
 
 - **Problem:** `Astro.props` type is `any` — no autocomplete
   **Solution:** Define a `Props` interface or type in the frontmatter and Astro will infer it automatically.
@@ -353,12 +360,9 @@ import SearchBox from '../components/SearchBox.tsx';
 
 ## Related Skills
 
-- `@sveltekit` — When you need a full-stack framework with reactive UI (vs Astro's content focus)
-- `@nextjs-app-router-patterns` — When you need a React-first full-stack framework
-- `@tailwind-patterns` — Styling Astro sites with Tailwind CSS
-- `@progressive-web-app` — Adding PWA capabilities to an Astro site
+- `frontend-ui-engineering` — Component structure, state and accessibility for the interactive islands
+- `frontend-design` — Visual design direction for the site
+- `theming-components` — Design tokens and theming (including Tailwind setups)
 
 ## Limitations
-- Use this skill only when the task clearly matches the scope described above.
-- Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
-- Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.
+- Examples target Astro 5 and later (checked against Astro 7). For an Astro 4 project, check its version in `package.json` before applying the content-collection and config snippets.

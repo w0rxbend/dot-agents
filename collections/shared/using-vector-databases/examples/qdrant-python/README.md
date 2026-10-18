@@ -155,7 +155,7 @@ CHUNK_SIZE=512
 CHUNK_OVERLAP=50
 
 # LLM Configuration
-LLM_MODEL=gpt-4-turbo-preview
+LLM_MODEL=<current-chat-model-id>   # required; pick a current model from your provider
 LLM_TEMPERATURE=0.1
 ```
 

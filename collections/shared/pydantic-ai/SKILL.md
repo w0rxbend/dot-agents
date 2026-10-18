@@ -40,6 +40,10 @@ pip install 'pydantic-ai-slim[groq]'    # Groq
 
 ### Step 2: A Minimal Agent
 
+The examples use one placeholder model id, `'anthropic:claude-sonnet-5-5'`.
+Swap in any current `provider:model` string (`openai:...`, `google-gla:...`,
+`groq:...`) from the provider's model list; the code is otherwise identical.
+
 ```python
 from pydantic_ai import Agent
 
@@ -68,7 +72,7 @@ class MovieReview(BaseModel):
     recommended: bool
 
 agent = Agent(
-    'openai:gpt-4o',
+    'anthropic:claude-sonnet-5-5',
     output_type=MovieReview,
     system_prompt='You are a film critic. Return structured reviews.',
 )
@@ -134,7 +138,10 @@ class SupportResponse(BaseModel):
     escalate: bool
 
 support_agent = Agent(
-    'openai:gpt-4o-mini',
+    'anthropic:claude-sonnet-5-5',
+    # Without this, constructing the agent at import time raises UserError when
+    # ANTHROPIC_API_KEY is unset - e.g. in CI that only runs TestModel tests.
+    defer_model_check=True,
     deps_type=Deps,
     output_type=SupportResponse,
     system_prompt='You are a support agent. Use the tools to help customers.',
@@ -159,10 +166,15 @@ async def handle_support(user_id: str, message: str):
 
 ### Step 6: Testing with TestModel
 
-Write unit tests without real LLM calls:
+Write unit tests without real LLM calls. The agent module must import without
+an API key, so construct module-level agents with `defer_model_check=True`
+(see Step 5), and block real requests for the whole test run:
 
 ```python
+from pydantic_ai import models
 from pydantic_ai.models.test import TestModel
+
+models.ALLOW_MODEL_REQUESTS = False  # e.g. in conftest.py: any real model call now fails fast
 
 def test_support_agent_escalates():
     with support_agent.override(model=TestModel()):
@@ -212,7 +224,7 @@ asyncio.run(stream_response())
 ```python
 from pydantic_ai import Agent
 
-agent = Agent('openai:gpt-4o', system_prompt='You are a helpful assistant.')
+agent = Agent('anthropic:claude-sonnet-5-5', system_prompt='You are a helpful assistant.')
 
 # First turn
 result1 = agent.run_sync('My name is Alice.')
@@ -268,7 +280,7 @@ class StrictJson(BaseModel):
             raise ValueError('value must be positive')
         return v
 
-agent = Agent('openai:gpt-4o-mini', output_type=StrictJson)
+agent = Agent('anthropic:claude-sonnet-5-5', output_type=StrictJson)
 
 @agent.output_validator
 async def validate_output(ctx: RunContext, output: StrictJson) -> StrictJson:
@@ -292,7 +304,7 @@ class BlogPost(BaseModel):
     body: str
     meta_description: str
 
-researcher = Agent('openai:gpt-4o', output_type=ResearchSummary)
+researcher = Agent('anthropic:claude-sonnet-5-5', output_type=ResearchSummary)
 writer = Agent('anthropic:claude-sonnet-5-5', output_type=BlogPost)
 
 async def research_and_write(topic: str) -> BlogPost:

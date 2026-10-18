@@ -21,12 +21,14 @@ A decision is **non-trivial** when at least one of these is true:
 - Its correctness depends on context the future reader cannot see
 - Its blast radius is irreversible (production deploy, data migration, public API change)
 
-Apply the skill when:
+Apply the skill only when the user asks for it, or when a non-trivial decision also carries concrete risk:
 
-- About to make an architectural decision under uncertainty
-- About to commit non-trivial code
-- About to claim a non-obvious fact ("this is safe", "this scales", "this matches the spec")
-- Working in code you don't fully understand
+- An architectural decision under real uncertainty (you can name the alternative that might be right)
+- Code whose failure would be costly or irreversible (concurrency, security boundary, data migration, public API, production deploy)
+- A non-obvious claim you are about to rely on ("this is safe", "this scales", "this matches the spec") that you have not verified
+- Code you don't fully understand that the change depends on
+
+Routine non-trivial commits do not qualify by themselves; normal testing and review cover them.
 
 **When NOT to use:**
 
@@ -102,7 +104,7 @@ CONTRACT: <paste contract>
 
 **Pass ARTIFACT + CONTRACT only. Do NOT pass the CLAIM.** Handing the reviewer your conclusion biases it toward agreement. The reviewer must independently determine whether the artifact satisfies the contract.
 
-Use a callable reviewer with the minimum raw artifact and contract. This standalone installation does not ship a persona roster under `agents/`.
+Use a callable reviewer (a fresh-context subagent, or a reviewer agent the host provides) with the minimum raw artifact and contract.
 
 **The adversarial prompt above takes precedence over the persona's default response shape.** Reviewer personas and review agents are often written to produce balanced verdicts with both strengths and weaknesses; doubt-driven needs issues-only output. Paste the adversarial prompt verbatim into the invocation so it overrides the persona's default. If a persona's response shape can't be overridden cleanly, fall back to a generic subagent with the adversarial prompt.
 
@@ -150,7 +152,7 @@ If 3 cycles is "obviously insufficient" because the artifact is large: the artif
 | "If I doubt every step I'll never ship" | The skill applies to non-trivial decisions, not every keystroke. Re-read "When NOT to Use." |
 | "Two opinions are always better than one" | Not when the second has less context and produces noise. Reconcile, don't defer. |
 | "The reviewer disagreed so I was wrong" | The reviewer lacks your context — disagreement is information, not verdict. Re-read the artifact, classify, then decide. |
-| "Cross-model is always better" | Cross-model catches blind spots a single model shares with itself, but it adds cost and tool fragility. Offer it every interactive doubt cycle — the user decides whether the artifact warrants it. The agent's job is to surface the choice, not to gate it. |
+| "Cross-model is always better" | Cross-model catches blind spots a single model shares with itself, but it adds cost and tool fragility. Use it when the user's existing preference or the risk warrants it; do not offer it every cycle (see "Optional cross-model review"). |
 | "A review workflow authorizes every external action" | Reuse authorization within its actual scope. Ask only if a new run changes destination, data exposure, cost, or consequential side effects beyond that scope. |
 
 ## Red Flags

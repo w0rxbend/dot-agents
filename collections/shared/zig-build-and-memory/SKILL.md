@@ -1,6 +1,6 @@
 ---
 name: zig-build-and-memory
-description: Maintain version-sensitive Zig build graphs, allocator ownership, buffered I/O, tests and fuzz targets, especially zig-playground's Zig 0.15.2 minimum API contract.
+description: Maintain version-sensitive Zig build graphs, allocator ownership, buffered I/O, tests and fuzz targets, especially zig-playground's Zig 0.15.2 minimum API contract. Use when editing build.zig, allocator or I/O code, or tests in a Zig project.
 license: MIT
 ---
 

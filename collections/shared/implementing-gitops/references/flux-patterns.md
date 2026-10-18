@@ -20,8 +20,15 @@ Complete guide to implementing Flux CD for GitOps workflows.
 # macOS
 brew install fluxcd/tap/flux
 
-# Linux
-curl -s https://fluxcd.io/install.sh | sudo bash
+# Linux: Homebrew, your distro/package manager, or a pinned release verified
+# against its checksums file (https://github.com/fluxcd/flux2/releases):
+VERSION=2.x.y   # pick a release
+curl -sLO "https://github.com/fluxcd/flux2/releases/download/v${VERSION}/flux_${VERSION}_linux_amd64.tar.gz"
+curl -sLO "https://github.com/fluxcd/flux2/releases/download/v${VERSION}/flux_${VERSION}_checksums.txt"
+sha256sum --ignore-missing -c "flux_${VERSION}_checksums.txt"
+tar -xzf "flux_${VERSION}_linux_amd64.tar.gz" flux && sudo install flux /usr/local/bin/flux
+# The upstream install.sh (curl ... | sudo bash) runs unverified remote code as
+# root; if you use it, download it first, read it, then run it.
 
 # Verify installation
 flux --version

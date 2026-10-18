@@ -1,6 +1,6 @@
 ---
 name: pr
-description: "Use when writing a PR body."
+description: "Write a pull request body from a fixed template: a Summary shown as a diagram, call tree or file tree, Before/After evidence, and a Merge Danger section (one-way/two-way door, blast radius). Use when writing a PR body, unless the repository has its own PR template (.github/pull_request_template.md or similar), which takes precedence."
 metadata:
   credits:
     skill: show-me
@@ -9,7 +9,9 @@ metadata:
     url: "https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md"
 ---
 
-Use this template for writing the PR body:
+If the repository has its own PR template (for example `.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE/`, or `.gitlab/merge_request_templates/`), follow that template instead and only borrow sections from this one that it does not cover.
+
+Otherwise, use this template for writing the PR body:
 
 ```markdown
 ## Summary

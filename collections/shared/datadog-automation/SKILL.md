@@ -10,6 +10,10 @@ date_added: "2026-02-27"
 
 Automate Datadog monitoring and observability operations through Composio's Datadog toolkit via Rube MCP.
 
+## Data flow and alternatives
+
+Rube is a **third-party relay** (Composio): every query, log line and trace you fetch passes through Composio's servers, and Composio holds a Datadog credential for the account. Before connecting it, tell the user this and get explicit consent; for production or regulated data prefer Datadog's own MCP server (if the account has it enabled) or the official Datadog API/`datadog-api-client` with a scoped application key.
+
 ## Prerequisites
 
 - Rube MCP must be connected (RUBE_SEARCH_TOOLS available)
@@ -45,7 +49,7 @@ Automate Datadog monitoring and observability operations through Composio's Data
 **Pitfalls**:
 - Query syntax follows Datadog's metric query format: `aggregation:metric_name{tag_filters}`
 - `from` and `to` are Unix epoch timestamps in seconds, not milliseconds
-- Valid aggregations: `avg`, `sum`, `min`, `max`, `count`
+- Valid space aggregators: `avg`, `sum`, `min`, `max` (counting is done with the `.as_count()` modifier or the `count_nonzero`/`count_not_null` functions, not a `count:` aggregator)
 - Tag filters use curly braces: `{host:web01,env:prod}`
 - Time range should not exceed Datadog's retention limits for the metric type
 

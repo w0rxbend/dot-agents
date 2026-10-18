@@ -1,29 +1,12 @@
 ---
 name: docs-list-undocumented-prs
 description: >
-  Scans merged GitHub PRs (from latest commit back to an upstream base ref)
-  and produces a documentation-coverage audit report. Processes 20 PRs per
-  batch and asks before continuing to the next batch. Skips PRs already
-  checked in previous runs using a persistent state file. For each new PR,
-  determines whether documentation is required based on labels, changed files,
-  and content signals, then checks whether docs exist and grades coverage using
-  four rubric levels: Well Documented, Partially Documented, Stub, or Not
-  Documented. Outputs a focused report showing only PRs that require docs,
-  sorted by coverage gap severity. Use this skill whenever the user wants to
-  know which merged PRs are missing documentation, wants a documentation debt
-  audit, or asks "what needs to be documented?", "which PRs have no docs?",
-  or similar coverage questions. Invoke it even if the user just says "doc
-  audit" or "show me undocumented changes."
+  Audit merged GitHub PRs of a ZIO-ecosystem (Scala, Docusaurus + mdoc) library repo for missing
+  documentation: batches of 20 PRs back to a base ref, grading each that needs docs as Well
+  Documented, Partially Documented, Stub, or Not Documented. Use when the user asks which merged PRs
+  in such a repo lack docs or wants a docs-debt audit of recent changes.
 argument-hint: "[optional: base-ref or --reset, e.g. 'origin/main' or '--reset']"
 allowed-tools: Read, Write, Glob, Grep, Bash(git:*), Bash(gh:*), Bash(jq:*), Bash(node:*)
-triggers:
-  - "doc audit"
-  - "documentation audit"
-  - "undocumented PRs"
-  - "which PRs need docs"
-  - "show me undocumented changes"
-  - "what needs to be documented"
-  - "docs coverage"
 ---
 
 # Skill: docs-list-undocumented-prs
@@ -158,9 +141,11 @@ Run the bundled classifier instead of applying the gate table by hand — it is 
 model evaluating ~16 ordered boolean conditions across a 20-PR batch is exactly where one gets
 silently reordered or skipped, producing a wrong classification that still looks plausible:
 
+Paths: `<this-skill-dir>` is this skill's own directory (where this file lives).
+
 ```bash
 echo '{"title": "<PR title>", "labels": [<label names>], "files": [{"path": "...", "status": "added|modified|removed|renamed"}, ...]}' \
-  | node ${CLAUDE_PLUGIN_ROOT}/skills/docs-list-undocumented-prs/classify-pr-docs.mjs
+  | node <this-skill-dir>/classify-pr-docs.mjs
 ```
 
 Build the `files` array from the second `gh api` call in Phase 2 (it already has `path` and `status`

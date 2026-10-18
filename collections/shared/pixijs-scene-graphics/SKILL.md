@@ -1,12 +1,12 @@
 ---
 name: pixijs-scene-graphics
-description: "Use this skill when drawing vector shapes and paths in PixiJS v8. Covers the Graphics API: shape-then-fill methods (rect/circle/ellipse/poly/roundRect/star/regularPoly/roundPoly/roundShape/filletRect/chamferRect), path methods (moveTo/lineTo/bezierCurveTo/quadraticCurveTo/arc/arcTo/arcToSvg/closePath), fill/stroke/cut, holes, FillGradient (linear/radial), FillPattern, GraphicsContext sharing, svg import/export, containsPoint hit testing, cloning, clearing, bounds, fillStyle/strokeStyle, draw-time transforms (rotateTransform/scaleTransform/translateTransform/setTransform/save/restore), default styles, GraphicsPath reuse. Triggers on: Graphics, GraphicsContext, rect, circle, poly, roundRect, fill, stroke, cut, hole, beginHole, FillGradient, FillPattern, moveTo, bezierCurveTo, svg, graphicsContextToSvg, svg export, GraphicsOptions, containsPoint, clone, clear, bounds, rotateTransform, translateTransform, setFillStyle, setStrokeStyle, GraphicsPath."
+description: "Use this skill when drawing vector shapes and paths in PixiJS v8. Covers the Graphics API: shape-then-fill methods (rect/circle/ellipse/poly/roundRect/star/regularPoly/roundPoly/roundShape/filletRect/chamferRect), path methods (moveTo/lineTo/bezierCurveTo/quadraticCurveTo/arc/arcTo/arcToSvg/closePath), fill/stroke/cut, holes, FillGradient (linear/radial), FillPattern, GraphicsContext sharing, svg import/export, containsPoint hit testing, cloning, clearing, bounds, fillStyle/strokeStyle, draw-time transforms (rotateTransform/scaleTransform/translateTransform/setTransform/save/restore), default styles, GraphicsPath reuse. Triggers on (in PixiJS code): Graphics, GraphicsContext, Graphics rect/circle/poly/roundRect, Graphics fill/stroke/cut, holes, beginHole, FillGradient, FillPattern, moveTo, bezierCurveTo, Graphics svg import, graphicsContextToSvg, GraphicsOptions, containsPoint, Graphics clone/clear/bounds, rotateTransform, translateTransform, setFillStyle, setStrokeStyle, GraphicsPath."
 license: MIT
 ---
 
 `Graphics` is the vector-drawing leaf of the PixiJS v8 scene graph. The v8 API follows a shape-then-style pattern: draw a shape or path with `rect`, `circle`, `moveTo`, etc., then apply `fill` and/or `stroke`. Every method returns `this` for chaining, and the drawing instructions live on a `GraphicsContext` that can be shared between instances.
 
-Assumes familiarity with `pixijs-scene-core-concepts`. `Graphics` is a leaf: do not nest children inside it. Wrap multiple `Graphics` objects in a `Container` to group them.
+Assumes the scene core concepts (`pixijs-scene-container` skill, `references/scene-core-concepts.md`). `Graphics` is a leaf: do not nest children inside it. Wrap multiple `Graphics` objects in a `Container` to group them.
 
 ## Quick Start
 
@@ -28,11 +28,11 @@ g.moveTo(50, 200)
 app.stage.addChild(g);
 ```
 
-**Related skills:** `pixijs-scene-core-concepts` (scene graph basics), `pixijs-scene-container` (group graphics with other objects), `pixijs-scene-core-concepts/references/masking.md` (Graphics as a stencil mask), `pixijs-filters` (effects), `pixijs-performance` (batching, `cacheAsTexture`).
+**Related skills:** `pixijs-scene-container` (group graphics with other objects; its `references/scene-core-concepts.md` covers scene graph basics and Graphics as a stencil mask), `pixijs-performance` (batching, `cacheAsTexture`). For filters see the [PixiJS filters guide](https://pixijs.com/8.x/guides/components/filters).
 
 ## Constructor options
 
-All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) are also valid here — see `skills/pixijs-scene-core-concepts/references/constructor-options.md`.
+All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) are also valid here — see the constructor-options table in `references/scene-core-concepts.md` of the `pixijs-scene-container` skill.
 
 Leaf-specific options added by `GraphicsOptions`:
 
@@ -449,7 +449,7 @@ Correct:
 const g = new Graphics().rect(0, 0, 100, 100).fill(0xff0000);
 ```
 
-v8 replaced "set style, draw, end" with "draw shape, then apply style". `beginFill`/`endFill` do not exist.
+v8 replaced "set style, draw, end" with "draw shape, then apply style". `beginFill`/`endFill` remain only as deprecated shims that log a v8 deprecation warning; do not write new code with them.
 
 
 ### [CRITICAL] Using old shape method names
@@ -466,7 +466,7 @@ Correct:
 g.circle(50, 50, 25);
 ```
 
-All `draw*` methods were renamed in v8: `drawRect` → `rect`, `drawCircle` → `circle`, `drawEllipse` → `ellipse`, `drawPolygon` → `poly`, `drawRoundedRect` → `roundRect`, `drawStar` → `star`.
+All `draw*` methods were renamed in v8 (the old names remain as deprecated shims that log a warning): `drawRect` → `rect`, `drawCircle` → `circle`, `drawEllipse` → `ellipse`, `drawPolygon` → `poly`, `drawRoundedRect` → `roundRect`, `drawStar` → `star`.
 
 
 ### [CRITICAL] Using lineStyle instead of stroke
@@ -484,7 +484,7 @@ Correct:
 g.rect(0, 0, 100, 100).stroke({ width: 2, color: 0xffffff });
 ```
 
-`lineStyle` was removed. Use `stroke()` after drawing the shape. The stroke options object accepts `width`, `color`, `alpha`, `cap`, `join`, `alignment`, `miterLimit`, and `pixelLine`.
+`lineStyle` is deprecated in v8 (it remains as a shim that logs a warning). Use `stroke()` after drawing the shape. The stroke options object accepts `width`, `color`, `alpha`, `cap`, `join`, `alignment`, `miterLimit`, and `pixelLine`.
 
 
 ### [HIGH] Using beginHole/endHole for holes

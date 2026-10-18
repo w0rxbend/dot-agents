@@ -91,17 +91,22 @@ on:
 jobs:
   snyk:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write   # required by upload-sarif
     steps:
       - uses: actions/checkout@v4
 
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@<pinned-sha> # vX.Y.Z - never a branch ref
+        continue-on-error: true   # let the SARIF upload run even when findings fail the scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high
+          args: --severity-threshold=high --sarif-file-output=snyk.sarif
 
       - name: Upload results to GitHub
+        if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk.sarif
@@ -141,8 +146,7 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 10
-    reviewers:
-      - "security-team"
+    # Reviewer assignment: use a CODEOWNERS file (the `reviewers:` key is deprecated)
     labels:
       - "dependencies"
       - "security"
@@ -192,13 +196,15 @@ updates:
 ### Installation
 
 ```bash
-# Download
-wget https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.0/dependency-check-9.0.0-release.zip
-unzip dependency-check-9.0.0-release.zip
-
-# Or via Homebrew
+# Via Homebrew
 brew install dependency-check
+
+# Or download the latest release zip (and verify its .asc/.sha256) from
+# https://github.com/dependency-check/DependencyCheck/releases
 ```
+
+Current releases download NVD data through the NVD API; request a free key and pass it with
+`--nvdApiKey "$NVD_API_KEY"`, or updates are very slow and may fail.
 
 ### Usage
 
@@ -227,8 +233,8 @@ dependency-check --project "MyProject" \
 ### Suppression File
 
 ```xml
-<!-- suppression.xml -->
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- suppression.xml -->
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
   <suppress>
     <notes>False positive - not using vulnerable function</notes>
@@ -285,8 +291,8 @@ npm audit fix
 # Fix with breaking changes
 npm audit fix --force
 
-# Production only
-npm audit --production
+# Production only (npm 8+; older npm used --production)
+npm audit --omit=dev
 ```
 
 ### Python (pip-audit)
@@ -348,7 +354,7 @@ npx @cyclonedx/cyclonedx-npm --output-file sbom.json
 
 # Python
 pip install cyclonedx-bom
-cyclonedx-py -o sbom.json
+cyclonedx-py environment -o sbom.json   # or: requirements / poetry / pipenv subcommands (cyclonedx-bom 4+)
 
 # Go
 go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
@@ -358,8 +364,10 @@ cyclonedx-gomod mod -json > sbom.json
 ### Syft
 
 ```bash
-# Install
-curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh -o /tmp/install-syft.sh && sh /tmp/install-syft.sh && rm /tmp/install-syft.sh -s
+# Install via a package manager
+brew install syft
+# Or download a pinned release binary and verify it against the release checksums file:
+# https://github.com/anchore/syft/releases (vX.Y.Z, syft_X.Y.Z_checksums.txt)
 
 # Generate SBOM
 syft dir:/path/to/project -o cyclonedx-json > sbom.json

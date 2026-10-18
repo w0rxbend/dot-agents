@@ -234,12 +234,12 @@ async def create_item(item: ItemCreate):
     # Update cache immediately
     item_id = generate_id()
     cache_key = f"item:{item_id}"
-    redis_client.setex(cache_key, 300, json.dumps(item.dict()))
+    redis_client.setex(cache_key, 300, json.dumps(item.model_dump()))
 
     # Queue database write
     await write_queue.put(("create", item))
 
-    return {"id": item_id, **item.dict()}
+    return {"id": item_id, **item.model_dump()}
 
 # Background worker
 async def write_worker():

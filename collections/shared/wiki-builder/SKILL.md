@@ -80,10 +80,10 @@ Add more folders only when the wiki's config needs them. Common additions includ
 
 ## Starting A Wiki
 
-For new wikis, use the bundled script (resolve its path via the plugin install location, typically `${CLAUDE_PLUGIN_ROOT}/skills/wiki-builder/scripts/init_wiki.sh`):
+For new wikis, run the bundled `scripts/init_wiki.sh` from this skill's directory (the directory containing this SKILL.md):
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/skills/wiki-builder/scripts/init_wiki.sh" <slug> --title "Readable Title" --flavor research
+bash scripts/init_wiki.sh <slug> --title "Readable Title" --flavor research
 ```
 
 Pass `--root /custom/path` to put the wiki somewhere other than `~/dair-wikis`.

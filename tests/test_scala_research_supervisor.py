@@ -13,12 +13,24 @@ from unittest.mock import patch
 
 from scripts.scala_research import supervisor as s
 
+# Supervisor identity (pid + start ticks + boot ID) comes from Linux /proc.
+LINUX_PROC = Path('/proc/self/stat').exists() and Path('/proc/sys/kernel/random/boot_id').exists()
+
 
 class SupervisorTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
+        # Never launch a probe unit from unit tests; tests that need it patch it again.
+        patches = [patch.object(s.managed, 'sandbox_enforced', return_value=False)]
+        if not LINUX_PROC:
+            # Keep the platform-neutral run() orchestration covered off Linux (macOS CI).
+            patches.append(patch.object(s, 'process_identity', return_value={
+                'pid': os.getpid(), 'start_ticks': '0', 'boot_id': 'synthetic'}))
+        for patcher in patches:
+            patcher.start()
+            self.addCleanup(patcher.stop)
 
     def test_repository_identifier_rejects_traversal_and_flags(self):
         self.assertEqual('zio--zio-http', s.key('zio/zio-http'))
@@ -54,6 +66,7 @@ class SupervisorTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'symlink forbidden'):
             s.tree_sha(directory)
 
+    @unittest.skipUnless(LINUX_PROC, 'Linux /proc identity')
     def test_identity_rejects_reused_pid_and_boot(self):
         current = s.process_identity(os.getpid())
         self.assertTrue(s.same_process(current))
@@ -91,6 +104,7 @@ class SupervisorTests(unittest.TestCase):
             supervisor.command('not-started', [sys.executable, '-c', 'raise SystemExit(0)'], 10)
         self.assertFalse((self.root / 'processes').exists())
 
+    @unittest.skipUnless(LINUX_PROC, 'Linux /proc identity')
     def test_stop_never_signals_reused_identity(self):
         s.atomic_json(self.root / 'supervisor.json',
                       dict(s.process_identity(os.getpid()), start_ticks='stale'))
@@ -218,8 +232,8 @@ class SupervisorTests(unittest.TestCase):
                 variables['review'].write_text('{')
             return 0
         quality = types.ModuleType('scripts.scala_research.quality')
-        quality.validate_candidate = lambda *args: []
-        quality.validate_review = lambda *args: ['malformed JSON']
+        quality.validate_candidate = lambda *args, **kwargs: []
+        quality.validate_review = lambda *args, **kwargs: ['malformed JSON']
         with patch.dict(sys.modules, {'scripts.scala_research.quality': quality}), \
              patch.object(s, 'accepted_job', return_value=False), \
              patch.object(supervisor, 'command', return_value=0), \
@@ -234,7 +248,8 @@ class SupervisorTests(unittest.TestCase):
         supervisor = s.Supervisor(self.root)
         with self.assertRaises(s.ProviderExhausted):
             supervisor.command('quota', [sys.executable, '-c',
-                'print("library worker failed: ProviderCredentialsExhaustedError"); raise SystemExit(2)'], 10)
+                'print("scala-research: provider-exhausted error_type=ProviderCredentialsExhaustedError"); '
+                'raise SystemExit(2)'], 10)
         self.assertTrue(supervisor.stopping.is_set())
         self.assertEqual('quota', supervisor.exhausted)
         events = [json.loads(line)['event'] for line in (self.root / 'events.jsonl').read_text().splitlines()]
@@ -252,12 +267,56 @@ class SupervisorTests(unittest.TestCase):
         self.assertIsNone(supervisor.exhausted)
         self.assertFalse(supervisor.stopping.is_set())
 
+    def test_exhaustion_matches_structured_failures_not_quoted_upstream_text(self):
+        self.assertTrue(s.provider_exhausted('noise\nscala-research: provider-exhausted error_type=x\n'))
+        self.assertTrue(s.provider_exhausted('hermes -z: agent failed: usage limit has been reached\n'))
+        for quoted in ('Reviewer: on insufficient_quota the client must retry\n',
+                       'HTTP 429: The usage limit has been reached\n',
+                       '> library worker failed: ProviderCredentialsExhaustedError\n',
+                       'hermes -z: agent failed: unrelated tool crash\n'):
+            with self.subTest(quoted=quoted):
+                self.assertFalse(s.provider_exhausted(quoted))
+
+    def test_agent_units_get_sandbox_write_scopes(self):
+        supervisor = s.Supervisor(self.root)
+        state = supervisor.state  # resolved, as the supervisor uses it
+        variables = dict(root=s.ROOT, state=state, repository='zio/zio', corpus='/corpus',
+                         candidate=state / 'candidates/zio--zio', review='/review',
+                         evaluation='/evaluation', feedback='/feedback')
+        scopes = {}
+        for label, template in (('author', 'research-prompt.txt'), ('review', 'review-prompt.txt')):
+            with patch.object(supervisor, 'command', return_value=0) as command:
+                supervisor.agent(label, template, variables)
+            properties = command.call_args.kwargs['properties']
+            self.assertIn('ProtectSystem=strict', properties)
+            self.assertIn('ProtectHome=read-only', properties)
+            scopes[label] = next(p for p in properties if p.startswith('ReadWritePaths='))
+            hidden = next(p for p in properties if p.startswith('InaccessiblePaths='))
+            self.assertIn(str(Path.home() / '.config/gh'), hidden)
+            readonly = next(p for p in properties if p.startswith('ReadOnlyPaths='))
+            self.assertIn('/skills', readonly)
+        self.assertIn(str(state / 'candidates/zio--zio'), scopes['author'])
+        self.assertNotIn(str(state / 'reviews'), scopes['author'])
+        self.assertIn(str(state / 'reviews'), scopes['review'])
+        for scope in scopes.values():
+            self.assertNotIn(f'-{state} ', scope + ' ')
+            self.assertNotIn(str(state / 'jobs'), scope)
+
+    def test_require_sandbox_refuses_unenforced_manager(self):
+        supervisor = s.Supervisor(self.root, require_sandbox=True)
+        with patch.object(s.managed, 'require_available'), \
+             patch.object(s, 'live_workers', return_value=[]), \
+             patch.object(supervisor, 'command') as command:
+            with self.assertRaisesRegex(RuntimeError, 'sandbox'):
+                supervisor.run(repositories=['zio/zio'])
+        command.assert_not_called()
+
     def test_provider_exhaustion_does_not_consume_research_attempts(self):
         supervisor = s.Supervisor(self.root, attempts=3)
         s.atomic_json(self.root / 'corpus/zio--zio/index.json', {'repository': 'zio/zio'})
         quality = types.ModuleType('scripts.scala_research.quality')
-        quality.validate_candidate = lambda *args: []
-        quality.validate_review = lambda *args: []
+        quality.validate_candidate = lambda *args, **kwargs: []
+        quality.validate_review = lambda *args, **kwargs: []
         with patch.dict(sys.modules, {'scripts.scala_research.quality': quality}), \
              patch.object(s, 'accepted_job', return_value=False), \
              patch.object(supervisor, 'command', return_value=0), \
@@ -269,8 +328,8 @@ class SupervisorTests(unittest.TestCase):
 
     def test_evidence_blocked_checkpoint_is_reused_but_exhausted_attempts_rerun(self):
         quality = types.ModuleType('scripts.scala_research.quality')
-        quality.validate_candidate = lambda *args: []
-        quality.validate_review = lambda *args: []
+        quality.validate_candidate = lambda *args, **kwargs: []
+        quality.validate_review = lambda *args, **kwargs: []
         candidate = self.root / 'candidates/zio--zio'
         s.atomic_json(candidate / 'report.json', {'status': 'blocked', 'summary': 'No evidence', 'gaps': []})
         supervisor = s.Supervisor(self.root)
@@ -342,8 +401,8 @@ class SupervisorTests(unittest.TestCase):
 
     def fake_quality(self):
         quality = types.ModuleType('scripts.scala_research.quality')
-        quality.validate_candidate = lambda *args: []
-        quality.validate_review = lambda *args: []
+        quality.validate_candidate = lambda *args, **kwargs: []
+        quality.validate_review = lambda *args, **kwargs: []
         return patch.dict(sys.modules, {'scripts.scala_research.quality': quality})
 
     def deep_agent(self, verdict, calls=None):
@@ -418,6 +477,68 @@ class SupervisorTests(unittest.TestCase):
         self.assertEqual(before, s.tree_sha(candidate))
         self.assertEqual(job, s.load(self.root / 'jobs/zio--zio.json'))
         self.assertEqual('recovered_after_unclean_exit', s.load(self.root / 'deepen/zio--zio.json')['status'])
+
+    def test_blocked_deepen_report_restores_prior_acceptance(self):
+        candidate, review, _, job = self.accepted_fixture()
+        before = (s.tree_sha(candidate), review.read_bytes())
+        supervisor = s.Supervisor(self.root, deepen=True)
+        def author(label, template, variables):
+            s.atomic_json(variables['candidate'] / 'report.json',
+                          {'status': 'blocked', 'summary': 'No deeper evidence', 'gaps': ['synthetic']})
+            return 0
+        with self.fake_quality(), patch.object(supervisor, 'command', return_value=0), \
+             patch.object(supervisor, 'agent', side_effect=author):
+            supervisor.repository('zio/zio')
+            self.assertTrue(s.accepted_job(self.root, 'zio/zio'))
+        self.assertEqual(before, (s.tree_sha(candidate), review.read_bytes()))
+        self.assertEqual(job, s.load(self.root / 'jobs/zio--zio.json'))
+        record = s.load(self.root / 'deepen/zio--zio.json')
+        self.assertEqual(('blocked', 'No deeper evidence'), (record['status'], record['reason']))
+
+    def test_run_recovers_unclean_deepen_of_unscheduled_repository_first(self):
+        candidate, review, _, job = self.accepted_fixture()
+        before = s.tree_sha(candidate)
+        with self.fake_quality():
+            s.Supervisor(self.root, deepen=True).begin_deepen('zio/zio', candidate, review)
+        (candidate / 'skills/scala-half').mkdir()
+        (candidate / 'skills/scala-half/SKILL.md').write_text('interrupted partial work\n')
+        s.atomic_json(self.root / 'jobs/zio--zio.json', dict(repository='zio/zio', status='researching'))
+        s.atomic_json(self.root / 'inventory.json', {'repositories': [
+            {'repo': 'zio/zio', 'included': True}, {'repo': 'typelevel/cats', 'included': True}]})
+        supervisor = s.Supervisor(self.root)
+        with self.fake_quality(), patch.object(s.managed, 'require_available'), \
+             patch.object(s, 'live_workers', return_value=[]), \
+             patch.object(supervisor, 'command', return_value=0), \
+             patch.object(supervisor, 'repository') as research:
+            supervisor.run(repositories=['typelevel/cats'])
+        research.assert_called_once_with('typelevel/cats')
+        self.assertEqual(before, s.tree_sha(candidate))
+        self.assertEqual(job, s.load(self.root / 'jobs/zio--zio.json'))
+        self.assertEqual('recovered_after_unclean_exit', s.load(self.root / 'deepen/zio--zio.json')['status'])
+
+    def test_consolidation_needing_manual_fold_is_nonzero(self):
+        s.atomic_json(self.root / 'inventory.json', {'repositories': [{'repo': 'zio/zio', 'included': True}]})
+        supervisor = s.Supervisor(self.root, consolidate=True)
+        with patch.object(s.managed, 'require_available'), \
+             patch.object(s, 'live_workers', return_value=[]), \
+             patch.object(supervisor, 'command', return_value=0), \
+             patch.object(supervisor, 'repository'), \
+             patch.object(s, 'accepted_job', return_value=True), \
+             patch.object(s, 'promote_accepted', return_value={
+                 'status': 'passed', 'merged_needs_manual_fold': [{'id': 'scala-zio-a'}]}):
+            self.assertEqual(3, supervisor.run(repositories=['zio/zio']))
+
+    def test_integration_lock_lives_in_the_shared_git_dir_of_a_worktree(self):
+        main = self.root / 'main'
+        (main / '.git').mkdir(parents=True)
+        self.assertEqual(main / '.git/scala-research-integration.lock', s.integration_lock_path(main))
+        worktree = self.root / 'worktree'
+        worktree.mkdir()
+        (worktree / '.git').write_text(f'gitdir: {main}/.git/worktrees/wt\n')
+        result = subprocess.CompletedProcess([], 0, stdout=f'{main}/.git\n')
+        with patch.object(s.subprocess, 'run', return_value=result) as git:
+            self.assertEqual(main / '.git/scala-research-integration.lock', s.integration_lock_path(worktree))
+        self.assertIn('--git-common-dir', git.call_args.args[0])
 
     def test_second_deepen_reuses_previous_attempt_notes(self):
         self.accepted_fixture()

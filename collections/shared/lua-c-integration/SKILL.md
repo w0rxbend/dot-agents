@@ -119,7 +119,8 @@ void stack_patterns(lua_State *L) {
     lua_pushvalue(L, 1);              // Duplicate element at index 1
 
     // Rotate elements
-    lua_rotate(L, 1, 2);              // Rotate 2 elements starting from index 1
+    lua_rotate(L, 1, 2);              // Rotate everything from index 1 to the top
+                                      // by 2 positions toward the top
 
     // Check stack space
     if (!lua_checkstack(L, 100)) {
@@ -416,6 +417,7 @@ void call_with_multiple(lua_State *L) {
     // Call with 2 arguments, 2 returns
     if (lua_pcall(L, 2, 2, 0) != LUA_OK) {
         fprintf(stderr, "Error: %s\n", lua_tostring(L, -1));
+        lua_pop(L, 1);  // Remove error message
         return;
     }
 
@@ -469,11 +471,12 @@ void access_lua_table(lua_State *L) {
     // Iterate table
     lua_pushnil(L);  // First key
     while (lua_next(L, -2) != 0) {
-        // Key at -2, value at -1
-        const char *key = lua_tostring(L, -2);
-        const char *value = lua_tostring(L, -1);
+        // Key at -2, value at -1. Never lua_tostring the key in place: it
+        // converts number keys to strings and breaks lua_next. Convert copies.
+        const char *key = luaL_tolstring(L, -2, NULL);   // pushes a string copy
+        const char *value = luaL_tolstring(L, -2, NULL); // value is now at -2
         printf("%s = %s\n", key, value);
-        lua_pop(L, 1);  // Remove value, keep key for next
+        lua_pop(L, 3);  // Remove both copies and the value, keep key for next
     }
 
     lua_pop(L, 1);  // Remove table
@@ -513,6 +516,7 @@ C modules package related functions and constants for use in Lua programs.
 #include <lua.h>
 #include <lauxlib.h>
 #include <math.h>
+#include <string.h>
 
 // Module functions
 static int vector_new(lua_State *L) {
@@ -672,7 +676,9 @@ metatables.
 ```c
 #include <lua.h>
 #include <lauxlib.h>
+#include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 // C structure
 typedef struct {

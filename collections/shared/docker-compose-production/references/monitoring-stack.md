@@ -16,6 +16,8 @@ services:
       - ./monitoring/alerts:/etc/prometheus/alerts:ro
       - prometheus-data:/prometheus
     networks: [monitoring]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # lets Prometheus reach node-exporter on the host network
     ports: ["127.0.0.1:9090:9090"]
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
@@ -39,7 +41,7 @@ services:
     command: ["--path.rootfs=/host"]
     volumes: ["/:/host:ro,rslave"]
     pid: host
-    network_mode: host                   # Prometheus scrapes host:9100
+    network_mode: host                   # Prometheus scrapes host.docker.internal:9100 (see prometheus.yml)
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:${CADVISOR_VERSION:?pin cadvisor}
@@ -88,6 +90,20 @@ volumes:
 secrets:
   grafana_password: { file: ./secrets/grafana_password.txt }
 ```
+
+## `monitoring/prometheus.yml` (scrape targets)
+
+```yaml
+scrape_configs:
+  - job_name: node
+    static_configs:
+      - targets: ["host.docker.internal:9100"]   # node-exporter uses the host network
+  - job_name: cadvisor
+    static_configs:
+      - targets: ["cadvisor:8080"]               # same Compose network
+```
+
+node-exporter listens on port 9100 of every host interface. Block that port from outside with the host firewall, or add `--web.listen-address=<bridge-gateway-ip>:9100` to its command, since Docker's published-port rules do not apply to host-network containers.
 
 ## `monitoring/config.alloy`
 

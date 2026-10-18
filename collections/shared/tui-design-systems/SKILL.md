@@ -1,6 +1,6 @@
 ---
 name: tui-design-systems
-description: Use when redesigning Ratatui TUI visuals.
+description: Design system for Ratatui terminal UIs - theme tokens, background integrity, layout and hit-testing, glyph fallbacks and deterministic screenshot gates. Use when building a new Ratatui dashboard or redesigning an existing TUI's visuals.
 version: 1.0.0
 author: Hermes Agent
 license: MIT

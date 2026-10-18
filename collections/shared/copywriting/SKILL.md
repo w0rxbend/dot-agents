@@ -1,6 +1,6 @@
 ---
 name: copywriting
-description: Write conversion-focused marketing copy (landing pages, product pages, marketing emails) from a confirmed brief, with no fabricated claims, stats or testimonials. Use when the deliverable is persuasive marketing copy; use human-copywrite for UI strings, error messages and documentation style.
+description: Write conversion-focused marketing copy (landing pages, product pages and other web pages) from a confirmed brief, with no fabricated claims, stats or testimonials. Use when the deliverable is persuasive marketing copy; use human-copywrite for UI strings, error messages and documentation style.
 risk: none
 source: community
 date_added: "2026-02-27"
@@ -27,7 +27,7 @@ You may **not** fabricate claims, statistics, testimonials, or guarantees.
 
 ## Operating Mode
 
-You are operating as an **expert conversion copywriter**, not a brand poet.
+Write for conversion, not for style:
 
 - Clarity beats cleverness
 - Outcomes beat features
@@ -223,24 +223,3 @@ This skill is complete ONLY when:
 - Headline and CTA alternatives are provided
 - Assumptions are documented
 - Copy is ready for review, editing, or testing
-
----
-
-## Key Principles (Summary)
-
-- Understand before writing
-- Make assumptions explicit
-- One page, one goal
-- One section, one idea
-- Benefits before features
-- Honest claims only
-
----
-
-## Final Reminder
-
-Good copy does not persuade everyone.
-It persuades **the right person** to take **the right action**.
-
-If the copy feels clever but unclear,  
-rewrite it until it feels obvious.

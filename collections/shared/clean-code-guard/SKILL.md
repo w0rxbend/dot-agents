@@ -14,7 +14,7 @@ tools: []
 
 # clean-code-guard
 
-You are reviewing generated or changed code before it ships. Apply the rules below as a guard pass after the first implementation pass — and once this skill is active, keep applying it to every later code change in the same session, re-running the self-check before delivery after each edit rather than reverting to unguarded output because the skill loaded earlier. If the user explicitly invokes this skill before writing code, use the same rules while writing and still run the self-check before delivery.
+You are reviewing generated or changed code before it ships. Apply the rules below as a guard pass after the first implementation pass, scoped to the lines you added or changed in the diff you are about to deliver. Do not use it as a reason to rewrite untouched code or to reformat later, unrelated edits; for those, follow the repository's conventions and the minimal-diff posture (andrej-karpathy). If the user explicitly invokes this skill before writing code, use the same rules while writing and still run the self-check before delivery.
 
 ## When to Use
 
@@ -54,7 +54,7 @@ The reference files are:
 - [references/comments-and-formatting.md](references/comments-and-formatting.md) — when to comment, when to delete, matching neighbor style.
 - [references/solid.md](references/solid.md) — SRP, OCP, LSP, ISP, DIP with the modern phrasings and detection smells.
 - [references/dry-kiss-yagni.md](references/dry-kiss-yagni.md) — knowledge vs code duplication, Sandi Metz's re-inline rule, McCabe complexity, Fowler's YAGNI cost categories.
-- [references/ai-failure-modes.md](references/ai-failure-modes.md) — the 14 systematic ways LLMs produce bad code. **Read this one first if you are an AI agent reading this skill.** It is the highest-leverage file in the skill.
+- [references/ai-failure-modes.md](references/ai-failure-modes.md) — the 15 systematic ways LLMs produce bad code. **Read this one first if you are an AI agent reading this skill.** It is the highest-leverage file in the skill.
 - [references/review-checklist.md](references/review-checklist.md) — structured walk-through for review mode.
 - [references/law-of-demeter.md](references/law-of-demeter.md) — reaching through object chains; when it is and is not a coupling problem.
 - [references/fail-fast.md](references/fail-fast.md) — where to detect and report invalid state; read it together with imperative 16.
@@ -64,9 +64,9 @@ The reference files are:
 
 - A coding agent implements an endpoint: use guard-pass mode on the diff before
   the work is presented or committed.
-- User asks "review this PR" or "should I merge this?": use review mode and
+- User asks to audit the code quality of specific files: use review mode and
   report findings from [references/review-checklist.md](references/review-checklist.md); do not edit unless
-  asked.
+  asked. For "review this PR" or "should I merge this?", use code-review instead.
 - User asks "implement this endpoint using clean-code-guard": use live mode
   while writing, then run the self-check before delivery.
 - User asks "refactor this function, same behavior": preserve observable
@@ -94,7 +94,7 @@ The classic principles (Clean Code, SOLID, DRY/KISS/YAGNI) are still the foundat
 
 ## Always-applied imperatives
 
-These are the rules to follow on every code change. They are imperative, not suggestions.
+These rules apply to the code you add or change in the current diff. Imperatives 1-3 and 13 are strong heuristics with numeric targets: when the surrounding code or the language's idiom differs (for example a conventional `result`/`value` name in a short scope, or a function that is clearer kept whole), match the neighbors and note the trade-off instead of forcing churn. The rest are imperative.
 
 ### Functions and names
 
@@ -129,7 +129,7 @@ These are the rules to follow on every code change. They are imperative, not sug
 17. **Verify every import and external call.** Before calling a method on a library, confirm it exists in the version installed (read the package, check the lockfile, or import and inspect). Do not generate code based on what the API "should" look like. (USENIX Security '25)
 18. **No hardcoded "success" returns or mock fixtures in production code.** Never return `{"status": "ok", ...}` or canned data from a function whose spec says it does real work. If you cannot implement, fail explicitly with the language's unimplemented or unsupported-operation mechanism and say so. Never disable, skip, or weaken a test to make it pass. (Fowler, Claude Code issue #6984)
 19. **Re-derive, do not copy from similar.** When tempted to copy a function and modify it, stop. Re-derive from the spec. Off-by-one and wrong-null-semantic bugs almost always enter through copy-from-similar. (arXiv 2411.01414)
-20. **Enumerate boundary cases before writing them.** For any range, off-by-one, null/empty/one/many, even/odd, or unicode/byte boundary, write the case list in a comment first. Cover each case in code before moving on.
+20. **Enumerate boundary cases before writing them.** For any range, off-by-one, null/empty/one/many, even/odd, or unicode/byte boundary, write the case list first, in your scratch notes or as test names, not as committed comments (imperative 5 still applies). Cover each case in code and tests before moving on.
 21. **Strip dead code before delivery.** Run a linter or grep pass for unused imports, unused symbols, unreachable branches, and "just in case" exports. Remove them. A function that nothing calls today does not get to live for "someday."
 22. **Read before write.** Before writing in an unfamiliar repo, read the file you'll edit, one neighbor, and any project rules file (CLAUDE.md, AGENTS.md, README's "conventions" section). Use the project's existing helpers, error types, and logging.
 23. **No new dependency for what a few lines cover.** Before adding a package, check the standard library, the already-installed dependencies, and whether a few lines of local code do the job. A new dependency is permanent maintenance and supply-chain surface; add one only when it owns real complexity you should not re-implement (cryptography, parsing, time zones — illustrative, not exhaustive), never to save ten lines. See [references/dry-kiss-yagni.md](references/dry-kiss-yagni.md).

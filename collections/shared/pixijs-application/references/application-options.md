@@ -210,7 +210,7 @@ Accessibility options. Pass these on the top-level init options.
 | `accessibilityOptions.activateOnTab`         | `boolean` | `true`  | Activate overlays when the user presses Tab.                                  |
 | `accessibilityOptions.deactivateOnMouseMove` | `boolean` | `true`  | Deactivate overlays when the mouse moves.                                     |
 
-See `pixijs-accessibility` for the full accessibility API.
+Accessibility is not covered by these skills. Import `'pixi.js/accessibility'` and see the [PixiJS accessibility guide](https://pixijs.com/8.x/guides/components/accessibility) for the full API.
 
 ```ts
 await app.init({

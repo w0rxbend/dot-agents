@@ -1,6 +1,6 @@
 ---
 name: workstation-installers
-description: Maintain declarative workstation bootstrap, dotfile, font, and binary installers with faithful plans, artifact verification, resumable state, filesystem contracts, and native CLI parity.
+description: Maintain declarative workstation bootstrap, dotfile, font, and binary installers with faithful plans, artifact verification, resumable state, filesystem contracts, and native CLI parity. Use when changing Fluxion, binstaller, Dotbot ports, Nerd Fonts installers or a similar profile-driven installer.
 license: MIT
 ---
 

@@ -45,8 +45,11 @@ Never answer "Hermes can't do that" from memory. Hermes ships far more than this
 ## Quick Start
 
 ```bash
-# Install (shell installer — bootstraps PM, Python, dependencies, and the launcher)
-curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+# Install (official shell installer — bootstraps PM, Python, dependencies, and the launcher).
+# Download, read, then run it rather than piping straight into bash:
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh -o hermes-install.sh
+less hermes-install.sh        # review what it will do
+bash hermes-install.sh
 
 # Interactive chat (default surface; set display.interface: tui to launch the Ink TUI instead)
 hermes

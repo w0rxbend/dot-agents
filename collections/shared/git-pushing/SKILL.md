@@ -50,7 +50,7 @@ The message and one of `-- <paths>` or `--all` are required. The helper exits wi
 - It pushes to `branch.<name>.pushRemote`, then `remote.pushDefault`, then the configured upstream. A new branch requires `origin` and gets `origin/<branch>` as its upstream.
 - It requires Git's `files` ref backend and rejects `reftable` repositories before creating a commit.
 
-It does not run the project's tests or replace release tooling. Run the required checks before pushing. If the push is rejected because the upstream advanced, fetch and integrate (rebase or merge per repository policy), then rerun.
+It does not run the project's tests or replace release tooling. Run the required checks before pushing. If the push is rejected because the upstream advanced, the commit already exists locally, so do not rerun the helper (it stops with "No changes staged for commit"). Fetch and integrate (rebase or merge per repository policy), re-run the required checks, then push with plain Git to the same destination the helper chose, for example `git push <remote> HEAD:<branch>`. Never force-push without asking.
 
 ## Done When
 

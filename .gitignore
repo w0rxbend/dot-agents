@@ -5,3 +5,5 @@ dist/
 .DS_Store
 *.egg-info/
 install.local.conf.yaml
+.collections.import/
+.collections.import.previous/

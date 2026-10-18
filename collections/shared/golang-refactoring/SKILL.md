@@ -33,7 +33,7 @@ paths:
 
 **Thinking mode:** Reason as thoroughly as possible for the planning/ordering step — mapping blast radius, sequencing PRs to avoid merge conflicts, and deciding where a refactor can safely go parallel all punish shallow reasoning, since a wrong ordering call surfaces as a broken build or a conflict-riddled merge, not as an obviously wrong plan. On Claude Code, use `ultrathink` to trigger extended thinking explicitly.
 
-**Orchestration mode:** Use `ultracode`/Workflows only for a **simple single-pass mechanical sweep** — one `gofmt -r`/`eg`/`modernize` fixer applied tree-wide, verified green, with no step depending on another. Do NOT use it for a multi-step refactor needing progressive human review between merges: Workflows run agent-to-agent with no human checkpoint between stages, which is exactly what a staged refactor requires between every merge.
+**Orchestration mode:** Use `ultracode`/Workflows only when the user has asked for a multi-agent workflow, and only for a **simple single-pass mechanical sweep** — one `gofmt -r`/`eg`/`modernize` fixer applied tree-wide, verified green, with no step depending on another. Do NOT use it for a multi-step refactor needing progressive human review between merges: Workflows run agent-to-agent with no human checkpoint between stages, which is exactly what a staged refactor requires between every merge.
 
 **Modes:**
 

@@ -1,6 +1,6 @@
 ---
 name: ingesting-data
-description: Data ingestion patterns for loading data from cloud storage, APIs, files, and streaming sources into databases. Use when importing CSV/JSON/Parquet files, pulling from S3/GCS buckets, consuming API feeds, or building ETL pipelines.
+description: Data ingestion patterns for loading data from cloud storage, APIs, files, and streaming sources into databases. Use when importing CSV/JSON/Parquet files, pulling from S3/GCS buckets, consuming API feeds or webhooks, or writing source connectors; for pipeline orchestration, DAGs and transformations use data-engineering-data-pipeline.
 ---
 
 # Data Ingestion Patterns
@@ -35,14 +35,23 @@ What is your data source?
 **dlt (data load tool) - Modern Python ETL:**
 ```python
 import dlt
+from dlt.sources.helpers.rest_client import RESTClient
+from dlt.sources.helpers.rest_client.paginators import HeaderLinkPaginator
 
 # Define a source
 @dlt.source
 def github_source(repo: str):
+    client = RESTClient(
+        base_url="https://api.github.com",
+        paginator=HeaderLinkPaginator(),  # follows GitHub's Link: rel="next" header
+    )
+
     @dlt.resource(write_disposition="merge", primary_key="id")
     def issues():
-        response = requests.get(f"https://api.github.com/repos/{repo}/issues")
-        yield response.json()
+        # One request returns only the first page; paginate to get everything
+        for page in client.paginate(f"/repos/{repo}/issues", params={"state": "all", "per_page": 100}):
+            yield page
+
     return issues
 
 # Load to destination
@@ -101,24 +110,35 @@ async function ingestFromS3(bucket: string, key: string) {
 **API feed polling:**
 ```typescript
 import { Hono } from "hono";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 // Webhook receiver for real-time ingestion
 const app = new Hono();
 
 app.post("/webhooks/stripe", async (c) => {
-  const event = await c.req.json();
-
-  // Validate webhook signature
   const signature = c.req.header("stripe-signature");
-  // ... validation logic
+  if (!signature) return c.text("missing signature", 400);
 
-  // Ingest event
+  // Verify against the RAW body: re-serialized JSON breaks the signature
+  const rawBody = await c.req.text();
+  let event: Stripe.Event;
+  try {
+    event = await stripe.webhooks.constructEventAsync(
+      rawBody, signature, process.env.STRIPE_WEBHOOK_SECRET!
+    );
+  } catch {
+    return c.text("invalid signature", 400);
+  }
+
+  // Ingest event (idempotent: Stripe retries deliveries)
   await db.insert(stripeEventsTable).values({
     eventId: event.id,
     type: event.type,
     data: event.data,
     receivedAt: new Date()
-  });
+  }).onConflictDoNothing();
 
   return c.json({ received: true });
 });
@@ -279,13 +299,10 @@ After ingestion, chain to appropriate database skill:
 
 | Destination | Chain to Skill |
 |-------------|----------------|
-| PostgreSQL, MySQL | `databases-relational` |
-| MongoDB, DynamoDB | `databases-document` |
-| Qdrant, Pinecone | `databases-vector` (after embedding) |
-| ClickHouse, TimescaleDB | `databases-timeseries` |
-| Neo4j | `databases-graph` |
+| PostgreSQL, MySQL | `using-relational-databases` |
+| MongoDB, DynamoDB | `using-document-databases` |
+| Qdrant, Pinecone | `using-vector-databases` (it covers embedding and chunking) |
+| ClickHouse, TimescaleDB | `using-timeseries-databases` |
+| Neo4j | `using-graph-databases` |
 
-For vector databases, chain through `ai-data-engineering` for embedding:
-```
-ingesting-data → ai-data-engineering → databases-vector
-```
+For scheduling, orchestration (Airflow, Prefect, Dagster) and transformations (dbt), use `data-engineering-data-pipeline`.

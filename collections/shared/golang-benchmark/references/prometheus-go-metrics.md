@@ -332,7 +332,7 @@ delta(process_open_fds[1h])
 process_open_fds / process_max_fds
 ```
 
-→ See `samber/cc-skills@promql-cli` skill for executing these queries directly against your Prometheus instance from the CLI.
+Run these queries in the Prometheus UI, Grafana Explore, or the Prometheus HTTP API (`curl 'http://<prometheus>:9090/api/v1/query' --data-urlencode 'query=...'`).
 
 ## References
 

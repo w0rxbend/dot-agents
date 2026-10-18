@@ -91,13 +91,17 @@ export class SocialNetworkGraph {
     userId: string,
     maxDepth: number = 2
   ): Promise<Array<{ id: string; name: string; degrees_of_separation: number }>> {
+    // Variable-length bounds cannot be query parameters: validate and inline
+    if (!Number.isInteger(maxDepth) || maxDepth < 1 || maxDepth > 6) {
+      throw new RangeError('maxDepth must be an integer 1..6')
+    }
     const session = this.driver.session()
     try {
       const result = await session.run(
         `
-        MATCH path = (u:Person {id: $userId})-[:FRIEND*1..$maxDepth]->(connection)
+        MATCH path = (u:Person {id: $userId})-[:FRIEND*1..${maxDepth}]->(connection)
         WHERE u <> connection
-          AND NOT exists((u)-[:FRIEND]-(connection))
+          AND NOT EXISTS { (u)-[:FRIEND]-(connection) }
         WITH connection, length(path) AS degrees
         RETURN DISTINCT connection.id AS id,
                connection.name AS name,
@@ -105,7 +109,7 @@ export class SocialNetworkGraph {
         ORDER BY degrees_of_separation, connection.name
         LIMIT 50
         `,
-        { userId, maxDepth }
+        { userId }
       )
 
       return result.records.map(record => ({
@@ -154,7 +158,7 @@ export class SocialNetworkGraph {
       const result = await session.run(
         `
         MATCH (u:Person {id: $userId})-[:FRIEND]->()-[:FRIEND]->(recommendation)
-        WHERE NOT exists((u)-[:FRIEND]-(recommendation))
+        WHERE NOT EXISTS { (u)-[:FRIEND]-(recommendation) }
           AND u <> recommendation
         WITH recommendation, count(*) AS mutual_friends
         WHERE mutual_friends >= 2

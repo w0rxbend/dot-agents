@@ -48,7 +48,7 @@ const styled = new HTMLText({
 
 All base text options (`text`, `anchor`, `resolution`, `roundPixels`) are inherited from `TextOptions` — see `references/text.md`.
 
-All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) are also valid here — see `skills/pixijs-scene-core-concepts/references/constructor-options.md`.
+All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) are also valid here — see the constructor-options table in `references/scene-core-concepts.md` of the `pixijs-scene-container` skill.
 
 > Both `textureStyle` and `autoGenerateMipmaps` are also exposed as runtime instance properties, but they are only read when a new texture is generated for the text (a text, style or resolution change); `onViewUpdate()` alone does not regenerate it.
 

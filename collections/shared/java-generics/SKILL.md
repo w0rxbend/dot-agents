@@ -2,11 +2,7 @@
 name: java-generics
 user-invocable: false
 description: Write and review Java generics - bounded type parameters, wildcards and PECS, type erasure workarounds, recursive bounds and generic builders. Use when designing reusable typed APIs or fixing unchecked/wildcard compiler errors.
-allowed-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
+allowed-tools: []
 ---
 
 # Java Generics

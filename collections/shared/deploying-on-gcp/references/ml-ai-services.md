@@ -28,9 +28,9 @@ aiplatform.init(
 job = aiplatform.CustomTrainingJob(
     display_name='custom-training-job',
     script_path='train.py',
-    container_uri='gcr.io/cloud-aiplatform/training/pytorch-gpu.1-13:latest',
+    container_uri='us-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-13:latest',
     requirements=['pandas==2.0.0', 'scikit-learn==1.3.0'],
-    model_serving_container_image_uri='gcr.io/cloud-aiplatform/prediction/pytorch-gpu.1-13:latest',
+    model_serving_container_image_uri='us-docker.pkg.dev/vertex-ai/prediction/pytorch-gpu.1-13:latest',
 )
 
 # Run training
@@ -73,7 +73,7 @@ def preprocess_data(input_path: str, output_path: str):
     # Preprocessing logic
     df.to_csv(output_path, index=False)
 
-@component(base_image='gcr.io/cloud-aiplatform/training/pytorch-gpu.1-13:latest')
+@component(base_image='us-docker.pkg.dev/vertex-ai/training/pytorch-gpu.1-13:latest')
 def train_model(data_path: str, model_path: str):
     # Training logic
     pass

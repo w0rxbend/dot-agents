@@ -1,4 +1,4 @@
-.PHONY: check test catalog install uninstall render release
+.PHONY: check test catalog review install uninstall render release
 check:
 	python3 scripts/validate.py
 	python3 -m unittest discover -s tests -v
@@ -9,6 +9,9 @@ test:
 
 catalog:
 	python3 scripts/catalog.py
+
+review:
+	python3 scripts/refresh_review.py --list
 
 render:
 	./install.sh render

@@ -64,25 +64,29 @@ proc formatString(): string =
   discard snprintf(cstring(addr buffer), 256, "Value: %d", 42)
   result = $cstring(addr buffer)
 
-# C macros as inline procs
-proc EXIT_SUCCESS(): cint {.importc: "EXIT_SUCCESS", header: "<stdlib.h>".}
-proc EXIT_FAILURE(): cint {.importc: "EXIT_FAILURE", header: "<stdlib.h>".}
+# C object-like macros as imported variables (importing them as procs would
+# generate `EXIT_SUCCESS()`, which is invalid C)
+var EXIT_SUCCESS {.importc: "EXIT_SUCCESS", header: "<stdlib.h>".}: cint
+var EXIT_FAILURE {.importc: "EXIT_FAILURE", header: "<stdlib.h>".}: cint
 
 # Function pointers
 type
-  CompareFunc = proc (a, b: pointer): cint {.cdecl.}
+  # qsort's prototype takes `const void*`; GCC 14+ rejects a plain `void*`
+  # comparator as an incompatible pointer type, so import the const type
+  ConstPtr {.importc: "const void*", nodecl.} = pointer
+  CompareFunc = proc (a, b: ConstPtr): cint {.cdecl.}
 
 proc qsort(base: pointer, nmemb, size: csize_t, compar: CompareFunc)
   {.importc, header: "<stdlib.h>".}
 
-proc compareInts(a, b: pointer): cint {.cdecl.} =
+proc compareInts(a, b: ConstPtr): cint {.cdecl.} =
   let x = cast[ptr cint](a)[]
   let y = cast[ptr cint](b)[]
-  return x - y
+  return cint(x > y) - cint(x < y)  # x - y can overflow
 
 proc sortArray() =
-  var arr = [5, 2, 8, 1, 9]
-  qsort(addr arr[0], arr.len, sizeof(cint), compareInts)
+  var arr = [5.cint, 2, 8, 1, 9]  # element type must match the comparator (cint, not int)
+  qsort(addr arr[0], arr.len.csize_t, sizeof(cint).csize_t, compareInts)
 
 # C struct access
 type
@@ -176,8 +180,12 @@ proc newSession(): CurlSession =
 
 # Wrapping complex C API
 type
-  SqliteDb = distinct pointer
-  SqliteStmt = distinct pointer
+  # Import the opaque C structs so pointer types match the header exactly
+  # (a `distinct pointer` becomes void* and GCC 14+ rejects void** for sqlite3**)
+  Sqlite3 {.importc: "sqlite3", header: "<sqlite3.h>", incompleteStruct.} = object
+  Sqlite3Stmt {.importc: "sqlite3_stmt", header: "<sqlite3.h>", incompleteStruct.} = object
+  SqliteDb = ptr Sqlite3
+  SqliteStmt = ptr Sqlite3Stmt
 
 proc sqlite3_open(filename: cstring, db: ptr SqliteDb): cint
   {.importc, header: "<sqlite3.h>".}
@@ -194,19 +202,21 @@ type
   Database = object
     handle: SqliteDb
 
+# Declare hooks right after the type, before any proc uses Database:
+# Nim 2 rejects a hook bound after the type's first use.
+proc `=destroy`(db: Database) =
+  if db.handle != nil:
+    discard sqlite3_close(db.handle)
+
+proc `=wasMoved`(db: var Database) = db.handle = nil
+proc `=copy`(dst: var Database; src: Database) {.error: "move-only".}
+
 proc openDatabase(filename: string): Database =
   var db: SqliteDb
   let rc = sqlite3_open(cstring(filename), addr db)
   if rc != 0:
     raise newException(IOError, "Cannot open database")
   result.handle = db
-
-proc `=destroy`(db: Database) =
-  if db.handle.pointer != nil:
-    discard sqlite3_close(db.handle)
-
-proc `=wasMoved`(db: var Database) = db.handle = SqliteDb(nil)
-proc `=copy`(dst: var Database; src: Database) {.error: "move-only".}
 
 # C callback wrapping
 type
@@ -251,7 +261,7 @@ type
 proc createPoint(x, y: cint): Point {.exportc.} =
   Point(x: x, y: y)
 
-proc pointDistance(p1, p2: Point): cdouble {.exportc.} =
+proc pointDistance(p1, p2: Point): cdouble {.exportc.} =  # import std/math
   let dx = (p2.x - p1.x).float
   let dy = (p2.y - p1.y).float
   sqrt(dx * dx + dy * dy)
@@ -274,18 +284,10 @@ proc upperDup(input: cstring): cstring {.exportc.} =
 
 proc upperFree(p: cstring) {.exportc.} = deallocShared(cast[pointer](p))
 
-# Emitting C declarations into the generated code (this is not a public
-# header; write the .h for consumers yourself, or try `--header` and check
-# that your Nim version still supports it)
-{.emit: """/*TYPESECTION*/
-typedef struct {
-  int x;
-  int y;
-} Point;
-""".}
-
-proc generateHeader() {.exportc: "lib_init".} =
-  echo "Library initialized"
+# C consumers need a header: write the .h yourself (declaring Point and the
+# exported procs), or try `--header` and check that your Nim version still
+# supports it. Do not also {.emit.} a typedef for an exportc type such as
+# Point: the generated C would then define it twice.
 
 # Export callbacks
 type
@@ -332,10 +334,10 @@ echo sizeof(PackedStruct)  # 6 bytes (no padding)
 
 # Aligned structures
 type
-  AlignedStruct {.align(16).} = object
-    data: array[4, float32]
+  AlignedStruct = object
+    data {.align(16).}: array[4, float32]  # align applies to fields and variables
 
-echo sizeof(AlignedStruct)  # Aligned to 16 bytes
+echo alignof(AlignedStruct)  # 16
 
 # C struct layout
 type
@@ -429,15 +431,16 @@ type
   Resource = object
     handle: pointer
 
-proc acquire(): Resource =
-  result.handle = malloc(1024)
-
+# Hooks first, then the procs that create or use Resource
 proc `=destroy`(r: Resource) =
   if r.handle != nil:
-    free(r.handle)
+    deallocShared(r.handle)
 
 proc `=wasMoved`(r: var Resource) = r.handle = nil
 proc `=copy`(dst: var Resource; src: Resource) {.error: "move-only".}
+
+proc acquire(): Resource =
+  result.handle = allocShared(1024)
 
 # Callback with closure
 type
@@ -465,12 +468,6 @@ proc createHandle(): ptr OpaqueHandle
 
 proc destroyHandle(h: ptr OpaqueHandle)
   {.importc, header: "lib.h".}
-
-# Version checking
-when sizeof(clong) == 8:
-  type CLong = int64
-else:
-  type CLong = int32
 
 # Platform-specific code
 when defined(windows):

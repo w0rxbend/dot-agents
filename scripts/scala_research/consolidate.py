@@ -9,11 +9,18 @@ a skill it did not promote or one that was edited locally after promotion.
 
 A ledger row with `merged_into` records a promoted skill whose content was folded
 by hand into a broader skill. Such rows stay as provenance, are never re-promoted,
-and are indexed under the skill that now holds them.
+and are indexed under the skill that now holds them. A newer acceptance of such a
+skill is skipped and reported as `merged_needs_manual_fold`; it never blocks the
+other repositories' skills.
+
+Rollback only restores a file (or skill directory) that still holds the bytes this
+run wrote; anything changed concurrently is left alone and reported as a conflict.
 """
 import json
 import os
+import re
 import shutil
+import signal
 import subprocess
 import tempfile
 import time
@@ -23,6 +30,7 @@ LEDGER = 'research/scala-history/promoted-skills.json'
 KNOWLEDGE = 'research/scala-history/KNOWLEDGE.md'
 HUB_SKILL = 'scala-oss-library-review'
 HUB_INDEX = 'references/skill-index.md'
+HUB_INDEX_PATH = f'collections/shared/{HUB_SKILL}/{HUB_INDEX}'
 GENERATED = ['catalog.json', 'docs/skill-review.json', 'docs/catalog.md', 'install.conf.yaml']
 KIND_ORDER = ['development', 'review', 'refactoring', 'hardening']
 
@@ -43,11 +51,27 @@ class LocalRunner:
         log = self.state / 'logs' / f'consolidate-{label}.log'
         log.parent.mkdir(parents=True, exist_ok=True)
         with log.open('a', encoding='utf-8') as stream:
+            # A new session lets a timeout kill grandchildren (make -> install.sh -> ...),
+            # so nothing can rewrite generated files after rollback restored them.
+            process = subprocess.Popen(command, cwd=self.root, stdout=stream, stderr=subprocess.STDOUT,
+                                       stdin=subprocess.DEVNULL, start_new_session=True)
             try:
-                return subprocess.run(command, cwd=self.root, stdout=stream, stderr=subprocess.STDOUT,
-                                      timeout=min(seconds, max(1, self.deadline - time.monotonic()))).returncode
+                return process.wait(timeout=min(seconds, max(1, self.deadline - time.monotonic())))
             except subprocess.TimeoutExpired:
+                _kill_group(process)
                 return 124
+            except BaseException:
+                _kill_group(process)
+                raise
+
+
+def _kill_group(process):
+    # The unreaped leader keeps its PID (and so the group ID) from being reused.
+    try:
+        os.killpg(process.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    process.wait()
 
 
 def _s():
@@ -83,7 +107,8 @@ def snapshot_accepted(state, repository, record):
 def accepted_packages(state):
     """Every verified accepted package, preferring an active deepen run's snapshot."""
     s = _s()
-    state = Path(state)
+    # Resolve once: candidate validation rejects symlinked ancestors (e.g. /var on macOS).
+    state = Path(state).resolve()
     packages, unverified = {}, []
     for item in s.load(state / 'inventory.json')['repositories']:
         if not item['included']:
@@ -170,6 +195,21 @@ def _first_sentence(text):
     return head + '.'
 
 
+# Public KNOWLEDGE.md must not carry local paths or raw exception text from state.
+_PATHLIKE = re.compile(r'(?<![\w/.:-])~?/[^\s|`\'"]+')
+_EXCEPTION_REASON = re.compile(r'^[A-Za-z_][\w.]*(?:Error|Exception|Exhausted|Interrupt)\b')
+
+
+def _public_reason(reason):
+    reason = ' '.join(str(reason).split())
+    if _EXCEPTION_REASON.match(reason):
+        return 'pipeline error before acceptance (details kept in local research state)'
+    reason = _PATHLIKE.sub('<local path>', reason)
+    if len(reason) > 220:
+        reason = reason[:217].rstrip() + '...'
+    return reason
+
+
 def _outcomes(state, ledger):
     s = _s()
     promoted = {}
@@ -185,9 +225,7 @@ def _outcomes(state, ledger):
             continue
         job_path = Path(state) / 'jobs' / f'{s.key(repository)}.json'
         job = s.load(job_path) if job_path.is_file() else {}
-        reason = ' '.join((job.get('reason') or 'not yet researched in an authoring run').split())
-        if len(reason) > 220:
-            reason = reason[:217].rstrip() + '...'
+        reason = _public_reason(job.get('reason') or 'not yet researched in an authoring run')
         rows.append((repository, f'{job.get("status", "pending")}: {reason}'))
     return rows
 
@@ -264,26 +302,32 @@ def render_hub_index(ledger, descriptions):
     return '\n'.join(lines) + '\n'
 
 
+def _bytes(path):
+    return path.read_bytes() if path.is_file() else None
+
+
 def promote_accepted(state, runner):
-    """Integrate every verified accepted skill; all-or-nothing per invocation with rollback."""
+    """Integrate every verified accepted skill; all-or-nothing per invocation with rollback.
+
+    A changed acceptance of a skill that was merged by hand is skipped and reported in
+    `merged_needs_manual_fold`; every other skill is still integrated.
+    """
     s = _s()
     from scripts.common import tree_hash
-    state, root = Path(state), s.ROOT
+    state, root = Path(state).resolve(), s.ROOT
     runner.check_running()
-    with s.exclusive_lock(root / '.git/scala-research-integration.lock'):
+    with s.exclusive_lock(s.integration_lock_path(root)):
         packages, unverified = accepted_packages(state)
         ledger_path, knowledge_path = root / LEDGER, root / KNOWLEDGE
         ledger_doc = s.load(ledger_path) if ledger_path.is_file() else {'schema_version': 1, 'skills': {}}
         ledger = dict(ledger_doc['skills'])
-        tracked = GENERATED + [LEDGER, KNOWLEDGE]
         hub = root / 'collections/shared' / HUB_SKILL
-        snapshot = {p: (root / p).read_bytes() if (root / p).is_file() else None for p in tracked}
-        hub_index = hub / HUB_INDEX
-        hub_before = hub_index.read_bytes() if hub_index.is_file() else None
+        snapshot = {p: _bytes(root / p) for p in GENERATED + [LEDGER, KNOWLEDGE, HUB_INDEX_PATH]}
+        hub_index = root / HUB_INDEX_PATH
         catalog = json.loads(snapshot['catalog.json'])
         entries = {row['id']: row for row in catalog['skills']}
 
-        owners, actions, sources = {}, {}, {}
+        owners, actions, sources, needs_fold = {}, {}, {}, []
         for repository, (candidate, job) in sorted(packages.items()):
             kinds = {row['id']: row.get('kind') for row in s.load(candidate / 'report.json')['skills']}
             for sid in job['skill_ids']:
@@ -294,16 +338,17 @@ def promote_accepted(state, runner):
                 source = candidate / 'skills' / sid
                 if _description(source / 'SKILL.md')['name'] != sid:
                     raise ValueError(f'skill frontmatter name does not match id: {sid}')
-                sources[sid] = (source, repository, kinds.get(sid), job)
                 dest = root / 'collections/shared' / sid
                 link = root / 'collections/hermes' / sid
                 row = ledger.get(sid)
                 if row is not None and row.get('merged_into'):
                     if row['source_tree_sha256'] != tree_hash(source) or row['repository'] != repository:
-                        raise ValueError(f'{sid} was merged into {row["merged_into"]}; '
-                                         'fold the new acceptance in by hand')
-                    actions[sid] = 'unchanged'
-                elif row is None:
+                        # Folding is a human edit of the merged skill: skip it, keep promoting the rest.
+                        needs_fold.append(dict(id=sid, repository=repository, merged_into=row['merged_into'],
+                                               source_tree_sha256=tree_hash(source)))
+                    continue
+                sources[sid] = (source, repository, kinds.get(sid), job)
+                if row is None:
                     if sid in entries:
                         raise ValueError(f'catalog already has {sid}, not promoted by this pipeline')
                     if dest.exists() or link.exists() or link.is_symlink():
@@ -315,6 +360,9 @@ def promote_accepted(state, runner):
                     if not dest.is_dir() or tree_hash(dest) != row['promoted_tree_sha256']:
                         raise ValueError(f'{sid} was locally modified after promotion; reconcile by hand')
                     actions[sid] = 'update'
+        merged_unchanged = sorted(sid for sid, row in ledger.items()
+                                  if row.get('merged_into') and owners.get(sid) and sid not in
+                                  {item['id'] for item in needs_fold})
 
         descriptions = {}
         for sid in list(ledger) + list(_merged(ledger)):
@@ -330,52 +378,80 @@ def promote_accepted(state, runner):
             new_ledger[sid] = dict(repository=repository, kind=kind, model=job.get('model'),
                                    provider=job.get('provider'), candidate_sha256=job['candidate_sha256'],
                                    review_sha256=job['review_sha256'], source_tree_sha256=tree_hash(source))
+        orphaned = sorted(sid for sid, row in new_ledger.items()
+                          if not row.get('merged_into') and sid not in descriptions)
+        if orphaned:
+            raise ValueError(f'promotion ledger rows have no promoted skill directory and no verified source: '
+                             f'{orphaned}; restore them or record merged_into by hand')
         knowledge = render_knowledge(state, new_ledger, descriptions).encode()
         index = render_hub_index(new_ledger, descriptions).encode() if HUB_SKILL in entries and hub.is_dir() else None
         changed = [sid for sid, action in actions.items() if action != 'unchanged']
         result = dict(added=sorted(k for k, v in actions.items() if v == 'add'),
                       updated=sorted(k for k, v in actions.items() if v == 'update'),
-                      unchanged=sorted(k for k, v in actions.items() if v == 'unchanged'),
+                      unchanged=sorted([k for k, v in actions.items() if v == 'unchanged'] + merged_unchanged),
+                      merged_needs_manual_fold=sorted(needs_fold, key=lambda item: item['id']),
                       unverified=sorted(unverified), promoted_total=len(new_ledger))
-        if not changed and knowledge == snapshot[KNOWLEDGE] and (index is None or index == hub_before):
+        if not changed and knowledge == snapshot[KNOWLEDGE] and (index is None or index == snapshot[HUB_INDEX_PATH]):
             s.atomic_json(state / 'consolidation.json', dict(result, status='unchanged', at=s.now()))
             return dict(result, status='unchanged')
 
+        tracked = GENERATED + [LEDGER, KNOWLEDGE] + ([HUB_INDEX_PATH] if index is not None else [])
         backup = state / 'integration-backup' / f'consolidate-{time.time_ns()}'
         backup.mkdir(parents=True)
-        for p, data in snapshot.items():
-            if data is not None:
+        for p in tracked:
+            if snapshot[p] is not None:
                 (backup / p).parent.mkdir(parents=True, exist_ok=True)
-                (backup / p).write_bytes(data)
-        if hub_before is not None:
-            (backup / 'hub-index.md').write_bytes(hub_before)
-        created, replaced = [], []
+                (backup / p).write_bytes(snapshot[p])
+        # The bytes each tracked file must hold right now: the snapshot until this run
+        # writes it, then exactly what this run (or its owning gate) wrote.
+        expected = {p: snapshot[p] for p in tracked}
+        created, replaced, written_trees = [], [], {}
+
+        def record(p):
+            expected[p] = _bytes(root / p)
+
+        def verify():
+            runner.check_running()
+            drifted = [p for p in tracked if _bytes(root / p) != expected[p]]
+            if drifted:
+                raise RuntimeError(f'shared files changed during consolidation: {drifted}; refusing stale overwrite')
+
+        def ours(sid):
+            dest = root / 'collections/shared' / sid
+            return sid not in written_trees or (dest.is_dir() and tree_hash(dest) == written_trees[sid])
 
         def rollback():
+            """Restore only what still holds this run's bytes; report everything else."""
+            conflicts = []
             for sid in created:
+                if not ours(sid):
+                    conflicts.append(f'collections/shared/{sid}')
+                    continue
                 link = root / 'collections/hermes' / sid
-                if link.is_symlink():
+                if link.is_symlink() and os.readlink(link) == f'../shared/{sid}':
                     link.unlink()
                 shutil.rmtree(root / 'collections/shared' / sid, ignore_errors=True)
             for sid in replaced:
+                if not ours(sid):
+                    conflicts.append(f'collections/shared/{sid}')
+                    continue
                 dest = root / 'collections/shared' / sid
                 shutil.rmtree(dest, ignore_errors=True)
                 shutil.copytree(backup / 'skills' / sid, dest, symlinks=True)
-            for p, data in snapshot.items():
-                if data is None:
+            for p in tracked:
+                current = _bytes(root / p)
+                if current == snapshot[p]:
+                    continue
+                if current != expected[p]:
+                    conflicts.append(p)
+                elif snapshot[p] is None:
                     (root / p).unlink(missing_ok=True)
                 else:
-                    (root / p).write_bytes(data)
-            if index is not None:
-                if hub_before is None:
-                    hub_index.unlink(missing_ok=True)
-                else:
-                    hub_index.write_bytes(hub_before)
+                    (root / p).write_bytes(snapshot[p])
+            return conflicts
 
         try:
-            if any(((root / p).read_bytes() if (root / p).is_file() else None) != data
-                   for p, data in snapshot.items()):
-                raise RuntimeError('shared files changed during consolidation; refusing stale overwrite')
+            verify()
             license_source = root / 'collections/shared/scala-library-contracts/LICENSE'
             for sid in sorted(changed):
                 runner.check_running()
@@ -394,38 +470,52 @@ def promote_accepted(state, runner):
                              sha256=tree_hash(dest), local_globs=[f'~/.agents/skills/{sid}', f'~/.hermes/skills/{sid}'],
                              path=f'collections/shared/{sid}', distribution='vendored',
                              license_file=f'collections/shared/{sid}/LICENSE')
+                written_trees[sid] = entry['sha256']
                 entries[sid] = entry
                 new_ledger[sid]['promoted_tree_sha256'] = entry['sha256']
                 new_ledger[sid]['promoted_at'] = s.now()
                 if actions[sid] == 'add':
                     (root / 'collections/hermes' / sid).symlink_to(f'../shared/{sid}')
+            verify()
             if index is not None:
                 hub_index.parent.mkdir(parents=True, exist_ok=True)
                 hub_index.write_bytes(index)
+                record(HUB_INDEX_PATH)
                 entries[HUB_SKILL] = dict(entries[HUB_SKILL], sha256=tree_hash(hub))
             catalog['skills'] = sorted(entries.values(), key=lambda row: row['id'])
             s.atomic_json(root / 'catalog.json', catalog)
+            record('catalog.json')
             owned = {sid: review_row(root, sid, entries[sid], new_ledger[sid]) for sid in changed}
             if index is not None:
                 owned[HUB_SKILL] = review_row(root, HUB_SKILL, entries[HUB_SKILL], None)
             update_review(root, owned)
+            record('docs/skill-review.json')
             s.atomic_json(ledger_path, dict(schema_version=1, skills=dict(sorted(new_ledger.items()))))
+            record(LEDGER)
             knowledge_path.parent.mkdir(parents=True, exist_ok=True)
             knowledge_path.write_bytes(knowledge)
+            record(KNOWLEDGE)
             # Review rows are updated above for owned skills only. refresh_review.py diffs against
             # git HEAD and would annotate unrelated uncommitted skills with this pipeline's note.
-            gates = [[os.environ.get('PYTHON', 'python3'), 'scripts/catalog.py'],
-                     ['./install.sh', 'render'], ['make', 'test'], ['make', 'check']]
-            for number, command in enumerate(gates):
-                runner.check_running()
+            gates = [([os.environ.get('PYTHON', 'python3'), 'scripts/catalog.py'], ['docs/catalog.md']),
+                     (['./install.sh', 'render'], ['install.conf.yaml']),
+                     (['make', 'test'], []), (['make', 'check'], [])]
+            for number, (command, outputs) in enumerate(gates):
+                verify()
                 code = runner.command(f'gate-{number}', command, 1200)
                 if code:
                     raise RuntimeError(f'integration gate failed ({code}): {" ".join(command)}')
+                for p in outputs:
+                    record(p)
+            verify()
         except BaseException as exc:
-            rollback()
+            conflicts = rollback()
             s.atomic_json(state / 'consolidation.json', dict(
                 result, status='rolled_back', at=s.now(), backup=str(backup),
-                error=f'{type(exc).__name__}: {exc}'))
+                rollback_conflicts=conflicts, error=f'{type(exc).__name__}: {exc}'))
+            if conflicts:
+                raise RuntimeError(f'{type(exc).__name__}: {exc}; rollback left concurrently edited paths '
+                                   f'untouched: {conflicts} (backup: {backup})') from exc
             raise
         s.atomic_json(state / 'consolidation.json', dict(result, status='passed', at=s.now(), backup=str(backup)))
         return dict(result, status='passed')

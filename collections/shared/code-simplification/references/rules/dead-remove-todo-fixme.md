@@ -48,11 +48,15 @@ export class UserService {
   }
 
   async updateUser(id: string, data: Partial<User>): Promise<void> {
-    // Security: parameterized query prevents SQL injection
-    const setClauses = Object.keys(data).map(k => `${k} = ?`).join(', ');
+    // Security: values are parameterized; column names come from a fixed
+    // allowlist, never from caller-supplied keys
+    const allowed = ['name', 'email'] as const;
+    const columns = allowed.filter(k => data[k] !== undefined);
+    if (columns.length === 0) return;
+    const setClauses = columns.map(k => `${k} = ?`).join(', ');
     await this.db.query(
       `UPDATE users SET ${setClauses} WHERE id = ?`,
-      [...Object.values(data), id]
+      [...columns.map(k => data[k]), id]
     );
   }
 }

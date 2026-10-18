@@ -1,6 +1,6 @@
 ---
 name: mill-build-logic
-description: Implement tracked Mill tasks for code generation, resources, external tools, and reusable build logic with correct inputs, destinations, caching, and task types.
+description: Implement tracked Mill tasks for code generation, resources, external tools, and reusable build logic with correct inputs, destinations, caching, and task types. Use when writing or debugging custom Mill tasks in build.mill.
 license: MIT
 ---
 

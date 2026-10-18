@@ -41,7 +41,7 @@ resource "google_cloud_run_service" "api" {
   template {
     spec {
       containers {
-        image = "gcr.io/project-id/api:latest"
+        image = "us-central1-docker.pkg.dev/project-id/my-repo/api:1.0.0"
 
         # Resource limits
         resources {
@@ -165,7 +165,7 @@ resource "google_cloud_run_v2_job" "batch_processor" {
   template {
     template {
       containers {
-        image = "gcr.io/project-id/batch:latest"
+        image = "us-central1-docker.pkg.dev/project-id/my-repo/batch:1.0.0"
 
         resources {
           limits = {

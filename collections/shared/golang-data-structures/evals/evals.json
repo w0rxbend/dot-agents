@@ -82,10 +82,10 @@
     "description": "Maps never shrink — the only fix is rebuilding; GC hints and nil-assignment are insufficient",
     "task": "A Go service processes events. During traffic spikes, `var eventIndex map[string]*Event` grows to 10M entries. After the spike, events expire and are deleted, leaving ~1000 entries. But RSS memory stays at 2GB. The team added `delete(eventIndex, key)` for every expired event — why doesn't memory decrease?\n\nTwo teammates propose fixes:\n- Alice: 'Call `runtime.GC()` after bulk deletes — it will force the GC to reclaim unused map memory.'\n- Bob: 'Set `eventIndex = nil` and then reassign `eventIndex = make(map[string]*Event)` — that releases the old map to the GC.'\n\nAre either of these correct? Write a `Diagnose()` comment and a `Compact()` method on `EventStore` that correctly fixes the issue. Package `events`.",
     "assertions": [
-      { "id": "8.1", "text": "Correctly diagnoses root cause: Go maps never shrink their bucket array — delete() removes entries but the allocated bucket memory is retained, preventing GC of the backing structure" },
+      { "id": "8.1", "text": "Correctly diagnoses root cause: Go maps never shrink — delete() removes entries but the allocated table (or, before Go 1.24, bucket) memory is retained, preventing GC of the backing structure" },
       { "id": "8.2", "text": "Evaluates Bob's nil-reassign approach: correctly identifies this as valid — setting eventIndex = nil releases the old map to GC, and rebuilding with make creates a fresh small map" },
-      { "id": "8.3", "text": "Evaluates Alice's runtime.GC() approach: correctly identifies this as insufficient alone — GC cannot reclaim a live map's bucket array; the map itself must be rebuilt" },
-      { "id": "8.4", "text": "Compact() creates a fresh map with make and copies surviving entries — rebuilding is the only way to reclaim bucket memory from a Go map" }
+      { "id": "8.3", "text": "Evaluates Alice's runtime.GC() approach: correctly identifies this as insufficient alone — GC cannot reclaim a live map's backing storage; the map itself must be rebuilt" },
+      { "id": "8.4", "text": "Compact() creates a fresh map with make and copies surviving entries — rebuilding is the only way to reclaim a Go map's backing memory" }
     ]
   },
   {
