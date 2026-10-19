@@ -6620,7 +6620,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "accd13b9dc46efca44e2f8f2bda3b6d4820c45c5a23dfea097c837961bb169c0",
+      "sha256": "86904e475ae0767325f744573569bbd20c631037d278cb63eb2ee47a132dcb43",
       "local_globs": [
         "~/.agents/skills/using-relational-databases"
       ],
