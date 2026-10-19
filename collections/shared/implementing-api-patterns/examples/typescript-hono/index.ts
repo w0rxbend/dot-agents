@@ -9,12 +9,9 @@
  * - Type-safe routing
  */
 
-import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { z } from 'zod'
-import { zValidator } from '@hono/zod-validator'
 import { swaggerUI } from '@hono/swagger-ui'
-import { OpenAPIHono, createRoute, z as zod } from '@hono/zod-openapi'
+import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 
 // Initialize app
 const app = new OpenAPIHono()
@@ -110,7 +107,7 @@ const listItemsRoute = createRoute({
   request: {
     query: z.object({
       cursor: z.string().optional(),
-      limit: z.string().transform(Number).pipe(z.number().min(1).max(100)).default('20')
+      limit: z.string().transform(Number).pipe(z.number().min(1).max(100)).prefault('20')
     })
   },
   responses: {
@@ -188,7 +185,7 @@ app.openapi(getItemRoute, (c) => {
     return c.json({ error: `Item with id '${id}' not found` }, 404)
   }
 
-  return c.json(item)
+  return c.json(item, 200)
 })
 
 // Create item
@@ -298,7 +295,7 @@ app.openapi(updateItemRoute, async (c) => {
 
   itemsDB.set(id, updatedItem)
 
-  return c.json(updatedItem)
+  return c.json(updatedItem, 200)
 })
 
 // Delete item
