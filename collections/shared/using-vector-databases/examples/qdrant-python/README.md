@@ -5,9 +5,7 @@ Complete implementation of a production-ready RAG (Retrieval-Augmented Generatio
 ## Features
 
 - Document ingestion with semantic chunking
-- Hybrid search (vector + BM25 keyword)
 - Metadata filtering
-- RAGAS evaluation
 - FastAPI REST API
 - Docker Compose deployment
 
@@ -44,8 +42,6 @@ python main.py
 qdrant-python/
 ├── main.py              # FastAPI application
 ├── rag_pipeline.py      # RAG implementation
-├── document_loader.py   # Document ingestion
-├── evaluation.py        # RAGAS evaluation
 ├── requirements.txt     # Python dependencies
 ├── docker-compose.yml   # Qdrant deployment
 ├── .env.example         # Environment template
@@ -120,19 +116,13 @@ answer = rag.generate_answer(
 print(answer)
 ```
 
-## Evaluation
+## Dependency compatibility
 
-Run RAGAS evaluation:
-
-```bash
-python evaluation.py
-```
-
-Metrics:
-- Faithfulness: >0.90 (minimal hallucination)
-- Answer Relevancy: >0.85 (addresses query)
-- Context Recall: >0.80 (sufficient context)
-- Context Precision: >0.75 (minimal noise)
+Python 3.10+ is supported. Text splitting uses the standalone
+`langchain-text-splitters` package; chat generation uses `ChatOpenAI.invoke`.
+The example implements dense vector search and metadata filtering.
+Evaluation and BM25 hybrid retrieval are extensions to implement separately;
+they are not included in this example.
 
 ## Configuration
 
@@ -181,7 +171,7 @@ docker logs qdrant
 
 **Issue:** Poor retrieval quality
 - Adjust chunking strategy (chunk size, overlap)
-- Try hybrid search instead of vector-only
+- Consider implementing hybrid search for keyword-sensitive queries
 - Add metadata filtering
 - Implement re-ranking
 
