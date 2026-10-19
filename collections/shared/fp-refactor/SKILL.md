@@ -70,7 +70,7 @@ const result = pipe(
 - [references/pragmatic-80-20.md](references/pragmatic-80-20.md) - golden rule, quick wins (nested ternaries, try/catch, undefined returns, typed errors), readability rule with too-clever vs middle-ground examples, introducing FP to a team. Read before proposing how much to change.
 - [references/detailed-guide.md](references/detailed-guide.md) - before/after recipes. Load the section you need: 1 try/catch to Either/TaskEither, 2 null checks to Option, 3 callbacks to Task, 4 class DI to Reader, 5 loops to combinators, 6 Promise chains to TaskEither (`Promise.all` to traverse), 7 common pitfalls, 8 gradual adoption strategies, 9 when NOT to refactor, plus an imperative-to-fp-ts mapping table.
 
-Related: fp-errors, fp-async, fp-backend, fp-data-transforms; operator lookups in fp-either-ref, fp-option-ref, fp-taskeither-ref, fp-pipe-ref.
+Related: fp-errors, fp-async, fp-backend, fp-data-transforms; operator cheat sheets in fp-errors (`references/either-cheatsheet.md`), fp-async (`references/taskeither-cheatsheet.md`) and fp-data-transforms (`references/option-cheatsheet.md`, `references/pipe-cheatsheet.md`).
 
 ## Done when
 

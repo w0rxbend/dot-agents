@@ -1,12 +1,12 @@
 ---
 name: pixijs-scene-text
-description: "Use this skill when rendering text in PixiJS v8. Covers Text for canvas-quality styled labels, BitmapText for cheap per-frame updates via glyph atlas, HTMLText for HTML/CSS markup via SVG, SplitText and SplitBitmapText for per-character animation, TextStyle, tagStyles, constructor options, TextOptions, HTMLTextOptions, BitmapText, SplitTextOptions, SplitBitmapTextOptions. Triggers on: Text, BitmapText, HTMLText, SplitText, SplitBitmapText, TextStyle, HTMLTextStyle, BitmapFont.install, tagStyles, fontFamily, wordWrap."
+description: "Use this skill when rendering text in PixiJS v8. Covers Text for canvas-quality styled labels, BitmapText for cheap per-frame updates via glyph atlas, HTMLText for HTML/CSS markup via SVG, SplitText and SplitBitmapText for per-character animation, TextStyle, tagStyles, constructor options, TextOptions, HTMLTextOptions, BitmapText, SplitTextOptions, SplitBitmapTextOptions. Triggers on (in PixiJS code): PixiJS Text, BitmapText, HTMLText, SplitText, SplitBitmapText, TextStyle, HTMLTextStyle, BitmapFont.install, tagStyles, fontFamily, wordWrap."
 license: MIT
 ---
 
 PixiJS has five text-rendering classes that cover different trade-offs between styling, performance, and animation. `Text` renders to a canvas for full CSS-style fidelity. `BitmapText` reads from a pre-generated atlas for cheap updates. `HTMLText` renders an HTML fragment via SVG `<foreignObject>` for rich markup. `SplitText` and `SplitBitmapText` wrap the first two classes and expose per-character, per-word, and per-line containers for animation.
 
-Assumes familiarity with `pixijs-scene-core-concepts`. All text classes are leaf nodes; they cannot have children. Wrap multiple text instances in a `Container` to group them.
+Assumes the scene core concepts (`pixijs-scene-container` skill, `references/scene-core-concepts.md`). All text classes are leaf nodes; they cannot have children. Wrap multiple text instances in a `Container` to group them.
 
 ## Quick Start
 
@@ -31,7 +31,7 @@ app.stage.addChild(text);
 
 All text classes use options-object constructors; positional `(string, style)` from v7 is not supported.
 
-**Related skills:** `pixijs-scene-core-concepts` (leaves, transforms), `pixijs-assets` (font loading), `pixijs-performance` (BitmapText tradeoffs), `pixijs-color` (`FillInput` for fill/stroke), `pixijs-scene-graphics` (gradients and patterns reused via `FillInput`).
+**Related skills:** `pixijs-scene-container` (leaves, transforms; see its `references/scene-core-concepts.md`), `pixijs-assets` (font loading), `pixijs-performance` (BitmapText tradeoffs), `pixijs-scene-graphics` (gradients and patterns reused via `FillInput`). Color inputs accepted by fill/stroke: [PixiJS color guide](https://pixijs.com/8.x/guides/components/color).
 
 ## Variants
 

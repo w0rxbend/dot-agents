@@ -263,7 +263,7 @@ function RegenerationControl({ message, onRegenerate }) {
 Regenerate with modified parameters:
 
 ```tsx
-function AdvancedRegeneration({ message, onRegenerate }) {
+function AdvancedRegeneration({ message, onRegenerate, availableModels }) {
   const [showOptions, setShowOptions] = useState(false);
   const [options, setOptions] = useState({
     temperature: 0.7,
@@ -344,9 +344,10 @@ function AdvancedRegeneration({ message, onRegenerate }) {
               value={options.model}
               onChange={(e) => setOptions({ ...options, model: e.target.value })}
             >
-              <option value="gpt-4">GPT-4</option>
-              <option value="gpt-3.5">GPT-3.5</option>
-              <option value="claude-3">Claude 3</option>
+              {/* Populate from your configured model list */}
+              {availableModels.map(m => (
+                <option key={m.id} value={m.id}>{m.label}</option>
+              ))}
             </select>
           </div>
 

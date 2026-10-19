@@ -16,18 +16,16 @@ Use this skill to validate system capacity before launch, detect performance reg
 **Common Triggers:**
 - "Validate API can handle expected traffic"
 - "Find maximum capacity and breaking points"
-- "Identify why the application is slow"
 - "Detect memory leaks or resource exhaustion"
-- "Optimize Core Web Vitals for SEO"
 - "Set up performance testing in CI/CD"
-- "Reduce cloud infrastructure costs"
+- "How many instances do we need for the expected peak?"
 
 **Use Cases:**
 - Pre-launch capacity planning and load validation
 - Post-refactor performance regression testing
 - Investigating slow response times or high latency
 - Detecting memory leaks in long-running services
-- Optimizing database query performance
+- Measuring database query latency under load (fixes: performance-optimization)
 - Validating auto-scaling configuration
 - Establishing performance SLOs and budgets
 
@@ -216,81 +214,13 @@ clinic doctor -- node app.js
 
 For detailed profiling workflows across Python, Go and Node.js, see `references/profiling-guide.md`; a runnable py-spy script is in `examples/profiling/python/pyspy_example.sh`.
 
-## Optimization Strategies
+## After Finding the Bottleneck
 
-### Caching
-
-**When to cache:**
-- Data queried frequently (>100 req/min)
-- Data freshness tolerance (>1 minute acceptable staleness)
-
-**Redis example:**
-```python
-import json
-import redis
-
-r = redis.Redis()
-
-def get_cached_data(key, fn, ttl=300):
-    cached = r.get(key)
-    if cached is not None:
-        return json.loads(cached)
-    data = fn()
-    r.setex(key, ttl, json.dumps(data))
-    return data
-```
-
-### Database Query Optimization
-
-**N+1 prevention:**
-```python
-# Bad: N+1 queries
-users = User.query.all()
-for user in users:
-    print(user.orders)  # Separate query per user
-
-# Good: Eager loading
-users = User.query.options(joinedload(User.orders)).all()
-```
-
-**Indexing:**
-```sql
-CREATE INDEX idx_users_email ON users(email);
-```
-
-### API Performance
-
-**Cursor-based pagination:**
-```typescript
-app.get('/api/products', async (req, res) => {
-  const { cursor, limit = 20 } = req.query;
-
-  const products = await db.query(
-    'SELECT * FROM products WHERE id > ? ORDER BY id LIMIT ?',
-    [cursor || 0, limit]
-  );
-
-  res.json({
-    data: products,
-    next_cursor: products[products.length - 1]?.id,
-  });
-});
-```
-
-### Frontend Performance (Core Web Vitals)
-
-**Key metrics:**
-- **LCP (Largest Contentful Paint):** < 2.5s
-- **INP (Interaction to Next Paint):** < 200ms
-- **CLS (Cumulative Layout Shift):** < 0.1
-
-**Optimization techniques:**
-- Code splitting (lazy loading)
-- Image optimization (WebP, responsive, lazy loading)
-- Preload critical resources
-- Minimize render-blocking resources
-
-For detailed optimization strategies, see `references/optimization-strategies.md` and `references/frontend-performance.md`.
+This skill measures and gates; it does not own the fixes. Once a load test or profile points
+at a specific slow query, endpoint, cache miss or page, hand off to **performance-optimization**
+(caching, N+1 queries, indexing, pagination, Core Web Vitals, bundle size), then re-run the
+same test here to confirm the gain. Background notes on common fixes are in
+`references/optimization-strategies.md` and `references/frontend-performance.md`.
 
 ## Performance SLOs
 
@@ -308,8 +238,8 @@ For detailed optimization strategies, see `references/optimization-strategies.md
 
 1. Measure baseline performance
 2. Identify user expectations
-3. Set achievable targets (10-20% better than baseline)
-4. Iterate as system matures
+3. Set targets at or slightly below the measured baseline, so the SLO is met from day one
+4. Tighten targets as reliability improves
 
 For detailed SLO framework and performance budgets, see `references/slo-framework.md`.
 

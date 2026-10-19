@@ -25,10 +25,10 @@ Use when:
 ```
 WHO CONSUMES YOUR API?
 ├─ PUBLIC/THIRD-PARTY DEVELOPERS → REST with OpenAPI
-│  ├─ Python → FastAPI (auto-docs, 40k req/s)
-│  ├─ TypeScript → Hono (edge-first, 50k req/s, 14KB)
-│  ├─ Rust → Axum (140k req/s, <1ms latency)
-│  └─ Go → Gin (100k+ req/s, mature ecosystem)
+│  ├─ Python → FastAPI (auto-docs)
+│  ├─ TypeScript → Hono (edge-first, small bundle)
+│  ├─ Rust → Axum (highest throughput)
+│  └─ Go → Gin (mature ecosystem)
 │
 ├─ FRONTEND TEAM (same org)
 │  ├─ TypeScript full-stack? → tRPC (E2E type safety)
@@ -53,7 +53,7 @@ WHO CONSUMES YOUR API?
 
 ### Python: FastAPI (Recommended)
 
-**Key Features:** Auto OpenAPI docs, Pydantic v2 validation, async/await, 40k req/s
+**Key Features:** Auto OpenAPI docs, Pydantic v2 validation, async/await
 
 **Basic Example:**
 ```python
@@ -68,14 +68,14 @@ class Item(BaseModel):
 
 @app.post("/items")
 async def create_item(item: Item):
-    return {"id": 1, **item.dict()}
+    return {"id": 1, **item.model_dump()}
 ```
 
 See `references/rest-design-principles.md` for FastAPI patterns and `examples/python-fastapi/`.
 
 ### TypeScript: Hono (Edge-First)
 
-**Key Features:** 14KB bundle, runs on any runtime (Node/Deno/Bun/edge), Zod validation, 50k req/s
+**Key Features:** 14KB bundle, runs on any runtime (Node/Deno/Bun/edge), Zod validation
 
 **Basic Example:**
 ```typescript
@@ -113,7 +113,7 @@ See `references/trpc-setup-guide.md` for setup patterns and `examples/typescript
 
 ### Rust: Axum (High Performance)
 
-**Key Features:** Tower middleware, type-safe extractors, 140k req/s, compile-time verification
+**Key Features:** Tower middleware, type-safe extractors, compile-time verification
 
 **Basic Example:**
 ```rust
@@ -135,7 +135,7 @@ See `references/rest-design-principles.md` for Axum patterns and `examples/rust-
 
 ### Go: Gin (Mature Ecosystem)
 
-**Key Features:** Largest Go ecosystem, 100k+ req/s, struct tag validation
+**Key Features:** Largest Go ecosystem, struct tag validation
 
 **Basic Example:**
 ```go
@@ -147,7 +147,7 @@ type Item struct {
 r := gin.Default()
 r.POST("/items", func(c *gin.Context) {
     var item Item
-    if c.ShouldBindJSON(&item); err != nil {
+    if err := c.ShouldBindJSON(&item); err != nil {
         c.JSON(400, gin.H{"error": err.Error()}); return
     }
     c.JSON(201, item)
@@ -158,19 +158,18 @@ See `references/rest-design-principles.md` for Gin patterns and `examples/go-gin
 
 ## Performance Benchmarks
 
-| Language | Framework | Req/s | Latency | Cold Start | Memory | Best For |
-|----------|-----------|-------|---------|------------|--------|----------|
-| Rust | Actix-web | ~150k | <1ms | N/A | 2-5MB | Maximum throughput |
-| Rust | Axum | ~140k | <1ms | N/A | 2-5MB | Ergonomics + performance |
-| Go | Gin | ~100k+ | 1-2ms | N/A | 5-10MB | Mature ecosystem |
-| TypeScript | Hono | ~50k | <5ms | <5ms | 128MB | Edge deployment |
-| Python | FastAPI | ~40k | 5-10ms | 1-2s | 30-50MB | Developer experience |
-| TypeScript | Express | ~15k | 10-20ms | 1-3s | 50-100MB | Legacy systems |
+| Language | Framework | Relative throughput | Best For |
+|----------|-----------|---------------------|----------|
+| Rust | Actix-web / Axum | Highest | Maximum throughput, low memory |
+| Go | Gin | High | Mature ecosystem |
+| TypeScript | Hono | Medium-high (runtime-dependent) | Edge deployment |
+| Python | FastAPI | Medium | Developer experience |
+| TypeScript | Express | Lower | Legacy systems |
 
 **Notes:**
-- Benchmarks assume single-core, JSON responses
-- Actual performance varies with workload complexity
-- Cold start only applies to serverless/edge deployments
+- This is a rough ordering, not measured numbers; published benchmarks (e.g. TechEmpower) vary widely by workload, runtime and configuration
+- Benchmark your own workload before choosing a framework for performance reasons
+- Database and network I/O usually dominate real request latency
 
 ## Pagination Strategies
 
@@ -181,9 +180,11 @@ See `references/rest-design-principles.md` for Gin patterns and `examples/go-gin
 **FastAPI Example:**
 ```python
 @app.get("/items")
-async def list_items(cursor: Optional[str] = None, limit: int = 20):
-    query = db.query(Item).filter(Item.id > cursor) if cursor else db.query(Item)
-    items = query.limit(limit).all()
+async def list_items(cursor: Optional[int] = None, limit: int = 20):
+    query = db.query(Item)
+    if cursor is not None:
+        query = query.filter(Item.id > cursor)
+    items = query.order_by(Item.id).limit(limit).all()  # order by the cursor key
     return {
         "items": items,
         "next_cursor": items[-1].id if items else None,
@@ -231,7 +232,7 @@ class UserCreate(BaseModel):
 
 @app.post("/api/users", status_code=201)
 async def create_user(user: UserCreate):
-    return {"id": 1, **user.dict()}
+    return {"id": 1, **user.model_dump()}
 ```
 
 **Frontend:**
@@ -254,7 +255,9 @@ See cursor pagination example above and `references/pagination-patterns.md`.
 ```python
 from sse_starlette.sse import EventSourceResponse
 
-@app.post("/api/chat")
+# EventSource can only send GET requests without a body, so take the message as a query param.
+# For POST bodies (long prompts, auth headers), stream with fetch() + ReadableStream instead.
+@app.get("/api/chat")
 async def chat(message: str):
     async def gen():
         for chunk in llm_stream(message):
@@ -264,7 +267,7 @@ async def chat(message: str):
 
 **Frontend:**
 ```typescript
-const es = new EventSource('/api/chat')
+const es = new EventSource(`/api/chat?message=${encodeURIComponent(message)}`)
 es.addEventListener('message', (e) => appendToChat(e.data))
 ```
 
@@ -293,7 +296,7 @@ See `references/rate-limiting-strategies.md` for sliding window, distributed pat
 Use when frontend needs flexible data fetching or mobile apps have bandwidth constraints.
 
 **By Language:**
-- **Python**: Strawberry 0.287 (type-hint-based, async)
+- **Python**: Strawberry (type-hint-based, async)
 - **Rust**: async-graphql (high performance, tokio)
 - **Go**: gqlgen (code generation from schema)
 - **TypeScript**: Pothos (type-safe builder, no codegen)

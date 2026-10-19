@@ -123,7 +123,7 @@ import type { Post } from '~types/post';
 
 **PRIMARY PATTERN: useSuspenseQuery**
 - Use with Suspense boundaries
-- Cache-first strategy (check grid cache before API)
+- Optional: seed a detail query from an already-loaded list query (`initialData`/`getQueryData`) when your app has one
 - Replaces `isLoading` checks
 - Type-safe with generics
 
@@ -131,7 +131,7 @@ import type { Post } from '~types/post';
 - Create `features/{feature}/api/{feature}Api.ts`
 - Use `apiClient` axios instance
 - Centralized methods per feature
-- Route format: `/form/route` (NOT `/api/form/route`)
+- Route paths follow your `apiClient` base URL and proxy setup (the resources show one project's convention as an example)
 
 **[📖 Complete Guide: resources/data-fetching.md](resources/data-fetching.md)**
 
@@ -225,7 +225,8 @@ if (isLoading) {
 **Error Handling:**
 - Use `useMuiSnackbar` for user feedback
 - NEVER `react-toastify`
-- TanStack Query `onError` callbacks
+- Query errors: error boundaries (`useSuspenseQuery` throws), or a global `QueryCache({ onError })`; TanStack Query v5 removed `onError` from queries
+- Mutation errors: `useMutation({ onError })`
 
 **[📖 Complete Guide: resources/loading-and-error-states.md](resources/loading-and-error-states.md)**
 

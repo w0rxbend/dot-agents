@@ -41,7 +41,7 @@ db.posts.createIndex({ createdAt: -1 })              // Descending
 
 ### Compound Index
 
-**Order matters!** Equality → Range → Sort
+**Order matters!** Equality → Sort → Range (MongoDB ESR rule)
 
 ```javascript
 // Query: WHERE status = 'active' AND createdAt > date ORDER BY createdAt
@@ -49,6 +49,11 @@ db.orders.createIndex({ status: 1, createdAt: -1 })
 
 // Query: WHERE userId = 123 AND status = 'active' ORDER BY createdAt
 db.orders.createIndex({ userId: 1, status: 1, createdAt: -1 })
+
+// Query: WHERE status = 'active' AND total > 100 ORDER BY createdAt
+// Equality (status), then Sort (createdAt), then Range (total): the sort is
+// served by the index instead of an in-memory SORT stage
+db.orders.createIndex({ status: 1, createdAt: -1, total: 1 })
 ```
 
 ### Text Index (Full-Text Search)
@@ -234,7 +239,7 @@ db.collection.dropIndex("index_name")
 ## Best Practices
 
 1. **Index queried fields** - Every filter/sort should have index
-2. **Compound index order** - Equality, Range, Sort
+2. **Compound index order** - Equality, Sort, Range (ESR)
 3. **Use covering indexes** - Avoid document fetches
 4. **Partial indexes** - Index only needed subset
 5. **Monitor index usage** - Drop unused indexes

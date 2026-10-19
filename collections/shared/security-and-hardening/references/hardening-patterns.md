@@ -2,11 +2,11 @@
 
 Code patterns and decision aids for the `security-and-hardening` skill. The skill states each rule; this file shows one concrete implementation of it. Open the section you need when you reach that code — it is not meant to be read top to bottom.
 
-Shared checklists (threat modeling, pre-commit checks, security headers, CORS, the package-manager matrix, install-script gate, and the OWASP quick-reference tables) live in `../../../references/security-checklist.md`.
+Threat modeling, headers/CORS rules and the supply-chain gate are stated in `../SKILL.md` (sections "Process: Threat Model First", "Headers, CORS, and responses", "Dependencies and supply chain"); the pre-deployment checklist is in `predeploy-and-supabase.md`.
 
 ## OWASP Top 10 Prevention Patterns
 
-These are prevention patterns, not a ranking. For the 2021 ordering, see the quick-reference table in `../../../references/security-checklist.md#owasp-top-10-quick-reference`.
+These are prevention patterns, not a ranking. For reference, the OWASP Top 10 (2021) order is: A01 Broken Access Control, A02 Cryptographic Failures, A03 Injection, A04 Insecure Design, A05 Security Misconfiguration, A06 Vulnerable and Outdated Components, A07 Identification and Authentication Failures, A08 Software and Data Integrity Failures, A09 Security Logging and Monitoring Failures, A10 Server-Side Request Forgery.
 
 ### Injection
 
@@ -205,7 +205,25 @@ function validateUpload(file: UploadedFile) {
 
 A delete, move, or overwrite is only as safe as the value that names its target. Reading that value from the kernel, a job payload, or a sibling service proves where it *arrived from*, not who *wrote* it — another process's command line is as attacker-controlled as a form field. A shape check ("absolute path, at least one directory deep") proves well-formedness and gets mistaken for authorization; that is how a cleanup routine deletes the root instead of the leaf.
 
-Before a destructive call, require all three: the resolved target sits under an **allowlisted root** (compare after resolving symlinks, never on the raw string); it is at least one level **below** that root, so a root is never itself the target; and it carries **evidence that it is yours**, read *before* the operation and before any teardown that removes it — otherwise "absent" and "not mine" are indistinguishable. On refusal, log the rejected target and stop: a cleanup that falls back to a broader default path is the failure this guards against. Worked example in `../../../references/security-checklist.md#destructive-path-operations`.
+Before a destructive call, require all three: the resolved target sits under an **allowlisted root** (compare after resolving symlinks, never on the raw string); it is at least one level **below** that root, so a root is never itself the target; and it carries **evidence that it is yours**, read *before* the operation and before any teardown that removes it — otherwise "absent" and "not mine" are indistinguishable. On refusal, log the rejected target and stop: a cleanup that falls back to a broader default path is the failure this guards against. Worked example:
+
+```python
+import shutil
+from pathlib import Path
+
+ALLOWED_ROOTS = [Path("/var/lib/myapp/workspaces").resolve()]
+
+def safe_remove_tree(raw: str, expected_owner_id: str) -> None:
+    target = Path(raw).resolve(strict=True)          # resolve symlinks first
+    root = next((r for r in ALLOWED_ROOTS if target.is_relative_to(r)), None)
+    if root is None or target == root:                # outside allowlist, or the root itself
+        raise PermissionError(f"refusing to delete {target}")
+    marker = target / ".owner"                        # read evidence BEFORE any teardown
+    if not marker.is_file() or marker.read_text().strip() != expected_owner_id:
+        raise PermissionError(f"{target} is not ours")
+    # expected_owner_id must come from authenticated state (DB row, signed job), not the request
+    shutil.rmtree(target)                             # on refusal above: log and stop, no fallback path
+```
 
 Two limits, because the check reads stronger than it is. A marker inside the tree is self-attestation — anything that can write there can write the marker — so the expected owner has to come from authenticated state, and the marker needs integrity protection (restrictive ownership, or a MAC) before it counts as authorization. And resolving a path and then operating on the *name* is a check/use race wherever an untrusted process can swap an ancestor: on a shared volume, hold the target by descriptor and use no-follow, beneath-the-root operations, or make sure the hierarchy cannot change for the duration.
 

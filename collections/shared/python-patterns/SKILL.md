@@ -106,58 +106,13 @@ Don't:
 
 ---
 
-## 3. Type Hints Strategy
+## 3. Type Hints and Validation
 
-### When to Type
-
-```
-Always type:
-├── Function parameters
-├── Return types
-├── Class attributes
-├── Public APIs
-
-Can skip:
-├── Local variables (let inference work)
-├── One-off scripts
-├── Tests (usually)
-```
-
-### Common Type Patterns
-
-```python
-# These are patterns, understand them:
-
-# Might be None (3.10+ syntax; use Optional[User] only on older targets)
-def find_user(id: int) -> User | None: ...
-
-# Union → one of multiple types
-def process(data: str | dict) -> None: ...
-
-# Generic collections
-def get_items() -> list[Item]: ...
-def get_mapping() -> dict[str, int]: ...
-
-# Callable
-from collections.abc import Callable
-def apply(fn: Callable[[int], str]) -> str: ...
-```
-
-### Pydantic for Validation
-
-```
-When to use Pydantic:
-├── API request/response models
-├── Configuration/settings
-├── Data validation
-├── Serialization
-
-Benefits:
-├── Runtime validation
-├── Auto-generated JSON schema
-├── Works with FastAPI natively
-└── Clear error messages
-```
+Type every public function signature and class attribute; let inference handle
+locals. For annotation patterns (unions, generics, `Protocol`, `TypeVar`,
+`ParamSpec`) use the **python-type-system** skill. For Pydantic, dataclasses or
+attrs models, including request/response and settings models, use the
+**python-data-classes** skill.
 
 ---
 
@@ -384,13 +339,9 @@ Include:
 
 ## 9. Testing Principles
 
-### Testing Strategy
-
-| Type | Purpose | Tools |
-|------|---------|-------|
-| **Unit** | Business logic | pytest |
-| **Integration** | API endpoints | pytest + httpx/TestClient |
-| **E2E** | Full workflows | pytest + DB |
+Use pytest; for fixture design (scopes, factories, `conftest.py`) see the
+**pytest-fixtures** skill, for parametrization, markers and plugins see
+**pytest-advanced** and **pytest-plugins**. The FastAPI-specific part:
 
 ### Async Testing
 
@@ -410,16 +361,6 @@ async def test_endpoint():
 For sync tests, FastAPI's `TestClient` is simpler. `ASGITransport` does not run
 lifespan events; use `asgi-lifespan`'s `LifespanManager` or `TestClient` as a
 context manager when startup/shutdown hooks matter.
-
-### Fixtures Strategy
-
-```
-Common fixtures:
-├── db_session → Database connection
-├── client → Test client
-├── authenticated_user → User with token
-└── sample_data → Test data setup
-```
 
 ---
 

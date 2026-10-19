@@ -31,9 +31,11 @@ White-box review of first-party code: run static analysis, then manually verify 
 ### 2. Automated scan
 
 ```bash
-semgrep --config auto .
+semgrep --config p/default .
 # or a focused ruleset
 semgrep --config p/owasp-top-ten .
+# `--config auto` also works but requires metrics on: it sends project
+# metadata to the Semgrep registry. Use it only if that is acceptable.
 ```
 
 ### 3. Manual verification (required)
@@ -49,7 +51,7 @@ semgrep --config p/owasp-top-ten .
 
 ```text
 Finding: location + data flow + proof of concept + remediation
-Optional: CWE and/or MITRE ATT&CK references
+Optional: CWE reference (and OWASP category where it applies)
 ```
 
 ## Tooling

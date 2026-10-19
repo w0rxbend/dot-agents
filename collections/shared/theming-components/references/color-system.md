@@ -122,7 +122,7 @@ Map primitive colors to semantic meaning:
 | Usage | Minimum Ratio | WCAG Level |
 |-------|---------------|------------|
 | Normal text | 4.5:1 | AA |
-| Large text (18px+) | 3:1 | AA |
+| Large text (≥ 24px, or ≥ 18.66px bold) | 3:1 | AA |
 | UI components | 3:1 | AA |
 | Enhanced (AAA) | 7:1 | AAA |
 

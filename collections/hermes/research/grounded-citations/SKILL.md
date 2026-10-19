@@ -9,7 +9,7 @@ metadata:
   hermes:
     tags: [Research, Citations, Grounding, Sources, Web, Reports]
     category: research
-    related_skills: [arxiv, pdf, reddit-reading, rss-feeds, youtube-content]
+    related_skills: [arxiv, pdf, youtube-content]
 ---
 
 # Grounded Citations
@@ -143,7 +143,9 @@ with every claim attributed to the platform it came from:
 
 The `reddit-reading` and `rss-feeds` skills are optional. If absent, install with
 `hermes skills install official/social-media/reddit-reading` or
-`hermes skills install official/research/rss-feeds` before using them.
+`hermes skills install official/research/rss-feeds` before using them. If they
+cannot be installed, cover those rows with `web_search` → `web_extract` (e.g.
+`site:reddit.com <topic>`, or the project's feed/changelog URL) and note the gap.
 
 Register every URL from every route in the ledger as it arrives (step ②). Keep
 opinion and measurement apart: a Reddit thread is evidence that users *report*

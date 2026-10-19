@@ -186,10 +186,9 @@ def processIndexed(seq: IndexedSeq[Int]): Int = {
 }
 
 // LinearSeq for efficient head/tail operations
-def processLinear(seq: collection.LinearSeq[Int]): Int = seq match {
-  case head :: tail => head + processLinear(tail)
-  case _ => 0
-}
+// (a `head :: tail` pattern would only match List, not other LinearSeqs)
+def processLinear(seq: collection.LinearSeq[Int]): Int =
+  if (seq.isEmpty) 0 else seq.head + processLinear(seq.tail)
 
 // Range: Lazy, memory-efficient sequences
 val range1 = 1 to 10          // 1 to 10 inclusive
@@ -265,7 +264,7 @@ println(map.getOrElse("David", 0))  // 0
 
 // Map operations
 val updated = map + ("David" -> 28)
-val removed = map - "Bob"
+val withoutBob = map - "Bob"
 val merged = map ++ Map("Eve" -> 32)
 
 // Map transformations
@@ -590,7 +589,7 @@ val eager = numbers
   .take(10)
 
 // Lazy evaluation with view (no intermediate collections)
-val lazy = numbers.view
+val lazyResult = numbers.view
   .map(_ + 1)
   .filter(_ % 2 == 0)
   .map(_ * 2)
@@ -638,7 +637,7 @@ val result = largeList.view
 val mixed = numbers.view
   .map(_ * 2)
   .filter(_ > 100)
-  .force  // Force evaluation, returns strict collection
+  .toList  // Materialize the view (.force is deprecated since 2.13)
 
 // Lazy evaluation with Options
 def expensiveComputation(x: Int): Int = {

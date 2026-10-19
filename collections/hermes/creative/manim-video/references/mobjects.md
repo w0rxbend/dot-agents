@@ -129,7 +129,7 @@ mob.set_z_index(1)                         # layering
 ```python
 nl = NumberLine(x_range=[-3, 3, 1], length=8, include_numbers=True)
 table = Table([["A", "B"], ["C", "D"]], row_labels=[Text("R1"), Text("R2")])
-code = Code("example.py", tab_width=4, font_size=20, language="python")
+code = Code(code_file="example.py", language="python", tab_width=4, paragraph_config={"font_size": 20})  # CE 0.19+: no font_size kwarg
 highlight = SurroundingRectangle(target, color=YELLOW, buff=0.2)
 bg = BackgroundRectangle(equation, fill_opacity=0.7, buff=0.2)
 ```

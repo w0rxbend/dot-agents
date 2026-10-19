@@ -250,6 +250,15 @@ def _relative_path(value):
     return not value.startswith('/') and all(part not in ('', '.', '..') for part in value.split('/'))
 
 
+def _instant(value):
+    """Parse a TIMESTAMP-shaped string; pad the fraction (Python 3.10 accepts only 3 or 6 digits)."""
+    text = value.replace('Z', '+00:00')
+    match = re.fullmatch(r'(.*T\d{2}:\d{2}:\d{2})\.(\d{1,6})(.*)', text)
+    if match:
+        text = f'{match[1]}.{match[2].ljust(6, "0")}{match[3]}'
+    return datetime.fromisoformat(text).astimezone(timezone.utc)
+
+
 def _occurred_at(value, at, errors):
     try:
         if not isinstance(value, str) or not TIMESTAMP.fullmatch(value):
@@ -259,7 +268,7 @@ def _occurred_at(value, at, errors):
         # fromisoformat accepts offset minute overflow; check the lexical bounds too.
         if value[-1] != 'Z' and (int(value[-5:-3]) > 23 or int(value[-2:]) > 59):
             raise ValueError('invalid timezone offset')
-        instant = datetime.fromisoformat(value.replace('Z', '+00:00')).astimezone(timezone.utc)
+        instant = _instant(value)
         if not datetime(2018, 1, 1, tzinfo=timezone.utc) <= instant < datetime(2025, 1, 1, tzinfo=timezone.utc):
             raise ValueError('outside inclusive UTC years 2018-2024')
         return instant
@@ -364,6 +373,85 @@ def _validate_evidence(evidence, repository, errors):
                 errors.append(f'{at}.url: duplicate source URL cannot inflate independent evidence')
             urls.add(url)
     return anchors, dates
+
+
+# Discussion kind -> (cached PR artifact group, URL fragment prefix, timestamp field).
+CACHED_DISCUSSION = {'review-comment': ('review_comments', 'discussion_r', 'created_at'),
+                     'issue-comment': ('issue_comments', 'issuecomment-', 'created_at'),
+                     'review': ('reviews', 'pullrequestreview-', 'submitted_at')}
+MAX_CORPUS_BYTES = 64 * 1024 * 1024
+ELLIPSIS = re.compile(r'\s*(?:\[\.\.\.\]|\.\.\.|\u2026)\s*')
+
+
+def _normalized(text):
+    return ' '.join(text.split())
+
+
+def _corpus_pull(corpus_dir, numbers, errors):
+    """PR number -> cached collector artifacts, for the cited numbers only."""
+    index = _json(corpus_dir / 'index.json', errors)
+    found = {}
+    if index is None:
+        return found
+    for entry in (index.get('pulls') or []) + (index.get('activity_pulls') or []):
+        if (not isinstance(entry, dict) or entry.get('number') not in numbers
+                or type(entry.get('number')) is not int or not _relative_path(entry.get('path'))):
+            continue
+        path = corpus_dir / entry['path']
+        try:
+            if _has_symlink(path) or path.stat().st_size > MAX_CORPUS_BYTES:
+                raise ValueError('symlinked or oversized cached artifact')
+            data = json.loads(path.read_text(encoding='utf-8'))
+        except (OSError, ValueError, UnicodeError) as error:
+            errors.append(f'corpus {entry["path"]}: cannot read cached PR artifact: {error}')
+            continue
+        if isinstance(data, dict):
+            found.setdefault(entry['number'], []).append(data)
+    return found
+
+
+def _corpus_evidence(evidence, anchors, dates, corpus_dir, errors):
+    """Cross-check discussion evidence against cached PR artifacts when they exist.
+
+    Evidence for a PR outside the cached sample is left to the independent reviewer.
+    """
+    cited = {}
+    for identifier, record in evidence.items():
+        anchor = anchors.get(identifier)
+        if record.get('kind') in CACHED_DISCUSSION and anchor and anchor[0] == 'pull':
+            cited.setdefault(anchor[1], []).append(identifier)
+    if not cited:
+        return
+    artifacts = _corpus_pull(Path(corpus_dir), set(cited), errors)
+    for number, identifiers in sorted(cited.items()):
+        for identifier in identifiers if number in artifacts else []:
+            record, at = evidence[identifier], f'evidence[{identifier}]'
+            group, prefix, field = CACHED_DISCUSSION[record['kind']]
+            comment = int(urlsplit(record['url']).fragment.removeprefix(prefix))
+            rows = [(artifact, row) for artifact in artifacts[number] for row in artifact.get(group) or []
+                    if isinstance(row, dict) and row.get('id') == comment]
+            if not rows:
+                errors.append(f'{at}: {record["kind"]} {comment} is not in cached PR #{number}; '
+                              'cite only retrieved records')
+                continue
+            artifact, row = rows[0]
+            eligible = ((artifact.get('historical') or {}).get('eligible_ids') or {}).get(group) or []
+            if comment not in eligible:
+                errors.append(f'{at}: cached {record["kind"]} {comment} is outside 2018-2024 or edited after cutoff')
+            body = _normalized(row.get('body') or '') if isinstance(row.get('body'), str) else ''
+            fragments = [_normalized(part) for part in ELLIPSIS.split(record.get('excerpt') or '') if part.strip()]
+            if not fragments or any(part not in body for part in fragments):
+                errors.append(f'{at}.excerpt: not a quotation of the cached {record["kind"]} body')
+            try:
+                cached = _instant(row[field]) if isinstance(row.get(field), str) else None
+            except ValueError:
+                cached = None
+            if dates.get(identifier) is not None and cached is not None and dates[identifier] != cached:
+                errors.append(f'{at}.occurred_at: cached {field} is {row[field]}')
+            login = (row.get('user') or {}).get('login') if isinstance(row.get('user'), dict) else None
+            author = record.get('author')
+            if isinstance(login, str) and isinstance(author, str) and author.lstrip('@').casefold() != login.casefold():
+                errors.append(f'{at}.author: cached author is {login}')
 
 
 def _claim_basis(claims, evidence, errors):
@@ -663,9 +751,11 @@ def _skill_artifacts(candidate_dir, repository, skills, claims, evidence, anchor
                 errors.append(f'{path}.{field}: must exactly match report records used by this skill; no omissions, additions or edits')
 
 
-def validate_candidate(candidate_dir: Path, repository: str) -> list[str]:
+def validate_candidate(candidate_dir: Path, repository: str, corpus: Path | None = None) -> list[str]:
     """Return structural errors; [] also permits a well-formed blocked outcome.
 
+    With `corpus` (state/corpus/<repo>), discussion evidence for cached PRs must match
+    the cached body, timestamp, author and historical eligibility.
     Callers must check status and obtain independent review before acceptance.
     This function never installs, executes, fetches, or writes artifacts.
     """
@@ -674,6 +764,8 @@ def validate_candidate(candidate_dir: Path, repository: str) -> list[str]:
     if report is not None:
         evidence, claims, skills = _validate_report(report, repository, errors)
         anchors, dates = _validate_evidence(evidence, repository, errors)
+        if corpus is not None:
+            _corpus_evidence(evidence, anchors, dates, corpus, errors)
         _claim_basis(claims, evidence, errors)
         _coverage(report.get('coverage'), evidence, anchors, dates, errors)
         _skill_artifacts(Path(candidate_dir), repository, skills, claims, evidence, anchors, errors)

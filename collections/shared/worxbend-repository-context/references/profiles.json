@@ -1087,7 +1087,7 @@
       ],
       "instruction_files": [],
       "skills": [
-        "codex-system--skill-creator",
+        "skill-writer",
         "codex-system--skill-installer"
       ],
       "frontend_packages": {},

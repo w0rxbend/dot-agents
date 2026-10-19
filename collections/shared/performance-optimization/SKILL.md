@@ -434,14 +434,15 @@ CSS: < 50KB gzipped
 Images: < 200KB per image (above the fold)
 Fonts: < 100KB total
 API response time: < 200ms (p95)
-Time to Interactive: < 3.5s on 4G
+Total Blocking Time: < 200ms (lab) / INP < 200ms (field)
 Lighthouse Performance score: ≥ 90
 ```
 
 **Enforce in CI:**
 ```bash
-# Bundle size check
-npx bundlesize --config bundlesize.config.json
+# Bundle size check (size-limit reads the "size-limit" key in package.json),
+# or use your bundler's own budget (webpack performance.maxAssetSize, etc.)
+npx size-limit
 
 # Lighthouse CI
 npx lhci autorun

@@ -4,8 +4,9 @@ description: >
   Quality audit of a whole repo: bugs, security holes, what breaks under real
   load, risky code without tests, slow paths, and what to delete, merge or
   split. Ranked, each finding explained in plain English. One-shot report,
-  changes nothing. Use for "audit this codebase", "review the whole repo",
-  "find bloat", "what can I delete", /ponytail-audit.
+  changes nothing. Use only when the user asks for a ponytail audit by name
+  (/ponytail-audit, "ponytail audit") or asks to find bloat or what can be
+  deleted across the repo. For a general codebase audit use code-audit.
 ---
 
 Audit the whole repo like the senior developer who just inherited it and

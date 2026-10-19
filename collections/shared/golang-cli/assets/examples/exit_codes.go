@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/you/myapp/cmd"
@@ -10,7 +11,8 @@ import (
 // Pattern for mapping errors to exit codes.
 func mainWithExitCodes() {
 	if err := cmd.Execute(); err != nil {
-		// Cobra already printed the error via RunE
+		// SilenceErrors is set on the root command, so Cobra did not print the error.
+		fmt.Fprintln(os.Stderr, "Error:", err)
 		var exitErr *ExitError
 		if errors.As(err, &exitErr) {
 			os.Exit(exitErr.Code)

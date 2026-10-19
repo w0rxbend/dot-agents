@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Compile/run the Mill fixtures and verify packaging, cache invalidation, and selection."""
 import argparse
+import hashlib
 import re
 import shutil
 import subprocess
@@ -11,6 +12,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 VERSION = '1.1.10'
 LAUNCHER = f'https://repo.maven.apache.org/maven2/com/lihaoyi/mill-dist/{VERSION}/mill-dist-{VERSION}-mill.sh'
+# Cross-checked against Maven Central's published .sha1 for the same artifact.
+LAUNCHER_SHA256 = '63538d1cb27c29dd36821d832a964580e3bf046d956f6e6b3cd55d1f0124a561'
 
 
 def run(command, cwd, expected=None):
@@ -28,7 +31,11 @@ def check(root):
         workspace = Path(temporary)
         launcher = workspace / 'mill'
         with urllib.request.urlopen(LAUNCHER, timeout=60) as response:
-            launcher.write_bytes(response.read())
+            payload = response.read()
+        digest = hashlib.sha256(payload).hexdigest()
+        if digest != LAUNCHER_SHA256:
+            raise RuntimeError(f'Mill launcher checksum mismatch: {digest} != {LAUNCHER_SHA256}')
+        launcher.write_bytes(payload)
         launcher.chmod(0o755)
         # These isolated CI examples need direct process I/O rather than daemon
         # launcher I/O forwarding. Mill's disk task cache still spans invocations.

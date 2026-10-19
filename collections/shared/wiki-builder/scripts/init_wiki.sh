@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Resolve the skill directory regardless of where the plugin is installed.
+# Resolve the skill directory regardless of where the skill is installed.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
@@ -71,27 +71,37 @@ fi
 
 DATE="$(date +%Y-%m-%d)"
 
-mkdir -p "$DEST/raw" "$DEST/wiki" "$DEST/derived" "$DEST/prompts" "$DEST/logs" "$DEST/assets"
+# Build in a temp dir next to DEST and move it into place only when complete,
+# so a failure never leaves a half-built wiki behind.
+STAGE="$(mktemp -d "$WIKI_ROOT/.${SLUG}.tmp.XXXXXX")"
+trap 'rm -rf "$STAGE"' EXIT
+
+mkdir -p "$STAGE/raw" "$STAGE/wiki" "$STAGE/derived" "$STAGE/prompts" "$STAGE/logs" "$STAGE/assets"
 
 render_template() {
   local src="$1"
   local dest="$2"
-  # Use a non-/ delimiter for ROOT since the path contains slashes.
-  sed \
-    -e "s/{{SLUG}}/$SLUG/g" \
-    -e "s/{{TITLE}}/$TITLE/g" \
-    -e "s/{{FLAVOR}}/$FLAVOR/g" \
-    -e "s/{{DATE}}/$DATE/g" \
-    -e "s|{{ROOT}}|$DEST|g" \
-    "$src" > "$dest"
+  local content
+  IFS= read -r -d '' content < "$src" || true
+  # Plain string substitution with quoted replacements: titles containing
+  # / & \ or other sed metacharacters are copied literally.
+  content="${content//"{{SLUG}}"/"$SLUG"}"
+  content="${content//"{{TITLE}}"/"$TITLE"}"
+  content="${content//"{{FLAVOR}}"/"$FLAVOR"}"
+  content="${content//"{{DATE}}"/"$DATE"}"
+  content="${content//"{{ROOT}}"/"$DEST"}"
+  printf '%s' "$content" > "$dest"
 }
 
-render_template "$SKILL_DIR/templates/wiki.config.md" "$DEST/wiki.config.md"
-render_template "$SKILL_DIR/templates/index.md" "$DEST/wiki/index.md"
-render_template "$SKILL_DIR/templates/sources.md" "$DEST/sources.md"
-render_template "$SKILL_DIR/templates/maintenance-log.md" "$DEST/logs/maintenance-log.md"
+render_template "$SKILL_DIR/templates/wiki.config.md" "$STAGE/wiki.config.md"
+render_template "$SKILL_DIR/templates/index.md" "$STAGE/wiki/index.md"
+render_template "$SKILL_DIR/templates/sources.md" "$STAGE/sources.md"
+render_template "$SKILL_DIR/templates/maintenance-log.md" "$STAGE/logs/maintenance-log.md"
 
-cp "$SKILL_DIR"/templates/prompts/*.md "$DEST/prompts/"
+cp "$SKILL_DIR"/templates/prompts/*.md "$STAGE/prompts/"
+
+mv -T "$STAGE" "$DEST" 2>/dev/null || mv "$STAGE" "$DEST"
+trap - EXIT
 
 cat <<EOF
 Created wiki:

@@ -1,6 +1,6 @@
 ---
 name: llm-wiki
-description: "Karpathy's LLM Wiki: build/query interlinked markdown KB."
+description: "Karpathy's LLM Wiki: build/query interlinked markdown KB. Use when the user explicitly asks for an LLM Wiki (Karpathy pattern) or an Obsidian-synced wiki; for a general config-driven research wiki prefer wiki-builder."
 version: 2.1.0
 author: Hermes Agent
 license: MIT
@@ -430,7 +430,10 @@ servers that write to the wiki while Obsidian desktop reads it on another device
 npm install -g obsidian-headless
 
 # Login (requires Obsidian account with Sync subscription)
-ob login --email <email> --password '<password>'
+# Do not put the password on the command line (shell history, process list).
+# Omit --password and let ob prompt for it if your version supports that; otherwise
+# read it without echo into a variable that only lives in this shell:
+read -rs OB_PASSWORD && ob login --email <email> --password "$OB_PASSWORD"; unset OB_PASSWORD
 
 # Create a remote vault for the wiki
 ob sync-create-remote --name "LLM Wiki"

@@ -332,21 +332,22 @@ infix fun String.shouldEqual(expected: String) {
 
 "hello" shouldEqual "hello"
 
-// Time duration DSL with infix
-class Duration(val milliseconds: Long) {
-    operator fun plus(other: Duration) =
-        Duration(milliseconds + other.milliseconds)
-
-    override fun toString() = "${milliseconds}ms"
+// Time durations: the stdlib already provides a unit DSL through extension
+// properties (import kotlin.time.Duration.Companion.seconds / .minutes):
+//   val timeout = 5.seconds
+//   val interval = 2.minutes + 30.seconds
+// For your own unit types, follow the same shape and never reuse stdlib names
+// such as Unit or Duration (a top-level `object Unit` breaks every `() -> Unit`).
+@JvmInline
+value class Millis(val value: Long) {
+    operator fun plus(other: Millis) = Millis(value + other.value)
+    override fun toString() = "${value}ms"
 }
 
-infix fun Int.seconds(unit: Unit) = Duration(this * 1000L)
-infix fun Int.minutes(unit: Unit) = Duration(this * 60 * 1000L)
+val Int.ms get() = Millis(toLong())
+val Int.secs get() = Millis(this * 1000L)
 
-object Unit
-
-val timeout = 5 seconds Unit
-val interval = 2 minutes Unit
+val backoff = 2.secs + 500.ms // 2500ms
 
 // Query DSL with infix
 class Condition(val field: String, val operator: String, val value: Any)
@@ -459,17 +460,17 @@ class Table(val name: String) {
 class Column(val name: String) {
     var type: String = "VARCHAR"
     var nullable: Boolean = true
-
-    fun column(name: String, init: Column.() -> Unit) {
-        // Accidentally accessible from outer scope
-    }
+    // No column() here: Column has no nested columns
 }
 
+fun table(name: String, init: Table.() -> Unit) = Table(name).apply(init)
+
 // Without @DslMarker, this compiles but is wrong
-fun problematicDSL() = Table("users") {
+fun problematicDSL() = table("users") {
     column("id") {
         type = "INT"
-        // This accidentally calls outer Table.column, not inner
+        // Column has no column(), so this silently resolves to the OUTER
+        // Table.column and adds "nested" as a sibling of "id"
         column("nested") {
             type = "TEXT"
         }
@@ -497,8 +498,10 @@ class SafeColumn(val name: String) {
     var nullable: Boolean = true
 }
 
+fun safeTable(name: String, init: SafeTable.() -> Unit) = SafeTable(name).apply(init)
+
 // Now this won't compile - @DslMarker prevents implicit outer receivers
-fun safeDSL() = SafeTable("users") {
+fun safeDSL() = safeTable("users") {
     column("id") {
         type = "INT"
         // column("nested") { } // Compilation error!
@@ -536,15 +539,18 @@ class SafeTestContext {
     fun assertEquals(expected: Any, actual: Any) {}
 }
 
+fun safeHtml(init: SafeHTML.() -> Unit) = SafeHTML().apply(init)
+fun safeTestSuite(init: SafeTestSuite.() -> Unit) = SafeTestSuite().apply(init)
+
 // Multiple DSL markers prevent mixing
 fun mixedDSLs() {
-    SafeHTML {
+    safeHtml {
         body {
             // Cannot access test DSL here
         }
     }
 
-    SafeTestSuite {
+    safeTestSuite {
         test("example") {
             // Cannot access HTML DSL here
         }
@@ -746,21 +752,36 @@ fun Route.userRoutes() {
     }
 }
 
-// Type-safe routing DSL
-inline fun <reified T : Any> Route.typedGet(
+// Typed query-parameter DSL. Ktor 3 route handlers receive RoutingContext
+// (Ktor 2 used PipelineContext<Unit, ApplicationCall>). A GET has no body, so
+// read query parameters rather than call.receive<T>(). For fully type-safe
+// routes, consider the Ktor Resources plugin.
+inline fun <T> Route.typedGet(
     path: String,
-    crossinline handler: suspend PipelineContext<Unit, ApplicationCall>.(T) -> Unit
+    crossinline parse: (Parameters) -> T,
+    crossinline handler: suspend RoutingContext.(T) -> Unit
 ) {
     get(path) {
-        val params = call.receive<T>()
-        handler(params)
+        val query = try {
+            parse(call.request.queryParameters)
+        } catch (e: IllegalArgumentException) {
+            return@get call.respond(HttpStatusCode.BadRequest, e.message ?: "invalid query")
+        }
+        handler(query)
     }
 }
 
-data class UserQuery(val name: String, val minAge: Int)
+data class UserQuery(val name: String, val minAge: Int) {
+    companion object {
+        fun from(p: Parameters) = UserQuery(
+            name = requireNotNull(p["name"]) { "name is required" },
+            minAge = p["minAge"]?.toIntOrNull() ?: 0
+        )
+    }
+}
 
 fun Route.typedRoutes() {
-    typedGet<UserQuery>("/search") { query ->
+    typedGet("/search", UserQuery::from) { query ->
         call.respondText("Searching for ${query.name}, age >= ${query.minAge}")
     }
 }

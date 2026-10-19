@@ -5,7 +5,7 @@ description: Build feature work with high overbuilding risk. Use for new behavio
 
 # Lean build
 
-Native Core and Core safety are defined in `references/native-core.md`; read it first when caveman's proxy has not injected it.
+Native Core and Core safety are defined in `references/native-core.md`; read it first unless it is already in context.
 
 Native Core's architecture-first simplicity remains mandatory. Turn feature into complete narrow outcome fitting system.
 

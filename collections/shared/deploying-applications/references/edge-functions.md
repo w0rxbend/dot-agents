@@ -259,14 +259,16 @@ TypeScript-native edge runtime with global deployment.
 ### Setup
 
 ```bash
-# Install Deno
-curl -fsSL https://deno.land/install.sh | sh
+# Install Deno (package manager)
+brew install deno            # macOS/Linux; or: winget install DenoLand.Deno
+# Or download the installer, inspect it, then run it
+curl -fsSL https://deno.land/install.sh -o deno-install.sh && less deno-install.sh && sh deno-install.sh
 
 # Deploy via GitHub integration (recommended)
 # Or use deployctl
 
 # Install deployctl
-deno install --allow-all --no-check -r -f https://deno.land/x/deploy/deployctl.ts
+deno install -gArf jsr:@deno/deployctl   # Deno 2 needs -g for global installs
 
 # Deploy
 deployctl deploy --project=my-app main.ts

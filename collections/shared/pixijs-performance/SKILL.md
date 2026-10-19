@@ -1,6 +1,6 @@
 ---
 name: pixijs-performance
-description: "Use this skill when profiling or optimizing a PixiJS v8 app for FPS, draw calls, or GPU memory. Covers destroy patterns (cacheAsTexture(false), releaseGlobalResources), GCSystem and TextureGCSystem, PrepareSystem, object pooling, batching rules, BitmapText for dynamic text, culling (Culler, CullerPlugin, cullable, cullArea), resolution/antialias tradeoffs, low-level wins (transient MSAA render textures, render bundles, partial buffer updates). Triggers on: FPS, jank, draw calls, batching, object pool, GCSystem, PrepareSystem, Culler, cacheAsTexture, memory leak, destroy patterns, render bundle, transient, MSAA, Buffer.update, WebGPU performance, TexturePool, repeatEdgePixels, bind group."
+description: "Use this skill when profiling or optimizing a PixiJS v8 app for FPS, draw calls, or GPU memory. Covers destroy patterns (cacheAsTexture(false), releaseGlobalResources), GCSystem and TextureGCSystem, PrepareSystem, object pooling, batching rules, BitmapText for dynamic text, culling (Culler, CullerPlugin, cullable, cullArea), resolution/antialias tradeoffs, low-level wins (transient MSAA render textures, render bundles, partial buffer updates). Triggers on (in PixiJS apps): low FPS, jank, draw calls, batching, object pool, GCSystem, PrepareSystem, Culler, cacheAsTexture, GPU memory leak, destroy patterns, render bundle, transient, MSAA, Buffer.update, WebGPU performance, TexturePool, repeatEdgePixels, bind group."
 license: MIT
 ---
 
@@ -25,7 +25,7 @@ offscreenContainer.cullArea = new Rectangle(0, 0, 256, 256);
 await app.init({ gcMaxUnusedTime: 60_000, gcFrequency: 30_000 });
 ```
 
-**Related skills:** `pixijs-scene-container` (destroy options), `pixijs-scene-core-concepts` (render groups, layers, culling), `pixijs-scene-text` (BitmapText for dynamic content), `pixijs-assets` (atlasing), `pixijs-custom-rendering` (custom batchers).
+**Related skills:** `pixijs-scene-container` (destroy options), `pixijs-scene-container` (`references/scene-core-concepts.md`: render groups, layers, culling), `pixijs-scene-text` (BitmapText for dynamic content), `pixijs-assets` (atlasing).
 
 ## Core Patterns
 
@@ -130,7 +130,7 @@ app.start();
 - Uses GPU memory for the cached texture (larger containers = more memory)
 - Max texture size is GPU-dependent (typically 4096x4096 or larger). No PixiJS property exposes it, so query the backend directly:
 - Must call `updateCacheTexture()` after modifying children
-- Combining with masks is fragile (see the masking skill)
+- Combining with masks is fragile (masking basics: `pixijs-scene-container`, `references/scene-core-concepts.md`)
 
 ```ts
 import type { WebGLRenderer, WebGPURenderer } from "pixi.js";
@@ -364,7 +364,7 @@ buffer.update(changedBytes, offsetBytes);
 bufferImageSource.update(100, 116);
 ```
 
-On a tile-based WebGPU GPU (`renderer.device.extensions.tileBased`: every phone GPU and Apple silicon) the multisample colour buffer of every antialiased target is already discarded instead of written back, and a pass that reopens the target restores it from the resolved image; the buffer may not be allocated at all when `renderer.device.extensions.transientAttachment` is true. `transient: true` additionally discards the multisample depth/stencil buffer, and the colour buffer on other GPUs. Only use it on textures rendered in a single pass and never re-entered with `clear: false` or wrapped by a filter or mask. For static custom draw sequences on WebGPU, record a render bundle once and replay it each frame; see the `pixijs-custom-rendering` skill.
+On a tile-based WebGPU GPU (`renderer.device.extensions.tileBased`: every phone GPU and Apple silicon) the multisample colour buffer of every antialiased target is already discarded instead of written back, and a pass that reopens the target restores it from the resolved image; the buffer may not be allocated at all when `renderer.device.extensions.transientAttachment` is true. `transient: true` additionally discards the multisample depth/stencil buffer, and the colour buffer on other GPUs. Only use it on textures rendered in a single pass and never re-entered with `clear: false` or wrapped by a filter or mask. For static custom draw sequences on WebGPU, record a render bundle once and replay it each frame (custom rendering is not covered by these skills).
 
 ### Stagger bulk texture destruction
 
@@ -460,19 +460,19 @@ Each separate texture consumes its own GPU memory slot and breaks batching when 
 
 ### [HIGH] Updating Text or HTMLText every frame
 
-Each update re-renders the full string to a canvas and uploads to the GPU. At 60fps this creates massive overhead. Use BitmapText for dynamic content (scores, timers, counters). If canvas Text is required, only update when the value actually changes. Source: src/**docs**/concepts/performance-tips.md
+Each update re-renders the full string to a canvas and uploads to the GPU. At 60fps this creates massive overhead. Use BitmapText for dynamic content (scores, timers, counters). If canvas Text is required, only update when the value actually changes.
 
 ### [HIGH] Using complex Graphics instead of textures
 
-Hundreds of complex Graphics objects are slow to render. Small Graphics (under ~100 points) batch efficiently like Sprites, but complex ones do not. Render complex static shapes to a texture with `renderer.generateTexture()` and display as a Sprite. Source: src/**docs**/concepts/performance-tips.md
+Hundreds of complex Graphics objects are slow to render. Small Graphics (under ~100 points) batch efficiently like Sprites, but complex ones do not. Render complex static shapes to a texture with `renderer.generateTexture()` and display as a Sprite.
 
 ### [MEDIUM] Not staggering bulk texture destruction
 
-Destroying dozens of textures in a single frame causes a visible freeze. Spread destruction across multiple frames (e.g., 5 per frame via a ticker callback). Source: src/**docs**/concepts/garbage-collection.md
+Destroying dozens of textures in a single frame causes a visible freeze. Spread destruction across multiple frames (e.g., 5 per frame via a ticker callback).
 
 ### [MEDIUM] Not using PrepareSystem for large scenes
 
-Without `renderer.prepare.upload()`, textures upload to the GPU on first render, causing frame hitches. For loading screens or scene transitions, upload before displaying. Requires `import 'pixi.js/prepare'` (not included even in the default bundle; always import it explicitly). Source: src/prepare/PrepareSystem.ts
+Without `renderer.prepare.upload()`, textures upload to the GPU on first render, causing frame hitches. For loading screens or scene transitions, upload before displaying. Requires `import 'pixi.js/prepare'` (not included even in the default bundle; always import it explicitly).
 
 ### [MEDIUM] Using high resolution or antialias without profiling
 

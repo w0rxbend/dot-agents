@@ -172,5 +172,12 @@
     "sha": "19db5f1b0ca65e277c158bd4c4263139ccfd859c",
     "html_url": "https://github.com/ayghri/i-have-adhd/blob/main/LICENSE",
     "file": "licenses/upstream/ayghri--i-have-adhd.txt"
+  },
+  "0xsarwagya/ontoly": {
+    "spdx": "AGPL-3.0",
+    "path": "LICENSE",
+    "sha": "be3f7b28e564e7dd05eaf59d64adba1a4065ac0e",
+    "html_url": "https://github.com/0xsarwagya/ontoly/blob/main/LICENSE",
+    "file": "licenses/upstream/0xsarwagya--ontoly.txt"
   }
 }

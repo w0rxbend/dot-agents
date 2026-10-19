@@ -803,13 +803,13 @@ go 1.21
 
 **Clean build artifacts:**
 ```yaml
-buildCommand: npm ci && npm run build && npm prune --production
+buildCommand: npm ci && npm run build && npm prune --omit=dev
 ```
 
-**Remove unnecessary files:**
-```bash
-# In build command
-rm -rf .git tests/ docs/
+**Remove unnecessary files** (part of the Render `buildCommand`, which runs in Render's build
+environment; never run this in a local checkout, where it deletes the repo history and sources):
+```yaml
+buildCommand: npm ci && npm run build && npm prune --omit=dev && rm -rf tests/ docs/
 ```
 
 ---

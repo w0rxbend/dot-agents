@@ -6,11 +6,12 @@ license: MIT
 
 # Scala OSS library review router
 
-Entry point for the history-derived Scala skills in this catalog. Each routed skill
-was authored from pinned 2018-01-01..2024-12-31 source and maintainer PR review
-history, then independently audited and evaluated before promotion. This router
-adds no historical claims of its own; evidence lives in each skill's
-`references/evidence.json`.
+Entry point for the history-derived Scala skills in this catalog. Their 28 findings
+were authored from pinned 2018-01-01..2024-12-31 source and maintainer PR review
+history, independently audited and evaluated, then merged into six thematic skills.
+Each merged skill states the shared invariants and keeps every finding as a case
+file in `references/` with its evidence in `references/evidence/<original-id>.json`.
+This router adds no historical claims of its own.
 
 ## When to Use
 
@@ -38,7 +39,8 @@ adds no historical claims of its own; evidence lives in each skill's
 ## Workflow
 
 1. Find the subsystem the change touches in [the routing index](references/skill-index.md)
-   and load every skill whose trigger matches. One PR often needs two.
+   and load every skill whose trigger matches. One PR often needs two. Inside a
+   skill, its routing table names the case file for the library under change.
 2. Walk the recurring themes below as a checklist for anything the focused
    skills do not cover.
 3. Report findings using the loaded skill's output contract. Record false
@@ -51,38 +53,29 @@ not universal rules; confirm the library actually makes each promise.
 
 - Cancellation is not failure. Keep interruption, error and success observable as
   different outcomes through races, memoization, cancel tokens and pooled
-  handoffs (`scala-cats-effect-outcome-sensitive-concurrency`,
-  `scala-zio-canceler-evaluation-owner`, `scala-zio-http-channel-handoff-completion`).
+  handoffs (`scala-effect-cancellation-finalization`, `scala-http-server-semantics`).
 - Resource lifetimes follow use, not syntax. Check acquire < use < release per
   element, one acquired state per acquisition, and cleanup reachable on partial
-  startup (`scala-fs2-per-element-scope-propagation`,
-  `scala-http4s-stateful-factory-acquisition`,
-  `scala-play-partial-startup-shutdown-completion`).
+  startup (`scala-stream-resource-scoping`, `scala-effect-cancellation-finalization`).
 - Error provenance survives cleanup. A secondary finalizer or diagnostic error
   must not replace or silently drop the primary result
-  (`scala-cats-effect-cleanup-error-provenance`,
-  `scala-zio-http-request-local-error-disclosure`).
+  (`scala-effect-cancellation-finalization`, `scala-http-server-semantics`).
 - Diagnostics must not change semantics. Labels, verbose modes and debug readers
   keep acceptance, consumed input and subject progress unchanged
-  (`scala-fastparse-diagnostic-mode-review`, `scala-zio-diagnostic-reader-progress`).
+  (`scala-runtime-diagnostics-hot-paths`).
 - Optimizations need evidence for the path they change. Benchmarks must exercise
   the new path, and fast paths must keep branch isolation and allocation promises
-  (`scala-cats-effect-runtime-benchmark-review`, `scala-fastparse-hot-path-cost-review`,
-  `scala-cats-traversal-branch-isolation`).
+  (`scala-runtime-diagnostics-hot-paths`, `scala-library-compatibility-laws`).
 - Compatibility means old binaries still behave correctly, not just link. Check
   erased signatures, inherited trait fields, law-backed instance strength and
-  documented emission counts (`scala-cats-erased-runtime-compatibility`,
-  `scala-cats-law-backed-instance-surface`, `scala-fs2-sink-emission-cardinality`).
+  documented emission counts (`scala-library-compatibility-laws`,
+  `scala-stream-resource-scoping`).
 - Wire and policy behavior is a matrix, not a happy path. Enumerate missing,
-  wildcard, encoded and bodyless cases (`scala-http4s-uri-segment-representation`,
-  `scala-http4s-http1-bodyless-connection-framing`, `scala-play-cors-csrf-policy-matrix`,
-  `scala-zio-http-middleware-execution-boundaries`, `scala-cask-route-trie-validation-order`).
+  wildcard, encoded and bodyless cases (`scala-http-server-semantics`).
 - Macro and compiler-plugin refactors preserve what was captured and when it ran
-  (`scala-sourcecode-args-capture-review`, `scala-acyclic-whole-run-compiler-adapters`,
-  `scala-ammonite-symbol-derived-closure-capture`,
-  `scala-fastparse-shared-run-combinator-extraction`).
+  (`scala-compiler-macro-refactoring`).
 - A reviewer's proposal is not project policy until the final patch adopted it.
-  Every routed skill separates observed code, reviewer prescription and inference.
+  Every merged skill separates observed code, reviewer prescription and inference.
 
 ## Validation
 
@@ -96,15 +89,15 @@ not universal rules; confirm the library actually makes each promise.
 ### Good
 
 A PR replaces `race` with a hand-rolled fiber join in a Cats Effect 3 library.
-Load `scala-cats-effect-outcome-sensitive-concurrency`, apply its canceled-winner
-and waiter-cleanup checks, and use the error-provenance theme for the new
-finalizer.
+Load `scala-effect-cancellation-finalization`, read its Cats Effect outcome case
+file, apply the canceled-winner and waiter-cleanup checks, and use the
+error-provenance case for the new finalizer.
 
 ### Broken and Correction
 
 Broken: applying an FS2 per-element scope rule to a single fixed outer resource
-and demanding per-element lifetimes. Correction: the routed skill lists this as a
-false positive; one lifetime extension is correct there.
+and demanding per-element lifetimes. Correction: `scala-stream-resource-scoping`
+lists this as a false positive; one lifetime extension is correct there.
 
 ### Negative
 
@@ -113,7 +106,7 @@ route here; use the general Scala skills.
 
 ## Output Contract
 
-List the skills loaded and why, then findings grouped by skill, each with
+List the skills and case files loaded and why, then findings grouped by skill, each with
 location, violated invariant, evidence or reasoning, and any false-positive
 consideration. State which version fence was assumed.
 
@@ -128,4 +121,4 @@ consideration. State which version fence was assumed.
 ## Sources
 
 - [Routing index](references/skill-index.md), regenerated from the promotion ledger.
-- Each routed skill's `references/evidence.json` (pinned SHAs and comment permalinks).
+- Each merged skill's `references/evidence/*.json` (pinned SHAs and comment permalinks).

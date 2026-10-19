@@ -155,7 +155,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install dependencies
         run: npm ci
@@ -219,7 +219,7 @@ Cache is automatically used for matching builds.
 ### Turborepo + Docker
 
 ```dockerfile
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 
 FROM base AS builder
 WORKDIR /app
@@ -297,7 +297,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: 'npm'
 
       - run: npm ci

@@ -7,7 +7,7 @@
       "collection": "shared",
       "source": "pproenca/dot-skills",
       "license": "MIT",
-      "sha256": "cb8e2c97af2e7faba49c5fa2b6b5dd6f05011d2bc58b67990f1b3d8c92100ffb",
+      "sha256": "dea36e943c409c464442623958b2e52cfd1fce19f2a22d51fc69092431791b3f",
       "local_globs": [
         "~/.agents/skills/12-factor-app"
       ],
@@ -35,7 +35,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "f008281f2664f425d4ccef7ab1ec0380d86fae1c0cd0431f49a2d58352821767",
+      "sha256": "7e72816f16426014d558bbf0f3efdd3b4f520c380c0b99aa1f541a9f4c2b9538",
       "local_globs": [
         "~/.agents/skills/agent-observability"
       ],
@@ -63,7 +63,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "2b9c99d5343b2babe7973d62560164092a7ae8046be7276631bef0b9961663fa",
+      "sha256": "9067c4425ddff75e7b6560b71d2cc28152f441f4323ad1d902cfde17055c1458",
       "local_globs": [
         "~/.agents/skills/agent-self-scheduling"
       ],
@@ -92,7 +92,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "dce415e247e57064920d89735590b8529a83871bfca57918d0b0c823a69d064d",
+      "sha256": "b3f319152f0ee1fe164dfee9752880e4a35fd26f0554dda374e536f84eed3e71",
       "local_globs": [
         "~/.agents/skills/ameba-configuration"
       ],
@@ -106,7 +106,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "ce2349dce65979cac78240cf4dfc39397aedd3d9511cd22cef617b854f1dec6d",
+      "sha256": "7a9892de8ea44bf0669eed2b89d232d56f31c25f79cc5728bfca069dd9f3e526",
       "local_globs": [
         "~/.agents/skills/ameba-custom-rules"
       ],
@@ -120,7 +120,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "5c461a6996723d57fcd2ef8540c4a85efdbdd77f55e2b89f51c383bcecbc7b7d",
+      "sha256": "7e41cbeeb3145d012f0a612e42717a60b6a632c167fc98981ac3f4075aa4d5d5",
       "local_globs": [
         "~/.agents/skills/ameba-integration"
       ],
@@ -134,7 +134,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "801f221933ad8df5ebf4f8e0d8202e97adcd1b0f283bbd61ab3ad0e89cd68180",
+      "sha256": "d39581cb7662ccd31c8f3cb43c5b33068e351f9bd62087dc8ca96223b33620b7",
       "local_globs": [
         "~/.agents/skills/analytics"
       ],
@@ -190,7 +190,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "7b07a765c0a50489026be02e3fcd7d7ce688b503182d9d54f57826256d41f147",
+      "sha256": "056dc7ff4cdfae9b569c360336869fcc650efdf19211b53403073669c0ce6143",
       "local_globs": [
         "~/.agents/skills/api-and-interface-design"
       ],
@@ -300,15 +300,15 @@
       "id": "architecture-review",
       "name": "architecture-review",
       "collection": "shared",
-      "source": "sickn33/antigravity-awesome-skills",
-      "license": "MIT",
+      "source": "0xsarwagya/ontoly",
+      "license": "AGPL-3.0-only",
       "sha256": "00a2c504d36135c8e7769aea88dac161862a46fd27cf6b5c7f08ef0e76169b2c",
       "local_globs": [
         "~/.agents/skills/architecture-review"
       ],
       "path": "collections/shared/architecture-review",
       "distribution": "vendored",
-      "license_file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
+      "license_file": "licenses/upstream/0xsarwagya--ontoly.txt"
     },
     {
       "id": "astro",
@@ -316,7 +316,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "be4397e84cd9bc2ac2220d276926b27aac3db9243f26a17ba7343d5cde8ebe0b",
+      "sha256": "da0bab182825ecbf65933dfca0bc90c7c2d2099df34128eeda747bcbe1b62a82",
       "local_globs": [
         "~/.agents/skills/astro"
       ],
@@ -330,7 +330,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "9e978f051871bb0ed62f43791f4c3bb69002158bf8bc072695315abb88b8174f",
+      "sha256": "28e939fa8bfeed6c94d222a659cdb5dca4b7fe8994155fd6ce86a987cb783791",
       "local_globs": [
         "~/.agents/skills/audit-logging"
       ],
@@ -344,7 +344,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "7752a795a01d5a10804984dc5e753526ba9d3ec2e073d3bb5f61e7814103e8ed",
+      "sha256": "8ab43c809f9a0c7e2e4ff2646df32860e37980b718d40572b64dee79b3def14d",
       "local_globs": [
         "~/.agents/skills/audit-skills"
       ],
@@ -358,7 +358,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "e350d79f6802f8fb498f8a735933daf2bda99cd30d3f3396b13635acacf5fc87",
+      "sha256": "38ee94dc8c36e94ef5b8b33c42ee081f24087cf5e46e13a8cef0c397d0f441b3",
       "local_globs": [
         "~/.agents/skills/aws-ec2"
       ],
@@ -372,7 +372,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "041c06c6c66733539896f1ee8b1f2f0a33ed46370509d4408b3227309a88a0de",
+      "sha256": "764d512d8f005a778e7f11bae980a645e11d97a315011c488b7435df018fe416",
       "local_globs": [
         "~/.agents/skills/aws-iam"
       ],
@@ -386,7 +386,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "26aaeae89151284a232fa10f269165e2e9321c501932027eafbf5c8ee063b39f",
+      "sha256": "bf6c3dd05888147a305cdb448f5f84984e8fa03da2dbb746bcb67d8b37334da3",
       "local_globs": [
         "~/.agents/skills/aws-rds"
       ],
@@ -400,7 +400,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "e410c285837537e3c21995bae819162992ca2d8bdb5c48c798692c6729dc5d1c",
+      "sha256": "fdb450d4fc9775e5edd1b9348c3b41b03e01fce44cd29fcab61635ffff516e04",
       "local_globs": [
         "~/.agents/skills/aws-s3"
       ],
@@ -414,7 +414,7 @@
       "collection": "shared",
       "source": "davila7/claude-code-templates",
       "license": "MIT",
-      "sha256": "9ef6c7f9566af4013886f748dc23272c24bfd49dedf460937374e992a4ab85e8",
+      "sha256": "78a737bd89ee147560b1b948e479b7f1d7a13ff00c4d43e295ec1e00f187b417",
       "local_globs": [
         "~/.agents/skills/backend-dev-guidelines"
       ],
@@ -428,7 +428,7 @@
       "collection": "shared",
       "source": "davila7/claude-code-templates",
       "license": "MIT",
-      "sha256": "242d23b323f10e759a5d16a39e86a550a27e48c251d94f37085f0d965516b542",
+      "sha256": "51256ae5ef64c208cf6ef812bf2161bd96a786991796a5b9f644af9b2959fd05",
       "local_globs": [
         "~/.agents/skills/backend-patterns"
       ],
@@ -442,7 +442,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "bb78a46591c9f42d8a01d01c8e9520e975a6ab32dd5d33229d04242d1d926651",
+      "sha256": "9c04e21ecc0d6aae613414ba8a9cd42721799e879fcee2d994a4401873d24f00",
       "local_globs": [
         "~/.agents/skills/bash-linux"
       ],
@@ -456,7 +456,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "c70083231c7ab91661af936002d8d694a31a9e57ea1d6eb2b7a9f4a0e61b2136",
+      "sha256": "6ce6bca53c37ed1aec2d15b336082bb40b1e990af34288860bfb98b98a2e82b0",
       "local_globs": [
         "~/.agents/skills/bash-pro"
       ],
@@ -484,7 +484,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "82058a926eb26de55d618b7a5b936109b191aabf7183866651fba1368fd0c4ce",
+      "sha256": "9f0143d3a2a1028fed3e44b155f525b2675986347c66a3c2adf94e75b224494c",
       "local_globs": [
         "~/.agents/skills/browser-testing-with-devtools"
       ],
@@ -498,7 +498,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "8950bbdf71780734c4e13dd98a5b2a66ba69e5ffcb99d310a317a22e7f24ba5c",
+      "sha256": "8b6d6c13d9f4d811c3d1c574704b9e8ba0306b4d3e9ae7162ea07b2fbe13607c",
       "local_globs": [
         "~/.agents/skills/building-ai-chat"
       ],
@@ -512,7 +512,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "3d9bd2de1b7995c35d18724348e879b06d34ee41b2ed61656236cbd2db398b02",
+      "sha256": "46b6dffb326f1a2b0c6a27874988ecc3149a6073575c8bd389cbad7284c1ca5a",
       "local_globs": [
         "~/.agents/skills/building-ci-pipelines"
       ],
@@ -526,7 +526,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "002d0bfdf0c38d863d917408ddc1cf9c13d93aebc71321a828bdf8f437dfca1f",
+      "sha256": "3322ee37d46669dc2a17de0eee13ea8202cd4d9563571bf6035b22e1e1b60504",
       "local_globs": [
         "~/.agents/skills/building-clis"
       ],
@@ -540,7 +540,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "bb1150fdb38e56409a02f21f0bc8f24e1af6194c6c69c98ddecac5006fdf4482",
+      "sha256": "0cb2a36a2a03ce8600f0c3a9ec4d73e89288d08fa32d4afe46d9e9d502482198",
       "local_globs": [
         "~/.agents/skills/building-forms"
       ],
@@ -554,7 +554,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "881a4aa0902daa60695bd1826f8ada6302b238d38296f4ee6a5710937e81d4a2",
+      "sha256": "a550c018cec678e14598349899e214bc4e4b22c3ee8949302bf7322db8ef84ae",
       "local_globs": [
         "~/.agents/skills/building-tables"
       ],
@@ -568,7 +568,7 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "013f3c4689c66c56158891b29a8fe0bfe7e62f54ac792a92776a0a167b076f4e",
+      "sha256": "5022d39550421cddc788058b30455d3bcbd03b795f33b0d60c88972e931b5cbc",
       "local_globs": [
         "~/.agents/skills/cavecrew"
       ],
@@ -583,7 +583,7 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "8dd75b3ad1dccebfc375f3ec73e714b02ef5666791416f228d8ebc53c8540597",
+      "sha256": "ce7fab1075b2196309f1f0ed0cbcb1c7e8d9962f44cf09dc5a76140ce0c5947e",
       "local_globs": [
         "~/.agents/skills/caveman"
       ],
@@ -598,7 +598,7 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "0157f6cd11ea35db6ab69a61442c502053626da6f6f44b0d100288ec50f63d6d",
+      "sha256": "b0213136a81cff51d6e1632d713958b5f775bf1e79ae2fd77fc5c7680b058b13",
       "local_globs": [
         "~/.agents/skills/caveman-commit"
       ],
@@ -626,7 +626,7 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "bdcac9c059dee9d8d50a3007677bf6a3d65bba87152aab9e91479bd08d52e073",
+      "sha256": "2a72aef00222d3fc933776e7fa90e1ed88605e170b40d5e437061b82960fd915",
       "local_globs": [
         "~/.agents/skills/caveman-discover"
       ],
@@ -640,25 +640,11 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "93fff5b96f192f9b20adf2dac3725deb454e46d308680ebc5d703de7db3f9f66",
+      "sha256": "47b27316adf8bcc4087993bb4913fdbcd3fad9f29bfcf56831d0005785fe4453",
       "local_globs": [
         "~/.agents/skills/caveman-evidence-review"
       ],
       "path": "collections/shared/caveman-evidence-review",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/JuliusBrussee--caveman.txt"
-    },
-    {
-      "id": "caveman-explore",
-      "name": "caveman-explore",
-      "collection": "shared",
-      "source": "JuliusBrussee/caveman",
-      "license": "Apache-2.0",
-      "sha256": "f05dab380bf0bad7b309f10a147194e3e25d33d4f354755b37a76947ede30437",
-      "local_globs": [
-        "~/.agents/skills/caveman-explore"
-      ],
-      "path": "collections/shared/caveman-explore",
       "distribution": "vendored",
       "license_file": "licenses/upstream/JuliusBrussee--caveman.txt"
     },
@@ -668,7 +654,7 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "a13aa12e6098d63163cad5a1d511d44c65d95635a86b6cdd12ec3dd73c3af9ca",
+      "sha256": "91d6d20c5c7f819afd943079f9eff2b44802a7edfc6651c49da8cfa15a836733",
       "local_globs": [
         "~/.agents/skills/caveman-help"
       ],
@@ -682,7 +668,7 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "7e2a427f497af975bf6b6182e40d7f5fab98811531b69e892c82ef2e92773476",
+      "sha256": "0b8cdf1f92ca20b6523172441f86cc8bd10f143630c8548d371a0ef0005b5256",
       "local_globs": [
         "~/.agents/skills/caveman-learn"
       ],
@@ -696,7 +682,7 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "70ffe22965732db43b339adc9c9226b979481fe29a2e0ae3434edc9c48be82f2",
+      "sha256": "ca8934328638c5a7c6608d9506f3a875d1a276dd97a1f45a9582d6d927fbcea8",
       "local_globs": [
         "~/.agents/skills/caveman-manage"
       ],
@@ -710,7 +696,7 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "d5b10341c8a5f9a0820978fb29d0facc41b8b6528f6d38151edc83293409535f",
+      "sha256": "5768cb1efe389c21ef3e9d6d7618f2d48d7d08952dcc418eabb8b32a5430eb81",
       "local_globs": [
         "~/.agents/skills/caveman-optimize"
       ],
@@ -724,7 +710,7 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "e1fac673b27a5de6db1590f66ee17be0486c00814b9adf2c2a8dc6b90f97429a",
+      "sha256": "0f0ebb45c29e1302025da65a7e90d1cb63e5673a5c4eb1a94adf2c05a0b18568",
       "local_globs": [
         "~/.agents/skills/caveman-review"
       ],
@@ -738,7 +724,7 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "1670043877fff60d9af4eb5db7cbeb2c95140588dda22c03e8a40841dddfc009",
+      "sha256": "eff657cd2d69f0eaa7335051fc63e31977227aa18b369ffa1f8f03d9879b3750",
       "local_globs": [
         "~/.agents/skills/caveman-setup"
       ],
@@ -752,7 +738,7 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "1ce3a23d90a52f55a475af1d45443fd6e469906758ad5b3d5ec70db7497ce8af",
+      "sha256": "54e5b31544459dc0e5dedbb0bf07ab0a8797fe02d1fbc5ea8af74ab8b8e3dfc3",
       "local_globs": [
         "~/.agents/skills/caveman-stats"
       ],
@@ -766,7 +752,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "f339f6e8722c6fb64ddd41563e2004da11be0b6812d6a7247d1c8b4e1a8ac0b7",
+      "sha256": "c0c913a65988645757fb0b9983121f875effbde891ce89794eb91daf68039db8",
       "local_globs": [
         "~/.agents/skills/ci-cd-and-automation"
       ],
@@ -780,7 +766,7 @@
       "collection": "claude-design",
       "source": "anthropics/knowledge-work-plugins",
       "license": "Apache-2.0",
-      "sha256": "9a05421d7e605129f75e16bae4cee8b23bec9d441b06fdeaa54cdd6cc42f59c7",
+      "sha256": "fcd397ab72229d346b682e245515dda089b4b463f145516162fa7bfcf71005e6",
       "local_globs": [
         "~/.claude/plugins/synced/*/design/skills/accessibility-review"
       ],
@@ -794,7 +780,7 @@
       "collection": "claude-design",
       "source": "anthropics/knowledge-work-plugins",
       "license": "Apache-2.0",
-      "sha256": "627193a77399d2dc32e3b9c495edd1a2c7609b1bf16ea24fdcae7463f8aab6ed",
+      "sha256": "cf91e9130eb25c86d993541c5da29c2daf8bdee49c8592ead8eb7e601598e423",
       "local_globs": [
         "~/.claude/plugins/synced/*/design/skills/design-critique"
       ],
@@ -808,7 +794,7 @@
       "collection": "claude-design",
       "source": "anthropics/knowledge-work-plugins",
       "license": "Apache-2.0",
-      "sha256": "fa754e90dc953f6f35eda846899aaea8da05cd845a9bfd5102e2d7c4a9376645",
+      "sha256": "7e117d504707d89d4ea8c0ab6fd129f765b44f9744afe91a795a08872ddc83b8",
       "local_globs": [
         "~/.claude/plugins/synced/*/design/skills/design-handoff"
       ],
@@ -822,7 +808,7 @@
       "collection": "claude-design",
       "source": "anthropics/knowledge-work-plugins",
       "license": "Apache-2.0",
-      "sha256": "c3ecb119e01e4943e767e43b39cfe30ab7f7256b4b7730ab35a3890b93005579",
+      "sha256": "4c0e93fd0bf71fc48e4f8b25e6c7c6f6ed944525694ebecdc0bab7a1f72d8fdf",
       "local_globs": [
         "~/.claude/plugins/synced/*/design/skills/design-system"
       ],
@@ -836,7 +822,7 @@
       "collection": "claude-design",
       "source": "anthropics/knowledge-work-plugins",
       "license": "Apache-2.0",
-      "sha256": "c8f9e0c34041041f044d903ec6a5f98a650f7a37ac2ea3786aa4415824c43c52",
+      "sha256": "c7cb5cc6c118d73b9777df8f365387527729c804991b6498382892ddec3ac959",
       "local_globs": [
         "~/.claude/plugins/synced/*/design/skills/research-synthesis"
       ],
@@ -864,95 +850,11 @@
       "collection": "claude-design",
       "source": "anthropics/knowledge-work-plugins",
       "license": "Apache-2.0",
-      "sha256": "82e37a1afd4269f4a789a3830acb10bb0303c251a14320ed1a27c3df6a6b855c",
+      "sha256": "5dcd75a6d986e856ee13f06283ff7a3199ec56b13168c9189cf916bdd31ef5ea",
       "local_globs": [
         "~/.claude/plugins/synced/*/design/skills/ux-copy"
       ],
       "path": "collections/claude-plugins/design/ux-copy",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/anthropics--knowledge-work-plugins.txt"
-    },
-    {
-      "id": "claude-engineering--architecture",
-      "name": "architecture",
-      "collection": "claude-engineering",
-      "source": "anthropics/knowledge-work-plugins",
-      "license": "Apache-2.0",
-      "sha256": "93e16db4e16af8ebb5d50d75d727290e31f08374fc974fd43de195572eba4fe6",
-      "local_globs": [
-        "~/.claude/plugins/synced/*/engineering/skills/architecture"
-      ],
-      "path": "collections/claude-plugins/engineering/architecture",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/anthropics--knowledge-work-plugins.txt"
-    },
-    {
-      "id": "claude-engineering--code-review",
-      "name": "code-review",
-      "collection": "claude-engineering",
-      "source": "anthropics/knowledge-work-plugins",
-      "license": "Apache-2.0",
-      "sha256": "a98666cf9fa03299175458eed8c0fead2bd24ca2d1369bf5350ce14f0018b133",
-      "local_globs": [
-        "~/.claude/plugins/synced/*/engineering/skills/code-review"
-      ],
-      "path": "collections/claude-plugins/engineering/code-review",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/anthropics--knowledge-work-plugins.txt"
-    },
-    {
-      "id": "claude-engineering--debug",
-      "name": "debug",
-      "collection": "claude-engineering",
-      "source": "anthropics/knowledge-work-plugins",
-      "license": "Apache-2.0",
-      "sha256": "ccb8301d7c223f34abeae8eda77a433a361c0e64c1f482f44ba7127124ca0b73",
-      "local_globs": [
-        "~/.claude/plugins/synced/*/engineering/skills/debug"
-      ],
-      "path": "collections/claude-plugins/engineering/debug",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/anthropics--knowledge-work-plugins.txt"
-    },
-    {
-      "id": "claude-engineering--deploy-checklist",
-      "name": "deploy-checklist",
-      "collection": "claude-engineering",
-      "source": "anthropics/knowledge-work-plugins",
-      "license": "Apache-2.0",
-      "sha256": "239ff025d46317d23c38a929f30c3f3dab9afb29022aecfbec3ce15d821e9515",
-      "local_globs": [
-        "~/.claude/plugins/synced/*/engineering/skills/deploy-checklist"
-      ],
-      "path": "collections/claude-plugins/engineering/deploy-checklist",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/anthropics--knowledge-work-plugins.txt"
-    },
-    {
-      "id": "claude-engineering--documentation",
-      "name": "documentation",
-      "collection": "claude-engineering",
-      "source": "anthropics/knowledge-work-plugins",
-      "license": "Apache-2.0",
-      "sha256": "5c9a147a15ce7ec119c6ae8addd192e7da3781398eb030c095d92016b1d8215b",
-      "local_globs": [
-        "~/.claude/plugins/synced/*/engineering/skills/documentation"
-      ],
-      "path": "collections/claude-plugins/engineering/documentation",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/anthropics--knowledge-work-plugins.txt"
-    },
-    {
-      "id": "claude-engineering--incident-response",
-      "name": "incident-response",
-      "collection": "claude-engineering",
-      "source": "anthropics/knowledge-work-plugins",
-      "license": "Apache-2.0",
-      "sha256": "96fb38ab29648fa8c5e1e201a3769866ecdf6dbb11620c9596bcb0b4438f9273",
-      "local_globs": [
-        "~/.claude/plugins/synced/*/engineering/skills/incident-response"
-      ],
-      "path": "collections/claude-plugins/engineering/incident-response",
       "distribution": "vendored",
       "license_file": "licenses/upstream/anthropics--knowledge-work-plugins.txt"
     },
@@ -962,53 +864,11 @@
       "collection": "claude-engineering",
       "source": "anthropics/knowledge-work-plugins",
       "license": "Apache-2.0",
-      "sha256": "c9616fd8701ba4c014255efecfd94410ec9bbb0c0d31b1c0ec6bc3380a548dfa",
+      "sha256": "eaf0120dffdb249eccc5ccf1c4614c10a677d68f1b9caffa08ffa34e4a79aad4",
       "local_globs": [
         "~/.claude/plugins/synced/*/engineering/skills/standup"
       ],
       "path": "collections/claude-plugins/engineering/standup",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/anthropics--knowledge-work-plugins.txt"
-    },
-    {
-      "id": "claude-engineering--system-design",
-      "name": "system-design",
-      "collection": "claude-engineering",
-      "source": "anthropics/knowledge-work-plugins",
-      "license": "Apache-2.0",
-      "sha256": "e9a9656b2ab9412c9b123c843ade8be566caf779272d98ccee90f0b956199717",
-      "local_globs": [
-        "~/.claude/plugins/synced/*/engineering/skills/system-design"
-      ],
-      "path": "collections/claude-plugins/engineering/system-design",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/anthropics--knowledge-work-plugins.txt"
-    },
-    {
-      "id": "claude-engineering--tech-debt",
-      "name": "tech-debt",
-      "collection": "claude-engineering",
-      "source": "anthropics/knowledge-work-plugins",
-      "license": "Apache-2.0",
-      "sha256": "dc045cd33d0e800a338ce36efe1ccc5b57403f553520de683e009ea8f976b379",
-      "local_globs": [
-        "~/.claude/plugins/synced/*/engineering/skills/tech-debt"
-      ],
-      "path": "collections/claude-plugins/engineering/tech-debt",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/anthropics--knowledge-work-plugins.txt"
-    },
-    {
-      "id": "claude-engineering--testing-strategy",
-      "name": "testing-strategy",
-      "collection": "claude-engineering",
-      "source": "anthropics/knowledge-work-plugins",
-      "license": "Apache-2.0",
-      "sha256": "ed439f2bf3f9ed5bb69a76e7a992b68453e93782af4a929dce984731aaaa1610",
-      "local_globs": [
-        "~/.claude/plugins/synced/*/engineering/skills/testing-strategy"
-      ],
-      "path": "collections/claude-plugins/engineering/testing-strategy",
       "distribution": "vendored",
       "license_file": "licenses/upstream/anthropics--knowledge-work-plugins.txt"
     },
@@ -1220,7 +1080,7 @@
       "collection": "claude-productivity",
       "source": "anthropics/knowledge-work-plugins",
       "license": "Apache-2.0",
-      "sha256": "7510536073f403857f550315fc29cb93cd1986f9b47f44037e0bd6852fddcadc",
+      "sha256": "bef90abdb99a66c8ad0adce6fcd7122d53b4669535dd804ddcb6f4772e3eaa2e",
       "local_globs": [
         "~/.claude/plugins/synced/*/productivity/skills/memory-management"
       ],
@@ -1234,7 +1094,7 @@
       "collection": "claude-productivity",
       "source": "anthropics/knowledge-work-plugins",
       "license": "Apache-2.0",
-      "sha256": "2ea7d595637f83d3be26592bf2f81d0a23d95143b681968f3340a2a9c48b5a2e",
+      "sha256": "b674328fc83fe47c6900d9bdfa7fce0dbc5629ae50a251ac04368bae4f4624c4",
       "local_globs": [
         "~/.claude/plugins/synced/*/productivity/skills/start"
       ],
@@ -1248,7 +1108,7 @@
       "collection": "claude-productivity",
       "source": "anthropics/knowledge-work-plugins",
       "license": "Apache-2.0",
-      "sha256": "c643d1af3c9faf58d2fcb2924e64712fb59f1f36f0d4875d4584a1f328144d25",
+      "sha256": "d2cb353d00ee3957cbdea6a85dc4021abc254f67950401e634b76736fe61961d",
       "local_globs": [
         "~/.claude/plugins/synced/*/productivity/skills/task-management"
       ],
@@ -1262,7 +1122,7 @@
       "collection": "claude-productivity",
       "source": "anthropics/knowledge-work-plugins",
       "license": "Apache-2.0",
-      "sha256": "3f99de5dd5d22fac973eda616d32cfb4b265f3c0725b44217bf2ec3cfe457e30",
+      "sha256": "d61f330f4199acf2d6d55b7a0aab1fb2285e16253ab77075ef9fd2fecc6b8272",
       "local_globs": [
         "~/.claude/plugins/synced/*/productivity/skills/update"
       ],
@@ -1276,7 +1136,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "d2722f134d0cf24f0ef9f393cba58dbfaf0bb5c97ef166233bccebfd6d9e3735",
+      "sha256": "16726bcde11ebc847852c5f3ac133772b6701365dc818fb3cce0a91b55ac938d",
       "local_globs": [
         "~/.agents/skills/clean-code-guard"
       ],
@@ -1290,7 +1150,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "0babb1d08ee580a77161e17e9af4d47572113e1be4bce66256b91fca7edf2baf",
+      "sha256": "cacc66e86af17734605217d54142cf8b365649ac45595d6b86d247ac2afba913",
       "local_globs": [
         "~/.agents/skills/code-audit"
       ],
@@ -1304,7 +1164,7 @@
       "collection": "shared",
       "source": "ciembor/agent-rules-books",
       "license": "MIT",
-      "sha256": "c8a1076678f7ec2247fa6b35f58790d8ea81366f6dd077a7e5c59a919189433d",
+      "sha256": "7204d2d3c04568e9f00c8b058164078709c5ade1ddd75e898fa720241323fd31",
       "local_globs": [
         "~/.agents/skills/code-complete",
         "~/.hermes/skills/code-complete"
@@ -1333,7 +1193,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "4435e8635e0b82caf58deb96c6167a9b37d2904defc26e8761ac5ffadacdcb46",
+      "sha256": "b2d8f982211c6452fa7d0dcdd128bedb232f2b336cdfd22f36ce903ed0d67e08",
       "local_globs": [
         "~/.agents/skills/code-review"
       ],
@@ -1345,15 +1205,15 @@
       "id": "code-review-and-quality",
       "name": "code-review-and-quality",
       "collection": "shared",
-      "source": "sickn33/antigravity-awesome-skills",
+      "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "63b82c3a992818a5e855d011e5f2e20c0f94e1a133186e384fefa7a0908571dc",
+      "sha256": "cba484bf38792005aec1097276903079869c438fce364f29df9cba724efa79ef",
       "local_globs": [
         "~/.agents/skills/code-review-and-quality"
       ],
       "path": "collections/shared/code-review-and-quality",
       "distribution": "vendored",
-      "license_file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
+      "license_file": "licenses/upstream/addyosmani--agent-skills.txt"
     },
     {
       "id": "code-simplification",
@@ -1361,7 +1221,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "d335e24d55b66f400cc30e2fe7b2d1c39b5b020c7ac5f60486afa9992854b358",
+      "sha256": "9a28e6233e33e3107187d302c92c423f560d8f6e5708399e2c14ee2c6076ba09",
       "local_globs": [
         "~/.agents/skills/code-simplification"
       ],
@@ -1831,7 +1691,7 @@
       "collection": "codex-render",
       "source": "render-oss/skills",
       "license": "MIT",
-      "sha256": "034a93799567a3b7e2507a2423fded80bd9931195c97b8b6f28064f4ffad8a06",
+      "sha256": "633eec72af0a9ed3f4e437b0f443f46e8fe11283347ae964f4a859d00d189ee5",
       "local_globs": [
         "~/.codex/plugins/cache/openai-curated-remote/app-6a624c56bfe081918f7544f7d58f6faf/*/skills/render-blueprints"
       ],
@@ -1845,7 +1705,7 @@
       "collection": "codex-render",
       "source": "render-oss/skills",
       "license": "MIT",
-      "sha256": "0c372c2be320b42b0b73ff05a8c6714bb9f76d58f88c1d5f1d91486cd919e756",
+      "sha256": "a6fca0baec3c9fcf2fc8f152149b9a8014f5a501f782c53ac7e2380fe75a08dd",
       "local_globs": [
         "~/.codex/plugins/cache/openai-curated-remote/app-6a624c56bfe081918f7544f7d58f6faf/*/skills/render-cli"
       ],
@@ -1873,7 +1733,7 @@
       "collection": "codex-render",
       "source": "render-oss/skills",
       "license": "MIT",
-      "sha256": "d20b4806fe9f6be8252c28d5a27e029195e402e84a4cb573e101a68e15d23b99",
+      "sha256": "799bb858acc613d1a914c49c2de4bb5ccb3e0c4315536dce1ec49b85660152ec",
       "local_globs": [
         "~/.codex/plugins/cache/openai-curated-remote/app-6a624c56bfe081918f7544f7d58f6faf/*/skills/render-debug"
       ],
@@ -1887,7 +1747,7 @@
       "collection": "codex-render",
       "source": "render-oss/skills",
       "license": "MIT",
-      "sha256": "350ab3d878ddcfb6a1e265b277abbe328d2f4165c4fffdc1d8f4e0860c26f6fa",
+      "sha256": "f61fa0599509bbf8bd733138cd9d40c5ecc115fea5064158bc7146bfdf39552a",
       "local_globs": [
         "~/.codex/plugins/cache/openai-curated-remote/app-6a624c56bfe081918f7544f7d58f6faf/*/skills/render-deploy"
       ],
@@ -1985,7 +1845,7 @@
       "collection": "codex-render",
       "source": "render-oss/skills",
       "license": "MIT",
-      "sha256": "2d03387ac0ef0f588f6cdd6de356a29f76fe53ad66c77c20f8927c2d8179d67f",
+      "sha256": "776457e425c8e34a484ebccbb1b3a31ec67e0799d8f5ffe03dd7e92fa60ee6ac",
       "local_globs": [
         "~/.codex/plugins/cache/openai-curated-remote/app-6a624c56bfe081918f7544f7d58f6faf/*/skills/render-migrate-from-heroku"
       ],
@@ -2013,7 +1873,7 @@
       "collection": "codex-render",
       "source": "render-oss/skills",
       "license": "MIT",
-      "sha256": "924afc9eb774296f630f4320325c4eb45835d1f90979da1af83f8d02c3c49528",
+      "sha256": "f10aa0835f128de59864dfd20e5911b313fde6e039849c25afdffde4d3105de9",
       "local_globs": [
         "~/.codex/plugins/cache/openai-curated-remote/app-6a624c56bfe081918f7544f7d58f6faf/*/skills/render-networking"
       ],
@@ -2069,7 +1929,7 @@
       "collection": "codex-render",
       "source": "render-oss/skills",
       "license": "MIT",
-      "sha256": "c82efe2337b5982357ab17580590db6b030dde752988632135fdb42dd9bbf85b",
+      "sha256": "2d8afdd05ec8ccf68541b36f16e5db0978ccb0a83f99d9ab6c5821925709d53a",
       "local_globs": [
         "~/.codex/plugins/cache/openai-curated-remote/app-6a624c56bfe081918f7544f7d58f6faf/*/skills/render-static-sites"
       ],
@@ -2097,7 +1957,7 @@
       "collection": "codex-render",
       "source": "render-oss/skills",
       "license": "MIT",
-      "sha256": "a9dc711bf15097ba5cf18700721162f2505c92afee33182dcd0e9de77fb839b4",
+      "sha256": "9b32a2353697fa50a49a76eb775c57b41ae3873585fceb2a4f76160563c5567d",
       "local_globs": [
         "~/.codex/plugins/cache/openai-curated-remote/app-6a624c56bfe081918f7544f7d58f6faf/*/skills/render-workflows"
       ],
@@ -2151,7 +2011,7 @@
       "collection": "codex-system",
       "source": "OpenAI Codex bundled skills",
       "license": "Apache-2.0",
-      "sha256": "7607aec44f2970dd1eb6279e8520c5336482c65618c25c09197d1a5da5c04983",
+      "sha256": "eba07a21e7b279a16af76b2fdcfbf5f254f63441c3acee4da7b4efe5ec277d9b",
       "local_globs": [
         "~/.codex/skills/.system/openai-docs"
       ],
@@ -2192,7 +2052,7 @@
       "collection": "codex-system",
       "source": "OpenAI Codex bundled skills",
       "license": "Apache-2.0",
-      "sha256": "5e638afa0ff9fd5720c21f26bb7fab3f1125b03e038e0751f4a5de90479be825",
+      "sha256": "7e1250a0b0ef52215372160cd760aa8d003af4961f077b507c0dc80bf62674d4",
       "local_globs": [
         "~/.codex/skills/.system/skill-installer"
       ],
@@ -2300,7 +2160,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "73c241f508d066860715ea427fa99270e234df0fa8c150d9f2e773c98f67bea7",
+      "sha256": "afa3a5d1c4496fde064cbf413803e880c1c35d819e38975323c076ea9e7371d4",
       "local_globs": [
         "~/.agents/skills/constraint-driven-development"
       ],
@@ -2314,7 +2174,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "f232869e85ad641a27a86006e2076d9a7a7f5b96ae262ea0c4f44d93d3958215",
+      "sha256": "fbe61a737c70798ff52c45065809ad94361831a13ba2ac3100523d95fcabea88",
       "local_globs": [
         "~/.agents/skills/context-engineering"
       ],
@@ -2328,7 +2188,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "0631ff79a517afd8f5dc41965b3a4c61ccb3dec432bed48c68a85dd4e9cbbc28",
+      "sha256": "44d4dd310f9a0d4a427029c5ef98cf35a5da951b54e5d28c77cf24d8fa6b8b4b",
       "local_globs": [
         "~/.agents/skills/copywriting"
       ],
@@ -2357,7 +2217,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "e1154899bf2e72b9b89e59c95a460ff41f4603e316e854c0df6c4f86423f5568",
+      "sha256": "a6ab922cd78d0287f159fc68d68ed4fcf8ea2b772eea205b916fee82c66588a4",
       "local_globs": [
         "~/.agents/skills/creating-dashboards"
       ],
@@ -2386,7 +2246,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "b20ad13604542d6aecf9f4286e1054de20524abf06d3cce0a1bc4476691660d6",
+      "sha256": "1b05e017f7f5222fe4565dd7c7bfc851178f5e4cbad3e921cad082867c6c2354",
       "local_globs": [
         "~/.agents/skills/data-engineering-data-pipeline"
       ],
@@ -2400,7 +2260,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "7fbd2c6d725c94f8e9e0ebc65f0455b7b0fdec76785d5a6841b4e16309cff565",
+      "sha256": "6bd2b42755d0466d8e7bd61a7f9271f16f375a2e892bf94da4051ae46065734b",
       "local_globs": [
         "~/.agents/skills/database-design"
       ],
@@ -2414,7 +2274,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "33fc61d147f3f159a9aff01fea9d6c794228d25c03139df2bed4704e8c8065fc",
+      "sha256": "10b5c0c7d23aa3396b7d08c0180589ef4fbede7c8c3176a9f3a584b80ae19700",
       "local_globs": [
         "~/.agents/skills/datadog"
       ],
@@ -2428,7 +2288,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "8265dd4c7f435cec3ab22a184094f329f90d4b6aa2aa815a7c046e6aa817e168",
+      "sha256": "058c0cf9fda1b411a6a508573c09afc4f7e04b757a16658dcda6612ced539da2",
       "local_globs": [
         "~/.agents/skills/datadog-automation"
       ],
@@ -2442,7 +2302,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "a0f138fe6ea346d080c81649ef75541a54a8952f9b09ae58de59e379a197bfe3",
+      "sha256": "d7f01cce36e65e99edeecac61b075b5311f6a0329accfb7027905ee6f556848c",
       "local_globs": [
         "~/.agents/skills/debugging-and-error-recovery"
       ],
@@ -2456,7 +2316,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "157040f0dad1f857060549a3685a7c73e2808842584aadb12fb194bf68fbd542",
+      "sha256": "8f70f460e4de4299f92f943d4888ffc3db8880c6f5dc9167f5708d6d66620265",
       "local_globs": [
         "~/.agents/skills/dependency-scanning"
       ],
@@ -2470,7 +2330,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "3c5889c2d59a7cbf4db2f41f2cd198d9712f2b7bfff31d2245f50fb0a3218799",
+      "sha256": "1e0aa2522aeac579d3f161bf2cad651ab0c39f9a0899aa8e7bcb8a80a4dac36a",
       "local_globs": [
         "~/.agents/skills/dependency-upgrade"
       ],
@@ -2484,7 +2344,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "9306ea23b08af511eb9d573a616416008ddbd2c8ed8be1c2128efa19b8e9dd75",
+      "sha256": "1de47443bb01d673b41da808b0f59a79a911c2a4448a5618b04f044401ee30d9",
       "local_globs": [
         "~/.agents/skills/deploying-applications"
       ],
@@ -2498,7 +2358,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "feab1f30549f557853bf4b30ce32b2d3d6c1a9bbab68ca6750d59299d8b772b2",
+      "sha256": "beca4e2aeb3a67e69ce2c02d9bc723a89ebbc17fa042731d4da5d98206c3f9e6",
       "local_globs": [
         "~/.agents/skills/deploying-on-aws"
       ],
@@ -2512,7 +2372,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "d3b37f36066d9742b027d4782c577a72288ef13343298125a76e380a9b308887",
+      "sha256": "3ff11e2a8eec01970b08484ae3be11547fe59d5ad1c2b0088a500cdc556559ba",
       "local_globs": [
         "~/.agents/skills/deploying-on-azure"
       ],
@@ -2526,7 +2386,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "920f3dda6c2a2cdaf919c45841f5ff438fe252a87054ec90ec9c0ced27c061c5",
+      "sha256": "160c7999294a4e656b48ae232c7ba06cd10106d72fa9f5fb28942ef5f10a9635",
       "local_globs": [
         "~/.agents/skills/deploying-on-gcp"
       ],
@@ -2540,7 +2400,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "afdeb12863687806d0b72bf9ddba4bfc1aff759da233ef5b9aefa5241a895d4a",
+      "sha256": "26a79ce3f3c12755e449a23ae0257006a625ffe06291905a45f4a21f0667b5d7",
       "local_globs": [
         "~/.agents/skills/deprecation-and-migration"
       ],
@@ -2568,7 +2428,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "7e69e97e18a469374121db5af12445fbb19684f8178910973fd2cc034727bdfd",
+      "sha256": "5bc82ca03bc797f0fcaf2dc48044f1af3585fb66ada8dfcbacc9591356e5705f",
       "local_globs": [
         "~/.agents/skills/designing-apis"
       ],
@@ -2582,7 +2442,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "93a2ea5c4bd2cdb87e99c38faaaae87588cc6ebdfea5af8791429050ae5c7d99",
+      "sha256": "3e68e63c3fcb9bfa315c783fd306a2d13d39781120c759fac76ff200befa2a4f",
       "local_globs": [
         "~/.agents/skills/designing-sdks"
       ],
@@ -2640,7 +2500,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "b31e1ad8042a819a4b178cea1854a3ff886378336b1734caa97cea1d32a7da6d",
+      "sha256": "ae3c1de79958699385f390791dd7c619593f0431ab98393de266192870dfe898",
       "local_globs": [
         "~/.agents/skills/docker-compose-production"
       ],
@@ -2654,7 +2514,7 @@
       "collection": "shared",
       "source": "pproenca/dot-skills",
       "license": "MIT",
-      "sha256": "cf7cf3b9429836536148478fa8b606976093d8aa6e8d235d5031be34140845dd",
+      "sha256": "cc2f127e3561122f7c79aab9ea79c6cbc3b06e7e8e7bd297bbcf2e9ad88e3cfe",
       "local_globs": [
         "~/.agents/skills/dockerfile-optimise"
       ],
@@ -2682,7 +2542,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "e0375271687fda1c26e2592a1fb21c36246c41666673d9c76003500dec18c8c9",
+      "sha256": "aaffe1c240dc39925fab4c2ab2ccc041f45053bef81e47f6be1bc08541c61720",
       "local_globs": [
         "~/.agents/skills/doubt-driven-development"
       ],
@@ -2794,7 +2654,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "4d344179c84921b2262a0639cb6a36927f78f23ac2f7717f7280f4b588e57309",
+      "sha256": "0645aa8aff111b001ab241713433a3a5203b4ca56475b54b41e3bad6466d1b02",
       "local_globs": [
         "~/.agents/skills/elixir-project-workflow",
         "~/.hermes/skills/elixir-project-workflow"
@@ -2824,7 +2684,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "52998a59526c30c74e4c39b2033d8170cc96289e0c860e526ca7f2e32fad98e7",
+      "sha256": "4815ee6efd5fa7a5497d1f9600d09956f174b8a1d25b0597e47e87386dfd6ac1",
       "local_globs": [
         "~/.agents/skills/error-debugging-error-trace"
       ],
@@ -2852,7 +2712,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "8a96d118d68ee9f7a367cb44ac9fb091b1dacb92a346dcb4d84e12edba1226e3",
+      "sha256": "6a05bf3f378198bc84c08d220c13a05995e366dfccb8d6204acacaefabea2186",
       "local_globs": [
         "~/.agents/skills/fp-async"
       ],
@@ -2866,7 +2726,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "9a289ba1efcae5688d07b85cf8d6a67eeda5c611409bf14e66c156532d0002aa",
+      "sha256": "d7c2a90014a6c601d30f0fb77aaf35208ad2c948bcb8e16d56bca4a7371daadc",
       "local_globs": [
         "~/.agents/skills/fp-backend"
       ],
@@ -2880,25 +2740,11 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "ef2891f261e6b614a6235a4330ce5b8080a2650baa09b03af194d4f2239d1835",
+      "sha256": "43bc47417383cd8ba7549690a3eb6b125a3e9369d7888bb27f9ab5c6c8451a5e",
       "local_globs": [
         "~/.agents/skills/fp-data-transforms"
       ],
       "path": "collections/shared/fp-data-transforms",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
-    },
-    {
-      "id": "fp-either-ref",
-      "name": "fp-either-ref",
-      "collection": "shared",
-      "source": "sickn33/antigravity-awesome-skills",
-      "license": "MIT",
-      "sha256": "949404dd330e2e5c0c6ba85cca7e0b8ec1a0a0e821b5a12dcfad1e4f9fcd8195",
-      "local_globs": [
-        "~/.agents/skills/fp-either-ref"
-      ],
-      "path": "collections/shared/fp-either-ref",
       "distribution": "vendored",
       "license_file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
     },
@@ -2908,39 +2754,11 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "6ebf228d32aa097b8d27d87d6f220ba202479d2c87c2d9643b67d0df5ccb1dc4",
+      "sha256": "86da5f9b88876f8854c4d1faad8e6335bd73e32cb0d2e0c57e249fe30a2f401f",
       "local_globs": [
         "~/.agents/skills/fp-errors"
       ],
       "path": "collections/shared/fp-errors",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
-    },
-    {
-      "id": "fp-option-ref",
-      "name": "fp-option-ref",
-      "collection": "shared",
-      "source": "sickn33/antigravity-awesome-skills",
-      "license": "MIT",
-      "sha256": "c6d3e5d2e947f76c275a200add6140a1be6b29bf41cce11d6f583ed25baa948d",
-      "local_globs": [
-        "~/.agents/skills/fp-option-ref"
-      ],
-      "path": "collections/shared/fp-option-ref",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
-    },
-    {
-      "id": "fp-pipe-ref",
-      "name": "fp-pipe-ref",
-      "collection": "shared",
-      "source": "sickn33/antigravity-awesome-skills",
-      "license": "MIT",
-      "sha256": "52e05a3e928763943a911d52568adccbd442ff1d5284d4a38102e00d0683f223",
-      "local_globs": [
-        "~/.agents/skills/fp-pipe-ref"
-      ],
-      "path": "collections/shared/fp-pipe-ref",
       "distribution": "vendored",
       "license_file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
     },
@@ -2950,7 +2768,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "a034a1effcc39a47c7f64f6ad30d8ab988decdec7f861ca2544005cdf3dbc535",
+      "sha256": "8447beb780583cbf338ee547e6356920fa3c6556cee2d38cd98deb6335641b5b",
       "local_globs": [
         "~/.agents/skills/fp-react"
       ],
@@ -2964,25 +2782,11 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "6aca471c064ea7edc57aa83cba1b0abf2e5bf6745ef9a465ebb60d37c44ec20a",
+      "sha256": "48de7070e6b63f5e9b743dafdf9d92c0397f59e46f04f217c72ccd283a771135",
       "local_globs": [
         "~/.agents/skills/fp-refactor"
       ],
       "path": "collections/shared/fp-refactor",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
-    },
-    {
-      "id": "fp-taskeither-ref",
-      "name": "fp-taskeither-ref",
-      "collection": "shared",
-      "source": "sickn33/antigravity-awesome-skills",
-      "license": "MIT",
-      "sha256": "0d6731dbfcd93c8f262abd9831f03a79f2821121adbdccd8c5ca70dc299681fa",
-      "local_globs": [
-        "~/.agents/skills/fp-taskeither-ref"
-      ],
-      "path": "collections/shared/fp-taskeither-ref",
       "distribution": "vendored",
       "license_file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
     },
@@ -2992,7 +2796,7 @@
       "collection": "shared",
       "source": "davila7/claude-code-templates",
       "license": "MIT",
-      "sha256": "6db7d7e99712c03b36e98a56263a80aa8ed58791b555be1db530b90bc384dd82",
+      "sha256": "35da457cbfcd7411c997f4b68135f92ea4fbf5b207600fb80941b1fd41a93ea1",
       "local_globs": [
         "~/.agents/skills/frontend-design"
       ],
@@ -3006,7 +2810,7 @@
       "collection": "shared",
       "source": "davila7/claude-code-templates",
       "license": "MIT",
-      "sha256": "328c18834281106a436b6bec0c390532fe7cd579faac27f64aef6c4258c7a1e7",
+      "sha256": "8919d08df35052aab5d6cf409a81cdbcceaad1db2cc986abdd91f9de5af5257b",
       "local_globs": [
         "~/.agents/skills/frontend-dev-guidelines"
       ],
@@ -3020,7 +2824,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "491696e736dff5ca01abc4befcbcf01d8dc7ff38f8ec2de84d2c7e9e41a080a2",
+      "sha256": "5c386ce9c9a29d7061dd48f5fc28978a75772cf8fa4ac7180b3405698ff96ecf",
       "local_globs": [
         "~/.agents/skills/frontend-ui-engineering"
       ],
@@ -3034,7 +2838,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "4ae08450e9643e16d12b2bebbe1d83f5be6357b62b62696a6f43e88686c21a81",
+      "sha256": "3abbf5e1ff2f44538c03a4c46c1d598ed6231c0bc23e3acbd9fdd06ff4e3e119",
       "local_globs": [
         "~/.agents/skills/generating-documentation"
       ],
@@ -3048,7 +2852,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "acc1424314d64d1179eb5d7ec1b9788f08291d84f0a8e901c8c0ea805637acca",
+      "sha256": "45ed82fc7c7b8824335745974d9a350083abbe8245ec740771fe2f1732957c0b",
       "local_globs": [
         "~/.agents/skills/git-pushing"
       ],
@@ -3076,7 +2880,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "a25c78f1a64858881ba6a02a89153af0ee7caf2bfea059531dfa7507f261b24b",
+      "sha256": "07d2ab6437be32e4d3fe000b55231fa6b030763cfd9a69096792a15d01ea9cc4",
       "local_globs": [
         "~/.agents/skills/github-actions-advanced"
       ],
@@ -3118,7 +2922,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "4b4e8ba781b97dcd44365e1a01e070c581850617c7296de3b6b8a681acf3c482",
+      "sha256": "ef28f1565396c2c058f6ced98575ebfee1b37fda22d2b39751e171c099987a56",
       "local_globs": [
         "~/.agents/skills/golang-benchmark"
       ],
@@ -3132,7 +2936,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "c10046179de0048d8d221ce60a7b3fe43a5a7a31399c6ab2b11bb35c11f5b896",
+      "sha256": "3868db51bee36bee24dd9739cb45b3146a0f79007dcb5288ecfaba5bd7f04052",
       "local_globs": [
         "~/.agents/skills/golang-cli"
       ],
@@ -3146,7 +2950,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "61ce657df71053b1316a6e69961d6b8b398f39c86698e91516b26c4c3a459698",
+      "sha256": "a61b672dfcbfe45a7f0a7271fabff1ccd0d6a4c24569cd26a2ac26d44d3f5932",
       "local_globs": [
         "~/.agents/skills/golang-code-style"
       ],
@@ -3160,7 +2964,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "28247ebfb0a84872b255f93453942d5fdf9831b2a9121dee5098ba20039061b4",
+      "sha256": "6bdb26f67ed8ffde914bfbdc809c685b31be1c9da33bc0203f17830c6ffcdae6",
       "local_globs": [
         "~/.agents/skills/golang-concurrency"
       ],
@@ -3174,7 +2978,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "9ae80ad70976e8e8f5722172af8cae802f8a2baccd38cb599062f9375ae6c39d",
+      "sha256": "f604deacbf0509a5cea8c25e04547d6cfbc55ba466e1225fe8633fcfeb61709f",
       "local_globs": [
         "~/.agents/skills/golang-context"
       ],
@@ -3188,7 +2992,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "4bcd159173429254343ed72d3abdf9289c3eafbc167e4d0dd3721adbc7db640f",
+      "sha256": "918263a1ee656e4d4154b0c429c89955d5f11d06c0a5f97957e927f5974dbf6f",
       "local_globs": [
         "~/.agents/skills/golang-continuous-integration"
       ],
@@ -3202,7 +3006,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "5b059931b4870e68c1fc7bc2002b5ba29beae806ee7b1611c37c123751de2965",
+      "sha256": "b23ed997ed87f2da485fb616cf1dffc5e3df4dbb7e2191a2c4076935531d9779",
       "local_globs": [
         "~/.agents/skills/golang-data-structures"
       ],
@@ -3216,7 +3020,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "fc0d0add3ddfe4a9f67e30423d64be41e1b7d950316158ae2d195d408eb599dd",
+      "sha256": "89c2beaa3f3e0e35061a18ca20efcd8ab221efd314941e06f0f567c2a8c9fcae",
       "local_globs": [
         "~/.agents/skills/golang-database"
       ],
@@ -3230,7 +3034,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "1ef506a16013a91c58e9fed2034429f98b8bd9b78899f1e11b2dc6568c80e3fb",
+      "sha256": "d37da4de49e3052401b9de33dc897ac8c5d83fe940539a24067ea7b0999eeb46",
       "local_globs": [
         "~/.agents/skills/golang-dependency-injection"
       ],
@@ -3244,7 +3048,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "b3084c49436b91280c990b7dfe682103428a7c3b5318bf57b51f4406bfab9610",
+      "sha256": "29b7f95b946d871994ab0a8d4c95b4c9b8ab649d800aac7b5200d6a4bbed3441",
       "local_globs": [
         "~/.agents/skills/golang-dependency-management"
       ],
@@ -3258,7 +3062,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "be7e0108df9613b6a4456d950728935e7521885851c771206a58e5fdcc416bb6",
+      "sha256": "286bbde7fca1211eeec081104f38f722058c89a950d385c622a6fd56053608f0",
       "local_globs": [
         "~/.agents/skills/golang-design-patterns"
       ],
@@ -3272,7 +3076,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "14b6f3db277ba9bd29474fe11ca1dd085fbad5c75fb920cf9f41c78fea7099a8",
+      "sha256": "7e8f5079eccdbcd9e09eedabc9ecf7e3c28d096d4d8bd16b6561f253eb9433f0",
       "local_globs": [
         "~/.agents/skills/golang-documentation"
       ],
@@ -3286,7 +3090,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "f8581fc420a2fcd1e9ed8b93f14b0da17fd8ad77de1c86bc2f9d165d7a165ec0",
+      "sha256": "658c597c448737f0ae8a79fb4e201006f0ad06000eaed633ccd0b517214dd0ce",
       "local_globs": [
         "~/.agents/skills/golang-error-handling"
       ],
@@ -3300,7 +3104,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "f87453a5a40b629145cb197881787e5e1ea6780f267ffd434201843ef3ffe8dc",
+      "sha256": "30dfdee211f028efaaa3602ba358066e6de275d4e1ed26d86583d71f5a0a88de",
       "local_globs": [
         "~/.agents/skills/golang-google-wire"
       ],
@@ -3314,7 +3118,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "cf1113ad6eb4e8f91d6fea7fbd204a21d37b6cac56923de6a4caeebe87aad650",
+      "sha256": "7f56c98e674a9e761daa36b16c1915ecbe936f1ea73be2b166d614a934436508",
       "local_globs": [
         "~/.agents/skills/golang-gopls"
       ],
@@ -3328,7 +3132,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "1efd5cabeb33a4304526107f894fc628dde64e01fb6f22d2c0e640751697e76e",
+      "sha256": "0df0c1a8fdd6ebe12f8535b5202beb4775a97d6c5697fce804912c4da6e012ec",
       "local_globs": [
         "~/.agents/skills/golang-graphql"
       ],
@@ -3356,7 +3160,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "db2c8474805a905bb0b96c7286bc1d21dc45f94ea13fa77e7d390a82c2a6fc06",
+      "sha256": "f5f3226de9e1071c3e178f5b41ddecd2bf6448f9b6c67183520dadcd2e13436c",
       "local_globs": [
         "~/.agents/skills/golang-how-to"
       ],
@@ -3384,7 +3188,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "9cccd698fc7cdaa87698244087177650281239094c8fd6865cb8452669bd41b5",
+      "sha256": "caff8fe43f961b2ab7b58abf739f6f76c0e5c53d1a8f0df89f0389a9ca2c67e9",
       "local_globs": [
         "~/.agents/skills/golang-modernize"
       ],
@@ -3398,7 +3202,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "39f0f8d1d2a67b6e527645d22053c3b6c2f4406dc7d5a45205a6cf193cd66af7",
+      "sha256": "08966ba53badcaea309cfbda0305b4e60fbe6bea13f3c066668998cfeeb81606",
       "local_globs": [
         "~/.agents/skills/golang-naming"
       ],
@@ -3412,7 +3216,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "28458d5b6dd879bbd737f7322d863c6fda70ea03ead123604314229952c7deb8",
+      "sha256": "e65637f5b515839104246e4a6d568f194756e027aebaffe6882edb3b8808bf28",
       "local_globs": [
         "~/.agents/skills/golang-observability"
       ],
@@ -3426,7 +3230,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "ed8a478340efcb8ba627e4a5840fcd2c44f519663fb4c6d37764fe5e5842824a",
+      "sha256": "51e54d71502261e0a90cc3f14ec7dd0ffef892365ebcbc4478574936da810b45",
       "local_globs": [
         "~/.agents/skills/golang-performance"
       ],
@@ -3468,7 +3272,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "b44a3f9f6f4a64a1ef5fcae379db0cd10a5d9651dfa8a7bbace7db98b89e8ee3",
+      "sha256": "6dcd4a73573077629fe3bc9574c42e9a5f2ad3a00ed31ed38bc106cfba3fd133",
       "local_globs": [
         "~/.agents/skills/golang-project-layout"
       ],
@@ -3482,7 +3286,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "9014dddd56d836515180b8c84c42283d7cd2ae65ae707c2dc1766d501b684864",
+      "sha256": "c0776c6f322442f57c0a3d1062329b69bd04525a7fe514712e58509e9bbfaad7",
       "local_globs": [
         "~/.agents/skills/golang-refactoring"
       ],
@@ -3510,7 +3314,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "315a28e87fcbc489a18b401395b04a8db3c1d33da0e5ff6e28db4e99e68aaf39",
+      "sha256": "8dced9f43b47315c3aea4931ad72f58076d8eedd9fda8146fd4d908f82dee11a",
       "local_globs": [
         "~/.agents/skills/golang-samber-do"
       ],
@@ -3524,7 +3328,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "e8de0abc174f84cd5da3199b68895f72b976d734730ca0f625f63236e4526925",
+      "sha256": "961f7e568f33f9f089aed32e875282e893bfeed0a485c5d776d728c593927c8c",
       "local_globs": [
         "~/.agents/skills/golang-samber-hot"
       ],
@@ -3594,7 +3398,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "bbf3e932ec4e73c6346e707d2c3513012b63a879d9df79072c1343cd72779608",
+      "sha256": "6c6159f221295bed4fb6ecb2453dc5d5cbaf2bc326b80cdc9eeaf76d8e4b0ac5",
       "local_globs": [
         "~/.agents/skills/golang-samber-slog"
       ],
@@ -3608,7 +3412,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "6061c367162f737f291983b8fcca7dd4989c36fb95c1cb7f8b4dd1c4f5b99bcc",
+      "sha256": "08838d520f8d49c7b5356b67f0acbee08c4e8414beea2e62a0ba30de88713854",
       "local_globs": [
         "~/.agents/skills/golang-security"
       ],
@@ -3636,7 +3440,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "0d1d63b9d7d89eb8b58f64e28af8bcda999fd7bcfae4647fdd70da4a745df443",
+      "sha256": "e4979da3995b47c2c4951343b702191ece719ff70a6635925b0e5a33ea89a172",
       "local_globs": [
         "~/.agents/skills/golang-spf13-viper"
       ],
@@ -3650,7 +3454,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "6e59020118a05484e3c35d14c50e11d25fb4debd9340c6194f38c80d36b0ca3c",
+      "sha256": "c57fb7d7f8c97158fc04062b5c25fcf4c64366de705597e4658819968592676d",
       "local_globs": [
         "~/.agents/skills/golang-stay-updated"
       ],
@@ -3664,7 +3468,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "3663dd7fe4837749ca171f01dceb4f6d8b3adb01f5d09a2ffb50b4e0f360c796",
+      "sha256": "c666b9dcc77edbdd67db5663b5cf69f8460691f8def1c6ab82769d7392334467",
       "local_globs": [
         "~/.agents/skills/golang-stretchr-testify"
       ],
@@ -3692,7 +3496,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "f45706ccf1b0eb4b01f963b806084b72d690c32c56fefbfd73ea235b073c5f48",
+      "sha256": "552e175c80f5131106860092bf551fdca9b04a418d35de8b68fe05ff2d1f7435",
       "local_globs": [
         "~/.agents/skills/golang-swagger"
       ],
@@ -3720,7 +3524,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "d4a6276edd66c2e041e3f13c65e768032b42df3ed71dd3f63b05f6aedb1a9700",
+      "sha256": "55e92dd0cb8c023ab93dcd830c69cd6ac9dd85ad025ed338d9cde9c2b3530a45",
       "local_globs": [
         "~/.agents/skills/golang-troubleshooting"
       ],
@@ -3748,7 +3552,7 @@
       "collection": "shared",
       "source": "samber/cc-skills-golang",
       "license": "MIT",
-      "sha256": "44884c32e015fabdbf969dc727f7e269c8ea544cab71a6ef55eff61c926ce339",
+      "sha256": "7ad2c595267c5cabd3c2605b112a96bf8c0c75eecd489cfc5fb56896b54cd876",
       "local_globs": [
         "~/.agents/skills/golang-uber-fx"
       ],
@@ -3791,7 +3595,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "4020330aeabdb9f553bc39cb0fddd206abdd6878a33fbb98b8392670d5641f77",
+      "sha256": "15d47a2c312f6a3098630828ff69a8211f53884e175dcfa9aa6f9a531a758489",
       "local_globs": [
         "~/.agents/skills/guiding-users"
       ],
@@ -3805,7 +3609,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "a70ed419621630acee1a983ffad89fed0e673812eb28de938cf1e6040a59c27b",
+      "sha256": "bca09e6a8f70ed65f815b6486e116b9c1dc6a31b2fc5a4fe753dd1f088e8c6c1",
       "local_globs": [
         "~/.agents/skills/hashicorp-vault"
       ],
@@ -3861,7 +3665,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "7fb9288cd31a8d419ab858368f16a2eb5ef166fac7e499524a31dd8daea13c00",
+      "sha256": "9f7841f30608a7105af9580ad989fe0e222f5500316d4945885b73feaac8af5d",
       "local_globs": [
         "~/.hermes/skills/creative/architecture-diagram"
       ],
@@ -3875,7 +3679,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "bce42e03af2f197784676abbebe5f08bcf77f5bab8ddd8901bb20e26fa452601",
+      "sha256": "276bae6b67484aa56cecffc1f57bc3e604580ccdc75a203cae23d05eb47cfd92",
       "local_globs": [
         "~/.hermes/skills/research/arxiv"
       ],
@@ -3917,7 +3721,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "4f7d6d23c6f247253e672ee7a0b49d5ce4236b75c69b46c7648e09947fa64b9a",
+      "sha256": "8ca7c58f39590cad2c5c1e565189d7545373ae419e2e23f0a8203ff3b860429c",
       "local_globs": [
         "~/.hermes/skills/web/blocked-page-recovery"
       ],
@@ -3945,7 +3749,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "f0fc1c741449e1f520fa9e7bf736a1f4796e7f3a14170dd5b614fab1c2589f58",
+      "sha256": "0d7dee238003795caa72fbe20e6a95755d062dfc4514859601ce649fb66da81b",
       "local_globs": [
         "~/.hermes/skills/autonomous-ai-agents/claude-code"
       ],
@@ -3959,7 +3763,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "773d0f7f9bccb654ee20c625a86ff12a1b914507471f637b52f17e1360f91b13",
+      "sha256": "72091da1ca151b7a5b268c0bb57dfa0f1e1a2b4856b6bd4e0b10d911655c0de8",
       "local_globs": [
         "~/.hermes/skills/creative/claude-design"
       ],
@@ -3973,7 +3777,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "f1760b2787809c3e11286c93d0fcc559d0ca81e098ba4c55fc5e1a1dfc05b29a",
+      "sha256": "fd30238dc4b0a41c442ad6356b4ded8a3d185fdb50995d4ec122e6f1c06deb29",
       "local_globs": [
         "~/.hermes/skills/software-development/codebase-inspection"
       ],
@@ -3987,7 +3791,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "24e2defd856b2b121c8ed2869cbd9998390daac7e8501e983478195c98412d48",
+      "sha256": "14f4219d18b5a44e378b5ebb68b469ded8fc6db98f6e550345fc701cad849a0c",
       "local_globs": [
         "~/.hermes/skills/autonomous-ai-agents/codex"
       ],
@@ -4001,7 +3805,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "e915116d618373f169e24d66ef256070e3797d42246410a56d7f4953a7eccc41",
+      "sha256": "739a3722a1664de9e613eb02a668c3ca46ece95a88eb309f6d5c997bb464acf9",
       "local_globs": [
         "~/.hermes/skills/research/competitor-news-monitor"
       ],
@@ -4029,7 +3833,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "e9039e3a0a82e5c573725abafe6d7238170d2054f386aeddab525a9d38bdeec1",
+      "sha256": "611cd392fb60e6d4df6ddbddaa4ae82e04ab8b4c9bb824f6f5d50cb859fd6f91",
       "local_globs": [
         "~/.hermes/skills/creative/design-md"
       ],
@@ -4043,7 +3847,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "10e444c4b6fee5459ef7ec499136ec349cf47743708f7b3618c7fe2aeef04944",
+      "sha256": "0ecd852e6c18efe9f15e6b6831227f705f5eea3b237a009135d932046dc0f138",
       "local_globs": [
         "~/.hermes/skills/productivity/document-to-action-items"
       ],
@@ -4099,7 +3903,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "ad397ee28381a016809ffc00a79a79d642f04f078a908b0ebf40d12f8dc9fb77",
+      "sha256": "da133d997237cd477f7242d38bbc8dc93d9bdd0b8d47a55d8175a43e81969c35",
       "local_globs": [
         "~/.hermes/skills/apple/findmy"
       ],
@@ -4113,7 +3917,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "770eb818f6a1d27a5bb6c2b6adf2d211890e24e88a35d78179849edc34b99230",
+      "sha256": "28c34a0fec32a4343df760399a00865b47f9e3c0bc5affd3b4af71b1b49efdcd",
       "local_globs": [
         "~/.hermes/skills/media/gif-search"
       ],
@@ -4127,7 +3931,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "7e63f45fc983c6de8115a684266215e9e782a46fc54fd0996678fb1ee2891b5a",
+      "sha256": "6bdc5c1f49701cff2701c4c06ee8fbc2481518639073bc3688eed49a5dbb0d1a",
       "local_globs": [
         "~/.hermes/skills/software-development/github"
       ],
@@ -4155,7 +3959,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "f3f6d58da04be2a2a4f02362b71b416d64df1231f9b94fbdddd0ae297ab2f370",
+      "sha256": "975918a5c2fe0254408304ef566789bb473dcb042337e329551408f8c12eeb80",
       "local_globs": [
         "~/.hermes/skills/research/grounded-citations"
       ],
@@ -4169,7 +3973,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "27720e56e64f68b38054ebe94b89d8aed029892b9bcde7f8ac20b4ffe48eb0d1",
+      "sha256": "ce6720b8449697c078363f913de2c172af4120187b6454dad07cc7505e638fe6",
       "local_globs": [
         "~/.hermes/skills/autonomous-ai-agents/hermes-agent"
       ],
@@ -4183,7 +3987,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "1b606642ba8b17e4580d19ca35d6c41235eb34b57355a455c93393b3b0b36eaa",
+      "sha256": "73a0f9941f419b299b596f22aea45904072f45494a9fc62f5ec8356fdbbf1dbd",
       "local_globs": [
         "~/.hermes/skills/software-development/hermes-agent-skill-authoring"
       ],
@@ -4197,7 +4001,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "a1771072b02aa6afd6cab48faae7d7f6ac632b09a05e3d0f7817676e000bd792",
+      "sha256": "f4fe5d359ed5d07ef2d18deb36f8e78ec7ec512310bfac8810057afa40269ea9",
       "local_globs": [
         "~/.hermes/skills/email/himalaya"
       ],
@@ -4211,7 +4015,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "f25d2d4ff309e5951a733b24a0275f9182c58dd29adf02c25c3bdb57e2872b34",
+      "sha256": "0b39ba6b8c4cf39cbcb22c78de3bfffc526fea1f57eb1da79df9ec5664a38cef",
       "local_globs": [
         "~/.hermes/skills/creative/humanizer"
       ],
@@ -4225,7 +4029,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "a743d84ac70247f59d5b62518a5f3da847667f73219702a27f3b6860cd83f45a",
+      "sha256": "112d07a0e12a8c58055b1876b0e4c5b777db15e0c3428ddee214cd10e483a065",
       "local_globs": [
         "~/.hermes/skills/apple/imessage"
       ],
@@ -4239,7 +4043,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "5cbce418d62fd45bf54acab1d69fbfd8dd9f5b9531a03c007e96876c3e33b73f",
+      "sha256": "b9002fdd762b909945efaec450be0c27d8ff04491655dd31eede5331afb6cc82",
       "local_globs": [
         "~/.hermes/skills/software-development/inspecting-hermes-desktop-dom"
       ],
@@ -4253,7 +4057,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "bb9f8664ac816c052c2bad47584c33a4c835ced5197883c0f4368ed8028d0b4b",
+      "sha256": "8e1c9c92a2de463315075cca33cb93d8020c76e82bed8a3524036cea05a1ed5a",
       "local_globs": [
         "~/.hermes/skills/research/llm-wiki"
       ],
@@ -4267,7 +4071,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "f1ab0167c8430694d0c0f2e69a1472b73ba7bc995b65990ca408eb63c04301f3",
+      "sha256": "39fe1dacd05ea04aa544d836bfa2605ec7c0e8753465d94e6db08011441f7f20",
       "local_globs": [
         "~/.hermes/skills/creative/manim-video"
       ],
@@ -4281,7 +4085,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "988e1abae1025100a9c5579af6f642884ea1afa71d051a8eb4aa55336464edbb",
+      "sha256": "9ac0fb562f05fd361e6971facdfacbd310cb2723381df6155844a718f44ba197",
       "local_globs": [
         "~/.hermes/skills/productivity/maps"
       ],
@@ -4295,7 +4099,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "723f403a58d7d86c074b5480a9496dcacd1cac7b0a72c72af4ae553cd8fca2da",
+      "sha256": "b988bbee0bd117743b38f3b471dcdb0f3a1c410b9d21909e0dd05c58db5d1782",
       "local_globs": [
         "~/.hermes/skills/productivity/meeting-action-items"
       ],
@@ -4309,7 +4113,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "42e6cefb44330d3f954ab4e408066bf4b44488f43bccde31730ec340218a5c02",
+      "sha256": "f4f7bbf880ca4b07b6aee7bbd8f9b909b086d1cdb81bd00ac1715bea652d960e",
       "local_globs": [
         "~/.hermes/skills/software-development/node-inspect-debugger"
       ],
@@ -4323,7 +4127,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "f338cb307f35c832d4bffadf7294215db833b1a851dc4aeaaf5264c9b918529d",
+      "sha256": "0be3a8fa03d40cd689ad34af7c3ad575dbaae3f2d0bd8a301c2ac99049eaab75",
       "local_globs": [
         "~/.hermes/skills/productivity/notion"
       ],
@@ -4337,7 +4141,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "6e5803b71bbe4daa837aa461dc693a8caffd51bbbfff37bb9d343f72330928a5",
+      "sha256": "e87a4512fd7c5c7fbef2806da931d7b8bef99dee018199f7f6114cdbfc42f0dd",
       "local_globs": [
         "~/.hermes/skills/note-taking/obsidian"
       ],
@@ -4351,7 +4155,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "1db9c35c592b60a1e4a3063f2be42569bbcbddb322f88e34df4d651109df5d89",
+      "sha256": "ed7a4080782ddd2ca734f197cad97b46fdd67931bd5cdb238a88e227529efeb2",
       "local_globs": [
         "~/.hermes/skills/autonomous-ai-agents/opencode"
       ],
@@ -4365,7 +4169,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "f09b1cfe21c2c561841996a4870dd700b216c70ae07d36439a9796308336f9e7",
+      "sha256": "b646c8b121bf17767e2b04f59688b182333d40635c422dd4e8753a2584af7602",
       "local_globs": [
         "~/.hermes/skills/creative/p5js"
       ],
@@ -4379,7 +4183,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "419cd66dfb842adcdaaeb66d312302879698baf6a1d028b023a58a00edacf72e",
+      "sha256": "13fba0a0777795017be72c2499961279b4dd3db6321e115c76f26569e1bd18cf",
       "local_globs": [
         "~/.hermes/skills/productivity/pdf"
       ],
@@ -4393,7 +4197,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "0ff333a9c1c8f400632a2299c396c2e46a9382654035106853f6e0fe87065b03",
+      "sha256": "c50fe0b4a6d3cf57d8a6c55b3a7b336efee5fbe5e8aade4a784a3bf4a8f83754",
       "local_globs": [
         "~/.hermes/skills/creative/popular-web-designs"
       ],
@@ -4407,7 +4211,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "9d39d8a3bae1b5e5941f74a4f2710d219f548b8b0c576dddd1eb11dda3fd77b9",
+      "sha256": "b83559977944fcb081de6dc345c6dbc0b9c3e31a92fbe4b4852775bf926933b0",
       "local_globs": [
         "~/.hermes/skills/productivity/powerpoint"
       ],
@@ -4421,7 +4225,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "4cedb857840ef3005e4a0ce4a7aa0cbe1b731511b23c4104c6415517a94760ef",
+      "sha256": "6583aa78c249c09e43fcb48c7f271ba320398b42a4a3ecb8f542ba142d515c85",
       "local_globs": [
         "~/.hermes/skills/productivity/product-price-monitor"
       ],
@@ -4435,7 +4239,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "3aa94bf7c187a98d033c6e5bb45514d4e3bd81d336ec9bc3129ad6df123c1a36",
+      "sha256": "8e8b4581715a243bf4be0717fcdf43472c909eeb5a06ae45128299549ec00871",
       "local_globs": [
         "~/.hermes/skills/software-development/python-debugpy"
       ],
@@ -4449,7 +4253,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "02b24d488153754dc59542214364cf6e5e5fcf7e04845c41ed0d62d5b905ef08",
+      "sha256": "a5dc92072e6117aa3de909afe7187651434a5e9e4a7a116693e2515813188c2e",
       "local_globs": [
         "~/.hermes/skills/software-development/requesting-code-review"
       ],
@@ -4463,7 +4267,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "565c1ddb4f18fe2371ed72893f2f7bec46e34f4f451768ef9546e08356e85f68",
+      "sha256": "9d0be92c45c1406a58bcc1a72a43396359e09ad3393f31739774e88454fecc05",
       "local_globs": [
         "~/.hermes/skills/devops/sdlc-review"
       ],
@@ -4477,7 +4281,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "db8ae6630a2bc6d7473e2611ef655ed2499e8a7e60af04907bcb9dc71f821fa0",
+      "sha256": "45ef776b133f0684399f41eea4438e007ce9db6b56be242abc98f769df2f0fbf",
       "local_globs": [
         "~/.hermes/skills/software-development/simplify-code"
       ],
@@ -4491,7 +4295,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "84b2eec93a6e5b978e39275a4a0f9df108d6004b03f1284377ce699fda3efc09",
+      "sha256": "5c9d0996e82b14d610b0340048a1b6e8623e504e2a136a07a65bdc96ca00c3d3",
       "local_globs": [
         "~/.hermes/skills/media/songsee"
       ],
@@ -4505,7 +4309,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "90e836e335aac9c6e7f5b723ed2c8802a4aef75c93c4e1baf1be20368879de0c",
+      "sha256": "4a41e53d8b3af15e1d287fc0668a6945c565aac154664bc13daf611262120e0d",
       "local_globs": [
         "~/.hermes/skills/creative/songwriting-and-ai-music"
       ],
@@ -4519,7 +4323,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "29a44aaabe9646051946909299bc7f2d4fd11f4f3f45807803aff18ae91a5f5e",
+      "sha256": "67d3a46f706796405c72de9e8c399f0044f5b4a0e088e381214e0d8409f2d922",
       "local_globs": [
         "~/.hermes/skills/software-development/spike"
       ],
@@ -4533,7 +4337,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "48dd367f38c84136e28c12f39306d5cc19fa397fa7cbda895fc3e62bfb14ca49",
+      "sha256": "07784e5db87997220d267f2afacfcbaa276b084d94d8e1f2afc3b5d597689bd3",
       "local_globs": [
         "~/.hermes/skills/software-development/systematic-debugging"
       ],
@@ -4547,25 +4351,11 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "5337c5dccfcbe5a907f79fb331cfef23d490c656040ea6dd49d05496293f21ff",
+      "sha256": "930076a17e9b88316f857d21da2bf23ebb24c734cc353227d9af27b609e8febd",
       "local_globs": [
         "~/.hermes/skills/productivity/teams-meeting-pipeline"
       ],
       "path": "collections/hermes/productivity/teams-meeting-pipeline",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/NousResearch--hermes-agent.txt"
-    },
-    {
-      "id": "hermes--test-driven-development",
-      "name": "test-driven-development",
-      "collection": "hermes",
-      "source": "NousResearch/hermes-agent",
-      "license": "MIT",
-      "sha256": "c4dcae20adb88c9392d7e1b2210844933417288bb40ad845faa9542b9755c0a7",
-      "local_globs": [
-        "~/.hermes/skills/software-development/test-driven-development"
-      ],
-      "path": "collections/hermes/software-development/test-driven-development",
       "distribution": "vendored",
       "license_file": "licenses/upstream/NousResearch--hermes-agent.txt"
     },
@@ -4575,7 +4365,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "caa01ebb062d84a1353cb0be2957f99f486374d677d0669701ce74da95663acf",
+      "sha256": "d6c57751db5cf971b417e085b68e12d5af04977b96904953b57ec4f2589f821a",
       "local_globs": [
         "~/.hermes/skills/productivity/weekly-review-planning"
       ],
@@ -4589,7 +4379,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "64be9c210d135b45a3982c062731ad5a413557fa1840a109edcd64f81fc2f055",
+      "sha256": "e07cb8aa2c964d35b4ba529691444cc357ad28959d523b6682f0cda0e027ffc2",
       "local_globs": [
         "~/.hermes/skills/productivity/xlsx"
       ],
@@ -4603,7 +4393,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "ad7c687a34b64ea1c3544874c6e61d8d169a17955b595ed9e7a9f6140e6f767b",
+      "sha256": "10f563e28c6509dbc0e80469b48aaa6e3800ca0050011d4f672b5b36293b3c88",
       "local_globs": [
         "~/.hermes/skills/social-media/xurl"
       ],
@@ -4617,7 +4407,7 @@
       "collection": "hermes",
       "source": "NousResearch/hermes-agent",
       "license": "MIT",
-      "sha256": "ebd562f6144fa28e1b21462660b0601a5696ea7501255904f3ebdd4aa9682092",
+      "sha256": "e885079585b817289e158bb8d7db777f982210237d91844fabc2634dc2809445",
       "local_globs": [
         "~/.hermes/skills/media/youtube-content"
       ],
@@ -4689,7 +4479,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "2c1810e252c981997d42e3764eaf28cc002c245b4fcb899677c61571c33f1abb",
+      "sha256": "688b1365e078aa615d479c9ba356b9ac60e6849b68c22850ca9e46ff3ca4543c",
       "local_globs": [
         "~/.agents/skills/implementing-api-patterns"
       ],
@@ -4703,7 +4493,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "7da1cebf411e99ae01d6d5f76bcb55befd52a4047340b6eabde582df8a225b31",
+      "sha256": "02f1f4b39ad1de7b291378ece6d324f6a141ee616f797ad83f42340a30d7da84",
       "local_globs": [
         "~/.agents/skills/implementing-compliance"
       ],
@@ -4717,7 +4507,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "0702a41f73b5bfd25da14f58f7bc7c27ffb5e4262de7ecf4bef52359fa38686a",
+      "sha256": "8f3509bfaa1e89375a61d218d41090e6f7646f865224db795ba360c7a83f2a93",
       "local_globs": [
         "~/.agents/skills/implementing-drag-drop"
       ],
@@ -4731,7 +4521,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "d00e6f094f8468224e70d5f05845247997d9d088a3d9344b35a77a266fdc3fd1",
+      "sha256": "dd17687fb8306b862364aac7c4adf5e9f6dab3c1a70b98d7e806f85b53da1ce5",
       "local_globs": [
         "~/.agents/skills/implementing-gitops"
       ],
@@ -4745,7 +4535,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "a84a1ddabd780a48fd24fa0250fb126205842344c96e3e0781c4f3bc43493881",
+      "sha256": "cfdfab091ce2e18975425e16a74cc150dec78f2cd1c3ffff5939494f02b968c5",
       "local_globs": [
         "~/.agents/skills/implementing-observability"
       ],
@@ -4759,7 +4549,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "14833c40f9fcd526420ecfbaa827c393e00c2954a107fc4f13298ffc0c6e9cff",
+      "sha256": "80ec4b3800d05cd2ca53c7ee3b88295163a9288bfafd12108d391ea7b362d0a6",
       "local_globs": [
         "~/.agents/skills/implementing-realtime-sync"
       ],
@@ -4773,7 +4563,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "cefaa5ece32209c28c42074006255579dba3fc0689d9ee60af810c87159bd9e5",
+      "sha256": "a53be60eb55b7efa794337ece8d185a47ad8037ef1f3838b25521fb6a97b40f6",
       "local_globs": [
         "~/.agents/skills/implementing-search-filter"
       ],
@@ -4787,7 +4577,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "28874a470caaaa9c4b9a69c02e0ff25b806e305cb42b4568ea45e1a9a7aee1e6",
+      "sha256": "bcda2e474cc47add8e8b9ca983a18330ddd33b841eedaa4616b7179a2bd8e657",
       "local_globs": [
         "~/.agents/skills/incremental-implementation"
       ],
@@ -4801,7 +4591,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "f6f6a5437eec95d3c7c3515687815f41a79235fd95fce389644768cd8cce252c",
+      "sha256": "16e0b13f8f7c4a1a0b4d48bb315aa57675e508548283488f89592469cf59e8cb",
       "local_globs": [
         "~/.agents/skills/ingesting-data"
       ],
@@ -4815,7 +4605,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "e17e39f0dee04f2aea140a766759ba2da74e0aae1a443c96dd1985f15cee471e",
+      "sha256": "5a9a7546992633f100af82f2d0ac5a794b8fcb0ad8531bcb2c5625e62e19d1ef",
       "local_globs": [
         "~/.agents/skills/interview-me"
       ],
@@ -4844,7 +4634,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "2c975679e59a21816e283e6670b4032dae2ed40c8558dcb0d5aaad8fa5d66739",
+      "sha256": "67f307ad23cfc24ab56fbf47a103817d575ed6e98d9dc3903c3a329b5e9bcf6c",
       "local_globs": [
         "~/.agents/skills/java-concurrency"
       ],
@@ -4858,7 +4648,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "3363b859f83752748bd520e64b47715c2406983ee850779e992d08c7a9e0da97",
+      "sha256": "5629c510ccf74741c94fe128df3a4f679951d3d0ade2ddba34abfbd5dee02c6d",
       "local_globs": [
         "~/.agents/skills/java-generics"
       ],
@@ -4872,7 +4662,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "77aa8da7b0de6e2a1a36d3024508ba95e3906e1fd7017047ad5ff8b3eb6a66d3",
+      "sha256": "6cfac8338f1fb5e742f634a79335705797f2200fb5fa68000b6296cda65804d7",
       "local_globs": [
         "~/.agents/skills/java-streams-api"
       ],
@@ -4886,7 +4676,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "0446480e1607e72d1c5cd462ec2d8bde565cbe7fa0b27829fcd9b417dee4ccba",
+      "sha256": "4e9fbb8536b9b0c3e064731c88376b3d10f749a23278439a893091934b37103a",
       "local_globs": [
         "~/.agents/skills/javascript-pro"
       ],
@@ -4900,7 +4690,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "48176e44b85eaf78fa754897808fb979eb8fd4448ace9f05862ef42ecc17893d",
+      "sha256": "a5a09c264dcfd17259d6176fd957f0894012292f657a82207d258082cb045e63",
       "local_globs": [
         "~/.agents/skills/kotlin-coroutines"
       ],
@@ -4914,7 +4704,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "4ef05ddb402d6aa75ad41530805590e91269f16b5a0cc45b832f577f4e82ee69",
+      "sha256": "d16a766cde7f0e7e884bb4c3cf9695e487623ef5cbaaeacf0c52d4d4c77b0b58",
       "local_globs": [
         "~/.agents/skills/kotlin-dsl-patterns"
       ],
@@ -4928,7 +4718,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "2ea3a61b187269e299effe159ece73c05ed77c5eb4c89a55c53f52c64d26bc0c",
+      "sha256": "662cd7da912c1cd85a5b58c3d6d127953d85955ccdd6c462df4f9af4442ff5f4",
       "local_globs": [
         "~/.agents/skills/kotlin-null-safety"
       ],
@@ -4942,7 +4732,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "fd1b9793850287c6c06c4eb94b11c63a9737636562439d5012d997b482f9198e",
+      "sha256": "9257532d75aadfd9d5d186e45c1ac70a7927b0abc3283cd39f074c2cfa1d94f9",
       "local_globs": [
         "~/.agents/skills/kubernetes-hardening"
       ],
@@ -4956,7 +4746,7 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "03575903b8c8bcf4f5290f784c958d57684723f364bf056850c569704fae92ea",
+      "sha256": "426dccebe2dfd2ed9a0a987edf9369e4dafd53a4984dd9795363c5041667fa86",
       "local_globs": [
         "~/.agents/skills/lean-build"
       ],
@@ -4971,7 +4761,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "0d2c5ac722d067145adae5510faff2544050ae079fa3d97aaa434c1dca01e75a",
+      "sha256": "d98babae71dad84d563a7c5ea5652e298df0d39a95a11b8133adaf6982540700",
       "local_globs": [
         "~/.agents/skills/load-balancing-patterns"
       ],
@@ -4985,7 +4775,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "2d1f43aa8897cf47a8a691ed2d77647d6c607c1dafd5b5690f59bc81f2760aa1",
+      "sha256": "5efcbcba4e85c4a099ea1fc5691494bcb1a4633678ff6a40d8a5deb75ae07b27",
       "local_globs": [
         "~/.agents/skills/lua-c-integration"
       ],
@@ -4999,7 +4789,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "30c53009b9e49b31b753def0ddbd79ea670d8be6e0bf6547d6e801bb47a55c02",
+      "sha256": "aebd1dbef449e803027f971fb739f8dc9411bb4ad787fe694c889f41e27bb5a6",
       "local_globs": [
         "~/.agents/skills/lua-coroutines"
       ],
@@ -5027,7 +4817,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "128360e094cfc87786cc0f57272b26321f67ad7c941a32c3d8ace17e65b971ce",
+      "sha256": "71877ebee7f1f13ad64e3478bb9f60af730a9892752ff5a64c04e00887be0bb7",
       "local_globs": [
         "~/.agents/skills/managing-incidents"
       ],
@@ -5041,7 +4831,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "b1452d825729058a2c6a95cb8f0cbdb05de4e6d97b4593b09c11f37b83d669a8",
+      "sha256": "07eed88f107bbd0e1b5f783f492f169aca14801009db10049a12dca99f2fdc5c",
       "local_globs": [
         "~/.agents/skills/managing-media"
       ],
@@ -5070,7 +4860,7 @@
       "collection": "mattpocock",
       "source": "mattpocock/skills",
       "license": "MIT",
-      "sha256": "780be2eef8e387f5d0c07473485cdce4dd2e55c0587f1e96635eb7e929ed1123",
+      "sha256": "6ee39121aa4a2b929b1f175a70bcd8b36568de5b84a86a49caee60b3cc7e5de3",
       "local_globs": [
         "~/.agents/skills/mattpocock--code-review"
       ],
@@ -5100,7 +4890,7 @@
       "collection": "mattpocock",
       "source": "mattpocock/skills",
       "license": "MIT",
-      "sha256": "29faf0d352422aa58beb0ce4666a49bdfdd5d2cc065c9dfe9be7b7e89fbdf584",
+      "sha256": "2c3b187abd8685720a5700bdd512219492b28d410f58fc5054b0d4fdfd15e33f",
       "local_globs": [
         "~/.agents/skills/mattpocock--diagnosing-bugs"
       ],
@@ -5130,7 +4920,7 @@
       "collection": "mattpocock",
       "source": "mattpocock/skills",
       "license": "MIT",
-      "sha256": "8d9c6499217ae7cebd8aba75d529bcb96e54a80e91157976149c502075fc31ab",
+      "sha256": "5a2f5e06a484c56b66fd03baee1e0f724dda7377345a46eeb7c74430fbe25054",
       "local_globs": [
         "~/.agents/skills/mattpocock--git-guardrails-claude-code"
       ],
@@ -5205,7 +4995,7 @@
       "collection": "mattpocock",
       "source": "mattpocock/skills",
       "license": "MIT",
-      "sha256": "72f446ef5b35d3df73c21b574ba2ae50ab3d02fc5d4da44b80f27ce13e7dc18d",
+      "sha256": "38c8c557522dffedeffcabc31b599e0a4cfeb036d25b234d9988def6b1f11a44",
       "local_globs": [
         "~/.agents/skills/mattpocock--implement"
       ],
@@ -5220,7 +5010,7 @@
       "collection": "mattpocock",
       "source": "mattpocock/skills",
       "license": "MIT",
-      "sha256": "3e613d4c4ad1c95dc3489fa447a420875dd2b6b6750eace3dcbc4d218a7d6623",
+      "sha256": "71d2a7f20295bd3480f24a8c2c95003f27418bdd9842d0a74b8268a741f8e622",
       "local_globs": [
         "~/.agents/skills/mattpocock--implement-spec"
       ],
@@ -5235,7 +5025,7 @@
       "collection": "mattpocock",
       "source": "mattpocock/skills",
       "license": "MIT",
-      "sha256": "21e81aed6d25a2b16ad0e6b9ec65b398145a110d11fd76951263d13372822e9d",
+      "sha256": "64abd88f2084bf33134e549f3aeb709b7c7d2925e2fbdc7364208749ec55d9e2",
       "local_globs": [
         "~/.agents/skills/mattpocock--improve-codebase-architecture"
       ],
@@ -5250,7 +5040,7 @@
       "collection": "mattpocock",
       "source": "mattpocock/skills",
       "license": "MIT",
-      "sha256": "fd6364a4c6714b4978b23abcbb170eaddeb99da87f2efee1f6e9baf9dfc2a446",
+      "sha256": "104531d234d4b2e83a1dc40c293e0c8a935817db172326a8b994fc0b9df41dce",
       "local_globs": [
         "~/.agents/skills/mattpocock--pr"
       ],
@@ -5310,7 +5100,7 @@
       "collection": "mattpocock",
       "source": "mattpocock/skills",
       "license": "MIT",
-      "sha256": "bff19f6675e970b6f2d4245f892992b86c2366a1b0d6b448c667e04b9f403e4b",
+      "sha256": "ba1e02c768dde244787c79f9b6dc0388739d529c35ea810668f02c50b760b289",
       "local_globs": [
         "~/.agents/skills/mattpocock--setup-matt-pocock-skills"
       ],
@@ -5325,7 +5115,7 @@
       "collection": "mattpocock",
       "source": "mattpocock/skills",
       "license": "MIT",
-      "sha256": "10f174562b58ef1b0a99590e7438637ec3425c86e949c703a73be3807b20ee8c",
+      "sha256": "c329c4f66b9bddc58ac58fe98ca080fec5b3dfe5614c12f39e90be5113fcd418",
       "local_globs": [
         "~/.agents/skills/mattpocock--setup-pre-commit"
       ],
@@ -5340,7 +5130,7 @@
       "collection": "mattpocock",
       "source": "mattpocock/skills",
       "license": "MIT",
-      "sha256": "aaed5857190bc8088332725c9c8deecf560744f6f7ef0bdfccf4bdf3fe678c16",
+      "sha256": "7f931d03f0a88dde386b83329f0bac110236a5398f8f793855817a1538e5a627",
       "local_globs": [
         "~/.agents/skills/mattpocock--tdd"
       ],
@@ -5445,7 +5235,7 @@
       "collection": "mattpocock",
       "source": "mattpocock/skills",
       "license": "MIT",
-      "sha256": "4f71c4310d6ffaaa7db7df1ec416be6cdb5c06fc3a58751f4310901f9aacf945",
+      "sha256": "8d3747824b0e5048749b7cb37b5ad5f5e03b50e0cfa15fdcc52eb3d1e3bd24c4",
       "local_globs": [
         "~/.agents/skills/mattpocock--wayfinder"
       ],
@@ -5490,7 +5280,7 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "9df6cea312a94ea0c8646cac319c2b7240ee9310d192ec9e995a9c029c5f85f9",
+      "sha256": "fa74183be6859f21601f8792313a3ec35bfec86c5b5caab2257ec0b010f54248",
       "local_globs": [
         "~/.agents/skills/megacave"
       ],
@@ -5520,7 +5310,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "54e101b70d421da67b96f116d4f122b043dffc8a2af088d08c3aa17da4bb70c6",
+      "sha256": "666e0ab3e38ae37f47124f091f6ee6bb2084de6f32aa5d176c62865b335b4bc8",
       "local_globs": [
         "~/.agents/skills/mill-build-logic",
         "~/.hermes/skills/mill-build-logic"
@@ -5550,7 +5340,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "a291499d1793aadd7587eecbf9397e8b2b1078b9650a79119cc313998dafb5a3",
+      "sha256": "bfa31451fd5e66d76d3192cce26a4f61f907eeec1e25eed52009d626b1d01aa3",
       "local_globs": [
         "~/.agents/skills/mill-dependencies-and-toolchains",
         "~/.hermes/skills/mill-dependencies-and-toolchains"
@@ -5580,7 +5370,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "4ce34b4ad12df3b4c70e56bbf9cf165dd1b62cfa4c49cbd471b4d0d8796cb7d7",
+      "sha256": "c26d4af6ff70de51c71cff933c20f4aa01c4bea76f9f361510b93ea608aa1554",
       "local_globs": [
         "~/.agents/skills/mill-linting",
         "~/.hermes/skills/mill-linting"
@@ -5610,7 +5400,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "cb129d35e2226a121824042575b3eccdd450d0faf8c09a79e31b1e31f926feee",
+      "sha256": "4933861fb3eccdff664b41ddefc3ef33d71effb6b2b7942e3ecdfb14828de29d",
       "local_globs": [
         "~/.agents/skills/mill-packaging-publishing",
         "~/.hermes/skills/mill-packaging-publishing"
@@ -5625,7 +5415,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "78461b65f33f30658ddeec7bb4d7a1920b3900beca3cd35d9d06a8359075ae1e",
+      "sha256": "d88ac98fb207a412d48702397193f5c7f8219a6923c22fb45b84ad8f1a9f4e9c",
       "local_globs": [
         "~/.agents/skills/mill-performance",
         "~/.hermes/skills/mill-performance"
@@ -5640,7 +5430,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "a5c4ab76047242398bdb1edf3b75c4b3b5c1b2d73a805a6a6ba9241ecc0496ad",
+      "sha256": "658bd8ee7d376180b59d89ef6aa93c580f39ee187599a209945464562696d07a",
       "local_globs": [
         "~/.agents/skills/mill-plugins",
         "~/.hermes/skills/mill-plugins"
@@ -5655,7 +5445,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "c9d15e5e874cb8d770980d24901961d0b9ecbf2c57b2b1c189219f3d22ed9443",
+      "sha256": "ccc79036f1f090bb951e4821c8562bc75fae8f7ef214428a691d858305436655",
       "local_globs": [
         "~/.agents/skills/mill-polyglot",
         "~/.hermes/skills/mill-polyglot"
@@ -5685,7 +5475,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "1532c552decb8774b3524dda1c28ac32bb9c71c86690d977e6a3ce20d4fba975",
+      "sha256": "c6f2e4a8e0894a28569912fe0c3f53872442040773735af9cdf99e23ac2ef570",
       "local_globs": [
         "~/.agents/skills/mill-scala-platforms",
         "~/.hermes/skills/mill-scala-platforms"
@@ -5700,7 +5490,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "4b2bc78034836944a52678b7a6dc959d2a47e532d38f3a4de1aab777a8b1711f",
+      "sha256": "92dd36d2338aa14d364cb026d10fd45661811d033ad72c76c73a081a2cb48913",
       "local_globs": [
         "~/.agents/skills/mill-testing",
         "~/.hermes/skills/mill-testing"
@@ -5715,7 +5505,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "a8ce0e7f9d8b32c52c89b4a0adb2848e2168e72e9f7f39156218abac721bb30a",
+      "sha256": "c7a0a4419ee715099b632549af09b2d9d82c86f663a87fc7130587678ddf7115",
       "local_globs": [
         "~/.agents/skills/mill-vss",
         "~/.hermes/skills/mill-vss"
@@ -5730,7 +5520,7 @@
       "collection": "shared",
       "source": "davila7/claude-code-templates",
       "license": "MIT",
-      "sha256": "06637b00ffb1962f12a59421100eca385d73d4b1dc4654c2655b726de42bddc5",
+      "sha256": "87f81e9373c0fe7e959fc891a0237de62a08f110517d1e2db4949e51e19eabd6",
       "local_globs": [
         "~/.agents/skills/mobile-design"
       ],
@@ -5744,7 +5534,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "2f0ec0d687ca07eb40ed4f0e57bdb41800a36e4a2890cb52c97fd3c4c53192fa",
+      "sha256": "267e8ad3c7170305c88115351ac9ef29bc1dd79415103d01c93960587bb62305",
       "local_globs": [
         "~/.agents/skills/nim-c-interop"
       ],
@@ -5772,7 +5562,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "99bde8b8fedbcb2785908ee2f8ceed22ff466d87c9a5565065010386af3a25cf",
+      "sha256": "168bb6bfea6222f90afe51fd0eafd46deaf34c2e10616d7252e4dd90b51939f3",
       "local_globs": [
         "~/.agents/skills/nim-metaprogramming"
       ],
@@ -5800,7 +5590,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "803f858c9947aaf3719c2e0df03cc9c0827ce84ae0639f29472a32fd2b8cba69",
+      "sha256": "455279a2a0ce692c92d857b1b4c017872f59e935c739e5b9d9f5e36204eb2bd2",
       "local_globs": [
         "~/.agents/skills/observability-cloud-planning"
       ],
@@ -5814,7 +5604,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "28ca29c415458568fa0dbd927ff93c7bbd305c780caa4a3bc320bea9b7afb6e7",
+      "sha256": "a1aeff406b119843fc1a2dbbfb40c828920ac4a78081bea51c68b36ce2729e07",
       "local_globs": [
         "~/.agents/skills/operating-kubernetes"
       ],
@@ -5828,7 +5618,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "70227e3f488730a04af041c04fdefbc5dac8ceb384c7d1d340035d8283d4538d",
+      "sha256": "c054607b86536aa2e534b6910b7d43312abefffb58dad84da94937313ad7a9f6",
       "local_globs": [
         "~/.agents/skills/parametric-cad-validation",
         "~/.hermes/skills/parametric-cad-validation"
@@ -5843,7 +5633,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "0930fc197f16651d9fe8ac3cd2463f5ee51cdd14aaf6ec71c66d9029ce065009",
+      "sha256": "d75ca334fe00514e4557df9e87a7a032af09907c73a1088e166f53eaa0bb6080",
       "local_globs": [
         "~/.agents/skills/performance-engineering"
       ],
@@ -5857,7 +5647,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "6d98079f92cbde3ec1b5e0d37535f0356ada5018ed5aed809aee0b9cb68d2a68",
+      "sha256": "93f57614278e9b523ef7e52209bea12073f2c76b4c40ac8a87901f88434ed41f",
       "local_globs": [
         "~/.agents/skills/performance-optimization"
       ],
@@ -5871,7 +5661,7 @@
       "collection": "shared",
       "source": "pixijs/pixijs-skills",
       "license": "MIT",
-      "sha256": "36f0e2c3955f462e7874d100fdece9ecb9cb7f1b277a9420559567d32b023827",
+      "sha256": "e5686c19e4391edc91eacc75279766fac93633c07cce1766c97a3b760ce6a102",
       "local_globs": [
         "~/.agents/skills/pixijs-application",
         "~/.hermes/skills/pixijs-application"
@@ -5887,7 +5677,7 @@
       "collection": "shared",
       "source": "pixijs/pixijs-skills",
       "license": "MIT",
-      "sha256": "0c303cc59365af6ac87a1c5d8209409789c032fd1a5010c660d827a9eb9500c0",
+      "sha256": "e3b1b4b5588a8eba57de06c652e887268c70a9c34453c3efe20b1949805b95ac",
       "local_globs": [
         "~/.agents/skills/pixijs-assets",
         "~/.hermes/skills/pixijs-assets"
@@ -5903,7 +5693,7 @@
       "collection": "shared",
       "source": "pixijs/pixijs-skills",
       "license": "MIT",
-      "sha256": "bb3cc50a922992bb6fe580f24c49b56b5d6d1e33347fd83d43fb8191f03c17ed",
+      "sha256": "cf81f1202f743794a2565f16ec5a5382a26ad62d5dc6b2adf1ec22b2c4c483a5",
       "local_globs": [
         "~/.agents/skills/pixijs-core-concepts",
         "~/.hermes/skills/pixijs-core-concepts"
@@ -5919,7 +5709,7 @@
       "collection": "shared",
       "source": "pixijs/pixijs-skills",
       "license": "MIT",
-      "sha256": "9497d7ec86f4f0b7ba654900b83c34de35c91b169645be3a8f69cf0bd70722bf",
+      "sha256": "429df675d349315701c1d317a017965c779e176462f151610c04bb8eb24a18bc",
       "local_globs": [
         "~/.agents/skills/pixijs-events",
         "~/.hermes/skills/pixijs-events"
@@ -5935,7 +5725,7 @@
       "collection": "shared",
       "source": "pixijs/pixijs-skills",
       "license": "MIT",
-      "sha256": "10840380ce9945a1cc6d4f7826091e171062d132f2e8c8edfb81d1bf32ea7d0b",
+      "sha256": "84b1151af80555a59703bb04b33c692c28fadac088e4db495c3ecdb967ddd1c4",
       "local_globs": [
         "~/.agents/skills/pixijs-performance",
         "~/.hermes/skills/pixijs-performance"
@@ -5951,7 +5741,7 @@
       "collection": "shared",
       "source": "pixijs/pixijs-skills",
       "license": "MIT",
-      "sha256": "c168037ae3c7b574aa37f5905cee1a9c872478c328e7832319c195fcedf26e31",
+      "sha256": "33ff1bf61c95f6441e79290121ed69ed735c0d68dae78288bac987b08e671b5a",
       "local_globs": [
         "~/.agents/skills/pixijs-scene-container",
         "~/.hermes/skills/pixijs-scene-container"
@@ -5967,7 +5757,7 @@
       "collection": "shared",
       "source": "pixijs/pixijs-skills",
       "license": "MIT",
-      "sha256": "cb2efb2ccac7d6de0288249dedfd384d61a2e3001f39c2cb403529796981fc40",
+      "sha256": "c6c6f13a7fc05b6682bd75a049a1c291de103b49b58c92c3ef35030163d9358a",
       "local_globs": [
         "~/.agents/skills/pixijs-scene-graphics",
         "~/.hermes/skills/pixijs-scene-graphics"
@@ -5983,7 +5773,7 @@
       "collection": "shared",
       "source": "pixijs/pixijs-skills",
       "license": "MIT",
-      "sha256": "f6ce5437ede2d877b2a994fdebc7bc7ed4e6f1830d5d676483ac5b149b1baa53",
+      "sha256": "9c86d8e1444ef77e544d9738119c9ce20eb2be233a0942ebada11ddaec9b2ee4",
       "local_globs": [
         "~/.agents/skills/pixijs-scene-text",
         "~/.hermes/skills/pixijs-scene-text"
@@ -5999,7 +5789,7 @@
       "collection": "shared",
       "source": "pixijs/pixijs-skills",
       "license": "MIT",
-      "sha256": "97c23444eac8c583a7e0380e725c7efb7f435210ce0b3367396157f78681503c",
+      "sha256": "e146b00d56dfd5f1902c4c94f3f814f4f6f66fd31acc653c4f760a4281bf5def",
       "local_globs": [
         "~/.agents/skills/pixijs-ticker",
         "~/.hermes/skills/pixijs-ticker"
@@ -6015,7 +5805,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "f18bd6323a78396cc8f617af9099d77d2731801ec6217dc0f55762b0c8b0495d",
+      "sha256": "d73cb82c84193035006efdef8432de29460ff5b60fec9dc8c5d47f150ebe0113",
       "local_globs": [
         "~/.agents/skills/planning-and-task-breakdown"
       ],
@@ -6029,7 +5819,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "10d37dabee82409b965dda0a56add42ba8fd52b93795b4c691064387ceb93978",
+      "sha256": "03fe9cf58c1b95dbd532ba2519acfe3372c067a39cb5e691bdd2c477b84e4a14",
       "local_globs": [
         "~/.agents/skills/platform-engineering"
       ],
@@ -6043,7 +5833,7 @@
       "collection": "shared",
       "source": "DietrichGebert/ponytail",
       "license": "MIT",
-      "sha256": "b40d655883ea462755ae12373b59833fce20ba256bc06b0bc4e08dc59ba2ca5d",
+      "sha256": "2b6f2ec7623929ab97eeb70b062a77085d8b479d28d4c24cc6b15b44e6185eb7",
       "local_globs": [
         "~/.agents/skills/ponytail"
       ],
@@ -6058,7 +5848,7 @@
       "collection": "shared",
       "source": "DietrichGebert/ponytail",
       "license": "MIT",
-      "sha256": "e06adf4f4ee04dc135b8ff0ce9f168590c0540c69c02fc76400b6ad3bb11f10e",
+      "sha256": "591b6f53b069496a8167f982341b329e37ee495349e059715870f73b937bf0db",
       "local_globs": [
         "~/.agents/skills/ponytail-audit"
       ],
@@ -6088,7 +5878,7 @@
       "collection": "shared",
       "source": "DietrichGebert/ponytail",
       "license": "MIT",
-      "sha256": "0a56beb5b3b9b89b363ce5d0a9ae5263cd431a6ecc9b3f57d7e795a889d626fd",
+      "sha256": "c53879437da8f17d7a1e8c1e5706939f29646f3e429cb4b43bc14914c0eccb1a",
       "local_globs": [
         "~/.agents/skills/ponytail-review"
       ],
@@ -6103,7 +5893,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "fa3f51f0665ca17f2939e4f7750baaa2cf576669a7a3db0b3b10914f0ba7d80d",
+      "sha256": "94ab12dcf3b6ad4a88770409f264b1e1424b917db62b141fbeb1491c59f02e00",
       "local_globs": [
         "~/.agents/skills/providing-feedback"
       ],
@@ -6117,7 +5907,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "c90c17ea8cd5214f79612777ce57ff04d39fb31856b50829d24fcccc0ced835c",
+      "sha256": "d555f5df916747f192ddc0abccc739349c4112b61212d6009211b8330bed429c",
       "local_globs": [
         "~/.agents/skills/pulumi-components"
       ],
@@ -6131,7 +5921,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "c2380db5a0aace14a02bc0531f4d855a41287ab9f8e2c7c8a262cacec8f43b2f",
+      "sha256": "841e0cdabd0dacbdf1982375057444c6f13465717f24843a10e95105e272faa0",
       "local_globs": [
         "~/.agents/skills/pulumi-stacks"
       ],
@@ -6145,7 +5935,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "124c68995059466a8825ef1976eea67e3ce435260a1984978a896155559cda82",
+      "sha256": "69104db64d0df3408f63df66e834f9ccf9af7b2ce78e76c304825bedb71ec984",
       "local_globs": [
         "~/.agents/skills/pydantic-ai"
       ],
@@ -6257,7 +6047,7 @@
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "fd06ae32603e4d34cea3b09b30559b4075eb8b7008815f3908de0e2b0430d120",
+      "sha256": "753f339d648444e0e095be733a93bd7f2aeb440961ea94bc18dd03d7cf448901",
       "local_globs": [
         "~/.agents/skills/python-data-classes"
       ],
@@ -6271,7 +6061,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "3d6922d11f57c9a6e6bab12eadeb81fa906b6bd2d2acd08360641b2a76cc4ff7",
+      "sha256": "cf1e380a518b884cd709a4369dd496d26b11c0e47f189592c22d70ac4470c908",
       "local_globs": [
         "~/.agents/skills/python-patterns"
       ],
@@ -6339,27 +6129,12 @@
       "license_file": "collections/shared/rust-systems-contracts/LICENSE"
     },
     {
-      "id": "safe-refactor",
-      "name": "safe-refactor",
-      "collection": "shared",
-      "source": "JuliusBrussee/caveman",
-      "license": "Apache-2.0",
-      "sha256": "543556d8ff48863c5dcf7e3e96c8044860f96083b1adb274ec6c91e5cb680a85",
-      "local_globs": [
-        "~/.agents/skills/safe-refactor"
-      ],
-      "path": "collections/shared/safe-refactor",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/JuliusBrussee--caveman.txt",
-      "upstream_ref": "bad48a0e1df55e05e3f52249afa35ecc1909ee76"
-    },
-    {
       "id": "saga-orchestration",
       "name": "saga-orchestration",
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "0b5b71d19534e76d0115544d01850460e4ad9e15cf955853b21732965d530445",
+      "sha256": "01450136b4967a154c2e4110ac8deacc6bbd643e0f4a9998a93201a393f93fa9",
       "local_globs": [
         "~/.agents/skills/saga-orchestration"
       ],
@@ -6368,177 +6143,12 @@
       "license_file": "licenses/upstream/sickn33--antigravity-awesome-skills.txt"
     },
     {
-      "id": "scala-acyclic-whole-run-compiler-adapters",
-      "name": "scala-acyclic-whole-run-compiler-adapters",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "85ee77e44bbfa67b8a4bc6606c70642590e0b29dc8dd061a94fb58be30f89942",
-      "local_globs": [
-        "~/.agents/skills/scala-acyclic-whole-run-compiler-adapters",
-        "~/.hermes/skills/scala-acyclic-whole-run-compiler-adapters"
-      ],
-      "path": "collections/shared/scala-acyclic-whole-run-compiler-adapters",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-acyclic-whole-run-compiler-adapters/LICENSE"
-    },
-    {
-      "id": "scala-ammonite-static-script-dependency-propagation",
-      "name": "scala-ammonite-static-script-dependency-propagation",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "a932d082a2f75285d0b179c04f9d77256bdbbdaab05197ef6713d1eb0bd4d9ff",
-      "local_globs": [
-        "~/.agents/skills/scala-ammonite-static-script-dependency-propagation",
-        "~/.hermes/skills/scala-ammonite-static-script-dependency-propagation"
-      ],
-      "path": "collections/shared/scala-ammonite-static-script-dependency-propagation",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-ammonite-static-script-dependency-propagation/LICENSE"
-    },
-    {
-      "id": "scala-ammonite-symbol-derived-closure-capture",
-      "name": "scala-ammonite-symbol-derived-closure-capture",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "f5b5a2b67b59b59dafbebd28e83a1cbc5bbcad83f946cd7f900fe8f41ecd1b98",
-      "local_globs": [
-        "~/.agents/skills/scala-ammonite-symbol-derived-closure-capture",
-        "~/.hermes/skills/scala-ammonite-symbol-derived-closure-capture"
-      ],
-      "path": "collections/shared/scala-ammonite-symbol-derived-closure-capture",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-ammonite-symbol-derived-closure-capture/LICENSE"
-    },
-    {
-      "id": "scala-cask-route-trie-validation-order",
-      "name": "scala-cask-route-trie-validation-order",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "effef531a378f80412b44235fef2aab215f11d863bab1985ce6f3f0933d216c3",
-      "local_globs": [
-        "~/.agents/skills/scala-cask-route-trie-validation-order",
-        "~/.hermes/skills/scala-cask-route-trie-validation-order"
-      ],
-      "path": "collections/shared/scala-cask-route-trie-validation-order",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-cask-route-trie-validation-order/LICENSE"
-    },
-    {
-      "id": "scala-castor-platform-mixin-dispatch-accounting",
-      "name": "scala-castor-platform-mixin-dispatch-accounting",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "3fae01ecc24fe00f1695bc64a3c8d839c85d1c62bf3b61a3be2156a93a07471d",
-      "local_globs": [
-        "~/.agents/skills/scala-castor-platform-mixin-dispatch-accounting",
-        "~/.hermes/skills/scala-castor-platform-mixin-dispatch-accounting"
-      ],
-      "path": "collections/shared/scala-castor-platform-mixin-dispatch-accounting",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-castor-platform-mixin-dispatch-accounting/LICENSE"
-    },
-    {
-      "id": "scala-cats-effect-cleanup-error-provenance",
-      "name": "scala-cats-effect-cleanup-error-provenance",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "89ba8b3940eb04c639c471ab92603998371203c9f2919d6b8a531259800926cc",
-      "local_globs": [
-        "~/.agents/skills/scala-cats-effect-cleanup-error-provenance",
-        "~/.hermes/skills/scala-cats-effect-cleanup-error-provenance"
-      ],
-      "path": "collections/shared/scala-cats-effect-cleanup-error-provenance",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-cats-effect-cleanup-error-provenance/LICENSE"
-    },
-    {
-      "id": "scala-cats-effect-outcome-sensitive-concurrency",
-      "name": "scala-cats-effect-outcome-sensitive-concurrency",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "a7f7b55a30dee88ec209076229286c0443ad5e868d1592a9c4c4ba2439555e65",
-      "local_globs": [
-        "~/.agents/skills/scala-cats-effect-outcome-sensitive-concurrency",
-        "~/.hermes/skills/scala-cats-effect-outcome-sensitive-concurrency"
-      ],
-      "path": "collections/shared/scala-cats-effect-outcome-sensitive-concurrency",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-cats-effect-outcome-sensitive-concurrency/LICENSE"
-    },
-    {
-      "id": "scala-cats-effect-runtime-benchmark-review",
-      "name": "scala-cats-effect-runtime-benchmark-review",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "e76c3f36cf30a1090dfd6c83c3d8f5e45304bb512dd9122dd50ea85b821145c2",
-      "local_globs": [
-        "~/.agents/skills/scala-cats-effect-runtime-benchmark-review",
-        "~/.hermes/skills/scala-cats-effect-runtime-benchmark-review"
-      ],
-      "path": "collections/shared/scala-cats-effect-runtime-benchmark-review",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-cats-effect-runtime-benchmark-review/LICENSE"
-    },
-    {
-      "id": "scala-cats-erased-runtime-compatibility",
-      "name": "scala-cats-erased-runtime-compatibility",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "df50cbeb568a417cc08f96f1912c2e133bbdd0f6f16b6e0a8345af57dacc3540",
-      "local_globs": [
-        "~/.agents/skills/scala-cats-erased-runtime-compatibility",
-        "~/.hermes/skills/scala-cats-erased-runtime-compatibility"
-      ],
-      "path": "collections/shared/scala-cats-erased-runtime-compatibility",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-cats-erased-runtime-compatibility/LICENSE"
-    },
-    {
-      "id": "scala-cats-law-backed-instance-surface",
-      "name": "scala-cats-law-backed-instance-surface",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "cff3007a1b181774da1f158beb38282beedf5fcb7da874d0d50c05c8c26767ee",
-      "local_globs": [
-        "~/.agents/skills/scala-cats-law-backed-instance-surface",
-        "~/.hermes/skills/scala-cats-law-backed-instance-surface"
-      ],
-      "path": "collections/shared/scala-cats-law-backed-instance-surface",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-cats-law-backed-instance-surface/LICENSE"
-    },
-    {
-      "id": "scala-cats-traversal-branch-isolation",
-      "name": "scala-cats-traversal-branch-isolation",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "0d08e2a65b178e663958f1edf73a9d7a61467d6aa8c6efd61755d6813622e1e0",
-      "local_globs": [
-        "~/.agents/skills/scala-cats-traversal-branch-isolation",
-        "~/.hermes/skills/scala-cats-traversal-branch-isolation"
-      ],
-      "path": "collections/shared/scala-cats-traversal-branch-isolation",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-cats-traversal-branch-isolation/LICENSE"
-    },
-    {
       "id": "scala-collections",
       "name": "scala-collections",
       "collection": "shared",
       "source": "thebushidocollective/han",
       "license": "FSL-1.1-ALv2",
-      "sha256": "8fbc742c57e73318c6275667292cb36b5738a635d4c3f2605c36fbf0bd443eb1",
+      "sha256": "6a907c45feec3ee04d98844197dab1dc3a0dc262e72af2e84ca2fa9229541db3",
       "local_globs": [
         "~/.agents/skills/scala-collections"
       ],
@@ -6547,94 +6157,34 @@
       "license_file": "licenses/upstream/thebushidocollective--han.txt"
     },
     {
-      "id": "scala-fastparse-diagnostic-mode-review",
-      "name": "scala-fastparse-diagnostic-mode-review",
+      "id": "scala-compiler-macro-refactoring",
+      "name": "scala-compiler-macro-refactoring",
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "3f50f87e663b26e92d17cc3077422ce131691eedceeb824f76134be1fed1b802",
+      "sha256": "8fa0408d79c9d4ce1f13013dcb63b1c695c18c94cbc605a574e9c7363b269d6b",
       "local_globs": [
-        "~/.agents/skills/scala-fastparse-diagnostic-mode-review",
-        "~/.hermes/skills/scala-fastparse-diagnostic-mode-review"
+        "~/.agents/skills/scala-compiler-macro-refactoring",
+        "~/.hermes/skills/scala-compiler-macro-refactoring"
       ],
-      "path": "collections/shared/scala-fastparse-diagnostic-mode-review",
+      "path": "collections/shared/scala-compiler-macro-refactoring",
       "distribution": "vendored",
-      "license_file": "collections/shared/scala-fastparse-diagnostic-mode-review/LICENSE"
+      "license_file": "collections/shared/scala-compiler-macro-refactoring/LICENSE"
     },
     {
-      "id": "scala-fastparse-hot-path-cost-review",
-      "name": "scala-fastparse-hot-path-cost-review",
+      "id": "scala-effect-cancellation-finalization",
+      "name": "scala-effect-cancellation-finalization",
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "dbe298c93b3f5cce845028a28755f497e95f1fb4c6918999f46501e154518482",
+      "sha256": "b9401ba75562be5e65b5788c2999330ad3c292ad41540eb65859a545c89e5fa2",
       "local_globs": [
-        "~/.agents/skills/scala-fastparse-hot-path-cost-review",
-        "~/.hermes/skills/scala-fastparse-hot-path-cost-review"
+        "~/.agents/skills/scala-effect-cancellation-finalization",
+        "~/.hermes/skills/scala-effect-cancellation-finalization"
       ],
-      "path": "collections/shared/scala-fastparse-hot-path-cost-review",
+      "path": "collections/shared/scala-effect-cancellation-finalization",
       "distribution": "vendored",
-      "license_file": "collections/shared/scala-fastparse-hot-path-cost-review/LICENSE"
-    },
-    {
-      "id": "scala-fastparse-shared-run-combinator-extraction",
-      "name": "scala-fastparse-shared-run-combinator-extraction",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "0afba4ba929be0661aff50e9e30c95cf42a666e8a89fb3ab6799afe3d9a9cf9d",
-      "local_globs": [
-        "~/.agents/skills/scala-fastparse-shared-run-combinator-extraction",
-        "~/.hermes/skills/scala-fastparse-shared-run-combinator-extraction"
-      ],
-      "path": "collections/shared/scala-fastparse-shared-run-combinator-extraction",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-fastparse-shared-run-combinator-extraction/LICENSE"
-    },
-    {
-      "id": "scala-fs2-foreign-callback-lanes",
-      "name": "scala-fs2-foreign-callback-lanes",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "1660e18bcdd26f017ce60b63d03d7fd17049ff52a23c6e3dd92396318de1e59f",
-      "local_globs": [
-        "~/.agents/skills/scala-fs2-foreign-callback-lanes",
-        "~/.hermes/skills/scala-fs2-foreign-callback-lanes"
-      ],
-      "path": "collections/shared/scala-fs2-foreign-callback-lanes",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-fs2-foreign-callback-lanes/LICENSE"
-    },
-    {
-      "id": "scala-fs2-per-element-scope-propagation",
-      "name": "scala-fs2-per-element-scope-propagation",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "ba9ee938d2fbed2f3e0b9ed1a3a4bc6520ed831d22586c7729410332d6f11f38",
-      "local_globs": [
-        "~/.agents/skills/scala-fs2-per-element-scope-propagation",
-        "~/.hermes/skills/scala-fs2-per-element-scope-propagation"
-      ],
-      "path": "collections/shared/scala-fs2-per-element-scope-propagation",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-fs2-per-element-scope-propagation/LICENSE"
-    },
-    {
-      "id": "scala-fs2-sink-emission-cardinality",
-      "name": "scala-fs2-sink-emission-cardinality",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "5da471b615c2c99bec8a9295b2b3159e6a5d258cf721601d42525729c0141828",
-      "local_globs": [
-        "~/.agents/skills/scala-fs2-sink-emission-cardinality",
-        "~/.hermes/skills/scala-fs2-sink-emission-cardinality"
-      ],
-      "path": "collections/shared/scala-fs2-sink-emission-cardinality",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-fs2-sink-emission-cardinality/LICENSE"
+      "license_file": "collections/shared/scala-effect-cancellation-finalization/LICENSE"
     },
     {
       "id": "scala-functional-patterns",
@@ -6651,49 +6201,34 @@
       "license_file": "licenses/upstream/thebushidocollective--han.txt"
     },
     {
-      "id": "scala-http4s-http1-bodyless-connection-framing",
-      "name": "scala-http4s-http1-bodyless-connection-framing",
+      "id": "scala-http-server-semantics",
+      "name": "scala-http-server-semantics",
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "5bd3efbfe0e818d1419379122cc10e0de1e548e09c18bb94e2161f286101db14",
+      "sha256": "fe78d511427efb769184c5adbddc9889b3e8a19dd1538105e4fd8d92d7d6c305",
       "local_globs": [
-        "~/.agents/skills/scala-http4s-http1-bodyless-connection-framing",
-        "~/.hermes/skills/scala-http4s-http1-bodyless-connection-framing"
+        "~/.agents/skills/scala-http-server-semantics",
+        "~/.hermes/skills/scala-http-server-semantics"
       ],
-      "path": "collections/shared/scala-http4s-http1-bodyless-connection-framing",
+      "path": "collections/shared/scala-http-server-semantics",
       "distribution": "vendored",
-      "license_file": "collections/shared/scala-http4s-http1-bodyless-connection-framing/LICENSE"
+      "license_file": "collections/shared/scala-http-server-semantics/LICENSE"
     },
     {
-      "id": "scala-http4s-stateful-factory-acquisition",
-      "name": "scala-http4s-stateful-factory-acquisition",
+      "id": "scala-library-compatibility-laws",
+      "name": "scala-library-compatibility-laws",
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "eb710c0f2f5f10b4cf2ea462c449708e90f25fa541bddc897f41a5e840481f9d",
+      "sha256": "983b96a6d370e2b21dc30a8939dd646481e0bcfc240e0b9ab9f46a905e26c2ee",
       "local_globs": [
-        "~/.agents/skills/scala-http4s-stateful-factory-acquisition",
-        "~/.hermes/skills/scala-http4s-stateful-factory-acquisition"
+        "~/.agents/skills/scala-library-compatibility-laws",
+        "~/.hermes/skills/scala-library-compatibility-laws"
       ],
-      "path": "collections/shared/scala-http4s-stateful-factory-acquisition",
+      "path": "collections/shared/scala-library-compatibility-laws",
       "distribution": "vendored",
-      "license_file": "collections/shared/scala-http4s-stateful-factory-acquisition/LICENSE"
-    },
-    {
-      "id": "scala-http4s-uri-segment-representation",
-      "name": "scala-http4s-uri-segment-representation",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "e146850ca55b7724c5517bf5a959a156c4904dcb744911eec5b3410ea20b734c",
-      "local_globs": [
-        "~/.agents/skills/scala-http4s-uri-segment-representation",
-        "~/.hermes/skills/scala-http4s-uri-segment-representation"
-      ],
-      "path": "collections/shared/scala-http4s-uri-segment-representation",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-http4s-uri-segment-representation/LICENSE"
+      "license_file": "collections/shared/scala-library-compatibility-laws/LICENSE"
     },
     {
       "id": "scala-library-contracts",
@@ -6701,7 +6236,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "101fc276ba1396a4c6e64f346a35e60f2d74a527d99e27cdc22a903cdaf8643e",
+      "sha256": "15bc14b627c0a567ec55f39733d0701289aa786cfd00e95c5aa374016296f0af",
       "local_globs": [
         "~/.agents/skills/scala-library-contracts",
         "~/.hermes/skills/scala-library-contracts"
@@ -6716,7 +6251,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "c4d646dccd278bfbca996aa873227cf8117c535fd61245f33b35651eee4f25dd",
+      "sha256": "38cabbd7c2ce0f5214e57c1ea8405bacf7c773bd683a73c70e3f25e7fa508b16",
       "local_globs": [
         "~/.agents/skills/scala-oss-library-review",
         "~/.hermes/skills/scala-oss-library-review"
@@ -6726,49 +6261,34 @@
       "license_file": "collections/shared/scala-oss-library-review/LICENSE"
     },
     {
-      "id": "scala-play-cors-csrf-policy-matrix",
-      "name": "scala-play-cors-csrf-policy-matrix",
+      "id": "scala-runtime-diagnostics-hot-paths",
+      "name": "scala-runtime-diagnostics-hot-paths",
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "f2673112daabf9a64042c59934fde94b4f0fc3a047798aaa56c522be1a1c3c12",
+      "sha256": "a3474974209eff4bfa1aa6051b34bc3106b313e01a0ae828ed40c1793bcb7779",
       "local_globs": [
-        "~/.agents/skills/scala-play-cors-csrf-policy-matrix",
-        "~/.hermes/skills/scala-play-cors-csrf-policy-matrix"
+        "~/.agents/skills/scala-runtime-diagnostics-hot-paths",
+        "~/.hermes/skills/scala-runtime-diagnostics-hot-paths"
       ],
-      "path": "collections/shared/scala-play-cors-csrf-policy-matrix",
+      "path": "collections/shared/scala-runtime-diagnostics-hot-paths",
       "distribution": "vendored",
-      "license_file": "collections/shared/scala-play-cors-csrf-policy-matrix/LICENSE"
+      "license_file": "collections/shared/scala-runtime-diagnostics-hot-paths/LICENSE"
     },
     {
-      "id": "scala-play-partial-startup-shutdown-completion",
-      "name": "scala-play-partial-startup-shutdown-completion",
+      "id": "scala-stream-resource-scoping",
+      "name": "scala-stream-resource-scoping",
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "7c1acfff30744b61ae636ba753b0626238c3f05d0b7c05e2fefeaf8aac7bf798",
+      "sha256": "17b2b8bc1180fe0650c28d20ad7c13e71b88ef2765bbf8cb47b5608ab7e7a2e2",
       "local_globs": [
-        "~/.agents/skills/scala-play-partial-startup-shutdown-completion",
-        "~/.hermes/skills/scala-play-partial-startup-shutdown-completion"
+        "~/.agents/skills/scala-stream-resource-scoping",
+        "~/.hermes/skills/scala-stream-resource-scoping"
       ],
-      "path": "collections/shared/scala-play-partial-startup-shutdown-completion",
+      "path": "collections/shared/scala-stream-resource-scoping",
       "distribution": "vendored",
-      "license_file": "collections/shared/scala-play-partial-startup-shutdown-completion/LICENSE"
-    },
-    {
-      "id": "scala-sourcecode-args-capture-review",
-      "name": "scala-sourcecode-args-capture-review",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "619f005ddcd3c2f8bdbc8e75880231803a0cb81537cb84fb2fb37a11e0dd6cb3",
-      "local_globs": [
-        "~/.agents/skills/scala-sourcecode-args-capture-review",
-        "~/.hermes/skills/scala-sourcecode-args-capture-review"
-      ],
-      "path": "collections/shared/scala-sourcecode-args-capture-review",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-sourcecode-args-capture-review/LICENSE"
+      "license_file": "collections/shared/scala-stream-resource-scoping/LICENSE"
     },
     {
       "id": "scala-type-system",
@@ -6785,87 +6305,12 @@
       "license_file": "licenses/upstream/thebushidocollective--han.txt"
     },
     {
-      "id": "scala-zio-canceler-evaluation-owner",
-      "name": "scala-zio-canceler-evaluation-owner",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "2bc9835ec4e0c8cec04ec2596625b66d253ba0e2146565a32ba45c9b29fcdb55",
-      "local_globs": [
-        "~/.agents/skills/scala-zio-canceler-evaluation-owner",
-        "~/.hermes/skills/scala-zio-canceler-evaluation-owner"
-      ],
-      "path": "collections/shared/scala-zio-canceler-evaluation-owner",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-zio-canceler-evaluation-owner/LICENSE"
-    },
-    {
-      "id": "scala-zio-diagnostic-reader-progress",
-      "name": "scala-zio-diagnostic-reader-progress",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "c2596764cbb3092b733be330343bc7a70463fcb5ed7813a2cc332b8e4ab9b802",
-      "local_globs": [
-        "~/.agents/skills/scala-zio-diagnostic-reader-progress",
-        "~/.hermes/skills/scala-zio-diagnostic-reader-progress"
-      ],
-      "path": "collections/shared/scala-zio-diagnostic-reader-progress",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-zio-diagnostic-reader-progress/LICENSE"
-    },
-    {
-      "id": "scala-zio-http-channel-handoff-completion",
-      "name": "scala-zio-http-channel-handoff-completion",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "900d66d6b27ffd842d28e0419f5d48daf9bb2a9e95485ed4d802baf4ce798154",
-      "local_globs": [
-        "~/.agents/skills/scala-zio-http-channel-handoff-completion",
-        "~/.hermes/skills/scala-zio-http-channel-handoff-completion"
-      ],
-      "path": "collections/shared/scala-zio-http-channel-handoff-completion",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-zio-http-channel-handoff-completion/LICENSE"
-    },
-    {
-      "id": "scala-zio-http-middleware-execution-boundaries",
-      "name": "scala-zio-http-middleware-execution-boundaries",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "81b647b8772b9d76370108458eeef43efadca5a827001a9e2ab74ed7ecf2bcee",
-      "local_globs": [
-        "~/.agents/skills/scala-zio-http-middleware-execution-boundaries",
-        "~/.hermes/skills/scala-zio-http-middleware-execution-boundaries"
-      ],
-      "path": "collections/shared/scala-zio-http-middleware-execution-boundaries",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-zio-http-middleware-execution-boundaries/LICENSE"
-    },
-    {
-      "id": "scala-zio-http-request-local-error-disclosure",
-      "name": "scala-zio-http-request-local-error-disclosure",
-      "collection": "shared",
-      "source": "local",
-      "license": "MIT",
-      "sha256": "390de841d73d775b9a462b7fd87b5060976e2aeb196dede7aa3c160a23581e69",
-      "local_globs": [
-        "~/.agents/skills/scala-zio-http-request-local-error-disclosure",
-        "~/.hermes/skills/scala-zio-http-request-local-error-disclosure"
-      ],
-      "path": "collections/shared/scala-zio-http-request-local-error-disclosure",
-      "distribution": "vendored",
-      "license_file": "collections/shared/scala-zio-http-request-local-error-disclosure/LICENSE"
-    },
-    {
       "id": "scala-zio-skills--zio-reference",
       "name": "zio-reference",
       "collection": "scala-zio-skills",
       "source": "linux-root/scala-zio-skills",
       "license": "MIT",
-      "sha256": "410164eff0a616ba3a6708fba5adfffa6edaf349106203c774bfddcc4beed228",
+      "sha256": "f9a38eeb5209e2e86aa46546dbf7b7d3cf9801631a9fc2a11fa49ac517ca74ba",
       "local_globs": [
         "~/.agents/skills/scala-zio-skills/skills/zio-reference"
       ],
@@ -6879,7 +6324,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "55398311c8a87b0d932100f21f9c4566dc022b31533bcbb84fc0c855581ff828",
+      "sha256": "119ea44615ade54027b49a34e7dece5777b23e53fb52a22a92494c86bb05e1f7",
       "local_globs": [
         "~/.agents/skills/security-and-hardening"
       ],
@@ -6893,7 +6338,7 @@
       "collection": "shared",
       "source": "davila7/claude-code-templates",
       "license": "MIT",
-      "sha256": "206e269e11e6c9708faf707af08d1f2aecc5b427ee68a50217c35b7dfca329bc",
+      "sha256": "580a9ecf54a0500084d301c00a2e3d78530ba2893e85cb6b777243521e954df6",
       "local_globs": [
         "~/.agents/skills/security-best-practices"
       ],
@@ -6907,7 +6352,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "633adfdaf7e2ffd280c0d6328013f86d372cbb187859ab6aae8ca5537c96b75e",
+      "sha256": "1305fd1598d7a355f5f1c9a5053ee8474fa586e4cd35a92590dac65f5c7d9fed",
       "local_globs": [
         "~/.agents/skills/security-hardening"
       ],
@@ -6921,7 +6366,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "3103923b1e2c49e2c9e0f2f14779e6439de687ba0ddcc78cb5372db46eb22262",
+      "sha256": "06fff7b2068d2120b602fa7ab61c9a3ca3e6cbf58f162e48f0b167147ed0696f",
       "local_globs": [
         "~/.agents/skills/shipping-and-launch"
       ],
@@ -6935,7 +6380,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "10b4a173b4ca173aa1ef6906648fc754eb43edc601fe3c7efdbbd224f02622b6",
+      "sha256": "d3e2866c7489961aaf57a43cb818b9fcfd5da1a0e5661182990792688e7401fe",
       "local_globs": [
         "~/.agents/skills/skill-writer"
       ],
@@ -6975,7 +6420,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "bcc56c075dd07000f22bfe04299ec572c8a70b0205ef52440a1c4bf8670f61c4",
+      "sha256": "ecc29126cdc65c0a12c73823350936ad60d32e7cc7d545ad82a511575e485a3e",
       "local_globs": [
         "~/.agents/skills/source-driven-development"
       ],
@@ -6989,7 +6434,7 @@
       "collection": "shared",
       "source": "addyosmani/agent-skills",
       "license": "MIT",
-      "sha256": "d6d5f6d99e64095e675c1b28ec6b95bb6e956fc24db527113e76650b387bc2b1",
+      "sha256": "b614cec303d4d67ccbc35fc8c0894219e41ee8c0660c9e0c686e1e43e00c3c22",
       "local_globs": [
         "~/.agents/skills/spec-driven-development"
       ],
@@ -7003,7 +6448,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "1aa4bf28441f42c8acdb6923bce6bd0e56972894050e6500b97cc2a23ed439c8",
+      "sha256": "04477bc6f3dac23ba06845143fdb660157333ad4efb2793eaaa47e602568807e",
       "local_globs": [
         "~/.agents/skills/streaming-integrations",
         "~/.hermes/skills/streaming-integrations"
@@ -7047,7 +6492,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "1b5568a87ff1a063db785c0c6e22e82af24b8bacfbb3413fc1a61a8a2d2f348a",
+      "sha256": "0df9c4012ee253b9370481aea02516108f64e9219232a888212a697c4a064d33",
       "local_globs": [
         "~/.agents/skills/testing-strategies"
       ],
@@ -7061,7 +6506,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "7e26729755c3952b9d5296301b6e469dfeb3236d2d6d86cd345985c7f7089c6b",
+      "sha256": "583d73754a68983cf7f1fd158512e5c7b519c1e61d08ec32b623c3b72bf7f814",
       "local_globs": [
         "~/.agents/skills/theming-components"
       ],
@@ -7075,7 +6520,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "a950293eb239e2cb6cec1f68230d713e800a83ff54822885a7dd33b7d5e062cc",
+      "sha256": "961547dbcb31fbe368353aac78c84b53dd43d02537e4ca2aa8c3fd6eec45b813",
       "local_globs": [
         "~/.agents/skills/tui-design-systems",
         "~/.hermes/skills/tui-design-systems"
@@ -7090,7 +6535,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "64e0830c20d989ebdae0008eeb0f25513a38bd42578ee1bec7ff20f1800ca97e",
+      "sha256": "451a72d6703e870e8beb987d98e9d65700aafee59b8d5556f6371698e432423a",
       "local_globs": [
         "~/.agents/skills/typescript-project-contracts",
         "~/.hermes/skills/typescript-project-contracts"
@@ -7105,7 +6550,7 @@
       "collection": "shared",
       "source": "JuliusBrussee/caveman",
       "license": "Apache-2.0",
-      "sha256": "3b210561b99eda2edf0b3857ebd725ad2366a7785368a1f994ca9c6e7ada9c70",
+      "sha256": "71ab8e6921053ae43dbf8a2c2fb76d3cf01c12cbb9a3054a5e74b40387ea3aba",
       "local_globs": [
         "~/.agents/skills/ultracave"
       ],
@@ -7133,7 +6578,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "f3f847e535ee6521e47e87ae566f7210c0ab97294cbe9a2c816cf50d510a771a",
+      "sha256": "c787131ced75da7b6398dd61cf615920740add5d92729c31d2bbd7e2cdf4579c",
       "local_globs": [
         "~/.agents/skills/using-document-databases"
       ],
@@ -7147,7 +6592,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "b9febb1e459e59156be7c6bddf697b384b2424a6aba70fc867f587c26e950e69",
+      "sha256": "6025351390d5c180d4a2b4bbd1840c903e1c05a999e383b972245664cceaa5bb",
       "local_globs": [
         "~/.agents/skills/using-graph-databases"
       ],
@@ -7161,7 +6606,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "1aed1aeddf0253f6263f318617f82d08141d595fc2625a2c604092758efe2b31",
+      "sha256": "1a3b1c2e5ec8a16e03a081df838b2496f5d13405cc08a7c4ca63d4f91ba28ceb",
       "local_globs": [
         "~/.agents/skills/using-message-queues"
       ],
@@ -7175,7 +6620,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "f3b0d08f8bc6541393548b6582b7a9b5873943759efb1309a88fc82059b6bab2",
+      "sha256": "accd13b9dc46efca44e2f8f2bda3b6d4820c45c5a23dfea097c837961bb169c0",
       "local_globs": [
         "~/.agents/skills/using-relational-databases"
       ],
@@ -7189,7 +6634,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "7a353cae8f15f7d27c84a02b876977d18f7cbc87bbe16698f94b4bd7e53852eb",
+      "sha256": "91e7163cc82bb52d171a4f21804b59c38e9438d1fa3253704dffc3b2c24ba874",
       "local_globs": [
         "~/.agents/skills/using-timeseries-databases"
       ],
@@ -7203,7 +6648,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "c0438462f8c8cd34fad240c98075108367bd6a9279831b4fc2392e790a49129e",
+      "sha256": "9a8d0a789ff8da517befd3b66aa51cf40b0a27e7c3b81a2403acd3e87fe1eed7",
       "local_globs": [
         "~/.agents/skills/using-vector-databases"
       ],
@@ -7232,7 +6677,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "2b3d4487a094dee0ed8eb99e51024455ca722b1884a8b1293d5fd5b4d74ccf1c",
+      "sha256": "8624cb5e62546a49ff0c2bacefbd42fe4696af82d4ec8750c774a5c04ccae88d",
       "local_globs": [
         "~/.agents/skills/visualizing-data"
       ],
@@ -7246,7 +6691,7 @@
       "collection": "shared",
       "source": "sickn33/antigravity-awesome-skills",
       "license": "MIT",
-      "sha256": "535327cae88e91b596839a310ea67c13ee1fafff6b4152c36053b36b7965cfb9",
+      "sha256": "e7fa839d61157a5b4d3cd43cc28508e156bb6c320e69810b7b0556c8979cbf7c",
       "local_globs": [
         "~/.agents/skills/wiki-builder"
       ],
@@ -7288,7 +6733,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "9496bd7a000411f676fe5e43f85277c6f83be3afe3ed20d965c56572ff5d06a8",
+      "sha256": "08c89033431e6e77d4ff9f41dcee4b3a671869fc0f6de4e153a2d9e881a83368",
       "local_globs": [
         "~/.agents/skills/workstation-installers",
         "~/.hermes/skills/workstation-installers"
@@ -7318,7 +6763,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "fd7ea38a8b13d5b9b300a12c319b8aa3e8e92a8de791489cc50a47f050a430da",
+      "sha256": "844f2e86dd8ca3bc498424ebfb2ebf993fbeff4ad046a354d801f0f8e19ee71a",
       "local_globs": [
         "~/.agents/skills/worxbend-repository-context",
         "~/.hermes/skills/worxbend-repository-context"
@@ -7333,7 +6778,7 @@
       "collection": "shared",
       "source": "local",
       "license": "MIT",
-      "sha256": "087e113310c8f7b54246b4b534f9f634f5fa784f6d82fffc1cfdfc01523b2f2d",
+      "sha256": "1503a1d70947e9fb0f39a1eea926f77aeb3c197cf7fd690d9824a29f71d96483",
       "local_globs": [
         "~/.agents/skills/zig-build-and-memory",
         "~/.hermes/skills/zig-build-and-memory"
@@ -7348,7 +6793,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "2d78c726e924b72cafaf701b74670dc85c495064fa80541550f3393b57e028f7",
+      "sha256": "1d4c37a9741a6c07442d8bb0624c7a181c0a8ae395b9ae83e7091072ca22a441",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-add-missing-section"
       ],
@@ -7390,7 +6835,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "7881c11e96844b0366c835938ccea523e14c5b1d82c3376c1b96dd175ad61ceb",
+      "sha256": "1ad586d16aa10a007fba1f75f7acc1489c853050d106cf09243c886efc83973f",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-check-compliance"
       ],
@@ -7404,7 +6849,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "190a3f71aca1f9133d75520510986e7c20173b3df1cad1f3d2e8a34ef1734a19",
+      "sha256": "27c850200469958c949b2a3579cf2d3c0b265675ed1fd226d93c42d5c48d3489",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-companion-examples"
       ],
@@ -7432,7 +6877,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "bc28d327f7b27676948e7fe209cafa7c0e7db511fc5f6e626f288222671f3f44",
+      "sha256": "50075acc669bef9c632191a7d091466e7bbdff577c04f20cbe304cd0913b42ed",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-data-type-list-members"
       ],
@@ -7446,7 +6891,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "c0f49f92bc18b7e6f6d4da8ae3e1f0347f4ebd6b836a9333810f7d1de1fd5182",
+      "sha256": "6e980c79646c124ac3f74e8beaaa2de7313fe0f948143ac5f7fac19e643d1c48",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-data-type-ref"
       ],
@@ -7460,7 +6905,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "23ac042c8612119cf5b0075307cdae0244e8445efd358a4f373cc2677a769147",
+      "sha256": "6da089519dd4a71869ba1e3947ff77945e1e5c0687347dc7b94f4413d0b73f7d",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-document-pr"
       ],
@@ -7474,7 +6919,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "b6af8a98869279c9496bbfb1fc86bb63865094df256cd8c7b5a5427bde346475",
+      "sha256": "c66cc5b66e1f6bdc1d5d46c3b832a1cb507ff80fd35356f1229b189016dfa0b1",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-enrich-section"
       ],
@@ -7488,7 +6933,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "167af482790312ceef53c7647b27aff4d93568790c946c5eacbb0f2f32538330",
+      "sha256": "f1dbfd9252b71daa26b4484cebaa74d7adcb5f8698de9866c6f15dd9032df387",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-examples"
       ],
@@ -7502,7 +6947,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "9c5c559ebac3d4e7ed6128d5d8d8a2cabaccd8748c00ced8df5cd7163bfead77",
+      "sha256": "c8816cfd1fbf38d9890489b9b8e8ccfe25b791d6a40af15f6d6b84163c5b2386",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-find-documentation-gaps"
       ],
@@ -7516,7 +6961,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "ac001df28e327734f22d92a807cd8b91e0c90e210b6ed721bda23a1235111aa4",
+      "sha256": "4841d2299cdcda66ca76e060131395f41d7fcefc330091a1834c2a3d3f88ccc1",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-how-to-guide"
       ],
@@ -7544,7 +6989,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "7617a4ad0c9380bc3ba2c0dc472d683695b1b2f79a068f86be734c503b5212ba",
+      "sha256": "b73c29b78b598865c4b6003c652365a4ecb62766042412c62bb8fbdba4b6597d",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-list-undocumented-prs"
       ],
@@ -7572,7 +7017,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "2fb4ac2f4cd39bcf1436ab3513ccd47dce7df7ce96ad7bff84c2c8007b818e2c",
+      "sha256": "20d7d7746b5c4658b0609473d1a43a448ee00a27d88be8adf9ca3e2926b7e5d5",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-mdoc-conventions"
       ],
@@ -7586,7 +7031,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "8a248a1d297822b35abccc7810464f9809e96b70ea58592aeb4d6079f9645940",
+      "sha256": "ea2f6bfb7debc889229104943c542db54108251594e4e546703b2e63bc4cf108",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-module-ref"
       ],
@@ -7600,25 +7045,11 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "7792c8a7462ead59d641b5d05565534de93514c96988c7fad26cb02979b2468e",
+      "sha256": "dcc2f69d10f13fec666b84ba0a3c8df5693468512f141dee2842e98f90c7ef80",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-organize-reference-docs"
       ],
       "path": "collections/zio-skills/plugins/documentation/skills/docs-organize-reference-docs",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/zio--zio-skills.txt"
-    },
-    {
-      "id": "zio-skills--docs-organize-types",
-      "name": "docs-organize-types",
-      "collection": "zio-skills",
-      "source": "zio/zio-skills",
-      "license": "Apache-2.0",
-      "sha256": "a44bff8e783023b8f93efb21182df55c321067910f56bc3be9fe357d51f1ad61",
-      "local_globs": [
-        "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-organize-types"
-      ],
-      "path": "collections/zio-skills/plugins/documentation/skills/docs-organize-types",
       "distribution": "vendored",
       "license_file": "licenses/upstream/zio--zio-skills.txt"
     },
@@ -7642,7 +7073,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "d7a721d45811327b281404e7868424cfdc0efbc44a8f422d1ab3135c6d09c150",
+      "sha256": "148f90a045e9b2e6fab017f9142e2af529e5b538c88497be8fe4d5d32f87b3c6",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-reduce-redundancy"
       ],
@@ -7656,7 +7087,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "ec56480de817766432a6c0a8ce07916b302d8e111a4bb16f17b694e27e014271",
+      "sha256": "b7d910e36814ae78a6fa8892491e59f6246fa3e3de09a561c38f89fdc7768a3a",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-report-method-coverage"
       ],
@@ -7670,7 +7101,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "566b896e72f39476f108dcba904f63f0386b8b745fec3b191196a216645ec87b",
+      "sha256": "523ae5d1c453ba75679436d02bb84137257bd5a4ac29bc89699349e4f5607f2a",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-research"
       ],
@@ -7684,7 +7115,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "e62800be347a00fea44b7d99cb7568b0d33b0e2ac670c537af78da5e7635f148",
+      "sha256": "0ccf4514c1bbce8de435ee08d60db74c8d3bfc3c615b05937400bc3d322b3c66",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-skill-retrospection"
       ],
@@ -7698,25 +7129,11 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "30fe41c64cdc9fa9336bd814e92717fae1c20f2e069ed24b19b49adc606a922d",
+      "sha256": "7380eeb9134e13aa421603390ebda6b02cb19b7772bfb73ad5a7150084a8e2db",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-tutorial"
       ],
       "path": "collections/zio-skills/plugins/documentation/skills/docs-tutorial",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/zio--zio-skills.txt"
-    },
-    {
-      "id": "zio-skills--docs-verify-compliance",
-      "name": "docs-verify-compliance",
-      "collection": "zio-skills",
-      "source": "zio/zio-skills",
-      "license": "Apache-2.0",
-      "sha256": "f57e755575e65ce02caddee928b43eca95cc3998316022eeb7841de91b4bc340",
-      "local_globs": [
-        "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-verify-compliance"
-      ],
-      "path": "collections/zio-skills/plugins/documentation/skills/docs-verify-compliance",
       "distribution": "vendored",
       "license_file": "licenses/upstream/zio--zio-skills.txt"
     },
@@ -7726,25 +7143,11 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "8525b57eae5e17d831b14e896b4375baa18cf84eb01607b3529ff517ae81efde",
+      "sha256": "c41fa05671dccf07360ffa05f3a6c289b65b5d9ebb8b426e034c93845a9e6642",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/documentation/skills/docs-writing-style"
       ],
       "path": "collections/zio-skills/plugins/documentation/skills/docs-writing-style",
-      "distribution": "vendored",
-      "license_file": "licenses/upstream/zio--zio-skills.txt"
-    },
-    {
-      "id": "zio-skills--setup-skill-hook",
-      "name": "setup-skill-hook",
-      "collection": "zio-skills",
-      "source": "zio/zio-skills",
-      "license": "Apache-2.0",
-      "sha256": "0c2a16d130bc7c4cedddfacdf5921366dbb79584df7fa22d36d68828bfce6614",
-      "local_globs": [
-        "~/.agents/skills/zio-skills/plugins/documentation/skills/setup-skill-hook"
-      ],
-      "path": "collections/zio-skills/plugins/documentation/skills/setup-skill-hook",
       "distribution": "vendored",
       "license_file": "licenses/upstream/zio--zio-skills.txt"
     },
@@ -7768,7 +7171,7 @@
       "collection": "zio-skills",
       "source": "zio/zio-skills",
       "license": "Apache-2.0",
-      "sha256": "b232b770371198384de0f11208d82f693120bda1a2249a18bf67dfc624c747a7",
+      "sha256": "166bb70f8a9ac63c7f333664d8664b8dc47560bc84d32abcb2618b6084ca120a",
       "local_globs": [
         "~/.agents/skills/zio-skills/plugins/zio-skills/skills/zio-knowledge"
       ],

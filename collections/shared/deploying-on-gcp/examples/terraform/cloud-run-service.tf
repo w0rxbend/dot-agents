@@ -7,7 +7,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "~> 5.0"
+      version = ">= 6.0"
     }
   }
 }
@@ -37,7 +37,7 @@ variable "service_name" {
 }
 
 variable "container_image" {
-  description = "Container image URL (e.g., gcr.io/project/image:tag)"
+  description = "Container image URL (Artifact Registry, e.g., us-central1-docker.pkg.dev/project/repo/image:tag)"
   type        = string
 }
 
@@ -303,13 +303,13 @@ output "latest_revision" {
 #    terraform init
 #
 # 2. Plan the deployment:
-#    terraform plan -var="project_id=my-project" -var="container_image=gcr.io/my-project/api:v1"
+#    terraform plan -var="project_id=my-project" -var="container_image=us-central1-docker.pkg.dev/my-project/my-repo/api:v1"
 #
 # 3. Apply the configuration:
-#    terraform apply -var="project_id=my-project" -var="container_image=gcr.io/my-project/api:v1"
+#    terraform apply -var="project_id=my-project" -var="container_image=us-central1-docker.pkg.dev/my-project/my-repo/api:v1"
 #
 # 4. For public access:
-#    terraform apply -var="project_id=my-project" -var="container_image=gcr.io/my-project/api:v1" -var="allow_public_access=true"
+#    terraform apply -var="project_id=my-project" -var="container_image=us-central1-docker.pkg.dev/my-project/my-repo/api:v1" -var="allow_public_access=true"
 #
 # 5. Destroy resources:
-#    terraform destroy -var="project_id=my-project" -var="container_image=gcr.io/my-project/api:v1"
+#    terraform destroy -var="project_id=my-project" -var="container_image=us-central1-docker.pkg.dev/my-project/my-repo/api:v1"

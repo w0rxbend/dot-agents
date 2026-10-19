@@ -1,7 +1,7 @@
 ---
 name: docs-mdoc-conventions
 description: Shared reference for mdoc code block modifiers and Docusaurus admonitions used across ZIO library documentation skills. Include when writing any documentation that contains Scala code blocks.
-allowed_tools: Read, Glob, Grep
+allowed-tools: Read, Glob, Grep
 color: silver
 ---
 
@@ -23,20 +23,24 @@ listed it for confirmation.
 Work through the tree top-to-bottom. For each parent task:
 - Mark parent `in_progress`
 - Mark child 1 `in_progress` → apply modifier → mark child 1 `completed`
-- Mark child 2 `in_progress` → run `sbt mdoc` → confirm exit 0 → mark child 2 `completed`
+- Mark child 2 `in_progress` → run `sbt "docs/mdoc --in <file> --out website/<file>"` → confirm exit 0 → mark child 2 `completed`
 - Mark parent `completed`
   Only then move to the next parent task.
 
 **Phase 3 — Mechanical validation**
-After all tasks are `completed`, run:
-bash ${CLAUDE_PLUGIN_ROOT}/skills/docs-mdoc-conventions/check-mdoc-conventions.sh <file.md>
+After all tasks are `completed`, run (`<this-skill-dir>` is this skill's own directory, where this file lives):
+
+```
+bash <this-skill-dir>/check-mdoc-conventions.sh <file.md>
+```
+
 Verify exit code is 0. If not, re-open the relevant tasks and fix.
 
 ## Modifiers & Rules
 
 Each modifier has a specific role. Choose based on whether you need scope sharing and whether output should render:
 
-- **`mdoc:compile-only`** — Renders source code only, isolated scope (no definitions carry over).
+- **`mdoc:compile-only`** — Renders source code only; its own definitions do not carry over to later blocks, but definitions and imports from earlier `mdoc:silent`/`mdoc:invisible` blocks in the same file are visible inside it (observed in scalacv, whose guides share one import block). In a Mill project the local check is the repository's mdoc task (`./mill docs.mdocCheck` in scalacv) rather than `sbt "docs/mdoc"`.
   This is the **default** for self-contained examples where you want to show the structure but not
   the evaluated output. Each block compiles alone; subsequent blocks cannot reference definitions
   from a `compile-only` block.
@@ -67,7 +71,8 @@ Each modifier has a specific role. Choose based on whether you need scope sharin
 
 - **`mdoc:embed:<path>`** — Custom modifier: replaces the block (leave its body empty) with the file
   at `<path>` (repo-root relative) rendered as a titled code fence. Append `:showLineNumbers` for line
-  numbers. Use for a tutorial's "Putting It Together" final block, pointing at the companion example
+  numbers (this is the spelling the docs-* skills use; if the build rejects it, check the modifier name
+  your `zio-sbt-source` version accepts and use that consistently). Use for a tutorial's "Putting It Together" final block, pointing at the companion example
   file that is the single source of truth for that complete example — never paste the same code inline
   when a companion file already carries it. Requires the docs subproject to depend on
   `"dev.zio" %% "zio-sbt-source"` — add it if missing.
@@ -103,7 +108,7 @@ Is this real executable Scala code?
    │  │
    │  ├─ NO → Use mdoc:compile-only (source only, isolated)
    │  │
-   │  └─ YES → Use mdoc (source + output, isolated)
+   │  └─ YES → Use mdoc (source + output; scope still shared — add :reset to the next block that must not see it)
    │
    └─ YES → Is this a later block showing a result?
       │
@@ -182,7 +187,7 @@ case class User(name: String, age: Int)
 val user = User("Alice", 30)
 ```
 
-Each `compile-only` block stands alone. The next example in the document doesn't have access to `person`.
+Each `compile-only` block stands alone. The next example in the document doesn't have access to `user`.
 
 ### Pattern 4: Setup + Show Output
 
@@ -260,7 +265,7 @@ ScalaEmitter.emit(file, EmitterConfig())
 ## Tips
 
 - **Never manually write `// result` comments** — use `mdoc` to show real output
-- **Test locally with `sbt docs`** before committing mdoc blocks
+- **Test locally with `sbt "docs/mdoc --in <file> --out website/<file>"`** before committing mdoc blocks (never unscoped)
 - **Group related setup blocks** — define all prerequisites in one `silent` block if possible
 - **Use `:reset` at the right scope** — once per independent example in multi-example documents; prefer `:nest` for minor redefinitions *within* a single example
 
@@ -269,7 +274,7 @@ ScalaEmitter.emit(file, EmitterConfig())
 Before submitting changes, run the mdoc-conventions checker against the file. It flags any plain ```` ```scala ```` block that should carry an mdoc modifier:
 
 ```
-bash ${CLAUDE_PLUGIN_ROOT}/skills/docs-mdoc-conventions/check-mdoc-conventions.sh <file.md>
+bash <this-skill-dir>/check-mdoc-conventions.sh <file.md>
 ```
 
 Run with `--help` for full usage. **Exit codes:**

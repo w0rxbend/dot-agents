@@ -17,7 +17,7 @@ disable-model-invocation: true
 
 ### 1. Detect package manager
 
-Check for `package-lock.json` (npm), `pnpm-lock.yaml` (pnpm), `yarn.lock` (yarn), `bun.lockb` (bun). Use whichever is present. Default to npm if unclear.
+Check for `package-lock.json` (npm), `pnpm-lock.yaml` (pnpm), `yarn.lock` (yarn), `bun.lock` or `bun.lockb` (bun; Bun 1.2+ writes the text `bun.lock`). Use whichever is present. Default to npm if unclear.
 
 ### 2. Install dependencies
 
@@ -81,9 +81,9 @@ Only create if no Prettier config exists. Use these defaults:
 
 ### 8. Commit
 
-Stage all changed/created files and commit with message: `Add pre-commit hooks (husky + lint-staged + prettier)`
+Ask the user before committing. If they agree, stage only the files this skill created or changed (`.husky/pre-commit`, `.lintstagedrc`, `.prettierrc` if created, `package.json`, and the lockfile), not unrelated work in the tree, and commit with message: `Add pre-commit hooks (husky + lint-staged + prettier)`
 
-This will run through the new pre-commit hooks: a good smoke test that everything works.
+This will run through the new pre-commit hooks: a good smoke test that everything works. Do not push.
 
 ## Notes
 

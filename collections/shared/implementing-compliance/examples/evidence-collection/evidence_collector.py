@@ -15,6 +15,7 @@ Usage:
 """
 
 import boto3
+from botocore.exceptions import ClientError
 import json
 from datetime import datetime
 from typing import Dict, List, Any
@@ -46,14 +47,25 @@ class EvidenceCollector:
             for page in paginator.paginate():
                 for bucket in page.get('Buckets', []):
                     bucket_name = bucket['Name']
+                    # Since Jan 2023 every bucket has SSE-S3 by default, so
+                    # "encryption present" proves little; record the algorithm
+                    # and require SSE-KMS when your controls call for managed keys.
                     try:
                         encryption = s3.get_bucket_encryption(Bucket=bucket_name)
+                        rules = encryption["ServerSideEncryptionConfiguration"]["Rules"]
+                        algorithm = rules[0]["ApplyServerSideEncryptionByDefault"]["SSEAlgorithm"]
+                        compliant = algorithm in ("aws:kms", "aws:kms:dsse")
                         evidence["findings"].append({
                             "resource": f"s3://{bucket_name}",
-                            "status": "COMPLIANT",
-                            "encryption": "Enabled"
+                            "status": "COMPLIANT" if compliant else "NON_COMPLIANT",
+                            "encryption": algorithm,
+                            **({} if compliant else {"issue": "Not using SSE-KMS"}),
                         })
-                    except s3.exceptions.ServerSideEncryptionConfigurationNotFoundError:
+                        if not compliant:
+                            evidence["status"] = "FAIL"
+                    except ClientError as e:
+                        if e.response["Error"]["Code"] != "ServerSideEncryptionConfigurationNotFoundError":
+                            raise
                         evidence["findings"].append({
                             "resource": f"s3://{bucket_name}",
                             "status": "NON_COMPLIANT",

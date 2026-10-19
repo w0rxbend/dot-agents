@@ -3,16 +3,17 @@
 *   **Code Example**:
     ```scala
     // 1. Interface
-    trait Greeter { def sayHello(name: String): UIO[Unit] }
+    trait Salutation { def get: UIO[String] } // another domain service
+trait Greeter { def sayHello(name: String): UIO[String] }
     
     // 2. Implementation with constructor dependencies
-    case class GreeterLive(console: Console) extends Greeter {
-      def sayHello(name: String): UIO[Unit] = console.printLine(s"Hello, $name!").orDie
+    case class GreeterLive(salutation: Salutation) extends Greeter {
+      def sayHello(name: String): UIO[String] = salutation.get.map(s => s"$s, $name!")
     }
     
     // 3. Layer for dependency injection
     object Greeter {
-      val layer: URLayer[Console, Greeter] = ZLayer.derive[GreeterLive]
+      val layer: URLayer[Salutation, Greeter] = ZLayer.derive[GreeterLive]
     }
     ```
 

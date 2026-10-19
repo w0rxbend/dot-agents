@@ -189,7 +189,16 @@ Client metrics:
 
 ```typescript
 // Set up error boundary with reporting
-class ErrorBoundary extends React.Component {
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true }; // render the fallback on the next pass
+  }
+
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     // Report to error tracking service
     reportError(error, {
@@ -278,11 +287,8 @@ Every deployment needs a rollback plan before it happens:
 ```
 ## See Also
 
-- For the project-wide Definition of Done that every change must clear before this checklist, see the release acceptance criteria and repository checks
-- For security pre-launch checks, see the security portion of the checklist above
-- For performance pre-launch checklist, see the repository's measured performance budgets
-- For accessibility verification before launch, see the repository's accessibility requirements
-- For the alerting rules and SLO-tied thresholds, see `observability-and-instrumentation`
+- Application security review before launch: `security-and-hardening`
+- Alerting rules and SLO-tied thresholds: `observability-and-instrumentation`
 
 ## Common Rationalizations
 

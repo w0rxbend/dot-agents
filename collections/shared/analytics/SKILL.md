@@ -164,7 +164,7 @@ A conversion marks real value, completed intent and progress that is not undone 
 2. Install gtag.js or GTM
 3. Enable enhanced measurement
 4. Configure custom events
-5. Mark conversions in Admin
+5. Mark conversion events as key events in Admin (GA4 renamed "conversions" to "key events" in 2024)
 
 ### Custom Event Example
 
@@ -279,7 +279,7 @@ Rough reading of the total: 85+ usable for decisions if the evidence holds; 70-8
 
 ### Implementation
 - Use consent mode (wait for consent)
-- IP anonymization
+- No IP-anonymization setting needed in GA4 (it never logs or stores IP addresses); in other tools, truncate or drop IPs
 - Only collect what you need
 - Integrate with consent management platform
 

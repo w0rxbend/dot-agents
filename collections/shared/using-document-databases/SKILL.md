@@ -139,7 +139,7 @@ db.articles.createIndex({
 
 **Index Best Practices:**
 - Add indexes for all query filters
-- Compound index order: Equality → Range → Sort
+- Compound index order: Equality → Sort → Range (MongoDB ESR rule)
 - Use covering indexes (query + projection in index)
 - Use `explain()` to verify index usage
 - Monitor with Performance Advisor (Atlas)

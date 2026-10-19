@@ -33,6 +33,9 @@ while not Path('child.json').exists():
 SLEEPING_TREE = TREE + '\nsignal.signal(signal.SIGTERM, signal.SIG_IGN)\ntime.sleep(60)\n'
 
 
+# The backend is Linux-only (/proc identity, boot ID, cgroup v2, systemd user units).
+@unittest.skipUnless(sys.platform.startswith('linux') and Path('/proc/sys/kernel/random/boot_id').exists(),
+                     'Linux /proc and systemd backend only')
 class TemporaryState(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(dir=os.environ.get('TMPDIR'))
@@ -119,6 +122,47 @@ class OfflineProcessTests(TemporaryState):
             with self.assertRaisesRegex(RuntimeError, 'unresolved launch'):
                 p.alive(record)
 
+    def test_launch_abandoned_long_ago_resolves_instead_of_blocking_forever(self):
+        record = self.record(phase='launching', launch_settled=False, pid=999999999, start_ticks='0',
+                             launched_at=p._boot_seconds() - p._LAUNCH_GRACE_SECONDS - 1)
+        with patch.object(p, '_control', return_value={'LoadState': 'not-found'}), \
+                patch.object(p.os, 'pidfd_open', side_effect=ProcessLookupError, create=True):
+            self.assertFalse(p.alive(record))
+            p.stop(None, record)
+        self.assertTrue(p._read(Path(record['record_path']))['stopped'])
+
+    def test_recent_or_undated_launch_stays_unresolved(self):
+        for launched_at in (None, p._boot_seconds()):
+            with self.subTest(launched_at=launched_at):
+                record = self.record(phase='launching', launch_settled=False, pid=999999999,
+                                     start_ticks='0', launched_at=launched_at)
+                with patch.object(p, '_control', return_value={'LoadState': 'not-found'}):
+                    with self.assertRaisesRegex(RuntimeError, 'unresolved launch'):
+                        p.alive(record)
+
+    def test_sandbox_properties_reach_systemd_run_and_drop_tmpdir(self):
+        seen = {}
+        def inspect_spawn(args, **kwargs):
+            seen['argv'] = args
+            raise OSError('synthetic spawn failure')
+        properties = ['ProtectSystem=strict', 'PrivateTmp=yes', f'ReadWritePaths=-{self.root}']
+        with patch.object(p, 'require_available'), patch.object(p, 'Popen', side_effect=inspect_spawn), \
+                patch.dict(os.environ, {'TMPDIR': str(self.root)}):
+            with self.assertRaises(OSError):
+                p.start([sys.executable], label='sandboxed', state=self.root, cwd=self.root,
+                        seconds=10, stdout=self.log, properties=properties)
+        for item in properties:
+            self.assertIn('--property=' + item, seen['argv'])
+        self.assertNotIn('--setenv=TMPDIR', seen['argv'])
+
+    def test_unsafe_sandbox_property_is_rejected_before_spawn(self):
+        for bad in ('ExecStartPre=/bin/sh', 'ReadWritePaths=-/a b', 'ReadOnlyPaths=-/%h', 'ProtectHome=no'):
+            with self.subTest(bad=bad), patch.object(p, 'Popen') as spawn:
+                with self.assertRaises(ValueError):
+                    p.start([sys.executable], label='bad', state=self.root, cwd=self.root,
+                            seconds=10, stdout=self.log, properties=[bad])
+                spawn.assert_not_called()
+
     def test_unit_invocation_change_refuses_shutdown(self):
         record = self.record(invocation_id='a' * 32)
         info = self.unit_info(record, InvocationID='b' * 32)
@@ -152,9 +196,9 @@ class OfflineProcessTests(TemporaryState):
 
     def test_reused_pid_never_receives_a_signal(self):
         record = self.record(pid=7654, start_ticks='first')
-        with patch.object(p.os, 'pidfd_open', return_value=42), patch.object(p.os, 'close'), \
+        with patch.object(p.os, 'pidfd_open', return_value=42, create=True), patch.object(p.os, 'close'), \
                 patch.object(p, '_identity', return_value={'pid': 7654, 'start_ticks': 'second'}), \
-                patch.object(p.signal, 'pidfd_send_signal') as send:
+                patch.object(p.signal, 'pidfd_send_signal', create=True) as send:
             p._kill_wrapper(record)
         send.assert_not_called()
 
@@ -199,7 +243,9 @@ class OfflineProcessTests(TemporaryState):
 
     def test_stop_during_known_pre_exec_window_is_safe(self):
         record = self.record(phase='prepared', launch_settled=False, pid=999999999, start_ticks='0')
-        with patch.object(p, '_control', return_value={'LoadState': 'not-found'}):
+        # The wrapper PID is gone; hosts without pidfd support still exercise this path.
+        with patch.object(p, '_control', return_value={'LoadState': 'not-found'}), \
+                patch.object(p.os, 'pidfd_open', side_effect=ProcessLookupError, create=True):
             p.stop(None, record)
             p.stop(None, record)
             self.assertFalse(p.alive(record))
@@ -299,7 +345,11 @@ class LiveProcessTests(TemporaryState):
             raise unittest.SkipTest('systemd user manager is unavailable')
         if result.returncode:
             raise unittest.SkipTest('systemd user manager is unavailable')
-        p.require_available()
+        try:
+            p.require_available()
+        except RuntimeError as exc:
+            # e.g. a Python build without os.pidfd_open, or no cgroup v2.
+            raise unittest.SkipTest(str(exc))
 
     def spawn(self, code, *, seconds=10, label='synthetic'):
         process, record = p.start([sys.executable, '-c', code], label=label,

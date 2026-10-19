@@ -2,12 +2,22 @@
 name: docs-module-ref
 description: Write reference documentation for a module containing multiple related data types. Use when documenting a cohesive domain model (HTTP model, resource management) where types work together. Produces comprehensive type-level pages plus module-level narrative showing relationships, patterns, and composition.
 argument-hint: "[module-name (e.g., 'http-model', 'resource-management')]"
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(sbt:*), Bash(sbt gh-query*), Bash(git:*), AskUserQuestion, Task, Skill
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(sbt:*), Bash(sbt gh-query*), Bash(git:*), Bash(scalafmt:*), Bash(scala-cli:*), Bash(bash:*), AskUserQuestion, Task, Agent, Skill
 ---
 
 # Module Reference Documentation
 
-**REQUIRED BACKGROUND:** Use `docs-writing-style` for prose conventions and `docs-mdoc-conventions` for code block syntax. Each hierarchical subpage follows `docs-data-type-ref`'s structure completely — read that skill before Step 6.
+**REQUIRED BACKGROUND:** Use `docs-writing-style` for prose conventions and `docs-mdoc-conventions` for code block syntax. Each hierarchical subpage follows `docs-data-type-ref`'s structure completely — read that skill before Step 5.
+
+## Subagents Used by This Skill
+
+The `docs-*` agents this skill delegates to ([`docs-fixer`](references/agents/docs-fixer.md), [`docs-integrator`](references/agents/docs-integrator.md), [`docs-researcher`](references/agents/docs-researcher.md), [`docs-reviewer`](references/agents/docs-reviewer.md)) are not installed as Claude Code agents; each
+has a role brief in this skill's `references/agents/` directory. Wherever a step says to delegate to
+one of them with the `Task` tool, start a fresh general-purpose subagent (`subagent_type:
+"general-purpose"`) whose prompt is the full text of that brief followed by the task prompt shown. If
+you cannot start subagents, do the step yourself as a separate pass that follows the brief exactly —
+the separation rules still hold (a fix pass applies only the reviewer's verbatim findings, and a
+review pass grades the page as written).
 
 ## Target Module
 
@@ -22,12 +32,12 @@ and everything downstream, so get it right before writing anything; halt and ask
 uncertain). Before writing any file, create one task per remaining step. Present the task list to the
 user for confirmation before proceeding.
 
-**Phase 2 — Write (Steps 3–5)**
+**Phase 2 — Write (Steps 3–6)**
 
 Write the module page, the per-type documentation (inline for flat, subpages for hierarchical), and
 examples, in that order. Mark each task `completed` as you finish it.
 
-**Phase 3 — Verify and Complete (Steps 6–10)**
+**Phase 3 — Verify and Complete (Steps 7–12)**
 
 Execute in order: compliance, method coverage, mdoc, fact-check, integrate, final review. Fact-check
 and final review must be last — fact-check needs the finished prose to check against source, and final
@@ -50,7 +60,7 @@ conversation, so its only knowledge of what to research is what you tell it:
 ```
 Task(
   description: "Research <module-name> module",
-  subagent_type: "documentation:docs-researcher",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-researcher.md, then the text below
   prompt: "Research the <module-name> module for a module reference page. The scope is free-form —
            only the module name was given — so DISCOVER which types belong to it, and classify each as
            core or supporting (a supporting type exists to serve the core types; app code rarely
@@ -419,14 +429,14 @@ the Response"). Use the `docs-companion-examples` skill.
 pages (flat) or individual type files (hierarchical), using `docs-companion-examples` separately per
 type.
 
-Do this **before** Step 8 (mdoc verify) — an embedded example file that doesn't exist yet fails mdoc
+Do this **before** Step 9 (mdoc verify) — an embedded example file that doesn't exist yet fails mdoc
 outright, whichever embedding mechanism this project uses (see `docs-companion-examples`).
 
 ---
 
 ## Step 7: Verify Documentation Compliance
 
-Run `docs-check-compliance` (or `docs-verify-compliance`) against the module page (flat) or the index
+Run `docs-check-compliance` (once with `docs-writing-style`, once with `docs-mdoc-conventions`) against the module page (flat) or the index
 plus every subpage (hierarchical). Fix everything reported before continuing.
 
 ---
@@ -473,14 +483,14 @@ most likely to carry that a single-type reference never could.
 
 Run once per page checked — the flat page, or the hierarchical index plus each subpage (each stands on
 its own claims). Delegate each to the **`docs-reviewer`** agent with the `Task` tool
-(`subagent_type: "documentation:docs-reviewer"`), asking it to fact-check, same shape as
+(a general-purpose subagent briefed with `references/agents/docs-reviewer.md`), asking it to fact-check, same shape as
 `docs-data-type-ref`'s Step 8, with one addition to the brief: explicitly ask it to verify every
 claimed cross-type relationship against real source (an import, a call site, a field of that type) —
 not just per-type signatures and behavior. It reports each drift with the exact corrected statement,
 not just a description of what's wrong.
 
 Never fix a drift yourself: delegate every reported drift, verbatim (its exact statement included), to
-the **`docs-fixer`** agent with the `Task` tool (`subagent_type: "documentation:docs-fixer"`) —
+the **`docs-fixer`** agent with the `Task` tool (a general-purpose subagent briefed with `references/agents/docs-fixer.md`) —
 correcting only the **page**, never the source. **Bounded rounds, shared across every page this run
 checks**: delegate everything a check reports to `docs-fixer` before spending a confirming round;
 re-run mdoc after `docs-fixer` returns, then re-delegate the fact-check to confirm. If a confirming
@@ -501,7 +511,7 @@ guides — also ask for inbound "See also" links from an existing guide using th
 ```
 Task(
   description: "Integrate <module-name> module reference",
-  subagent_type: "documentation:docs-integrator",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-integrator.md, then the text below
   prompt: "Page: docs/reference/<module-name>.md (or docs/reference/<module-name>/index.md for a
            hierarchical layout, plus one entry/sub-category per <sub-domain-or-type> subpage: <list>)
            Category: Reference
@@ -551,14 +561,14 @@ The last gate, run against the page's final, integrated state — after Step 11,
 a reader actually sees, sidebar and cross-references included.
 
 Delegate to the **`docs-reviewer`** agent with the `Task` tool
-(`subagent_type: "documentation:docs-reviewer"`), asking for a full-page review of the module page
+(a general-purpose subagent briefed with `references/agents/docs-reviewer.md`), asking for a full-page review of the module page
 (flat page, or hierarchical index) against this checklist, and telling it to give the exact corrected
 statement for every failing item, not just what's wrong:
 
 ```
 Task(
   description: "Review <module-name> module reference",
-  subagent_type: "documentation:docs-reviewer",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-reviewer.md, then the text below
   prompt: "Full-page review (not a fact-check): evaluate
            docs/reference/<module-name>.md (or the hierarchical index plus each subpage) against this
            checklist. For every failing item, give the exact corrected statement to apply.
@@ -589,7 +599,7 @@ Task(
 
 Never fix a failing item yourself: delegate everything review reports, verbatim (the exact statement
 for each), to the **`docs-fixer`** agent with the `Task` tool
-(`subagent_type: "documentation:docs-fixer"`).
+(a general-purpose subagent briefed with `references/agents/docs-fixer.md`).
 
 **Bounded rounds, same discipline as fact-check:** after `docs-fixer` returns, re-run mdoc, then
 delegate the same review to `docs-reviewer` once more — that confirming round is what records the
@@ -599,7 +609,12 @@ reported nothing needs no confirming round.
 
 ### Final Formatting
 
+Format only the Scala files this run touched (e.g. companion examples), never the whole repository —
+`sbt scalafmtAll` would reformat unrelated code. Use the project's scoped command if it has one (some
+ZIO builds define `sbt fmtChanged`, as `docs-examples` uses), otherwise the scalafmt CLI on the changed
+files:
+
 ```bash
-sbt scalafmtAll
+scalafmt $(git diff --name-only --diff-filter=AM -- '*.scala')
 sbt check
 ```

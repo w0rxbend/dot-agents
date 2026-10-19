@@ -37,6 +37,12 @@ _START_SECONDS = 10.0
 _ENV_NAMES = ('PATH', 'HOME', 'TMPDIR', 'HERMES_HOME',
               'HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'NO_PROXY',
               'http_proxy', 'https_proxy', 'all_proxy', 'no_proxy')
+# Unit sandbox settings a caller may request; values are validated, never shell-expanded.
+_SANDBOX = re.compile(r'(?:ProtectSystem=strict|ProtectHome=read-only|PrivateTmp=yes|NoNewPrivileges=yes|'
+                      r'(?:ReadWritePaths|ReadOnlyPaths|InaccessiblePaths)=-/[^\s%"\'\\;]*(?: -/[^\s%"\'\\;]*)*)\Z')
+# systemd-run that died before its unit ever executed: once this long has passed
+# (well beyond TimeoutStartSec=10s plus D-Bus delivery), nothing can still start it.
+_LAUNCH_GRACE_SECONDS = 60.0
 _PROPERTIES = ('Id', 'LoadState', 'ActiveState', 'SubState', 'ControlGroup',
                'InvocationID', 'Description', 'Transient', 'Job')
 
@@ -57,6 +63,11 @@ def _identity(pid: int | None) -> dict | None:
         return None
     except (OSError, IndexError) as exc:
         raise RuntimeError('cannot verify wrapper process identity') from exc
+
+
+def _boot_seconds() -> float:
+    """Seconds since boot; comparable only within one boot ID, immune to wall-clock jumps."""
+    return time.clock_gettime(getattr(time, 'CLOCK_BOOTTIME', time.CLOCK_MONOTONIC))
 
 
 def _same_wrapper(record: dict) -> bool:
@@ -227,6 +238,14 @@ def _unit_live(record: dict, info: dict) -> bool:
     return populated or state not in {'inactive', 'failed'} or info.get('Job', '') not in {'', '0'}
 
 
+def _launch_abandoned(record: dict) -> bool:
+    """The launcher died long ago and its unit never executed (caller checks not-found)."""
+    launched = record.get('launched_at')
+    return (record.get('phase') == 'launching' and not record.get('launch_settled')
+            and isinstance(record.get('pid'), int) and type(launched) in (int, float)
+            and _boot_seconds() - launched > _LAUNCH_GRACE_SECONDS and not _same_wrapper(record))
+
+
 def alive(record: dict) -> bool:
     """Return liveness; raise if absence cannot be proved (fail closed)."""
     if _stale_boot(record):
@@ -236,6 +255,8 @@ def alive(record: dict) -> bool:
     if _unit_live(current, info) or _same_wrapper(current):
         return True
     if current.get('launch_settled') or current.get('stopped'):
+        return False
+    if info.get('LoadState') == 'not-found' and _launch_abandoned(current):
         return False
     raise RuntimeError('unresolved launch; refusing resume without verified cleanup')
 
@@ -302,7 +323,8 @@ def stop(process: Popen | None, record: dict) -> None:
         # Kill the exact launcher FIRST, so it cannot submit a start after stop.
         # pidfd guards the check/signal race against PID reuse.
         _kill_wrapper(current)
-        observed = bool(current.get('launch_settled') or current.get('stopped') or never_submitted)
+        observed = bool(current.get('launch_settled') or current.get('stopped') or never_submitted
+                        or _launch_abandoned(current))
         stop_sent = False
         while time.monotonic() < deadline:
             remaining = deadline - time.monotonic()
@@ -335,8 +357,39 @@ def stop(process: Popen | None, record: dict) -> None:
     raise RuntimeError('owned service cleanup unverified before deadline; resume is blocked')
 
 
+def sandbox_enforced(state: Path, *, timeout: float = 20.0) -> bool:
+    """Prove the user manager applies mount-namespace sandboxing instead of dropping it.
+
+    Some managers (e.g. with unprivileged user namespaces restricted) start units with
+    ProtectSystem=/ProtectHome=/ReadOnlyPaths= silently ignored. The probe tries to
+    create a file in a ReadOnlyPaths= directory and reports True only if that fails.
+    """
+    runner = shutil.which('systemd-run')
+    directory = Path(state).resolve()
+    if sys.platform != 'linux' or not runner or not directory.is_dir():
+        return False
+    if not re.fullmatch(r'/[^\s%"\'\\;]*', str(directory)):
+        return False
+    probe = directory / f'.sandbox-probe-{uuid.uuid4().hex}'
+    code = ('import sys\ntry:\n    open(sys.argv[1], "x").close()\nexcept OSError:\n'
+            '    raise SystemExit(0)\nraise SystemExit(3)\n')
+    argv = [runner, '--user', '--quiet', '--wait', '--collect', '--service-type=exec',
+            '--property=ProtectSystem=strict', '--property=ProtectHome=read-only',
+            '--property=PrivateTmp=yes', f'--property=ReadOnlyPaths={directory}',
+            '--property=RuntimeMaxSec=30s', '--', sys.executable, '-I', '-c', code, str(probe)]
+    try:
+        result = subprocess.run(argv, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL, timeout=timeout, check=False)
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    finally:
+        created = probe.exists()
+        probe.unlink(missing_ok=True)
+    return result.returncode == 0 and not created
+
+
 def start(command: list[str], *, label: str, state: Path, cwd: Path,
-          seconds: float, stdout: IO) -> tuple[Popen, dict]:
+          seconds: float, stdout: IO, properties=()) -> tuple[Popen, dict]:
     """Publish ownership before spawning; return systemd-run Popen and record.
 
     The caller must serialize global supervisor ownership and call stop in its
@@ -353,6 +406,12 @@ def start(command: list[str], *, label: str, state: Path, cwd: Path,
         raise ValueError('seconds must be finite and positive')
     if seconds >= (2 ** 63) / 1_000_000:
         raise ValueError('seconds exceeds the finite systemd runtime range')
+    properties = list(properties)
+    if any(not isinstance(item, str) or not _SANDBOX.fullmatch(item) for item in properties):
+        raise ValueError('unsupported or unsafe unit sandbox property')
+    # A private /tmp hides the caller's TMPDIR; let the job use its own /tmp.
+    environment = [name for name in _ENV_NAMES if name in os.environ
+                   and not (name == 'TMPDIR' and 'PrivateTmp=yes' in properties)]
     runtime_us = max(1, math.ceil(seconds * 1_000_000))
     directory = Path(cwd).resolve(strict=True)
     if not directory.is_dir():
@@ -390,7 +449,8 @@ def start(command: list[str], *, label: str, state: Path, cwd: Path,
             '--property=KillMode=control-group', '--property=SendSIGKILL=yes',
             '--property=Restart=no', '--property=TimeoutStopSec=1s',
             '--property=TimeoutStartSec=10s', f'--property=RuntimeMaxSec={runtime_us}us',
-            *['--setenv=' + name for name in _ENV_NAMES if name in os.environ],
+            *['--property=' + item for item in properties],
+            *['--setenv=' + name for name in environment],
             '--', sys.executable, helper, '_execute', str(path), unit, executable, *command[1:]]
     process = None
     try:
@@ -445,6 +505,7 @@ def _entry(mode: str, path: Path, unit: str, command: list[str]) -> int:
                 _atomic(path, record)
                 return 125
             record['phase'] = 'launching'
+            record['launched_at'] = _boot_seconds()
         elif mode == '_execute':
             cgroups = Path('/proc/self/cgroup').read_text().splitlines()
             record['cgroup'] = next(line[3:] for line in cgroups if line.startswith('0::'))

@@ -45,7 +45,7 @@ After writing, verify every item on this checklist:
 
 - [ ] The guide includes a "Running the Examples" section after "Putting It Together"
 - [ ] The section clones and `cd`s in one path straight into the examples module dir (`cd <repo>/<examples-module>`, not a separate `cd <repo>` then `cd <examples-module>`)
-- [ ] Every companion example file is embedded, per step in order, inside a collapsible `<details><summary>` via `mdoc:embed:<path>:show-line-numbers` (same pattern as "Putting It Together"), with a short sentence on how to run it and its `sbt "<examples-module>/runMain ..."` command
+- [ ] Every companion example file is embedded, per step in order, inside a collapsible `<details><summary>` via `mdoc:embed:<path>:showLineNumbers` (same pattern as "Putting It Together"), with a short sentence on how to run it and its `sbt "<examples-module>/runMain ..."` command
 - [ ] The section includes `sbt "<examples-module>/compile"` as an alternative
 
 ## Style and Integration

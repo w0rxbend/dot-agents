@@ -2,11 +2,7 @@
 name: java-streams-api
 user-invocable: false
 description: Process collections with Java Streams - intermediate/terminal operations, collectors and grouping, primitive streams, Stream.toList vs Collectors.toList, mapMulti, Gatherers, and parallel-stream pitfalls. Use when writing or reviewing stream pipelines in Java 8-25.
-allowed-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
+allowed-tools: []
 ---
 
 # Java Streams API
@@ -158,7 +154,7 @@ public class DistinctSortedExample {
 
         // Sort descending
         List<Integer> descending = numbers.stream()
-            .sorted((a, b) -> b - a)
+            .sorted(Comparator.reverseOrder()) // (a, b) -> b - a can overflow
             .toList();
 
         // Distinct and sorted
@@ -648,28 +644,42 @@ public class EmployeeProcessing {
 **File processing example:**
 
 ```java
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FileProcessing {
     public static void main(String[] args) throws IOException {
-        // Read file lines as stream
-        Files.lines(Paths.get("data.txt"))
-            .filter(line -> !line.isEmpty())
-            .map(String::trim)
-            .forEach(System.out::println);
+        Path path = Path.of("data.txt");
+
+        // Files.lines holds an open file handle: always close it with try-with-resources
+        try (Stream<String> lines = Files.lines(path)) {
+            lines.filter(line -> !line.isEmpty())
+                .map(String::trim)
+                .forEach(System.out::println);
+        }
 
         // Count words in file
-        long wordCount = Files.lines(Paths.get("data.txt"))
-            .flatMap(line -> Arrays.stream(line.split("\\s+")))
-            .count();
+        long wordCount;
+        try (Stream<String> lines = Files.lines(path)) {
+            wordCount = lines
+                .flatMap(line -> Arrays.stream(line.split("\\s+")))
+                .count();
+        }
 
         // Find unique words
-        Set<String> uniqueWords = Files.lines(Paths.get("data.txt"))
-            .flatMap(line -> Arrays.stream(line.split("\\s+")))
-            .map(String::toLowerCase)
-            .collect(Collectors.toSet());
+        Set<String> uniqueWords;
+        try (Stream<String> lines = Files.lines(path)) {
+            uniqueWords = lines
+                .flatMap(line -> Arrays.stream(line.split("\\s+")))
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet());
+        }
+        System.out.println(wordCount + " words, " + uniqueWords.size() + " unique");
     }
 }
 ```

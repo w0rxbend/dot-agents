@@ -1,6 +1,6 @@
 ---
 name: mill-plugins
-description: Extend Mill through build imports, contrib and third-party plugins, isolated JVM workers, meta-build sources, and tested custom language modules.
+description: Extend Mill through build imports, contrib and third-party plugins, isolated JVM workers, meta-build sources, and tested custom language modules. Use when adding a plugin to a Mill build or writing reusable Mill extensions.
 license: MIT
 ---
 

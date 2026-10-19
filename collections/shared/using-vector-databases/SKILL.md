@@ -139,7 +139,9 @@ See `references/hybrid-search.md` for implementation details.
 
 ```python
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct
+from qdrant_client.models import (
+    Distance, VectorParams, PointStruct, Filter, FieldCondition, MatchValue
+)
 
 # 1. Initialize client
 client = QdrantClient("localhost", port=6333)
@@ -165,17 +167,15 @@ points = [
 ]
 client.upsert(collection_name="documents", points=points)
 
-# 4. Search with metadata filtering
-results = client.search(
+# 4. Search with metadata filtering (query_points replaces the removed client.search)
+results = client.query_points(
     collection_name="documents",
-    query_vector=query_embedding,
+    query=query_embedding,
     limit=5,
-    query_filter={
-        "must": [
-            {"key": "section", "match": {"value": "Authentication"}}
-        ]
-    }
-)
+    query_filter=Filter(
+        must=[FieldCondition(key="section", match=MatchValue(value="Authentication"))]
+    ),
+).points
 ```
 
 For complete examples, see `examples/qdrant-python/`.

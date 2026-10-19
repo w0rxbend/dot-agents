@@ -28,6 +28,8 @@ generation patterns, DSL creation, and metaprogramming best practices.
 Templates provide hygienic code substitution with type safety and inline expansion.
 
 ```nim
+import std/times  # cpuTime, used by benchmark below
+
 # Basic template
 template max(a, b: untyped): untyped =
   if a > b: a else: b
@@ -36,7 +38,9 @@ echo max(5, 10)  # Expands inline
 
 # Template with multiple statements
 template withFile(filename: string, body: untyped): untyped =
-  let file = open(filename, fmRead)
+  # Template locals are hygienic (gensym'd); {.inject.} makes `file`
+  # visible to the caller's body
+  let file {.inject.} = open(filename, fmRead)
   try:
     body
   finally:
@@ -83,22 +87,25 @@ var y = 10
 swap(x, y)
 echo x, " ", y  # 10 5
 
-# Template for DSL
+# Template for DSL (an injected `output` is visible to the caller's body;
+# a plain local would be gensym'd and invisible)
 template html(body: untyped): string =
-  var result = ""
-  template tag(name: string, content: untyped): untyped =
-    result.add "<" & name & ">"
-    content
-    result.add "</" & name & ">"
+  block:
+    var output {.inject.} = ""
+    template tag(name: string, content: untyped) {.inject.} =
+      output.add "<" & name & ">"
+      content
+      output.add "</" & name & ">"
 
-  body
-  result
+    body
+    output
 
 let page = html:
   tag "html":
     tag "body":
       tag "h1":
-        result.add "Hello World"
+        output.add "Hello World"
+echo page  # <html><body><h1>Hello World</h1></body></html>
 
 # Template with generic constraints
 template findMax[T: Ordinal](items: openArray[T]): T =
@@ -237,6 +244,8 @@ manipulation.
 Nim executes code at compile time for constants, optimizations, and validations.
 
 ```nim
+import std/[strutils, strformat]
+
 # Compile-time constants
 const maxSize = 100
 const computed = maxSize * 2 + 10  # Evaluated at compile time
@@ -339,35 +348,46 @@ Nim's metaprogramming enables creating domain-specific languages with natural
 syntax.
 
 ```nim
-# HTML DSL
+import std/macros
+
+# HTML DSL: every `tag:` / `tag "text"` call becomes output.add calls.
+# (No HTML escaping here; escape untrusted text before adding it.)
 macro html(body: untyped): string =
-  proc processNode(node: NimNode): NimNode =
+  let output = genSym(nskVar, "output")
+
+  proc processNode(node, output: NimNode): NimNode =
     case node.kind
+    of nnkStmtList:
+      result = newStmtList()
+      for child in node:
+        result.add processNode(child, output)
     of nnkCall, nnkCommand:
-      let tag = node[0]
-      let attrs = newSeq[NimNode]()
-      var content = newStmtList()
-
+      let tag = $node[0]
+      var attrs = ""
+      let content = newStmtList()
       for i in 1..<node.len:
-        if node[i].kind == nnkExprEqExpr:
-          attrs.add node[i]
+        if node[i].kind == nnkExprEqExpr:      # tag(class = "x"): ...
+          attrs.add " " & $node[i][0] & "=\"" & node[i][1].strVal & "\""
         else:
-          content.add processNode(node[i])
-
+          content.add processNode(node[i], output)
+      let openTag = "<" & tag & attrs & ">"
+      let closeTag = "</" & tag & ">"
       result = quote do:
-        result.add "<" & `tag`.astToStr & ">"
+        `output`.add `openTag`
         `content`
-        result.add "</" & `tag`.astToStr & ">"
+        `output`.add `closeTag`
     of nnkStrLit:
       result = quote do:
-        result.add `node`
+        `output`.add `node`
     else:
-      result = newStmtList()
+      error("unsupported HTML DSL node: " & node.repr, node)
 
+  let inner = processNode(body, output)
   result = quote do:
-    var result = ""
-    `processNode(body)`
-    result
+    block:
+      var `output` = ""
+      `inner`
+      `output`
 
 let page = html:
   html:
@@ -375,7 +395,9 @@ let page = html:
       title: "My Page"
     body:
       h1: "Welcome"
-      p: "Hello World"
+      p(class = "lead"): "Hello World"
+echo page
+# <html><head><title>My Page</title></head><body><h1>Welcome</h1><p class="lead">Hello World</p></body></html>
 
 # SQL DSL
 macro select(fields: varargs[untyped]): string =
@@ -396,7 +418,8 @@ macro describe(name: string, tests: untyped): untyped =
   result = newStmtList()
 
   for test in tests:
-    if test.kind == nnkCall and $test[0] == "it":
+    # `it "name": body` parses as nnkCommand; `it("name"): body` as nnkCall
+    if test.kind in {nnkCall, nnkCommand} and test.len == 3 and test[0].eqIdent("it"):
       let testName = test[1]
       let testBody = test[2]
 
@@ -405,8 +428,10 @@ macro describe(name: string, tests: untyped): untyped =
         try:
           `testBody`
           echo "  ✓ Passed"
-        except:
+        except CatchableError, AssertionDefect:
           echo "  ✗ Failed"
+    else:
+      error("expected `it \"name\": body`", test)
 
 describe "Math operations":
   it "adds numbers":
@@ -453,12 +478,12 @@ macro builder(typ: typedesc, body: untyped): untyped =
 
 type Request = object
   url: string
-  method: string
+  httpMethod: string   # `method` is a reserved keyword
   headers: seq[string]
 
 let req = builder(Request):
   url("https://api.example.com")
-  method("GET")
+  httpMethod("GET")
 ```
 
 DSLs enable domain-specific notation within Nim while maintaining type safety.
@@ -469,6 +494,8 @@ Metaprogramming enables automated code generation from specifications or runtime
 data.
 
 ```nim
+import std/[macros, strutils]
+
 # Generate enum from compile-time list
 macro generateEnum(name: untyped, values: static[seq[string]]): untyped =
   result = nnkTypeSection.newTree(
@@ -535,22 +562,6 @@ macro stateMachine(states: varargs[untyped]): untyped =
 
 stateMachine Idle, Running, Stopped
 
-# Generate serialization
-macro deriveJson(typ: typedesc): untyped =
-  result = newStmtList()
-
-  # Generate toJson proc
-  result.add quote do:
-    proc toJson(obj: `typ`): JsonNode =
-      result = newJObject()
-      # Add fields...
-
-# Generate validators
-macro validate(typ: typedesc, rules: untyped): untyped =
-  result = quote do:
-    proc validate(obj: `typ`): bool =
-      # Generated validation logic
-      true
 ```
 
 Code generation reduces boilerplate and ensures consistency across similar

@@ -75,7 +75,7 @@ const result = await getUser(req.params.id)(deps)()
 - **Testing Strategies** - mocking deps, Testcontainers integration tests, property-based tests.
 - **Quick Reference** - imports, RTE cheat sheet, service template.
 
-Related: fp-errors (error types), fp-async (parallelism, retries), fp-taskeither-ref.
+Related: fp-errors (error types), fp-async (parallelism, retries, and its TaskEither cheat sheet `references/taskeither-cheatsheet.md`).
 
 ## Done when
 

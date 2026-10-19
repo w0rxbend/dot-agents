@@ -26,8 +26,8 @@
 ## WCAG Contrast Requirements
 
 **WCAG 2.1 Level AA:**
-- Normal text (< 18px): **4.5:1** minimum
-- Large text (≥ 18px or 14px bold): **3:1** minimum
+- Normal text: **4.5:1** minimum
+- Large text (≥ 18pt ≈ 24px, or ≥ 14pt ≈ 18.66px bold): **3:1** minimum
 - UI components: **3:1** minimum
 
 **WCAG 2.1 Level AAA:**

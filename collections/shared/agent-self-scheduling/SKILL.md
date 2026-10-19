@@ -23,31 +23,34 @@ license_source: "https://github.com/davidondrej/skills/blob/main/LICENSE"
 
 First question: does the agent have a built-in scheduler (Hermes → Camp B), or do you own the clock (everything else → Camp A)?
 
-Universal floor: cron is 1 minute minimum (5-field expr, no seconds) — every camp. For sub-minute you MUST use a `while ...; sleep N; done` loop, a TS extension, or an event hook. Never put an LLM on a tight timer.
+Universal floor: cron is 1 minute minimum (5-field expr, no seconds) — every camp. For sub-minute you MUST use a `while ...; sleep N; done` loop, a TS extension, or an event hook — and the sub-minute part should be a cheap non-LLM check that only invokes the agent when something changed. Never put an LLM on a tight timer.
 
 ## Camp A — one-shot agents, you own the clock
 
 These run once and exit (amnesiac unless resumed). Schedule them externally.
 
 ```bash
-claude -p "PROMPT" --output-format json --allowedTools "Read,Edit,Bash"  # Claude Code
+claude -p "PROMPT" --output-format json --allowedTools "Read,Bash(git status:*),Bash(npm test:*)"  # Claude Code
 codex exec --json "PROMPT"                                                # Codex
-pi run "PROMPT"                                                           # Pi
+pi -p --mode json "PROMPT"                                                # Pi (-p = non-interactive)
 ```
+
+Scope tool grants for unattended runs: list only the tools the job needs and pin Bash to specific command patterns (`Bash(git status:*)`), never a bare `Bash` or `Edit` unless the job must change files. For Pi, restrict with `--tools read,bash` / `--exclude-tools`.
 
 Wrap in a clock:
 
 ```bash
 # 1. cron (>= 1 min floor)
-*/10 * * * * cd /path/to/project && pi run "check X and report" >> ~/agent.log 2>&1
+*/10 * * * * cd /path/to/project && pi -p --mode json "check X and report" >> ~/agent.log 2>&1
 # 2. systemd timer (Linux, survives reboot, better logging) — OnUnitActiveSec=10min
-# 3. dumb loop (sub-minute, or no cron available)
-while true; do pi run "check X"; sleep 30; done
+# 3. dumb loop (no cron available). Keep the interval in minutes: each run is an LLM call.
+#    For true sub-minute needs, loop a cheap non-LLM check and only invoke the agent when it trips.
+while true; do pi -p --mode json "check X"; sleep 600; done
 ```
 
 Gotchas (each breaks unattended runs if ignored):
 - **Permissions hang forever.** Pass `--allowedTools` (Claude) or sandbox/auto-approve flags (Codex), or the run blocks on a prompt.
-- **Use JSON output** (`--output-format json` / `--json`) so the wrapper parses results deterministically.
+- **Use JSON output** (`--output-format json` / `--json` / `--mode json`) so the wrapper parses results deterministically.
 - **Runs are amnesiac.** Resume (`codex exec resume --last`) or persist state to a file the next run reads.
 
 Pi has NO built-in scheduler/loop/heartbeat by design — external clock only (or a TS extension for agent-side timers).

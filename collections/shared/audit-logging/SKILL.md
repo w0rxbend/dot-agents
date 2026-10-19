@@ -129,6 +129,8 @@ action(
 [Journal]
 Storage=persistent
 Compress=yes
+# Seal=yes only takes effect after generating keys with `journalctl --setup-keys`
+# (store the printed verification key offline; verify with `journalctl --verify --verify-key=...`)
 Seal=yes
 SplitMode=uid
 MaxRetentionSec=365d
@@ -280,7 +282,7 @@ def audit_trail(audit_logger, resource_name):
     Host          elasticsearch.internal.example.com
     Port          9200
     Index         audit-logs
-    Type          _doc
+    Suppress_Type_Name On
     tls           On
     tls.verify    On
     Retry_Limit   5
@@ -323,7 +325,6 @@ def audit_trail(audit_logger, resource_name):
       "cold": {
         "min_age": "30d",
         "actions": {
-          "freeze": {},
           "set_priority": { "priority": 0 }
         }
       },
@@ -352,7 +353,7 @@ retention_requirements:
   pci_dss:
     minimum: 1 year
     immediately_available: 3 months
-    notes: "Req 10.7 - retain for at least one year, 3 months immediately available"
+    notes: "PCI DSS v4.0 Req 10.5.1 (10.7 in v3.2.1) - retain at least one year, last 3 months immediately available"
 
   gdpr:
     minimum: "As long as necessary for processing purpose"
@@ -370,46 +371,69 @@ retention_requirements:
 
 ## Log Integrity Verification Script
 
+Only hash files that are closed: rotated logs (`*.log.1`, `*.log-20260101`, `*.gz`). Active `*.log` files change on
+every write and would raise a false tamper alert on every run. Keep a copy of the hash file off-host (or in the
+SIEM) - an attacker who can edit the logs can also edit a hash file stored next to them.
+
 ```bash
 #!/usr/bin/env bash
-# verify-log-integrity.sh - Verify log file checksums against stored hashes
+# verify-log-integrity.sh - Verify rotated log files against stored hashes
+set -uo pipefail
 
 LOG_DIR="/var/log/app"
-HASH_FILE="/var/log/app/.checksums"
-ALERT_WEBHOOK="${ALERT_WEBHOOK_URL}"
+HASH_FILE="/var/lib/log-integrity/checksums"   # outside LOG_DIR; also copy off-host
+ALERT_WEBHOOK="${ALERT_WEBHOOK_URL:-}"
+
+rotated_files() {
+  find "$LOG_DIR" -type f \( -name '*.log.[0-9]*' -o -name '*.log-*' -o -name '*.gz' \) -print0
+}
+
+alert() {
+  echo "$1"
+  [ -n "$ALERT_WEBHOOK" ] && curl -s -X POST "$ALERT_WEBHOOK" \
+    -H "Content-Type: application/json" \
+    -d "{\"text\":\"$(hostname): $1\"}" >/dev/null
+}
 
 verify_logs() {
-  local failures=0
-  while IFS='  ' read -r stored_hash filename; do
+  local failures=0 stored_hash filename current_hash
+  [ -f "$HASH_FILE" ] || { echo "No baseline at $HASH_FILE; run '$0 update' first"; return 1; }
+  while read -r stored_hash filename; do
     if [ -f "$filename" ]; then
       current_hash=$(sha256sum "$filename" | awk '{print $1}')
       if [ "$stored_hash" != "$current_hash" ]; then
-        echo "TAMPER DETECTED: $filename"
+        alert "TAMPER DETECTED: $filename"
         failures=$((failures + 1))
-        curl -s -X POST "$ALERT_WEBHOOK" \
-          -H "Content-Type: application/json" \
-          -d "{\"text\":\"ALERT: Audit log tamper detected on $(hostname): $filename\"}"
       fi
     else
-      echo "MISSING: $filename"
+      # Expected when retention deletes old files; prune those lines from the baseline as part of retention
+      alert "MISSING: $filename"
       failures=$((failures + 1))
     fi
   done < "$HASH_FILE"
-
-  return $failures
+  echo "$failures problem(s) found"
+  [ "$failures" -eq 0 ]   # exit status 0/1; a raw count would wrap at 256
 }
 
+# Append hashes for newly rotated files only; never re-hash files already in the baseline,
+# or a tampered file would silently become the new "good" state.
 update_checksums() {
-  find "$LOG_DIR" -name "*.log" -type f -exec sha256sum {} \; > "$HASH_FILE"
-  chmod 440 "$HASH_FILE"
+  mkdir -p "$(dirname "$HASH_FILE")"
+  touch "$HASH_FILE"
+  rotated_files | while IFS= read -r -d '' f; do
+    grep -qF "  $f" "$HASH_FILE" || sha256sum "$f" >> "$HASH_FILE"
+  done
+  chmod 640 "$HASH_FILE"
 }
 
 case "${1:-verify}" in
   verify)  verify_logs ;;
   update)  update_checksums ;;
-  *)       echo "Usage: $0 {verify|update}" ;;
+  *)       echo "Usage: $0 {verify|update}"; exit 2 ;;
 esac
 ```
+
+Run `update` from the logrotate `postrotate` hook (or right after rotation), and `verify` on a timer.
 
 ## SIEM Integration Checklist
 

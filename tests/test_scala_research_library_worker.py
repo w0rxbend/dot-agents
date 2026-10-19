@@ -61,5 +61,18 @@ class LibraryWorkerTests(unittest.TestCase):
         self.assertNotIn('api_key', data)
 
 
+    def test_provider_exhaustion_emits_the_supervisor_marker_only_for_real_failures(self):
+        from scripts.scala_research import supervisor
+        self.assertEqual(supervisor.EXHAUSTED_MARKER, worker.EXHAUSTED_MARKER)
+        exhausted = type('ProviderCredentialsExhaustedError', (RuntimeError,), {})('synthetic')
+        self.assertTrue(worker.provider_exhausted(exhausted))
+        self.assertTrue(worker.provider_exhausted('HTTP 429: insufficient_quota'))
+        self.assertFalse(worker.provider_exhausted(RuntimeError('synthetic tool crash')))
+        self.assertFalse(worker.provider_exhausted(None))
+        with patch('builtins.print') as printed:
+            worker.report_exhausted('ProviderCredentialsExhaustedError')
+        self.assertTrue(supervisor.provider_exhausted(printed.call_args.args[0] + '\n'))
+
+
 if __name__ == '__main__':
     unittest.main()

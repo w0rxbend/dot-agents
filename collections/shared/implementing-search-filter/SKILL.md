@@ -173,7 +173,7 @@ This skill provides production-ready patterns for implementing search and filter
 
 **Elasticsearch (Python)**
 - elasticsearch-py client
-- elasticsearch-dsl for query building
+- `elasticsearch.dsl` (bundled in elasticsearch-py 8.18+; formerly the separate elasticsearch-dsl package) for query building
 
 ## Bundled Resources
 

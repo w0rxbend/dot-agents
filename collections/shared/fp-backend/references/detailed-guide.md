@@ -740,7 +740,9 @@ const logWithContext =
       RTE.ask<ContextDeps>(),
       RTE.flatMap(({ logger, ctx }) =>
         RTE.fromIO(() =>
-          loggerlevel,
+          logger[level](message, {
+            ...meta,
+            requestId: ctx.requestId,
             elapsed: Date.now() - ctx.startTime,
           })
         )

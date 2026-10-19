@@ -207,7 +207,7 @@ spec:
 **Gateway API (Modern):**
 - Role-oriented design (cluster ops vs. app devs)
 - More expressive (HTTPRoute, TCPRoute, TLSRoute)
-- Recommended for new applications (GA in Kubernetes 1.29+)
+- Recommended for new applications. Installed as CRDs and versioned separately from Kubernetes: Gateway API v1.0+ made GatewayClass/Gateway/HTTPRoute GA; TCPRoute and TLSRoute are still in the experimental channel
 
 ```yaml
 # Gateway API example
@@ -373,8 +373,13 @@ spec:
   - type: rabbitmq
     metadata:
       queueName: tasks
-      queueLength: "10"  # Scale up when >10 messages
+      mode: QueueLength   # not the deprecated queueLength field
+      value: "10"         # Scale up when >10 messages per replica
+    authenticationRef:
+      name: rabbitmq-auth # TriggerAuthentication reading the AMQP host from a Secret
 ```
+
+Full manifest including the `TriggerAuthentication`: `examples/manifests/keda-rabbitmq.yaml`.
 
 ### Autoscaling Decision Matrix
 
@@ -410,7 +415,7 @@ kubectl logs <pod-name> --previous  # Check previous crash
 # Common causes:
 # - Application crash: Fix code or configuration
 # - Missing environment variables: Add to deployment
-# - Liveness probe failing: Increase initialDelaySeconds
+# - Liveness probe failing on slow start: add a startupProbe (keep liveness strict)
 # - OOMKilled: Increase memory limit or fix leak
 ```
 
@@ -426,9 +431,9 @@ kubectl describe pod <pod-name>
 
 **Service Not Accessible:**
 ```bash
-kubectl get endpoints <service-name>  # Should list pod IPs
+kubectl get endpointslices -l kubernetes.io/service-name=<service-name>  # Should list pod IPs
 
-# If endpoints empty:
+# If no endpoints are listed:
 # - Service selector doesn't match pod labels
 # - Pods aren't ready (readiness probe failing)
 # - Check NetworkPolicies blocking traffic
@@ -468,7 +473,7 @@ For systematic troubleshooting playbooks including networking and storage issues
 ## Best Practices Summary
 
 **Resource Management:**
-- Always set CPU/memory requests and limits
+- Always set CPU and memory requests and a memory limit; CPU limits are optional (they cause CFS throttling) - set them where you need hard isolation or a namespace policy requires them
 - Use VPA for automated rightsizing
 - Implement resource quotas per namespace
 - Monitor actual usage vs. requests

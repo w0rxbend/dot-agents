@@ -51,8 +51,9 @@ envVars:
       name: postgres
       property: connectionString
   - key: REDIS_URL
-    fromDatabase:
+    fromService:
       name: redis
+      type: keyvalue
       property: connectionString
 ```
 

@@ -561,7 +561,7 @@ RULE: Always resize images to display size (or 2-3x for retina).
 
 ```
 React Native:
-├── Flipper → Memory tab
+├── React Native DevTools → Memory (JS heap)
 ├── Xcode Instruments (iOS)
 └── Android Studio Profiler
 
@@ -724,7 +724,7 @@ COMPRESS: Reduce payload size
   getItemLayout={useCallback((_, i) => ({length: H, offset: H*i, index: i}), [])}
 />
 
-// Animation: Always native
+// Animation: native driver for transform/opacity (layout props need Reanimated)
 useNativeDriver: true
 
 // Cleanup: Always present

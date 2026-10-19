@@ -17,7 +17,14 @@
 #   - Authenticated: gcloud auth login
 #   - Project set: gcloud config set project PROJECT_ID
 #
+# This file is a reference to copy commands from, NOT a script to run.
+# Container images use Artifact Registry (REGION-docker.pkg.dev/PROJECT_ID/REPO/...);
+# Container Registry (gcr.io) is shut down.
+#
 ################################################################################
+
+echo "common-commands.sh is a reference file; copy individual commands instead of running it." >&2
+exit 1
 
 ################################################################################
 # 1. PROJECT AND ORGANIZATION MANAGEMENT
@@ -167,13 +174,13 @@ gcloud compute instance-groups managed set-autoscaling GROUP_NAME \
 
 # Deploy a Cloud Run service from container image
 gcloud run deploy SERVICE_NAME \
-  --image=gcr.io/PROJECT_ID/IMAGE_NAME:TAG \
+  --image=REGION-docker.pkg.dev/PROJECT_ID/REPO/IMAGE_NAME:TAG \
   --region=us-central1 \
   --platform=managed
 
 # Deploy with specific memory and CPU limits
 gcloud run deploy SERVICE_NAME \
-  --image=gcr.io/PROJECT_ID/IMAGE_NAME:TAG \
+  --image=REGION-docker.pkg.dev/PROJECT_ID/REPO/IMAGE_NAME:TAG \
   --region=us-central1 \
   --platform=managed \
   --memory=512Mi \
@@ -183,25 +190,25 @@ gcloud run deploy SERVICE_NAME \
 
 # Deploy with environment variables
 gcloud run deploy SERVICE_NAME \
-  --image=gcr.io/PROJECT_ID/IMAGE_NAME:TAG \
+  --image=REGION-docker.pkg.dev/PROJECT_ID/REPO/IMAGE_NAME:TAG \
   --region=us-central1 \
   --set-env-vars=KEY1=VALUE1,KEY2=VALUE2
 
 # Deploy with secrets from Secret Manager
 gcloud run deploy SERVICE_NAME \
-  --image=gcr.io/PROJECT_ID/IMAGE_NAME:TAG \
+  --image=REGION-docker.pkg.dev/PROJECT_ID/REPO/IMAGE_NAME:TAG \
   --region=us-central1 \
   --set-secrets=DB_PASSWORD=db-password:latest
 
 # Deploy with custom service account
 gcloud run deploy SERVICE_NAME \
-  --image=gcr.io/PROJECT_ID/IMAGE_NAME:TAG \
+  --image=REGION-docker.pkg.dev/PROJECT_ID/REPO/IMAGE_NAME:TAG \
   --region=us-central1 \
   --service-account=SERVICE_ACCOUNT_EMAIL
 
 # Deploy with VPC connector (private networking)
 gcloud run deploy SERVICE_NAME \
-  --image=gcr.io/PROJECT_ID/IMAGE_NAME:TAG \
+  --image=REGION-docker.pkg.dev/PROJECT_ID/REPO/IMAGE_NAME:TAG \
   --region=us-central1 \
   --vpc-connector=CONNECTOR_NAME \
   --vpc-egress=private-ranges-only
@@ -226,7 +233,7 @@ gcloud run services describe SERVICE_NAME \
 # Update service with new image
 gcloud run services update SERVICE_NAME \
   --region=us-central1 \
-  --image=gcr.io/PROJECT_ID/IMAGE_NAME:NEW_TAG
+  --image=REGION-docker.pkg.dev/PROJECT_ID/REPO/IMAGE_NAME:NEW_TAG
 
 # Set traffic to specific revision (blue-green deployment)
 gcloud run services update-traffic SERVICE_NAME \
@@ -243,7 +250,7 @@ gcloud run services delete SERVICE_NAME --region=us-central1 --quiet
 
 # Create Cloud Run Job (non-HTTP workload)
 gcloud run jobs create JOB_NAME \
-  --image=gcr.io/PROJECT_ID/IMAGE_NAME:TAG \
+  --image=REGION-docker.pkg.dev/PROJECT_ID/REPO/IMAGE_NAME:TAG \
   --region=us-central1 \
   --tasks=1 \
   --max-retries=3
@@ -605,61 +612,61 @@ gcloud compute vpn-tunnels create TUNNEL_NAME \
 # 8. CLOUD STORAGE OPERATIONS
 ################################################################################
 
-# Note: Most Cloud Storage operations use 'gsutil' instead of 'gcloud'
+# Note: 'gcloud storage' replaces the legacy 'gsutil' tool
 
 # Create bucket
-gsutil mb gs://BUCKET_NAME
+gcloud storage buckets create gs://BUCKET_NAME
 
 # Create bucket with specific location and storage class
-gsutil mb -l us-central1 -c STANDARD gs://BUCKET_NAME
+gcloud storage buckets create gs://BUCKET_NAME --location=us-central1 --default-storage-class=STANDARD
 
 # List buckets
-gsutil ls
+gcloud storage ls
 
 # List objects in bucket
-gsutil ls gs://BUCKET_NAME
+gcloud storage ls gs://BUCKET_NAME
 
 # List objects recursively
-gsutil ls -r gs://BUCKET_NAME/**
+gcloud storage ls --recursive gs://BUCKET_NAME
 
 # Upload file to bucket
-gsutil cp LOCAL_FILE gs://BUCKET_NAME/
+gcloud storage cp LOCAL_FILE gs://BUCKET_NAME/
 
 # Upload directory recursively
-gsutil cp -r LOCAL_DIR gs://BUCKET_NAME/
+gcloud storage cp --recursive LOCAL_DIR gs://BUCKET_NAME/
 
 # Download file from bucket
-gsutil cp gs://BUCKET_NAME/OBJECT_NAME ./LOCAL_PATH
+gcloud storage cp gs://BUCKET_NAME/OBJECT_NAME ./LOCAL_PATH
 
 # Download directory recursively
-gsutil cp -r gs://BUCKET_NAME/PREFIX ./LOCAL_PATH
+gcloud storage cp --recursive gs://BUCKET_NAME/PREFIX ./LOCAL_PATH
 
 # Sync local directory with bucket (like rsync)
-gsutil rsync -r LOCAL_DIR gs://BUCKET_NAME/
+gcloud storage rsync --recursive LOCAL_DIR gs://BUCKET_NAME/
 
 # Move/rename object
-gsutil mv gs://BUCKET_NAME/OLD_NAME gs://BUCKET_NAME/NEW_NAME
+gcloud storage mv gs://BUCKET_NAME/OLD_NAME gs://BUCKET_NAME/NEW_NAME
 
 # Copy object to another bucket
-gsutil cp gs://SOURCE_BUCKET/OBJECT gs://DEST_BUCKET/
+gcloud storage cp gs://SOURCE_BUCKET/OBJECT gs://DEST_BUCKET/
 
 # Delete object
-gsutil rm gs://BUCKET_NAME/OBJECT_NAME
+gcloud storage rm gs://BUCKET_NAME/OBJECT_NAME  # [DESTRUCTIVE]
 
 # Delete all objects with prefix
-gsutil rm -r gs://BUCKET_NAME/PREFIX/**
+gcloud storage rm --recursive gs://BUCKET_NAME/PREFIX  # [DESTRUCTIVE]
 
 # View object metadata
-gsutil stat gs://BUCKET_NAME/OBJECT_NAME
+gcloud storage objects describe gs://BUCKET_NAME/OBJECT_NAME
 
 # Make object publicly readable
-gsutil acl ch -u AllUsers:R gs://BUCKET_NAME/OBJECT_NAME
+gcloud storage objects update gs://BUCKET_NAME/OBJECT_NAME --add-acl-grant=entity=AllUsers,role=READER
 
 # Make bucket publicly readable (all objects)
-gsutil iam ch allUsers:objectViewer gs://BUCKET_NAME
+gcloud storage buckets add-iam-policy-binding gs://BUCKET_NAME --member=allUsers --role=roles/storage.objectViewer
 
 # Set bucket lifecycle policy
-gsutil lifecycle set lifecycle.json gs://BUCKET_NAME
+gcloud storage buckets update gs://BUCKET_NAME --lifecycle-file=lifecycle.json
 
 # Example lifecycle.json for transitioning to Coldline after 90 days:
 # {
@@ -672,19 +679,19 @@ gsutil lifecycle set lifecycle.json gs://BUCKET_NAME
 # }
 
 # Enable versioning
-gsutil versioning set on gs://BUCKET_NAME
+gcloud storage buckets update gs://BUCKET_NAME --versioning
 
 # View bucket IAM policy
-gsutil iam get gs://BUCKET_NAME
+gcloud storage buckets get-iam-policy gs://BUCKET_NAME
 
 # Grant IAM role on bucket
-gsutil iam ch serviceAccount:SERVICE_ACCOUNT_EMAIL:objectViewer gs://BUCKET_NAME
+gcloud storage buckets add-iam-policy-binding gs://BUCKET_NAME --member=serviceAccount:SERVICE_ACCOUNT_EMAIL --role=roles/storage.objectViewer
 
 # Remove IAM role on bucket
-gsutil iam ch -d serviceAccount:SERVICE_ACCOUNT_EMAIL:objectViewer gs://BUCKET_NAME
+gcloud storage buckets remove-iam-policy-binding gs://BUCKET_NAME --member=serviceAccount:SERVICE_ACCOUNT_EMAIL --role=roles/storage.objectViewer
 
 # Set CORS policy on bucket
-gsutil cors set cors.json gs://BUCKET_NAME
+gcloud storage buckets update gs://BUCKET_NAME --cors-file=cors.json
 
 # Example cors.json:
 # [
@@ -697,7 +704,7 @@ gsutil cors set cors.json gs://BUCKET_NAME
 # ]
 
 # Delete bucket (must be empty) [DESTRUCTIVE]
-gsutil rb gs://BUCKET_NAME
+gcloud storage buckets delete gs://BUCKET_NAME
 
 
 ################################################################################
@@ -920,11 +927,12 @@ gcloud config unset project
 
 # Deploy containerized app to Cloud Run (complete workflow)
 # 1. Build container
-gcloud builds submit --tag gcr.io/PROJECT_ID/IMAGE_NAME:TAG
+# (one-time) gcloud artifacts repositories create REPO --repository-format=docker --location=us-central1
+gcloud builds submit --tag us-central1-docker.pkg.dev/PROJECT_ID/REPO/IMAGE_NAME:TAG
 
 # 2. Deploy to Cloud Run
 gcloud run deploy SERVICE_NAME \
-  --image gcr.io/PROJECT_ID/IMAGE_NAME:TAG \
+  --image REGION-docker.pkg.dev/PROJECT_ID/REPO/IMAGE_NAME:TAG \
   --region us-central1 \
   --platform managed \
   --allow-unauthenticated

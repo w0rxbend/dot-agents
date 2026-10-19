@@ -9,13 +9,20 @@ Sets up a PreToolUse hook that intercepts and blocks dangerous git commands befo
 
 ## What Gets Blocked
 
-- `git push` (all variants including `--force`)
+- `git push` (any flags, including `--force`)
 - `git reset --hard`
-- `git clean -f` / `git clean -fd`
-- `git branch -D`
-- `git checkout .` / `git restore .`
+- `git clean` with any force flag (`-f`, `-df`, `-xfd`, `--force`), unless it is a dry run (`-n`)
+- `git branch -D` / `git branch --delete --force`
+- `git checkout .` / `git checkout -- .` / `git checkout --force`
+- `git restore .` (except `git restore --staged .`, which only unstages)
 
-When blocked, Claude sees a message telling it that it does not have authority to access these commands.
+The script tokenizes the command instead of substring-matching it: it splits on `;`, `&&`, `|`, newlines and subshells, skips `VAR=x`, `env`, `sudo`, `xargs` and similar prefixes, looks inside `bash -c` / `sh -c` / `eval` strings and `$(...)`, and ignores git global options such as `-C <dir>`. Quoted arguments such as commit messages are not treated as commands, so `git commit -m "don't git push"` is allowed.
+
+When blocked, Claude sees a message telling it that it does not have authority to run the command.
+
+This is a best-effort guard, not a sandbox: git aliases, scripts or Makefiles that call git internally, and deliberate obfuscation are not detected. For a harder stop, also add `permissions.deny` rules (for example `"Bash(git push:*)"`) to the same settings file.
+
+**Prerequisite:** the hook needs `jq`. It fails closed: if `jq` is missing or the hook input cannot be parsed, it blocks every Bash command. Check `command -v jq` before installing and install jq first if it is absent.
 
 ## Steps
 
@@ -82,7 +89,7 @@ If the settings file already exists, merge the hook into the existing `hooks.Pre
 
 ### 4. Ask about customization
 
-Ask if user wants to add or remove any patterns from the blocked list. Edit the copied script accordingly.
+Ask if user wants to add or remove any blocked commands. Edit the `case $sub in` rules in `check_git` in the copied script accordingly.
 
 ### 5. Verify
 
@@ -92,4 +99,9 @@ Run a quick test:
 echo '{"tool_input":{"command":"git push origin main"}}' | <path-to-script>
 ```
 
-Should exit with code 2 and print a BLOCKED message to stderr.
+Should exit with code 2 and print a BLOCKED message to stderr. Also check a bypass and a false-positive case:
+
+```bash
+echo '{"tool_input":{"command":"git -C . push"}}' | <path-to-script>                 # exit 2
+echo '{"tool_input":{"command":"git commit -m \"avoid git push\""}}' | <path-to-script>  # exit 0
+```

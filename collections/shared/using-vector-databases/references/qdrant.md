@@ -210,11 +210,11 @@ points = [
 client.upsert(collection_name="documents", points=points)
 
 # Search
-results = client.search(
+results = client.query_points(
     collection_name="documents",
-    query_vector=[0.1] * 1024,
+    query=[0.1] * 1024,
     limit=5
-)
+).points
 ```
 
 ## Collections and Indexing
@@ -287,9 +287,9 @@ client.create_collection(
 from qdrant_client.models import Filter, FieldCondition, MatchValue
 
 # Simple match
-results = client.search(
+results = client.query_points(
     collection_name="documents",
-    query_vector=embedding,
+    query=embedding,
     query_filter=Filter(
         must=[
             FieldCondition(
@@ -299,12 +299,12 @@ results = client.search(
         ]
     ),
     limit=5
-)
+).points
 
 # Multiple conditions (AND)
-results = client.search(
+results = client.query_points(
     collection_name="documents",
-    query_vector=embedding,
+    query=embedding,
     query_filter=Filter(
         must=[
             FieldCondition(key="source_type", match=MatchValue(value="documentation")),
@@ -312,12 +312,12 @@ results = client.search(
         ]
     ),
     limit=5
-)
+).points
 
 # OR conditions
-results = client.search(
+results = client.query_points(
     collection_name="documents",
-    query_vector=embedding,
+    query=embedding,
     query_filter=Filter(
         should=[
             FieldCondition(key="audience", match=MatchValue(value="pro")),
@@ -325,47 +325,47 @@ results = client.search(
         ]
     ),
     limit=5
-)
+).points
 
 # NOT conditions
-results = client.search(
+results = client.query_points(
     collection_name="documents",
-    query_vector=embedding,
+    query=embedding,
     query_filter=Filter(
         must_not=[
             FieldCondition(key="classification", match=MatchValue(value="confidential"))
         ]
     ),
     limit=5
-)
+).points
 ```
 
 ### Advanced Filters
 
 ```python
 from qdrant_client.models import (
-    Filter, FieldCondition, MatchValue, Range, MatchAny
+    Filter, FieldCondition, MatchValue, Range, DatetimeRange, MatchAny
 )
 
 # Range filtering (dates, numbers)
-results = client.search(
+results = client.query_points(
     collection_name="documents",
-    query_vector=embedding,
+    query=embedding,
     query_filter=Filter(
         must=[
             FieldCondition(
                 key="timestamp",
-                range=Range(gte="2025-01-01T00:00:00Z")
+                range=DatetimeRange(gte="2025-01-01T00:00:00Z")  # Range(...) is for numbers
             )
         ]
     ),
     limit=5
-)
+).points
 
 # Match any (IN clause)
-results = client.search(
+results = client.query_points(
     collection_name="documents",
-    query_vector=embedding,
+    query=embedding,
     query_filter=Filter(
         must=[
             FieldCondition(
@@ -375,12 +375,12 @@ results = client.search(
         ]
     ),
     limit=5
-)
+).points
 
 # Nested fields
-results = client.search(
+results = client.query_points(
     collection_name="documents",
-    query_vector=embedding,
+    query=embedding,
     query_filter=Filter(
         must=[
             FieldCondition(
@@ -390,7 +390,7 @@ results = client.search(
         ]
     ),
     limit=5
-)
+).points
 ```
 
 ## Hybrid Search (Vector + BM25)
@@ -568,12 +568,12 @@ client.delete_collection(collection_name="old_docs")
 
 ```python
 # Use ef parameter for search quality vs. speed trade-off
-results = client.search(
+results = client.query_points(
     collection_name="documents",
-    query_vector=embedding,
+    query=embedding,
     search_params={"ef": 128},  # Higher = better quality, slower (default: 100)
     limit=5
-)
+).points
 ```
 
 ### Quantization (Reduce Memory)
@@ -717,41 +717,41 @@ const results = await client.search('documents', {
 
 ```python
 # Filter by organization/user ID
-results = client.search(
+results = client.query_points(
     collection_name="documents",
-    query_vector=embedding,
+    query=embedding,
     query_filter=Filter(
         must=[
             FieldCondition(key="org_id", match=MatchValue(value=user_org_id))
         ]
     ),
     limit=5
-)
+).points
 ```
 
 ### Versioned Documentation
 
 ```python
 # Filter by product version
-results = client.search(
+results = client.query_points(
     collection_name="documents",
-    query_vector=embedding,
+    query=embedding,
     query_filter=Filter(
         must=[
             FieldCondition(key="product_version", match=MatchValue(value="v2.0"))
         ]
     ),
     limit=5
-)
+).points
 ```
 
 ### Code Search
 
 ```python
 # Filter by programming language
-results = client.search(
+results = client.query_points(
     collection_name="code",
-    query_vector=embedding,
+    query=embedding,
     query_filter=Filter(
         must=[
             FieldCondition(
@@ -761,7 +761,7 @@ results = client.search(
         ]
     ),
     limit=5
-)
+).points
 ```
 
 ## Troubleshooting

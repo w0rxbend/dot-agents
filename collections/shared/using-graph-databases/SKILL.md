@@ -101,7 +101,7 @@ RETURN path, length(path) AS distance
 // Collaborative filtering: Products liked by similar users
 MATCH (u:User {id: $userId})-[:PURCHASED]->(p:Product)<-[:PURCHASED]-(similar)
 MATCH (similar)-[:PURCHASED]->(rec:Product)
-WHERE NOT exists((u)-[:PURCHASED]->(rec))
+WHERE NOT EXISTS { (u)-[:PURCHASED]->(rec) }
 RETURN rec.name, count(*) AS score
 ORDER BY score DESC
 LIMIT 10
@@ -336,14 +336,19 @@ class GraphDB:
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
 
     def find_friends_of_friends(self, user_id: str, max_depth: int = 2):
-        query = """
-        MATCH (u:User {id: $userId})-[:FRIEND*1..$maxDepth]->(fof)
+        # Cypher cannot take a parameter in a variable-length bound (*1..$x),
+        # so validate an int and inline it.
+        depth = int(max_depth)
+        if not 1 <= depth <= 6:
+            raise ValueError("max_depth must be 1..6")
+        query = f"""
+        MATCH (u:User {{id: $userId}})-[:FRIEND*1..{depth}]->(fof)
         WHERE u <> fof
         RETURN DISTINCT fof.id, fof.name
         LIMIT 100
         """
         with self.driver.session() as session:
-            result = session.run(query, userId=user_id, maxDepth=max_depth)
+            result = session.run(query, userId=user_id)
             return [dict(record) for record in result]
 
 # Usage
@@ -366,14 +371,18 @@ class Neo4jService {
   }
 
   async findFriendsOfFriends(userId: string, maxDepth: number = 2) {
+    // Variable-length bounds cannot be query parameters: validate and inline
+    if (!Number.isInteger(maxDepth) || maxDepth < 1 || maxDepth > 6) {
+      throw new RangeError('maxDepth must be an integer 1..6')
+    }
     const session = this.driver.session()
     try {
       const result = await session.run(
-        `MATCH (u:User {id: $userId})-[:FRIEND*1..$maxDepth]->(fof)
+        `MATCH (u:User {id: $userId})-[:FRIEND*1..${maxDepth}]->(fof)
          WHERE u <> fof
          RETURN DISTINCT fof.id, fof.name
          LIMIT 100`,
-        { userId, maxDepth }
+        { userId }
       )
       return result.records.map(r => r.toObject())
     } finally {

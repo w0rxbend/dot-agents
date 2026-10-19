@@ -279,12 +279,11 @@ const loadPage = (pageNum) => {
 ### Testing Tools
 
 ```bash
-# Analyze media performance
-node scripts/analyze_media_performance.js --files images/*.jpg
-
-# Generate performance report
-python scripts/performance_report.py --output report.html
+# Lighthouse performance audit (image weight, LCP element, lazy-loading, modern formats)
+npx lighthouse https://example.com --only-categories=performance --output html --output-path report.html
 ```
+
+WebPageTest and the Chrome DevTools Performance and Network panels give per-request detail.
 
 ## Best Practices Checklist
 

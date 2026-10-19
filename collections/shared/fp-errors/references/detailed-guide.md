@@ -692,7 +692,7 @@ const processAllCollectErrors = <T, R>(
   )
 
   return {
-    successes: pipe(results, A.filterMap(E.toOption)),
+    successes: pipe(results, A.filterMap(O.getRight)),
     failures: pipe(
       results,
       A.filterMap(r => E.isLeft(r) ? O.some(r.left) : O.none)

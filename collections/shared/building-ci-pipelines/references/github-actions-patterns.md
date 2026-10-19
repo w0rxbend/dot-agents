@@ -26,7 +26,7 @@ permissions:
   pull-requests: write
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '24'
 
 jobs:
   job-name:
@@ -139,7 +139,7 @@ on:
         description: 'Node.js version'
         required: false
         type: string
-        default: '20'
+        default: '24'
       run-tests:
         description: 'Run tests before deploy'
         required: false
@@ -212,7 +212,7 @@ jobs:
     uses: ./.github/workflows/reusable-deploy.yml
     with:
       environment: staging
-      node-version: '20'
+      node-version: '24'
       run-tests: true
     secrets:
       deploy-token: ${{ secrets.STAGING_DEPLOY_TOKEN }}
@@ -222,7 +222,7 @@ jobs:
     uses: ./.github/workflows/reusable-deploy.yml
     with:
       environment: production
-      node-version: '20'
+      node-version: '24'
       run-tests: false  # Already tested in staging
     secrets:
       deploy-token: ${{ secrets.PRODUCTION_DEPLOY_TOKEN }}
@@ -253,7 +253,7 @@ inputs:
   node-version:
     description: Node.js version
     required: false
-    default: '20'
+    default: '24'
   package-manager:
     description: Package manager (npm, yarn, pnpm)
     required: false
@@ -313,7 +313,7 @@ jobs:
 
       - uses: ./.github/actions/setup-node-with-cache
         with:
-          node-version: '20'
+          node-version: '24'
           package-manager: 'pnpm'
 
       - run: pnpm run build
@@ -331,7 +331,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: [18, 20, 22]
+        node-version: [22, 24]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -348,15 +348,15 @@ Result: 9 jobs (3 OS × 3 versions)
 strategy:
   matrix:
     os: [ubuntu-latest, windows-latest, macos-latest]
-    node-version: [18, 20, 22]
+    node-version: [22, 24]
     # Exclude specific combinations
     exclude:
       - os: macos-latest
-        node-version: 18
+        node-version: 22
     # Add specific combinations
     include:
       - os: ubuntu-latest
-        node-version: 22
+        node-version: 26   # next release line, allowed to fail
         experimental: true
 ```
 
@@ -412,7 +412,7 @@ strategy:
   fail-fast: false  # Continue other jobs even if one fails
   matrix:
     os: [ubuntu-latest, windows-latest, macos-latest]
-    node-version: [18, 20, 22]
+    node-version: [22, 24]
   max-parallel: 4  # Limit concurrent jobs
 ```
 

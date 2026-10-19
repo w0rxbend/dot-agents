@@ -1,19 +1,19 @@
 ---
 name: building-ai-chat
-description: Builds AI chat interfaces and conversational UI with streaming responses, context management, and multi-modal support. Use when creating ChatGPT-style interfaces, AI assistants, code copilots, or conversational agents. Handles streaming text, token limits, regeneration, feedback loops, tool usage visualization, and AI-specific error patterns. Provides battle-tested components from leading AI products with accessibility and performance built in.
+description: Builds the frontend of AI chat interfaces - ChatGPT-style message lists, streaming markdown rendering, input with attachments, stop/regenerate controls, token-limit indicators, feedback buttons, tool-call visualization and AI-specific error states - with the Vercel AI SDK (v5+) and Streamdown. Use when writing the chat UI of an assistant or copilot; not for backend agent logic, orchestration or memory (see agent-memory-systems, context-engineering).
 ---
 
 # AI Chat Interface Components
 
 ## Purpose
 
-Define the emerging standards for AI/human conversational interfaces in the 2024-2025 AI integration boom. This skill leverages meta-knowledge from building WITH Claude to establish definitive patterns for streaming UX, context management, and multi-modal interactions. As the industry lacks established patterns, this provides the reference implementation others will follow.
+Patterns and components for the user-facing side of AI chat: streaming UX, context and token-limit communication, multi-modal input, feedback, tool-call display, error states and accessibility. Code targets React with the Vercel AI SDK 5 or later; the UI patterns apply to other stacks too.
 
 ## When to Use
 
 Activate this skill when:
 - Building ChatGPT-style conversational interfaces
-- Creating AI assistants, copilots, or chatbots
+- Creating the UI for AI assistants, copilots, or chatbots
 - Implementing streaming text responses with markdown
 - Managing conversation context and token limits
 - Handling multi-modal inputs (text, images, files, voice)
@@ -24,34 +24,49 @@ Activate this skill when:
 
 ## Quick Start
 
-Minimal AI chat interface in under 50 lines:
+Minimal AI chat interface (AI SDK 5+; type-checked against `ai` 5.0 and 7.0):
 
 ```tsx
-import { useChat } from 'ai/react';
+'use client';
+import { useState } from 'react';
+import { useChat } from '@ai-sdk/react';
+import { Streamdown } from 'streamdown';
 
 export function MinimalAIChat() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, stop } = useChat();
+  const { messages, sendMessage, status, stop } = useChat(); // POSTs to /api/chat
+  const [input, setInput] = useState('');
+  const busy = status === 'submitted' || status === 'streaming';
 
   return (
     <div className="chat-container">
       <div className="messages">
         {messages.map(m => (
           <div key={m.id} className={`message ${m.role}`}>
-            <div className="content">{m.content}</div>
+            {m.parts.map((part, i) =>
+              part.type === 'text' ? <Streamdown key={i}>{part.text}</Streamdown> : null
+            )}
           </div>
         ))}
-        {isLoading && <div className="thinking">AI is thinking...</div>}
+        {status === 'submitted' && <div className="thinking">AI is thinking...</div>}
       </div>
 
-      <form onSubmit={handleSubmit} className="input-form">
+      <form
+        className="input-form"
+        onSubmit={e => {
+          e.preventDefault();
+          if (!input.trim()) return;
+          sendMessage({ text: input });
+          setInput('');
+        }}
+      >
         <input
           value={input}
-          onChange={handleInputChange}
+          onChange={e => setInput(e.target.value)}
           placeholder="Ask anything..."
-          disabled={isLoading}
+          disabled={busy}
         />
-        {isLoading ? (
-          <button type="button" onClick={stop}>Stop</button>
+        {busy ? (
+          <button type="button" onClick={() => stop()}>Stop</button>
         ) : (
           <button type="submit">Send</button>
         )}
@@ -61,7 +76,24 @@ export function MinimalAIChat() {
 }
 ```
 
-For complete implementation with streaming markdown, see `examples/basic-chat.tsx`.
+Matching server route (Next.js App Router):
+
+```ts
+// app/api/chat/route.ts
+import { streamText, convertToModelMessages, type UIMessage } from 'ai';
+import { openai } from '@ai-sdk/openai';
+
+export async function POST(req: Request) {
+  const { messages }: { messages: UIMessage[] } = await req.json();
+  const result = streamText({
+    model: openai(process.env.CHAT_MODEL!), // choose a current model ID in config
+    messages: await convertToModelMessages(messages),
+  });
+  return result.toUIMessageStreamResponse();
+}
+```
+
+AI SDK 4 code (`ai/react`, `input`/`handleSubmit`, `isLoading`, `message.content`) does not compile against v5+. For a fuller implementation see `examples/basic-chat.tsx`; for tools, files and metadata see `references/library-guide.md`.
 
 ## Core Components
 
@@ -70,22 +102,24 @@ For complete implementation with streaming markdown, see `examples/basic-chat.ts
 Build user, AI, and system message bubbles with streaming support:
 
 ```tsx
+// Text of a UIMessage (AI SDK 5+) lives in message.parts
+const text = message.parts.map(p => (p.type === 'text' ? p.text : '')).join('');
+
 // User message
 <div className="message user">
-  <div className="content">{message.content}</div>
-  <time className="timestamp">{formatTime(message.timestamp)}</time>
+  <div className="content">{text}</div>
 </div>
 
 // AI message with streaming
 <div className="message ai">
-  <Streamdown className="content">{message.content}</Streamdown>
-  {message.isStreaming && <span className="cursor">▊</span>}
+  <Streamdown className="content">{text}</Streamdown>
+  {isStreaming && <span className="cursor">▊</span>}
 </div>
 
 // System message
 <div className="message system">
   <Icon type="info" />
-  <span>{message.content}</span>
+  <span>{text}</span>
 </div>
 ```
 
@@ -114,7 +148,7 @@ Create rich input experiences with attachments and voice:
     <MicIcon />
   </button>
 
-  <button type="submit" disabled={!input.trim() || isLoading}>
+  <button type="submit" disabled={!input.trim() || busy}>
     <SendIcon />
   </button>
 </div>
@@ -186,7 +220,7 @@ Progressive rendering of AI responses requires special handling:
 
 ```tsx
 // Use Streamdown for AI streaming (handles incomplete markdown)
-import { Streamdown } from '@vercel/streamdown';
+import { Streamdown } from 'streamdown';
 
 // Auto-scroll management
 useEffect(() => {
@@ -205,7 +239,7 @@ function shouldAutoScroll() {
 }
 ```
 
-For complete streaming patterns, auto-scroll behavior, and stop generation, see `references/streaming-ux.md`.
+For complete streaming patterns, auto-scroll behavior, and stop generation, see `references/streaming-patterns.md`.
 
 ## Context Management
 
@@ -263,7 +297,7 @@ function ImageUpload({ onUpload }) {
 }
 ```
 
-For complete multi-modal patterns including voice and screen sharing, see `references/multi-modal.md`.
+For complete multi-modal patterns including voice and screen sharing, see `references/multimodal-input.md`.
 
 ## Error Handling
 
@@ -328,20 +362,17 @@ For function calling, code execution, and web search patterns, see `references/t
 
 ### Recommended Stack
 
-Primary libraries (validated November 2025):
+Primary libraries (AI SDK 5 or later; current majors at the time of writing were `ai` 7 and `streamdown` 2):
 
 ```bash
-# Core AI chat functionality
+# Core AI chat functionality (plus one provider package)
 npm install ai @ai-sdk/react @ai-sdk/openai
 
-# Streaming markdown rendering
-npm install @vercel/streamdown
+# Streaming markdown rendering (package name is `streamdown`)
+npm install streamdown
 
-# Syntax highlighting
-npm install react-syntax-highlighter
-
-# Security for LLM outputs
-npm install dompurify
+# Only if you convert markdown to HTML strings yourself
+npm install dompurify marked
 ```
 
 ### Performance Optimization
@@ -364,22 +395,23 @@ const debouncedUpdate = useMemo(
 import { VariableSizeList } from 'react-window';
 ```
 
-For detailed performance patterns, see `references/streaming-ux.md`.
+For detailed performance patterns, see `references/streaming-patterns.md` and `references/performance-optimization.md`.
 
 ### Security Considerations
 
-Always sanitize AI outputs:
+Treat model output as untrusted. Sanitize at the point where markdown becomes HTML, not before:
+
+- Rendering through React (Streamdown, `react-markdown`) does not inject raw HTML strings; Streamdown additionally runs `rehype-sanitize` and `rehype-harden` (link/image hardening). Do not enable raw-HTML plugins for model output.
+- Running DOMPurify on the markdown source does not protect you (the markdown renderer runs afterwards) and mangles code blocks containing `<`.
+- If you render markdown to an HTML string yourself (for `dangerouslySetInnerHTML` or `v-html`), sanitize the generated HTML:
 
 ```tsx
 import DOMPurify from 'dompurify';
+import { marked } from 'marked';
 
-function SafeAIContent({ content }) {
-  const sanitized = DOMPurify.sanitize(content, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'code', 'pre', 'blockquote', 'ul', 'ol', 'li'],
-    ALLOWED_ATTR: ['class']
-  });
-
-  return <Streamdown>{sanitized}</Streamdown>;
+function SafeMarkdown({ markdown }: { markdown: string }) {
+  const html = DOMPurify.sanitize(marked.parse(markdown, { async: false }) as string);
+  return <div className="markdown" dangerouslySetInnerHTML={{ __html: html }} />;
 }
 ```
 
@@ -392,18 +424,18 @@ Ensure AI chat is usable by everyone:
 <div role="log" aria-live="polite" aria-relevant="additions">
   {messages.map(msg => (
     <article key={msg.id} role="article" aria-label={`${msg.role} message`}>
-      {msg.content}
+      {msg.parts.map((p, i) => (p.type === 'text' ? <p key={i}>{p.text}</p> : null))}
     </article>
   ))}
 </div>
 
 // Loading announcements
 <div role="status" aria-live="polite" className="sr-only">
-  {isLoading ? 'AI is responding' : ''}
+  {status === 'streaming' ? 'AI is responding' : ''}
 </div>
 ```
 
-For complete accessibility patterns, see `references/accessibility.md`.
+For complete accessibility patterns, see `references/accessibility-chat.md`.
 
 ## Bundled Resources
 
@@ -415,14 +447,14 @@ For complete accessibility patterns, see `references/accessibility.md`.
 
 ### References (Progressive Disclosure)
 
-- `references/streaming-patterns.md` - Complete streaming UX patterns
+- `references/streaming-patterns.md` - Streaming UX, auto-scroll, stop/regenerate and render performance
 - `references/context-management.md` - Token limits and conversation strategies
 - `references/multimodal-input.md` - Image, file, and voice handling
 - `references/feedback-loops.md` - User feedback and RLHF patterns
 - `references/error-handling.md` - AI-specific error scenarios
 - `references/tool-usage.md` - Visualizing function calls and tool use
-- `references/accessibility-chat.md` - Screen reader and keyboard support
-- `references/library-guide.md` - Detailed library documentation
+- `references/accessibility-chat.md` - Screen reader, keyboard, contrast and mobile support
+- `references/library-guide.md` - AI SDK 5+ and Streamdown setup, tools, files, metadata
 - `references/performance-optimization.md` - Streaming performance patterns
 
 ### Examples
@@ -442,7 +474,7 @@ For complete accessibility patterns, see `references/accessibility.md`.
 
 ## Design Token Integration
 
-All visual styling uses the design-tokens system:
+Style chat components with design tokens (CSS custom properties) so they follow the app's theme:
 
 ```css
 /* Message bubbles use design tokens */
@@ -459,29 +491,4 @@ All visual styling uses the design-tokens system:
 }
 ```
 
-See `skills/design-tokens/` for complete theming system.
-
-## Key Innovations
-
-This skill provides industry-first solutions for:
-
-- **Memoized streaming rendering** - 10-50x performance improvement
-- **Intelligent auto-scroll** - User activity-aware scrolling
-- **Token metaphors** - User-friendly context communication
-- **Incomplete markdown handling** - Graceful partial rendering
-- **RLHF patterns** - Effective feedback collection
-- **Conversation branching** - Non-linear conversation trees
-- **Multi-modal integration** - Seamless file/image/voice handling
-- **Accessibility-first** - Built-in screen reader support
-
-## Strategic Importance
-
-This is THE most critical skill because:
-
-1. **Perfect timing** - Every app adding AI (2024-2025 boom)
-2. **No standards exist** - Opportunity to define patterns
-3. **Meta-advantage** - Building WITH Claude = intimate UX knowledge
-4. **Unique challenges** - Streaming, context, hallucinations all new
-5. **Reference implementation** - Can become the standard others follow
-
-Master this skill to lead the AI interface revolution.
+For the token system, light/dark and high-contrast themes, use the theming-components skill.

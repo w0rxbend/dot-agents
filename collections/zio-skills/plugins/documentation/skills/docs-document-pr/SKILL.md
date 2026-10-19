@@ -45,8 +45,10 @@ resolves those placeholders itself from the current directory.
    Build `{"title": ..., "labels": [...], "files": [...]}` from the title, label names, and that
    files array, and run:
 
+   Paths: `<this-skill-dir>` is this skill's own directory (where this file lives).
+
    ```bash
-   echo '<the json>' | node ${CLAUDE_PLUGIN_ROOT}/skills/docs-document-pr/classify-pr-docs.mjs
+   echo '<the json>' | node <this-skill-dir>/classify-pr-docs.mjs
    ```
 
    When it returns `requiresDocs: "no"`, report its `reason` and stop — you write nothing. Trust it:

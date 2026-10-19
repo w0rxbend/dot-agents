@@ -105,9 +105,11 @@ Reference `references/storage-patterns.md` for lifecycle policies, redundancy op
 ```
 Relational data?
   YES → SQL Server compatible?
-          YES → Need VM-level access?
-                  YES → SQL Managed Instance
-                  NO → Azure SQL Database
+          YES → Need OS/VM-level access or unsupported features?
+                  YES → SQL Server on Azure VMs
+                  NO → Need near-full instance compatibility (SQL Agent, cross-DB queries, CLR)?
+                         YES → Azure SQL Managed Instance (PaaS, no OS access)
+                         NO → Azure SQL Database
           NO → Open source?
                  PostgreSQL → PostgreSQL Flexible Server
                  MySQL → MySQL Flexible Server
@@ -136,7 +138,7 @@ Reference `references/database-selection.md` for capacity planning, indexing str
 ### Azure OpenAI Service
 
 **Use Cases:**
-- Chatbots and conversational AI (GPT-4)
+- Chatbots and conversational AI (GPT-4o-class and newer chat models)
 - Content generation and summarization
 - Semantic search with embeddings (RAG pattern)
 - Code generation and completion
@@ -151,18 +153,23 @@ Reference `references/database-selection.md` for capacity planning, indexing str
 **Integration Pattern:**
 ```python
 from openai import AzureOpenAI
-from azure.identity import DefaultAzureCredential
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
 credential = DefaultAzureCredential()
+token_provider = get_bearer_token_provider(
+    credential, "https://cognitiveservices.azure.com/.default"
+)
 client = AzureOpenAI(
     azure_endpoint="https://myopenai.openai.azure.com",
     azure_ad_token_provider=token_provider,
-    api_version="2024-02-15-preview"
+    # Use a current GA api-version; check the Azure OpenAI API version lifecycle page,
+    # preview versions are retired regularly.
+    api_version="2024-10-21",
 )
 
 response = client.chat.completions.create(
-    model="gpt-4-turbo",
-    messages=[{"role": "user", "content": "Hello!"}]
+    model="my-chat-deployment",  # your deployment name, not the model family
+    messages=[{"role": "user", "content": "Hello!"}],
 )
 ```
 
@@ -185,7 +192,7 @@ Reference `references/ai-integration.md` for RAG architecture, function calling,
 | **Service Bus** | Queue/Topic | 256 KB - 100 MB | Yes (sessions) | Yes | Enterprise messaging |
 | **Event Grid** | Pub/Sub | 1 MB | No | No | Event-driven architectures |
 | **Event Hubs** | Streaming | 1 MB | Yes (partitions) | No | Big data ingestion, telemetry |
-| **Storage Queues** | Simple queue | 64 KB | No | No | Async work, <500k msgs/sec |
+| **Storage Queues** | Simple queue | 64 KB | No | No | Simple async work (scale target ~2,000 msgs/sec per queue, ~20,000 per account) |
 
 **When to Use What:**
 - **Service Bus:** Reliable messaging with transactions (e.g., order processing)
@@ -245,6 +252,7 @@ Reference `references/networking-architecture.md` for hub-spoke Bicep templates,
 
 ```python
 from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
 
 # Works automatically with Managed Identity
 credential = DefaultAzureCredential()
@@ -296,7 +304,7 @@ Reference `references/identity-access.md` for Entra ID integration, Conditional 
 - Tag resources for cost allocation
 - Use FinOps Toolkit for Power BI dashboards
 
-Reference `references/governance-compliance.md` for Azure Landing Zones, Policy definitions, and Blueprints.
+Reference `references/governance-compliance.md` for Azure Landing Zones, Policy definitions, and Template Specs / Deployment Stacks (Azure Blueprints is deprecated).
 
 ## Infrastructure as Code
 
@@ -399,7 +407,7 @@ Reference `references/security-architecture.md` (see also the `security-hardenin
 
 | If You Need... | Choose |
 |----------------|--------|
-| SQL Server features (T-SQL, SQL Agent) | Azure SQL Database or Managed Instance |
+| SQL Server features (SQL Agent, cross-DB queries) | Azure SQL Managed Instance (single-database T-SQL apps: Azure SQL Database; OS access: SQL Server on Azure VMs) |
 | PostgreSQL | PostgreSQL Flexible Server |
 | MySQL | MySQL Flexible Server |
 | Global distribution, multi-model | Cosmos DB |
@@ -409,15 +417,15 @@ Reference `references/security-architecture.md` (see also the `security-hardenin
 
 ## Integration with Other Skills
 
-- **infrastructure-as-code:** Implement Azure patterns using Bicep or Terraform
-- **kubernetes-operations:** AKS-specific configuration and operations
+- **deploying-applications / pulumi-components:** Implement Azure patterns with OpenTofu/Terraform or Pulumi (Bicep examples live in this skill)
+- **operating-kubernetes:** AKS-specific configuration and operations
 - **deploying-applications:** Container Apps and App Service deployment
 - **building-ci-pipelines:** Azure DevOps and GitHub Actions integration
-- **auth-security:** Entra ID authentication and authorization patterns
-- **observability:** Azure Monitor and Application Insights
-- **ai-chat:** Azure OpenAI Service for chat applications
-- **databases-nosql:** Cosmos DB implementation details
-- **secret-management:** Azure Key Vault integration patterns
+- **api-security-best-practices:** Entra ID authentication and authorization patterns
+- **observability-and-instrumentation:** Azure Monitor and Application Insights
+- **building-ai-chat:** Azure OpenAI Service for chat applications
+- **using-document-databases:** Cosmos DB implementation details
+- **hashicorp-vault:** Secret-management patterns (this skill covers Azure Key Vault itself) integration patterns
 
 ## Reference Documentation
 

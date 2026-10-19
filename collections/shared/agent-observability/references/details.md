@@ -113,7 +113,7 @@ Example log output:
   "line": 12,
   "trace_id": "0af7651916cd43dd8448eb211c80319c",
   "span_id": "b7ad6b7169203331",
-  "model": "gpt-4o",
+  "model": "example-model",
   "prompt_tokens": 1842,
   "completion_tokens": 356,
   "duration_seconds": 2.417,
@@ -377,23 +377,29 @@ groups:
 
 Langfuse provides trace-level visibility with prompt management and scoring. It can run alongside your existing OTel stack.
 
+Code below targets the current Langfuse Python SDK (OTel-based, v3+; checked against v5). The v2
+`langfuse.decorators` / `langfuse_context` API no longer exists. `capture_input=False` / `capture_output=False`
+keep prompts and completions out of Langfuse, consistent with the no-prompt-logging rule above; set them to
+`True` only where policy allows, or pass a `mask=` function to `Langfuse(...)` to redact first.
+
 ```python
 # langfuse_integration.py
-from langfuse import Langfuse
-from langfuse.decorators import observe, langfuse_context
+import os
+from langfuse import get_client, observe, propagate_attributes
 
-# Initialize -- reads LANGFUSE_SECRET_KEY, LANGFUSE_PUBLIC_KEY, LANGFUSE_HOST from env
-langfuse = Langfuse()
+# Reads LANGFUSE_SECRET_KEY, LANGFUSE_PUBLIC_KEY and LANGFUSE_HOST (or LANGFUSE_BASE_URL) from env
+langfuse = get_client()
+MODEL = os.environ.get("LLM_MODEL", "your-model-id")
 
-@observe(as_type="generation")
-def call_llm(client, messages, model="gpt-4o", **kwargs):
-    """Langfuse automatically captures input/output, tokens, latency, and cost."""
+@observe(as_type="generation", capture_input=False, capture_output=False)
+def call_llm(client, messages, model=MODEL, **kwargs):
+    """Record model, token usage and latency without storing prompt/response text."""
     response = client.chat.completions.create(
         model=model, messages=messages, **kwargs
     )
-    langfuse_context.update_current_observation(
+    langfuse.update_current_generation(
         model=model,
-        usage={
+        usage_details={
             "input": response.usage.prompt_tokens,
             "output": response.usage.completion_tokens,
         },
@@ -401,15 +407,15 @@ def call_llm(client, messages, model="gpt-4o", **kwargs):
     )
     return response
 
-@observe()
+@observe(capture_input=False, capture_output=False)
 def run_agent(user_input: str):
-    """Top-level agent trace -- all nested @observe calls become child spans."""
-    langfuse_context.update_current_trace(
-        user_id="user-123",
+    """Top-level agent span -- nested @observe calls become child observations."""
+    with propagate_attributes(
+        user_id="user-123",       # use a pseudonymous id, not an email
         session_id="session-abc",
         tags=["production"],
-    )
-    # ... agent logic with nested call_llm() and tool calls ...
+    ):
+        ...  # agent logic with nested call_llm() and tool calls
 ```
 
 Environment variables for Langfuse:
@@ -422,16 +428,17 @@ export LANGFUSE_HOST="https://cloud.langfuse.com"  # or your self-hosted URL
 
 ### Helicone (Proxy-based)
 
-Helicone acts as a logging proxy. Point your OpenAI base URL at Helicone and it captures everything automatically.
+Helicone acts as a logging proxy. Point your OpenAI base URL at Helicone and every prompt and completion transits and is stored by a third party. Only set this up with the user's explicit consent and after checking the data-handling policy; prefer the OTel or Langfuse (`capture_input=False`) routes when prompts may contain PII or secrets.
 
 ```python
 # helicone_integration.py
+import os
 from openai import OpenAI
 
 client = OpenAI(
     base_url="https://oai.helicone.ai/v1",
     default_headers={
-        "Helicone-Auth": "Bearer sk-helicone-...",
+        "Helicone-Auth": f"Bearer {os.environ['HELICONE_API_KEY']}",
         "Helicone-Property-Agent": "support-agent",
         "Helicone-Property-Environment": "production",
         "Helicone-User-Id": "user-123",
@@ -443,7 +450,7 @@ client = OpenAI(
 
 # All calls through this client are automatically logged in Helicone
 response = client.chat.completions.create(
-    model="gpt-4o",
+    model=os.environ["LLM_MODEL"],
     messages=[{"role": "user", "content": "Summarise this document..."}],
 )
 ```

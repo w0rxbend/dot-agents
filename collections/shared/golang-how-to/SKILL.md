@@ -68,7 +68,7 @@ Use this table as routing guidance. Read the primary skill first; the secondary 
 | Adopt new Go language features | `golang-modernize` | `golang-lint` |
 | Use samber/lo (slice/map helpers) | `golang-samber-lo` | `golang-data-structures`, `golang-performance` |
 | Use samber/oops (structured errors) | `golang-samber-oops` | `golang-error-handling` |
-| Use log/slog | `golang-samber-slog` | `golang-observability`, `golang-error-handling` |
+| Use log/slog | `golang-observability` | `golang-samber-slog` (only for slog-multi, sampling, formatting or third-party sinks), `golang-error-handling` |
 | Use dependency injection | `golang-dependency-injection` | `golang-google-wire` or `golang-uber-dig` or `golang-uber-fx` or `golang-samber-do` |
 
 All skill identifiers above are short forms of `samber/cc-skills-golang@<name>`.

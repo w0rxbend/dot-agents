@@ -127,6 +127,8 @@ ac.abort();   // pending rejects with AbortError
 Retry with backoff and jitter that respects cancellation:
 
 ```js
+import { setTimeout as sleep } from 'node:timers/promises';
+
 async function retry(fn, { retries = 3, baseMs = 100, signal } = {}) {
   for (let attempt = 0; ; attempt++) {
     signal?.throwIfAborted();
@@ -135,7 +137,7 @@ async function retry(fn, { retries = 3, baseMs = 100, signal } = {}) {
     } catch (err) {
       if (attempt >= retries) throw new Error(`failed after ${attempt + 1} attempts`, { cause: err });
       const delay = baseMs * 2 ** attempt * (0.5 + Math.random() / 2);
-      await new Promise((r) => setTimeout(r, delay));
+      await sleep(delay, undefined, { signal }); // rejects with AbortError on abort
     }
   }
 }

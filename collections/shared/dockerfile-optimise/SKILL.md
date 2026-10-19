@@ -5,7 +5,7 @@ description: Write, review or refactor Dockerfiles against prioritized rules for
 
 # Dockerfile Optimization Best Practices
 
-Dockerfile rules based on official Docker documentation plus language-specific templates: 53 rules across 9 categories, prioritized by impact to guide refactoring and code generation.
+Dockerfile rules based on official Docker documentation plus language-specific templates: 52 rules across 9 categories, prioritized by impact to guide refactoring and code generation.
 
 ## Workflow
 

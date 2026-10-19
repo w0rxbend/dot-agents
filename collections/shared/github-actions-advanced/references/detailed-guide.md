@@ -126,7 +126,8 @@ jobs:
     # uses: org/repo/.github/workflows/build.yml@<pinned-sha>  # Cross-repo: pin a SHA, not a branch
     with:
       image-tag: ${{ github.sha }}
-    secrets: inherit                             # Pass all caller secrets down
+    secrets:                                     # Pass only the secrets the callee declares
+      registry-token: ${{ secrets.REGISTRY_TOKEN }}  # avoid `secrets: inherit` (passes every secret)
 
   call-test:
     uses: ./.github/workflows/_test.yml
@@ -915,7 +916,7 @@ jobs:
 | Job hangs indefinitely | No `timeout-minutes` set | Always set `timeout-minutes` on every job |
 | `$GITHUB_OUTPUT` not set | Old `set-output` command used | Use `echo "key=value" >> $GITHUB_OUTPUT` |
 | OIDC token request fails | Missing `id-token: write` permission | Add to job-level `permissions` block |
-| Reusable workflow can't access caller secrets | No `secrets: inherit` | Add `secrets: inherit` or explicitly pass secrets |
+| Reusable workflow can't access caller secrets | Secrets not passed to the callee | Pass each declared secret explicitly under `secrets:`; use `secrets: inherit` only for trusted same-org workflows that need many secrets |
 
 ---
 

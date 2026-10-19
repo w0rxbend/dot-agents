@@ -1512,5 +1512,4 @@ if magnitude < 0.01:
 - TypeScript SDK: https://docs.pinecone.io/docs/typescript-client
 
 **Code Examples:**
-- `examples/pinecone-python/` - Python RAG implementation
 - `examples/typescript-rag/` - TypeScript RAG with Pinecone

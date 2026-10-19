@@ -102,8 +102,10 @@ brew install opentofu
 
 **Linux (Package Manager)**:
 ```bash
-# Debian/Ubuntu
-curl -L https://get.opentofu.org/install-opentofu.sh | bash
+# Debian/Ubuntu: download the installer, inspect it, then run it with an install method
+curl --proto '=https' --tlsv1.2 -fsSL https://get.opentofu.org/install-opentofu.sh -o install-opentofu.sh
+less install-opentofu.sh
+sh install-opentofu.sh --install-method deb   # adds the signed OpenTofu apt repo
 
 # Fedora/RHEL
 dnf install opentofu

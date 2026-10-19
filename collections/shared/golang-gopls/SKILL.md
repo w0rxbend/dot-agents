@@ -57,7 +57,7 @@ Full mapping of every capability to its CLI command, MCP tool, and native `LSP` 
 
 These Read/Edit workflows encode the order that avoids redundant queries and half-applied edits — treat every step as required, not optional, even to save a round trip.
 
-- **Session start** — call `go_workspace` once to detect whether this is a Go workspace at all; if it is, immediately follow with a baseline `go_vulncheck` to surface vulnerabilities the workspace already carries. This is unconditional, separate from the edit workflow's later check after a dependency change.
+- **Session start** — call `go_workspace` once to detect whether this is a Go workspace at all; if it is and the task will edit code or touch dependencies, follow with a baseline `go_vulncheck` to surface vulnerabilities the workspace already carries (it needs network access and analyzes the whole workspace, so skip it for read-only questions). This is separate from the edit workflow's later check after a dependency change.
 
 **Read workflow** (understand before touching anything):
 

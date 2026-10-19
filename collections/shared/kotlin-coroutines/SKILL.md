@@ -793,8 +793,9 @@ fun retriesAfterDelay() = runTest {
 5. **Catching CancellationException** and not rethrowing it prevents proper
    cancellation propagation in structured concurrency
 
-6. **Using delay(0) to yield** is less clear than explicitly calling yield() for
-   cooperative multitasking
+6. **Using delay(0) to yield** does not work: `delay` returns immediately for a
+   non-positive duration without suspending, so call `yield()` for cooperative
+   multitasking
 
 7. **Creating too many coroutines unnecessarily** can degrade performance; batch
    or throttle operations when possible

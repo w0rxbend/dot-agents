@@ -1,12 +1,6 @@
 ---
 name: bash-pro
-description: 'Master of defensive Bash scripting for production automation, CI/CD
-
-  pipelines, and system utilities. Expert in safe, portable, and testable shell
-
-  scripts.
-
-  '
+description: 'Write, review or harden Bash scripts for automation, CI/CD and system utilities - strict mode, quoting, safe argument parsing, traps, portability across Bash versions and GNU/BSD tools, ShellCheck/shfmt and bats tests. Use when authoring or reviewing a .sh/Bash script; for one-off terminal commands use bash-linux.'
 risk: critical
 source: community
 date_added: '2026-02-27'
@@ -72,7 +66,7 @@ date_added: '2026-02-27'
 ## Compatibility & Portability
 
 - Use `#!/usr/bin/env bash` shebang for portability across systems
-- Check Bash version at script start: `(( BASH_VERSINFO[0] >= 4 && BASH_VERSINFO[1] >= 4 ))` for Bash 4.4+ features
+- Check Bash version at script start: `(( BASH_VERSINFO[0] > 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 4) ))` for Bash 4.4+ features (comparing major and minor independently wrongly rejects 5.0-5.3)
 - Validate required external commands exist: `command -v jq &>/dev/null || exit 1`
 - Detect platform differences: `case "$(uname -s)" in Linux*) ... ;; Darwin*) ... ;; esac`
 - Handle GNU vs BSD tool differences (e.g., `sed -i` vs `sed -i ''`)
@@ -145,10 +139,10 @@ date_added: '2026-02-27'
 
 ## Modern Bash Features (5.x)
 
-- **Bash 5.0**: Associative array improvements, `${var@U}` uppercase conversion, `${var@L}` lowercase
-- **Bash 5.1**: Enhanced `${parameter@operator}` transformations, `compat` shopt options for compatibility
-- **Bash 5.2**: `varredir_close` option, improved `exec` error handling, `EPOCHREALTIME` microsecond precision
-- Check version before using modern features: `[[ ${BASH_VERSINFO[0]} -ge 5 && ${BASH_VERSINFO[1]} -ge 2 ]]`
+- **Bash 5.0**: `EPOCHSECONDS` and `EPOCHREALTIME` (microsecond precision), `BASH_ARGV0`
+- **Bash 5.1**: `${var@U}` / `${var@u}` / `${var@L}` case conversion, `${var@K}`, `SRANDOM`
+- **Bash 5.2**: `varredir_close` and `patsub_replacement` shell options, `globskipdots`
+- Check version before using modern features: `(( BASH_VERSINFO[0] > 5 || (BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 2) ))`
 - Use `${parameter@Q}` for shell-quoted output (Bash 4.4+)
 - Use `${parameter@E}` for escape sequence expansion (Bash 4.4+)
 - Use `${parameter@P}` for prompt expansion (Bash 4.4+)
@@ -162,7 +156,6 @@ date_added: '2026-02-27'
 - **Pre-commit hooks**: Configure `.pre-commit-config.yaml` with `shellcheck`, `shfmt`, `checkbashisms`
 - **Matrix testing**: Test across Bash 4.4, 5.0, 5.1, 5.2 on Linux and macOS
 - **Container testing**: Use official bash:5.2 Docker images for reproducible tests
-- **CodeQL**: Enable shell script scanning for security vulnerabilities
 - **Actionlint**: Validate GitHub Actions workflow files that use shell scripts
 - **Automated releases**: Tag versions and generate changelogs automatically
 - **Coverage reporting**: Track test coverage and fail on regressions
@@ -228,13 +221,11 @@ date_added: '2026-02-27'
 - **shfmt**: Shell script formatter with standard config (`-i 2 -ci -bn -sr -kp`)
 - **checkbashisms**: Detect bash-specific constructs for portability analysis
 - **Semgrep**: SAST with custom rules for shell-specific security issues
-- **CodeQL**: GitHub's security scanning for shell scripts
 
 ### Testing Frameworks
 - **bats-core**: Maintained fork of Bats with modern features and active development
 - **shellspec**: BDD-style testing framework with rich assertions and mocking
 - **shunit2**: xUnit-style testing framework for shell scripts
-- **bashing**: Testing framework with mocking support and test isolation
 
 ### Modern Development Tools
 - **bashly**: CLI framework generator for building command-line applications
@@ -291,14 +282,15 @@ date_added: '2026-02-27'
 - **Improved Error Trapping**: `set -Eeuo pipefail; shopt -s inherit_errexit` for comprehensive error handling
 - **Parallel Execution**: `xargs -P $(nproc) -n 1 command` for parallel processing with CPU core count
 - **Structured Output**: `jq -n --arg key "$value" '{key: $key}'` for JSON generation
-- **Performance Profiling**: Use `time -v` for detailed resource usage or `TIMEFORMAT` for custom timing
+- **Performance Profiling**: Use `/usr/bin/time -v` (GNU time; `/usr/bin/time -l` on macOS) for detailed resource usage - plain `time -v` hits the Bash keyword and fails - or `TIMEFORMAT` for custom timing
 
 ## References & Further Reading
 
 ### Style Guides & Best Practices
 - [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html) - Comprehensive style guide covering quoting, arrays, and when to use shell
 - [Bash Pitfalls](https://mywiki.wooledge.org/BashPitfalls) - Catalog of common Bash mistakes and how to avoid them
-- [Bash Hackers Wiki](https://wiki.bash-hackers.org/) - Comprehensive Bash documentation and advanced techniques
+- [GNU Bash Reference Manual](https://www.gnu.org/software/bash/manual/bash.html) - Authoritative reference for expansions, builtins and shell options
+- [Greg's Bash Guide and FAQ](https://mywiki.wooledge.org/BashGuide) - Practical guide and FAQ from the Bash Pitfalls authors
 - [Defensive BASH Programming](https://www.kfirlavi.com/blog/2012/11/14/defensive-bash-programming/) - Modern defensive programming patterns
 
 ### Tools & Frameworks
@@ -310,17 +302,16 @@ date_added: '2026-02-27'
 - [shdoc](https://github.com/reconquest/shdoc) - Documentation generator for shell scripts
 
 ### Security & Advanced Topics
-- [Bash Security Best Practices](https://github.com/carlospolop/PEASS-ng) - Security-focused shell script patterns
 - [Awesome Bash](https://github.com/awesome-lists/awesome-bash) - Curated list of Bash resources and tools
 - [Pure Bash Bible](https://github.com/dylanaraps/pure-bash-bible) - Collection of pure bash alternatives to external commands
 
 ## Example
 
-**User request:**
+**User request:** "Review `deploy.sh` before we run it in CI."
 
-> Write or reviewing Bash scripts for automation, CI/CD, or ops.
+**Approach:** run `shellcheck -o all deploy.sh` and `shfmt -d deploy.sh`; check for strict mode with an `ERR`/`EXIT` trap, quoted expansions, `--` before user-supplied paths, a `--dry-run` path for destructive steps, and `command -v` checks for required tools; report each finding with file:line and the corrected snippet, then add a bats test for any fixed bug.
 
 ## Limitations
-- Use this skill only when the task clearly matches the scope described above.
-- Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
-- Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.
+
+- Bash only: for POSIX `sh`, PowerShell, or logic that has outgrown shell (complex data structures, heavy JSON), say so and suggest a different tool.
+- Version- and platform-specific advice (Bash 5.x features, GNU vs BSD flags) must be checked against the target system's `bash --version` and tool man pages.

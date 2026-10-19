@@ -67,7 +67,7 @@ The 18 CIS Controls provide a prioritized framework for cybersecurity:
 
 | CIS ID | Requirement | Hardening Action |
 |--------|-------------|------------------|
-| 3.1.1 | Disable IP forwarding | `net.ipv4.ip_forward = 0` |
+| 3.1.1 | Disable IP forwarding (not on container/Kubernetes hosts, routers or VPN gateways; document the exception there) | `net.ipv4.ip_forward = 0` |
 | 3.1.2 | Disable send packet redirects | `net.ipv4.conf.all.send_redirects = 0` |
 | 3.2.1-3.2.9 | Network parameter hardening | sysctl settings (see linux-hardening.md) |
 | 3.3.1 | Ensure firewall is active | Configure iptables/firewalld/nftables |
@@ -292,8 +292,11 @@ docker run --rm -it \
 ### kube-bench (Kubernetes)
 
 ```bash
-# Run as Kubernetes Job
-kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml
+# Run as Kubernetes Job: pin a release tag (never main) and review before applying
+curl -fsSLo kube-bench-job.yaml https://raw.githubusercontent.com/aquasecurity/kube-bench/v0.16.0/job.yaml
+less kube-bench-job.yaml
+kubectl apply -f kube-bench-job.yaml
+kubectl wait --for=condition=complete job/kube-bench --timeout=300s
 
 # View results
 kubectl logs job/kube-bench

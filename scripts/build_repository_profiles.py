@@ -149,7 +149,7 @@ def merge_analysis(rows, analyses):
             aliases = {'cpp-pro': 'cpp-obs-plugin-development',
                        'elixir-expert': 'elixir-project-workflow',
                        'typescript-expert': 'typescript-project-contracts',
-                       'skill-creator': 'codex-system--skill-creator',
+                       'skill-creator': 'skill-writer',
                        'skill-installer': 'codex-system--skill-installer',
                        # Retired duplicates route to their canonical skill.
                        'python-development': 'python-patterns',

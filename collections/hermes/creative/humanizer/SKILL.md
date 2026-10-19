@@ -28,7 +28,7 @@ Load this skill whenever the user asks to:
 - match their voice in writing they're producing
 - review text for AI tells before publishing
 
-Also apply this skill to **your own** output when writing user-facing prose such as release notes, PR descriptions, docs, and summaries. Hermes's baseline voice already strips most of these, but a focused pass catches what slips through.
+Do not apply it unprompted. When the user asks you to humanize your own draft, use only the pattern-removal sections on technical artifacts (PR descriptions, docs, release notes, commit messages); the PERSONALITY AND SOUL advice (opinions, first person, "some mess") is for essays, posts and personal writing, not for technical or factual documents.
 
 ## How to use it in Hermes
 
@@ -76,6 +76,8 @@ If the user provides a writing sample (their own previous writing), analyze it b
 
 Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as obvious as slop. Good writing has a human behind it.
 
+Apply this section only to genres that carry a personal voice (essays, blog posts, social posts, personal emails) or when the user asks for it. For technical docs, PR descriptions, reports and other factual writing, keep the neutral register and stop at removing the patterns below.
+
 ### Signs of soulless writing (even if technically "clean"):
 - Every sentence is the same length and structure
 - No opinions, just neutral reporting
@@ -88,7 +90,7 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 **Have opinions.** Report the facts, then react to them. "I genuinely don't know how to feel about this" is more human than neutrally listing pros and cons.
 
-**Vary your rhythm.** Short punchy sentences. Then longer ones that take their time getting where they're going. Mix it up.
+**Vary your rhythm.** Mix shorter sentences with longer ones that take their time getting where they're going. Keep short sentences complete; strings of dramatic fragments are their own tell (pattern 31).
 
 **Acknowledge complexity.** Real humans have mixed feelings. "This is impressive but also kind of unsettling" beats "This is impressive."
 

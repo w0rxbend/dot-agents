@@ -16,7 +16,7 @@ This skill provides strategic frameworks for:
 - **Test Data Management**: Choose appropriate strategies (fixtures, factories, property-based testing)
 - **CI/CD Integration**: Integrate tests into automated pipelines with optimal execution patterns
 
-Testing is foundational to reliable software. With microservices architectures and continuous delivery becoming standard in 2025, strategic testing across multiple levels is more critical than ever.
+Testing is foundational to reliable software. With microservices and continuous delivery, a deliberate mix of test levels matters more than raw test count.
 
 ## When to Use This Skill
 
@@ -52,7 +52,7 @@ The testing pyramid guides test distribution for optimal speed and confidence:
 
 **Key Principle**: More unit tests (fast, isolated), fewer E2E tests (slow, comprehensive). Integration tests bridge the gap.
 
-### Modern Adaptations (2025)
+### Modern Adaptations
 
 **Microservices Adjustment**:
 - Add contract testing layer between unit and integration
@@ -124,7 +124,7 @@ For comprehensive decision frameworks, see `references/decision-tree.md`.
 - Validation logic
 
 **Recommended Tools**:
-- **TypeScript/JavaScript**: Vitest (primary, 10x faster than Jest), Jest (legacy)
+- **TypeScript/JavaScript**: Vitest (primary; fast, native ESM/TypeScript), Jest (common in existing codebases)
 - **Python**: pytest (industry standard)
 - **Go**: testing package (stdlib) + testify (assertions)
 - **Rust**: cargo test (stdlib)
@@ -311,7 +311,29 @@ See `examples/python/` for complete working examples.
 
 ### Go and Rust
 
-See `examples/go/` and `examples/rust/` for complete working examples in these languages.
+```go
+// Go: table-driven test, run with `go test ./...`
+func TestAdd(t *testing.T) {
+    cases := []struct{ a, b, want int }{{1, 2, 3}, {-1, 1, 0}}
+    for _, c := range cases {
+        if got := Add(c.a, c.b); got != c.want {
+            t.Errorf("Add(%d, %d) = %d, want %d", c.a, c.b, got, c.want)
+        }
+    }
+}
+```
+
+```rust
+// Rust: unit tests live next to the code, run with `cargo test`
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn adds() { assert_eq!(add(1, 2), 3); }
+}
+```
+
+Fixture, factory and property-based examples for Go and Rust (including `proptest`) are in `references/test-data-strategies.md`.
 
 ## Coverage and Quality Metrics
 
@@ -367,7 +389,7 @@ For detailed coverage strategies, see `references/coverage-strategies.md`.
 ### Parallel Execution
 
 **Speed Up Test Runs**:
-- **Vitest**: `vitest --threads`
+- **Vitest**: parallel across files by default; tune with `--pool=threads` or `--pool=forks` and `--maxWorkers`
 - **Playwright**: `playwright test --workers=4`
 - **pytest**: `pytest -n auto` (requires pytest-xdist)
 - **Go**: `go test -parallel 4`
@@ -433,4 +455,4 @@ Code examples in the `examples/` directory:
 - **`examples/python/pytest_unit_test.py`** - pytest unit tests and fixtures
 - **`examples/python/hypothesis_property_test.py`** - Hypothesis property-based tests
 
-For Go and Rust, see the examples in `references/test-data-strategies.md` and the "Go and Rust" quick-start section above.
+For Go and Rust, see the "Go and Rust" quick-start section above and `references/test-data-strategies.md`.

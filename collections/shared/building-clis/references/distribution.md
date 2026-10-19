@@ -341,44 +341,52 @@ cargo dist build
 
 ## Installation Scripts
 
+Prefer package managers (Homebrew, Scoop, `cargo install`, `go install`, `pipx`) and signed release archives. If you also ship a shell installer, make it verify what it downloads and avoid requiring root.
+
 ### Universal Install Script
 
-**install.sh:**
+**install.sh** (expects release assets named `myapp-<os>-<arch>` plus a `checksums.txt` in `sha256sum` format, as GoReleaser produces):
 ```bash
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
 REPO="user/myapp"
 BINARY="myapp"
+VERSION="${1:?usage: install.sh <version-tag, e.g. v1.2.3>}"
+INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 
-# Detect OS and architecture
 OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 ARCH=$(uname -m)
-
-case $ARCH in
+case "$ARCH" in
     x86_64) ARCH="amd64" ;;
     aarch64|arm64) ARCH="arm64" ;;
-    *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
+    *) echo "Unsupported architecture: $ARCH" >&2; exit 1 ;;
 esac
 
-# Download latest release
-LATEST=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-URL="https://github.com/$REPO/releases/download/$LATEST/${BINARY}-${OS}-${ARCH}"
+ASSET="${BINARY}-${OS}-${ARCH}"
+BASE="https://github.com/$REPO/releases/download/$VERSION"
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
 
-echo "Installing $BINARY $LATEST..."
-curl -L -o "$BINARY" "$URL"
-chmod +x "$BINARY"
+curl -fsSL -o "$TMP/$ASSET" "$BASE/$ASSET"
+curl -fsSL -o "$TMP/checksums.txt" "$BASE/checksums.txt"
 
-# Install to /usr/local/bin
-sudo mv "$BINARY" /usr/local/bin/
+# Verify the binary against the published checksum before installing
+(cd "$TMP" && grep " ${ASSET}\$" checksums.txt | sha256sum -c -)   # macOS: shasum -a 256 -c -
 
-echo "$BINARY installed successfully!"
-$BINARY --version
+mkdir -p "$INSTALL_DIR"
+install -m 0755 "$TMP/$ASSET" "$INSTALL_DIR/$BINARY"
+echo "Installed $BINARY $VERSION to $INSTALL_DIR (make sure it is on PATH)"
+"$INSTALL_DIR/$BINARY" --version
 ```
 
-**Usage:**
+Checksums from the same release only protect against corrupted or truncated downloads; for tamper resistance also sign releases (for example cosign or GPG) and verify the signature here.
+
+**Usage** (document this for users; pin a tag and let them read the script first instead of piping a moving branch into a shell):
 ```bash
-curl -sSfL https://raw.githubusercontent.com/user/myapp/main/install.sh | bash
+curl -fsSLO https://raw.githubusercontent.com/user/myapp/v1.2.3/install.sh
+less install.sh                 # review it
+bash install.sh v1.2.3
 ```
 
 ## Best Practices

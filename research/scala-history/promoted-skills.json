@@ -10,7 +10,8 @@
       "review_sha256": "8897d3e2045cdd4b1c56aeddcfd122221ebb87337e884472b3cd1cc80be6f52f",
       "source_tree_sha256": "f077b0f371b454ae8e18f1790be455910c8da90299c0e2d268fe66dd02d224b2",
       "promoted_tree_sha256": "85ee77e44bbfa67b8a4bc6606c70642590e0b29dc8dd061a94fb58be30f89942",
-      "promoted_at": "2026-10-17T20:51:54.258410+00:00"
+      "promoted_at": "2026-10-17T20:51:54.258410+00:00",
+      "merged_into": "scala-compiler-macro-refactoring"
     },
     "scala-ammonite-static-script-dependency-propagation": {
       "repository": "com-lihaoyi/Ammonite",
@@ -21,7 +22,8 @@
       "review_sha256": "080f6dab58472deb0c3a4c8c661db3983975fbf8d266f1b8a5011fad9a816668",
       "source_tree_sha256": "4640ee53d2df5e5c21932c22c20c3e872b9bd8be380c392ac0d259d74c3da20f",
       "promoted_tree_sha256": "a932d082a2f75285d0b179c04f9d77256bdbbdaab05197ef6713d1eb0bd4d9ff",
-      "promoted_at": "2026-10-17T20:51:54.259410+00:00"
+      "promoted_at": "2026-10-17T20:51:54.259410+00:00",
+      "merged_into": "scala-compiler-macro-refactoring"
     },
     "scala-ammonite-symbol-derived-closure-capture": {
       "repository": "com-lihaoyi/Ammonite",
@@ -32,7 +34,8 @@
       "review_sha256": "080f6dab58472deb0c3a4c8c661db3983975fbf8d266f1b8a5011fad9a816668",
       "source_tree_sha256": "854f5aa2364a12e8c28fd56801e6535af9c6ebd5b2e34f4f9bbe4d758d2294ab",
       "promoted_tree_sha256": "f5b5a2b67b59b59dafbebd28e83a1cbc5bbcad83f946cd7f900fe8f41ecd1b98",
-      "promoted_at": "2026-10-17T20:51:54.260170+00:00"
+      "promoted_at": "2026-10-17T20:51:54.260170+00:00",
+      "merged_into": "scala-compiler-macro-refactoring"
     },
     "scala-cask-route-trie-validation-order": {
       "repository": "com-lihaoyi/cask",
@@ -43,7 +46,8 @@
       "review_sha256": "5346c8283aaa29d2d188e9bbc84e5ec7f4a0a654b4de84058259131e04dc0143",
       "source_tree_sha256": "96dee6266bede826a1b1a2514cc150ae4ffeca1c8ac21368b1400c349a23917c",
       "promoted_tree_sha256": "effef531a378f80412b44235fef2aab215f11d863bab1985ce6f3f0933d216c3",
-      "promoted_at": "2026-10-17T20:51:54.261105+00:00"
+      "promoted_at": "2026-10-17T20:51:54.261105+00:00",
+      "merged_into": "scala-http-server-semantics"
     },
     "scala-castor-platform-mixin-dispatch-accounting": {
       "repository": "com-lihaoyi/castor",
@@ -54,7 +58,8 @@
       "review_sha256": "362a202cc4fe7880cc24391d469e48d826c2470b03b1d77488b3dc3e93de1207",
       "source_tree_sha256": "9ee7abd5ab063f6a315f7393a4dd8ff588e35efe95bfd5a7829701b9c273c955",
       "promoted_tree_sha256": "3fae01ecc24fe00f1695bc64a3c8d839c85d1c62bf3b61a3be2156a93a07471d",
-      "promoted_at": "2026-10-17T20:51:54.262106+00:00"
+      "promoted_at": "2026-10-17T20:51:54.262106+00:00",
+      "merged_into": "scala-library-compatibility-laws"
     },
     "scala-cats-effect-cleanup-error-provenance": {
       "repository": "typelevel/cats-effect",
@@ -65,7 +70,8 @@
       "review_sha256": "efd2e80f1706c86796dde52780f453580787e3bfaf9725099509067bab282b29",
       "source_tree_sha256": "a8cd9ac27ed06e5de141dc56a691715fa0a1e0a8d355651cd63a8200b7a40326",
       "promoted_tree_sha256": "89ba8b3940eb04c639c471ab92603998371203c9f2919d6b8a531259800926cc",
-      "promoted_at": "2026-10-17T20:51:54.262931+00:00"
+      "promoted_at": "2026-10-17T20:51:54.262931+00:00",
+      "merged_into": "scala-effect-cancellation-finalization"
     },
     "scala-cats-effect-outcome-sensitive-concurrency": {
       "repository": "typelevel/cats-effect",
@@ -76,7 +82,8 @@
       "review_sha256": "efd2e80f1706c86796dde52780f453580787e3bfaf9725099509067bab282b29",
       "source_tree_sha256": "806a23d3b549fbc2d8ffd4e3e20fe65929d006f5c6278200dbe8a0a3a137d90f",
       "promoted_tree_sha256": "a7f7b55a30dee88ec209076229286c0443ad5e868d1592a9c4c4ba2439555e65",
-      "promoted_at": "2026-10-17T20:51:54.263779+00:00"
+      "promoted_at": "2026-10-17T20:51:54.263779+00:00",
+      "merged_into": "scala-effect-cancellation-finalization"
     },
     "scala-cats-effect-runtime-benchmark-review": {
       "repository": "typelevel/cats-effect",
@@ -87,7 +94,8 @@
       "review_sha256": "efd2e80f1706c86796dde52780f453580787e3bfaf9725099509067bab282b29",
       "source_tree_sha256": "9a8c55d0f1baf11da18310a8c52642bbf7447f81a1aaa5f664ef602dcc21d6e2",
       "promoted_tree_sha256": "e76c3f36cf30a1090dfd6c83c3d8f5e45304bb512dd9122dd50ea85b821145c2",
-      "promoted_at": "2026-10-17T20:51:54.264610+00:00"
+      "promoted_at": "2026-10-17T20:51:54.264610+00:00",
+      "merged_into": "scala-runtime-diagnostics-hot-paths"
     },
     "scala-cats-erased-runtime-compatibility": {
       "repository": "typelevel/cats",
@@ -98,7 +106,8 @@
       "review_sha256": "1911404d40e1a5ca00c0dc3f2226165ef71213c6cab118f6820cf9a9723f2a12",
       "source_tree_sha256": "a8109c8846b80fee6208a3ae8dc286b8a5f04a7b57eae7194eff19423a7a2446",
       "promoted_tree_sha256": "df50cbeb568a417cc08f96f1912c2e133bbdd0f6f16b6e0a8345af57dacc3540",
-      "promoted_at": "2026-10-17T20:51:54.265400+00:00"
+      "promoted_at": "2026-10-17T20:51:54.265400+00:00",
+      "merged_into": "scala-library-compatibility-laws"
     },
     "scala-cats-law-backed-instance-surface": {
       "repository": "typelevel/cats",
@@ -109,7 +118,8 @@
       "review_sha256": "1911404d40e1a5ca00c0dc3f2226165ef71213c6cab118f6820cf9a9723f2a12",
       "source_tree_sha256": "84bb7852e5862fcbc3ae7c65bcf586929f1bccad84b3cf8e99a00960043d7c0d",
       "promoted_tree_sha256": "cff3007a1b181774da1f158beb38282beedf5fcb7da874d0d50c05c8c26767ee",
-      "promoted_at": "2026-10-17T20:51:54.266210+00:00"
+      "promoted_at": "2026-10-17T20:51:54.266210+00:00",
+      "merged_into": "scala-library-compatibility-laws"
     },
     "scala-cats-traversal-branch-isolation": {
       "repository": "typelevel/cats",
@@ -120,7 +130,8 @@
       "review_sha256": "1911404d40e1a5ca00c0dc3f2226165ef71213c6cab118f6820cf9a9723f2a12",
       "source_tree_sha256": "039446a4dc33616e9991acb651c6aee224c4f6e2d57347a52c08d787bdc8f134",
       "promoted_tree_sha256": "0d08e2a65b178e663958f1edf73a9d7a61467d6aa8c6efd61755d6813622e1e0",
-      "promoted_at": "2026-10-17T20:51:54.266942+00:00"
+      "promoted_at": "2026-10-17T20:51:54.266942+00:00",
+      "merged_into": "scala-library-compatibility-laws"
     },
     "scala-fastparse-diagnostic-mode-review": {
       "repository": "com-lihaoyi/fastparse",
@@ -131,7 +142,8 @@
       "review_sha256": "eff66d372ccd29273a6f5e47694e156dada853f1748a0b00c5211323c818115e",
       "source_tree_sha256": "a306b03851b9de436a4c21a704b547b344b512839c80221df7bf8d71872eb6a3",
       "promoted_tree_sha256": "3f50f87e663b26e92d17cc3077422ce131691eedceeb824f76134be1fed1b802",
-      "promoted_at": "2026-10-17T20:51:54.267803+00:00"
+      "promoted_at": "2026-10-17T20:51:54.267803+00:00",
+      "merged_into": "scala-runtime-diagnostics-hot-paths"
     },
     "scala-fastparse-hot-path-cost-review": {
       "repository": "com-lihaoyi/fastparse",
@@ -142,7 +154,8 @@
       "review_sha256": "eff66d372ccd29273a6f5e47694e156dada853f1748a0b00c5211323c818115e",
       "source_tree_sha256": "48e2fd23fa0b81f06ce3ab3f47ba4de44bc08e0201089677491b1ef0760d3825",
       "promoted_tree_sha256": "dbe298c93b3f5cce845028a28755f497e95f1fb4c6918999f46501e154518482",
-      "promoted_at": "2026-10-17T20:51:54.268542+00:00"
+      "promoted_at": "2026-10-17T20:51:54.268542+00:00",
+      "merged_into": "scala-runtime-diagnostics-hot-paths"
     },
     "scala-fastparse-shared-run-combinator-extraction": {
       "repository": "com-lihaoyi/fastparse",
@@ -153,7 +166,8 @@
       "review_sha256": "eff66d372ccd29273a6f5e47694e156dada853f1748a0b00c5211323c818115e",
       "source_tree_sha256": "f3d0f564e6692c1fb8408968f204caa45ecc405660e7a360819cd7909d8a4967",
       "promoted_tree_sha256": "0afba4ba929be0661aff50e9e30c95cf42a666e8a89fb3ab6799afe3d9a9cf9d",
-      "promoted_at": "2026-10-17T20:51:54.269472+00:00"
+      "promoted_at": "2026-10-17T20:51:54.269472+00:00",
+      "merged_into": "scala-compiler-macro-refactoring"
     },
     "scala-fs2-foreign-callback-lanes": {
       "repository": "typelevel/fs2",
@@ -164,7 +178,8 @@
       "review_sha256": "c0b56aa6e7daba57641b914bd4a00dcedb52303493257f43eb44edea7c6f3751",
       "source_tree_sha256": "e38001d62d720215d99ca4580eecfb41cacba2b8d84d8adee9480d1d17e167b4",
       "promoted_tree_sha256": "1660e18bcdd26f017ce60b63d03d7fd17049ff52a23c6e3dd92396318de1e59f",
-      "promoted_at": "2026-10-17T20:51:54.270199+00:00"
+      "promoted_at": "2026-10-17T20:51:54.270199+00:00",
+      "merged_into": "scala-stream-resource-scoping"
     },
     "scala-fs2-per-element-scope-propagation": {
       "repository": "typelevel/fs2",
@@ -175,7 +190,8 @@
       "review_sha256": "c0b56aa6e7daba57641b914bd4a00dcedb52303493257f43eb44edea7c6f3751",
       "source_tree_sha256": "fb9f6fed30c1a8e01259fded648dae666a20b6fa2e6d8c2676a2516aeff2523e",
       "promoted_tree_sha256": "ba9ee938d2fbed2f3e0b9ed1a3a4bc6520ed831d22586c7729410332d6f11f38",
-      "promoted_at": "2026-10-17T20:51:54.270887+00:00"
+      "promoted_at": "2026-10-17T20:51:54.270887+00:00",
+      "merged_into": "scala-stream-resource-scoping"
     },
     "scala-fs2-sink-emission-cardinality": {
       "repository": "typelevel/fs2",
@@ -186,7 +202,8 @@
       "review_sha256": "c0b56aa6e7daba57641b914bd4a00dcedb52303493257f43eb44edea7c6f3751",
       "source_tree_sha256": "daf38b436c7bc2298884cc2d1592d2aa13c495ee88a864db89bdcc27ab326ae2",
       "promoted_tree_sha256": "5da471b615c2c99bec8a9295b2b3159e6a5d258cf721601d42525729c0141828",
-      "promoted_at": "2026-10-17T20:51:54.271567+00:00"
+      "promoted_at": "2026-10-17T20:51:54.271567+00:00",
+      "merged_into": "scala-stream-resource-scoping"
     },
     "scala-http4s-http1-bodyless-connection-framing": {
       "repository": "http4s/http4s",
@@ -197,7 +214,8 @@
       "review_sha256": "8c8fe5ad71665f0b129de59c81adcc38fda32878782a718d1896e906cda1e4d3",
       "source_tree_sha256": "4c9c732cc407de252e4813fc6f4312ebc791470013a75a66df1da719dd15db45",
       "promoted_tree_sha256": "5bd3efbfe0e818d1419379122cc10e0de1e548e09c18bb94e2161f286101db14",
-      "promoted_at": "2026-10-17T20:51:54.272284+00:00"
+      "promoted_at": "2026-10-17T20:51:54.272284+00:00",
+      "merged_into": "scala-http-server-semantics"
     },
     "scala-http4s-stateful-factory-acquisition": {
       "repository": "http4s/http4s",
@@ -208,7 +226,8 @@
       "review_sha256": "8c8fe5ad71665f0b129de59c81adcc38fda32878782a718d1896e906cda1e4d3",
       "source_tree_sha256": "ed3dc940d43dfd7118b91a4167617acfd7f4fc590a4dca8ea664e9d5018ed9dd",
       "promoted_tree_sha256": "eb710c0f2f5f10b4cf2ea462c449708e90f25fa541bddc897f41a5e840481f9d",
-      "promoted_at": "2026-10-17T20:51:54.272999+00:00"
+      "promoted_at": "2026-10-17T20:51:54.272999+00:00",
+      "merged_into": "scala-stream-resource-scoping"
     },
     "scala-http4s-uri-segment-representation": {
       "repository": "http4s/http4s",
@@ -219,7 +238,8 @@
       "review_sha256": "8c8fe5ad71665f0b129de59c81adcc38fda32878782a718d1896e906cda1e4d3",
       "source_tree_sha256": "d7b8b61b9dbfea7c4057d56f1873f2c04397212391708e92574256d5f0b8d7da",
       "promoted_tree_sha256": "e146850ca55b7724c5517bf5a959a156c4904dcb744911eec5b3410ea20b734c",
-      "promoted_at": "2026-10-17T20:51:54.273742+00:00"
+      "promoted_at": "2026-10-17T20:51:54.273742+00:00",
+      "merged_into": "scala-http-server-semantics"
     },
     "scala-play-cors-csrf-policy-matrix": {
       "repository": "playframework/playframework",
@@ -230,7 +250,8 @@
       "review_sha256": "41e8f25c756d2376c984a568dc11e819b12732fe85b46ae5a8e47e9cca3ccf40",
       "source_tree_sha256": "46235d0d5f510e7d8796c411d22d5f959dbb28e584e00d3c3f45260ed7b269ba",
       "promoted_tree_sha256": "f2673112daabf9a64042c59934fde94b4f0fc3a047798aaa56c522be1a1c3c12",
-      "promoted_at": "2026-10-17T20:51:54.274666+00:00"
+      "promoted_at": "2026-10-17T20:51:54.274666+00:00",
+      "merged_into": "scala-http-server-semantics"
     },
     "scala-play-partial-startup-shutdown-completion": {
       "repository": "playframework/playframework",
@@ -241,7 +262,8 @@
       "review_sha256": "41e8f25c756d2376c984a568dc11e819b12732fe85b46ae5a8e47e9cca3ccf40",
       "source_tree_sha256": "08a1d78918526ca8d392348cbf44b6d1bcd755cfbbb71b39e3a245e1c5a38b8a",
       "promoted_tree_sha256": "7c1acfff30744b61ae636ba753b0626238c3f05d0b7c05e2fefeaf8aac7bf798",
-      "promoted_at": "2026-10-17T20:51:54.275541+00:00"
+      "promoted_at": "2026-10-17T20:51:54.275541+00:00",
+      "merged_into": "scala-effect-cancellation-finalization"
     },
     "scala-sourcecode-args-capture-review": {
       "repository": "com-lihaoyi/sourcecode",
@@ -252,7 +274,8 @@
       "review_sha256": "42a5fa876d91647e1e61462161108ce53d71d50343439cb279238fa85c15d8a2",
       "source_tree_sha256": "8aef8c00bc601f2ecf0c11fe7d6c7cd8099464105fe62450de1265b8d77395bf",
       "promoted_tree_sha256": "619f005ddcd3c2f8bdbc8e75880231803a0cb81537cb84fb2fb37a11e0dd6cb3",
-      "promoted_at": "2026-10-17T20:51:54.276436+00:00"
+      "promoted_at": "2026-10-17T20:51:54.276436+00:00",
+      "merged_into": "scala-compiler-macro-refactoring"
     },
     "scala-zio-canceler-evaluation-owner": {
       "repository": "zio/zio",
@@ -263,7 +286,8 @@
       "review_sha256": "a7cb9acd89e18030d9b000a04339a3eef93386806f24a9690944d135170e812b",
       "source_tree_sha256": "94dc06f1934cbdcf7c20dc66dcd4504e7341b7d8819de52127410f74c09b10a3",
       "promoted_tree_sha256": "2bc9835ec4e0c8cec04ec2596625b66d253ba0e2146565a32ba45c9b29fcdb55",
-      "promoted_at": "2026-10-17T20:51:54.277151+00:00"
+      "promoted_at": "2026-10-17T20:51:54.277151+00:00",
+      "merged_into": "scala-effect-cancellation-finalization"
     },
     "scala-zio-diagnostic-reader-progress": {
       "repository": "zio/zio",
@@ -274,7 +298,8 @@
       "review_sha256": "a7cb9acd89e18030d9b000a04339a3eef93386806f24a9690944d135170e812b",
       "source_tree_sha256": "5f49f59fe919af783222097a38c91f03bd7a8a8839211e0f0a868e3b17803d39",
       "promoted_tree_sha256": "c2596764cbb3092b733be330343bc7a70463fcb5ed7813a2cc332b8e4ab9b802",
-      "promoted_at": "2026-10-17T20:51:54.278079+00:00"
+      "promoted_at": "2026-10-17T20:51:54.278079+00:00",
+      "merged_into": "scala-runtime-diagnostics-hot-paths"
     },
     "scala-zio-http-channel-handoff-completion": {
       "repository": "zio/zio-http",
@@ -285,7 +310,8 @@
       "review_sha256": "62050090929a31a65e83f3600bcaed2df807c80c63056845b425fd6046375d03",
       "source_tree_sha256": "0363b2c679169cd6a4d780509f1052faf2ae2801c012bd826bbf43566e6991e5",
       "promoted_tree_sha256": "900d66d6b27ffd842d28e0419f5d48daf9bb2a9e95485ed4d802baf4ce798154",
-      "promoted_at": "2026-10-17T20:51:54.278853+00:00"
+      "promoted_at": "2026-10-17T20:51:54.278853+00:00",
+      "merged_into": "scala-http-server-semantics"
     },
     "scala-zio-http-middleware-execution-boundaries": {
       "repository": "zio/zio-http",
@@ -296,7 +322,8 @@
       "review_sha256": "62050090929a31a65e83f3600bcaed2df807c80c63056845b425fd6046375d03",
       "source_tree_sha256": "4c0a5623c8f8f364b7466184937512c9ff3088e97445a9c154b7f3b724b41bb3",
       "promoted_tree_sha256": "81b647b8772b9d76370108458eeef43efadca5a827001a9e2ab74ed7ecf2bcee",
-      "promoted_at": "2026-10-17T20:51:54.279645+00:00"
+      "promoted_at": "2026-10-17T20:51:54.279645+00:00",
+      "merged_into": "scala-http-server-semantics"
     },
     "scala-zio-http-request-local-error-disclosure": {
       "repository": "zio/zio-http",
@@ -307,7 +334,8 @@
       "review_sha256": "62050090929a31a65e83f3600bcaed2df807c80c63056845b425fd6046375d03",
       "source_tree_sha256": "25054f077905263bda49b361a1de4c116e60c5a325af587e9d269b89774ce799",
       "promoted_tree_sha256": "390de841d73d775b9a462b7fd87b5060976e2aeb196dede7aa3c160a23581e69",
-      "promoted_at": "2026-10-17T20:51:54.280434+00:00"
+      "promoted_at": "2026-10-17T20:51:54.280434+00:00",
+      "merged_into": "scala-http-server-semantics"
     }
   }
 }

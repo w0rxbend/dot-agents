@@ -644,6 +644,14 @@ def main():
 
     report = auditor.get_report()
 
+    if report['files_checked'] == 0:
+        if is_json:
+            print(json.dumps({**report, "compliant": False, "error": "no mobile files found"}, indent=2))
+        else:
+            print(f"[MOBILE AUDIT] No mobile source files found under {path}; check the path.")
+            print("STATUS: NO FILES CHECKED")
+        sys.exit(2)
+
     if is_json:
         print(json.dumps(report, indent=2))
     else:

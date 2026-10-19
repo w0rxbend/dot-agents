@@ -50,6 +50,7 @@ If you can't name the trust boundaries for a feature, you're not ready to secure
 - **Hash passwords** with bcrypt/scrypt/argon2 (never store plaintext)
 - **Set security headers** (CSP, HSTS, X-Frame-Options, X-Content-Type-Options)
 - **Use httpOnly, secure, sameSite cookies** for sessions
+  - *Local-dev exception:* plain-HTTP dev/test setups may turn `Secure` off through an env flag that defaults to on; never ship that flag enabled. Roll HSTS out with a short `max-age` first and add `includeSubDomains`/`preload` only deliberately (same policy as `security-best-practices`)
 - **Run the detected package manager's native audit** against the committed lockfile before every release
 
 ### Ask First (Requires Human Approval)
@@ -189,7 +190,7 @@ Before a production release, or when the project authorizes through Supabase/Pos
 - A delete, move, or overwrite whose target comes from a payload, a config value, or another process's command line, guarded only by a shape check on the path
 - Secrets in source code or commit history
 - API endpoints without authentication or authorization checks
-- Missing CORS configuration or wildcard (`*`) origins
+- Permissive CORS: wildcard (`*`) or reflected origins, or credentials allowed for untrusted origins (no CORS config at all is the safe default)
 - No rate limiting on authentication endpoints, or an in-memory limiter in front of more than one instance
 - Stack traces or internal errors exposed to users
 - Dependencies with known critical vulnerabilities, competing lockfiles at one installation boundary, non-reproducible installs, or blanket-approved scripts

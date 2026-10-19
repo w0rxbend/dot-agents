@@ -124,7 +124,8 @@ class CandidateQualityTests(unittest.TestCase):
         scratch.mkdir(parents=True, exist_ok=True)
         self.tmp = tempfile.TemporaryDirectory(prefix='scala-quality-', dir=scratch)
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name)
+        # Resolve: candidates behind a symlinked ancestor (macOS /var -> /private/var) are rejected.
+        self.root = Path(self.tmp.name).resolve()
 
     def quality(self):
         self.assertTrue((ROOT / 'scripts/scala_research/quality.py').is_file(),
@@ -162,6 +163,55 @@ class CandidateQualityTests(unittest.TestCase):
 
     def test_valid_complete_synthetic_candidate(self):
         self.assertEqual(self.quality().validate_candidate(self.write_candidate(), REPOSITORY), [])
+
+    def test_fractional_seconds_of_any_supported_width_parse(self):
+        for value in ('2022-04-03T12:00:00.5Z', '2022-04-03T12:00:00.12345+02:00', '2022-04-03T12:00:00.123456Z'):
+            with self.subTest(value=value):
+                report = report_fixture()
+                report['evidence'][0]['occurred_at'] = value
+                candidate = self.write_candidate(report)
+                self.assertEqual([], self.quality().validate_candidate(candidate, REPOSITORY))
+
+    def write_corpus(self, **changes):
+        """SYNTHETIC cached PR artifact in the collector layout; never fetched."""
+        comment = dict(id=22, body='Synthetic:  cancellation must release the acquired handle\nbefore returning control.',
+                       created_at='2022-04-03T12:00:00Z', user={'login': 'fixture-reviewer'})
+        comment.update(changes.pop('comment', {}))
+        artifact = dict(schema_version=1, repository=REPOSITORY, number=11, review_comments=[comment],
+                        issue_comments=[], reviews=[],
+                        historical={'eligible_ids': {'review_comments': changes.pop('eligible', [22]),
+                                                     'issue_comments': [], 'reviews': []}})
+        corpus = self.root / 'corpus'
+        self.write_json(corpus / 'pulls/11-synthetic.json', artifact)
+        self.write_json(corpus / 'index.json', {'repository': REPOSITORY, 'activity_pulls': [],
+                                                'pulls': [{'number': 11, 'path': 'pulls/11-synthetic.json'}]})
+        return corpus
+
+    def test_corpus_cross_check_accepts_a_faithful_quotation(self):
+        corpus = self.write_corpus()
+        self.assertEqual([], self.quality().validate_candidate(self.write_candidate(), REPOSITORY, corpus=corpus))
+        report = report_fixture()
+        report['evidence'][0]['excerpt'] = 'Synthetic: cancellation must release ... before returning control.'
+        self.assertEqual([], self.quality().validate_candidate(self.write_candidate(report), REPOSITORY, corpus=corpus))
+
+    def test_corpus_cross_check_rejects_invented_or_misdated_evidence(self):
+        cases = [
+            (dict(comment={'body': 'Synthetic: a different remark entirely, about naming.'}), 'not a quotation'),
+            (dict(comment={'created_at': '2025-02-01T00:00:00Z'}), 'occurred_at'),
+            (dict(comment={'user': {'login': 'someone-else'}}), 'author'),
+            (dict(eligible=[]), 'outside 2018-2024'),
+            (dict(comment={'id': 23}), 'not in cached PR #11'),
+        ]
+        for changes, expected in cases:
+            with self.subTest(expected=expected):
+                corpus = self.write_corpus(**copy.deepcopy(changes))
+                errors = self.quality().validate_candidate(self.write_candidate(), REPOSITORY, corpus=corpus)
+                self.assertIn(expected.casefold(), '\n'.join(errors).casefold())
+
+    def test_corpus_cross_check_skips_pulls_outside_the_cached_sample(self):
+        corpus = self.write_corpus()
+        self.write_json(corpus / 'index.json', {'repository': REPOSITORY, 'pulls': [], 'activity_pulls': []})
+        self.assertEqual([], self.quality().validate_candidate(self.write_candidate(), REPOSITORY, corpus=corpus))
 
     def test_report_schema_and_reference_failures(self):
         cases = [

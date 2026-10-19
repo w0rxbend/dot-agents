@@ -74,11 +74,11 @@ def benchmark_qdrant(
 
     for query in queries:
         start = time.time()
-        results = client.search(
+        results = client.query_points(
             collection_name=collection_name,
-            query_vector=query,
+            query=query,
             limit=10
-        )
+        ).points
         search_times.append(time.time() - start)
 
     # Cleanup

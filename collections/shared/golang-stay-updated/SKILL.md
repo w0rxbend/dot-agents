@@ -17,124 +17,50 @@ metadata:
 allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(golangci-lint:*) Bash(git:*) Agent WebFetch WebSearch
 ---
 
-<!-- markdownlint-disable table-column-style -->
-
 # Stay Updated with Go
 
-A curated guide to keeping your finger on the pulse of the Go ecosystem.
+Answer "what changed in Go / should we upgrade / is this still current?" from primary sources, checked against the project's actual `go.mod`. Do not answer release questions from memory.
 
-## Official Go Resources
+## Procedure
 
-| Resource            | URL                                          |
-| ------------------- | -------------------------------------------- |
-| **go.dev**          | Official Go website with tutorials and tools |
-| **pkg.go.dev**      | Discover Go packages and documentation       |
-| **tour.golang.org** | Interactive Go tutorial                      |
-| **play.golang.org** | Go playground for testing code               |
-| **go.dev/blog**     | Official Go blog                             |
+1. **Read the project's constraints.**
+   ```bash
+   go version                       # local toolchain
+   go env GOTOOLCHAIN
+   grep -E '^(go|toolchain) ' go.mod  # language version and pinned toolchain
+   ```
+   Also check CI images and Dockerfiles (`golang:` tags) — they often pin a different version than `go.mod`.
 
-## Newsletters
+2. **Find the current releases from primary sources.**
+   - Release history and point releases: <https://go.dev/doc/devel/release>
+   - Machine-readable list: <https://go.dev/dl/?mode=json> (current supported releases; add `&include=all` for every release)
+   - Per-version release notes: `https://go.dev/doc/go1.N`
+   - Security fixes: <https://pkg.go.dev/vuln/> and the golang-announce list
+   Go supports the two most recent major releases; anything older gets no security fixes.
 
-| Newsletter | Description | Subscribe |
-| --- | --- | --- |
-| **Golang Weekly** | Weekly curated Go content, news, and articles | <https://golangweekly.com/> |
-| **Awesome Go Newsletter** | Updates on new Go libraries and tools | <https://go.libhunt.com/> |
+3. **Check dependencies.**
+   ```bash
+   go list -m -u all            # modules with newer versions available
+   go run golang.org/x/vuln/cmd/govulncheck@latest ./...   # known vulnerabilities reachable from your code
+   ```
+   → See `samber/cc-skills-golang@golang-dependency-management` skill for upgrading modules safely, and `samber/cc-skills-golang@golang-pkg-go-dev` skill to query a module's versions, docs and vulnerabilities.
 
-## Reddit & Communities
+4. **Plan the change.** Bumping the `go` line in `go.mod` raises the minimum for every consumer of a library; for applications it is usually safe after tests pass. Change `go`/`toolchain` only when the user asked to upgrade, then run `go mod tidy`, `go build ./...`, `go vet ./...` and `go test ./...`.
 
-| Community | Description | URL |
-| --- | --- | --- |
-| r/golang | Main Go subreddit with 300K+ members | <https://www.reddit.com/r/golang> |
-| golang wiki | Official wiki with resources and FAQs | <https://go.dev/wiki/> |
-| gophers.slack.com | Official Go Slack community | <https://invite.slack.golangbridge.org> |
-| Go Forum | Official Go discussion forum | <https://forum.golangbridge.org> |
-| Discuss Go | Official Go team discussion | <https://groups.google.com/g/golang-nuts> |
+5. **Adopt new language/library features.** → See `samber/cc-skills-golang@golang-modernize` skill for the per-version list of modern idioms and safe rewrites.
 
-## Famous Go Developers
+6. **Report** the versions found, the source URL for each claim, and what you did or did not change.
 
-Follow these influential Go developers and contributors:
+## Secondary sources (news, not authority)
 
-### Core Go Team
+| Source | URL |
+| --- | --- |
+| The Go Blog | <https://go.dev/blog> |
+| Go playground | <https://go.dev/play> |
+| Go tour | <https://go.dev/tour> |
+| Golang Weekly newsletter | <https://golangweekly.com/> |
+| r/golang | <https://www.reddit.com/r/golang> |
+| Go Forum | <https://forum.golangbridge.org> |
+| golang-nuts mailing list | <https://groups.google.com/g/golang-nuts> |
 
-| Name | GitHub | Twitter/X | LinkedIn | Bluesky |
-| --- | --- | --- | --- | --- |
-| **Rob Pike** | robpike |  |  |  |
-| **Ken Thompson** | ken |  |  |  |
-| **Russ Cox** | rsc | @\_rsc | <https://www.linkedin.com/in/swtch> | <https://bsky.app/profile/swtch.com> |
-| **Brad Fitzpatrick** | bradfitz | @bradfitz | <https://www.linkedin.com/in/bradfitz/> | <https://bsky.app/profile/bradfitz.com> |
-| **Andrew Gerrand** | adg |  |  |  |
-| **Robert Griesemer** | griesemer |  |  |  |
-| **Dmitry Vyukov** | dvyukov | @dvyukov |  |  |
-
-### Go Tooling & Infrastructure
-
-| Name | GitHub | Twitter/X | LinkedIn | Bluesky |
-| --- | --- | --- | --- | --- |
-| **Sam Boyer** | sdboyer | @sdboyer |  |  |
-| **Daniel Theophanes** | kardianos | @kardianos |  |  |
-| **Matt Butcher** | technosophos |  |  |  |
-| **Jaana Dogan** | rakyll | @rakyll | <https://www.linkedin.com/in/rakyll/> |  |
-
-### Popular Go Authors & Educators
-
-| Name | GitHub | Twitter/X | LinkedIn | Bluesky |
-| --- | --- | --- | --- | --- |
-| **Mat Ryer** | matryer | @matryer | <https://linkedin.com/in/matryer> |  |
-| **Dave Cheney** | davecheney | @davecheney | <https://linkedin.com/in/davecheney> |  |
-| **Katherine Cox-Buday** | kat-co |  | <https://linkedin.com/in/katherinecoxbuday> |  |
-| **Johnny Boursiquot** | jboursiquot | @jboursiquot | <https://linkedin.com/in/jboursiquot> |  |
-| **Michał Łowicki** | mlowicki | @mlowicki | <https://linkedin.com/in/michał-łowicki-a60402b> |  |
-
-### Library & Framework Authors
-
-| Name | GitHub | Twitter/X | LinkedIn | Bluesky |
-| --- | --- | --- | --- | --- |
-| **Steve Francia** | spf13 | @spf13 | <https://linkedin.com/in/spf13> |  |
-| **Samuel Berthe** | samber | @samuelberthe | <https://linkedin.com/in/samuelberthe> | <https://bsky.app/profile/samber.bsky.social> |
-| **Mitchell Hashimoto** | mitchellh | @mitchellh | <https://linkedin.com/in/mitchellh> | <https://bsky.app/profile/mitchellh.com> |
-| **Matt Holt** | mholt | @mholt6 |  |  |
-| **Tomás Senart** | tsenart | @tsenart | <https://www.linkedin.com/in/tsenart/> |  |
-| **Björn Rabenstein** | beorn7 |  |  |  |
-
-### Conference Speakers & Community Leaders
-
-| Name | GitHub | Twitter/X | LinkedIn | Bluesky |
-| --- | --- | --- | --- | --- |
-| **Carlisia Campos** | carlisia | @carlisia | <https://linkedin.com/in/carlisia> |  |
-| **Erik St. Martin** | erikstmartin | @erikstmartin |  |  |
-| **Brian Ketelsen** | bketelsen |  |  | @brian.dev |
-
-## Must-Follow Blogs
-
-| Blog            | Author       | URL                                  |
-| --------------- | ------------ | ------------------------------------ |
-| The Go Blog     | Go Team      | <https://go.dev/blog>                |
-| Rob Pike's Blog | Rob Pike     | <https://commandcenter.blogspot.com> |
-| Dave Cheney     | Dave Cheney  | <https://dave.cheney.net>            |
-| Ardan Labs Blog | Bill Kennedy | <https://www.ardanlabs.com/blog>     |
-
-## YouTube Channels
-
-| Channel | Content | URL |
-| --- | --- | --- |
-| Go | Official Go team | <https://www.youtube.com/@golang> |
-| Gopher Academy | Talks & tutorials | <https://www.youtube.com/@GopherAcademy> |
-| GopherCon Europe | European conference talks | <https://www.youtube.com/@GopherConEurope> |
-| GopherCon UK | UK conference talks | <https://www.youtube.com/@GopherConUK> |
-| Golang Singapore | Singapore meetup & conf talks | <https://www.youtube.com/@golangSG> |
-| Ardan Labs | Go training & tips | <https://www.youtube.com/@ArdanLabs> |
-| Applied Go | Go tutorials | <https://youtube.com/appliedgocode> |
-| Learn Go Programming | Beginner tutorials | <https://youtube.com/learn_goprogramming> |
-
-## Quick Tips for Staying Updated
-
-1. **Subscribe to 1-2 newsletters** - Don't overload yourself
-2. **Follow 10-20 key people** on X/Bluesky who post regularly
-3. **Check Go.dev/blog weekly** for official announcements
-4. **Join Go Slack** for real-time discussions
-5. **Bookmark pkg.go.dev** to discover new libraries — → See `samber/cc-skills-golang@golang-pkg-go-dev` skill to query a module's latest versions, docs, and vulnerabilities from the CLI
-6. **Attend a GopherCon** (virtual or in-person) yearly
-
----
-
-_Note: This guide is regularly updated. Suggest additions via GitHub issues._
+Use these to discover changes, then confirm against the primary sources above before recommending anything.

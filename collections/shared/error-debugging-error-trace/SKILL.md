@@ -90,4 +90,4 @@ Report the work in these sections (skip any that don't apply):
 
 ## Reference
 
-`resources/implementation-playbook.md` holds long code samples (codebase error-handling analyzer, Sentry/structured-logging/alert-manager/grouping/recovery/dashboard examples). Read it only when you need a starting template, and check each API against the installed SDK version: several samples use older SDK majors.
+`resources/implementation-playbook.md` holds long code samples (codebase error-handling analyzer, Sentry/structured-logging/alert-manager/grouping/recovery/dashboard examples). Read it only when you need a starting template, and check each API against the installed SDK version (the Sentry Node.js sample targets `@sentry/node` v8+).

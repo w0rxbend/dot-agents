@@ -138,10 +138,12 @@ Timeline:
 
 Include deprecation headers:
 ```http
-Deprecation: true
+Deprecation: @1735689599
 Sunset: Sat, 31 Dec 2025 23:59:59 GMT
 Link: </api/v2/users>; rel="successor-version"
 ```
+
+`Deprecation` takes the date the resource was deprecated as `@<unix-seconds>` (RFC 9745); older drafts used `Deprecation: true`.
 
 For complete versioning guide, see references/versioning-strategies.md
 
@@ -316,9 +318,10 @@ AsyncAPI defines message-based APIs (WebSockets, Kafka, MQTT):
 asyncapi: 3.0.0
 info:
   title: Order Events API
+  version: 1.0.0
 
 channels:
-  orders/created:
+  ordersCreated:
     address: orders.created
     messages:
       orderCreated:

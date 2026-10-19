@@ -1,6 +1,6 @@
 ---
 name: xurl
-description: "X/Twitter via xurl CLI: raw post search, posting, DM, media."
+description: "X/Twitter via xurl CLI: raw post search, posting, DM, media. Use when the user asks to search, post, reply or DM on X (Twitter) through the X API."
 version: 1.1.3
 author: xdevplatform + openclaw + Hermes Agent
 license: MIT
@@ -52,12 +52,9 @@ App credential registration and credential rotation must be done by the user man
 
 ## Installation
 
-Pick ONE method. On Linux, the shell script or `go install` are the easiest.
+Pick ONE method. Prefer a package manager; on Linux, `go install` or npm are the easiest.
 
 ```bash
-# Shell script (installs to ~/.local/bin, no sudo, works on Linux + macOS)
-curl -fsSL https://raw.githubusercontent.com/xdevplatform/xurl/main/install.sh | bash
-
 # Homebrew (macOS)
 brew install --cask xdevplatform/tap/xurl
 
@@ -66,6 +63,12 @@ npm install -g @xdevplatform/xurl
 
 # Go
 go install github.com/xdevplatform/xurl@latest
+
+# Shell script from the official repo (installs to ~/.local/bin, no sudo).
+# Download and read it before running; do not pipe it straight into bash.
+curl -fsSL https://raw.githubusercontent.com/xdevplatform/xurl/main/install.sh -o /tmp/xurl-install.sh
+less /tmp/xurl-install.sh
+bash /tmp/xurl-install.sh
 ```
 
 Verify:

@@ -1,6 +1,6 @@
 ---
 name: notion
-description: "Notion API + ntn CLI: pages, databases, markdown, Workers."
+description: "Notion API + ntn CLI: pages, databases, markdown, Workers. Use when the user asks to read, search, create or update Notion pages or databases."
 version: 2.0.0
 author: community
 license: MIT
@@ -35,11 +35,14 @@ Talk to Notion two ways. Same integration token works for both — pick by what'
 ### 2. Install `ntn` (preferred path on macOS / Linux)
 
 ```bash
-# Recommended
-curl -fsSL https://ntn.dev | bash
-
-# Or via npm (needs Node 22+, npm 10+)
+# Recommended: via npm (needs Node 22+, npm 10+)
 npm install --global ntn
+
+# Alternative: the install script. Download it, read it, then run it;
+# do not pipe it straight into a shell.
+curl -fsSL https://ntn.dev -o /tmp/ntn-install.sh
+less /tmp/ntn-install.sh        # inspect before running
+bash /tmp/ntn-install.sh
 
 ntn --version    # verify
 ```
@@ -250,21 +253,28 @@ curl -s -X POST "https://api.notion.com/v1/data_sources/{data_source_id}/query" 
 ```
 
 ### Create a database
+With `Notion-Version: 2025-09-03`, create a database (and its first data source) with
+`POST /v1/databases`; the schema goes under `initial_data_source.properties`.
+(`POST /v1/data_sources` adds another data source to an *existing* database and takes
+`"parent": {"type": "database_id", "database_id": "..."}`.)
 ```bash
-curl -s -X POST "https://api.notion.com/v1/data_sources" \
+curl -s -X POST "https://api.notion.com/v1/databases" \
   -H "Authorization: Bearer $NOTION_API_KEY" \
   -H "Notion-Version: 2025-09-03" \
   -H "Content-Type: application/json" \
   -d '{
-    "parent": {"page_id": "xxx"},
+    "parent": {"type": "page_id", "page_id": "xxx"},
     "title": [{"text": {"content": "My Database"}}],
-    "properties": {
-      "Name": {"title": {}},
-      "Status": {"select": {"options": [{"name": "Todo"}, {"name": "Done"}]}},
-      "Date": {"date": {}}
+    "initial_data_source": {
+      "properties": {
+        "Name": {"title": {}},
+        "Status": {"select": {"options": [{"name": "Todo"}, {"name": "Done"}]}},
+        "Date": {"date": {}}
+      }
     }
   }'
 ```
+The response's `data_sources[0].id` is the ID to use for queries and new pages.
 
 ### Update page properties
 ```bash

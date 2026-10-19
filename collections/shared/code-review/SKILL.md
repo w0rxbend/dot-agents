@@ -3,14 +3,15 @@ name: code-review
 allowed-tools:
   - Read
   - Grep
-  - Bash
   - "Bash(gh issue view:*)"
   - "Bash(gh search:*)"
   - "Bash(gh issue list:*)"
-  - "Bash(gh pr comment:*)"
   - "Bash(gh pr diff:*)"
   - "Bash(gh pr view:*)"
   - "Bash(gh pr list:*)"
+  - "Bash(git diff:*)"
+  - "Bash(git log:*)"
+  - "Bash(git show:*)"
 description: "Run a review of a specific pull request or diff end to end (via gh or git): establish scope, trace concrete failure paths, and report only evidence-backed, high-confidence defects ordered by severity. Read-only; posts a GitHub review only when asked. For the rubric and approval standard, see code-review-and-quality."
 
 ---
