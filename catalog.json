@@ -6578,7 +6578,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "c787131ced75da7b6398dd61cf615920740add5d92729c31d2bbd7e2cdf4579c",
+      "sha256": "03dec04b60fb6f6cd4aeb5bae61039fff33b464e6db8f517f22a8cb97e46b687",
       "local_globs": [
         "~/.agents/skills/using-document-databases"
       ],

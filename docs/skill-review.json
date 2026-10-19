@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-10-19T09:06:40.662173+00:00",
+  "reviewed_at": "2026-10-19T09:12:00+00:00",
   "summary": {
     "baseline_catalog_skills": 509,
     "canonical_entrypoint_files_read": 583,
@@ -18035,7 +18035,7 @@
         "source_attribution_preserved": true,
         "optional_frontmatter_preserved": true
       },
-      "sha256": "c787131ced75da7b6398dd61cf615920740add5d92729c31d2bbd7e2cdf4579c",
+      "sha256": "03dec04b60fb6f6cd4aeb5bae61039fff33b464e6db8f517f22a8cb97e46b687",
       "current_entry_sha256": "41e80b26d83f5a73ce610f272095cc8d96088a520eba28593263416b0ef17a27",
       "current_entry_words": 1142,
       "post_review_changes": [
@@ -18048,6 +18048,11 @@
           "at": "2026-10-18T08:54:56.431964+00:00",
           "from_sha256": "f3f847e535ee6521e47e87ae566f7210c0ab97294cbe9a2c816cf50d510a771a",
           "tree_sha256": "c787131ced75da7b6398dd61cf615920740add5d92729c31d2bbd7e2cdf4579c"
+        },
+        {
+          "at": "2026-10-19T09:11:37.174246+00:00",
+          "from_sha256": "c787131ced75da7b6398dd61cf615920740add5d92729c31d2bbd7e2cdf4579c",
+          "tree_sha256": "03dec04b60fb6f6cd4aeb5bae61039fff33b464e6db8f517f22a8cb97e46b687"
         }
       ],
       "review_log": [
@@ -18055,6 +18060,11 @@
           "at": "2026-10-18T08:55:42.361659+00:00",
           "note": "2026-10-18 review-fix round: 13 independent reviewers audited every vendored skill and the codebase; fix agents applied verified fixes (toolchain-checked where available); main agent re-scanned all skills, syntax-checked every changed script and spot-ran the guardrails hook and hardening script.",
           "sha256": "c787131ced75da7b6398dd61cf615920740add5d92729c31d2bbd7e2cdf4579c"
+        },
+        {
+          "at": "2026-10-19T09:11:37.174583+00:00",
+          "note": "Reviewed dependency updates and compatibility fixes; checked package resolution and example validation.",
+          "sha256": "03dec04b60fb6f6cd4aeb5bae61039fff33b464e6db8f517f22a8cb97e46b687"
         }
       ]
     },
