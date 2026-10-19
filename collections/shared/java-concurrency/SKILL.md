@@ -1,12 +1,8 @@
 ---
 name: java-concurrency
 user-invocable: false
-description: Use when Java concurrency with ExecutorService, CompletableFuture, and virtual threads. Use when building concurrent applications.
-allowed-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
+description: Write correct concurrent Java - ExecutorService, CompletableFuture, locks, atomics, concurrent collections, synchronizers, and virtual threads with their pinning/pooling caveats plus structured concurrency and scoped values. Use when building or debugging multithreaded JVM code.
+allowed-tools: []
 ---
 
 # Java Concurrency
@@ -612,6 +608,50 @@ public class VirtualThreadExecutor {
 }
 ```
 
+**Virtual thread rules (Java 21+):**
+
+| Rule | Why |
+|------|-----|
+| Use them for blocking I/O-bound tasks, not CPU-bound work | They add concurrency, not CPU; CPU work still needs a bounded platform pool |
+| Never pool virtual threads | They are cheap to create; create one per task with `newVirtualThreadPerTaskExecutor()` |
+| Limit access to scarce resources with a `Semaphore`, not a small pool | Pool size used to double as a DB/HTTP concurrency limit; with virtual threads that limit disappears |
+| Before JDK 24, avoid blocking inside `synchronized` on hot paths; use `ReentrantLock` | A virtual thread blocking inside `synchronized` pins its carrier thread; JDK 24 (JEP 491) removed most of this pinning. Native frames and some class-initialization paths still pin |
+| Keep `ThreadLocal` values small; prefer `ScopedValue` for per-request context | Millions of threads each holding a large ThreadLocal cache (formatters, buffers) multiply memory |
+| Diagnose pinning with JFR (`jdk.VirtualThreadPinned`) | `-Djdk.tracePinnedThreads` was removed in JDK 24 |
+
+**Structured concurrency and scoped values:**
+
+`StructuredTaskScope` treats a group of subtasks as one unit: if one fails,
+the others are cancelled, and none outlive the block. It has been a preview
+API since JDK 21, and its shape changed in JDK 25 (`StructuredTaskScope.open()`
+replaced the `ShutdownOnFailure` subclasses). `ScopedValue` was a preview
+in JDK 21-24 and is final in JDK 25. Check the project's JDK and whether
+`--enable-preview` is acceptable before using either API. Without preview,
+use an `ExecutorService` in try-with-resources and cancel the remaining
+futures on failure.
+
+```java
+// JDK 25 preview API: compile and run with --enable-preview
+import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
+
+static final ScopedValue<String> REQUEST_ID = ScopedValue.newInstance();
+
+Page load() throws InterruptedException {
+    try (var scope = StructuredTaskScope.open()) {   // default: fail fast on first error
+        Subtask<User> user = scope.fork(() -> fetchUser());
+        Subtask<Order> order = scope.fork(() -> fetchOrder());
+        scope.join();                                // throws if any subtask failed
+        return new Page(user.get(), order.get());
+    }
+}
+
+void handle(Request req) {
+    // Bound for the dynamic extent of run(); inherited by subtasks forked in a scope
+    ScopedValue.where(REQUEST_ID, req.id()).run(() -> process(req));
+}
+```
+
 ## Atomic Variables
 
 Lock-free thread-safe operations using atomic classes.
@@ -766,7 +806,7 @@ Use java-concurrency when you need to:
 ## Common Pitfalls
 
 - Not shutting down executors (resource leak)
-- Blocking virtual threads with synchronized blocks
+- Before JDK 24, blocking virtual threads inside synchronized blocks (pins the carrier thread; JEP 491 removed most of this)
 - Deadlocks from incorrect lock ordering
 - Race conditions from improper synchronization
 - Thread pool exhaustion from blocking tasks

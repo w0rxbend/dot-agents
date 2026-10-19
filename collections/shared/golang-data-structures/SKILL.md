@@ -1,6 +1,6 @@
 ---
 name: golang-data-structures
-description: "Golang data structures — slices (internals, capacity growth, preallocation, slices package), maps (internals, hash buckets, maps package), arrays, container/list/heap/ring, strings.Builder vs bytes.Buffer, generic collections, pointers (unsafe.Pointer, weak.Pointer), and copy semantics. Use when choosing or optimizing Go data structures, implementing generic containers, using container/ packages, unsafe or weak pointers, or questioning slice/map internals. Not for applying optimization patterns once profiling has identified a bottleneck (→ See `samber/cc-skills-golang@golang-performance` skill)."
+description: "Choose and use Go slices, maps, arrays, queues, sets, and standard-library collections. Use for ownership, aliasing, correctness, or measured data-structure costs in Go code."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -71,7 +71,7 @@ Key functions: `Sort`/`SortFunc`, `BinarySearch`, `Contains`, `Compact`, `Grow`.
 
 ## Map Internals
 
-Maps are hash tables with 8-entry buckets and overflow chains. They are reference types — assigning a map copies the pointer, not the data.
+Maps are hash tables (Swiss tables since Go 1.24: groups of 8 slots with control bytes, open addressing; earlier versions used 8-entry buckets with overflow chains). They never shrink after `delete`. They are reference types — assigning a map copies the pointer, not the data.
 
 ### Preallocation
 

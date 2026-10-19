@@ -5,7 +5,8 @@ import re
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-IGNORED = {'.git', '.trash', 'node_modules', '__pycache__', '.venv', '.DS_Store'}
+IGNORED = {'.git', '.trash', 'node_modules', '__pycache__', '.venv', '.DS_Store',
+           '.usage.json', '.usage.json.lock'}
 
 
 def load_catalog(repo=REPO):

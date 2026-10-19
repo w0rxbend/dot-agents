@@ -1,6 +1,6 @@
 ---
 name: golang-dependency-management
-description: "Dependency management for Golang projects — go.mod and go.sum, `go get` install and upgrade flows, Minimal Version Selection, conflict resolution with replace/exclude/retract, `govulncheck` scanning of the module tree, outdated dependency and binary size auditing, vendoring, `tool` directives, and go.work workspaces. Use when adding, removing, or upgrading Go dependencies, deciding whether to take on a package, resolving version conflicts, or auditing what a module pulls in. Covers choosing and upgrading dependency versions, not the surrounding tooling: do NOT use for fixing an exploitable vulnerability in code (→ See `samber/cc-skills-golang@golang-security` skill) or for wiring Dependabot/Renovate update bots into CI workflows (→ See `samber/cc-skills-golang@golang-continuous-integration` skill)."
+description: "Manage Go modules and workspaces: go.mod/go.sum, version selection, replace directives, upgrades, private modules, and tooling. Preserve existing module identities and verify compatibility before dependency changes."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -31,7 +31,7 @@ allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(golangci-lint:*) Bash(g
 
 ## AI Agent Rule: Ask Before Adding Dependencies
 
-**Before running `go get` to add any new dependency, AI agents MUST ask the user for confirmation.** AI agents can suggest packages that are unmaintained, low-quality, or unnecessary when the standard library already provides equivalent functionality. Using `go get -u` to upgrade an existing dependency is safe.
+**Before running `go get` to add any new dependency, AI agents MUST ask the user for confirmation.** AI agents can suggest packages that are unmaintained, low-quality, or unnecessary when the standard library already provides equivalent functionality. Upgrading an existing dependency does not need that confirmation, but prefer `go get -u=patch` and review the resulting `go.mod`/`go.sum` diff: plain `go get -u` also upgrades transitive dependencies to their latest minor versions.
 
 Before proposing a dependency, evaluate:
 

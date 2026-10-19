@@ -1,6 +1,6 @@
 ---
 name: songwriting-and-ai-music
-description: "Songwriting craft and Suno AI music prompts."
+description: "Songwriting craft and Suno AI music prompts. Use when the user wants lyrics, song structure help or prompts for Suno-style AI music generation."
 version: 1.0.0
 author: Teknium (teknium1), Hermes Agent
 license: MIT

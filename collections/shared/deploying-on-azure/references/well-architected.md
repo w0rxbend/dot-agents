@@ -225,13 +225,15 @@ resource enforceTlsPolicy 'Microsoft.Authorization/policyDefinitions@2021-06-01'
 }
 ```
 
-### Azure Blueprints for Repeatable Environments
+### Template Specs and Deployment Stacks for Repeatable Environments
 
-**Blueprint Components:**
+Azure Blueprints is deprecated; use Template Specs (versioned templates) deployed as Deployment Stacks.
+
+**Components:**
 - Resource Groups
 - Policy Assignments
 - Role Assignments
-- ARM Templates (Bicep)
+- Bicep/ARM templates published as Template Specs
 
 **Use Case:** Deploy compliant production environments in minutes
 

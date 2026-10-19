@@ -44,6 +44,9 @@ server {
     listen 80;
     location / {
         proxy_pass http://backend;
+        # Upstream keepalive needs HTTP/1.1 and a cleared Connection header
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
     }
 }
 ```

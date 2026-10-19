@@ -1,44 +1,47 @@
 /**
  * Basic ChatGPT-style interface implementation
- * Uses Vercel AI SDK for streaming responses
+ * Uses the Vercel AI SDK (v5 or later) for streaming responses and
+ * Streamdown for rendering partial markdown.
+ *
+ * npm install ai @ai-sdk/react streamdown
  */
 
-import React from 'react';
-import { useChat } from 'ai/react';
-import { Streamdown } from '@vercel/streamdown';
+import React, { useState } from 'react';
+import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport, type UIMessage } from 'ai';
+import { Streamdown } from 'streamdown';
 
 export function BasicChat() {
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    isLoading,
-    error,
-    reload,
-    stop
-  } = useChat({
-    api: '/api/chat',
-    onFinish: (message) => {
-      console.log('Message complete:', message);
+  const { messages, sendMessage, status, error, regenerate, stop } = useChat({
+    transport: new DefaultChatTransport({ api: '/api/chat' }),
+    onFinish: ({ message }) => {
+      console.log('Message complete:', message.id);
     },
-    onError: (error) => {
-      console.error('Chat error:', error);
-    }
+    onError: (err) => {
+      console.error('Chat error:', err);
+    },
   });
+  const [input, setInput] = useState('');
+  const busy = status === 'submitted' || status === 'streaming';
+
+  const submit = () => {
+    if (!input.trim() || busy) return;
+    sendMessage({ text: input });
+    setInput('');
+  };
 
   return (
     <div className="chat-container">
       {/* Header */}
       <header className="chat-header">
         <h1>AI Assistant</h1>
-        <span className="status">
-          {isLoading ? 'AI is thinking...' : 'Ready'}
+        <span className="status" role="status">
+          {busy ? 'AI is thinking...' : 'Ready'}
         </span>
       </header>
 
       {/* Messages */}
-      <div className="messages-container">
+      <div className="messages-container" role="log" aria-live="polite">
         {messages.length === 0 && (
           <div className="empty-state">
             <p>Start a conversation by typing a message below</p>
@@ -55,43 +58,46 @@ export function BasicChat() {
 
       {/* Error display */}
       {error && (
-        <div className="error-banner">
-          <span>Error: {error.message}</span>
-          <button onClick={reload} className="retry-btn">
+        <div className="error-banner" role="alert">
+          <span>Something went wrong. Please try again.</span>
+          <button onClick={() => regenerate()} className="retry-btn">
             Retry
           </button>
         </div>
       )}
 
       {/* Input form */}
-      <form onSubmit={handleSubmit} className="input-form">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          submit();
+        }}
+        className="input-form"
+      >
         <div className="input-container">
           <textarea
             value={input}
-            onChange={handleInputChange}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                handleSubmit(e as any);
+                submit();
               }
             }}
             placeholder="Type your message... (Shift+Enter for new line)"
-            disabled={isLoading}
+            disabled={busy}
             rows={1}
             className="message-input"
+            aria-label="Message"
           />
 
-          {isLoading ? (
-            <button type="button" onClick={stop} className="stop-btn">
+          {busy ? (
+            <button type="button" onClick={() => stop()} className="stop-btn">
               <StopIcon />
               Stop
             </button>
           ) : (
-            <button
-              type="submit"
-              disabled={!input.trim()}
-              className="send-btn"
-            >
+            <button type="submit" disabled={!input.trim()} className="send-btn">
               <SendIcon />
               Send
             </button>
@@ -106,10 +112,17 @@ export function BasicChat() {
   );
 }
 
+/** Concatenate the text parts of a message (for copy, feedback, etc.). */
+function messageText(message: UIMessage): string {
+  return message.parts
+    .map((part) => (part.type === 'text' ? part.text : ''))
+    .join('');
+}
+
 /**
  * Individual message component
  */
-function Message({ message }: { message: any }) {
+function Message({ message }: { message: UIMessage }) {
   const isUser = message.role === 'user';
   const isAssistant = message.role === 'assistant';
 
@@ -129,19 +142,14 @@ function Message({ message }: { message: any }) {
 
         {/* Message text with markdown support */}
         <div className="message-text">
-          <Streamdown>{message.content}</Streamdown>
-        </div>
-
-        {/* Timestamp */}
-        <div className="message-time">
-          {formatTime(message.createdAt)}
+          {message.parts.map((part, i) =>
+            part.type === 'text' ? <Streamdown key={i}>{part.text}</Streamdown> : null
+          )}
         </div>
       </div>
 
       {/* Actions */}
-      {isAssistant && (
-        <MessageActions message={message} />
-      )}
+      {isAssistant && <MessageActions message={message} />}
     </div>
   );
 }
@@ -149,12 +157,12 @@ function Message({ message }: { message: any }) {
 /**
  * Message action buttons
  */
-function MessageActions({ message }: { message: any }) {
+function MessageActions({ message }: { message: UIMessage }) {
   const [feedback, setFeedback] = React.useState<'positive' | 'negative' | null>(null);
   const [copied, setCopied] = React.useState(false);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(message.content);
+    await navigator.clipboard.writeText(messageText(message));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -258,11 +266,6 @@ const CheckIcon = () => (
 /**
  * Utility functions
  */
-function formatTime(date: Date | string) {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
 async function sendFeedback(messageId: string, type: 'positive' | 'negative') {
   try {
     await fetch('/api/feedback', {

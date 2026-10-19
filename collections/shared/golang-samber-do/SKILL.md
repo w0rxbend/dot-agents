@@ -38,7 +38,7 @@ This skill is not exhaustive — refer to library documentation and code example
 - To navigate this library's usage in your own code (definitions, call sites, diagnostics), → See `samber/cc-skills-golang@golang-gopls` skill (`gopls`).
 - Context7 remains a fallback for docs not indexed on pkg.go.dev.
 
-Install v2 — v1 is superseded and lacks the generics-based container, scopes, and lifecycle hooks documented below, so v1-era guidance misleads on every API in this skill:
+Install v2 — v1 is superseded and lacks the `do.Injector` interface, scopes, packages, and lifecycle APIs documented below, so v1-era guidance misleads on every API in this skill:
 
 ```bash
 go get -u github.com/samber/do/v2
@@ -89,8 +89,10 @@ do.ProvideTransient(injector, func(i do.Injector) (*Logger, error) {
     return &Logger{}, nil
 })
 
-// Register an eager service (created immediately at startup)
-do.ProvideValue(injector, &Config{Port: 8080})
+// Register an eager value from a package (do.Eager wraps ProvideValue)
+var Package = do.Package(
+    do.Eager(&Config{Port: 8080}),
+)
 ```
 
 ### 2. Invoke Services
@@ -185,7 +187,7 @@ func main() {
     server := do.MustInvoke[*http.Server](injector)
     go server.ListenAndServe()
 
-    _ = injector.ShutdownOnSignalsWithContext(context.Background(), os.Interrupt)
+    _, _ = injector.ShutdownOnSignalsWithContext(context.Background(), os.Interrupt) // returns (os.Signal, *do.ShutdownReport)
 }
 ```
 

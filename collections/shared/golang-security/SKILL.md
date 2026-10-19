@@ -1,6 +1,6 @@
 ---
 name: golang-security
-description: "Security best practices and vulnerability prevention for Golang — injection (SQL, command, XSS), cryptography, path traversal, SSRF and HTTP security headers, cookies, secrets management, memory safety, PII in logs, STRIDE/DREAD threat modeling, plus `gosec` SAST, race detection, and fuzz testing. Apply when writing, reviewing, or auditing Go code for security, or when touching crypto, file or network I/O, secrets, user input, or authentication. Not for non-exploitable defensive bugs such as nil panics or slice aliasing (→ See `samber/cc-skills-golang@golang-safety` skill), dependency vulnerability scanning with govulncheck (→ See `samber/cc-skills-golang@golang-dependency-management` skill), or wiring security scanners into CI pipelines (→ See `samber/cc-skills-golang@golang-continuous-integration` skill)."
+description: "Assess or repair Go trust-boundary risks: injection, cryptography, secrets, HTTP/SSRF, and dependency vulnerabilities. Use for an explicit security task or a concrete sensitive change; keep findings evidence-based and scoped."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -23,6 +23,7 @@ paths:
   - "**/*.go"
 ---
 
+Use parallel agents only when delegation is authorized and available, and the independent work justifies it. Scale agent count to the host budget and task size. Reviews may overlap concerns; edits require disjoint file ownership or isolated worktrees. Otherwise perform the same checks inline.
 **Persona:** You are a senior Go security engineer. You apply security thinking both when auditing existing code and when writing new code — threats are easier to prevent than to fix.
 
 **Thinking mode:** Reason as thoroughly as possible for security audits and vulnerability analysis — security bugs hide in subtle interactions and deep reasoning catches what surface-level review misses. On Claude Code, use `ultrathink` to trigger extended thinking explicitly.
@@ -89,7 +90,7 @@ For the full methodology with Go examples, DFD trust boundaries, DREAD scoring, 
 | --- | --- | --- | --- |
 | Critical | SQL Injection | Parameterized queries separate data from code | `database/sql` with `?` placeholders |
 | Critical | Command Injection | Pass args separately, never via shell concatenation | `exec.Command` with separate args |
-| High | XSS | Auto-escaping renders user data as text, not HTML/JS | `html/template`, `text/template` |
+| High | XSS | Auto-escaping renders user data as text, not HTML/JS | `html/template` (never `text/template` for HTML — it does no escaping) |
 | High | Path Traversal | Scope untrusted file access to an allowed root | Go 1.24+: use `os.Root`. Pre-Go 1.24: use `filepath.IsLocal` + `filepath.Rel` + separator-aware checks; never rely on `filepath.Clean` + `strings.HasPrefix` alone. |
 | Medium | Timing Attacks | Constant-time comparison avoids byte-by-byte leaks | `crypto/subtle.ConstantTimeCompare` |
 | High | Crypto Issues | Use vetted algorithms; never roll your own | `crypto/aes`, `crypto/rand` |
@@ -127,13 +128,15 @@ Security-relevant linters: `bodyclose`, `sqlclosecheck`, `nilerr`, `errcheck`, `
 For deeper security-specific analysis:
 
 ```bash
-# Go security checker (SAST)
-go get -tool github.com/securego/gosec/v2/cmd/gosec@latest
-go tool gosec ./...
+# Go security checker (SAST) — `go run` does not modify go.mod
+go run github.com/securego/gosec/v2/cmd/gosec@latest ./...
 
 # Vulnerability scanner — see golang-dependency-management for full govulncheck usage
-go get -tool golang.org/x/vuln/cmd/govulncheck@latest
-go tool govulncheck ./...
+go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+
+# Pin a version (e.g. @v2.x.y) for reproducible CI runs. Only add them as project
+# tool dependencies (`go get -tool ...`, which edits go.mod) if the user asks.
+
 ```
 
 To check the known CVEs of a specific module or version without scanning the whole tree (e.g. when vetting a dependency on pkg.go.dev), → See `samber/cc-skills-golang@golang-pkg-go-dev` skill.

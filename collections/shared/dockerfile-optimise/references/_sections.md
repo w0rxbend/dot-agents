@@ -44,3 +44,8 @@ The section ID (in parentheses) is the filename prefix used to group rules.
 
 **Impact:** MEDIUM
 **Description:** Docker build checks, pipefail, standard labels, and single-concern containers catch silent failures and maintain long-term image quality.
+
+## 9. Language Patterns (lang)
+
+**Impact:** HIGH
+**Description:** Each ecosystem has its own dependency layout, cache paths and runtime needs. Applying the generic rules through a language-specific template avoids the most common size, cache and signal-handling mistakes.

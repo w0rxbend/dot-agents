@@ -1,0 +1,21 @@
+//| mill-version: 1.1.10
+//| mill-jvm-version: system
+package build
+
+import mill.*, javalib.*
+
+object app extends JavaModule {
+  def jvmVersion = "temurin:21.0.8"
+  def schema = Task.Source("message.txt")
+  def generatedSources = Task {
+    val message = os.read(schema().path).trim
+    require(message.matches("[A-Za-z0-9 ,.!-]+"), "example input must be simple text")
+    os.write(Task.dest / "example" / "Generated.java",
+      s"""package example;
+         |public final class Generated {
+         |  public static String message() { return "$message"; }
+         |}
+         |""".stripMargin, createFolders = true)
+    super.generatedSources() ++ Seq(PathRef(Task.dest))
+  }
+}

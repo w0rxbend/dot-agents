@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "repository": "zio/zio",
+  "evidence": [
+    {
+      "id": "e6401-root-fix",
+      "kind": "review-comment",
+      "repository": "zio/zio",
+      "url": "https://github.com/zio/zio/pull/6401#discussion_r821070309",
+      "occurred_at": "2022-03-07T20:19:17Z",
+      "excerpt": "Right, but then a logger was installed, a failure occurred, and the logger was not called. I think the underlying problem here is that `run` is not propagating interruption.",
+      "interpretation": "adamgfraser rejects accepting the changed logging test as incidental and redirects the fix from ZIOApp to Runtime.run. Both finalization and existing logger behavior must remain visible.",
+      "author": "adamgfraser",
+      "role_basis": "unknown",
+      "pull_number": 6401,
+      "source_locator": "corpus/zio--zio/pulls/6401-d9cfcfe2d1b5fe47a609.json",
+      "source_record": "review_comments:821070309",
+      "attribution_note": "Own words in the original record; quoted reply/email history is not attributed to this author. Review participation is observed; formal historical maintainer rank is not verified."
+    },
+    {
+      "id": "e6401-evaluation-boundary",
+      "kind": "issue-comment",
+      "repository": "zio/zio",
+      "url": "https://github.com/zio/zio/pull/6401#issuecomment-1062710624",
+      "occurred_at": "2022-03-09T09:15:09Z",
+      "excerpt": "The canceler just needs to be run on the blocking thread pool but that was not happening because the canceler was being eagerly evaluating by `succeedNow` before being shifted to the blocking executor by `blocking` in the implementation of `succeedBlocking`.",
+      "interpretation": "Reviewer explains why merely wrapping an eagerly evaluated canceler with blocking did not fix starvation. Final source switches the by-name computation to succeed inside blocking, without shifting the original effect wholesale.",
+      "author": "adamgfraser",
+      "role_basis": "unknown",
+      "pull_number": 6401,
+      "source_locator": "corpus/zio--zio/pulls/6401-d9cfcfe2d1b5fe47a609.json",
+      "source_record": "issue_comments:1062710624",
+      "attribution_note": "Own words in the original record; quoted reply/email history is not attributed to this author. Review participation is observed; formal historical maintainer rank is not verified."
+    },
+    {
+      "id": "e6401-small-pool",
+      "kind": "issue-comment",
+      "repository": "zio/zio",
+      "url": "https://github.com/zio/zio/pull/6401#issuecomment-1062260550",
+      "occurred_at": "2022-03-08T22:01:42Z",
+      "excerpt": "By adding `-XX:ActiveProcessorCount=2`, I can reproduce this locally.",
+      "interpretation": "Author reports a constrained-processor reproduction for test stalls. This is historical testimony, not a test run performed during this research. Current test execution must configure the effective executor as well as JVM flags.",
+      "author": "davidlar",
+      "role_basis": "unknown",
+      "pull_number": 6401,
+      "source_locator": "corpus/zio--zio/pulls/6401-d9cfcfe2d1b5fe47a609.json",
+      "source_record": "issue_comments:1062260550",
+      "attribution_note": "Own words in the original record; quoted reply/email history is not attributed to this author. Review participation is observed; formal historical maintainer rank is not verified."
+    },
+    {
+      "id": "e8819-lazy-owner",
+      "kind": "review-comment",
+      "repository": "zio/zio",
+      "url": "https://github.com/zio/zio/pull/8819#discussion_r1591660374",
+      "occurred_at": "2024-05-06T23:47:03Z",
+      "excerpt": "Won't `fib.childrenChunk` be executed on the fiber that called `asyncZIO`? Should it be changed to `Exit.succeed(fib.childrenChunk)` so that it's eagerly executed?",
+      "interpretation": "kyri-petrou challenges the execution owner of a lazy callback payload. Eager evaluation may be appropriate inside an already-owned state callback, unlike the blocking-canceler construction in PR 6401. This intermediate design was later superseded.",
+      "author": "kyri-petrou",
+      "role_basis": "unknown",
+      "pull_number": 8819,
+      "source_locator": "corpus/zio--zio/pulls/8819-a53ce2fe379449b6c656.json",
+      "source_record": "review_comments:1591660374",
+      "attribution_note": "Own words in the original record; quoted reply/email history is not attributed to this author. Review participation is observed; formal historical maintainer rank is not verified."
+    },
+    {
+      "id": "s6401-runtime",
+      "kind": "code",
+      "repository": "zio/zio",
+      "url": "https://github.com/zio/zio/blob/60d47847d8a13694a78e45aedf289ed27eb6ef42/core/shared/src/main/scala/zio/Runtime.scala#L80-L81",
+      "occurred_at": "2022-03-09T09:32:55Z",
+      "excerpt": "val canceler = unsafeRunAsyncCancelable(zio)(exit => callback(ZIO.done(exit)))\n        Left(ZIO.succeedBlocking(canceler(fiberId)))",
+      "interpretation": "Runtime.run now exposes the cancel token through asyncInterrupt. Its unsafe canceler waits on OneShot.get; final source therefore places cancellation, not the original effect, on the blocking executor.",
+      "commit_sha": "60d47847d8a13694a78e45aedf289ed27eb6ef42",
+      "path": "core/shared/src/main/scala/zio/Runtime.scala",
+      "source_locator": "evidence-cache/60d47847d8a13694a78e45aedf289ed27eb6ef42--core__shared__src__main__scala__zio__Runtime.scala.json",
+      "timestamp_basis": "Commit committer timestamp of the pinned source state; not the fetch time or a claim about when each line was originally introduced."
+    },
+    {
+      "id": "s6401-lazy",
+      "kind": "code",
+      "repository": "zio/zio",
+      "url": "https://github.com/zio/zio/blob/60d47847d8a13694a78e45aedf289ed27eb6ef42/core/shared/src/main/scala/zio/ZIO.scala#L5217-L5218",
+      "occurred_at": "2022-03-09T09:32:55Z",
+      "excerpt": "def succeedBlocking[A](a: => A)(implicit trace: ZTraceElement): UIO[A] =\n    blocking(ZIO.succeed(a))",
+      "interpretation": "The final March 2022 implementation suspends the by-name argument before executor shifting. A method name containing Blocking alone is not evidence that argument evaluation happens there.",
+      "commit_sha": "60d47847d8a13694a78e45aedf289ed27eb6ef42",
+      "path": "core/shared/src/main/scala/zio/ZIO.scala",
+      "source_locator": "evidence-cache/60d47847d8a13694a78e45aedf289ed27eb6ef42--core__shared__src__main__scala__zio__ZIO.scala.json",
+      "timestamp_basis": "Commit committer timestamp of the pinned source state; not the fetch time or a claim about when each line was originally introduced."
+    },
+    {
+      "id": "s6401-test",
+      "kind": "code",
+      "repository": "zio/zio",
+      "url": "https://github.com/zio/zio/blob/60d47847d8a13694a78e45aedf289ed27eb6ef42/core-tests/shared/src/test/scala/zio/ZIOAppSpec.scala#L66-L69",
+      "occurred_at": "2022-03-09T09:32:55Z",
+      "excerpt": "_         <- running.await\n        _         <- fiber.interrupt\n        finalized <- ref.get\n      } yield assertTrue(finalized)",
+      "interpretation": "The regression waits for a promise confirming startup, interrupts, then checks finalization. The previous logger assertion remains in the same source file; no OS signal was sent by this research.",
+      "commit_sha": "60d47847d8a13694a78e45aedf289ed27eb6ef42",
+      "path": "core-tests/shared/src/test/scala/zio/ZIOAppSpec.scala",
+      "source_locator": "evidence-cache/60d47847d8a13694a78e45aedf289ed27eb6ef42--core-tests__shared__src__test__scala__zio__ZIOAppSpec.scala.json",
+      "timestamp_basis": "Commit committer timestamp of the pinned source state; not the fetch time or a claim about when each line was originally introduced."
+    },
+    {
+      "id": "s6401-canceler-wait",
+      "kind": "code",
+      "repository": "zio/zio",
+      "url": "https://github.com/zio/zio/blob/60d47847d8a13694a78e45aedf289ed27eb6ef42/core/shared/src/main/scala/zio/Runtime.scala#L310-L311",
+      "occurred_at": "2022-03-09T09:32:55Z",
+      "excerpt": "canceler(fiberId)(result.set)\n      result.get()",
+      "interpretation": "The returned unsafe cancel token waits for the completion callback. This explains why its invocation, unlike token creation, must not block the compute executor needed for finalization.",
+      "commit_sha": "60d47847d8a13694a78e45aedf289ed27eb6ef42",
+      "path": "core/shared/src/main/scala/zio/Runtime.scala",
+      "source_locator": "evidence-cache/60d47847d8a13694a78e45aedf289ed27eb6ef42--core__shared__src__main__scala__zio__Runtime.scala.json",
+      "timestamp_basis": "Pinned commit committer timestamp, independently matched to commit metadata; not fetch time or original line introduction."
+    },
+    {
+      "id": "s6401-build",
+      "kind": "code",
+      "repository": "zio/zio",
+      "url": "https://github.com/zio/zio/blob/60d47847d8a13694a78e45aedf289ed27eb6ef42/build.sbt#L193-L193",
+      "occurred_at": "2022-03-09T09:32:55Z",
+      "excerpt": "lazy val coreTests = crossProject(JSPlatform, JVMPlatform)",
+      "interpretation": "Tests are a separate cross-project depending on core, test and testRunner. Adjacent settings register ZTestFramework and declare coreTestsJVM; the skill selector is not guessed from the production core module.",
+      "commit_sha": "60d47847d8a13694a78e45aedf289ed27eb6ef42",
+      "path": "build.sbt",
+      "source_locator": "evidence-cache/60d47847d8a13694a78e45aedf289ed27eb6ef42--build.sbt.json",
+      "timestamp_basis": "Pinned commit committer timestamp, independently matched to commit metadata; not fetch time or original line introduction."
+    }
+  ],
+  "claims": [
+    {
+      "id": "c-canceler-evaluation",
+      "rule": "For a cancellation bridge, trace the cancel token's evaluation through constructor strictness and executor switching. Keep the cancellation action suspended until it reaches the intended executor, propagate cancellation to the underlying fiber, and preserve the existing logger and finalizer observations.",
+      "evidence_ids": [
+        "e6401-root-fix",
+        "e6401-evaluation-boundary",
+        "e6401-small-pool",
+        "s6401-runtime",
+        "s6401-lazy",
+        "s6401-test",
+        "e8819-lazy-owner",
+        "s6401-canceler-wait",
+        "s6401-build"
+      ],
+      "applicability": "Observed in ZIO 2 RC-era Runtime.run and succeedBlocking in March 2022. Transferable review inference is to reason about both evaluation time and owner, not to mechanically replace eager constructors with lazy ones. In a current checkout, identify the replacement runtime/cancellation APIs and discover the effective executor configuration before testing.",
+      "counterexample": "An immutable snapshot of owner-confined state computed inside its owner's callback may need eager construction before passing the result to a foreign fiber. PR 8819 raised exactly that issue; blanket advice to make every expression lazy is wrong."
+    }
+  ]
+}

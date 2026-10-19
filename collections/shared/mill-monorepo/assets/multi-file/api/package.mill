@@ -1,0 +1,4 @@
+package build.api
+
+object `package` extends build.JvmConventions {
+}

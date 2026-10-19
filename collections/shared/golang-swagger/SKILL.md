@@ -1,6 +1,6 @@
 ---
 name: golang-swagger
-description: "Golang OpenAPI/Swagger documentation with swaggo/swag — annotation comments (@Summary, @Param, @Success, @Router, @Security), swag init code generation, framework integrations (gin, echo, fiber, chi, net/http), security definitions (Bearer/JWT, OAuth2, API key), and struct tags (swaggertype, enums, example, swaggerignore). Apply when adding or maintaining Swagger/OpenAPI docs in a Go project, or when the codebase imports github.com/swaggo/swag, github.com/swaggo/gin-swagger, github.com/swaggo/echo-swagger, github.com/swaggo/http-swagger, or github.com/swaggo/files."
+description: "Maintain swaggo/swag annotations and generated OpenAPI documentation for Go APIs. Match endpoint/authentication contracts and the project's generator command; verify generated changes rather than guessing signatures."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness. Requires go and swag CLI.
@@ -33,7 +33,8 @@ paths:
 
 **Dependencies:**
 
-- swag: `go install github.com/swaggo/swag/cmd/swag@latest`
+- swag v1 (stable, emits Swagger 2.0; the commands below assume it): `go install github.com/swaggo/swag/cmd/swag@latest`
+- swag v2 (release candidate, adds OpenAPI 3.x output): `go install github.com/swaggo/swag/v2/cmd/swag@latest` — use it only if the project already does or the user needs OpenAPI 3; check which one the project's `go.mod`/Makefile pins before running `swag init`
 
 ## Setup
 
@@ -148,7 +149,7 @@ Optional attributes on `@Param`: `default(v)`, `minimum(n)`, `maximum(n)`, `minL
 | `{array}`            | Slice of structs |
 | `string` / `integer` | Primitive        |
 
-**Generics** (swag v2): `@Success 200 {object} api.Response[model.User]`
+**Generics** (swag v1.8.10+ and v2): `@Success 200 {object} api.Response[model.User]`
 
 **Nested composition**: `@Success 200 {object} api.Response{data=model.User}`
 

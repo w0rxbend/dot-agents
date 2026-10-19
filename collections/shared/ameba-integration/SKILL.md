@@ -1,7 +1,7 @@
 ---
 name: ameba-integration
 user-invocable: false
-description: Use when integrating Ameba into development workflows including CI/CD pipelines, pre-commit hooks, GitHub Actions, and automated code review processes.
+description: Use when running Ameba (the Crystal linter) outside the editor prompt - its CLI flags and exit codes, pre-commit hooks, GitHub Actions, GitLab or other CI, editor plugins and gradual adoption. For .ameba.yml rule settings use ameba-configuration; for writing new rules use ameba-custom-rules.
 allowed-tools:
   - Bash
   - Read
@@ -9,981 +9,286 @@ allowed-tools:
 
 # Ameba Integration
 
-Integrate Ameba into your development workflow for automated Crystal code quality checks in CI/CD pipelines, pre-commit hooks, and code review processes.
+Run Ameba automatically in hooks, CI and editors so Crystal code is checked before it is merged.
 
-## Integration Overview
-
-Ameba can be integrated at multiple points in your development workflow:
-
-- **Pre-commit hooks** - Catch issues before they're committed
-- **CI/CD pipelines** - Enforce quality gates in automated builds
-- **GitHub Actions** - Automated PR reviews and status checks
-- **Editor integration** - Real-time feedback while coding
-- **Code review** - Automated comments on pull requests
-- **Pre-push hooks** - Final check before pushing to remote
-
-## Command-Line Usage
-
-### Basic Commands
+Every flag below was checked against the Ameba source for v1.6.4 and v1.7.0. Ameba renamed and added flags in 1.7.0, so check the installed version first and use the matching column:
 
 ```bash
-# Run Ameba on entire project
-ameba
-
-# Run on specific files
-ameba src/models/user.cr
-
-# Run on specific directories
-ameba src/services/
-
-# Run with specific configuration
-ameba --config .ameba.custom.yml
-
-# Generate default configuration
-ameba --gen-config
-
-# Auto-fix correctable issues
-ameba --fix
-
-# Only check specific rules
-ameba --only Style/RedundantReturn
-
-# Exclude specific rules
-ameba --except Style/LargeNumbers
-
-# Format output
-ameba --format json
-ameba --format junit
-ameba --format flycheck
-
-# Explain issues at specific location
-ameba --explain src/models/user.cr:10:5
-
-# Run with all output
-ameba --all
-
-# Fail silently on no issues
-ameba --silent
+ameba --version
+ameba --help
 ```
 
-### Output Formats
+## Installing Ameba
 
-```bash
-# Default: Human-readable
-ameba
-# Output:
-# src/user.cr:10:5: Style/RedundantReturn: Redundant return detected
+As a development dependency (recommended, so CI and developers use the same version):
 
-# JSON format (for parsing)
-ameba --format json
-# Output: {"sources": [...], "summary": {...}}
-
-# JUnit XML (for CI integration)
-ameba --format junit > ameba-results.xml
-
-# Flycheck format (for Emacs)
-ameba --format flycheck
+```yaml
+# shard.yml
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
+    version: ~> 1.7      # pin the minor version you tested
 ```
 
-### Advanced Usage
-
 ```bash
-# Check only changed files (git)
-git diff --name-only --diff-filter=ACM | grep '\.cr$' | xargs ameba
-
-# Check only staged files
-git diff --cached --name-only --diff-filter=ACM | grep '\.cr$' | xargs ameba
-
-# Run with parallel processing (if available)
-ameba --parallel
-
-# Set exit code based on severity
-ameba --fail-level error    # Only fail on errors
-ameba --fail-level warning  # Fail on warnings and errors
-ameba --fail-level convention  # Fail on everything
-
-# Generate formatted report
-ameba --format json | jq '.summary'
+shards install
+crystal build -o bin/ameba lib/ameba/bin/ameba.cr   # compiled binary at bin/ameba
 ```
 
-## Pre-Commit Hooks
+Alternatively add a target and use `shards build ameba`:
 
-### Git Hook Setup
+```yaml
+targets:
+  ameba:
+    main: lib/ameba/bin/ameba.cr
+```
 
-Create `.git/hooks/pre-commit`:
+Other options: `brew tap crystal-ameba/ameba && brew install ameba`, the `ghcr.io/crystal-ameba/ameba` container image (`docker run -v $(pwd):/src ghcr.io/crystal-ameba/ameba`), or building from source with `make install`. The examples below call `bin/ameba`; use `ameba` if it is on `PATH`.
+
+## Command-line reference
 
 ```bash
+bin/ameba                              # inspect files from Globs in .ameba.yml (default **/*.cr, **/*.ecr; lib excluded)
+bin/ameba src/models spec/user_spec.cr # inspect specific files or directories
+bin/ameba src '!src/generated'         # a leading ! excludes a path
+bin/ameba --fix                        # autocorrect issues marked [Correctable]
+bin/ameba --only Lint/UselessAssign    # run only these rules or groups (comma-separated)
+bin/ameba --only Lint,Naming
+bin/ameba --except Style/LargeNumbers  # run everything except these rules or groups
+bin/ameba --all                        # also enable rules that are disabled by default/config
+bin/ameba --config path/to/ameba.yml   # use a specific config file
+bin/ameba --gen-config                 # write .ameba.yml that silences all current failures (overwrites!)
+bin/ameba --format json                # choose a formatter (see below)
+bin/ameba --silent                     # no output; exit code still reports the result
+bin/ameba --no-color
+bin/ameba --without-affected-code      # do not print the source excerpt under each issue
+bin/ameba src/user.cr:10:5             # explain the issue at that location (same as --explain)
+bin/ameba --describe Lint/UselessAssign
+bin/ameba --rules                      # list all rules
+cat file.cr | bin/ameba --stdin-filename file.cr   # lint source from stdin
+```
+
+Version-specific flags:
+
+| Purpose | Ameba 1.6.x | Ameba 1.7+ |
+|---|---|---|
+| Ignore issues below a severity (`error`, `warning`, `convention`) | `--fail-level SEVERITY` | `--min-severity SEVERITY` |
+| Ignore the `.ameba.yml` file | - | `--ignore-config` |
+| Do not error when a path argument matches no file | - | `--ignore-unmatched-paths` |
+| Only run rules introduced up to a version | - | `-u/--up-to-version VERSION` |
+| List rules with the version that added them | - | `-R/--rule-versions` |
+
+Formatters (`--format`): `progress` (default), `json`, `flycheck`, `todo`, `silent`, `disabled`, and `github-actions` (1.7+ only). There is no JUnit, HTML or parallel-mode option.
+
+Exit status: `0` when no reported issue meets the severity threshold, `1` when issues were found, and `255` (1.7) for usage or runtime errors such as an unknown flag or formatter. CI only needs to check for a non-zero exit.
+
+### JSON output
+
+`--format json` prints one document:
+
+```json
+{
+  "sources": [
+    {
+      "path": "src/user.cr",
+      "issues": [
+        {
+          "rule_name": "Lint/UselessAssign",
+          "severity": "Warning",
+          "message": "Useless assignment to variable `a`",
+          "location": {"line": 2, "column": 3},
+          "end_location": {"line": 2, "column": 9}
+        }
+      ]
+    }
+  ],
+  "summary": {"target_sources_count": 1, "issues_count": 1},
+  "metadata": {"ameba_version": "1.7.0", "crystal_version": "1.19.0"}
+}
+```
+
+```bash
+bin/ameba --format json > ameba.json || true
+jq '.summary.issues_count' ameba.json
+jq -r '.sources[] | .path as $p | .issues[] | "\($p):\(.location.line):\(.location.column) \(.rule_name) \(.message)"' ameba.json
+```
+
+## Pre-commit hooks
+
+### Plain git hook
+
+```sh
 #!/bin/sh
-# .git/hooks/pre-commit - Run Ameba on staged Crystal files
+# .git/hooks/pre-commit  (chmod +x)
+# Lint staged Crystal files that still exist (added, copied, modified).
+files=$(git diff --cached --name-only --diff-filter=ACM -- '*.cr')
+[ -z "$files" ] && exit 0
 
-echo "Running Ameba on staged files..."
-
-# Get staged Crystal files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.cr$')
-
-if [ -z "$STAGED_FILES" ]; then
-  echo "No Crystal files staged, skipping Ameba"
-  exit 0
-fi
-
-# Run Ameba on staged files
-echo "$STAGED_FILES" | xargs ameba
-
-# Capture exit code
-AMEBA_EXIT=$?
-
-if [ $AMEBA_EXIT -ne 0 ]; then
-  echo "❌ Ameba found issues. Please fix them before committing."
-  echo "Run 'ameba --fix' to auto-correct some issues."
+# shellcheck disable=SC2086
+bin/ameba $files || {
+  echo "Ameba found issues. Fix them, or run 'bin/ameba --fix' for correctable ones."
   exit 1
-fi
-
-echo "✅ Ameba checks passed"
-exit 0
+}
 ```
 
-Make it executable:
+Notes:
 
-```bash
-chmod +x .git/hooks/pre-commit
-```
+- Ameba reads files from the working tree, not the index, so partially staged files are checked in their working-tree state.
+- The hook breaks on file names containing spaces; use `git diff -z` with `xargs -0` if your repository has them.
+- Do not run `--fix` from the hook and silently `git add` the result; show the user what changed and let them stage it.
 
-### Advanced Pre-Commit Hook
-
-```bash
-#!/bin/sh
-# Advanced pre-commit hook with auto-fix option
-
-echo "Running Ameba on staged files..."
-
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.cr$')
-
-if [ -z "$STAGED_FILES" ]; then
-  exit 0
-fi
-
-# Run Ameba
-echo "$STAGED_FILES" | xargs ameba
-AMEBA_EXIT=$?
-
-if [ $AMEBA_EXIT -ne 0 ]; then
-  echo ""
-  echo "❌ Ameba found issues."
-  echo ""
-  read -p "Would you like to auto-fix correctable issues? (y/n) " -n 1 -r
-  echo
-
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "Running ameba --fix..."
-    echo "$STAGED_FILES" | xargs ameba --fix
-
-    # Re-add fixed files
-    echo "$STAGED_FILES" | xargs git add
-
-    echo "✅ Auto-fixed issues and re-staged files"
-    echo "⚠️  Please review the changes before committing again"
-    exit 1  # Exit to allow review
-  else
-    echo "Please fix issues manually before committing"
-    exit 1
-  fi
-fi
-
-echo "✅ Ameba checks passed"
-exit 0
-```
-
-### Pre-Commit Framework Integration
-
-Using the [pre-commit](https://pre-commit.com/) framework:
-
-Create `.pre-commit-config.yaml`:
+### pre-commit framework
 
 ```yaml
 # .pre-commit-config.yaml
 repos:
   - repo: local
     hooks:
-      - id: ameba
-        name: Ameba (Crystal Linter)
-        entry: ameba
-        language: system
-        files: \.cr$
-        pass_filenames: true
-
-  - repo: local
-    hooks:
       - id: crystal-format
-        name: Crystal Format
+        name: crystal tool format
         entry: crystal tool format
         language: system
         files: \.cr$
-        pass_filenames: true
-```
-
-Install and use:
-
-```bash
-# Install pre-commit
-pip install pre-commit  # or brew install pre-commit
-
-# Install hooks
-pre-commit install
-
-# Run manually
-pre-commit run --all-files
-
-# Run on specific files
-pre-commit run --files src/user.cr
-```
-
-### Pre-Commit Configuration Options
-
-```yaml
-# .pre-commit-config.yaml with options
-repos:
-  - repo: local
-    hooks:
       - id: ameba
-        name: Ameba
-        entry: ameba
+        name: ameba
+        entry: bin/ameba
         language: system
         files: \.cr$
-        pass_filenames: true
-
-      - id: ameba-strict
-        name: Ameba (Strict)
-        entry: ameba --fail-level convention
-        language: system
-        files: ^src/.*\.cr$  # Only src directory
-        pass_filenames: true
-
-      - id: ameba-autofix
-        name: Ameba Auto-fix
-        entry: ameba --fix
-        language: system
-        files: \.cr$
-        pass_filenames: true
 ```
 
-## GitHub Actions Integration
+`pre-commit` passes the matching staged file names as arguments. Add `args: [--min-severity, warning]` (1.7+) or `args: [--fail-level, warning]` (1.6) to ignore convention-level issues locally.
 
-### Basic GitHub Actions Workflow
+## GitHub Actions
 
-Create `.github/workflows/ameba.yml`:
+### Official action
+
+[`crystal-ameba/github-action`](https://github.com/crystal-ameba/github-action) runs Ameba inside its own container image and reports issues as workflow annotations. It does not use the Ameba version from your `shard.lock`: `@v1` bundles the latest Ameba release, and older action tags map to older Ameba versions (for example `v0.12.0` to Ameba 1.6.4, see the action's README).
 
 ```yaml
+# .github/workflows/ameba.yml
 name: Ameba
-user-invocable: false
-
 on:
   push:
-    branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
+
+permissions:
+  contents: read
 
 jobs:
   lint:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1
+      - uses: actions/checkout@v4
+      - uses: crystal-ameba/github-action@v1
         with:
-          crystal: latest
-
-      - name: Install dependencies
-        run: shards install
-
-      - name: Run Ameba
-        uses: crystal-ameba/github-action@v0.12.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          min-severity: warning   # optional; also: config, version, only, except, formatter
 ```
 
-### Advanced GitHub Actions Configuration
+The `with:` inputs apply to `@v1`. Pin a commit SHA instead of `@v1` if your policy requires immutable action references (see github-actions-advanced).
+
+### Using the project's own Ameba version
+
+To lint with exactly the version pinned in `shard.lock` (or a custom binary with project rules, see ameba-custom-rules):
 
 ```yaml
-name: Code Quality
-user-invocable: false
-
+name: Ameba
 on:
   push:
-    branches: [ main ]
   pull_request:
-    types: [ opened, synchronize, reopened ]
+
+permissions:
+  contents: read
 
 jobs:
-  ameba:
-    name: Ameba Linting
+  lint:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Full history for better analysis
-
-      - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1
-        with:
-          crystal: 1.11.0  # Pin version for consistency
-
-      - name: Cache shards
-        uses: actions/cache@v3
+      - uses: actions/checkout@v4
+      - uses: crystal-lang/install-crystal@v1
+      - uses: actions/cache@v4
         with:
           path: lib
           key: ${{ runner.os }}-shards-${{ hashFiles('shard.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-shards-
-
-      - name: Install dependencies
-        run: shards install
-
-      - name: Run Ameba
-        uses: crystal-ameba/github-action@v0.12.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Ameba results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: ameba-results
-          path: ameba-results.json
+      - run: shards install
+      - run: crystal build -o bin/ameba lib/ameba/bin/ameba.cr
+      # Ameba 1.7+: annotations on the PR diff
+      - run: bin/ameba --format github-actions
+      # Ameba 1.6.x has no github-actions formatter; use the default output instead:
+      # - run: bin/ameba --no-color
 ```
 
-### Matrix Testing Across Crystal Versions
+### Lint only changed files in a pull request
 
 ```yaml
-name: Quality Across Versions
-user-invocable: false
-
-on: [push, pull_request]
-
-jobs:
-  ameba:
-    strategy:
-      matrix:
-        crystal: [1.10.0, 1.11.0, latest]
-        os: [ubuntu-latest, macos-latest]
-
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Crystal ${{ matrix.crystal }}
-        uses: crystal-lang/install-crystal@v1
-        with:
-          crystal: ${{ matrix.crystal }}
-
-      - name: Install dependencies
-        run: shards install
-
-      - name: Run Ameba
-        run: |
-          crystal run bin/ameba.cr -- --format json > ameba-results.json
-
-      - name: Check results
-        run: |
-          if [ $(jq '.summary.issues_count' ameba-results.json) -gt 0 ]; then
-            echo "❌ Found issues"
-            jq '.summary' ameba-results.json
-            exit 1
-          fi
-```
-
-### Pull Request Review Integration
-
-```yaml
-name: PR Code Review
-user-invocable: false
-
-on:
-  pull_request:
-    types: [ opened, synchronize ]
-
-jobs:
-  review:
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      pull-requests: write
-
-    steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1
-
-      - name: Install dependencies
-        run: shards install
-
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v40
-        with:
-          files: |
-            **/*.cr
-
-      - name: Run Ameba on changed files
-        if: steps.changed-files.outputs.any_changed == 'true'
+      # ... install Crystal and build bin/ameba as above ...
+      - name: Ameba on changed files
         run: |
-          echo "${{ steps.changed-files.outputs.all_changed_files }}" | \
-            xargs ameba --format json > ameba-results.json
-
-      - name: Comment PR
-        if: steps.changed-files.outputs.any_changed == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const results = JSON.parse(fs.readFileSync('ameba-results.json', 'utf8'));
-
-            if (results.summary.issues_count > 0) {
-              const body = `## Ameba Report
-
-              Found ${results.summary.issues_count} issue(s):
-
-              ${results.sources.flatMap(s =>
-                s.issues.map(i =>
-                  \`- \${s.path}:\${i.location.line}:\${i.location.column} - \${i.rule.name}: \${i.message}\`
-                )
-              ).join('\\n')}`;
-
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: body
-              });
-            }
+          files=$(git diff --name-only --diff-filter=ACM "origin/${{ github.base_ref }}...HEAD" -- '*.cr')
+          if [ -n "$files" ]; then bin/ameba $files; fi
 ```
 
-## CI/CD Pipeline Integration
+## Other CI systems
 
-### GitLab CI/CD
+Any CI that runs a shell command works the same way: install shards, build `bin/ameba`, run it, and let the exit code fail the job. For example, GitLab CI:
 
 ```yaml
 # .gitlab-ci.yml
-stages:
-  - quality
-  - test
-  - build
-
 ameba:
-  stage: quality
   image: crystallang/crystal:latest
-
-  before_script:
+  cache:
+    key:
+      files: [shard.lock]
+    paths: [lib/]
+  script:
     - shards install
-
-  script:
-    - crystal run bin/ameba.cr -- --format junit > ameba-results.xml
-
+    - crystal build -o bin/ameba lib/ameba/bin/ameba.cr
+    - bin/ameba --format json > ameba.json || status=$?
+    - bin/ameba --no-color --without-affected-code || true   # readable log
+    - exit ${status:-0}
   artifacts:
-    reports:
-      junit: ameba-results.xml
-    paths:
-      - ameba-results.xml
     when: always
-    expire_in: 1 week
-
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_COMMIT_BRANCH == "main"'
-
-ameba-strict:
-  extends: ameba
-  script:
-    - crystal run bin/ameba.cr -- --fail-level convention
-  only:
-    - main
+    paths: [ameba.json]
 ```
 
-### CircleCI
+Pin the `crystallang/crystal` image tag to the Crystal version your project supports. CircleCI, Jenkins and others follow the same pattern.
 
-```yaml
-# .circleci/config.yml
-version: 2.1
+## Editors
 
-orbs:
-  crystal: manastech/crystal@1.0
+- VS Code: [vscode-crystal-ameba](https://github.com/crystal-ameba/vscode-crystal-ameba)
+- Vim/Neovim: [ALE](https://github.com/dense-analysis/ale) (has an `ameba` linter for Crystal) or [vim-crystal](https://github.com/rhysd/vim-crystal)
+- Emacs: [ameba.el](https://github.com/crystal-ameba/ameba.el) (uses `--format flycheck`)
+- Sublime Text: [SublimeLinter-contrib-ameba](https://github.com/epergo/SublimeLinter-contrib-ameba)
 
-jobs:
-  ameba:
-    executor:
-      name: crystal/default
-      tag: "1.11"
+Point the plugin at the same `bin/ameba` that CI uses so local results match.
 
-    steps:
-      - checkout
+## Adopting Ameba on an existing codebase
 
-      - restore_cache:
-          keys:
-            - shards-v1-{{ checksum "shard.lock" }}
-            - shards-v1-
+1. **Baseline**: `bin/ameba --gen-config` writes a `.ameba.yml` that disables or excludes every currently failing rule. Commit it; CI now passes and blocks new kinds of issues.
+2. **Ratchet**: remove one entry from the generated file, fix (or `--fix`) the issues it reveals, commit. Repeat.
+3. **Severity gate**: while the backlog is large, fail CI only on higher severities - `--min-severity warning` (1.7+) or `--fail-level warning` (1.6) - and tighten later.
+4. **Version pin** (1.7+): set `Version:` in `.ameba.yml` or pass `--up-to-version` so upgrading Ameba does not introduce new failing rules until you choose to.
 
-      - run:
-          name: Install dependencies
-          command: shards install
+## Best practices
 
-      - save_cache:
-          key: shards-v1-{{ checksum "shard.lock" }}
-          paths:
-            - lib
+1. Pin the Ameba version (shard dependency or action tag) so local and CI results match.
+2. Run `crystal tool format --check` alongside Ameba; Ameba does not replace the formatter.
+3. Keep hooks fast by linting only staged or changed files; run the full project in CI.
+4. Fail CI on the exit code, not by parsing text output.
+5. Use annotations (`github-actions` formatter or the official action) instead of bots that post PR comments.
 
-      - run:
-          name: Run Ameba
-          command: |
-            crystal run bin/ameba.cr -- --format junit > ameba-results.xml
+## Common pitfalls
 
-      - store_test_results:
-          path: ameba-results.xml
-
-      - store_artifacts:
-          path: ameba-results.xml
-
-workflows:
-  version: 2
-  quality:
-    jobs:
-      - ameba
-```
-
-### Jenkins Pipeline
-
-```groovy
-// Jenkinsfile
-pipeline {
-    agent {
-        docker {
-            image 'crystallang/crystal:latest'
-        }
-    }
-
-    stages {
-        stage('Setup') {
-            steps {
-                sh 'shards install'
-            }
-        }
-
-        stage('Ameba') {
-            steps {
-                sh '''
-                    crystal run bin/ameba.cr -- --format junit > ameba-results.xml || true
-                '''
-            }
-            post {
-                always {
-                    junit 'ameba-results.xml'
-                }
-            }
-        }
-
-        stage('Ameba Strict') {
-            when {
-                branch 'main'
-            }
-            steps {
-                sh 'crystal run bin/ameba.cr -- --fail-level error'
-            }
-        }
-    }
-
-    post {
-        failure {
-            emailext(
-                subject: "Ameba Failures in ${env.JOB_NAME}",
-                body: "Check console output at ${env.BUILD_URL}",
-                to: "${env.CHANGE_AUTHOR_EMAIL}"
-            )
-        }
-    }
-}
-```
-
-### Travis CI
-
-```yaml
-# .travis.yml
-language: crystal
-
-crystal:
-  - latest
-  - 1.11.0
-
-install:
-  - shards install
-
-script:
-  - crystal spec
-  - crystal run bin/ameba.cr -- --fail-level warning
-
-cache:
-  directories:
-    - lib
-
-notifications:
-  email:
-    on_success: never
-    on_failure: change
-```
-
-## Editor Integration
-
-### VS Code
-
-Install the Crystal Language extension and configure:
-
-```json
-// .vscode/settings.json
-{
-  "crystal-lang.server": "crystalline",
-  "crystal-lang.problems": "build",
-
-  // Run Ameba on save
-  "emeraldwalk.runonsave": {
-    "commands": [
-      {
-        "match": "\\.cr$",
-        "cmd": "ameba ${file}"
-      }
-    ]
-  },
-
-  // Format on save
-  "editor.formatOnSave": true,
-  "[crystal]": {
-    "editor.defaultFormatter": "crystal-lang-tools.crystal-lang"
-  }
-}
-```
-
-Create `.vscode/tasks.json`:
-
-```json
-{
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Ameba",
-      "type": "shell",
-      "command": "ameba",
-      "problemMatcher": {
-        "owner": "crystal",
-        "fileLocation": ["relative", "${workspaceFolder}"],
-        "pattern": {
-          "regexp": "^(.+):(\\d+):(\\d+):\\s+(.+):\\s+(.+)$",
-          "file": 1,
-          "line": 2,
-          "column": 3,
-          "severity": 4,
-          "message": 5
-        }
-      },
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      }
-    },
-    {
-      "label": "Ameba Fix",
-      "type": "shell",
-      "command": "ameba --fix",
-      "group": "build"
-    }
-  ]
-}
-```
-
-### Vim/Neovim
-
-Using ALE (Asynchronous Lint Engine):
-
-```vim
-" .vimrc or init.vim
-let g:ale_linters = {
-\   'crystal': ['ameba', 'crystal'],
-\}
-
-let g:ale_fixers = {
-\   'crystal': ['ameba'],
-\}
-
-" Enable auto-fixing on save
-let g:ale_fix_on_save = 1
-
-" Ameba options
-let g:ale_crystal_ameba_executable = 'ameba'
-```
-
-### Emacs
-
-```elisp
-;; .emacs or init.el
-(require 'flycheck)
-
-(flycheck-define-checker crystal-ameba
-  "Crystal linter using Ameba."
-  :command ("ameba" "--format" "flycheck" source)
-  :error-patterns
-  ((error line-start (file-name) ":" line ":" column ": E: " (message) line-end)
-   (warning line-start (file-name) ":" line ":" column ": W: " (message) line-end)
-   (info line-start (file-name) ":" line ":" column ": I: " (message) line-end))
-  :modes crystal-mode)
-
-(add-to-list 'flycheck-checkers 'crystal-ameba)
-```
-
-## Quality Gates and Policies
-
-### Fail-Fast Strategy
-
-```bash
-#!/bin/bash
-# scripts/quality-gate.sh
-
-echo "Running quality gates..."
-
-# Gate 1: Critical errors only
-echo "Gate 1: Critical errors"
-ameba --only Lint/Syntax,Lint/UnreachableCode --fail-level error
-if [ $? -ne 0 ]; then
-  echo "❌ Critical errors found"
-  exit 1
-fi
-
-# Gate 2: All errors
-echo "Gate 2: All errors"
-ameba --fail-level error
-if [ $? -ne 0 ]; then
-  echo "❌ Errors found"
-  exit 1
-fi
-
-# Gate 3: Warnings (non-blocking for now)
-echo "Gate 3: Warnings (informational)"
-ameba --fail-level warning || echo "⚠️  Warnings found (not blocking)"
-
-echo "✅ All quality gates passed"
-```
-
-### Progressive Strictness
-
-```yaml
-# .github/workflows/quality-gates.yml
-name: Quality Gates
-user-invocable: false
-
-on: [push, pull_request]
-
-jobs:
-  critical:
-    name: Critical Issues
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: crystal-lang/install-crystal@v1
-      - run: shards install
-      - name: Check critical
-        run: ameba --only Lint/Syntax --fail-level error
-
-  errors:
-    name: All Errors
-    needs: critical
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: crystal-lang/install-crystal@v1
-      - run: shards install
-      - name: Check errors
-        run: ameba --fail-level error
-
-  warnings:
-    name: Warnings (Main Only)
-    needs: errors
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: crystal-lang/install-crystal@v1
-      - run: shards install
-      - name: Check warnings
-        run: ameba --fail-level warning
-```
-
-### Ratcheting (Prevent New Issues)
-
-```bash
-#!/bin/bash
-# scripts/ameba-ratchet.sh
-# Only fail on new issues, not existing ones
-
-# Get baseline issue count (from main branch)
-git fetch origin main
-BASELINE=$(git show origin/main:.ameba-baseline.json 2>/dev/null || echo '{"count": 0}')
-BASELINE_COUNT=$(echo "$BASELINE" | jq '.count')
-
-# Run Ameba and count current issues
-ameba --format json > current-results.json
-CURRENT_COUNT=$(jq '.summary.issues_count' current-results.json)
-
-echo "Baseline issues: $BASELINE_COUNT"
-echo "Current issues: $CURRENT_COUNT"
-
-if [ "$CURRENT_COUNT" -gt "$BASELINE_COUNT" ]; then
-  echo "❌ New issues introduced ($((CURRENT_COUNT - BASELINE_COUNT)) new issues)"
-  exit 1
-fi
-
-if [ "$CURRENT_COUNT" -lt "$BASELINE_COUNT" ]; then
-  echo "✅ Issues reduced! ($((BASELINE_COUNT - CURRENT_COUNT)) fewer issues)"
-fi
-
-echo "✅ No new issues"
-```
-
-## Reporting and Monitoring
-
-### Generate HTML Reports
-
-```bash
-#!/bin/bash
-# scripts/generate-report.sh
-
-ameba --format json > ameba-results.json
-
-# Convert to HTML using jq and template
-cat > ameba-report.html <<'EOF'
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Ameba Report</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    .summary { background: #f0f0f0; padding: 20px; margin-bottom: 20px; }
-    .issue { border-left: 3px solid red; padding: 10px; margin: 10px 0; }
-    .error { border-color: #d32f2f; }
-    .warning { border-color: #f57c00; }
-    .convention { border-color: #fbc02d; }
-  </style>
-</head>
-<body>
-  <h1>Ameba Code Quality Report</h1>
-  <div class="summary">
-EOF
-
-jq -r '.summary | "
-    <h2>Summary</h2>
-    <p>Total Issues: \(.issues_count)</p>
-    <p>Files Analyzed: \(.target_sources_count)</p>
-"' ameba-results.json >> ameba-report.html
-
-echo '<h2>Issues</h2>' >> ameba-report.html
-
-jq -r '.sources[] | select(.issues | length > 0) | .path as $path | .issues[] | "
-  <div class=\"issue \(.rule.severity | ascii_downcase)\">
-    <strong>\($path):\(.location.line):\(.location.column)</strong><br>
-    \(.rule.name): \(.message)
-  </div>
-"' ameba-results.json >> ameba-report.html
-
-echo '</body></html>' >> ameba-report.html
-
-echo "Report generated: ameba-report.html"
-```
-
-### Metrics Tracking
-
-```bash
-#!/bin/bash
-# scripts/track-metrics.sh
-# Track Ameba metrics over time
-
-TIMESTAMP=$(date +%Y-%m-%d)
-ameba --format json > "metrics/ameba-$TIMESTAMP.json"
-
-# Extract key metrics
-jq '{
-  date: "'$TIMESTAMP'",
-  issues: .summary.issues_count,
-  files: .summary.target_sources_count,
-  errors: [.sources[].issues[] | select(.rule.severity == "Error")] | length,
-  warnings: [.sources[].issues[] | select(.rule.severity == "Warning")] | length
-}' "metrics/ameba-$TIMESTAMP.json" >> metrics/history.jsonl
-
-# Generate trend chart (requires gnuplot or similar)
-echo "Metrics tracked for $TIMESTAMP"
-```
-
-## When to Use This Skill
-
-Use the ameba-integration skill when:
-
-- Setting up CI/CD pipelines for Crystal projects
-- Implementing automated code review processes
-- Establishing quality gates for deployments
-- Configuring pre-commit hooks for team development
-- Integrating static analysis into GitHub Actions
-- Creating automated PR review workflows
-- Setting up editor integrations for real-time feedback
-- Implementing progressive quality improvements (ratcheting)
-- Generating code quality reports for stakeholders
-- Migrating from manual code review to automated checks
-- Establishing coding standards enforcement
-- Onboarding new team members with automated feedback
-
-## Best Practices
-
-1. **Start with CI/CD** - Implement in CI pipeline first before local hooks
-2. **Use caching** - Cache dependencies and Ameba results for faster builds
-3. **Fail appropriately** - Use `--fail-level` to match pipeline requirements
-4. **Provide feedback** - Generate reports and comments on PRs
-5. **Make it fast** - Only check changed files in pre-commit hooks
-6. **Allow bypass** - Provide `--no-verify` option for emergencies
-7. **Progressive enforcement** - Start permissive, increase strictness over time
-8. **Monitor metrics** - Track issues over time to measure improvement
-9. **Separate concerns** - Different rules/severity for different environments
-10. **Document process** - Clear instructions for team on running locally
-11. **Use artifacts** - Store results for later analysis and trending
-12. **Auto-fix when possible** - Offer automatic fixes in interactive environments
-13. **Pin versions** - Use specific Ameba versions in CI for consistency
-14. **Handle failures gracefully** - Provide helpful error messages
-15. **Keep it maintained** - Regularly update integrations and configurations
-
-## Common Pitfalls
-
-1. **Blocking all commits** - Too strict pre-commit hooks frustrate developers
-2. **No caching** - Slow CI builds from re-downloading dependencies every time
-3. **Analyzing generated files** - Wasting time on auto-generated code
-4. **Not pinning versions** - Different Ameba versions produce different results
-5. **Missing changed files detection** - Running on entire codebase in every PR
-6. **No failure context** - Cryptic error messages without guidance
-7. **Inconsistent configuration** - Different settings locally vs CI
-8. **Long feedback loops** - Developers find out about issues too late
-9. **No auto-fix option** - Manual fixes for correctable issues
-10. **Silent failures** - CI passes but Ameba didn't actually run
-11. **Excessive notifications** - Spamming team with every minor issue
-12. **No bypass mechanism** - Can't commit urgent fixes when needed
-13. **Ignoring performance** - CI timeout from slow analysis
-14. **Not using parallel jobs** - Sequential execution slows down pipeline
-15. **Missing test coverage** - Not verifying integration actually works
+1. Copying flags that do not exist: there is no `--parallel`, `--format junit` or HTML report; `--fail-level` was replaced by `--min-severity` in 1.7.
+2. Assuming the official GitHub Action uses your shard's Ameba version; it uses its own.
+3. Passing deleted files from `git diff` to Ameba; filter with `--diff-filter=ACM`.
+4. Running `--gen-config` on a project that already has a curated `.ameba.yml`; it overwrites it.
+5. Hiding failures with `|| true` and never re-checking the saved exit status.
 
 ## Resources
 
-- [Crystal Ameba GitHub Action](https://github.com/crystal-ameba/github-action)
-- [Ameba GitHub Repository](https://github.com/crystal-ameba/ameba)
-- [Pre-commit Framework](https://pre-commit.com/)
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [GitLab CI/CD Documentation](https://docs.gitlab.com/ee/ci/)
-- [CircleCI Documentation](https://circleci.com/docs/)
-- [Jenkins Pipeline Documentation](https://www.jenkins.io/doc/book/pipeline/)
+- [Ameba repository and README](https://github.com/crystal-ameba/ameba)
+- [crystal-ameba/github-action](https://github.com/crystal-ameba/github-action)
+- [pre-commit framework](https://pre-commit.com/)

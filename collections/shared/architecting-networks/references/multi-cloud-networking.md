@@ -32,4 +32,4 @@ Unified networking concepts and implementations across AWS, GCP, and Azure.
 - Few large VNets vs many small VNets
 - Private endpoints for Azure services
 
-For detailed implementation examples, see `examples/aws/`, `examples/gcp/`, and `examples/azure/` directories.
+For AWS implementation examples, see `../examples/aws/`.

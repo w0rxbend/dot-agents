@@ -35,19 +35,20 @@ jobs:
     # Remove this filter if you want bots to get reviewed.
     if: ${{ github.event_name == 'pull_request' && !endsWith(github.event.pull_request.user.login, '[bot]') }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 1
 
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
           go-version: stable
 
-      - name: Install Go skills
-        run: npx skills add https://github.com/samber/cc-skills-golang -a claude-code --skill '*' -y --copy
+      # Go skills are vendored into .claude/skills/ and committed (see SKILL.md,
+      # "Vendoring the review skills"). Do not fetch skills at runtime here: this
+      # job holds ANTHROPIC_API_KEY and pull-requests: write.
 
-      - uses: anthropics/claude-code-action@v1
+      - uses: anthropics/claude-code-action@f27be6b65a4652f08a2ba3cff79114829b588967 # v1.0.252
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           show_full_output: true
@@ -111,19 +112,20 @@ jobs:
     # Remove this filter if you want bots to get reviewed.
     if: ${{ github.event_name == 'pull_request' && !endsWith(github.event.pull_request.user.login, '[bot]') }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 1
 
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
           go-version: stable
 
-      - name: Install Go skills
-        run: npx skills add https://github.com/samber/cc-skills-golang -a claude-code --skill '*' -y --copy
+      # Go skills are vendored into .claude/skills/ and committed (see SKILL.md,
+      # "Vendoring the review skills"). Do not fetch skills at runtime here: this
+      # job holds ANTHROPIC_API_KEY and pull-requests: write.
 
-      - uses: anthropics/claude-code-action@v1
+      - uses: anthropics/claude-code-action@f27be6b65a4652f08a2ba3cff79114829b588967 # v1.0.252
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           show_full_output: true
@@ -190,19 +192,20 @@ jobs:
     # Remove this filter if you want bots to get reviewed.
     if: ${{ github.event_name == 'pull_request' && !endsWith(github.event.pull_request.user.login, '[bot]') }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 1
 
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
           go-version: stable
 
-      - name: Install Go skills
-        run: npx skills add https://github.com/samber/cc-skills-golang -a claude-code --skill '*' -y --copy
+      # Go skills are vendored into .claude/skills/ and committed (see SKILL.md,
+      # "Vendoring the review skills"). Do not fetch skills at runtime here: this
+      # job holds ANTHROPIC_API_KEY and pull-requests: write.
 
-      - uses: anthropics/claude-code-action@v1
+      - uses: anthropics/claude-code-action@f27be6b65a4652f08a2ba3cff79114829b588967 # v1.0.252
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           show_full_output: true
@@ -268,19 +271,20 @@ jobs:
     # Remove this filter if you want bots to get reviewed.
     if: ${{ github.event_name == 'pull_request' && !endsWith(github.event.pull_request.user.login, '[bot]') }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 1
 
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
           go-version: stable
 
-      - name: Install Go skills
-        run: npx skills add https://github.com/samber/cc-skills-golang -a claude-code --skill '*' -y --copy
+      # Go skills are vendored into .claude/skills/ and committed (see SKILL.md,
+      # "Vendoring the review skills"). Do not fetch skills at runtime here: this
+      # job holds ANTHROPIC_API_KEY and pull-requests: write.
 
-      - uses: anthropics/claude-code-action@v1
+      - uses: anthropics/claude-code-action@f27be6b65a4652f08a2ba3cff79114829b588967 # v1.0.252
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           show_full_output: true
@@ -347,11 +351,11 @@ jobs:
     needs: [quality, correctness, security, quality-depth]
     if: ${{ always() && github.event_name == 'pull_request' && !endsWith(github.event.pull_request.user.login, '[bot]') }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 1
 
-      - uses: anthropics/claude-code-action@v1
+      - uses: anthropics/claude-code-action@f27be6b65a4652f08a2ba3cff79114829b588967 # v1.0.252
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           show_full_output: true
@@ -388,11 +392,11 @@ jobs:
     timeout-minutes: 15
     if: ${{ (github.event_name == 'pull_request_review_comment' || github.event_name == 'pull_request_review') && !endsWith(github.event.sender.login, '[bot]') }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 1
 
-      - uses: anthropics/claude-code-action@v1
+      - uses: anthropics/claude-code-action@f27be6b65a4652f08a2ba3cff79114829b588967 # v1.0.252
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           show_full_output: true

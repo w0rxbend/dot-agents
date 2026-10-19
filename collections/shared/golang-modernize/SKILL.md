@@ -1,6 +1,6 @@
 ---
 name: golang-modernize
-description: "Modernize Golang code to use recent language features, standard library improvements, and idiomatic patterns. Use when reviewing Go code with old-style patterns, when encountering a deprecation warning, or when the user asks for modernization, a Go version upgrade (e.g. to Go 1.27), or a CI/tooling refresh. Not for structural refactors, extracting functions, or moving code between packages (→ See `samber/cc-skills-golang@golang-refactoring` skill)."
+description: "Adopt newer Go language or library features when compatible with the module's declared Go version and consumers. Use for an intentional modernization; preserve behavior and avoid unrelated toolchain upgrades."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -39,7 +39,7 @@ This skill helps you continuously modernize Go codebases by replacing outdated p
 
 **Scope**: This skill covers roughly the last 3 years of Go releases — from the oldest to the newest row in the Go Version Changelogs table below, updated each Go release. Projects targeting an older `go.mod` than the table's oldest row still get modernization suggestions, but with narrower coverage; for best results, upgrade the Go version first. Some older modernizations (e.g., `any` instead of `interface{}`, `errors.Is`/`errors.As`, `strings.Cut`) are included because they are still commonly missed, but many pre-1.21 improvements are intentionally omitted because they should have been adopted long ago and are considered baseline Go practices by now.
 
-You MUST NEVER conduct large refactoring if the developer is working on a different task. But TRY TO CONVINCE your human it would improve the code quality.
+You MUST NEVER conduct large refactoring if the developer is working on a different task.
 
 ## Workflow
 
@@ -107,7 +107,7 @@ For CI tooling, govulncheck, PGO, golangci-lint v2, and AI-powered modernization
 | `reflect.SliceHeader`, `StringHeader` | `unsafe.Slice`, `unsafe.String` | Go 1.21 |
 | `reflect.PtrTo` | `reflect.PointerTo` | Go 1.22 |
 | `runtime.GOROOT()` | `go env GOROOT` | Go 1.24 |
-| `runtime.SetFinalizer` | `runtime.AddCleanup` | Go 1.24 |
+| `runtime.SetFinalizer` (not deprecated; docs say new code should consider `AddCleanup`) | prefer `runtime.AddCleanup` | Go 1.24 |
 | `crypto/cipher.NewOFB`, `NewCFB*` | AEAD modes or `NewCTR` | Go 1.24 |
 | `golang.org/x/crypto/sha3` | `crypto/sha3` | Go 1.24 |
 | `golang.org/x/crypto/hkdf` | `crypto/hkdf` | Go 1.24 |

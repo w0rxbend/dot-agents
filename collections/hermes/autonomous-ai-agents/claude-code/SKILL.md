@@ -17,7 +17,7 @@ Delegate coding tasks to [Claude Code](https://code.claude.com/docs/en/cli-refer
 
 ## Prerequisites
 
-- **Install:** `npm install -g @anthropic-ai/claude-code`
+- **Install:** follow the official install docs (native installer); `claude install [target]` installs or switches the native build once a `claude` binary exists. `npm install -g @anthropic-ai/claude-code` is the legacy route.
 - **Auth:** run `claude` once to log in (browser OAuth for Pro/Max, or set `ANTHROPIC_API_KEY`)
 - **Console auth:** `claude auth login --console` for API key billing
 - **SSO auth:** `claude auth login --sso` for Enterprise
@@ -80,14 +80,14 @@ terminal(command="tmux send-keys -t claude-work '/exit' Enter")
 
 ## PTY Dialog Handling (CRITICAL for Interactive Mode)
 
-Claude Code presents up to two confirmation dialogs on first launch. You MUST handle these via tmux send-keys:
+Prefer the supported non-interactive print mode for a bounded coding task when existing authentication and task authorization are sufficient. If interactive mode is needed, inspect each dialog before answering it; first-launch prompts are decisions about the actual workspace and action, not generic startup keystrokes.
 
 ### Dialog 1: Workspace Trust (first visit to a directory)
 ```
 ❯ 1. Yes, I trust this folder    ← DEFAULT (just press Enter)
   2. No, exit
 ```
-**Handling:** `tmux send-keys -t <session> Enter` — default selection is correct.
+**Handling:** Capture the pane and verify the named workspace is the repository/worktree selected for the authorized task. Established authorization can support that workspace choice; do not grant trust to an unexpected directory, submodule, or downloaded tree merely because Yes is the default. Resolve a genuine scope mismatch before continuing.
 
 ### Dialog 2: Individual Permission Prompts (normal flow)
 
@@ -107,8 +107,10 @@ A narrower opt-in than the full bypass is `--permission-mode acceptEdits`: file 
 # Default launch — keep permission prompts enabled
 terminal(command="tmux send-keys -t claude-work 'claude \"your task\"' Enter")
 
-# Handle trust dialog (Enter for default "Yes")
-terminal(command="sleep 4 && tmux send-keys -t claude-work Enter")
+# Inspect startup state; do not send timed Enter keystrokes
+terminal(command="tmux capture-pane -t claude-work -p -S -60")
+# If a trust dialog names the expected authorized workspace, answer that dialog.
+# Verify the pane again before submitting the task.
 
 # Now wait for Claude to work
 terminal(command="sleep 15 && tmux capture-pane -t claude-work -p -S -60")
@@ -118,12 +120,12 @@ terminal(command="sleep 15 && tmux capture-pane -t claude-work -p -S -60")
 
 ### Opt-in: --dangerously-skip-permissions (isolated environments only)
 
-This disables permission prompts for the whole run — grants filesystem, shell, and network access with no prompts. Acceptable only in a throwaway worktree or isolated container.
+This disables permission prompts for the whole run. Use it only when the selected workflow authorizes that execution mode and the host policy permits it. A throwaway worktree isolates Git changes; it does not restrict filesystem, shell, credentials, or network access. Use an environment with the actual task boundaries rather than treating a worktree as a sandbox.
 ```
 ❯ 1. No, exit                    ← DEFAULT (safe choice)
   2. Yes, I accept
 ```
-To accept: `tmux send-keys -t <session> Down && sleep 0.3 && tmux send-keys -t <session> Enter`
+Read the displayed choice and verify it matches the already-selected execution mode before answering. Do not enable the bypass just to clear a dialog or continue a stalled run.
 
 ## CLI Subcommands
 
@@ -140,7 +142,7 @@ To accept: `tmux send-keys -t <session> Down && sleep 0.3 && tmux send-keys -t <
 | `claude mcp add <name> -- <cmd>` | Add an MCP server |
 | `claude mcp list` | List configured MCP servers |
 | `claude mcp remove <name>` | Remove an MCP server |
-| `claude agents` | List configured agents |
+| `claude agents` | Manage background agents |
 | `claude doctor` | Run health checks on installation and auto-updater |
 | `claude update` / `claude upgrade` | Update Claude Code to latest version |
 | `claude remote-control` | Start server to control Claude from claude.ai or mobile app |
@@ -285,7 +287,7 @@ Automatically falls back to the specified model when the default is overloaded (
 |------|--------|
 | `--dangerously-skip-permissions` | Opt-in only: disables ALL permission prompts (file writes, bash, network). Throwaway worktree / isolated container only — see "Opt-in" above |
 | `--allow-dangerously-skip-permissions` | Enable bypass as an *option* without enabling it by default |
-| `--permission-mode <mode>` | `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, `bypassPermissions` |
+| `--permission-mode <mode>` | Choices vary by version; check `claude --help` (2.1.x: `manual`, `acceptEdits`, `plan`, `auto`, `dontAsk`, `bypassPermissions`; older builds used `default` instead of `manual`) |
 | `--allowedTools <tools...>` | Whitelist specific tools (comma or space-separated) |
 | `--disallowedTools <tools...>` | Blacklist specific tools |
 | `--tools <tools...>` | Override built-in tool set (`""` = none, `"default"` = all, or tool names) |
@@ -364,9 +366,9 @@ mcp__<server>__<tool>   # Specific MCP tool
 ### Memory Files (CLAUDE.md) Hierarchy
 1. **Global:** `~/.claude/CLAUDE.md` — applies to all projects
 2. **Project:** `./CLAUDE.md` — project-specific context (git-tracked)
-3. **Local:** `.claude/CLAUDE.local.md` — personal project overrides (gitignored)
+3. **Local:** `./CLAUDE.local.md` (project root) — personal project overrides (gitignored)
 
-Use the `#` prefix in interactive mode to quickly add to memory: `# Always use 2-space indentation`.
+Use `/memory` in interactive mode to open and edit memory files.
 
 ## Interactive Session: Slash Commands
 
@@ -425,10 +427,14 @@ Run the deploy pipeline:
 Usage: `/deploy production` — `$ARGUMENTS` is replaced with the user's input.
 
 ### Skills (Natural Language Invocation)
-Unlike slash commands (manually invoked), skills in `.claude/skills/` are markdown guides that Claude invokes automatically via natural language when the task matches:
+Unlike slash commands (manually invoked), skills are directories under `.claude/skills/<name>/` (or `~/.claude/skills/<name>/`) containing a `SKILL.md` with `name` and `description` frontmatter. Claude invokes them automatically when the task matches the description:
 
 ```markdown
-# .claude/skills/database-migration.md
+# .claude/skills/database-migration/SKILL.md
+---
+name: database-migration
+description: Create or modify Alembic database migrations. Use when a schema change needs a migration.
+---
 When asked to create or modify database migrations:
 1. Use Alembic for migration generation
 2. Always create a rollback function
@@ -469,7 +475,6 @@ When asked to create or modify database migrations:
 |--------|--------|
 | `!` | Execute bash directly, bypassing AI (e.g., `!npm test`). Use `!` alone to toggle shell mode. |
 | `@` | Reference files/directories with autocomplete (e.g., `@./src/api/`) |
-| `#` | Quick add to CLAUDE.md memory (e.g., `# Use 2-space indentation`) |
 | `/` | Slash commands |
 
 ### Pro Tip: "ultrathink"
@@ -486,7 +491,9 @@ terminal(command="cd /path/to/repo && git diff main...feature-branch | claude -p
 ```
 terminal(command="tmux new-session -d -s review -x 140 -y 40")
 terminal(command="tmux send-keys -t review 'cd /path/to/repo && claude -w pr-review' Enter")
-terminal(command="sleep 5 && tmux send-keys -t review Enter")  # Trust dialog
+terminal(command="sleep 5 && tmux capture-pane -t review -p -S -30")  # Read the trust dialog first
+# Only if it names /path/to/repo (or its pr-review worktree): accept it
+terminal(command="tmux send-keys -t review Enter")
 terminal(command="sleep 2 && tmux send-keys -t review 'Review all changes vs main. Check for bugs, security issues, race conditions, and missing tests.' Enter")
 terminal(command="sleep 30 && tmux capture-pane -t review -p -S -60")
 ```
@@ -600,12 +607,12 @@ Configure in `.claude/settings.json` (project) or `~/.claude/settings.json` (glo
 {
   "hooks": {
     "PostToolUse": [{
-      "matcher": "Write(*.py)",
-      "hooks": [{"type": "command", "command": "ruff check --fix $CLAUDE_FILE_PATHS"}]
+      "matcher": "Write|Edit",
+      "hooks": [{"type": "command", "command": "f=$(jq -r '.tool_input.file_path // empty'); case \"$f\" in *.py) ruff check --fix \"$f\";; esac"}]
     }],
     "PreToolUse": [{
       "matcher": "Bash",
-      "hooks": [{"type": "command", "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'rm -rf'; then echo 'Blocked!' && exit 2; fi"}]
+      "hooks": [{"type": "command", "command": "if jq -r '.tool_input.command' | grep -q 'rm -rf'; then echo 'Blocked!' >&2; exit 2; fi"}]
     }],
     "Stop": [{
       "hooks": [{"type": "command", "command": "echo 'Claude finished a response' >> ~/.hermes/cache/scratch/claude-activity.log"}]
@@ -614,7 +621,9 @@ Configure in `.claude/settings.json` (project) or `~/.claude/settings.json` (glo
 }
 ```
 
-### All 8 Hook Types
+### Common Hook Events
+The event list grows between releases; see the [hooks reference](https://code.claude.com/docs/en/hooks) for the current set.
+
 | Hook | When it fires | Common use |
 |------|--------------|------------|
 | `UserPromptSubmit` | Before Claude processes a user prompt | Input validation, logging |
@@ -626,19 +635,15 @@ Configure in `.claude/settings.json` (project) or `~/.claude/settings.json` (glo
 | `PreCompact` | Before context memory is cleared | Backup session transcripts |
 | `SessionStart` | When a session begins | Load dev context (e.g., `git status`) |
 
-### Hook Environment Variables
-| Variable | Content |
-|----------|---------|
-| `CLAUDE_PROJECT_DIR` | Current project path |
-| `CLAUDE_FILE_PATHS` | Files being modified |
-| `CLAUDE_TOOL_INPUT` | Tool parameters as JSON |
+### Hook Input
+Hooks receive a JSON object on **stdin** (e.g. `tool_name`, `tool_input`, `session_id`, `cwd`); parse it with `jq`. `CLAUDE_PROJECT_DIR` is set in the environment. There are no `CLAUDE_FILE_PATHS` / `CLAUDE_TOOL_INPUT` variables. Exit code 2 from a `PreToolUse` hook blocks the call and feeds stderr back to Claude.
 
 ### Security Hook Examples
 ```json
 {
   "PreToolUse": [{
     "matcher": "Bash",
-    "hooks": [{"type": "command", "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE 'rm -rf|git push.*--force|:(){ :|:& };:'; then echo 'Dangerous command blocked!' && exit 2; fi"}]
+    "hooks": [{"type": "command", "command": "if jq -r '.tool_input.command' | grep -qE 'rm -rf|git push.*--force|:\\(\\)\\{ :\\|:& \\};:'; then echo 'Dangerous command blocked!' >&2; exit 2; fi"}]
   }]
 }
 ```
@@ -648,22 +653,20 @@ Configure in `.claude/settings.json` (project) or `~/.claude/settings.json` (glo
 Add external tool servers for databases, APIs, and services:
 
 ```
-# GitHub integration
-terminal(command="claude mcp add -s user github -- npx @modelcontextprotocol/server-github", timeout=30)
+# GitHub integration (GitHub's official remote MCP server; token from the environment)
+terminal(command="claude mcp add -s user --transport http github https://api.githubcopilot.com/mcp/ -H \"Authorization: Bearer $GITHUB_PAT\"", timeout=30)
 
-# PostgreSQL queries
-terminal(command="claude mcp add -s local postgres -- npx @anthropic-ai/server-postgres --connection-string postgresql://localhost/mydb", timeout=30)
-
-# Puppeteer for web testing
-terminal(command="claude mcp add puppeteer -- npx @anthropic-ai/server-puppeteer", timeout=30)
+# Any stdio server: claude mcp add <name> -- <command> [args...]
+terminal(command="claude mcp add -s local <name> -- <server-command> <args>", timeout=30)
 ```
+Pick servers from their maintainers' docs (e.g. github/github-mcp-server); check that an npm package exists (`npm view <pkg>`) before adding it.
 
 ### MCP Scopes
 | Flag | Scope | Storage |
 |------|-------|---------|
 | `-s user` | Global (all projects) | `~/.claude.json` |
-| `-s local` | This project (personal) | `.claude/settings.local.json` (gitignored) |
-| `-s project` | This project (team-shared) | `.claude/settings.json` (git-tracked) |
+| `-s local` (default) | This project (personal) | `~/.claude.json`, under the project's entry |
+| `-s project` | This project (team-shared) | `.mcp.json` at the project root (git-tracked) |
 
 ### MCP in Print/CI Mode
 ```
@@ -695,10 +698,7 @@ Look for these indicators:
 - `ctrl+o to expand` = tool output was truncated (can be expanded interactively)
 
 ### Context Window Health
-Use `/context` in interactive mode to see a colored grid of context usage. Key thresholds:
-- **< 70%** — Normal operation, full precision
-- **70-85%** — Precision starts dropping, consider `/compact`
-- **> 85%** — Hallucination risk spikes significantly, use `/compact` or `/clear`
+Use `/context` in interactive mode to see a colored grid of context usage. As the window fills, long sessions get less reliable; run `/compact` (or `/clear` for an unrelated task) well before it is full.
 
 ## Environment Variables
 
@@ -720,9 +720,9 @@ Use `/context` in interactive mode to see a colored grid of context usage. Key t
 5. **Use `--allowedTools`** to restrict to only what's needed (e.g., `Read` only for reviews).
 6. **Use `/compact`** in interactive sessions when context gets large.
 7. **Pipe input** instead of having Claude read files when you just need analysis of known content.
-8. **Use `--model haiku`** for simple tasks (cheaper) and `--model opus` for complex multi-step work.
-9. **Use `--fallback-model haiku`** in print mode to gracefully handle model overload.
-10. **Start new sessions for distinct tasks** — sessions last 5 hours; fresh context is more efficient.
+8. Preserve the user's selected model or the CLI's configured default. Set `--model` only for an explicitly chosen available model; task complexity alone does not require overriding it.
+9. Use `--fallback-model` only when a fallback is part of the chosen workflow and its alias is supported by the installed CLI.
+10. **Start new sessions for distinct tasks** — fresh context is more efficient.
 11. **Use `--no-session-persistence`** in CI to avoid accumulating saved sessions on disk.
 
 ## Pitfalls & Gotchas
@@ -731,14 +731,14 @@ Use `/context` in interactive mode to see a colored grid of context usage. Key t
 2. **The `--dangerously-skip-permissions` warning dialog defaults to "No, exit"** — that default is the safe answer; only send Down then Enter when you deliberately opted into the bypass in an isolated environment. Print mode (`-p`) skips the dialog entirely.
 3. **`--max-budget-usd` minimum is ~$0.05** — system prompt cache creation alone costs this much. Setting lower will error immediately.
 4. **`--max-turns` is print-mode only** — ignored in interactive sessions.
-5. **Claude may use `python` instead of `python`** — on systems without a `python` symlink, Claude's bash commands will fail on first try but it self-corrects.
+5. **Claude may use `python` instead of `python3`** — on systems without a `python` symlink, Claude's bash commands will fail on first try but it self-corrects.
 6. **Session resumption requires same directory** — `--continue` finds the most recent session for the current working directory.
 7. **`--json-schema` needs enough `--max-turns`** — Claude must read files before producing structured output, which takes multiple turns.
 8. **Trust dialog only appears once per directory** — first-time only, then cached.
 9. **Background tmux sessions persist** — always clean up with `tmux kill-session -t <name>` when done.
 10. **Slash commands (like `/commit`) only work in interactive mode** — in `-p` mode, describe the task in natural language instead.
 11. **`--bare` skips OAuth** — requires `ANTHROPIC_API_KEY` env var or an `apiKeyHelper` in settings.
-12. **Context degradation is real** — AI output quality measurably degrades above 70% context window usage. Monitor with `/context` and proactively `/compact`.
+12. **Context degradation is real** — output quality tends to drop as the context window fills. Monitor with `/context` and proactively `/compact`.
 
 ## Rules for Hermes Agents
 

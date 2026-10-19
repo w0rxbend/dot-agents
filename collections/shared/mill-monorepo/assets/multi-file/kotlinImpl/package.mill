@@ -1,0 +1,8 @@
+package build.kotlinImpl
+import mill.*, kotlinlib.*
+
+object `package` extends KotlinModule, build.JvmConventions {
+  def kotlinVersion = "2.2.20"
+  def kotlincOptions = Seq("-jvm-target", "21")
+  def moduleDeps = Seq(build.api)
+}

@@ -1,6 +1,6 @@
 ---
 name: operating-kubernetes
-description: Operating production Kubernetes clusters effectively with resource management, advanced scheduling, networking, storage, security hardening, and autoscaling. Use when deploying workloads to Kubernetes, configuring cluster resources, implementing security policies, or troubleshooting operational issues.
+description: "Run workloads on Kubernetes - requests/limits and QoS, scheduling (affinity, taints, topology spread), NetworkPolicy and Gateway API, storage classes, RBAC and Pod Security, HPA/KEDA autoscaling and pod troubleshooting. Use when deploying or debugging workloads on a cluster; use kubernetes-hardening for a security review and implementing-gitops for delivery."
 ---
 
 # Kubernetes Operations
@@ -207,7 +207,7 @@ spec:
 **Gateway API (Modern):**
 - Role-oriented design (cluster ops vs. app devs)
 - More expressive (HTTPRoute, TCPRoute, TLSRoute)
-- Recommended for new applications (GA in Kubernetes 1.29+)
+- Recommended for new applications. Installed as CRDs and versioned separately from Kubernetes: Gateway API v1.0+ made GatewayClass/Gateway/HTTPRoute GA; TCPRoute and TLSRoute are still in the experimental channel
 
 ```yaml
 # Gateway API example
@@ -373,8 +373,13 @@ spec:
   - type: rabbitmq
     metadata:
       queueName: tasks
-      queueLength: "10"  # Scale up when >10 messages
+      mode: QueueLength   # not the deprecated queueLength field
+      value: "10"         # Scale up when >10 messages per replica
+    authenticationRef:
+      name: rabbitmq-auth # TriggerAuthentication reading the AMQP host from a Secret
 ```
+
+Full manifest including the `TriggerAuthentication`: `examples/manifests/keda-rabbitmq.yaml`.
 
 ### Autoscaling Decision Matrix
 
@@ -410,7 +415,7 @@ kubectl logs <pod-name> --previous  # Check previous crash
 # Common causes:
 # - Application crash: Fix code or configuration
 # - Missing environment variables: Add to deployment
-# - Liveness probe failing: Increase initialDelaySeconds
+# - Liveness probe failing on slow start: add a startupProbe (keep liveness strict)
 # - OOMKilled: Increase memory limit or fix leak
 ```
 
@@ -426,9 +431,9 @@ kubectl describe pod <pod-name>
 
 **Service Not Accessible:**
 ```bash
-kubectl get endpoints <service-name>  # Should list pod IPs
+kubectl get endpointslices -l kubernetes.io/service-name=<service-name>  # Should list pod IPs
 
-# If endpoints empty:
+# If no endpoints are listed:
 # - Service selector doesn't match pod labels
 # - Pods aren't ready (readiness probe failing)
 # - Check NetworkPolicies blocking traffic
@@ -450,7 +455,6 @@ For systematic troubleshooting playbooks including networking and storage issues
 ### Examples
 - **examples/manifests/** - Copy-paste ready YAML manifests
 - **examples/python/** - Automation scripts (audit, cost analysis, validation)
-- **examples/go/** - Operator development examples
 
 ### Tools
 - **scripts/validate-resources.sh** - Audit pods without resource limits
@@ -459,17 +463,17 @@ For systematic troubleshooting playbooks including networking and storage issues
 
 ## Related Skills
 
-- **building-ci-pipelines** - Deploy to Kubernetes from CI/CD (kubectl apply, Helm, GitOps)
-- **observability** - Monitor clusters and workloads (Prometheus, Grafana, tracing)
-- **secret-management** - Secure secrets in Kubernetes (External Secrets, Sealed Secrets)
-- **testing-strategies** - Test manifests and deployments (Kubeval, Conftest, Kind)
-- **infrastructure-as-code** - Provision Kubernetes clusters (Terraform, Cluster API)
-- **gitops-workflows** - Declarative cluster management (Flux, ArgoCD)
+- **kubernetes-hardening** - Cluster and workload security (PSA, RBAC, admission, audit)
+- **implementing-gitops** - Declarative delivery with Argo CD or Flux
+- **building-ci-pipelines** - Build and test images before they reach the cluster
+- **implementing-observability** - Monitor clusters and workloads (Prometheus, Grafana, tracing)
+- **hashicorp-vault** - External secrets source for workloads
+- **pulumi-stacks** - Provision clusters per environment as code
 
 ## Best Practices Summary
 
 **Resource Management:**
-- Always set CPU/memory requests and limits
+- Always set CPU and memory requests and a memory limit; CPU limits are optional (they cause CFS throttling) - set them where you need hard isolation or a namespace policy requires them
 - Use VPA for automated rightsizing
 - Implement resource quotas per namespace
 - Monitor actual usage vs. requests

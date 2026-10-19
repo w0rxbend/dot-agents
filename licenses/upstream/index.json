@@ -117,5 +117,67 @@
     "sha": "52d381453350f117984c53da6da08219614f33f9",
     "html_url": "https://github.com/render-oss/skills/blob/main/LICENSE",
     "file": "licenses/upstream/render-oss--skills.txt"
+  },
+  "ciembor/agent-rules-books": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "cd8d62d37497c0bd8d4124e895648850d4ca815a",
+    "html_url": "https://github.com/ciembor/agent-rules-books/blob/main/LICENSE",
+    "file": "licenses/upstream/ciembor--agent-rules-books.txt"
+  },
+  "dykyi-roman/awesome-claude-code": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "93bd56e5ad1581244cd864197df74d0e91ebc295",
+    "html_url": "https://github.com/dykyi-roman/awesome-claude-code/blob/master/LICENSE",
+    "file": "licenses/upstream/dykyi-roman--awesome-claude-code.txt"
+  },
+  "VirtusLab/scala-skill": {
+    "spdx": "LicenseRef-No-Redistribution-Grant",
+    "distribution": "external",
+    "sha": "51eb40a55fa1c2a4c99f2980830d28bbea4a2ac7",
+    "html_url": "https://github.com/VirtusLab/scala-skill",
+    "reason": "No repository LICENSE or redistribution grant found; install directly from source."
+  },
+  "pixijs/pixijs-skills": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "7bd20dd44922561abb41143b986141b5154386a1",
+    "html_url": "https://github.com/pixijs/pixijs-skills/blob/83760c6f53462ca9cecd68055041f5a8c94758ce/LICENSE",
+    "file": "licenses/upstream/pixijs--pixijs-skills.txt",
+    "upstream_ref": "83760c6f53462ca9cecd68055041f5a8c94758ce"
+  },
+  "local/private-repository-context": {
+    "spdx": "LicenseRef-Private-Local",
+    "distribution": "external",
+    "reason": "Locally authored private-repository context; excluded from public exports."
+  },
+  "mattpocock/skills": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "f1dd2c09108dde1a5f56097cee8461b3ea834499",
+    "html_url": "https://github.com/mattpocock/skills/blob/main/LICENSE",
+    "file": "licenses/upstream/mattpocock--skills.txt"
+  },
+  "DietrichGebert/ponytail": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "715d483338cea4365f0d91a27799cf61226d6bcf",
+    "html_url": "https://github.com/DietrichGebert/ponytail/blob/main/LICENSE",
+    "file": "licenses/upstream/DietrichGebert--ponytail.txt"
+  },
+  "ayghri/i-have-adhd": {
+    "spdx": "MIT",
+    "path": "LICENSE",
+    "sha": "19db5f1b0ca65e277c158bd4c4263139ccfd859c",
+    "html_url": "https://github.com/ayghri/i-have-adhd/blob/main/LICENSE",
+    "file": "licenses/upstream/ayghri--i-have-adhd.txt"
+  },
+  "0xsarwagya/ontoly": {
+    "spdx": "AGPL-3.0",
+    "path": "LICENSE",
+    "sha": "be3f7b28e564e7dd05eaf59d64adba1a4065ac0e",
+    "html_url": "https://github.com/0xsarwagya/ontoly/blob/main/LICENSE",
+    "file": "licenses/upstream/0xsarwagya--ontoly.txt"
   }
 }

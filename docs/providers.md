@@ -30,3 +30,21 @@ use the provider's native discovery rather than assuming a local link enables it
 
 Official discovery details: [Codex skills](https://learn.chatgpt.com/docs/build-skills),
 [Claude Code and synced skills](https://code.claude.com/docs/en/skills).
+
+## VirtusLab Scala Stack
+
+The official [direct-style-scala skill](https://github.com/VirtusLab/scala-skill) has no
+verified redistribution grant. Restore it directly with `python3 scripts/install_vss.py`,
+then `./install.sh --include-local` (add `--agents all` to target every agent).
+The source lives outside managed agent directories to avoid replacing it with a self-link.
+The pinned installer adds [the user's Mill preference](../overlays/direct-style-scala/preferences.md);
+see [the full setup and research guide](mill-skills.md).
+
+## Local private repository context
+
+`worxbend-private-repository-context` is generated from an authorized local repository
+review and remains external. A clone contains its generator, not private names or
+observations. Recreate it with `scripts/review_repositories.py --include-private`
+and `scripts/build_private_profile.py`, keeping evidence outside the public clone.
+Then `./install.sh --agents all --include-local` links the local source. See
+[the complete commands and privacy boundaries](repository-skills.md#private-context-on-another-machine).

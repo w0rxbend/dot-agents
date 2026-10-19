@@ -1,6 +1,6 @@
 ---
 name: architecting-security
-description: Design comprehensive security architectures using defense-in-depth, zero trust principles, threat modeling (STRIDE, PASTA), and control frameworks (NIST CSF, CIS Controls, ISO 27001). Use when designing security for new systems, auditing existing architectures, or establishing security governance programs.
+description: "Design a security architecture - threat modeling (STRIDE/PASTA), defense in depth, zero trust, cloud account structure and control-framework mapping (NIST CSF, CIS Controls, ISO 27001). Use when designing security for a new system or reviewing an existing architecture; use security-hardening to implement infrastructure controls and security-and-hardening for application code."
 ---
 
 # Security Architecture
@@ -401,15 +401,15 @@ Use this table to map risks to appropriate control frameworks:
 
 Security architecture provides the strategic foundation for tactical security implementations:
 
-- **`infrastructure-as-code`:** Implement security architecture as code (secure defaults, hardening)
-- **`kubernetes-operations`:** Apply K8s security architecture (RBAC, Pod Security, Network Policies)
-- **`secret-management`:** Architect secrets management (KMS, Vault, rotation strategies)
-- **`building-ci-pipelines`:** Secure CI/CD architecture (SAST/DAST integration, artifact signing)
-- **`configuring-firewalls`:** Implement network perimeter layer of defense-in-depth
-- **`vulnerability-management`:** Integrate vulnerability scanning into security architecture
-- **`auth-security`:** Implement IAM layer details (MFA, RBAC/ABAC, session management)
-- **`siem-logging`:** Implement security monitoring architecture (SIEM, log aggregation)
-- **`compliance-frameworks`:** Map security architecture to compliance requirements
+- **`security-hardening`:** Implement the infrastructure layers (OS, container, cloud, network, database)
+- **`security-and-hardening`:** Application-code controls at trust boundaries
+- **`kubernetes-hardening`:** Apply K8s security architecture (PSA, RBAC, NetworkPolicy, admission)
+- **`hashicorp-vault`:** Secrets management (dynamic secrets, PKI, rotation)
+- **`architecting-networks`:** Network segmentation and perimeter design
+- **`building-ci-pipelines`:** Secure CI/CD architecture (scanning stages, artifact signing, SLSA)
+- **`dependency-scanning`:** Vulnerability and SBOM scanning
+- **`audit-logging`:** Security monitoring and SIEM integration
+- **`implementing-compliance`:** Map security architecture to compliance requirements
 
 ## Common Security Architecture Patterns
 
@@ -488,9 +488,6 @@ Continuously monitor and enforce security configurations across cloud environmen
 - `examples/architectures/zero-trust-network.md` - Zero trust network design
 
 **Scripts:**
-- `scripts/threat-model-template.py` - Generate STRIDE threat model templates
-- `scripts/control-gap-analysis.sh` - Compare current controls against frameworks
-- `scripts/sbom-generate.sh` - Generate SBOM in CycloneDX format
 - `scripts/security-checklist.sh` - Automated security architecture checklist
 
 ## Summary
@@ -498,3 +495,4 @@ Continuously monitor and enforce security configurations across cloud environmen
 Security architecture requires strategic planning across multiple layers, from physical security to security operations. Implement defense-in-depth for comprehensive protection, adopt zero trust principles for modern cloud environments, use threat modeling to identify risks proactively, and map controls to frameworks for compliance and completeness.
 
 Start with risk assessment to understand threats, select appropriate architecture approach (zero trust for greenfield, hybrid for brownfield), implement layered controls, and continuously monitor and improve security posture.
+

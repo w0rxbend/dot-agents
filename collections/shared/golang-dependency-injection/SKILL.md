@@ -1,6 +1,6 @@
 ---
 name: golang-dependency-injection
-description: "Comprehensive guide for dependency injection (DI) in Golang. Covers why DI matters (testability, loose coupling, separation of concerns, lifecycle management), manual constructor injection, and DI library comparison (google/wire, uber-go/dig, uber-go/fx, samber/do). Use this skill when designing service architecture, setting up dependency injection, refactoring tightly coupled code, managing singletons or service factories, or when the user asks about inversion of control, service containers, or wiring dependencies in Go. For a specific DI library, → See `samber/cc-skills-golang@golang-google-wire`, `samber/cc-skills-golang@golang-uber-dig`, `samber/cc-skills-golang@golang-uber-fx`, or `samber/cc-skills-golang@golang-samber-do` skills."
+description: "Choose and apply Go dependency injection from manual constructors to containers and lifecycle frameworks. Use when composition or lifecycle requirements justify DI; do not add a framework to a small project by default."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -19,9 +19,7 @@ paths:
   - "**/*.go"
 ---
 
-**Persona:** You are a Go software architect. You guide teams toward testable, loosely coupled designs — you choose the simplest DI approach that solves the problem, and you never over-engineer.
-
-**Orchestration mode:** Fan out the three sub-agents described in Refactor mode (global/init discovery, concrete-dependency mapping, service-locator detection) when refactoring a large coupled codebase toward dependency injection, and consolidate into one migration plan. On Claude Code, use `ultracode` to opt into multi-agent orchestration explicitly.
+**Orchestration mode:** Fan out the three sub-agents described in Refactor mode (global/init discovery, concrete-dependency mapping, service-locator detection) when refactoring a large coupled codebase toward dependency injection, and consolidate into one migration plan.
 
 **Modes:**
 
@@ -124,7 +122,7 @@ Go has three main approaches to DI libraries:
 | Criteria | Manual | google/wire | uber-go/dig + fx | samber/do |
 | --- | --- | --- | --- | --- |
 | **Project size** | Small (< 10 services) | Medium-Large | Large | Any size |
-| **Type safety** | Compile-time | Compile-time (codegen) | Runtime (reflection) | Compile-time (generics) |
+| **Type safety** | Compile-time | Compile-time (codegen) | Runtime (reflection) | Typed via generics; graph resolved at runtime |
 | **Code generation** | None | Required (`wire_gen.go`) | None | None |
 | **Reflection** | None | None | Yes | None |
 | **API style** | N/A | Provider sets + build tags | Struct tags + decorators | Simple, generic functions |
@@ -141,7 +139,7 @@ Go has three main approaches to DI libraries:
 
 ### Quick Comparison: Wiring Style
 
-The same graph — `Config -> Database -> UserStore -> UserService -> API` — wired by hand and by a container. The contrast is what the wiring code encodes: an ordered call sequence you maintain, versus a set of providers the container orders for you.
+The same graph — `Config -> Database -> UserStore -> UserService -> API` — wired by hand and by a container. The contrast is what the wiring code encodes: an ordered call sequence you maintain, versus a set of providers the container resolves for you at runtime. samber/do does not use reflection-based autowiring, but it does not check the graph at compile time either: a missing provider is reported when `Invoke` runs.
 
 ```go
 // Manual — you own the order; adding a dependency means editing every call site downstream
@@ -153,15 +151,17 @@ api := NewAPI(svc)
 api.Run()
 // No shutdown hooks, health checks, or lazy loading — add them yourself
 
-// Container (samber/do) — order is derived from the constructor signatures
+// Container (samber/do v2) — each provider resolves its own dependencies with
+// do.MustInvoke, so registration order does not matter; services are built lazily
 i := do.New()
-do.Provide(i, NewConfig)
-do.Provide(i, NewDatabase)
-do.Provide(i, NewUserStore)
-do.Provide(i, NewUserService)
-api := do.MustInvoke[*API](i)
-api.Run()
+do.Provide(i, func(i do.Injector) (*Config, error) { return NewConfig(), nil })
+do.Provide(i, func(i do.Injector) (*Database, error) { return NewDatabase(do.MustInvoke[*Config](i)), nil })
+do.Provide(i, func(i do.Injector) (*UserStore, error) { return NewUserStore(do.MustInvoke[*Database](i)), nil })
+do.Provide(i, func(i do.Injector) (*UserService, error) { return NewUserService(do.MustInvoke[*UserStore](i)), nil })
+do.Provide(i, func(i do.Injector) (*API, error) { return NewAPI(do.MustInvoke[*UserService](i)), nil })
 defer i.Shutdown() // shutdown and health checks come from the container
+api := do.MustInvoke[*API](i) // a missing provider surfaces here, at runtime (MustInvoke panics)
+api.Run()
 ```
 
 google/wire and uber-go/fx express the same graph differently: wire generates the manual sequence above at build time from a `wire.Build` provider list (cleanup via `func()` returned by providers, no lifecycle hooks), while fx registers providers with `fx.Provide` and resolves them by reflection at runtime with `OnStart`/`OnStop` hooks. Full wiring examples for each: [google/wire](./references/google-wire.md), [uber-go/dig + fx](./references/uber-dig-fx.md), [samber/do](./references/samber-do.md).
@@ -203,21 +203,17 @@ func TestUserService_GetUser(t *testing.T) {
 
 ### Testing with samber/do — Clone and Override
 
-Container cloning creates an isolated copy where you override only the services you need to mock:
+Container cloning (samber/do v2) creates an isolated copy of the production container where you override only the services you need to mock:
 
 ```go
 func TestUserService_WithDo(t *testing.T) {
-    // Create a test injector with mock implementation
-    testInjector := do.New()
+    // Clone the production wiring (newInjector returns *do.RootScope),
+    // so the test does not mutate the shared container
+    testInjector := newInjector().Clone()
 
-    // Provide the mock UserStore interface
+    // Replace only the boundary you need to mock
     do.OverrideValue[UserStore](testInjector, &MockUserStore{
         users: map[string]*User{"1": {ID: "1", Name: "Alice"}},
-    })
-
-    // Provide other real services as needed
-    do.Provide[*slog.Logger](testInjector, func(i *do.Injector) (*slog.Logger, error) {
-        return slog.Default(), nil
     })
 
     svc := do.MustInvoke[*UserService](testInjector)

@@ -16,10 +16,6 @@
 - Open-source platform for building developer portals
 - Extensible plugin architecture
 
-**Trust Score:** 78.7/100 (Context7)
-**Code Snippets:** 8,876 (extensive documentation)
-**Source Reputation:** High
-
 **Core Features:**
 - Software Catalog: YAML metadata, API for programmatic access
 - Scaffolder: Cookiecutter-style templates, customizable actions
@@ -129,10 +125,6 @@
 - Manage cloud infrastructure via Kubernetes APIs
 - Composition functions for reusable abstractions
 
-**Trust Score:** 67.4/100 (Context7)
-**Code Snippets:** 5,090
-**Source Reputation:** High
-
 **Core Features:**
 - Providers for AWS, Azure, GCP, GitHub, Datadog, and more
 - Compositions: Reusable infrastructure abstractions
@@ -199,7 +191,7 @@
 - Contact for pricing
 - Typically $50-100 per developer/month
 
-### Terraform Cloud (Commercial)
+### HCP Terraform (Commercial, formerly Terraform Cloud)
 
 **Overview:**
 - Managed Terraform service with workspace orchestration
@@ -237,10 +229,6 @@
 - GitOps continuous delivery for Kubernetes
 - Declarative desired state in Git repositories
 - Industry-leading tool for Kubernetes deployments
-
-**Trust Score:** 91.8/100 (HIGHEST of all researched tools)
-**Code Snippets:** 1,237
-**Source Reputation:** High
 
 **Core Features:**
 - Declarative GitOps (Git as single source of truth)
@@ -280,8 +268,6 @@
 **Overview:**
 - GitOps toolkit for Kubernetes
 - Composable controllers for GitOps workflows
-
-**Trust Score:** High (CNCF graduated project)
 
 **Core Features:**
 - Toolkit approach (composable controllers)
@@ -338,7 +324,7 @@
 - Want platform orchestrator backend
 - Budget supports commercial tool
 
-**Choose Terraform Cloud when:**
+**Choose HCP Terraform when:**
 - Already using Terraform extensively
 - Need policy enforcement (Sentinel)
 - Multi-cloud IaC management
@@ -360,7 +346,6 @@
 |---------|-----------|------|------------|-----------|---------|------|
 | **Type** | Portal | Portal | Orchestration | Orchestration | GitOps | GitOps |
 | **License** | Open Source | Commercial | Open Source | Commercial | Open Source | Open Source |
-| **Trust Score** | 78.7/100 | N/A | 67.4/100 | N/A | 91.8/100 | High |
 | **Best For** | Large orgs | Mid-size | Multi-cloud | Complex infra | K8s CD | K8s GitOps |
 | **Time to Value** | 6-12 months | 3-6 months | 3-6 months | 3-6 months | 1-3 months | 1-3 months |
 | **Customization** | Maximum | Good | High | Medium | Good | Good |

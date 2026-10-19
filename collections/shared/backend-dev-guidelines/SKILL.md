@@ -1,17 +1,19 @@
 ---
 name: backend-dev-guidelines
-description: Comprehensive backend development guide for Node.js/Express/TypeScript microservices. Use when creating routes, controllers, services, repositories, middleware, or working with Express APIs, Prisma database access, Sentry error tracking, Zod validation, unifiedConfig, dependency injection, or async patterns. Covers layered architecture (routes → controllers → services → repositories), BaseController pattern, error handling, performance monitoring, testing strategies, and migration from legacy patterns.
+description: "Implement Node.js/Express/TypeScript service routes, validation, data access, and errors using the repository's architecture. The bundled BaseController, Prisma, Zod, and Sentry patterns are examples, not defaults for other backends."
 ---
 
 # Backend Development Guidelines
 
 ## Purpose
 
-Establish consistency and best practices across backend microservices (blog-api, auth-service, notifications-service) using modern Node.js/Express/TypeScript patterns.
+Use the Node.js/Express/TypeScript patterns that match the repository. The referenced BaseController, unifiedConfig, Prisma, Sentry, and Zod arrangements are examples from one service architecture; preserve existing FastAPI, Tapir, Go, and other backend conventions.
+
+The resource files quote code from one sample codebase (paths such as `blog-api/` and `form/`, an `SSOMiddleware` auth client). Treat those names as placeholders: map them to the equivalent service, auth middleware and config module in the current repository instead of creating them.
 
 ## When to Use This Skill
 
-Automatically activates when working on:
+Use for Node.js/Express/TypeScript services when working on:
 - Creating or modifying routes, endpoints, APIs
 - Building controllers, services, repositories
 - Implementing middleware (auth, validation, error handling)
@@ -38,7 +40,7 @@ Automatically activates when working on:
 
 ### New Microservice Checklist
 
-- [ ] Directory structure (see [architecture-overview.md](architecture-overview.md))
+- [ ] Directory structure (see [architecture-overview.md](resources/architecture-overview.md))
 - [ ] instrument.ts for Sentry
 - [ ] unifiedConfig setup
 - [ ] BaseController class
@@ -68,7 +70,7 @@ Database (Prisma)
 
 **Key Principle:** Each layer has ONE responsibility.
 
-See [architecture-overview.md](architecture-overview.md) for complete details.
+See [architecture-overview.md](resources/architecture-overview.md) for complete details.
 
 ---
 
@@ -196,7 +198,7 @@ import * as Sentry from '@sentry/node';
 import { config } from './config/unifiedConfig';
 
 // Middleware
-import { SSOMiddlewareClient } from './middleware/SSOMiddleware';
+import { authMiddleware } from './middleware/auth'; // your project's auth middleware
 import { asyncErrorWrapper } from './middleware/errorBoundary';
 ```
 
@@ -218,8 +220,7 @@ import { asyncErrorWrapper } from './middleware/errorBoundary';
 
 ### Service Templates
 
-**Blog API** (✅ Mature) - Use as template for REST APIs
-**Auth Service** (✅ Mature) - Use as template for authentication patterns
+Use the most mature existing service in the repository as the template for new routes and services. If none exists, start from [complete-examples.md](resources/complete-examples.md).
 
 ---
 
@@ -238,62 +239,62 @@ import { asyncErrorWrapper } from './middleware/errorBoundary';
 
 | Need to... | Read this |
 |------------|-----------|
-| Understand architecture | [architecture-overview.md](architecture-overview.md) |
-| Create routes/controllers | [routing-and-controllers.md](routing-and-controllers.md) |
-| Organize business logic | [services-and-repositories.md](services-and-repositories.md) |
-| Validate input | [validation-patterns.md](validation-patterns.md) |
-| Add error tracking | [sentry-and-monitoring.md](sentry-and-monitoring.md) |
-| Create middleware | [middleware-guide.md](middleware-guide.md) |
-| Database access | [database-patterns.md](database-patterns.md) |
-| Manage config | [configuration.md](configuration.md) |
-| Handle async/errors | [async-and-errors.md](async-and-errors.md) |
-| Write tests | [testing-guide.md](testing-guide.md) |
-| See examples | [complete-examples.md](complete-examples.md) |
+| Understand architecture | [architecture-overview.md](resources/architecture-overview.md) |
+| Create routes/controllers | [routing-and-controllers.md](resources/routing-and-controllers.md) |
+| Organize business logic | [services-and-repositories.md](resources/services-and-repositories.md) |
+| Validate input | [validation-patterns.md](resources/validation-patterns.md) |
+| Add error tracking | [sentry-and-monitoring.md](resources/sentry-and-monitoring.md) |
+| Create middleware | [middleware-guide.md](resources/middleware-guide.md) |
+| Database access | [database-patterns.md](resources/database-patterns.md) |
+| Manage config | [configuration.md](resources/configuration.md) |
+| Handle async/errors | [async-and-errors.md](resources/async-and-errors.md) |
+| Write tests | [testing-guide.md](resources/testing-guide.md) |
+| See examples | [complete-examples.md](resources/complete-examples.md) |
 
 ---
 
 ## Resource Files
 
-### [architecture-overview.md](architecture-overview.md)
+### [architecture-overview.md](resources/architecture-overview.md)
 Layered architecture, request lifecycle, separation of concerns
 
-### [routing-and-controllers.md](routing-and-controllers.md)
+### [routing-and-controllers.md](resources/routing-and-controllers.md)
 Route definitions, BaseController, error handling, examples
 
-### [services-and-repositories.md](services-and-repositories.md)
+### [services-and-repositories.md](resources/services-and-repositories.md)
 Service patterns, DI, repository pattern, caching
 
-### [validation-patterns.md](validation-patterns.md)
+### [validation-patterns.md](resources/validation-patterns.md)
 Zod schemas, validation, DTO pattern
 
-### [sentry-and-monitoring.md](sentry-and-monitoring.md)
+### [sentry-and-monitoring.md](resources/sentry-and-monitoring.md)
 Sentry init, error capture, performance monitoring
 
-### [middleware-guide.md](middleware-guide.md)
+### [middleware-guide.md](resources/middleware-guide.md)
 Auth, audit, error boundaries, AsyncLocalStorage
 
-### [database-patterns.md](database-patterns.md)
+### [database-patterns.md](resources/database-patterns.md)
 PrismaService, repositories, transactions, optimization
 
-### [configuration.md](configuration.md)
+### [configuration.md](resources/configuration.md)
 UnifiedConfig, environment configs, secrets
 
-### [async-and-errors.md](async-and-errors.md)
+### [async-and-errors.md](resources/async-and-errors.md)
 Async patterns, custom errors, asyncErrorWrapper
 
-### [testing-guide.md](testing-guide.md)
+### [testing-guide.md](resources/testing-guide.md)
 Unit/integration tests, mocking, coverage
 
-### [complete-examples.md](complete-examples.md)
+### [complete-examples.md](resources/complete-examples.md)
 Full examples, refactoring guide
 
 ---
 
 ## Related Skills
 
-- **database-verification** - Verify column names and schema consistency
-- **error-tracking** - Sentry integration patterns
-- **skill-developer** - Meta-skill for creating and managing skills
+- **backend-patterns** - Framework-neutral backend patterns (caching, queues, rate limiting)
+- **observability-and-instrumentation** - Logging, metrics, tracing and error tracking
+- **using-relational-databases** - Schema, migrations and ORM usage beyond Prisma basics
 
 ---
 

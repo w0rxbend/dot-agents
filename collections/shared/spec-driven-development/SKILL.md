@@ -1,6 +1,6 @@
 ---
 name: spec-driven-development
-description: Creates specs before coding. Use when starting a new project, feature, or significant change and no specification exists yet. Use when drafting a PRD or requirements document with objectives and scope, or when requirements are unclear, ambiguous, or only exist as a vague idea. Use when a single requirement spans several independently testable capabilities and needs decomposing into a capability map of modules before specifying.
+description: "Write and gate a specification (objective, constraints, boundaries, testable success criteria, capability map for multi-module requests) before building a new project or substantial change. Use when requirements are ambiguous or span several modules; use interview-me to clarify intent first and planning-and-task-breakdown once the spec is approved. Ordinary well-specified edits do not need a spec."
 ---
 
 # Spec-Driven Development
@@ -11,13 +11,12 @@ Write a structured specification before writing any code. The spec is the shared
 
 ## When to Use
 
-- Starting a new project or feature
+- Starting a new project or a substantial feature
 - Requirements are ambiguous or incomplete
-- The change touches multiple files or modules
+- The change spans several modules or services and the boundaries between them are not yet decided
 - You're about to make an architectural decision
-- The task would take more than 30 minutes to implement
 
-**When NOT to use:** Single-line fixes, typo corrections, or changes where requirements are unambiguous and self-contained.
+**When NOT to use:** Single-line fixes, typo corrections, or well-specified edits, even multi-file ones, where the requirements are unambiguous and self-contained.
 
 ## The Gated Workflow
 
@@ -89,7 +88,7 @@ Don't silently fill in ambiguous requirements. The spec's entire purpose is to s
    ```
    Build: npm run build
    Test: npm test -- --coverage
-   Lint: npm run lint --fix
+   Lint: npm run lint -- --fix
    Dev: npm run dev
    ```
 
@@ -173,45 +172,12 @@ This lets you loop, retry, and problem-solve toward a clear goal rather than gue
 2. Ask the human to approve it or request changes.
 3. **STOP YOUR TURN IMMEDIATELY.** Do NOT start Phase 2, invoke `planning-and-task-breakdown`, or write code in this turn. Planning starts only after the human approves the spec in a later turn.
 
-### Phase 2: Plan
+### Phases 2-4: Plan, Tasks, Implement
 
-With the validated spec, generate a technical implementation plan:
+After the human approves the spec (in a later turn):
 
-1. Identify the major components and their dependencies
-2. Determine the implementation order (what must be built first)
-3. Note risks and mitigation strategies
-4. Identify what can be built in parallel vs. what must be sequential
-5. Define verification checkpoints between phases
-
-> Follow `planning-and-task-breakdown` for the dependency-graph mapping and vertical-slicing mechanics behind these steps; it is the canonical source. The bullets above are a lightweight summary; if they ever diverge, `planning-and-task-breakdown` takes precedence.
->
-> **Output convention:** Save the plan to `tasks/plan.md` and record the task list in the task list target defined by `planning-and-task-breakdown` (default `tasks/todo.md`; projects may designate an external tracker instead). Create `tasks/` if it does not exist. Downstream commands (`/build`, etc.) expect these defaults.
-
-The plan should be reviewable: the human should be able to read it and say "yes, that's the right approach" or "no, change X."
-
-### Phase 3: Tasks
-
-Break the plan into discrete, implementable tasks:
-
-- Each task should be completable in a single focused session
-- Each task has explicit acceptance criteria
-- Each task includes a verification step (test, build, manual check)
-- Tasks are ordered by dependency, not by perceived importance
-- No task should require changing more than ~5 files
-
-> Follow `planning-and-task-breakdown` for the full task-sizing and dependency-ordering mechanics; it is the canonical source. The template below is a lightweight inline form; if they ever diverge, `planning-and-task-breakdown` takes precedence.
-
-**Task template:**
-```markdown
-- [ ] Task: [Description]
-  - Acceptance: [What must be true when done]
-  - Verify: [How to confirm — test command, build, manual check]
-  - Files: [Which files will be touched]
-```
-
-### Phase 4: Implement
-
-Execute tasks one at a time following `skills/incremental-implementation/SKILL.md` (`incremental-implementation`) and `skills/test-driven-development/SKILL.md` (`test-driven-development`). Use `skills/context-engineering/SKILL.md` (`context-engineering`) to load the right spec sections and source files at each step rather than flooding the agent with the entire spec.
+1. **Plan and tasks:** follow `planning-and-task-breakdown`. It owns the dependency graph, vertical slicing, task sizing and template, and where the plan and task list are stored (by default `tasks/plan.md` and `tasks/todo.md`, unless the project uses an external tracker). Each of these steps gets its own human review gate.
+2. **Implement:** run the tasks one at a time with `incremental-implementation` and `test-driven-development`. Use `context-engineering` to load only the spec sections and source files the current task needs.
 
 ## Keeping the Spec Alive
 

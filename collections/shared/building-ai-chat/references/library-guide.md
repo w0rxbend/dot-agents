@@ -11,39 +11,37 @@
 
 ## Vercel AI SDK
 
-### Installation & Setup
+The examples in this section target AI SDK 5 and later (`ai@5`+ with `@ai-sdk/react@2`+). They were type-checked against `ai` 5.0 and 7.0. AI SDK 4 code (`useChat` from `ai/react`, `input`/`handleInputChange`/`handleSubmit`, `isLoading`, `message.content`, `toDataStreamResponse`) does not compile against these versions; see the AI SDK migration guides if you are upgrading.
 
-The industry-standard SDK for AI chat interfaces:
+### Installation & Setup
 
 ```bash
 # Core packages
-npm install ai @ai-sdk/react
+npm install ai @ai-sdk/react zod
 
-# Provider-specific packages
-npm install @ai-sdk/openai     # For OpenAI/GPT
-npm install @ai-sdk/anthropic   # For Claude
-npm install @ai-sdk/google      # For Gemini
-npm install @ai-sdk/mistral     # For Mistral
+# One provider package per model vendor you use
+npm install @ai-sdk/openai      # OpenAI
+npm install @ai-sdk/anthropic   # Anthropic
+npm install @ai-sdk/google      # Google
 ```
+
+Pick the model ID from your provider's current model list and pass it through configuration (for example a `CHAT_MODEL` environment variable) rather than hardcoding it in components.
 
 ### Basic Implementation
 
-Complete chat implementation with Vercel AI SDK:
-
 ```tsx
 // app/api/chat/route.ts (Next.js App Router)
+import { streamText, convertToModelMessages, type UIMessage } from 'ai';
 import { openai } from '@ai-sdk/openai';
-import { streamText, convertToUIStream } from 'ai';
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { messages }: { messages: UIMessage[] } = await req.json();
 
   const result = streamText({
-    model: openai('gpt-4-turbo'),
-    messages,
+    model: openai(process.env.CHAT_MODEL!),
     system: 'You are a helpful AI assistant.',
-    temperature: 0.7,
-    maxTokens: 2000,
+    messages: await convertToModelMessages(messages), // UI messages -> model messages
+    maxOutputTokens: 2000,
   });
 
   return result.toUIMessageStreamResponse();
@@ -54,59 +52,56 @@ export async function POST(req: Request) {
 // app/chat/page.tsx (Client Component)
 'use client';
 
+import { useState } from 'react';
 import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
+import { Streamdown } from 'streamdown';
 
 export default function ChatPage() {
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    isLoading,
-    error,
-    reload,
-    stop,
-    append
-  } = useChat({
-    api: '/api/chat',
-    onFinish: (message) => {
-      console.log('Message complete:', message);
-    },
-    onError: (error) => {
-      console.error('Chat error:', error);
-    }
+  const { messages, sendMessage, status, error, regenerate, stop } = useChat({
+    transport: new DefaultChatTransport({ api: '/api/chat' }), // '/api/chat' is the default
+    onFinish: ({ message }) => console.log('Message complete:', message.id),
+    onError: err => console.error('Chat error:', err),
   });
+  const [input, setInput] = useState('');
+  const busy = status === 'submitted' || status === 'streaming';
 
   return (
     <div className="chat-container">
-      {/* Messages */}
       <div className="messages">
         {messages.map(m => (
           <div key={m.id} className={`message ${m.role}`}>
             <div className="role">{m.role}</div>
-            <div className="content">{m.content}</div>
+            {m.parts.map((part, i) =>
+              part.type === 'text' ? <Streamdown key={i}>{part.text}</Streamdown> : null
+            )}
           </div>
         ))}
       </div>
 
-      {/* Error display */}
       {error && (
-        <div className="error">
-          Error: {error.message}
-          <button onClick={reload}>Retry</button>
+        <div className="error" role="alert">
+          Something went wrong.
+          <button onClick={() => regenerate()}>Retry</button>
         </div>
       )}
 
-      {/* Input form */}
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={e => {
+          e.preventDefault();
+          if (!input.trim()) return;
+          sendMessage({ text: input });
+          setInput('');
+        }}
+      >
         <input
           value={input}
-          onChange={handleInputChange}
+          onChange={e => setInput(e.target.value)}
           placeholder="Say something..."
-          disabled={isLoading}
+          disabled={busy}
         />
-        {isLoading ? (
-          <button type="button" onClick={stop}>Stop</button>
+        {busy ? (
+          <button type="button" onClick={() => stop()}>Stop</button>
         ) : (
           <button type="submit">Send</button>
         )}
@@ -116,302 +111,135 @@ export default function ChatPage() {
 }
 ```
 
+Key differences from AI SDK 4: the hook no longer manages the input field (keep it in your own state), you send with `sendMessage({ text })`, loading is `status` (`'submitted' | 'streaming' | 'ready' | 'error'`), retry is `regenerate()`, and message content lives in `message.parts` (text, file, reasoning, tool parts) instead of `message.content`.
+
 ### Advanced Features
 
-#### Tool Calling / Function Calling
+#### Tool Calling
 
 ```tsx
-// API Route with tools
-import { tool } from 'ai';
+// app/api/chat/route.ts
+import { streamText, convertToModelMessages, tool, stepCountIs, type UIMessage } from 'ai';
+import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { messages }: { messages: UIMessage[] } = await req.json();
 
   const result = streamText({
-    model: openai('gpt-4-turbo'),
-    messages,
+    model: openai(process.env.CHAT_MODEL!),
+    messages: await convertToModelMessages(messages),
     tools: {
       weather: tool({
         description: 'Get current weather for a location',
-        parameters: z.object({
+        inputSchema: z.object({
           location: z.string().describe('City name'),
-          unit: z.enum(['celsius', 'fahrenheit']).optional()
+          unit: z.enum(['celsius', 'fahrenheit']).optional(),
         }),
-        execute: async ({ location, unit = 'celsius' }) => {
-          const weather = await fetchWeather(location, unit);
-          return weather;
-        }
+        execute: async ({ location, unit = 'celsius' }) => fetchWeather(location, unit),
       }),
-
-      calculate: tool({
-        description: 'Perform mathematical calculations',
-        parameters: z.object({
-          expression: z.string().describe('Math expression to evaluate')
-        }),
-        execute: async ({ expression }) => {
-          return eval(expression); // Use a safe eval library in production
-        }
-      })
     },
-    toolChoice: 'auto', // or 'required' or specific tool name
+    stopWhen: stepCountIs(5), // allow the model to call tools, then answer
   });
 
   return result.toUIMessageStreamResponse();
 }
 ```
 
-#### Multi-Modal Support (Images)
+Tools are declared with `inputSchema` (AI SDK 4 used `parameters`). Never evaluate model-provided expressions with `eval`; use a real parser or a sandbox.
+
+On the client, a tool call arrives as a part named `tool-<toolName>` with a `state`:
 
 ```tsx
-// Client component with image support
-import { useChat } from '@ai-sdk/react';
-
-function MultiModalChat() {
-  const { messages, input, handleSubmit, handleInputChange } = useChat();
-  const [images, setImages] = useState<string[]>([]);
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImages(prev => [...prev, e.target?.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const sendWithImages = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const messageWithImages = {
-      role: 'user',
-      content: [
-        { type: 'text', text: input },
-        ...images.map(img => ({ type: 'image', image: img }))
-      ]
-    };
-
-    handleSubmit(e, {
-      data: { images }
-    });
-
-    setImages([]);
-  };
-
-  return (
-    <form onSubmit={sendWithImages}>
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={handleImageUpload}
-      />
-      {images.map((img, i) => (
-        <img key={i} src={img} alt="" width="100" />
-      ))}
-      <input
-        value={input}
-        onChange={handleInputChange}
-        placeholder="Describe the images..."
-      />
-      <button type="submit">Send</button>
-    </form>
-  );
-}
+{m.parts.map((part, i) => {
+  switch (part.type) {
+    case 'text':
+      return <Streamdown key={i}>{part.text}</Streamdown>;
+    case 'tool-weather':
+      return (
+        <pre key={i}>
+          {part.state === 'output-available'
+            ? JSON.stringify(part.output, null, 2)
+            : 'Checking weather...'}
+        </pre>
+      );
+    default:
+      return null;
+  }
+})}
 ```
 
-#### Streaming with Metadata
+#### Multi-Modal Input (Images and Files)
+
+`sendMessage` accepts a `FileList` (or `FileUIPart[]`) next to the text; files come back as `file` parts:
 
 ```tsx
-// Stream with additional metadata
+const [files, setFiles] = useState<FileList | undefined>();
+
+<form
+  onSubmit={e => {
+    e.preventDefault();
+    sendMessage({ text: input, files });
+    setInput('');
+    setFiles(undefined);
+  }}
+>
+  <input type="file" accept="image/*" multiple onChange={e => setFiles(e.target.files ?? undefined)} />
+  ...
+</form>
+
+// Rendering
+case 'file':
+  return part.mediaType.startsWith('image/') ? (
+    <img key={i} src={part.url} alt={part.filename ?? 'attachment'} />
+  ) : null;
+```
+
+The model must support the media type; validate type and size on the server as well.
+
+#### Usage and Metadata
+
+```tsx
 const result = streamText({
-  model: openai('gpt-4-turbo'),
-  messages,
-  onChunk: ({ chunk, delta }) => {
-    // Process each chunk
-    console.log('Token:', delta);
+  model: openai(process.env.CHAT_MODEL!),
+  messages: await convertToModelMessages(messages),
+  onFinish: ({ usage, finishReason }) => {
+    console.log('Tokens used:', usage, 'finish reason:', finishReason);
   },
-  onFinish: ({ text, usage, finishReason }) => {
-    // Log usage stats
-    console.log('Tokens used:', usage);
-    console.log('Finish reason:', finishReason);
-  },
-  // Experimental features
-  experimental_streamData: true,
 });
 
-// Add data to stream
-result.dataStream.write({ progress: 50 });
-result.dataStream.write({ status: 'Processing images...' });
+// Attach metadata (for example token totals) to the streamed assistant message
+return result.toUIMessageStreamResponse({
+  messageMetadata: ({ part }) =>
+    part.type === 'finish' ? { totalTokens: part.totalUsage.totalTokens } : undefined,
+});
 ```
+
+On the client the value is available as `message.metadata`.
 
 ## Streamdown
 
 ### Installation
 
-Optimized markdown renderer for streaming AI responses:
+[Streamdown](https://github.com/vercel/streamdown) is a drop-in `react-markdown` replacement built for streaming AI output: it tolerates unterminated markdown (open code fences, bold, tables) while tokens arrive. The npm package is `streamdown`:
 
 ```bash
-npm install @vercel/streamdown
+npm install streamdown
 ```
+
+Follow the Streamdown README for the Tailwind/CSS setup its default styles need.
 
 ### Basic Usage
 
 ```tsx
-import { Streamdown } from '@vercel/streamdown';
+import { Streamdown } from 'streamdown';
 
-function StreamingMessage({ content, isStreaming }) {
-  return (
-    <Streamdown
-      // Handle incomplete markdown gracefully
-      allowDangerousHtml={false}
-
-      // Custom components for rendering
-      components={{
-        // Override default renderers
-        h1: ({ children }) => (
-          <h1 className="text-2xl font-bold">{children}</h1>
-        ),
-
-        code: ({ inline, className, children }) => {
-          const language = className?.replace('language-', '');
-
-          if (inline) {
-            return <code className="inline-code">{children}</code>;
-          }
-
-          return (
-            <SyntaxHighlighter language={language} style={dark}>
-              {children}
-            </SyntaxHighlighter>
-          );
-        },
-
-        a: ({ href, children }) => (
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="link"
-          >
-            {children}
-            <ExternalLinkIcon />
-          </a>
-        )
-      }}
-
-      // Streaming-specific options
-      options={{
-        // Buffer incomplete blocks
-        bufferIncompleteTables: true,
-        bufferIncompleteCodeblocks: true,
-        bufferIncompleteLists: true,
-
-        // Performance optimizations
-        memoize: true,
-        throttle: 50, // ms
-      }}
-    >
-      {content}
-    </Streamdown>
-  );
+function StreamingMessage({ text }: { text: string }) {
+  return <Streamdown>{text}</Streamdown>;
 }
 ```
 
-### Advanced Streamdown Patterns
-
-```tsx
-// Custom Streamdown wrapper with all features
-function EnhancedStreamdown({ content, isStreaming }) {
-  const [processedContent, setProcessedContent] = useState('');
-
-  useEffect(() => {
-    if (isStreaming) {
-      // Pre-process content for better streaming
-      const processed = preprocessMarkdown(content);
-      setProcessedContent(processed);
-    } else {
-      setProcessedContent(content);
-    }
-  }, [content, isStreaming]);
-
-  const preprocessMarkdown = (text: string) => {
-    let processed = text;
-
-    // Close unclosed code blocks
-    const codeBlockCount = (processed.match(/```/g) || []).length;
-    if (codeBlockCount % 2 !== 0) {
-      processed += '\n```';
-    }
-
-    // Close unclosed bold/italic
-    const boldCount = (processed.match(/\*\*/g) || []).length;
-    if (boldCount % 2 !== 0) {
-      processed += '**';
-    }
-
-    // Close unclosed lists
-    if (processed.match(/^[\*\-\+]\s/m) && !processed.endsWith('\n')) {
-      processed += '\n';
-    }
-
-    return processed;
-  };
-
-  return (
-    <Streamdown
-      components={{
-        // Math rendering
-        math: ({ value }) => (
-          <KaTeX math={value} displayMode={false} />
-        ),
-
-        // Tables with sorting
-        table: ({ children }) => (
-          <div className="table-wrapper">
-            <table className="data-table">{children}</table>
-          </div>
-        ),
-
-        // Copy button for code blocks
-        pre: ({ children }) => (
-          <div className="code-block-wrapper">
-            <button
-              className="copy-button"
-              onClick={() => copyCode(children)}
-            >
-              <CopyIcon />
-            </button>
-            <pre>{children}</pre>
-          </div>
-        ),
-
-        // Collapsible details
-        details: ({ children, summary }) => (
-          <details className="expandable">
-            <summary>{summary}</summary>
-            {children}
-          </details>
-        )
-      }}
-
-      plugins={[
-        // GitHub Flavored Markdown
-        remarkGfm,
-        // Math support
-        remarkMath,
-        // Emoji support
-        remarkEmoji,
-      ]}
-    >
-      {processedContent}
-    </Streamdown>
-  );
-}
-```
+Streamdown accepts a `components` prop to override element renderers (as in `react-markdown`) and ships code highlighting, math and Mermaid support. Prop names change between releases, so check the README of the installed version before configuring them. It renders through React rather than injecting HTML strings, and hardens links and images by default; if you instead convert markdown to an HTML string yourself, sanitize that HTML output (see `../SKILL.md`, Security Considerations).
 
 ## React Integration
 
@@ -581,6 +409,8 @@ const ChatComponents = {
 
 ### Other AI SDKs
 
+Model IDs below are read from configuration; use a current model ID from the provider's model list.
+
 ```tsx
 // OpenAI SDK (direct)
 import OpenAI from 'openai';
@@ -591,7 +421,7 @@ const openai = new OpenAI({
 
 async function chat(messages: any[]) {
   const stream = await openai.chat.completions.create({
-    model: 'gpt-4-turbo',
+    model: process.env.OPENAI_MODEL!,
     messages,
     stream: true,
   });
@@ -610,7 +440,7 @@ const anthropic = new Anthropic({
 
 async function claudeChat(prompt: string) {
   const message = await anthropic.messages.create({
-    model: 'claude-3-opus-20240229',
+    model: process.env.ANTHROPIC_MODEL!,
     max_tokens: 1000,
     messages: [{ role: 'user', content: prompt }],
   });
@@ -623,7 +453,7 @@ import { ChatOpenAI } from '@langchain/openai';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 
 const model = new ChatOpenAI({
-  modelName: 'gpt-4-turbo',
+  model: process.env.OPENAI_MODEL!,
   temperature: 0.7,
   streaming: true,
 });
@@ -678,81 +508,75 @@ function MarkdownRenderer({ content }) {
 ```tsx
 // app/api/chat/route.ts (App Router)
 import { openai } from '@ai-sdk/openai';
-import { streamText } from 'ai';
+import { streamText, convertToModelMessages, type UIMessage } from 'ai';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
-  // Auth check
+  // Auth check (getSession / checkRateLimit are your app's own helpers)
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { messages } = await req.json();
+  const { messages }: { messages: UIMessage[] } = await req.json();
 
   // Rate limiting
   const rateLimitResult = await checkRateLimit(session.userId);
   if (!rateLimitResult.allowed) {
-    return NextResponse.json(
-      { error: 'Rate limit exceeded' },
-      { status: 429 }
-    );
+    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
   }
 
-  try {
-    const result = streamText({
-      model: openai('gpt-4-turbo'),
-      messages,
-      // User-specific context
-      system: `User preferences: ${session.preferences}`,
-    });
+  const result = streamText({
+    model: openai(process.env.CHAT_MODEL!),
+    messages: await convertToModelMessages(messages),
+    // Treat stored preferences as data, not instructions
+    system: 'You are a helpful assistant.',
+  });
 
-    return result.toUIMessageStreamResponse();
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+  // Streaming errors surface on the client via useChat's `error`; mask details here
+  return result.toUIMessageStreamResponse({
+    onError: () => 'Something went wrong. Please try again.',
+  });
 }
 ```
 
 ### Vue.js Integration
 
+`@ai-sdk/vue` (AI SDK 5+) exposes a `Chat` class with the same `sendMessage` / `status` / `parts` model as the React hook:
+
 ```vue
 <!-- ChatComponent.vue -->
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { Chat } from '@ai-sdk/vue';
+
+const chat = new Chat({});
+const input = ref('');
+const busy = computed(() => chat.status === 'submitted' || chat.status === 'streaming');
+
+function send() {
+  if (!input.value.trim()) return;
+  chat.sendMessage({ text: input.value });
+  input.value = '';
+}
+</script>
+
 <template>
   <div class="chat">
-    <div v-for="message in messages" :key="message.id" :class="`message ${message.role}`">
-      <div class="content" v-html="renderMarkdown(message.content)" />
+    <div v-for="message in chat.messages" :key="message.id" :class="`message ${message.role}`">
+      <template v-for="(part, i) in message.parts" :key="i">
+        <!-- Text interpolation is escaped. If you render markdown to HTML for v-html,
+             sanitize the generated HTML with DOMPurify first. -->
+        <p v-if="part.type === 'text'">{{ part.text }}</p>
+      </template>
     </div>
 
-    <form @submit.prevent="sendMessage">
-      <input
-        v-model="input"
-        :disabled="isLoading"
-        placeholder="Type a message..."
-      />
-      <button type="submit" :disabled="isLoading">
-        {{ isLoading ? 'Sending...' : 'Send' }}
-      </button>
+    <form @submit.prevent="send">
+      <input v-model="input" :disabled="busy" placeholder="Type a message..." />
+      <button type="submit" :disabled="busy">{{ busy ? 'Sending...' : 'Send' }}</button>
     </form>
   </div>
 </template>
-
-<script setup>
-import { ref } from 'vue';
-import { useChat } from '@ai-sdk/vue';
-import { marked } from 'marked';
-
-const { messages, input, isLoading, sendMessage } = useChat({
-  api: '/api/chat'
-});
-
-const renderMarkdown = (content) => {
-  return marked(content);
-};
-</script>
 ```
 
 ## Production Deployment
@@ -829,7 +653,7 @@ const productionConfig = {
 
 ## Best Practices Summary
 
-1. **Use Vercel AI SDK** - Industry standard, best DX
+1. **Use a maintained chat SDK** - e.g. the Vercel AI SDK; pin its major version
 2. **Implement streaming properly** - Use Streamdown for markdown
 3. **Handle errors gracefully** - Network, rate limits, etc.
 4. **Optimize performance** - Memoization, debouncing, virtual scroll

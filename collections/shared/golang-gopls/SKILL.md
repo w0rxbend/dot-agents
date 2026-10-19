@@ -1,6 +1,6 @@
 ---
 name: golang-gopls
-description: "Golang semantic code intelligence via `gopls`, the official Go language server — go-to-definition, find references, call/implementation hierarchy, workspace symbol search, package API discovery, diagnostics, safe rename, refactors (extract/inline/fill/rewrite code actions), formatting, and generated tests. Reaches an agent via gopls's own MCP server (`go_*` tools), Claude Code's native `LSP` tool, or the `gopls` CLI. Use when navigating or refactoring Go code — jumping to a definition, finding call sites before a rename, understanding a file's or package's dependencies, running diagnostics after an edit, or extracting/inlining/renaming. Not for the published ecosystem — packages not in your `go.mod`, versions, licenses, importers — → See `samber/cc-skills-golang@golang-pkg-go-dev` skill (`godig`). Not for a whole-tree vulnerability audit → See `samber/cc-skills-golang@golang-security` skill (`govulncheck`)."
+description: "Navigate, diagnose, or safely refactor the local Go workspace with gopls through available LSP, MCP, or CLI operations. Uses the resolved build; published package discovery belongs to golang-pkg-go-dev."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness. Requires the gopls binary (go install golang.org/x/tools/gopls@latest) v0.20+ on PATH.
@@ -57,7 +57,7 @@ Full mapping of every capability to its CLI command, MCP tool, and native `LSP` 
 
 These Read/Edit workflows encode the order that avoids redundant queries and half-applied edits — treat every step as required, not optional, even to save a round trip.
 
-- **Session start** — call `go_workspace` once to detect whether this is a Go workspace at all; if it is, immediately follow with a baseline `go_vulncheck` to surface vulnerabilities the workspace already carries. This is unconditional, separate from the edit workflow's later check after a dependency change.
+- **Session start** — call `go_workspace` once to detect whether this is a Go workspace at all; if it is and the task will edit code or touch dependencies, follow with a baseline `go_vulncheck` to surface vulnerabilities the workspace already carries (it needs network access and analyzes the whole workspace, so skip it for read-only questions). This is separate from the edit workflow's later check after a dependency change.
 
 **Read workflow** (understand before touching anything):
 

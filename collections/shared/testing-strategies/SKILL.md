@@ -1,6 +1,6 @@
 ---
 name: testing-strategies
-description: Strategic guidance for choosing and implementing testing approaches across the test pyramid. Use when building comprehensive test suites that balance unit, integration, E2E, and contract testing for optimal speed and confidence. Covers multi-language patterns (TypeScript, Python, Go, Rust) and modern best practices including property-based testing, test data management, and CI/CD integration.
+description: Choose the mix of unit, integration, E2E and contract tests for a project, plus mocking, test-data, coverage/mutation and CI test-stage strategy (TypeScript, Python, Go, Rust). Use when designing, auditing or rebalancing a test suite; for writing one test first use test-driven-development and for browser runtime checks use browser-testing-with-devtools.
 ---
 
 # Testing Strategies
@@ -16,7 +16,7 @@ This skill provides strategic frameworks for:
 - **Test Data Management**: Choose appropriate strategies (fixtures, factories, property-based testing)
 - **CI/CD Integration**: Integrate tests into automated pipelines with optimal execution patterns
 
-Testing is foundational to reliable software. With microservices architectures and continuous delivery becoming standard in 2025, strategic testing across multiple levels is more critical than ever.
+Testing is foundational to reliable software. With microservices and continuous delivery, a deliberate mix of test levels matters more than raw test count.
 
 ## When to Use This Skill
 
@@ -52,7 +52,7 @@ The testing pyramid guides test distribution for optimal speed and confidence:
 
 **Key Principle**: More unit tests (fast, isolated), fewer E2E tests (slow, comprehensive). Integration tests bridge the gap.
 
-### Modern Adaptations (2025)
+### Modern Adaptations
 
 **Microservices Adjustment**:
 - Add contract testing layer between unit and integration
@@ -124,7 +124,7 @@ For comprehensive decision frameworks, see `references/decision-tree.md`.
 - Validation logic
 
 **Recommended Tools**:
-- **TypeScript/JavaScript**: Vitest (primary, 10x faster than Jest), Jest (legacy)
+- **TypeScript/JavaScript**: Vitest (primary; fast, native ESM/TypeScript), Jest (common in existing codebases)
 - **Python**: pytest (industry standard)
 - **Go**: testing package (stdlib) + testify (assertions)
 - **Rust**: cargo test (stdlib)
@@ -311,7 +311,29 @@ See `examples/python/` for complete working examples.
 
 ### Go and Rust
 
-See `examples/go/` and `examples/rust/` for complete working examples in these languages.
+```go
+// Go: table-driven test, run with `go test ./...`
+func TestAdd(t *testing.T) {
+    cases := []struct{ a, b, want int }{{1, 2, 3}, {-1, 1, 0}}
+    for _, c := range cases {
+        if got := Add(c.a, c.b); got != c.want {
+            t.Errorf("Add(%d, %d) = %d, want %d", c.a, c.b, got, c.want)
+        }
+    }
+}
+```
+
+```rust
+// Rust: unit tests live next to the code, run with `cargo test`
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn adds() { assert_eq!(add(1, 2), 3); }
+}
+```
+
+Fixture, factory and property-based examples for Go and Rust (including `proptest`) are in `references/test-data-strategies.md`.
 
 ## Coverage and Quality Metrics
 
@@ -367,7 +389,7 @@ For detailed coverage strategies, see `references/coverage-strategies.md`.
 ### Parallel Execution
 
 **Speed Up Test Runs**:
-- **Vitest**: `vitest --threads`
+- **Vitest**: parallel across files by default; tune with `--pool=threads` or `--pool=forks` and `--maxWorkers`
 - **Playwright**: `playwright test --workers=4`
 - **pytest**: `pytest -n auto` (requires pytest-xdist)
 - **Go**: `go test -parallel 4`
@@ -403,7 +425,9 @@ For detailed coverage strategies, see `references/coverage-strategies.md`.
 
 **For form testing**: See `building-forms` skill for form-specific validation and submission testing patterns.
 
-**For API testing**: See `api-patterns` skill for REST/GraphQL endpoint testing and contract validation.
+**For API testing**: See the `designing-apis` skill for the REST/GraphQL contract that endpoint and contract tests verify.
+
+**For test-first work on one behavior**: See `test-driven-development`. For stakeholder-readable acceptance scenarios, see `bdd-principles`.
 
 **For CI/CD pipelines**: See `building-ci-pipelines` skill for test automation, parallel execution, and coverage reporting.
 
@@ -425,11 +449,10 @@ For deeper exploration of specific topics:
 
 ## Working Examples
 
-Complete, runnable code examples are available in the `examples/` directory:
+Code examples in the `examples/` directory:
 
-- **`examples/typescript/`** - Vitest unit/integration, Playwright E2E, MSW mocking, fast-check property tests
-- **`examples/python/`** - pytest unit/integration, fixtures, Playwright E2E, hypothesis property tests
-- **`examples/go/`** - stdlib testing, testify assertions, httptest integration
-- **`examples/rust/`** - cargo test unit tests, proptest property tests, integration patterns
+- **`examples/typescript/vitest-unit.test.ts`** and **`examples/typescript/vitest-integration.test.ts`** - Vitest unit and integration tests
+- **`examples/python/pytest_unit_test.py`** - pytest unit tests and fixtures
+- **`examples/python/hypothesis_property_test.py`** - Hypothesis property-based tests
 
-All examples include dependencies, usage instructions, and error handling.
+For Go and Rust, see the "Go and Rust" quick-start section above and `references/test-data-strategies.md`.

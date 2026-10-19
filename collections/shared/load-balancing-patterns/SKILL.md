@@ -1,6 +1,6 @@
 ---
 name: load-balancing-patterns
-description: When distributing traffic across multiple servers or regions, use this skill to select and configure the appropriate load balancing solution (L4/L7, cloud-managed, self-managed, or Kubernetes ingress) with proper health checks and session management.
+description: When distributing traffic across multiple servers or regions, use this skill to select and configure the appropriate load balancing solution (L4/L7, cloud-managed, self-managed, or Kubernetes ingress) with proper health checks and session management. For day-to-day Gateway API and ingress operations inside a cluster, use operating-kubernetes.
 ---
 
 # Load Balancing Patterns
@@ -123,6 +123,9 @@ server {
     listen 80;
     location / {
         proxy_pass http://backend;
+        # Required for upstream keepalive to take effect
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
@@ -186,14 +189,17 @@ For complete Traefik patterns, see `references/traefik-patterns.md`.
 
 | Controller | Best For | Strengths |
 |------------|----------|-----------|
-| **NGINX Ingress** (F5) | General purpose | Stability, wide adoption, mature features |
+| **Gateway API** (Envoy Gateway, Cilium, Istio, Traefik, NGINX Gateway Fabric, cloud implementations) | New clusters, default choice | Standard, portable, role-oriented API; successor to Ingress |
+| **F5 NGINX Ingress Controller** | Existing NGINX shops | Commercial support (NGINX Plus); uses `nginx.org/*` annotations |
 | **Traefik** | Dynamic environments | Easy configuration, service discovery |
 | **HAProxy Ingress** | High performance | Advanced L7 routing, reliability |
 | **Envoy** (Contour/Gateway) | Service mesh | Rich L7 features, extensibility |
 | **Kong** | API-heavy apps | JWT auth, rate limiting, plugins |
 | **Cloud Provider** | Single-cloud | Native cloud integration |
 
-### Basic Ingress Example
+The community `ingress-nginx` controller (the one that reads `nginx.ingress.kubernetes.io/*` annotations) has been retired by Kubernetes SIG Network, with best-effort maintenance ending in March 2026. F5's NGINX Ingress Controller is a different product with different annotations (`nginx.org/*`). For new clusters, prefer the Gateway API. See `examples/kubernetes/gateway-api.yaml`.
+
+### Basic Ingress Example (community ingress-nginx, for existing clusters)
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -345,7 +351,7 @@ Complete working examples available in `examples/` directory:
 - `examples/traefik/kubernetes-ingress.yaml` - Traefik IngressRoute
 
 **Kubernetes:**
-- `examples/kubernetes/nginx-ingress.yaml` - NGINX Ingress with TLS
+- `examples/kubernetes/nginx-ingress.yaml` - community ingress-nginx with TLS (retired controller; existing clusters only)
 - `examples/kubernetes/traefik-ingress.yaml` - Traefik IngressRoute
 - `examples/kubernetes/gateway-api.yaml` - Gateway API configuration
 
@@ -378,7 +384,7 @@ Enable access logs for request/response details, client IPs, response times, err
 
 **Symptoms:** Servers rapidly transition between healthy/unhealthy
 **Causes:** Health check timeout too short, threshold too low, network instability
-**Solutions:** Increase interval and timeout, implement hysteresis, use deep health checks
+**Solutions:** Increase interval and timeout, implement hysteresis (separate healthy/unhealthy thresholds), keep LB checks shallow (process readiness, not shared dependencies like the database, which would mark every backend down at once)
 
 ### Session Loss After Failover
 
@@ -389,14 +395,12 @@ Enable access logs for request/response details, client IPs, response times, err
 ## Integration Points
 
 **Related Skills:**
-- `infrastructure-as-code` - Deploy load balancers via Terraform/Pulumi
-- `kubernetes-operations` - Ingress controllers for K8s traffic management
-- `network-architecture` - Network design and topology for load balancing
+- `pulumi-stacks` / `pulumi-components` - Deploy load balancers as infrastructure code
+- `operating-kubernetes` - Gateway API and ingress operations for K8s traffic management
+- `architecting-networks` - Network design and topology for load balancing
 - `deploying-applications` - Blue-green and canary deployments via load balancers
-- `observability` - Load balancer metrics, access logs, distributed tracing
+- `observability-and-instrumentation` - Load balancer metrics, access logs, distributed tracing
 - `security-hardening` - WAF integration, rate limiting, DDoS protection
-- `service-mesh` - Envoy as both ingress and service mesh proxy
-- `implementing-tls` - TLS termination and certificate management
 
 ## Quick Reference
 
@@ -406,7 +410,7 @@ Enable access logs for request/response details, client IPs, response times, err
 |----------|---------------------|
 | HTTP web app (AWS) | ALB |
 | Non-HTTP protocol (AWS) | NLB |
-| Kubernetes HTTP ingress | NGINX Ingress or Traefik |
+| Kubernetes HTTP ingress | Gateway API implementation (Envoy Gateway, Cilium, Traefik, NGINX Gateway Fabric) |
 | Maximum performance | HAProxy |
 | Service mesh | Envoy |
 | Docker Swarm | Traefik |

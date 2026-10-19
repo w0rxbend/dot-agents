@@ -620,7 +620,7 @@ helm install external-secrets external-secrets/external-secrets \
 
 **SecretStore (AWS Secrets Manager):**
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1  # current ESO releases; older releases only serve v1beta1
 kind: SecretStore
 metadata:
   name: aws-secrets
@@ -638,7 +638,7 @@ spec:
 
 **ExternalSecret:**
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1  # current ESO releases; older releases only serve v1beta1
 kind: ExternalSecret
 metadata:
   name: db-credentials

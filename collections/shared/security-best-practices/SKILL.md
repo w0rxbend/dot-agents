@@ -1,6 +1,6 @@
 ---
 name: "security-best-practices"
-description: "Perform language and framework specific security best-practice reviews and suggest improvements. Trigger only when the user explicitly requests security best practices guidance, a security review/report, or secure-by-default coding help. Trigger only for supported languages (python, javascript/typescript, go). Do not trigger for general code review, debugging, or non-security tasks."
+description: "Language- and framework-specific secure-coding review using bundled per-framework references for Python (Django/Flask/FastAPI), JavaScript/TypeScript (Express/Next.js/React/Vue/jQuery) and Go. Use only when a security review or secure-by-default guidance is explicitly requested for one of those stacks; use security-and-hardening for framework-agnostic boundary hardening."
 author: openai
 ---
 
@@ -84,4 +84,4 @@ When assigning an ID for some resource, which will then be used by exposed to th
 
 ### A note on TLS
 
-While TLS is important for production deployments, most development work will be with TLS disabled or provided by some out-of-scope TLS proxy. Due to this, be very careful about not reporting lack of TLS as a security issue. Also be very careful around use of "secure" cookies. They should only be set if the application will actually be over TLS. If they are set on non-TLS applications (such as when deployed for local dev or testing), it will break the application. You can provide a env or other flag to override setting secure as a way to keep it off until on a TLS production deployment. Additionally avoid recommending HSTS. It is dangerous to use without full understanding of the lasting impacts (can cause major outages and user lockout) and it is not generally recommended for the scope of projects being reviewed by codex.
+This policy matches the `security-and-hardening` skill. Production must be HTTPS-only with `Secure` session cookies and HSTS. Local development and tests often run without TLS, or behind a TLS proxy that is out of scope, so do not report missing TLS in a local-dev configuration as a vulnerability. In that setup, setting `Secure` cookies breaks login. Handle it with an environment flag that turns `Secure` off only in local/dev and leaves it on by default. Roll out HSTS deliberately. Start with a short `max-age` (for example 300 seconds), confirm that every subdomain serves HTTPS, and then raise the value. Add `includeSubDomains` or `preload` only once you understand that they are hard to undo, because a misconfigured long-lived HSTS policy can lock users out for its whole duration.

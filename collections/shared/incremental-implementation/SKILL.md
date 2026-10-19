@@ -1,6 +1,6 @@
 ---
 name: incremental-implementation
-description: Delivers changes incrementally in thin, verifiable slices. Use when implementing any feature or change that touches more than one file, or when picking up the next task from a plan. Use when rolling a change out behind a feature flag, when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+description: Deliver a feature or change in thin, verifiable slices (implement, test, verify, then expand), optionally behind a feature flag. Use when a change is too large to write and verify in one step - roughly more than ~100 lines or several components - or when executing the next task from a plan; small, well-scoped edits do not need it.
 ---
 
 # Incremental Implementation
@@ -11,12 +11,12 @@ Build in thin vertical slices — implement one piece, test it, verify it, then 
 
 ## When to Use
 
-- Implementing any multi-file change
+- Implementing a change that spans several components or would exceed ~100 lines before the first test
 - Building a new feature from a task breakdown
 - Refactoring existing code
 - Any time you're tempted to write more than ~100 lines before testing
 
-**When NOT to use:** Single-file, single-function changes where the scope is already minimal.
+**When NOT to use:** Small, well-scoped edits that can be written and verified in one step, even if they touch a few files (a rename, a config tweak, a one-function fix plus its test).
 
 ## The Increment Cycle
 
@@ -38,7 +38,7 @@ For each slice:
 1. **Implement** the smallest complete piece of functionality
 2. **Test** — run the test suite (or write a test if none exists)
 3. **Verify** — confirm the slice works as expected (tests pass, build succeeds, manual check)
-4. **Commit** -- save your progress with a descriptive message (see `git-workflow-and-versioning` for atomic commit guidance)
+4. **Commit** -- if the user or repository policy allows you to commit, save your progress with a descriptive message (see `git-workflow-and-versioning` for atomic commit guidance); otherwise leave a clean checkpoint and report it, and do not commit or push without asking
 5. **Move to the next slice** — carry forward, don't restart
 
 ## Slicing Strategies
@@ -206,7 +206,7 @@ After each increment, verify with the repository's own commands (see the test-dr
 - [ ] Type checking passes, where the stack has one (`npx tsc --noEmit`, `mypy`, ...)
 - [ ] Linting passes (the repository's lint command)
 - [ ] The new functionality works as expected
-- [ ] The change is committed with a descriptive message
+- [ ] The change is committed with a descriptive message (when committing is authorized), or ready as a reviewable checkpoint
 
 **Note:** Run each verification command after a change that could affect it. After a successful run, don't repeat the same command unless the code has changed since — re-running on unchanged code adds no information.
 
@@ -238,12 +238,12 @@ After each increment, verify with the repository's own commands (see the test-dr
 
 After completing all increments for a task:
 
-- [ ] Each increment was individually tested and committed
+- [ ] Each increment was individually tested (and committed, when committing is authorized)
 - [ ] The full test suite passes
 - [ ] The build is clean
 - [ ] The feature works end-to-end as specified
-- [ ] No uncommitted changes remain
+- [ ] No uncommitted changes remain, or the remaining changes are reported to the user for them to commit
 
 ## See Also
 
-Per-increment verification is the local check. Before declaring a task done, apply the project-wide Definition of Done as the final gate, the standing bar every increment clears regardless of the task. See `../../references/definition-of-done.md`.
+Per-increment verification is the local check. Before declaring a task done, apply the project-wide Definition of Done as the final gate, the standing bar every increment clears regardless of the task. See the task's acceptance criteria and the repository's required checks.

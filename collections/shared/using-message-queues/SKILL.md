@@ -213,22 +213,33 @@ def process_order(self, order_id: str):
         raise Reject(e, requeue=False)
 ```
 
-### Idempotency for Exactly-Once Processing
+### Idempotency (Effectively-Once Processing)
+Claim the key atomically *before* doing the work. A `get` followed later by `setex`
+is check-then-act: two concurrent duplicates both pass the check and both charge.
 ```python
+import json
+
 @app.post("/process")
 async def process_payment(
     payment_data: dict,
-    idempotency_key: str = Header(None)
+    idempotency_key: str = Header(...)
 ):
-    # Check if already processed
-    cached_result = redis_client.get(f"idempotency:{idempotency_key}")
-    if cached_result:
-        return {"status": "already_processed"}
+    key = f"idempotency:{idempotency_key}"
+    # SET NX EX: only one request wins the claim
+    if not redis_client.set(key, "in_progress", nx=True, ex=86400):
+        state = redis_client.get(key)
+        return {"status": "in_progress" if state == b"in_progress" else "already_processed"}
 
-    result = process_payment_logic(payment_data)
-    redis_client.setex(f"idempotency:{idempotency_key}", 86400, result)
+    try:
+        result = process_payment_logic(payment_data)
+    except Exception:
+        redis_client.delete(key)  # release so a retry can run
+        raise
+    redis_client.set(key, json.dumps(result), ex=86400)
     return {"status": "processed", "result": result}
 ```
+For money movement, also enforce uniqueness in the database or at the payment
+provider (its own idempotency key); Redis alone can lose the claim on failover.
 
 ## Frontend Integration
 
@@ -245,6 +256,9 @@ async def task_status_stream(task_id: str):
                 yield {"event": "progress", "data": task.info.get('progress', 0)}
             elif task.state == 'SUCCESS':
                 yield {"event": "complete", "data": task.result}
+                break
+            elif task.state in ('FAILURE', 'REVOKED'):
+                yield {"event": "error", "data": str(task.result)}
                 break
 
             await asyncio.sleep(0.5)
@@ -318,13 +332,16 @@ async def generate_report(user_id: str):
 def send_email(email: str):
     send_email_service(email)  # Sends twice if retried!
 
-# ✅ GOOD: Idempotent with deduplication
+# ✅ GOOD: Idempotent - claim the key atomically before sending
 @app.task
 def send_email(email: str, idempotency_key: str):
-    if redis.exists(f"sent:{idempotency_key}"):
+    if not redis.set(f"sent:{idempotency_key}", "1", nx=True, ex=86400):
         return "already_sent"
-    send_email_service(email)
-    redis.setex(f"sent:{idempotency_key}", 86400, "1")
+    try:
+        send_email_service(email)
+    except Exception:
+        redis.delete(f"sent:{idempotency_key}")  # allow the retry to send
+        raise
 ```
 
 ### 3. Ignoring Dead Letter Queues
@@ -334,15 +351,16 @@ def send_email(email: str, idempotency_key: str):
 def risky_task(data):
     process(data)  # If all retries fail, data disappears
 
-# ✅ GOOD: DLQ for manual inspection
-@app.task(max_retries=3)
-def risky_task(data):
+# ✅ GOOD: retry with backoff, then DLQ for manual inspection
+@app.task(bind=True, max_retries=3)
+def risky_task(self, data):
     try:
         process(data)
     except Exception as e:
-        if self.request.retries >= 3:
+        if self.request.retries >= self.max_retries:
             send_to_dlq(data, str(e))
-        raise
+            raise
+        raise self.retry(exc=e, countdown=2 ** self.request.retries)
 ```
 
 ### 4. Using Kafka for Request-Reply
@@ -358,19 +376,8 @@ response = await nats.request("user.profile", user_id.encode())
 
 ## Library Recommendations
 
-### Context7 Research
-
-**Confluent Kafka (Python)**
-- Context7 ID: `/confluentinc/confluent-kafka-python`
-- Trust Score: 68.8/100
-- Code Snippets: 192+
-- Production-ready Python Kafka client
-
-**Temporal**
-- Context7 ID: `/websites/temporal_io`
-- Trust Score: 80.9/100
-- Code Snippets: 3,769+
-- Workflow orchestration for durable execution
+- **confluent-kafka (Python):** production Kafka client built on librdkafka
+- **Temporal:** workflow orchestration for durable execution
 
 ### Installation
 
@@ -391,7 +398,7 @@ cargo add rdkafka lapin async-nats redis
 
 **Go:**
 ```bash
-go get github.com/confluentinc/confluent-kafka-go
+go get github.com/confluentinc/confluent-kafka-go/v2
 go get github.com/hibiken/asynq
 go get go.temporal.io/sdk
 ```
@@ -405,7 +412,7 @@ Use scripts for setup automation:
 
 ## Related Skills
 
-- **api-patterns**: API design for async job submission
+- **designing-apis**: API design for async job submission
 - **realtime-sync**: WebSocket/SSE for job status updates
 - **feedback**: Toast notifications for job completion
 - **databases-***: Persistent storage for event logs

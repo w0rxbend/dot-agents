@@ -360,9 +360,11 @@ Ensure source PDFs are accessible:
 
 ### Automated Testing
 ```bash
-# Run accessibility validation
-node scripts/validate_media_accessibility.js
+# axe-core scan of a rendered page (or use @axe-core/playwright inside E2E tests)
+npx @axe-core/cli https://example.com
 ```
+
+Automated scans catch missing alt text, unlabeled controls and some ARIA errors; they cannot judge caption or transcript quality, so keep the manual checks below.
 
 ### Manual Testing
 - Keyboard-only navigation

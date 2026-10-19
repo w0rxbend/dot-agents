@@ -1,6 +1,6 @@
 ---
 name: building-clis
-description: Build professional command-line interfaces in Python, Go, and Rust using modern frameworks like Typer, Cobra, and clap. Use when creating developer tools, automation scripts, or infrastructure management CLIs with robust argument parsing, interactive features, and multi-platform distribution.
+description: Build professional command-line interfaces in Python, Go, and Rust using modern frameworks like Typer, Cobra, and clap. Use when choosing a CLI framework or designing arguments, subcommands, configuration, output, completion and distribution for a developer tool or automation CLI; for Go-specific Cobra/Viper implementation detail prefer golang-cli or golang-spf13-cobra.
 ---
 
 # Building CLIs
@@ -290,27 +290,19 @@ if Confirm::new().with_prompt("Are you sure?").interact()? {
 
 ### Generating Completions
 
-**Python (Typer):**
+**Python (Typer):** every Typer app gets `--install-completion` and `--show-completion` options automatically. To write the script to a file yourself, use Typer's environment variable (note the `source_<shell>` value; Click's `bash_source` form is not accepted by Typer):
 ```bash
-_MYAPP_COMPLETE=bash_source myapp > ~/.myapp-complete.bash
-_MYAPP_COMPLETE=zsh_source myapp > ~/.myapp-complete.zsh
+myapp --install-completion            # detects the current shell
+_MYAPP_COMPLETE=source_bash myapp > ~/.myapp-complete.bash
+_MYAPP_COMPLETE=source_zsh myapp > ~/.myapp-complete.zsh
 ```
 
-**Go (Cobra):**
-```go
-rootCmd.AddCommand(&cobra.Command{
-    Use:   "completion [bash|zsh|fish|powershell]",
-    Args:  cobra.ExactArgs(1),
-    Run: func(cmd *cobra.Command, args []string) {
-        switch args[0] {
-        case "bash":
-            rootCmd.GenBashCompletion(os.Stdout)
-        case "zsh":
-            rootCmd.GenZshCompletion(os.Stdout)
-        }
-    },
-})
+**Go (Cobra):** Cobra adds a `completion` subcommand automatically (bash, zsh, fish, powershell); no code is needed:
+```bash
+myapp completion bash > ~/.myapp-complete.bash
+myapp completion zsh > "${fpath[1]}/_myapp"
 ```
+Set `rootCmd.CompletionOptions.DisableDefaultCmd = true` only if you want to hide it.
 
 **Rust (clap):**
 ```rust
@@ -345,13 +337,24 @@ twine upload dist/*
 ```ruby
 class Myapp < Formula
   desc "My CLI application"
-  url "https://github.com/user/myapp/archive/v1.0.0.tar.gz"
+  homepage "https://github.com/user/myapp"
+  url "https://github.com/user/myapp/archive/refs/tags/v1.0.0.tar.gz"
+  sha256 "<sha256 of the tarball: curl -sL <url> | shasum -a 256>"
+  license "MIT"
+
+  depends_on "go" => :build
 
   def install
-    system "go", "build", "-o", bin/"myapp"
+    system "go", "build", *std_go_args(ldflags: "-s -w")
+  end
+
+  test do
+    assert_match "1.0.0", shell_output("#{bin}/myapp --version")
   end
 end
 ```
+
+In practice GoReleaser can generate and publish this formula (with checksums) to a tap; see [references/distribution.md](references/distribution.md).
 
 ### Rust (Cargo)
 
@@ -422,15 +425,14 @@ See [references/distribution.md](references/distribution.md) for comprehensive p
 - Automated releases via GitHub Actions
 - See [references/distribution.md](references/distribution.md)
 
-**api-patterns:**
+**implementing-api-patterns:**
 - Building API client CLIs
 - Authentication and token management
 - Formatting API responses
 
-**secret-management:**
-- Secure credential storage
-- Environment variable integration
-- Vault/secrets manager integration
+**hashicorp-vault:**
+- Secret storage and dynamic credentials via Vault
+- For local credential storage prefer the OS keychain (e.g. Python `keyring`, Go `github.com/zalando/go-keyring`) over plaintext config files
 
 ## Reference Files
 

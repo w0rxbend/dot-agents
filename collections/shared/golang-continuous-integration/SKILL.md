@@ -1,6 +1,6 @@
 ---
 name: golang-continuous-integration
-description: "GitHub Actions CI/CD pipeline configuration for Golang projects — workflow files for test, lint, SAST, coverage and vulnerability-scan jobs, Dependabot and Renovate config files, GoReleaser release pipelines, Docker build/push, repository security settings, and AI-driven PR review. Use when setting up or improving Go project CI, writing or fixing `.github/workflows/*.yml`, adding a linter or security scanner as a pipeline job, wiring automated dependency-update bots, or adding quality gates. Covers wiring tools into a pipeline, not the analysis they perform: do NOT use for choosing or interpreting security findings (→ See `samber/cc-skills-golang@golang-security` skill) or for choosing, upgrading, or auditing dependency versions (→ See `samber/cc-skills-golang@golang-dependency-management` skill)."
+description: "Configure Go CI tests, lint, caching, coverage, and vulnerability checks with GitHub Actions. Match go.mod/go.work versions and repository commands; deployment and publication require the corresponding request."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -151,7 +151,7 @@ Minor/patch updates are grouped into a single PR. Major updates get individual P
 
 `.github/workflows/dependabot-auto-merge.yml` — see [dependabot-auto-merge.yml](./assets/dependabot-auto-merge.yml)
 
-> **Security warning:** This workflow requires `contents: write` and `pull-requests: write` — these are elevated permissions that allow merging PRs and modifying repository content. The `if: github.actor == 'dependabot[bot]'` guard restricts execution to Dependabot only. Do not remove this guard. Note that `github.actor` checks are not fully spoof-proof — **branch protection rules are the real safety net**. Ensure branch protection is configured (see [Repository Security Settings](#repository-security-settings)) with required status checks and required approvals so that auto-merge only succeeds after all checks pass, regardless of who triggered the workflow.
+> **Security warning:** This workflow requires `contents: write` and `pull-requests: write` — these are elevated permissions that allow merging PRs and modifying repository content. The `if: github.event.pull_request.user.login == 'dependabot[bot]'` guard (GitHub's documented pattern; it checks the PR author rather than whoever triggered the run) restricts execution to Dependabot PRs. Do not remove this guard. Note that this check is not a substitute for repository controls — **branch protection rules are the real safety net**. Ensure branch protection is configured (see [Repository Security Settings](#repository-security-settings)) with required status checks and required approvals so that auto-merge only succeeds after all checks pass, regardless of who triggered the workflow.
 
 ### Renovate (alternative)
 
@@ -250,14 +250,24 @@ Additional skills that may be relevant depending on the project: `golang-cli`, `
 
 The Claude Code GitHub App integration is configured via the `/install-github-app` command, which sets up the required API secrets.
 
-### GitHub Copilot
+### Vendoring the review skills
 
-Copy skills into your repo, then append [copilot-review-instructions.md](./assets/copilot-review-instructions.md) to `.github/copilot-instructions.md`:
+The review jobs hold `ANTHROPIC_API_KEY` and `pull-requests: write`, so they MUST NOT download skills at runtime. Copy the Go skills into the repository once, from a commit you have reviewed, and commit them:
 
 ```bash
-npx skills add https://github.com/samber/cc-skills-golang --agent github-copilot --skill '*' -y --copy
-ln -s .agents .copilot
+git clone https://github.com/samber/cc-skills-golang /tmp/cc-skills-golang
+git -C /tmp/cc-skills-golang checkout <reviewed-commit-sha>   # pin; do not track the default branch
+# Read the skills you want, then copy only those:
+mkdir -p .claude/skills
+cp -R /tmp/cc-skills-golang/skills/golang-error-handling .claude/skills/   # repeat per skill
+git add .claude/skills   # review the diff before committing
 ```
+
+To update, repeat with a newer reviewed commit and review the diff. Ask the user before installing third-party skills; never pass a non-interactive "yes to all" flag to a skills installer.
+
+### GitHub Copilot
+
+Vendor the skills as above (Copilot reads them from the repository; adjust the target directory to the one your Copilot setup reads), then append [copilot-review-instructions.md](./assets/copilot-review-instructions.md) to `.github/copilot-instructions.md`.
 
 ---
 
@@ -270,7 +280,7 @@ ln -s .agents .copilot
 | Caching integration test results | Use `-count=1` to disable caching |
 | `go mod tidy` not checked | Add `go mod tidy && git diff --exit-code` step |
 | Missing `fail-fast: false` | One Go version failing shouldn't cancel other jobs |
-| Not pinning action versions | GitHub Actions MUST use pinned major versions (e.g. `@vN`, not `@master`) |
+| Not pinning action versions | Pin every third-party action to a full commit SHA with a version comment (`uses: actions/checkout@<40-char-sha> # v6.1.0`), as the assets do; tags like `@vN` are mutable. Let Dependabot/Renovate bump the SHAs. See github-actions-advanced for workflow hardening |
 | No `permissions` block | Follow least-privilege per job |
 | Ignoring govulncheck findings | Fix or suppress with justification |
 | No AI review in CI | Add Claude Code or Copilot review — catches logic, security, and architectural issues that static analysis misses |

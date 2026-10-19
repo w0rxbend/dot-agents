@@ -1,9 +1,11 @@
 ---
 name: github-actions-advanced
 description: >
-  Design, debug, and harden GitHub Actions CI/CD workflows, including reusable
-  workflows, matrix builds, self-hosted runners, OIDC authentication, caching,
-  environments, secrets, and release automation.
+  Author and harden GitHub Actions workflows - SHA-pinned actions, least-privilege
+  permissions, OIDC, reusable workflows, matrices, caching, self-hosted runners,
+  environments and releases. Use when writing or changing anything under
+  .github/workflows; use github-actions-debugger for a failing run and
+  building-ci-pipelines for platform-agnostic pipeline design.
 category: devops
 risk: safe
 source: community
@@ -18,7 +20,11 @@ Expert guidance for designing, writing, debugging, and securing **production-gra
 
 ## Detailed Guide
 
-Read [the detailed guide](references/detailed-guide.md) before executing this skill. It retains the complete procedure and reference material. Treat its safety, prerequisites, and validation requirements as mandatory. For focused work, load the relevant sections; for end-to-end work, read the guide completely.
+Read [the detailed guide](references/detailed-guide.md) before executing this skill. It holds the full procedure and reference material (triggers, matrices, reusable workflows, OIDC, caching, releases). For focused work, load the relevant sections; for end-to-end work, read it completely.
+
+Read [runners and verification](references/runners-and-verification.md) when adding a self-hosted runner, separating validation from publication jobs, or verifying that a new workflow blocks failing changes.
+
+Commit SHAs in examples are illustrative. Resolve the SHA of the current release of each action yourself (for example `gh api repos/actions/checkout/git/ref/tags/vX.Y.Z`) and keep the `# vX.Y.Z` comment so Dependabot or Renovate can update it.
 
 ## When to Use This Skill
 
@@ -26,15 +32,15 @@ Read [the detailed guide](references/detailed-guide.md) before executing this sk
 - User wants to automate builds, tests, deployments, or releases via GitHub
 - User asks about matrix builds, reusable workflows, composite actions, or self-hosted runners
 - User needs help with OIDC authentication, caching strategies, or secrets management
-- User says "my GitHub pipeline is failing" or "set up CI for my repo"
+- User says "set up CI for my repo"
 - User asks about workflow security, hardening, or environment protection rules
 
 ## When NOT to Use This Skill
 
-- The user is working with GitLab CI/CD → recommend `gitlab-ci-patterns`
-- The user is working with CircleCI, Jenkins, or other CI platforms
-- The task is purely about Docker image building without GitHub context → recommend `docker-expert`
-- The task is about Kubernetes deployment configuration → recommend `kubernetes-architect`
+- GitLab CI, Argo Workflows or cross-platform pipeline design → `building-ci-pipelines`
+- A specific failing run to diagnose from logs → `github-actions-debugger`
+- Dockerfile content without GitHub context → `dockerfile-optimise`
+- Kubernetes manifests or cluster configuration → `operating-kubernetes`
 
 ---
 
@@ -68,7 +74,9 @@ jobs:
 
 # Tool to automate SHA pinning:
 # npx pin-github-action .github/workflows/*.yml
-# or: pip install ratchet && ratchet pin .github/workflows/
+# or sethvargo/ratchet (a Go binary - NOT the unrelated `ratchet` package on PyPI):
+#   go install github.com/sethvargo/ratchet@v0.12.0
+#   ratchet pin .github/workflows/*.yml
 ```
 
 ### 3. Prevent Script Injection
@@ -125,9 +133,10 @@ jobs:
 
 ---
 
-## Limitations
+## Done When
 
-- Use this skill only when the task clearly matches the scope described above.
-- Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
-- Always test reusable workflows in a feature branch before merging to main.
-- Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.
+- Every workflow declares `permissions:` and each job has `timeout-minutes`.
+- Every third-party action is pinned to a full commit SHA with a version comment.
+- No `${{ }}` expression from untrusted input is interpolated directly into `run:`.
+- Untrusted (pull request) jobs hold no secrets or write tokens; publication runs in a separate trusted job.
+- `actionlint` passes, and a passing and a deliberately failing run on a topic branch behave as expected (see [runners and verification](references/runners-and-verification.md)).

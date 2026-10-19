@@ -1,6 +1,6 @@
 ---
 name: golang-database
-description: "Comprehensive guide for Go database access — parameterized queries, struct scanning, NULLable columns, transactions, isolation levels, SELECT FOR UPDATE, connection pool, batch processing, context propagation, and migration tooling. Use when writing, reviewing, or debugging Golang code that interacts with PostgreSQL, MariaDB, MySQL, or SQLite; for database testing; or for questions about database/sql, sqlx, or pgx. Does NOT generate database schemas or migration SQL."
+description: "Implement or review Go database queries, parameterization, scanning, transactions, context cancellation, pooling, and cleanup. Preserve the project's SQL driver, ORM, and migration conventions."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -23,14 +23,14 @@ paths:
 
 **Modes:**
 
-- **Write mode** — generating new repository functions, query helpers, or transaction wrappers: follow the skill's sequential instructions; launch a background agent to grep for existing query patterns and naming conventions in the codebase before generating new code.
-- **Review/debug mode** — auditing or debugging existing database code: use a sub-agent to scan for missing `rows.Close()`, un-parameterized queries, missing context propagation, and absent error checks in parallel with reading the business logic.
+- **Write mode** — generating repository functions, query helpers, or transactions: inspect existing query and naming conventions before writing code. An authorized read-only scout may help with a large codebase; otherwise search inline.
+- **Review/debug mode** — audit resource cleanup, parameterization, cancellation, and errors alongside the business logic. For a broad authorized audit, divide read-only module ownership among available reviewers; a focused fix is usually clearer inline.
 
 > **Community default.** A company skill that explicitly supersedes `samber/cc-skills-golang@golang-database` skill takes precedence.
 
 # Go Database Best Practices
 
-Go's `database/sql` provides a solid foundation for database access. Use `sqlx` or `pgx` on top of it for ergonomics — never an ORM.
+Go's `database/sql` provides a solid foundation for database access. For new code, prefer `sqlx` or `pgx` on top of it over an ORM; in a project that already uses an ORM, follow its conventions.
 
 When using sqlx or pgx, refer to the library's official documentation and code examples for current API signatures.
 
@@ -47,9 +47,9 @@ When using sqlx or pgx, refer to the library's official documentation and code e
 9. **Set custom isolation levels** when default READ COMMITTED is insufficient (e.g., serializable for financial operations)
 10. **Handle NULLable columns** with pointer fields (`*string`, `*int`) or `sql.NullXxx` types
 11. Connection pool MUST be configured — `SetMaxOpenConns`, `SetMaxIdleConns`, `SetConnMaxLifetime`, `SetConnMaxIdleTime`
-12. **Use external tools for migrations** — golang-migrate or Flyway, never hand-rolled or AI-generated migration SQL
+12. **Use external tools for migrations** — golang-migrate, Flyway or Atlas (or the project's existing tool), never ad-hoc schema changes run from application code. When asked to write migration SQL, write it as a versioned migration file (with a down migration where the tool supports it) and flag that it needs human review before it runs against production
 13. **Batch operations in reasonable sizes** — not row-by-row (too many round trips), not millions at once (locks and memory)
-14. **Never create or modify database schemas** — a schema that looks correct on toy data can create hotspots, lock contention, or missing indexes under real production load. Schema design requires understanding of data volumes, access patterns, and production constraints that AI does not have
+14. **Create or modify schemas only when asked, and flag the risk** — a schema that looks correct on toy data can create hotspots, lock contention, or missing indexes under real production load. State the assumptions you made (data volumes, access patterns, locking behavior of the DDL), and require human review before the change is applied. For schema design itself, see the database-design skill
 15. **Avoid hidden SQL features** — do not rely on triggers, views, materialized views, stored procedures, or row-level security in application code
 
 ## Library Choice
@@ -114,7 +114,7 @@ Use `db:"column_name"` tags for sqlx, `pgx.CollectRows` with `pgx.RowToStructByN
 ## Error Handling
 
 ```go
-func GetUser(id string) (*User, error) {
+func GetUser(ctx context.Context, id string) (*User, error) {
     var user User
 
     err := db.GetContext(ctx, &user, "SELECT id, name FROM users WHERE id = $1", id)
@@ -132,10 +132,10 @@ func GetUser(id string) (*User, error) {
 or:
 
 ```go
-func GetUser(id string) (u *User, exists bool, err error) {
+func GetUser(ctx context.Context, id string) (u *User, exists bool, err error) {
     var user User
 
-    err := db.GetContext(ctx, &user, "SELECT id, name FROM users WHERE id = $1", id)
+    err = db.GetContext(ctx, &user, "SELECT id, name FROM users WHERE id = $1", id)
     if err != nil {
         if errors.Is(err, sql.ErrNoRows) {
             return nil, false, nil // "no user" is not a technical error, but a domain error
@@ -213,7 +213,7 @@ Recommended tools:
 - [Flyway](https://flywaydb.org/) — JVM-based, widely used in enterprise environments
 - [Atlas](https://atlasgo.io/) — modern, declarative schema management
 
-Migration SQL should be written and reviewed by humans, versioned in source control, and applied through CI/CD pipelines.
+Migration SQL may be drafted by you when the user asks, but it MUST be reviewed by a human, versioned in source control, and applied through the project's migration tool or CI/CD pipeline — never run directly against a shared or production database.
 
 ## Avoid Hidden SQL Features
 
@@ -221,7 +221,7 @@ Do not rely on triggers, views, materialized views, stored procedures, or row-le
 
 ## Schema Creation
 
-**This skill does NOT cover schema creation.** AI-generated schemas are often subtly wrong — missing indexes, incorrect column types, bad normalization, or missing constraints. Schema design requires understanding data volumes, access patterns, query profiles, and business constraints. Use dedicated database tooling and human review.
+**This skill does not cover schema design in depth** — use the database-design skill (and using-relational-databases for engine specifics). If the user asks for a schema or migration, write it, but call out what you could not know (data volumes, access patterns, query profiles, business constraints), list the indexes and constraints you chose and why, and ask for human review before it is applied. Generated schemas are often subtly wrong — missing indexes, incorrect column types, bad normalization, or missing constraints.
 
 ## Deep Dives
 

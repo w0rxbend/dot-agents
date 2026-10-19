@@ -1,6 +1,6 @@
 ---
 name: golang-context
-description: "Idiomatic context.Context usage in Golang — propagation through API boundaries, cancellation, timeouts and deadlines, request-scoped values, context.WithoutCancel for background work outliving requests. Apply when designing context propagation across layers, debugging leaked or unexpired contexts, choosing between context.Background/TODO/WithoutCancel, or storing values in context. Not for code that merely accepts ctx as first parameter."
+description: "Propagate Go context.Context cancellation, deadlines, and request-scoped values through APIs. Use when work needs a cancellation contract or context misuse causes leaks or timeouts."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -55,12 +55,14 @@ The most important rule: **propagate the same context through the entire call ch
 ```go
 // ✗ Bad — creates a new context, breaking the chain
 func (s *OrderService) Create(ctx context.Context, order Order) error {
-    return s.db.ExecContext(context.Background(), "INSERT INTO orders ...", order.ID)
+    _, err := s.db.ExecContext(context.Background(), "INSERT INTO orders ...", order.ID)
+    return err
 }
 
 // ✓ Good — propagates the caller's context
 func (s *OrderService) Create(ctx context.Context, order Order) error {
-    return s.db.ExecContext(ctx, "INSERT INTO orders ...", order.ID)
+    _, err := s.db.ExecContext(ctx, "INSERT INTO orders ...", order.ID)
+    return err
 }
 ```
 

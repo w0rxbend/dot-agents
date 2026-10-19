@@ -139,7 +139,7 @@ db.articles.createIndex({
 
 **Index Best Practices:**
 - Add indexes for all query filters
-- Compound index order: Equality → Range → Sort
+- Compound index order: Equality → Sort → Range (MongoDB ESR rule)
 - Use covering indexes (query + projection in index)
 - Use `explain()` to verify index usage
 - Monitor with Performance Advisor (Atlas)
@@ -207,27 +207,17 @@ Use `onSnapshot()` for real-time listeners and Firestore security rules for acce
 ### Validate Index Coverage
 
 ```bash
-# Run validation script
-python scripts/validate_indexes.py --db myapp --collection orders
-
-# Output:
-# ✓ Query { status: "pending" } covered by index status_1
-# ✗ Query { userId: "..." } missing index - add: { userId: 1 }
+# MongoDB only; requires pymongo and the database profiler enabled
+# (db.setProfilingLevel(1, { slowms: 100 })) so slow queries are recorded
+python scripts/validate_indexes.py --uri mongodb://localhost:27017/ --db myapp --collection orders
+python scripts/validate_indexes.py --db myapp --all
 ```
+
+The script lists existing indexes, reads slow queries from `system.profile`, and suggests missing or unused indexes. Treat suggestions as candidates; confirm each with `explain("executionStats")` before creating an index.
 
 ### Schema Analysis
 
-```bash
-# Analyze schema patterns
-python scripts/analyze_schema.py --db myapp
-
-# Output:
-# Collection: users
-# - Average document size: 2.4 KB
-# - Embedding ratio: 87% (addresses, preferences)
-# - Reference ratio: 13% (orderIds)
-# Recommendation: Good balance
-```
+There is no bundled schema analyzer. To check document size and embedding balance, sample the collection, e.g. in `mongosh`: `db.users.aggregate([{ $sample: { size: 1000 } }, { $project: { size: { $bsonSize: "$$ROOT" } } }, { $group: { _id: null, avg: { $avg: "$size" }, max: { $max: "$size" } } }])`, and look for unbounded arrays (see `references/anti-patterns.md`).
 
 ## Anti-Patterns to Avoid
 
@@ -298,3 +288,7 @@ go get github.com/aws/aws-sdk-go-v2/service/dynamodb
 - `references/skill-integrations.md` - Frontend skill integration
 
 **Examples:** `examples/mongodb-fastapi/`, `examples/mongodb-nextjs/`, `examples/dynamodb-serverless/`, `examples/firestore-react/`
+
+## Helper availability
+
+The helper names marked **not shipped** describe possible project automation. Do not run those commands as installed tooling. Use the bundled helpers that exist, or implement and verify the missing behavior in the task workspace when it is actually needed.

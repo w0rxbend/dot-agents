@@ -1,11 +1,11 @@
 # Azure Governance and Compliance Reference
 
-Comprehensive guide to Azure Policy, Blueprints, and cost management.
+Comprehensive guide to Azure Policy, repeatable environments (Template Specs / Deployment Stacks), and cost management.
 
 ## Table of Contents
 
 1. [Azure Policy](#azure-policy)
-2. [Azure Blueprints](#azure-blueprints)
+2. [Repeatable Environments (Blueprints replacement)](#repeatable-environments-blueprints-replacement)
 3. [Cost Management](#cost-management)
 4. [Resource Tagging](#resource-tagging)
 5. [Azure Landing Zones](#azure-landing-zones)
@@ -38,15 +38,17 @@ Governance service to enforce organizational standards and assess compliance at 
 
 ---
 
-## Azure Blueprints
+## Repeatable Environments (Blueprints replacement)
 
-Repeatable environment deployment with policy, RBAC, and ARM templates.
+Azure Blueprints is deprecated (retirement announced for July 2026). Build repeatable,
+governed environments from Template Specs and Deployment Stacks instead.
 
-### Blueprint Components
+### Components
 
-1. **Artifacts:** Policy assignments, role assignments, ARM templates
-2. **Parameters:** Environment-specific values
-3. **Versions:** Track changes over time
+1. **Template Specs:** Versioned, RBAC-shared Bicep/ARM templates (resource groups, policy assignments, role assignments)
+2. **Deployment Stacks:** Deploy a template as a managed unit, with deny settings that protect deployed resources and clean-up of resources removed from the template
+3. **Parameters:** Environment-specific values per stack
+4. **Versions:** Template Spec versions track changes over time
 
 ### Use Cases
 

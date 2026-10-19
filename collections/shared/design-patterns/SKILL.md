@@ -1,19 +1,28 @@
 ---
 name: design-patterns
-description: >
-  Expert guide to GoF (Gang of Four) design patterns based on "Dive Into Design Patterns" by Alexander Shvets.
-  Use this skill whenever the user asks about design patterns, OOP principles, SOLID, software architecture,
-  or code structure decisions. Trigger for questions like: "how do I implement X pattern", "which pattern
-  should I use for Y problem", "explain Factory/Observer/Strategy/etc.", "what's the difference between X
-  and Y pattern", "how to apply SOLID", "how to structure this code", "my classes are too coupled",
-  "I need to add behavior at runtime", "how to avoid a telescoping constructor", or any question where
-  the answer involves object-oriented design. Also trigger when reviewing code for design smells like
-  tight coupling, god classes, or switch-case proliferation.
+description: "Choose or explain a Gang of Four pattern for a stated new design problem, including when plain code, a function, or the language's built-in feature is the better answer. Use when designing or teaching; to judge patterns already in existing code, use gof-patterns."
 ---
 
 # Design Patterns Skill
 
 Based on: *Dive Into Design Patterns* by Alexander Shvets (Refactoring.Guru, 2019)
+
+## When to use
+
+- Someone describes a design problem and asks which pattern, if any, fits.
+- Someone asks you to explain a pattern, compare two patterns, or sketch one in their language.
+
+To audit patterns already present in code (detection, over-engineering, erosion), use `gof-patterns`. For smell-driven restructuring of existing code, use `refactoring-guru`.
+
+## First: is a pattern needed at all?
+
+Every pattern adds indirection. Recommend one only when the force it addresses exists **today**:
+
+- There are two or more real variants in use, or a concrete extension point with real clients. One implementation plus "we might add more" is not a force.
+- The variation point actually changes. Check how the code has evolved, not how it might.
+- A plain function, a map or lookup table, a closure or function parameter, a module, or a language feature (enum with methods, sum types, generators, decorators, default arguments) solves it with fewer moving parts.
+
+If plain code is enough, say so and show it. If you do recommend a pattern, name the simpler alternative you rejected and why. Verdicts to borrow when evaluating a proposed design: **appropriate** (forces present, benefit worth the indirection), **over-engineered** (solves variation that doesn't exist, such as a factory returning one type or an abstract factory with one family; name the simpler replacement), **misapplied** (a different pattern or none fits better).
 
 ## Core OOP Pillars (Quick Reference)
 
@@ -80,7 +89,7 @@ Use this when the user describes a problem and needs to pick a pattern:
 | Need families of related objects | **Abstract Factory** |
 | Constructor has too many params / need step-by-step construction | **Builder** |
 | Need to copy complex objects | **Prototype** |
-| Need exactly one instance globally | **Singleton** |
+| Need exactly one instance of a shared resource (first consider creating one instance at startup and passing it in) | **Singleton** |
 
 ### "I need to structure classes but…"
 | Problem | Pattern |
@@ -128,12 +137,12 @@ When explaining any pattern, always cover:
 | Smell | Remedy |
 |-------|--------|
 | God class doing too many things | Apply **SRP** + split into collaborators |
-| `new ConcreteClass()` hardcoded everywhere | **Factory Method** or **Abstract Factory** |
+| Construction of one of several real variants is duplicated across call sites | **Factory Method** (or a plain constructor function); **Abstract Factory** only for real families |
 | Deeply nested if/switch on type | **Strategy** or **State** |
 | Subclass explosion (one class per feature combination) | **Decorator** or **Bridge** |
-| Global mutable state | **Singleton** (carefully) or dependency injection |
+| Global mutable state | Pass the state explicitly or inject the dependency. **Singleton** does not fix global state; it is global state. Use it only for a genuinely single, stateless-or-synchronized resource |
 | Tight coupling between subsystems | **Facade** or **Mediator** |
 | Duplicate code in similar algorithms | **Template Method** |
 | UI button/menu logic scattered | **Command** (for undo queues too) |
 | Observers manually wired everywhere | **Observer** / event bus |
-| Hard to test because of rigid dependencies | **Dependency Inversion** + interfaces |
+| Hard to test because of rigid dependencies | **Dependency Inversion**: inject the dependency (an interface only when there is more than one implementation or a test seam is needed) |

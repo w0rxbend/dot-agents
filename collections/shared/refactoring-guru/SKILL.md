@@ -1,99 +1,53 @@
 ---
 name: refactoring-guru
-description: >
-  Code quality and design patterns advisor using Refactoring Guru principles. Trigger when users
-  ask what's structurally wrong with code, mention code smells, ask which design pattern to use,
-  want to refactor messy code, or ask about composition vs. inheritance. Examples: "this code is a
-  mess", "I have to change 10 files every time I add a feature", "what pattern fits this?". Use
-  for structural design questions—not runtime debugging, testing, or language features.
+description: "Diagnose a named code smell and apply the smallest behavior-preserving refactoring, with verification before and after and an explicit stop condition. Use for structural refactors (extract, move, consolidate, change ownership), not for feature or bug work; for readability cleanup of recent changes use code-simplification."
+license: MIT
 ---
 
-# Refactoring Guru Skill
+# Refactoring.Guru Skill
 
-You are a code quality advisor grounded in the Refactoring Guru knowledge base. Your job is to help users detect problems in their code and guide them toward concrete, named solutions — code smells, refactoring techniques, and design patterns.
+Refactoring is a small, smell-driven, behavior-preserving change with verification and a stop condition. It is not general cleanup, and it is not a chance to apply patterns.
 
-You are language-agnostic. Use concepts, pseudocode, or the user's own language.
-
----
+Before you make decisions, read and apply [refactoring-guru.mini.md](refactoring-guru.mini.md), which contains the decision rules, trigger rules, and final checklist. Use [refactoring-guru.md](refactoring-guru.md) as the deeper reference when you need the full smell catalog (bloaters, OO abusers, change preventers, dispensables, couplers) or a tradeoff the mini rules don't settle. For the mechanics of a specific technique, see [references/catalog/README.md](references/catalog/README.md).
 
 ## Workflow
 
-When a user brings a question or code, work through four steps:
+### 1. Diagnose the smell
 
-### 1. Identify problems
-Scan for code smells before recommending solutions. Name the smells precisely using the Refactoring Guru vocabulary (e.g., "Feature Envy", "Long Method", "Switch Statements smell"). Explain *why* something is a problem, not just that it is one.
+Name the smell and record its symptom, the maintenance cost it causes now, its scope, and the cleaner end state you expect. If you can't name a smell with a present cost, don't refactor.
 
-### 2. Triage: refactoring technique or design pattern?
-- If the problem is localised (duplicated logic, long method, tangled conditions): a **refactoring technique** is the right tool.
-- If the problem is structural (the architecture needs a new collaboration model, or behavior needs to vary at runtime): a **design pattern** is likely the answer.
-- Often both apply: refactor first to clean up, then introduce a pattern.
+### 2. Establish the behavior boundary and proof
 
-### 3. Recommend concretely
-Name the specific technique or pattern. Explain:
-- What it does
-- Why it fits this situation
-- How to apply it to the user's code (use their class/variable names when possible)
-- What to watch out for
+- Decide what must not change: public interfaces, return values, error types and messages, side effects, ordering, and serialized or reflected names. Treat every bug you discover as a separate change.
+- Pick the proof you will run before and after the change. Use existing tests when they cover the code you are changing.
+- **When no tests cover the code**, write characterization tests first. They record what the code *currently* does, including odd behavior, not what it should do. For output-heavy code, use a golden-master snapshot: capture outputs for a representative set of inputs, then compare after each step.
+- Run the proof once before editing to confirm it passes on the current code.
 
-### 4. Check for related issues
-After solving the primary problem, briefly scan for anything else that stands out. Don't overwhelm — flag at most 2–3 other issues if they're significant.
+### 3. Pick the smallest technique
 
----
+Use the trigger rules in the mini file to map the smell to a treatment, then open the matching entry in [references/catalog/README.md](references/catalog/README.md) for the mechanics. Escalate (method object, new class, polymorphism, pattern) only when the smaller treatment is blocked.
 
-## Vocabulary to use
+### 4. Apply in small steps
 
-Use precise names from Refactoring Guru. This helps users learn the canonical vocabulary, which makes future conversations faster.
+- Move one ownership boundary at a time (one method, field, or responsibility per step).
+- Keep every intermediate state buildable and testable. Never leave the tree broken between steps.
+- Don't add dependencies or configuration unless correctness requires them.
+- When signatures or other externally reachable APIs change, keep a transition path (delegating old entry point, deprecation) unless breaking them is in scope.
 
-**Code smells (examples):** Long Method, Large Class, Feature Envy, Primitive Obsession, Switch Statements, Divergent Change, Shotgun Surgery, Duplicate Code, Dead Code, Data Class, Message Chains, Middle Man, Inappropriate Intimacy.
+### 5. Verify
 
-**Refactoring techniques (examples):** Extract Method, Extract Class, Move Method, Replace Conditional with Polymorphism, Introduce Parameter Object, Replace Magic Number with Symbolic Constant, Consolidate Conditional Expression, Decompose Conditional.
+Run the same proof after each risky step and at the end: moves, signature changes, state-flow changes, and algorithm substitutions. If a test needs to be modified to pass, behavior changed. Stop and separate the change.
 
-**Design patterns (examples):** Factory Method, Abstract Factory, Builder, Prototype, Singleton, Adapter, Bridge, Composite, Decorator, Facade, Flyweight, Proxy, Chain of Responsibility, Command, Iterator, Mediator, Memento, Observer, State, Strategy, Template Method, Visitor.
+### 6. Stop
 
----
+Stop when the named smell is gone or materially reduced and the requested structure is reached. Record any other smells you noticed as follow-ups instead of expanding the change.
 
-## Reference files
+## Report
 
-Load these files on demand — don't load all of them for every question. Read only what's relevant.
+Name the smell, the technique(s) applied, the proof that was run (with its result before and after), any behavior changes split out, and any smells left untreated on purpose.
 
-| File | What's in it | When to read it |
-|------|-------------|----------------|
-| `references/code-smells.md` | All 5 smell categories, ~22 individual smells with symptoms, causes, and treatment | When reviewing code for problems, or when the user describes a specific smell |
-| `references/design-patterns.md` | All 22 GoF patterns — intent, problem, solution, when-to-use, pros/cons, relations | When recommending a specific pattern or comparing alternatives |
-| `references/refactoring-techniques.md` | All 6 technique groups, ~60 named techniques with when-to-use | When recommending a specific refactoring move |
-| `references/pattern-selection-guide.md` | Symptom → pattern decision guide, common confusions, anti-patterns | When the user isn't sure which pattern to use, or asks "which pattern fits X?" |
+## Related
 
-**Typical loading strategy:**
-- Code review → load `code-smells.md` first, then `refactoring-techniques.md` if treatment is needed
-- "Which pattern should I use?" → load `pattern-selection-guide.md` first, then `design-patterns.md` for the winner(s)
-- "Explain X pattern" → load `design-patterns.md` directly
-
----
-
-## Output format
-
-Adapt length to the question:
-- **Quick question** (e.g., "what's the difference between Strategy and State?"): concise answer, 3–8 sentences
-- **Code review**: structured response with smell names as headings, severity indication, and refactoring steps
-- **Design question**: explain the chosen pattern, why it fits, sketch of the structure using the user's context
-
-For code reviews, use this structure:
-```
-## [Smell Name] — [brief severity: minor/moderate/significant]
-**Where:** [file/method/class]
-**Why it matters:** [one sentence]
-**Fix:** [specific refactoring technique or pattern, with how-to steps]
-```
-
-Don't moralize. Don't say "this is bad code." Name the problem, explain the consequence, and offer the solution.
-
----
-
-## Tone and philosophy
-
-Refactoring Guru's philosophy: code quality is about managing complexity and making change easy. The goal is not perfection — it's code that can be understood and modified without fear.
-
-- Prioritise the most impactful issues, not exhaustive lists
-- Acknowledge trade-offs honestly (e.g., "Visitor is powerful but makes adding new types hard")
-- When patterns could be overkill, say so. Don't recommend patterns for simple problems.
-- If the user's design is actually fine, say that clearly
+- `code-simplification`: readability cleanup of recent changes (naming, nesting, dead code) without structural moves.
+- `code-refactoring-tech-debt`: choosing *which* debt to refactor across a codebase.
+- `gof-patterns`: judging whether an existing pattern is over-engineered before you remove or introduce one.

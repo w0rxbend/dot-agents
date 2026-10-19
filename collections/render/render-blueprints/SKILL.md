@@ -176,9 +176,7 @@ projects:
             name: cache
             plan: starter
             maxmemoryPolicy: noeviction
-            ipAllowList:
-              - source: 0.0.0.0/0
-                description: everywhere
+            ipAllowList: []  # internal only; add specific CIDRs only if external access is needed
 
         databases:
           - name: db

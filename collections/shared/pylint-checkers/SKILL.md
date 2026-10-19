@@ -1,495 +1,179 @@
 ---
 name: pylint-checkers
 user-invocable: false
-description: Use when pylint checkers including built-in checkers, custom checkers, and checker development.
+description: Understand Pylint's built-in checkers and optional extensions, and write, register, and test custom checkers on astroid ASTs. Use when enforcing a project-specific rule Pylint lacks, building a Pylint plugin, or interpreting which checker emits a message.
 allowed-tools: [Read, Write, Edit, Bash, Glob, Grep]
 ---
 
-# pylint checkers
+# Pylint checkers
 
-Master Pylint checkers including built-in checkers, custom checkers, and checker development. This skill provides comprehensive coverage of essential concepts, patterns, and best practices for professional Pylint development.
-
-## Overview
-
-Pylint is a powerful tool for python development, providing robust capabilities for maintaining code quality and ensuring reliable software delivery. This skill covers the fundamental through advanced aspects of working with Pylint.
-
-## Installation and Setup
-
-### Basic Installation
-
-Setting up Pylint requires proper installation and configuration in your development environment.
+Configuration lives in `pylint-configuration`; CI wiring in `pylint-integration`.
+Before writing a checker, confirm the rule is not already available:
 
 ```bash
-# Installation command specific to Pylint
-# Follow official documentation for latest version
+pylint --list-msgs | grep -i <keyword>        # all messages, including disabled ones
+pylint --list-extensions                       # optional built-in plugins
+pylint --help-msg=<symbol>                     # which checker emits a message, and why
 ```
 
-### Project Configuration
+Also check whether Ruff, a framework plugin (`pylint-django`, `pylint-pytest`), or a
+type checker already enforces the rule more cheaply.
 
-Create appropriate configuration files and setup for your project structure:
+## How checkers work
 
-- Configuration file setup
-- Project structure organization
-- Team collaboration setup
-- CI/CD integration preparation
-
-## Core Concepts
-
-### Fundamental Principles
-
-Understanding the core principles of Pylint is essential for effective usage:
-
-1. **Architecture** - How Pylint is structured and operates
-2. **Configuration** - Setting up and customizing behavior
-3. **Integration** - Working with other tools and frameworks
-4. **Best Practices** - Industry-standard approaches
-
-### Key Features
-
-Pylint provides several key features that make it valuable:
-
-- Feature 1: Core functionality
-- Feature 2: Advanced capabilities  
-- Feature 3: Integration options
-- Feature 4: Performance optimization
-- Feature 5: Extensibility
-
-### Configuration Strategy
-
-Proper configuration ensures Pylint works optimally:
-
-- Environment-specific setup
-- Team standards enforcement
-- Performance tuning
-- Error handling configuration
-
-### Advanced Usage
-
-For complex scenarios, Pylint offers advanced capabilities:
-
-- Custom extensions
-- Advanced patterns
-- Performance optimization
-- Scalability considerations
-
-## Code Examples
-
-### Example 1: Basic Setup
+- Pylint parses each module with **astroid**, an AST with inference
+  (`node.infer()`, `node.inferred()`), then walks it.
+- A checker declares messages and implements `visit_<nodename>` / `leave_<nodename>`
+  methods; node names are lowercased astroid class names (`visit_call`,
+  `visit_functiondef`, `visit_importfrom`).
+- Base classes: `BaseChecker` (AST), `BaseRawFileChecker` (raw file bytes),
+  `BaseTokenChecker` (tokens; formatting-style rules).
+- Explore node shapes interactively:
 
 ```python
-// Basic Pylint setup
-// Demonstrates fundamental usage patterns
-// Shows proper initialization and configuration
-
-// Core setup code
-function basicSetup() {
-  // Initialize framework
-  // Configure basic options
-  // Return configured instance
-}
-
-// Usage example
-const instance = basicSetup();
+import astroid
+node = astroid.extract_node("requests.get(url, timeout=5)")
+print(node.repr_tree())
 ```
 
-### Example 2: Configuration
+## A custom checker
+
+Example rule (not built into Pylint): forbid naive `datetime.now()` / `utcnow()`.
 
 ```python
-// Configuration example for Pylint
-// Shows how to properly configure
-// Includes common options and patterns
+# tools/pylint_plugins/naive_datetime.py
+import astroid
+from astroid import nodes
+from pylint.checkers import BaseChecker
+from pylint.lint import PyLinter
 
-// Configuration object
-const config = {
-  option1: 'value1',
-  option2: 'value2',
-  advanced: {
-    setting1: true,
-    setting2: false
-  }
-};
 
-// Apply configuration
-function applyConfig(config) {
-  // Validation logic
-  // Application logic
-  // Return result
-}
+# CPython 3.12+ implements datetime in _pydatetime; astroid reports that qname.
+_DATETIME_QNAMES = frozenset({"datetime.datetime", "_pydatetime.datetime"})
+
+
+class NaiveDatetimeChecker(BaseChecker):
+    name = "naive-datetime"
+    msgs = {
+        "W9101": (
+            "datetime.%s() returns a naive datetime; pass tz=",
+            "naive-datetime-now",
+            "Naive datetimes silently assume the host time zone.",
+        ),
+    }
+
+    def visit_call(self, node: nodes.Call) -> None:
+        func = node.func
+        if not (isinstance(func, nodes.Attribute) and func.attrname in {"now", "utcnow"}):
+            return
+        if not self._is_datetime_class(func.expr):
+            return
+        if func.attrname == "now" and (node.args or any(kw.arg == "tz" for kw in node.keywords or ())):
+            return
+        self.add_message("naive-datetime-now", node=node, args=(func.attrname,))
+
+    @staticmethod
+    def _is_datetime_class(expr: nodes.NodeNG) -> bool:
+        try:
+            return any(
+                isinstance(inferred, nodes.ClassDef) and inferred.qname() in _DATETIME_QNAMES
+                for inferred in expr.infer()
+            )
+        except astroid.InferenceError:
+            return False
+
+
+def register(linter: PyLinter) -> None:
+    linter.register_checker(NaiveDatetimeChecker(linter))
 ```
 
-### Example 3: Advanced Pattern
+Rules of thumb:
+- Message tuple is `(template, symbol, description)`; `args=` fills `%s` placeholders.
+- Choose an ID prefix and number range not used by Pylint or other loaded plugins
+  (check `--list-msgs`). Users will refer to the **symbol**, so make it descriptive.
+- Use inference (as above) so aliased imports (`from datetime import datetime as dt`)
+  are caught and unrelated objects with a `now` method are not. Always handle
+  `InferenceError`; inference yields `Uninferable` on dynamic code.
+- Check qualified names by printing what astroid actually infers on the target
+  Python version; stdlib modules can resolve to private implementation modules.
+- Prefer false negatives over false positives; noisy checkers get disabled.
+- Add `options = (("option-name", {...}),)` for configurable thresholds; read them via
+  `self.linter.config.option_name`.
+- Keep checkers stateless across modules, or reset state in `open()` / `close()`.
+
+## Loading the plugin
+
+```toml
+[tool.pylint.main]
+load-plugins = ["naive_datetime"]
+# the module must be importable: install it, or add its directory to the path
+init-hook = "import sys; sys.path.append('tools/pylint_plugins')"
+```
+
+Prefer packaging the plugin (even as a local path dependency) over `init-hook`, so
+editors and CI import it the same way. Verify with
+`pylint --load-plugins=naive_datetime --list-msgs | grep naive-datetime-now`.
+
+## Testing
 
 ```python
-// Advanced usage pattern
-// Demonstrates sophisticated techniques
-// Shows best practices in action
+import astroid
+import pylint.testutils
 
-function advancedPattern() {
-  // Setup phase
-  // Execution phase
-  // Cleanup phase
-}
+from naive_datetime import NaiveDatetimeChecker
+
+
+class TestNaiveDatetimeChecker(pylint.testutils.CheckerTestCase):
+    CHECKER_CLASS = NaiveDatetimeChecker
+
+    def test_flags_naive_now(self):
+        call = astroid.extract_node(
+            """
+            from datetime import datetime as dt
+            dt.now()  #@
+            """
+        )
+        with self.assertAddsMessages(
+            pylint.testutils.MessageTest(msg_id="naive-datetime-now", node=call, args=("now",)),
+            ignore_position=True,
+        ):
+            self.checker.visit_call(call)
+
+    def test_accepts_aware_now(self):
+        call = astroid.extract_node(
+            """
+            import datetime
+            datetime.datetime.now(tz=datetime.UTC)  #@
+            """
+        )
+        with self.assertNoMessages():
+            self.checker.visit_call(call)
 ```
 
-### Example 4: Integration
-
-```python
-// Integration with other tools
-// Shows real-world usage
-// Demonstrates interoperability
-
-function integrationExample() {
-  // Setup integration
-  // Execute workflow
-  // Handle results
-}
-```
-
-### Example 5: Error Handling
-
-```python
-// Proper error handling approach
-// Defensive programming patterns
-// Graceful degradation
-
-function withErrorHandling() {
-  try {
-    // Main logic
-  } catch (error) {
-    // Error recovery
-  } finally {
-    // Cleanup
-  }
-}
-```
-
-### Example 6: Performance Optimization
-
-```python
-// Performance-optimized implementation
-// Shows efficiency techniques
-// Demonstrates best practices
-
-function optimizedApproach() {
-  // Efficient implementation
-  // Resource management
-  // Performance monitoring
-}
-```
-
-### Example 7: Testing
-
-```python
-// Testing approach for Pylint
-// Unit test examples
-// Integration test patterns
-
-function testExample() {
-  // Test setup
-  // Execution
-  // Assertions
-  // Teardown
-}
-```
-
-### Example 8: Production Usage
-
-```python
-// Production-ready implementation
-// Includes monitoring and logging
-// Error recovery and resilience
-
-function productionExample() {
-  // Production configuration
-  // Monitoring setup
-  // Error handling
-  // Logging
-}
-```
-
-## Best Practices
-
-1. **Follow conventions** - Adhere to established naming and structural patterns for consistency
-2. **Configure appropriately** - Set up framework configuration that matches project requirements
-3. **Validate inputs** - Always validate and sanitize inputs before processing
-4. **Handle errors gracefully** - Implement comprehensive error handling and recovery
-5. **Document decisions** - Comment configuration choices and non-obvious implementations
-6. **Test thoroughly** - Write comprehensive tests for all functionality
-7. **Optimize performance** - Profile and optimize critical paths
-8. **Maintain security** - Follow security best practices and guidelines
-9. **Keep updated** - Regularly update framework and dependencies
-10. **Monitor production** - Implement logging and monitoring for production systems
-
-## Common Pitfalls
-
-1. **Incorrect configuration** - Misconfiguration leads to unexpected behavior and bugs
-2. **Missing error handling** - Not handling edge cases causes production issues
-3. **Poor performance** - Not optimizing leads to scalability problems
-4. **Inadequate testing** - Insufficient test coverage misses bugs
-5. **Security vulnerabilities** - Not following security best practices exposes risks
-6. **Tight coupling** - Poor architecture makes maintenance difficult
-7. **Ignoring warnings** - Dismissing framework warnings leads to future problems
-8. **Outdated dependencies** - Using old versions exposes security risks
-9. **No monitoring** - Lack of observability makes debugging difficult
-10. **Inconsistent standards** - Team inconsistency reduces code quality
-
-## Advanced Topics
-
-### Customization
-
-Pylint allows extensive customization for specific needs:
-
-- Custom plugins and extensions
-- Behavior modification
-- Integration adapters
-- Domain-specific adaptations
-
-### Performance Tuning
-
-Optimize Pylint performance for production:
-
-- Profiling and benchmarking
-- Resource optimization
-- Caching strategies
-- Parallel execution
-
-### CI/CD Integration
-
-Integrate Pylint into continuous integration pipelines:
-
-- Automated execution
-- Result reporting
-- Quality gates
-- Deployment integration
-
-### Troubleshooting
-
-Common issues and their solutions:
-
-- Configuration errors
-- Integration problems
-- Performance issues
-- Unexpected behavior
-
-## When to Use This Skill
-
-- Setting up Pylint in new projects
-- Configuring Pylint for specific requirements
-- Migrating to Pylint from alternatives
-- Optimizing Pylint performance
-- Implementing advanced patterns
-- Troubleshooting Pylint issues
-- Integrating Pylint with CI/CD
-- Training team members on Pylint
-- Establishing team standards
-- Maintaining existing Pylint implementations
-
-## Additional Resources
-
-### Documentation
-
-- Official Pylint documentation
-- Community guides and tutorials
-- API reference materials
-- Migration guides
-
-### Tools and Utilities
-
-- Development tools
-- Testing utilities
-- Monitoring solutions
-- Helper libraries
-
-### Community
-
-- Online forums and communities
-- Open source contributions
-- Best practice repositories
-- Example implementations
-
-## Conclusion
-
-Mastering Pylint requires understanding both fundamentals and advanced concepts. This skill provides the foundation for professional-grade usage, from initial setup through production deployment. Apply these principles consistently for best results.
-
-## Detailed Configuration Examples
-
-### Configuration Option 1
-
-Comprehensive configuration example demonstrating best practices and common patterns used in production environments.
-
-```bash
-# Detailed configuration setup
-# Includes all necessary options
-# Optimized for production use
-```
-
-### Configuration Option 2
-
-Alternative configuration approach for different use cases, showing flexibility and adaptability of the framework.
-
-```bash
-# Alternative configuration
-# Different optimization strategy
-# Suitable for specific scenarios
-```
-
-### Configuration Option 3
-
-Advanced configuration for complex environments with multiple requirements and constraints.
-
-```bash
-# Advanced configuration
-# Handles complex scenarios
-# Production-ready setup
-```
-
-## Advanced Usage Patterns
-
-### Pattern 1: Modular Organization
-
-Organize your setup in a modular way to improve maintainability and scalability across large projects.
-
-Implementation details:
-
-- Separate concerns appropriately
-- Use composition over inheritance
-- Follow single responsibility principle
-- Maintain clear interfaces
-
-### Pattern 2: Performance Optimization
-
-Optimize for performance in production environments with proven strategies and techniques.
-
-Key considerations:
-
-- Profile before optimizing
-- Focus on bottlenecks
-- Cache appropriately
-- Monitor in production
-
-### Pattern 3: Error Recovery
-
-Implement robust error recovery mechanisms to handle failures gracefully.
-
-Recovery strategies:
-
-- Graceful degradation
-- Retry with backoff
-- Circuit breaker pattern
-- Comprehensive logging
-
-### Pattern 4: Testing Strategy
-
-Comprehensive testing approach ensuring code quality and reliability.
-
-Testing layers:
-
-- Unit tests for components
-- Integration tests for workflows
-- End-to-end tests for user scenarios
-- Performance tests for scalability
-
-## Integration Strategies
-
-### Integration with CI/CD
-
-Seamless integration into continuous integration and deployment pipelines.
-
-Steps:
-
-1. Configure pipeline
-2. Set up automation
-3. Define quality gates
-4. Monitor execution
-
-### Integration with Development Tools
-
-Connect with popular development tools and IDEs for improved workflow.
-
-Tools:
-
-- IDE plugins and extensions
-- CLI tools and utilities
-- Build system integration
-- Version control hooks
-
-### Integration with Monitoring
-
-Implement monitoring and observability for production systems.
-
-Monitoring aspects:
-
-- Performance metrics
-- Error tracking
-- Usage analytics
-- Health checks
-
-## Team Practices
-
-### Establishing Standards
-
-Create and maintain consistent standards across the team.
-
-Standards to define:
-
-- Naming conventions
-- Code organization
-- Documentation requirements
-- Review processes
-
-### Onboarding Process
-
-Streamline onboarding for new team members.
-
-Onboarding steps:
-
-- Initial setup guide
-- Training materials
-- Practice exercises
-- Mentorship program
-
-### Code Review Guidelines
-
-Effective code review practices for quality assurance.
-
-Review checklist:
-
-- Correctness
-- Performance
-- Security
-- Maintainability
-
-## Troubleshooting Guide
-
-### Common Issue 1
-
-Detailed troubleshooting steps for frequently encountered problem.
-
-Resolution steps:
-
-1. Identify symptoms
-2. Check configuration
-3. Verify dependencies
-4. Test solution
-
-### Common Issue 2
-
-Another common issue with comprehensive resolution approach.
-
-Diagnostic steps:
-
-1. Reproduce issue
-2. Gather logs
-3. Analyze data
-4. Apply fix
-
-### Common Issue 3
-
-Third common scenario with clear resolution path.
-
-Investigation process:
-
-1. Understand context
-2. Review recent changes
-3. Test hypotheses
-4. Implement solution
+- `#@` marks the node `extract_node` returns.
+- Test the negative cases that matter: aliased imports, a local object with its own
+  `now()` method, positional `tz`.
+- Finish with an end-to-end run on a fixture file:
+  `pylint --load-plugins=naive_datetime --disable=all --enable=naive-datetime-now fixtures/`.
+
+## Useful built-in extensions
+
+Enable via `load-plugins = ["pylint.extensions.<name>"]`:
+
+| Extension | Adds |
+| --- | --- |
+| `docparams` | docstring parameters/raises/returns must match the signature |
+| `mccabe` | `too-complex` cyclomatic complexity |
+| `code_style` | `consider-using-tuple`, assignment-expression suggestions |
+| `typing` | modern typing syntax suggestions for the configured `py-version` |
+| `broad_try_clause` | `try` blocks with too many statements |
+| `no_self_use` | methods that could be functions or static methods |
+| `redefined_variable_type` | a variable reassigned to a different type |
+| `magic_value` | comparisons against unexplained literals |
+
+## Done when
+
+- The checker has unit tests for positive and key negative cases, and an end-to-end
+  run on real project code produces no unexpected findings.
+- The plugin loads identically in CI, pre-commit, and editors.
+- The message symbol and rationale are documented where the team configures Pylint.

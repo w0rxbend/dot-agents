@@ -1,8 +1,8 @@
 # PCI-DSS 4.0 Requirements Reference
 
-For complete PCI-DSS implementation guidance, refer to the init.md master plan.
+Quick reference to PCI DSS v4.0/v4.0.1. Confirm details against the current standard from the PCI Security Standards Council.
 
-## 12 Core Requirements (Effective April 1, 2025)
+## 12 Core Requirements (future-dated v4.0 requirements mandatory after March 31, 2025)
 
 1. Install and maintain network security controls
 2. Apply secure configurations to all system components
@@ -17,7 +17,7 @@ For complete PCI-DSS implementation guidance, refer to the init.md master plan.
 11. Test security of systems and networks regularly
 12. Support information security with organizational policies and programs
 
-## Key 2025 Changes
+## Key v4.0 Changes
 
 - Client-side security for payment pages
 - 12-character minimum passwords (8 if system limitation)
@@ -25,4 +25,4 @@ For complete PCI-DSS implementation guidance, refer to the init.md master plan.
 - Semi-annual access reviews (human accounts: 6 months, system accounts: risk-based)
 - Enhanced key management and logging
 
-See control-mapping-matrix.md for unified implementations.
+See [control-mapping-matrix.md](control-mapping-matrix.md) for unified implementations.

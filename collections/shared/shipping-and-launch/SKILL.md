@@ -1,6 +1,6 @@
 ---
 name: shipping-and-launch
-description: Prepares production launches. Use when preparing to deploy to production, or when asking what needs to be in place before shipping. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy.
+description: "Prepare a production launch - pre-launch readiness checklist, feature-flag strategy, staged/canary rollout, error-budget release gate, monitoring and a rollback plan. Use when getting a release ready to ship or deciding go/no-go; use building-ci-pipelines for the deploy pipeline and managing-incidents for the on-call process."
 ---
 
 # Shipping and Launch
@@ -189,7 +189,16 @@ Client metrics:
 
 ```typescript
 // Set up error boundary with reporting
-class ErrorBoundary extends React.Component {
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true }; // render the fallback on the next pass
+  }
+
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     // Report to error tracking service
     reportError(error, {
@@ -278,11 +287,8 @@ Every deployment needs a rollback plan before it happens:
 ```
 ## See Also
 
-- For the project-wide Definition of Done that every change must clear before this checklist, see `../../references/definition-of-done.md`
-- For security pre-launch checks, see `../../references/security-checklist.md`
-- For performance pre-launch checklist, see `../../references/performance-checklist.md`
-- For accessibility verification before launch, see `../../references/accessibility-checklist.md`
-- For the alerting rules and SLO-tied thresholds, see `observability-and-instrumentation`
+- Application security review before launch: `security-and-hardening`
+- Alerting rules and SLO-tied thresholds: `observability-and-instrumentation`
 
 ## Common Rationalizations
 

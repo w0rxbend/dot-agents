@@ -1,6 +1,6 @@
 ---
 name: golang-observability
-description: "Golang everyday observability — the always-on signals in production. Covers structured logging with slog, Prometheus metrics, OpenTelemetry distributed tracing, continuous profiling with pprof/Pyroscope, server-side RUM event tracking, alerting, and Grafana dashboards. Apply when instrumenting Go services for production monitoring, setting up metrics or alerting, adding OpenTelemetry tracing, correlating logs with traces, migrating legacy loggers (zap/logrus/zerolog) to slog, adding observability to new features, or implementing GDPR/CCPA-compliant tracking with Customer Data Platforms (CDP). Not for temporary deep-dive performance investigation (→ See `samber/cc-skills-golang@golang-benchmark` and `samber/cc-skills-golang@golang-performance` skills)."
+description: "Instrument or audit Go services with structured logs, metrics, tracing, and profiling. Follow existing telemetry dependencies and operational requirements; use measured signals for performance investigations."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -19,6 +19,7 @@ paths:
   - "**/*.go"
 ---
 
+Use parallel agents only when delegation is authorized and available, and the independent work justifies it. Scale agent count to the host budget and task size. Reviews may overlap concerns; edits require disjoint file ownership or isolated worktrees. Otherwise perform the same checks inline.
 **Persona:** You are a Go observability engineer. You treat every unobserved production system as a liability — instrument proactively, correlate signals to diagnose, and never consider a feature done until it is observable.
 
 **Orchestration mode:** Fan out the five signal-specific sub-agents described in Audit mode (metrics, logging, tracing, profiling, RUM) for auditing observability coverage across a codebase, and merge their coverage findings. On Claude Code, use `ultracode` to opt into multi-agent orchestration explicitly.
@@ -59,7 +60,6 @@ When using observability libraries (Prometheus client, OpenTelemetry SDK, vendor
 - → See `samber/cc-skills-golang@golang-troubleshooting` skill for using observability signals to diagnose production issues.
 - → See `samber/cc-skills-golang@golang-security` skill for protecting pprof endpoints and avoiding PII in logs.
 - → See `samber/cc-skills-golang@golang-context` skill for propagating trace context across service boundaries.
-- → See `samber/cc-skills@promql-cli` skill for querying and exploring PromQL expressions against Prometheus from the CLI.
 
 ### Go 1.26+: slog multi-handler
 
@@ -108,17 +108,35 @@ Signals are most powerful when connected. A trace_id in your logs lets you jump 
 
 ### Logs + Traces: `otelslog` bridge
 
+`otelslog.NewHandler` does not write to stdout: it emits OTel log records to the global `LoggerProvider`, which is a no-op until you install an SDK provider with an exporter. Without that setup every log line is silently dropped, so configure the provider and keep a local handler alongside it:
+
 ```go
-import "go.opentelemetry.io/contrib/bridges/otelslog"
+import (
+    "go.opentelemetry.io/contrib/bridges/otelslog"
+    "go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"
+    "go.opentelemetry.io/otel/log/global"
+    sdklog "go.opentelemetry.io/otel/sdk/log"
+)
 
-// Create a logger that automatically injects trace_id and span_id
-logger := otelslog.NewHandler("my-service")
-slog.SetDefault(slog.New(logger))
+exp, err := otlploghttp.New(ctx) // endpoint from OTEL_EXPORTER_OTLP_* env vars
+if err != nil {
+    return err
+}
+lp := sdklog.NewLoggerProvider(sdklog.WithProcessor(sdklog.NewBatchProcessor(exp)))
+defer lp.Shutdown(ctx) // flushes buffered records
+global.SetLoggerProvider(lp)
 
-// Now every slog call with context includes trace correlation
+// Go 1.26+: keep stdout JSON and also send records to OTel
+slog.SetDefault(slog.New(slog.NewMultiHandler(
+    slog.NewJSONHandler(os.Stdout, nil),
+    otelslog.NewHandler("my-service"),
+)))
+
+// The OTel log record carries the trace_id/span_id of the span in ctx
 slog.InfoContext(ctx, "order created", "order_id", orderID)
-// Output includes: {"trace_id":"abc123", "span_id":"def456", "msg":"order created", ...}
 ```
+
+The stdout JSON handler does not add `trace_id`/`span_id` by itself; add a small handler middleware that reads `trace.SpanContextFromContext(ctx)` if you need them in local logs too.
 
 ### Metrics + Traces: Exemplars
 

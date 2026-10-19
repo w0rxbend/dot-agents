@@ -7,7 +7,7 @@ allowed-tools: Read, Glob, Grep, Bash(scan-undocumented:*), Bash(bash:*)
 
 # Finding Undocumented Areas
 
-Scan the project to identify documentation gaps — public types, modules, and packages that lack coverage in the `docs/` directory. Produce a comprehensive report saved to `docs/undocumented-report.md`.
+Scan the project to identify documentation gaps — public types, modules, and packages that lack coverage in the `docs/` directory. Produce a comprehensive report saved to `target/undocumented-report.md` — outside `docs/`, so the Docusaurus build never publishes this internal tracking file (create `target/` if needed; it is normally git-ignored in sbt projects).
 
 ## Scope
 
@@ -19,9 +19,11 @@ If a specific module name is given (e.g., `schema`, `chunk`, `scope`), focus the
 
 Run the automated scanner to produce raw coverage data:
 
+Paths: `<this-skill-dir>` is this skill's own directory (where this file lives).
+
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/skills/docs-find-documentation-gaps/scan-undocumented.sh \
-  > docs/undocumented-report.md
+bash <this-skill-dir>/scan-undocumented.sh \
+  > target/undocumented-report.md
 ```
 
 Pass an optional project root to scan a sub-module: `scan-undocumented.sh <path>`. Run with `--help` for the full usage.
@@ -76,7 +78,7 @@ Add these as a separate "Conceptual Gaps" section.
 
 ## Step 3: Write the Final Report
 
-Write the final report to `docs/undocumented-report.md` with this structure:
+Write the final report to `target/undocumented-report.md` (never under `docs/`) with this structure:
 
 ```markdown
 ---
@@ -120,4 +122,4 @@ title: "Documentation Coverage Report"
 
 ## Step 4: Update Index
 
-Do NOT add the report to `docs/index.md` — it is an internal tracking document, not user-facing documentation.
+Do NOT add the report to `docs/index.md` or move it under `docs/` — it is an internal tracking document, not user-facing documentation.

@@ -1,6 +1,6 @@
 ---
 name: security-hardening
-description: Reduces attack surface across OS, container, cloud, network, and database layers using CIS Benchmarks and zero-trust principles. Use when hardening production infrastructure, meeting compliance requirements, or implementing defense-in-depth security.
+description: "Harden hosts, containers, cloud accounts, networks and databases against CIS Benchmarks and least-privilege defaults, with scanning to verify. Use for infrastructure hardening or a pre-production infrastructure review; use security-and-hardening for application code and kubernetes-hardening for cluster-specific controls."
 ---
 
 # Security Hardening
@@ -133,8 +133,13 @@ docker run --rm -it \
 
 **Kubernetes CIS Benchmark:**
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml
+# Pin a release tag (never main), read the manifest, then apply your reviewed copy
+curl -fsSLo kube-bench-job.yaml https://raw.githubusercontent.com/aquasecurity/kube-bench/v0.16.0/job.yaml
+less kube-bench-job.yaml   # check image tag, hostPath mounts, namespace
+kubectl apply -f kube-bench-job.yaml
+kubectl wait --for=condition=complete job/kube-bench --timeout=300s
 kubectl logs job/kube-bench
+kubectl delete -f kube-bench-job.yaml
 ```
 
 **Linux CIS Benchmark:**
@@ -142,8 +147,10 @@ kubectl logs job/kube-bench
 # Using Lynis
 lynis audit system --quick
 
-# Using OpenSCAP
-oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_cis \
+# Using OpenSCAP: list the profile ids your datastream actually ships first
+oscap info /usr/share/xml/scap/ssg/content/ssg-ubuntu2004-ds.xml
+# Ubuntu datastreams use cis_level1_server / cis_level2_server (no plain "cis")
+oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_cis_level1_server \
   /usr/share/xml/scap/ssg/content/ssg-ubuntu2004-ds.xml
 ```
 
@@ -243,7 +250,7 @@ jobs:
         run: docker build -t myapp:test .
 
       - name: Scan with Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@<pinned-sha> # vX.Y.Z - never a branch ref
         with:
           image-ref: 'myapp:test'
           severity: 'CRITICAL,HIGH'
@@ -255,7 +262,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Scan IaC with Checkov
-        uses: bridgecrewio/checkov-action@master
+        uses: bridgecrewio/checkov-action@<pinned-sha> # vX.Y.Z - never a branch ref
         with:
           directory: terraform/
           framework: terraform
@@ -270,15 +277,11 @@ Generate compliance reports from scan results:
 # Generate CIS compliance report
 kube-bench run --json > cis-report.json
 
-# Generate vulnerability report
-trivy image --format json --output vuln-report.json myapp:latest
-
-# Aggregate reports for compliance dashboard
-python scripts/generate-compliance-report.py \
-  --cis cis-report.json \
-  --vulns vuln-report.json \
-  --output compliance-dashboard.html
+# Generate vulnerability report for the exact image you ship
+trivy image --format json --output vuln-report.json myapp@sha256:<digest>
 ```
+
+Store these JSON reports as build artifacts or evidence; aggregate them in your compliance tooling (see the `implementing-compliance` skill).
 
 ## Automation Tools
 
@@ -308,8 +311,14 @@ python scripts/generate-compliance-report.py \
 ## Quick Reference: Common Hardening Tasks
 
 ### Harden SSH Access
+Lockout guard for remote hosts: first confirm key login from a **second** terminal
+(`ssh -o PreferredAuthentications=publickey -o PasswordAuthentication=no user@host`) and keep
+your current session open until a fresh login works with the new config.
+
 ```bash
-# Edit /etc/ssh/sshd_config.d/hardening.conf
+# /etc/ssh/sshd_config.d/00-hardening.conf
+# (00- sorts before 50-cloud-init.conf; sshd keeps the FIRST value it reads, so a
+#  later cloud-init "PasswordAuthentication yes" cannot override this file)
 PermitRootLogin no
 PasswordAuthentication no
 PermitEmptyPasswords no
@@ -317,26 +326,33 @@ MaxAuthTries 3
 X11Forwarding no
 ClientAliveInterval 300
 ClientAliveCountMax 2
-
-# Restart SSH
-systemctl restart sshd
 ```
+
+```bash
+sshd -t || exit 1                                   # validate before touching the daemon
+systemctl reload ssh 2>/dev/null || systemctl reload sshd   # ssh on Debian/Ubuntu, sshd elsewhere
+sshd -T | grep -E '^(passwordauthentication|permitrootlogin) '  # effective values
+```
+
+`scripts/harden-linux.py` automates this with the same checks; it only previews unless given `--apply`.
 
 ### Harden Container Image
 ```dockerfile
 # Use minimal base
 FROM cgr.dev/chainguard/python:latest
 
-# Non-root user
-USER nonroot
-
-# Read-only filesystem
-COPY --chown=nonroot:nonroot app /app
+# App files owned by root and not writable by the runtime user
+COPY app /app
 WORKDIR /app
 
-# Drop all capabilities
+# Non-root user
+USER nonroot
 ENTRYPOINT ["python", "-m", "app"]
 ```
+
+A Dockerfile cannot make the root filesystem read-only or drop capabilities; set those at
+runtime (`docker run --read-only --cap-drop=ALL --security-opt no-new-privileges`, or the
+Kubernetes `securityContext` below).
 
 ### Harden Kubernetes Pod
 ```yaml
@@ -399,7 +415,8 @@ GRANT SELECT, INSERT, UPDATE ON app.orders TO app_user;
 
 -- Force SSL connections
 ALTER SYSTEM SET ssl = on;
--- In pg_hba.conf: hostssl all all 0.0.0.0/0 scram-sha-256
+-- In pg_hba.conf, only the application subnet, TLS only:
+--   hostssl app app_user 10.0.1.0/24 scram-sha-256
 ```
 
 ## Detailed Hardening Guides
@@ -412,25 +429,22 @@ For layer-specific hardening guidance:
 - **Database hardening:** See `references/database-hardening.md`
 
 For automation scripts:
-- **Python automation:** See `scripts/harden-linux.py`
-- **Container host setup:** See `scripts/harden-container-host.sh`
-- **Compliance reporting:** See `scripts/generate-compliance-report.py`
+- **Python automation:** See `scripts/harden-linux.py` (dry run by default; `--apply` to change the host, `--confirm-key-login` before it touches sshd, `--disable-ip-forward` only on non-container, non-router hosts)
 - **Infrastructure scanning:** See `scripts/scan-infrastructure.sh`
 
 For working examples:
 - **Linux configurations:** See `examples/linux/`
 - **Kubernetes manifests:** See `examples/kubernetes/`
-- **Terraform modules:** See `examples/terraform/`
 
 ## Integration with Related Skills
 
-- **auth-security:** Authentication and authorization patterns complement hardening
-- **secret-management:** Secure secrets handling is essential for hardening
-- **kubernetes-operations:** Pod security and RBAC hardening
-- **infrastructure-as-code:** Security scanning in IaC pipelines
-- **building-ci-pipelines:** Automated security scanning integration
-- **observability:** Security monitoring and alerting
-- **compliance-frameworks:** Mapping hardening to compliance requirements
+- **security-and-hardening:** Application-code controls (input, authn/authz, secrets in code)
+- **hashicorp-vault:** Secrets storage and rotation
+- **kubernetes-hardening:** Pod security, RBAC, admission and network policy in Kubernetes
+- **dockerfile-optimise:** Hardened, minimal container images
+- **building-ci-pipelines:** Automated security scanning stages
+- **audit-logging:** Security monitoring and SIEM integration
+- **implementing-compliance:** Mapping hardening to compliance requirements
 
 ## Anti-Patterns to Avoid
 
@@ -463,3 +477,4 @@ For working examples:
 7. **Iterate:** Review and improve hardening regularly
 
 For step-by-step implementation, start with `references/linux-hardening.md` or `references/container-hardening.md` based on infrastructure type.
+

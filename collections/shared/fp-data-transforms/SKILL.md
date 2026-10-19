@@ -1,10 +1,9 @@
 ---
 name: fp-data-transforms
-description: Everyday data transformations using functional patterns - arrays, objects, grouping, aggregation, and null-safe access
-risk: critical
+description: "fp-ts: everyday data reshaping in TypeScript - array map/filter/reduce, object pick/omit/merge, normalizing API responses, groupBy/countBy/sumBy, and null-safe nested access - with guidance on when native methods beat fp-ts. Use when transforming collections or nested objects in an fp-ts codebase; not for Effect."
 source: community
 date_added: "2026-09-04"
-version: 1.0.0
+version: 1.1.0
 author: Claude
 tags:
   - functional-programming
@@ -20,20 +19,33 @@ tags:
 
 # Practical Data Transformations
 
-This skill covers the data transformations you do every day: working with arrays, reshaping objects, normalizing API responses, grouping data, and safely accessing nested values. Each section shows the imperative approach first, then the functional equivalent, with honest assessments of when each approach shines.
+Reshape arrays and objects with small, composable, immutable steps. Native array methods and optional chaining handle most cases; reach for fp-ts (`fp-ts/Array`, `fp-ts/Record`, `Option`) when steps can miss, need composing, or must stay type-safe end to end.
 
-## Detailed Guide
+## Procedure
 
-Read [the detailed guide](references/detailed-guide.md) before executing this skill. It retains the complete procedure and reference material. Treat its safety, prerequisites, and validation requirements as mandatory. For focused work, load the relevant sections; for end-to-end work, read the guide completely.
+1. Check the platform first: modern runtimes already have `Object.groupBy` / `Map.groupBy` (ES2024; Node 21+), `Array.prototype.toSorted` / `toReversed` / `with` (ES2023; non-mutating), and `structuredClone`. Do not hand-roll these if the target supports them (check `tsconfig` `lib` and the runtime version).
+2. Pick the tool with the "When to Use What" table below.
+3. Keep every step pure: return new arrays/objects, never mutate inputs.
+4. Name intermediate pipelines (`const toRow = flow(...)`) once a pipeline exceeds about five steps.
+5. Measure before replacing a readable two-pass `filter().map()` with a single `reduce`.
 
-## When to Use
-- You need to transform arrays, objects, grouped data, or nested values in TypeScript.
-- The task involves reshaping API responses, null-safe access, aggregation, or normalization.
-- You want practical functional patterns for everyday data work instead of low-level loops.
+## References
 
----
+Quick-lookup cheat sheets: [references/option-cheatsheet.md](references/option-cheatsheet.md) (Option operators, when Option beats `?.`/`??`) and [references/pipe-cheatsheet.md](references/pipe-cheatsheet.md) (`pipe` vs `flow`, data-last operators, gotchas).
 
-## 6. Real-World Examples
+Read [the detailed guide](references/detailed-guide.md) for imperative-vs-functional side-by-sides. Load only the section you need:
+
+| Task | Section |
+|---|---|
+| map / filter / reduce, `fp-ts/Array` helpers | 1. Array Operations |
+| pick, omit, merge, deep merge, immutable nested updates | 2. Object Transformations |
+| API response to normalized `byId`/`allIds` state | 3. Data Normalization |
+| groupBy, countBy, sumBy, multi-metric aggregation | 4. Grouping and Aggregation |
+| `Option` vs `?.`, safe array/record lookups, combining optionals | 5. Null-Safe Access |
+
+Related: the Option and pipe cheat sheets under References; fp-errors when a transformation step can fail with a reason.
+
+## Real-World Examples
 
 ### Example 1: Transform API Response to UI-Ready Data
 
@@ -176,6 +188,8 @@ const finalSettings = deepMergeSettings(DEFAULT_SETTINGS, userPreferences);
 ### Example 3: Group Orders by Customer with Totals
 
 ```typescript
+import * as NEA from 'fp-ts/NonEmptyArray';
+
 interface Order {
   id: string;
   customerId: string;
@@ -196,7 +210,9 @@ const calculateOrderTotal = (order: Order): number =>
   order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
 const groupOrdersByCustomer = (orders: Order[]): CustomerOrderSummary[] => {
-  const grouped = groupBy((order: Order) => order.customerId)(orders);
+  // NEA.groupBy gives non-empty groups, so customerOrders[0] is always defined.
+  // (Native Object.groupBy works too on ES2024+, but its groups are typed as possibly undefined.)
+  const grouped = NEA.groupBy((order: Order) => order.customerId)(orders);
 
   return Object.entries(grouped).map(([customerId, customerOrders]) => ({
     customerId,
@@ -214,6 +230,9 @@ const groupOrdersByCustomer = (orders: Order[]): CustomerOrderSummary[] => {
 ### Example 4: Safely Access Deeply Nested Config
 
 ```typescript
+import * as O from 'fp-ts/Option';
+import { pipe } from 'fp-ts/function';
+
 interface AppConfig {
   services?: {
     api?: {
@@ -237,8 +256,7 @@ interface AppConfig {
   };
 }
 
-import * as O from 'fp-ts/Option';
-import { pipe } from 'fp-ts/function';
+declare const config: AppConfig; // loaded elsewhere
 
 // Create a type-safe config accessor
 const getConfigValue = <T>(
@@ -274,7 +292,7 @@ const getDbConfig = (config: AppConfig) => ({
 
 ---
 
-## 7. When to Use What
+## When to Use What
 
 ### Use Native Methods When:
 
@@ -344,9 +362,8 @@ const result = items
   .map(item => item.name.toUpperCase());
 ```
 
----
+## Done when
 
-## Limitations
-- Use this skill only when the task clearly matches the scope described above.
-- Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
-- Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.
+- Inputs are not mutated (spot-check with `Object.freeze` in a test, or a readonly type).
+- Types flow through without `as` casts; missing values are `Option` or `?? default`, not `!`.
+- The result is checked by a unit test with an empty input, a single item, and a missing/nullable field.

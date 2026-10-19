@@ -1,6 +1,6 @@
 ---
 name: context-engineering
-description: Optimizes agent context setup. Use when starting a new session, when agent output quality degrades, when switching between tasks, or when you need to configure rules files and context for a project.
+description: Curate what an agent sees - rules files, task-scoped file loading, context budgets, compaction, and subagent hand-offs. Use when starting or restarting a session, when output quality degrades as context grows, when delegating to subagents, or when setting up rules files for a project.
 ---
 
 # Context Engineering
@@ -50,7 +50,7 @@ Create a rules file that persists across sessions. This is the highest-leverage 
 ## Commands
 - Build: `npm run build`
 - Test: `npm test`
-- Lint: `npm run lint --fix`
+- Lint: `npm run lint -- --fix`
 - Dev: `npm run dev`
 - Type check: `npx tsc --noEmit`
 
@@ -72,7 +72,7 @@ Create a rules file that persists across sessions. This is the highest-leverage 
 ```
 
 **Equivalent files for other tools:**
-- `.cursorrules` or `.cursor/rules/*.md` (Cursor)
+- `.cursor/rules/*.mdc` (Cursor project rules; the single `.cursorrules` file is the deprecated legacy form)
 - `.windsurfrules` (Windsurf)
 - `.github/copilot-instructions.md` (GitHub Copilot)
 - `AGENTS.md` (OpenAI Codex)
@@ -199,7 +199,7 @@ Load only the relevant section when working on a specific area.
 
 The context window is not a filing cabinet — it's a working desk. As a session runs, conversation history, tool output, and exploration accumulate. Most of it becomes deadweight. Budget proactively: waiting until the window is full causes abrupt quality drops; managing regularly keeps the agent coherent through long tasks.
 
-**Start trimming at 75% capacity, not 100%.** By the time the window is genuinely full, the model's attention is already fragmented across too many signals. The 75% threshold gives room to compress gracefully rather than cut desperately mid-task.
+**Act at about 75% capacity, not 100%.** By the time the window is genuinely full, the model's attention is already fragmented across too many signals. An agent usually cannot delete past messages itself, so "cutting" means: stop pulling in more raw output, write the conclusions down (in a notes file or the task's plan), then compact the session (for example `/compact` in Claude Code) or start a fresh session at the next task boundary with that summary. The 75% threshold gives room to do this gracefully rather than desperately mid-task.
 
 ### What to cut first
 
@@ -228,6 +228,23 @@ After:  "Import issue traced to a circular dependency in src/lib/db.ts —
 ```
 
 The detail is gone; the decision is preserved. If the detail turns out to matter, the summary is a breadcrumb for re-investigation.
+
+### Hand off by reference when delegating
+
+When a coordinating agent delegates to subagents, their full reports must not land in the coordinator's window. Keep the artifact outside the conversation and carry only a pointer plus a digest:
+
+1. Have each subagent write its full output to a durable location (a file in the scratch directory, a plan or spec file, a PR comment) under a stable, versioned name such as `notes/plan-v2.md`.
+2. Keep only a short digest in the coordinator's context:
+   ```
+   plan-v2 (notes/plan-v2.md) - status: complete | partial | blocked
+   Result: <two or three facts the next step depends on>
+   Open: <blockers or decisions the user must make>
+   Next: <who or what acts next>
+   ```
+3. Brief the next subagent with the digests it needs, the paths of the full artifacts it may read, its specific task, and the constraints it must not change. Do not paste earlier reports into the brief.
+4. When reporting to the user, summarize and cite the artifact path; do not relay a raw subagent report.
+
+If an artifact is revised, write a new version instead of overwriting the one another agent was briefed with, so digests and files stay consistent.
 
 ### Order for recency
 
@@ -321,7 +338,7 @@ This catches wrong directions before you've built on them. It's a 30-second inve
 | Missing examples | Agent invents a new style instead of following yours | Include one example of the pattern to follow |
 | Implicit knowledge | Agent doesn't know project-specific rules | Write it down in rules files — if it's not written, it doesn't exist |
 | Silent confusion | Agent guesses when it should ask | Surface ambiguity explicitly using the confusion management patterns above |
-| Context cliff | Waiting until the window is full before managing it — attention fragments and output quality drops abruptly at the limit | Start trimming at 75% capacity; compress rather than cut |
+| Context cliff | Waiting until the window is full before managing it — attention fragments and output quality drops abruptly at the limit | At about 75% capacity, summarize and compact or start a fresh session at a task boundary |
 
 ## Common Rationalizations
 
@@ -351,3 +368,4 @@ After setting up context, confirm:
 - [ ] Context is refreshed when switching between major tasks
 - [ ] During long sessions, context is actively managed: failed attempts and replaced drafts removed, live error and task definition protected
 - [ ] Task-critical content (current error, active constraint) is positioned last in context, not buried under background material
+- [ ] When delegating, full subagent outputs live in files and the coordinator holds only digests and paths

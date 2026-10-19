@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "repository": "com-lihaoyi/castor",
+  "evidence": [
+    {
+      "id": "castor-review-duplication",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/pull/12#issuecomment-919783061",
+      "occurred_at": "2021-09-15T07:49:07Z",
+      "author": "lihaoyi",
+      "role_basis": "Historical build.sc at b366825ee8be4507e518ecffa40cab242df5e447 names lihaoyi as a POM developer. In PR #12 he gives substantive design feedback and later agrees to the 0.2.0 release. This establishes developer/reviewer participation, not sole historical leadership from present-day association.",
+      "excerpt": "If the only thing that differs is `scheduler`/`scheduleMsg`, I'd only expect to see that logic changed between JVM/JS/Native and the rest of the boilerplate in Context.scala unchanged",
+      "interpretation": "The reviewer requests a smaller platform-specific boundary rather than copying the entire Context implementation. This is explicit guidance in this exchange, not an inferred universal ban on duplication."
+    },
+    {
+      "id": "castor-review-overload",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/pull/12#issuecomment-919857735",
+      "occurred_at": "2021-09-15T09:31:48Z",
+      "author": "lihaoyi",
+      "role_basis": "Historical POM developer and substantive reviewer in PR #12; the comment proposes preserving existing JVM callers. No current OWNER or MEMBER label is used as historical-role proof.",
+      "excerpt": "Could we add an override that takes FiniteDuration? that way people who\nwant to use it cross-platform can do so, while those who have code on the\nJVM using java.time can continue using the existing API without change",
+      "interpretation": "Only the author's own leading paragraph is quoted; the forwarded email below it belongs to lolgab and is not attributed to lihaoyi. The proposed additive compatibility route was explored, not the final implementation. The original wording says override; the discussion concerns a second duration-taking API."
+    },
+    {
+      "id": "castor-author-linker",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/pull/12#issuecomment-919928186",
+      "occurred_at": "2021-09-15T11:16:18Z",
+      "author": "lolgab",
+      "role_basis": "PR #12 detail and commit metadata identify lolgab as the proposing author; the comment reports his attempted alternative. Formal historical maintainer rank is unverified.",
+      "excerpt": "Sadly you can't leave methods using `java.time` or `java.util.concurrent` in public traits without making the Scala.js linker complain ( Scala Native links just fine but it might be a bug ).",
+      "interpretation": "The author reports a public-trait linkage constraint in the historical platform versions and explicitly treats Native success as uncertain. This is not proof that every java.time reference is forbidden on every future Scala.js version."
+    },
+    {
+      "id": "castor-review-release",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/pull/12#issuecomment-919974891",
+      "occurred_at": "2021-09-15T12:28:20Z",
+      "author": "lihaoyi",
+      "role_basis": "Historical POM developer and active PR #12 reviewer explicitly agreeing to the release number after the author disclosed binary incompatibility; no claim that this was a full independent code audit.",
+      "excerpt": "Tagging 0.2.0 sounds good. Castor is still a relatively young library, so we should expect it to evolve over time where necessary.",
+      "interpretation": "The final release decision accepts deliberate evolution after discussion of a binary break. It does not establish a rule that source compatibility alone permits patch releases."
+    },
+    {
+      "id": "castor-commit-mixins",
+      "kind": "commit",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/commit/02c1c6f54e230ebf73dc86429cf814fd8f397d89",
+      "occurred_at": "2021-09-15T11:17:46Z",
+      "commit_sha": "02c1c6f54e230ebf73dc86429cf814fd8f397d89",
+      "excerpt": "This implements a different approach which is NOT binary\ncompatible, but is source compatible and avoid duplicating code.",
+      "interpretation": "The revision's own commit message distinguishes source and binary compatibility. Its patch moves common logic back into shared Context.scala and adds platform-specific mixins; the subsequent commit fixes the JS/Native companion mixin."
+    },
+    {
+      "id": "castor-code-jvm-boundary",
+      "kind": "code",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/6fa845bae0e852d57f57b49a450396583c3494bc/castor/src-jvm/castor/platform/Context.scala",
+      "occurred_at": "2021-09-15T11:41:16Z",
+      "commit_sha": "6fa845bae0e852d57f57b49a450396583c3494bc",
+      "path": "castor/src-jvm/castor/platform/Context.scala",
+      "excerpt": "private [castor] trait Context {\n  def scheduleMsg[T](a: Actor[T], msg: T, time: java.time.Duration)",
+      "interpretation": "Final PR #12 code isolates the JVM duration signature in a package-private platform trait. Inheritance still exposes methods to users of the public Context; private mixins do not eliminate compatibility obligations."
+    },
+    {
+      "id": "castor-code-portable-boundary",
+      "kind": "code",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/6fa845bae0e852d57f57b49a450396583c3494bc/castor/src-js-native/Context.scala",
+      "occurred_at": "2021-09-15T11:41:16Z",
+      "commit_sha": "6fa845bae0e852d57f57b49a450396583c3494bc",
+      "path": "castor/src-js-native/Context.scala",
+      "excerpt": "private [castor] trait Context",
+      "interpretation": "The JS/Native counterpart is empty: the final repair does not implement a portable timer API. Missing capabilities were excluded rather than represented as successful cross-platform support."
+    },
+    {
+      "id": "castor-code-shared-context",
+      "kind": "code",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/ae2ba2fe72c930999251d04aaef57cbef808f89b/castor/src/Context.scala",
+      "occurred_at": "2022-07-09T11:29:24Z",
+      "commit_sha": "ae2ba2fe72c930999251d04aaef57cbef808f89b",
+      "path": "castor/src/Context.scala",
+      "excerpt": "trait Context extends ExecutionContext with platform.Context {",
+      "interpretation": "Shared Context retains token reporting, Future construction and quiescence bookkeeping while mixing in platform members. Full source inspection also found waitForInactivity still takes Option[java.time.Duration] and blocks with Await; this snapshot is not proof that all Context helpers work on JS/Native."
+    },
+    {
+      "id": "castor-test-portable-async",
+      "kind": "code",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/ae2ba2fe72c930999251d04aaef57cbef808f89b/castor/test/src/ActorsTest.scala",
+      "occurred_at": "2022-07-09T11:29:24Z",
+      "commit_sha": "ae2ba2fe72c930999251d04aaef57cbef808f89b",
+      "path": "castor/test/src/ActorsTest.scala",
+      "excerpt": "      object foo extends SimpleActor[Unit]{\n        def run(msg: Unit) = ()\n      }\n      foo.sendAsync(Future(()))",
+      "interpretation": "The shared async smoke test introduced by PR #12 reaches global-context and Future dispatch code. It has no delivery assertion and returns Unit, so treating it as an eventual-delivery or cancellation test would overstate its coverage."
+    },
+    {
+      "id": "castor-test-jvm-timer",
+      "kind": "code",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/ae2ba2fe72c930999251d04aaef57cbef808f89b/castor/test/src-jvm/JvmActorsTest.scala",
+      "occurred_at": "2022-07-09T11:29:24Z",
+      "commit_sha": "ae2ba2fe72c930999251d04aaef57cbef808f89b",
+      "path": "castor/test/src-jvm/JvmActorsTest.scala",
+      "excerpt": "      val logger = new Logger(logPath, java.time.Duration.ofMillis(50))",
+      "interpretation": "The JVM debounce test consumes the retained java.time API, waits for inactivity, and checks grouped output. JVM-only file I/O, sleeps and Await-based quiescence are not portable evidence. The same inspected test source is unchanged in the 2024 snapshot."
+    },
+    {
+      "id": "castor-build-source-repair",
+      "kind": "code",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/6665317383b0fe1c75a0a087d1e5cc65cefdf09b/build.sc",
+      "occurred_at": "2020-03-05T08:40:22Z",
+      "commit_sha": "6665317383b0fe1c75a0a087d1e5cc65cefdf09b",
+      "path": "build.sc",
+      "excerpt": "    def scalaJSVersion = crossScalaJsVersion\n    def millSourcePath = super.millSourcePath / os.up\n    object test extends Tests with ActorTestModule {",
+      "interpretation": "PR #3 repairs source-root resolution and test inheritance after #2 changed cross-module layout. The PR author reported a potentially empty JS publication; that is an author report, not an artifact independently downloaded here. The parallel source patch replaces SAM lambdas for the Native Scala 2.11 compilation floor."
+    },
+    {
+      "id": "castor-build-2022",
+      "kind": "code",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/ae2ba2fe72c930999251d04aaef57cbef808f89b/build.sc",
+      "occurred_at": "2022-07-09T11:29:24Z",
+      "commit_sha": "ae2ba2fe72c930999251d04aaef57cbef808f89b",
+      "path": "build.sc",
+      "excerpt": "    def mimaPreviousArtifacts =\n      if(isScala3(crossVersion)) Agg.empty[Dep] else super.mimaPreviousArtifacts()",
+      "interpretation": "The actual build temporarily skips Scala 3 MiMa baselines, despite a global compatibility CI command. Source roots combine shared src with src-platform and an extra src-js-native root. Scala 2.11.12, 2.12.16, 2.13.8 and 3.1.3 are crossed with JS 1.10.1 and Native 0.4.5. A green umbrella command cannot prove a skipped matrix cell."
+    },
+    {
+      "id": "castor-ci-2022",
+      "kind": "documentation",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/ae2ba2fe72c930999251d04aaef57cbef808f89b/.github/workflows/actions.yml",
+      "occurred_at": "2022-07-09T11:29:24Z",
+      "commit_sha": "ae2ba2fe72c930999251d04aaef57cbef808f89b",
+      "path": ".github/workflows/actions.yml",
+      "excerpt": "        run: ./mill -i all __.publishArtifacts __.test",
+      "interpretation": "Executable CI configuration documents the historical combined artifact-and-test invocation. A separate full-history checkout runs ./mill -i __.mimaReportBinaryIssues. These are discovered commands, not commands executed by this research run."
+    },
+    {
+      "id": "castor-commit-test-invocation",
+      "kind": "commit",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/commit/d8cc9c386e4ad24fd05222d6eafca4b724a8ca2c",
+      "occurred_at": "2021-07-15T23:14:59Z",
+      "commit_sha": "d8cc9c386e4ad24fd05222d6eafca4b724a8ca2c",
+      "excerpt": "Run tests in CI again",
+      "interpretation": "PR #10 changes ./mill -i __.publishArtifacts __.test to ./mill -i all __.publishArtifacts __.test. The one-line repair is evidence to inspect actual task dispatch rather than treating a successful publication step as test execution. No substantive review preference is inferred from its merge."
+    },
+    {
+      "id": "castor-build-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/189e2c869be8f750c94802c5a2ea7b65a03ee821/build.mill",
+      "occurred_at": "2024-10-24T00:58:06Z",
+      "commit_sha": "189e2c869be8f750c94802c5a2ea7b65a03ee821",
+      "path": "build.mill",
+      "excerpt": "    // Enable after first release for Scala Native 0.5\n    def mimaPreviousArtifacts = T { Agg.empty }",
+      "interpretation": "The 2024 build uses Scala 2.12.19, 2.13.13 and 3.3.3, JS 1.16.0 and Native 0.5.4. Cross modules are traits with a single Scala-version axis, and Native binary checks have an empty baseline. This is a snapshot observation, not a claim about the unexamined PR #57 review."
+    },
+    {
+      "id": "castor-unmerged-native-stub",
+      "kind": "code",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/85ac5ae0b4fc3eaf185cefd56a00c2d5896625e0/castor/src-native/ContextImpl.scala",
+      "occurred_at": "2021-11-10T09:36:00Z",
+      "commit_sha": "85ac5ae0b4fc3eaf185cefd56a00c2d5896625e0",
+      "path": "castor/src-native/ContextImpl.scala",
+      "excerpt": "    throw new NotImplementedError(\"scheduleMsg currently not available in native\")",
+      "interpretation": "Unmerged PR #15 proposes a Native method that is present in the surface but fails at runtime. It cannot support a claim that scheduling became portable. No discussion explains why this proposal was closed."
+    },
+    {
+      "id": "castor-unmerged-duration-change",
+      "kind": "code",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/85ac5ae0b4fc3eaf185cefd56a00c2d5896625e0/castor/src-jvm/castor/platform/Context.scala",
+      "occurred_at": "2021-11-10T09:36:00Z",
+      "commit_sha": "85ac5ae0b4fc3eaf185cefd56a00c2d5896625e0",
+      "path": "castor/src-jvm/castor/platform/Context.scala",
+      "excerpt": "  def scheduleMsg[T](a: Actor[T], msg: T, delay: scala.concurrent.duration.Duration)",
+      "interpretation": "This unmerged proposal replaces the JVM java.time parameter with scala.concurrent.duration.Duration, not an additive FiniteDuration overload. Treating it as the shipped solution or the implementation of the earlier compatibility proposal would conflate distinct designs."
+    },
+    {
+      "id": "castor-code-dispatch-accounting",
+      "kind": "code",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/ae2ba2fe72c930999251d04aaef57cbef808f89b/castor/src/Actors.scala",
+      "occurred_at": "2022-07-09T11:29:24Z",
+      "commit_sha": "ae2ba2fe72c930999251d04aaef57cbef808f89b",
+      "path": "castor/src/Actors.scala",
+      "excerpt": "      catch{case e: Throwable => ac.reportFailure(e)}\n      finally ac.reportComplete(token)",
+      "interpretation": "SimpleActor completes each message token in finally; BatchActor completes each token in its batch. BaseActor uses a synchronized mutable queue and a scheduled flag. These are source observations retained as refactoring invariants, not historical review preferences or proof of safety when callbacks or executor submission throw."
+    },
+    {
+      "id": "castor-code-remaining-quiescence-boundary",
+      "kind": "code",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/ae2ba2fe72c930999251d04aaef57cbef808f89b/castor/src/Context.scala#L121-L128",
+      "occurred_at": "2022-07-09T11:29:24Z",
+      "commit_sha": "ae2ba2fe72c930999251d04aaef57cbef808f89b",
+      "path": "castor/src/Context.scala",
+      "excerpt": "    def waitForInactivity(timeout: Option[java.time.Duration] = None) = {\n      Await.result(",
+      "interpretation": "The shared test helper retains a JVM-duration signature and blocking wait after the mixin split. This is a separate unverified capability, not evidence that sendAsync failed or that every unused JVM import causes linker failure. The same source is present at the inspected 2024 snapshot."
+    },
+    {
+      "id": "castor-build-pr12-final",
+      "kind": "code",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/6fa845bae0e852d57f57b49a450396583c3494bc/build.sc",
+      "occurred_at": "2021-09-15T11:41:16Z",
+      "commit_sha": "6fa845bae0e852d57f57b49a450396583c3494bc",
+      "path": "build.sc",
+      "excerpt": "val scalaNativeVersions = for {\n  scalaV <- scala2Versions\n  scalaNativeV <- Seq(\"0.4.0\")\n} yield (scalaV, scalaNativeV)",
+      "interpretation": "Full pinned build confirms PR #12's Native scope is Scala 2 only, with Native 0.4.0; Scala 3.0.0 is included on JVM and JS 1.5.1, not JS 0.6.33. Sourcecode 0.2.7 and uTest 0.7.10 are declared. A Mill 0.9 plugin suffix is not treated as an exact launcher pin."
+    },
+    {
+      "id": "castor-code-external-future-boundary",
+      "kind": "code",
+      "repository": "com-lihaoyi/castor",
+      "url": "https://github.com/com-lihaoyi/castor/blob/ae2ba2fe72c930999251d04aaef57cbef808f89b/castor/src/Actors.scala#L23-L29",
+      "occurred_at": "2022-07-09T11:29:24Z",
+      "commit_sha": "ae2ba2fe72c930999251d04aaef57cbef808f89b",
+      "path": "castor/src/Actors.scala",
+      "excerpt": "    f.onComplete{\n      case scala.util.Success(v) => this.send(v)\n      case scala.util.Failure(e) => ac.reportFailure(e)\n    }",
+      "interpretation": "Registering on an unresolved external Future does not itself call reportSchedule in BaseActor.sendAsync. Castor's callback executor accounts work when submitted, so inactivity before input completion does not establish delivery. The proposed Promise fixture tests this source-derived distinction; no historical reviewer claimed it here."
+    }
+  ],
+  "claims": [
+    {
+      "id": "castor-claim-platform-boundary",
+      "rule": "For a Castor cross-platform Context refactor, identify the members whose signatures or implementations need JVM types, isolate those members in the selected platform source set, and preserve shared dispatch and token bookkeeping instead of copying whole Context implementations. Verify that each platform gets exactly one matching mixin definition and a usable async entry point.",
+      "evidence_ids": [
+        "castor-review-duplication",
+        "castor-author-linker",
+        "castor-code-jvm-boundary",
+        "castor-code-portable-boundary",
+        "castor-code-shared-context",
+        "castor-test-portable-async",
+        "castor-code-remaining-quiescence-boundary",
+        "castor-build-pr12-final"
+      ],
+      "applicability": "Direct guidance from PR #12, with the concrete checking procedure inferred from its final patch. Applies to Castor's Future/ExecutionContext architecture and historical platform splits, not a mandate to introduce effects, Ox actors or a new library architecture. Recheck type availability and linker behavior for the actual current platform versions.",
+      "counterexample": "A JVM-only scheduling implementation may legitimately use java.time and Executors. A dead import alone is not evidence of the historical public-trait linkage failure, and the retained blocking TestBase helper is not automatically made portable by the mixin split."
+    },
+    {
+      "id": "castor-claim-compatibility-disposition",
+      "rule": "Before calling a platform-mixin move compatible, check both old source callers and already-compiled consumers. Record the previous artifact baseline and every skipped MiMa platform/version cell; if the binary shape changes, make the release decision explicit rather than describing source compatibility as binary compatibility.",
+      "evidence_ids": [
+        "castor-review-overload",
+        "castor-author-linker",
+        "castor-commit-mixins",
+        "castor-review-release",
+        "castor-build-2022",
+        "castor-build-2024",
+        "castor-ci-2022"
+      ],
+      "applicability": "The separate source/binary decision is explicit in the 2021 exchange; old-consumer checks and matrix reporting are an inference for actionable review. The 2022 Scala 3 and 2024 Native exclusions are historical observations, not excuses to disable checks on a new target.",
+      "counterexample": "A deliberate new-release compatibility break with a recorded migration and baseline analysis is not automatically a defect. Conversely, a private[castor] mixin can affect public inherited members and does not itself guarantee ABI stability."
+    },
+    {
+      "id": "castor-claim-build-dispatch",
+      "rule": "Inference: when changing Castor's cross-module shape, verify resolved source roots, nonempty artifacts, platform-appropriate test inheritance and actual test task execution separately. Discover selectors from the pinned build and CI; do not interpret a successful artifact task or an empty MiMa baseline as a passed test matrix.",
+      "evidence_ids": [
+        "castor-build-source-repair",
+        "castor-commit-test-invocation",
+        "castor-ci-2022",
+        "castor-build-2022",
+        "castor-build-2024",
+        "castor-test-portable-async",
+        "castor-test-jvm-timer"
+      ],
+      "applicability": "Historical inference from PR #3's source-root/test repair, PR #10's missing all repair, and actual builds. The 2022 CI command is ./mill -i all __.publishArtifacts __.test; binary checks are separate. No assertion that a historical selector remains valid under a new Mill version, and no upstream command was executed here.",
+      "counterexample": "The shared async test is a legitimate linking smoke test despite lacking a message-delivery assertion. It should not be rejected for not being a JVM filesystem/timer integration test; it should simply not be used as evidence for stronger delivery guarantees."
+    },
+    {
+      "id": "castor-claim-portable-timer-proposals",
+      "rule": "Inference: when reviewing a portable scheduleMsg proposal, enumerate callable capabilities on each target and compare JVM parameter types before and after. A Native NotImplementedError stub is not functional support; replacing java.time.Duration with Scala Duration is not the additive compatibility proposal discussed earlier.",
+      "evidence_ids": [
+        "castor-review-overload",
+        "castor-code-jvm-boundary",
+        "castor-code-portable-boundary",
+        "castor-unmerged-native-stub",
+        "castor-unmerged-duration-change",
+        "castor-test-jvm-timer"
+      ],
+      "applicability": "Derived from comparing the merged #12 boundary with unmerged #15 code. This is an evidence-based review case, not a claim that maintainers rejected #15 for these reasons. Current timer primitives and duration conversions need their own version-specific verification.",
+      "counterexample": "A documented target-specific API may intentionally omit scheduling on JS/Native. A planned incompatible release may intentionally replace the duration type, provided old callers and the unsupported-target behavior are reported rather than silently claimed compatible."
+    },
+    {
+      "id": "castor-claim-accounting-invariant",
+      "rule": "Inference: while moving platform code, preserve per-message completion reporting and the scheduled-queue handoff in the unchanged shared actor engine. Separate a smoke test proving linkability from a test that observes exactly one delivery, failure reporting and eventual quiescence under accepting executors and nonthrowing hooks. Distinguish message tokens from executor/Future tokens, and do not infer external-Future completion from temporary inactivity.",
+      "evidence_ids": [
+        "castor-code-dispatch-accounting",
+        "castor-code-shared-context",
+        "castor-test-portable-async",
+        "castor-test-jvm-timer",
+        "castor-code-external-future-boundary"
+      ],
+      "applicability": "Source-only preservation obligation for Castor's existing eager Future/ExecutionContext model. No substantive actor-race discussion was found; this is an inference, not attributed historical guidance or a claim of proven exception/cancellation safety. Behavior must be tested under the chosen executor and platform.",
+      "counterexample": "A generic demand to replace synchronized queues, mutable state or callbacks with Cats Effect, ZIO or Ox would change the library model rather than preserve this invariant. Executor rejection and throwing hooks require separate investigation rather than assuming the normal completion path handles them."
+    }
+  ]
+}

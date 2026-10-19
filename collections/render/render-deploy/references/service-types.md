@@ -118,8 +118,9 @@ buildCommand: npm ci
 startCommand: node worker.js
 envVars:
   - key: REDIS_URL
-    fromDatabase:
+    fromService:
       name: redis
+      type: keyvalue
       property: connectionString
 ```
 
@@ -132,8 +133,9 @@ buildCommand: pip install -r requirements.txt
 startCommand: celery -A app.celery worker
 envVars:
   - key: REDIS_URL
-    fromDatabase:
+    fromService:
       name: redis
+      type: keyvalue
       property: connectionString
 ```
 

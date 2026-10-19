@@ -1,6 +1,6 @@
 ---
 name: golang-cli
-description: "Golang CLI application development. Use when building, modifying, or reviewing a Go CLI tool — especially for command structure, flag handling, configuration layering, version embedding, exit codes, I/O patterns, signal handling, shell completion, argument validation, and CLI unit testing. Also triggers when code uses cobra, viper, or urfave/cli. For cobra-specific APIs → See `samber/cc-skills-golang@golang-spf13-cobra` skill; for viper configuration layering → See `samber/cc-skills-golang@golang-spf13-viper` skill."
+description: "Build or review Go command-line tools: commands, flags, configuration, terminal output, exit codes, and distribution. Follow the project's existing CLI framework and public command contract."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -74,7 +74,7 @@ The root command initializes Viper configuration and sets up global behavior via
 Key points:
 
 - `SilenceUsage: true` MUST be set — prevents printing the full usage text on every error
-- `SilenceErrors: true` MUST be set — lets you control error output format yourself
+- `SilenceErrors: true` MUST be set — lets you control error output format yourself, so `main` MUST print the returned error to stderr before exiting
 - `PersistentPreRunE` runs before every subcommand, so config is always initialized
 - Logs go to stderr, output goes to stdout
 
@@ -114,7 +114,7 @@ Cobra provides built-in validators for positional arguments. See [assets/example
 | `cobra.MinimumNArgs(n)`     | Requires at least n args             |
 | `cobra.MaximumNArgs(n)`     | Allows at most n args                |
 | `cobra.RangeArgs(min, max)` | Requires between min and max         |
-| `cobra.ExactValidArgs(n)`   | Exactly n args, must be in ValidArgs |
+| `cobra.MatchAll(cobra.ExactArgs(n), cobra.OnlyValidArgs)` | Exactly n args, each in ValidArgs (replaces deprecated `ExactValidArgs`) |
 
 ## Configuration with Viper
 

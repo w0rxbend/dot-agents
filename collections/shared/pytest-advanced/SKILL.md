@@ -1,495 +1,162 @@
 ---
 name: pytest-advanced
 user-invocable: false
-description: Use when advanced Pytest features including markers, custom assertions, hooks, and coverage configuration.
+description: Configure and drive pytest beyond basic asserts - markers, skip/xfail, pyproject configuration, test selection, assertion helpers, warnings-as-errors, local hooks, and coverage gates. Use when tuning a pytest setup, triaging flaky or slow suites, or adding project-wide test policy.
 allowed-tools: [Read, Write, Edit, Bash, Glob, Grep]
 ---
 
-# pytest advanced
+# pytest advanced usage
 
-Master advanced Pytest features including markers, custom assertions, hooks, and coverage configuration. This skill provides comprehensive coverage of essential concepts, patterns, and best practices for professional Pytest development.
+For fixtures and parametrization see `pytest-fixtures`; for third-party and custom
+plugins see `pytest-plugins`. Check the installed version first (`pytest --version`)
+and keep configuration in the file the project already uses.
 
-## Overview
+## Configuration
 
-Pytest is a powerful tool for python development, providing robust capabilities for maintaining code quality and ensuring reliable software delivery. This skill covers the fundamental through advanced aspects of working with Pytest.
+Configuration lives in exactly one of `pytest.ini`, `pyproject.toml`
+(`[tool.pytest.ini_options]`), `tox.ini`, or `setup.cfg`; the first one found wins and
+the others are ignored. `pytest --co -q` prints the detected `rootdir` and `configfile`.
 
-## Installation and Setup
+```toml
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config", "--import-mode=importlib"]
+xfail_strict = true
+filterwarnings = [
+    "error",                                          # new warnings fail the suite
+    "ignore::DeprecationWarning:some_third_party.*",  # documented, narrow exceptions
+]
+markers = [
+    "slow: takes more than a few seconds; deselect with -m 'not slow'",
+    "integration: needs external services",
+]
+```
 
-### Basic Installation
+- `--strict-markers` turns marker typos into errors; register every custom marker.
+- `--strict-config` fails on unknown ini keys.
+- `xfail_strict = true` makes an unexpectedly passing xfail a failure, so fixed bugs
+  are noticed.
+- `--import-mode=importlib` avoids `sys.path` mutation and same-basename test file
+  conflicts; it requires test helpers to live in importable packages.
 
-Setting up Pytest requires proper installation and configuration in your development environment.
+## Selecting and re-running tests
 
 ```bash
-# Installation command specific to Pytest
-# Follow official documentation for latest version
+pytest tests/api/test_orders.py::TestCreate::test_rejects_zero   # node id
+pytest -k "orders and not slow"          # substring expression on names
+pytest -m "not integration"              # marker expression
+pytest --lf                              # only last failures
+pytest --ff -x                           # failures first, stop at the first new failure
+pytest --sw                              # stepwise: resume from the last failure
+pytest --co -q                           # collect only; check what would run
+pytest --durations=15                    # slowest setup/call/teardown phases
 ```
 
-### Project Configuration
-
-Create appropriate configuration files and setup for your project structure:
-
-- Configuration file setup
-- Project structure organization
-- Team collaboration setup
-- CI/CD integration preparation
-
-## Core Concepts
-
-### Fundamental Principles
-
-Understanding the core principles of Pytest is essential for effective usage:
-
-1. **Architecture** - How Pytest is structured and operates
-2. **Configuration** - Setting up and customizing behavior
-3. **Integration** - Working with other tools and frameworks
-4. **Best Practices** - Industry-standard approaches
-
-### Key Features
-
-Pytest provides several key features that make it valuable:
-
-- Feature 1: Core functionality
-- Feature 2: Advanced capabilities  
-- Feature 3: Integration options
-- Feature 4: Performance optimization
-- Feature 5: Extensibility
-
-### Configuration Strategy
-
-Proper configuration ensures Pytest works optimally:
-
-- Environment-specific setup
-- Team standards enforcement
-- Performance tuning
-- Error handling configuration
-
-### Advanced Usage
-
-For complex scenarios, Pytest offers advanced capabilities:
-
-- Custom extensions
-- Advanced patterns
-- Performance optimization
-- Scalability considerations
-
-## Code Examples
-
-### Example 1: Basic Setup
+## skip, skipif, xfail
 
 ```python
-// Basic Pytest setup
-// Demonstrates fundamental usage patterns
-// Shows proper initialization and configuration
+@pytest.mark.skipif(sys.platform == "win32", reason="POSIX signals only")
+def test_sigterm(): ...
 
-// Core setup code
-function basicSetup() {
-  // Initialize framework
-  // Configure basic options
-  // Return configured instance
-}
+@pytest.mark.xfail(raises=NotImplementedError, reason="#412 streaming not done")
+def test_stream(): ...
 
-// Usage example
-const instance = basicSetup();
+def test_optional_dep():
+    yaml = pytest.importorskip("yaml", minversion="6")
 ```
 
-### Example 2: Configuration
+- Always give a `reason`; reference an issue for xfails.
+- Use `xfail(raises=...)` so an unrelated exception is still reported as a failure.
+- Prefer `skipif` at definition time over `pytest.skip()` inside the test, which hides
+  the condition from collection output.
+
+## Assertions
 
 ```python
-// Configuration example for Pytest
-// Shows how to properly configure
-// Includes common options and patterns
+assert result == expected            # plain assert; pytest rewrites it to show diffs
+assert total == pytest.approx(0.3)   # floats, also works on lists and dicts of floats
 
-// Configuration object
-const config = {
-  option1: 'value1',
-  option2: 'value2',
-  advanced: {
-    setting1: true,
-    setting2: false
-  }
-};
+with pytest.raises(ValueError, match=r"quantity must be > 0"):
+    create_order(qty=0)
 
-// Apply configuration
-function applyConfig(config) {
-  // Validation logic
-  // Application logic
-  // Return result
-}
+with pytest.raises(ExceptionGroup) as excinfo:
+    run_all()
+assert excinfo.group_contains(TimeoutError)
+
+with pytest.warns(DeprecationWarning, match="use new_api"):
+    old_api()
 ```
 
-### Example 3: Advanced Pattern
+- `match` is a regex searched in `str(exc)`; escape literal special characters with
+  `re.escape`.
+- Assertion helper modules outside `conftest.py` and test files are not rewritten;
+  register them in the package `__init__.py` or conftest with
+  `pytest.register_assert_rewrite("tests.helpers")` before they are imported.
+- For readable failures on custom objects, implement `pytest_assertrepr_compare` in
+  `conftest.py`.
+
+## Local hooks in conftest.py
 
 ```python
-// Advanced usage pattern
-// Demonstrates sophisticated techniques
-// Shows best practices in action
+def pytest_addoption(parser):
+    parser.addoption("--run-slow", action="store_true", help="run tests marked slow")
 
-function advancedPattern() {
-  // Setup phase
-  // Execution phase
-  // Cleanup phase
-}
+def pytest_collection_modifyitems(config, items):
+    if config.getoption("--run-slow"):
+        return
+    skip_slow = pytest.mark.skip(reason="needs --run-slow")
+    for item in items:
+        if "slow" in item.keywords:
+            item.add_marker(skip_slow)
 ```
 
-### Example 4: Integration
+Other useful hooks: `pytest_configure` (register markers dynamically, set global
+state), `pytest_report_header` (print environment info), `pytest_runtest_setup`
+(per-test gating). Options must be added in the rootdir `conftest.py` or a plugin.
 
-```python
-// Integration with other tools
-// Shows real-world usage
-// Demonstrates interoperability
+## Coverage
 
-function integrationExample() {
-  // Setup integration
-  // Execute workflow
-  // Handle results
-}
+With `pytest-cov`, configure coverage.py rather than stacking CLI flags:
+
+```toml
+[tool.coverage.run]
+branch = true
+source = ["src/mypkg"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 85
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError"]
 ```
 
-### Example 5: Error Handling
+Run `pytest --cov --cov-report=term-missing`. A coverage gate should ratchet from the
+current measured value, not jump to an aspirational number.
 
-```python
-// Proper error handling approach
-// Defensive programming patterns
-// Graceful degradation
-
-function withErrorHandling() {
-  try {
-    // Main logic
-  } catch (error) {
-    // Error recovery
-  } finally {
-    // Cleanup
-  }
-}
-```
-
-### Example 6: Performance Optimization
-
-```python
-// Performance-optimized implementation
-// Shows efficiency techniques
-// Demonstrates best practices
-
-function optimizedApproach() {
-  // Efficient implementation
-  // Resource management
-  // Performance monitoring
-}
-```
-
-### Example 7: Testing
-
-```python
-// Testing approach for Pytest
-// Unit test examples
-// Integration test patterns
-
-function testExample() {
-  // Test setup
-  // Execution
-  // Assertions
-  // Teardown
-}
-```
-
-### Example 8: Production Usage
-
-```python
-// Production-ready implementation
-// Includes monitoring and logging
-// Error recovery and resilience
-
-function productionExample() {
-  // Production configuration
-  // Monitoring setup
-  // Error handling
-  // Logging
-}
-```
-
-## Best Practices
-
-1. **Follow conventions** - Adhere to established naming and structural patterns for consistency
-2. **Configure appropriately** - Set up framework configuration that matches project requirements
-3. **Validate inputs** - Always validate and sanitize inputs before processing
-4. **Handle errors gracefully** - Implement comprehensive error handling and recovery
-5. **Document decisions** - Comment configuration choices and non-obvious implementations
-6. **Test thoroughly** - Write comprehensive tests for all functionality
-7. **Optimize performance** - Profile and optimize critical paths
-8. **Maintain security** - Follow security best practices and guidelines
-9. **Keep updated** - Regularly update framework and dependencies
-10. **Monitor production** - Implement logging and monitoring for production systems
-
-## Common Pitfalls
-
-1. **Incorrect configuration** - Misconfiguration leads to unexpected behavior and bugs
-2. **Missing error handling** - Not handling edge cases causes production issues
-3. **Poor performance** - Not optimizing leads to scalability problems
-4. **Inadequate testing** - Insufficient test coverage misses bugs
-5. **Security vulnerabilities** - Not following security best practices exposes risks
-6. **Tight coupling** - Poor architecture makes maintenance difficult
-7. **Ignoring warnings** - Dismissing framework warnings leads to future problems
-8. **Outdated dependencies** - Using old versions exposes security risks
-9. **No monitoring** - Lack of observability makes debugging difficult
-10. **Inconsistent standards** - Team inconsistency reduces code quality
-
-## Advanced Topics
-
-### Customization
-
-Pytest allows extensive customization for specific needs:
-
-- Custom plugins and extensions
-- Behavior modification
-- Integration adapters
-- Domain-specific adaptations
-
-### Performance Tuning
-
-Optimize Pytest performance for production:
-
-- Profiling and benchmarking
-- Resource optimization
-- Caching strategies
-- Parallel execution
-
-### CI/CD Integration
-
-Integrate Pytest into continuous integration pipelines:
-
-- Automated execution
-- Result reporting
-- Quality gates
-- Deployment integration
-
-### Troubleshooting
-
-Common issues and their solutions:
-
-- Configuration errors
-- Integration problems
-- Performance issues
-- Unexpected behavior
-
-## When to Use This Skill
-
-- Setting up Pytest in new projects
-- Configuring Pytest for specific requirements
-- Migrating to Pytest from alternatives
-- Optimizing Pytest performance
-- Implementing advanced patterns
-- Troubleshooting Pytest issues
-- Integrating Pytest with CI/CD
-- Training team members on Pytest
-- Establishing team standards
-- Maintaining existing Pytest implementations
-
-## Additional Resources
-
-### Documentation
-
-- Official Pytest documentation
-- Community guides and tutorials
-- API reference materials
-- Migration guides
-
-### Tools and Utilities
-
-- Development tools
-- Testing utilities
-- Monitoring solutions
-- Helper libraries
-
-### Community
-
-- Online forums and communities
-- Open source contributions
-- Best practice repositories
-- Example implementations
-
-## Conclusion
-
-Mastering Pytest requires understanding both fundamentals and advanced concepts. This skill provides the foundation for professional-grade usage, from initial setup through production deployment. Apply these principles consistently for best results.
-
-## Detailed Configuration Examples
-
-### Configuration Option 1
-
-Comprehensive configuration example demonstrating best practices and common patterns used in production environments.
+## Debugging failures
 
 ```bash
-# Detailed configuration setup
-# Includes all necessary options
-# Optimized for production use
+pytest -x --pdb            # drop into pdb at the first failure
+pytest -l --tb=long        # show locals in tracebacks
+pytest -s                  # disable output capture (print debugging)
+pytest -rA                 # summary line for every outcome
+pytest -p no:randomly      # rule out random ordering if pytest-randomly is installed
+pytest --log-cli-level=DEBUG
 ```
 
-### Configuration Option 2
+## Flaky and slow suites
 
-Alternative configuration approach for different use cases, showing flexibility and adaptability of the framework.
+1. Reproduce: run the single test in a loop (`pytest --count=50` with
+   `pytest-repeat`, or a shell loop) and with the suite's random seed.
+2. Classify: shared state, time/timezone, ordering, network, concurrency.
+3. Fix the cause. Retries (`pytest-rerunfailures`) only hide flakiness; use them only
+   with an issue link and a narrow marker.
+4. For slowness, read `--durations`, then move expensive setup to wider-scope
+   immutable fixtures or parallelize with `pytest-xdist`.
 
-```bash
-# Alternative configuration
-# Different optimization strategy
-# Suitable for specific scenarios
-```
+## Done when
 
-### Configuration Option 3
-
-Advanced configuration for complex environments with multiple requirements and constraints.
-
-```bash
-# Advanced configuration
-# Handles complex scenarios
-# Production-ready setup
-```
-
-## Advanced Usage Patterns
-
-### Pattern 1: Modular Organization
-
-Organize your setup in a modular way to improve maintainability and scalability across large projects.
-
-Implementation details:
-
-- Separate concerns appropriately
-- Use composition over inheritance
-- Follow single responsibility principle
-- Maintain clear interfaces
-
-### Pattern 2: Performance Optimization
-
-Optimize for performance in production environments with proven strategies and techniques.
-
-Key considerations:
-
-- Profile before optimizing
-- Focus on bottlenecks
-- Cache appropriately
-- Monitor in production
-
-### Pattern 3: Error Recovery
-
-Implement robust error recovery mechanisms to handle failures gracefully.
-
-Recovery strategies:
-
-- Graceful degradation
-- Retry with backoff
-- Circuit breaker pattern
-- Comprehensive logging
-
-### Pattern 4: Testing Strategy
-
-Comprehensive testing approach ensuring code quality and reliability.
-
-Testing layers:
-
-- Unit tests for components
-- Integration tests for workflows
-- End-to-end tests for user scenarios
-- Performance tests for scalability
-
-## Integration Strategies
-
-### Integration with CI/CD
-
-Seamless integration into continuous integration and deployment pipelines.
-
-Steps:
-
-1. Configure pipeline
-2. Set up automation
-3. Define quality gates
-4. Monitor execution
-
-### Integration with Development Tools
-
-Connect with popular development tools and IDEs for improved workflow.
-
-Tools:
-
-- IDE plugins and extensions
-- CLI tools and utilities
-- Build system integration
-- Version control hooks
-
-### Integration with Monitoring
-
-Implement monitoring and observability for production systems.
-
-Monitoring aspects:
-
-- Performance metrics
-- Error tracking
-- Usage analytics
-- Health checks
-
-## Team Practices
-
-### Establishing Standards
-
-Create and maintain consistent standards across the team.
-
-Standards to define:
-
-- Naming conventions
-- Code organization
-- Documentation requirements
-- Review processes
-
-### Onboarding Process
-
-Streamline onboarding for new team members.
-
-Onboarding steps:
-
-- Initial setup guide
-- Training materials
-- Practice exercises
-- Mentorship program
-
-### Code Review Guidelines
-
-Effective code review practices for quality assurance.
-
-Review checklist:
-
-- Correctness
-- Performance
-- Security
-- Maintainability
-
-## Troubleshooting Guide
-
-### Common Issue 1
-
-Detailed troubleshooting steps for frequently encountered problem.
-
-Resolution steps:
-
-1. Identify symptoms
-2. Check configuration
-3. Verify dependencies
-4. Test solution
-
-### Common Issue 2
-
-Another common issue with comprehensive resolution approach.
-
-Diagnostic steps:
-
-1. Reproduce issue
-2. Gather logs
-3. Analyze data
-4. Apply fix
-
-### Common Issue 3
-
-Third common scenario with clear resolution path.
-
-Investigation process:
-
-1. Understand context
-2. Review recent changes
-3. Test hypotheses
-4. Implement solution
+- `pytest --co -q` collects the expected tests with no warnings about unknown markers.
+- The suite passes with the project's configured `addopts`, not only with ad-hoc flags.
+- Any new skip/xfail has a reason, and new warning filters are narrow and justified.

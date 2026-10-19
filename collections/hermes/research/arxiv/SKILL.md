@@ -115,7 +115,6 @@ curl -s "https://export.arxiv.org/api/query?id_list=2402.03300,2401.12345,2403.0
 
 After fetching metadata for a paper, generate a BibTeX entry:
 
-{% raw %}
 ```bash
 curl -s "https://export.arxiv.org/api/query?id_list=1706.03762" | python -c "
 import sys, xml.etree.ElementTree as ET
@@ -141,7 +140,6 @@ print(f'  url       = {{https://arxiv.org/abs/{raw_id}}}')
 print('}')
 "
 ```
-{% endraw %}
 
 ## Reading Paper Content
 
@@ -155,7 +153,7 @@ web_extract(urls=["https://arxiv.org/abs/2402.03300"])
 web_extract(urls=["https://arxiv.org/pdf/2402.03300"])
 ```
 
-For local PDF processing, see the `ocr-and-documents` skill.
+For local PDF processing, see the `pdf` skill.
 
 ## Common Categories
 
@@ -191,7 +189,7 @@ No dependencies — uses only Python stdlib.
 
 ## Semantic Scholar (Citations, Related Papers, Author Profiles)
 
-arXiv doesn't provide citation data or recommendations. Use the **Semantic Scholar API** for that — free, no key needed for basic use (1 req/sec), returns JSON.
+arXiv doesn't provide citation data or recommendations. Use the **Semantic Scholar API** for that — free, no key needed for basic use, returns JSON. Unauthenticated requests share a global pool and may get HTTP 429 under load; back off and retry, or request a free API key (sent as `x-api-key`), which gets its own per-key limit (about 1 req/sec by default).
 
 ### Get paper details + citations
 
@@ -256,7 +254,7 @@ curl -s "https://api.semanticscholar.org/graph/v1/author/search?query=Yann+LeCun
 | API | Rate | Auth |
 |-----|------|------|
 | arXiv | ~1 req / 3 seconds | None needed |
-| Semantic Scholar | 1 req / second | None (100/sec with API key) |
+| Semantic Scholar | Shared pool without a key (expect 429s); ~1 req / second per key by default | Optional `x-api-key` |
 
 ## Notes
 
@@ -265,7 +263,7 @@ curl -s "https://api.semanticscholar.org/graph/v1/author/search?query=Yann+LeCun
 - arXiv IDs: old format (`hep-th/0601001`) vs new (`2402.03300`)
 - PDF: `https://arxiv.org/pdf/{id}` — Abstract: `https://arxiv.org/abs/{id}`
 - HTML (when available): `https://arxiv.org/html/{id}`
-- For local PDF processing, see the `ocr-and-documents` skill
+- For local PDF processing, see the `pdf` skill
 
 ## ID Versioning
 

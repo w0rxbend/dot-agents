@@ -928,5 +928,5 @@ z.setErrorMap(customErrorMap);
 ## Next Steps
 
 - Use with React Hook Form → `react-hook-form.md`
-- See working examples → `examples/`
+- See working examples → `../../examples/`
 - Validation concepts → `../validation-concepts.md`

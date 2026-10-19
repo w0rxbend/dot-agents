@@ -17,15 +17,10 @@
 Convert technical token counts to understandable metrics:
 
 ```tsx
-function TokenDisplay({ used, total, model }) {
-  // Token to word approximation (model-specific)
-  const tokenToWord = {
-    'gpt-4': 0.75,      // ~1.33 tokens per word
-    'claude-3': 0.8,    // ~1.25 tokens per word
-    'gpt-3.5': 0.7      // ~1.43 tokens per word
-  };
-
-  const ratio = tokenToWord[model] || 0.75;
+function TokenDisplay({ used, total, wordsPerToken = 0.75 }) {
+  // Words per token varies by tokenizer and language; ~0.75 is a common
+  // English approximation. Pass a measured value for your model if you have one.
+  const ratio = wordsPerToken;
   const wordsUsed = Math.floor(used * ratio);
   const wordsTotal = Math.floor(total * ratio);
   const wordsRemaining = wordsTotal - wordsUsed;

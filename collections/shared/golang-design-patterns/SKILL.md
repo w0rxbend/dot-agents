@@ -1,6 +1,6 @@
 ---
 name: golang-design-patterns
-description: "Idiomatic Golang design patterns — functional options, constructor APIs, `init()` and global-state avoidance, enums, panic vs error decisions, resource management and lifecycle, graceful shutdown, timeouts and retries, streaming and iterators, and architecture styles (clean, hexagonal, DDD, flat). Apply when choosing between architectural patterns, implementing functional options, designing constructor APIs, setting up graceful shutdown, applying resilience patterns, or asking which idiomatic Go pattern fits a specific problem. Not for wiring a DI container or comparing DI libraries (→ See `samber/cc-skills-golang@golang-dependency-injection` skill), nor for error wrapping, `errors.Is`/`As`, or logging mechanics (→ See `samber/cc-skills-golang@golang-error-handling` skill)."
+description: "Design Go APIs with functional options, interfaces, composition, constructors, and clear ownership. Select a pattern for a concrete design problem rather than adding abstractions by default."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -101,6 +101,32 @@ srv := NewServer(":8080",
     WithReadTimeout(30*time.Second),
     WithMaxConns(500),
 )
+```
+
+When an option can be invalid, make the option type return an error and have the constructor return it (rule 2):
+
+```go
+type Option func(*Server) error
+
+func WithMaxConns(n int) Option {
+    return func(s *Server) error {
+        if n <= 0 {
+            return fmt.Errorf("max conns must be positive, got %d", n)
+        }
+        s.maxConns = n
+        return nil
+    }
+}
+
+func NewServer(addr string, opts ...Option) (*Server, error) {
+    s := &Server{addr: addr, readTimeout: 5 * time.Second, writeTimeout: 10 * time.Second, maxConns: 100}
+    for _, opt := range opts {
+        if err := opt(s); err != nil {
+            return nil, fmt.Errorf("new server: %w", err)
+        }
+    }
+    return s, nil
+}
 ```
 
 Constructors SHOULD use **functional options** — they scale better with API evolution and require less code. Use builder pattern only if you need complex validation between configuration steps.

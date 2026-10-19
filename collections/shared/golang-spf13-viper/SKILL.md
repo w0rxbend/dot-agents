@@ -1,6 +1,6 @@
 ---
 name: golang-spf13-viper
-description: "Golang configuration library using spf13/viper — layered precedence (flag > env > file > KV > default), BindPFlag/BindPFlags, SetEnvPrefix + SetEnvKeyReplacer + AutomaticEnv, ReadInConfig + ConfigFileNotFoundError, Unmarshal + mapstructure struct tags, Sub for sub-trees, WatchConfig + OnConfigChange for hot reload, viper.New() for test isolation, and remote KV integration. Apply when using or adopting spf13/viper, or when the codebase imports `github.com/spf13/viper`. For CLI command structure alongside viper, see the `samber/cc-skills-golang@golang-spf13-cobra` skill. For general CLI architecture, see `samber/cc-skills-golang@golang-cli`."
+description: "Use Viper for existing or intentionally chosen Go configuration: precedence, flags, environment, files, decoding, and validation. Preserve configuration names and sources; avoid reading secrets into agent output."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -72,7 +72,7 @@ This pipeline is fixed and cannot be reordered. Understanding it prevents most v
 viper.SetConfigName("config")
 viper.AddConfigPath("$HOME/.myapp")
 if err := viper.ReadInConfig(); err != nil {
-    var notFound *viper.ConfigFileNotFoundError
+    var notFound viper.ConfigFileNotFoundError
     if !errors.As(err, &notFound) {
         return fmt.Errorf("reading config: %w", err) // propagate real errors only
     }
@@ -171,7 +171,7 @@ For `t.Setenv` interactions and `Reset()` limitations, see [testing-and-isolatio
 | `AutomaticEnv` without `SetEnvKeyReplacer` | `database.host` looks for `MYAPP_DATABASE.HOST` (dot preserved) — never matches | Add `SetEnvKeyReplacer(strings.NewReplacer(".", "_"))` before `AutomaticEnv` |
 | No `mapstructure` tags on struct fields | Silently misses nested and underscore-named fields | Add `mapstructure:"key_name"` to every field |
 | Using global viper in tests | State from one test contaminates the next, causing flaky ordering | Create `viper.New()` per test |
-| Missing `ConfigFileNotFoundError` check | Missing config file crashes a service that should run on flags/env alone | `errors.As(err, &notFound)` — only propagate non-not-found errors |
+| Missing `ConfigFileNotFoundError` check | Missing config file crashes a service that should run on flags/env alone | `var notFound viper.ConfigFileNotFoundError` (value, not pointer) + `errors.As(err, &notFound)` — only propagate non-not-found errors |
 
 ## Further Reading
 

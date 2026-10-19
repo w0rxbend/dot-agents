@@ -1,6 +1,6 @@
 ---
 name: golang-samber-slog
-description: "Structured logging extensions for Golang using samber/slog-**** packages — multi-handler pipelines (slog-multi), log sampling (slog-sampling), attribute formatting (slog-formatter), HTTP middleware (slog-fiber, slog-gin, slog-chi, slog-echo), and backend routing (slog-datadog, slog-sentry, slog-loki, slog-syslog, slog-logstash, slog-graylog...). Apply when using or adopting slog, or when the codebase already imports any github.com/samber/slog-* package."
+description: "Configure samber slog extensions for handler fanout, sampling, buffering, formatting, or provider adapters. Preserve the service's logging/PII contract and match the selected package API version."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -201,7 +201,7 @@ For configuration examples and shutdown patterns, see [Backend Handlers](referen
 | Mistake | Why it fails | Fix |
 | --- | --- | --- |
 | Sampling after formatting | Wastes CPU formatting records that get dropped | Place sampling as outermost handler |
-| Fanout to many synchronous handlers | Blocks caller — latency is sum of all handlers | Use `Pool()` for concurrent dispatch |
+| Fanout to many synchronous handlers | Blocks caller — latency is sum of all handlers | Make slow sinks async/buffered (batch handlers such as `slog-datadog`/`slog-loki`), or use `Router` so each record only reaches the handlers that need it. Do NOT swap in `Pool()` — it sends each record to ONE handler, so the other sinks lose logs |
 | Missing shutdown flush on batch handlers | Buffered logs lost on shutdown | `defer handler.Stop(ctx)` (Datadog), `defer lokiClient.Stop()` (Loki), `defer writer.Close()` (Kafka) |
 | Router without default/catch-all handler | Unmatched records silently dropped | Add a handler with no predicate as catch-all |
 | `AttrFromContext` without HTTP middleware | Context has no request attributes to extract | Install `slog-gin`/`echo`/`fiber`/`chi` middleware first |
@@ -209,7 +209,7 @@ For configuration examples and shutdown patterns, see [Backend Handlers](referen
 
 ## Performance Warnings
 
-- **Fanout latency** = sum of all handler latencies (sequential). With 5 handlers at 10ms each, every log call costs 50ms. Use `Pool()` to reduce to max(latencies)
+- **Fanout latency** = sum of all handler latencies (sequential). With 5 handlers at 10ms each, every log call costs 50ms. Put slow network sinks behind buffered/batching handlers, or use `Router` to shrink the handler set per record. `Pool()` is not a fix here: it load-balances each record to a single handler
 - **Pipe middleware** adds per-record function call overhead — keep chains short (2-4 middlewares)
 - **slog-formatter** processes attributes sequentially — many formatters compound. For hot-path attribute formatting, prefer implementing `slog.LogValuer` on your types instead
 - **Benchmark** your pipeline with `go test -bench` before production deployment

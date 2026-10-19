@@ -1,7 +1,5 @@
 # Functional Programming in React - Detailed Guide
 
-> This file contains the detailed procedure and reference material extracted from `SKILL.md` for focused loading. The root skill defines activation, examples, safety constraints, and limitations.
-
 ## Quick Reference
 
 | Pattern | Use When |
@@ -255,6 +253,7 @@ function useFetch<T>(url: string) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let stale = false // ignore responses for a previous url / unmounted component
     setLoading(true)
     setError(null)
 
@@ -262,15 +261,19 @@ function useFetch<T>(url: string) {
       fetchJson<T>(url),
       TE.match(
         (err) => {
+          if (stale) return
           setError(err)
           setLoading(false)
         },
         (result) => {
+          if (stale) return
           setData(result)
           setLoading(false)
         }
       )
     )()
+
+    return () => { stale = true }
   }, [url])
 
   return { data, error, loading }
@@ -466,6 +469,7 @@ npm install fp-ts-react-stable-hooks
 import { useStableO, useStableEffect } from 'fp-ts-react-stable-hooks'
 import * as O from 'fp-ts/Option'
 import * as Eq from 'fp-ts/Eq'
+import * as N from 'fp-ts/number'
 
 function StableComponent() {
   // Uses fp-ts equality instead of reference equality
@@ -475,7 +479,7 @@ function StableComponent() {
   useStableEffect(
     () => { console.log('value changed') },
     [value],
-    Eq.tuple(O.getEq(Eq.eqNumber))  // Custom equality
+    Eq.tuple(O.getEq(N.Eq))  // Custom equality (Eq.eqNumber is deprecated)
   )
 }
 ```

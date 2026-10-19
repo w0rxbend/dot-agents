@@ -276,4 +276,3 @@ CONTACT_TEMPLATE = '''
 </body>
 </html>
 '''
-```

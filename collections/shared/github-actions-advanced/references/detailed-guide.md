@@ -123,10 +123,11 @@ Split large pipelines into composable units stored in `.github/workflows/`.
 jobs:
   call-build:
     uses: ./.github/workflows/_build.yml        # Same-repo reusable
-    # uses: org/repo/.github/workflows/build.yml@main  # Cross-repo
+    # uses: org/repo/.github/workflows/build.yml@<pinned-sha>  # Cross-repo: pin a SHA, not a branch
     with:
       image-tag: ${{ github.sha }}
-    secrets: inherit                             # Pass all caller secrets down
+    secrets:                                     # Pass only the secrets the callee declares
+      registry-token: ${{ secrets.REGISTRY_TOKEN }}  # avoid `secrets: inherit` (passes every secret)
 
   call-test:
     uses: ./.github/workflows/_test.yml
@@ -421,8 +422,8 @@ env:
 ### Secrets in Composite Actions
 
 ```yaml
-# Secrets cannot be passed as inputs to composite actions
-# Pass them as env vars instead:
+# Composite actions cannot read the `secrets` context themselves.
+# The caller passes the value in, as an input or (as here) an env var:
 - uses: ./.github/actions/my-action
   env:
     SECRET_VALUE: ${{ secrets.MY_SECRET }}
@@ -504,6 +505,8 @@ steps:
 
 
 ## Self-Hosted Runners
+
+Registration, ephemeral setup and hardening: see [runners-and-verification.md](runners-and-verification.md).
 
 ```yaml
 jobs:
@@ -628,11 +631,12 @@ jobs:
 # Dump all available contexts
 - name: Debug — dump all contexts
   if: runner.debug == '1'
+  env:                     # via env, never interpolated into the script
+    ENV_CTX: ${{ toJson(env) }}
+    VARS_CTX: ${{ toJson(vars) }}
+    RUNNER_CTX: ${{ toJson(runner) }}
   run: |
-    echo "github: ${{ toJson(github) }}"
-    echo "env: ${{ toJson(env) }}"
-    echo "vars: ${{ toJson(vars) }}"
-    echo "runner: ${{ toJson(runner) }}"
+    echo "$ENV_CTX"; echo "$VARS_CTX"; echo "$RUNNER_CTX"
 
 # SSH into a failing runner for interactive debugging
 - uses: mxschmitt/action-tmate@7b04f3521e6b0a9fc56fa8f9f50da4bcfb5fc7b5  # v3.19.0
@@ -912,7 +916,7 @@ jobs:
 | Job hangs indefinitely | No `timeout-minutes` set | Always set `timeout-minutes` on every job |
 | `$GITHUB_OUTPUT` not set | Old `set-output` command used | Use `echo "key=value" >> $GITHUB_OUTPUT` |
 | OIDC token request fails | Missing `id-token: write` permission | Add to job-level `permissions` block |
-| Reusable workflow can't access caller secrets | No `secrets: inherit` | Add `secrets: inherit` or explicitly pass secrets |
+| Reusable workflow can't access caller secrets | Secrets not passed to the callee | Pass each declared secret explicitly under `secrets:`; use `secrets: inherit` only for trusted same-org workflows that need many secrets |
 
 ---
 
@@ -984,8 +988,8 @@ Before merging any workflow to `main`, verify:
 
 ## Related Skills
 
-- `gha-security-review` — Deep security audit of existing workflow files
-- `github-actions-templates` — Copy-paste ready workflow templates
-- `docker-expert` — Container build optimization and Dockerfile best practices
-- `kubernetes-architect` — Deploying to Kubernetes from GitHub Actions
-- `gitlab-ci-patterns` — GitLab CI/CD equivalent patterns
+- `github-actions-debugger` — Diagnose a failing workflow run from its logs
+- `building-ci-pipelines` — Platform-agnostic pipeline design, GitLab CI, SLSA provenance
+- `dockerfile-optimise` — Container build optimization and Dockerfile rules
+- `implementing-gitops` — Deploying to Kubernetes through Argo CD or Flux
+- `dependency-scanning` — Dependency and SBOM scanning in CI

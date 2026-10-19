@@ -1,6 +1,6 @@
 ---
 name: api-security
-description: "Authorized security assessment of REST, GraphQL, WebSocket, and SOAP APIs: discovery, authentication and authorization flaws (BOLA/IDOR, JWT/OAuth), rate-limit testing, and a structured multi-phase methodology."
+description: "Authorized security assessment of REST, GraphQL, WebSocket and SOAP APIs - discovery, authentication and authorization flaws (BOLA/IDOR/BFLA, JWT/OAuth), input validation, rate-limit and data-exposure testing, in a structured multi-phase workflow. Use for permitted testing of an API; use api-security-best-practices to build secure endpoints."
 risk: offensive
 source: "https://github.com/zhaoxuya520/reverse-skill"
 source_repo: "zhaoxuya520/reverse-skill"
@@ -9,197 +9,142 @@ date_added: "2026-08-25"
 license: "MIT"
 license_source: "https://github.com/zhaoxuya520/reverse-skill/blob/main/LICENSE"
 ---
-> **⚠️ AUTHORIZED USE ONLY**
-> This skill is for educational purposes or authorized security assessments only.
-> You must have explicit, written permission from the system owner before using this tool.
-> Misuse of this tool is illegal and strictly prohibited.
+> **AUTHORIZED USE ONLY.** Use this skill only against systems you own or have explicit written permission to test. Unauthorized testing is illegal.
 
-> **Mandatory confirmation gate**
-> Before running any command that probes, exploits, changes, persists on, extracts data from, or attempts credential access against a target:
-> 1. Ask the user to state the exact target URL, IP, account, or resource.
-> 2. Ask the user to confirm written authorization and the permitted scope.
-> 3. Show the exact command(s) and explain their expected effect.
-> 4. Wait for explicit confirmation in the current conversation.
+> **Confirmation gate.** Before running any command that probes, exploits, modifies, persists on, extracts data from, or attempts credential access against a target:
+> 1. Have the user state the exact target URL, IP, account or resource.
+> 2. Have the user confirm written authorization and the permitted scope.
+> 3. Show the exact command(s) and their expected effect.
+> 4. Wait for explicit confirmation in this conversation.
 >
-> Without that confirmation, remain read-only and provide defensive guidance only. Prefer a sandbox, disposable VM, or controlled lab.
+> Without that confirmation, stay read-only and give defensive guidance only. Prefer a sandbox, disposable VM or controlled lab.
 
-# API 安全测试
-## When to Use
+# API Security Testing
 
-- An authorized assessment covers API endpoints and you need a structured discovery-to-report workflow.
-- Testing API authentication, authorization, or rate-limiting behavior within an approved scope.
+A discovery-to-report workflow for authorized API assessments. Work the phases in order, confirm the scope at the gate above, and keep reproducible evidence for every finding.
 
+## When to use
 
-## 适用场景
+- An authorized assessment covers API endpoints and you need a structured workflow.
+- You are testing API authentication, authorization or rate-limiting behavior within an approved scope.
 
-- REST API 安全测试（OpenAPI/Swagger 驱动或盲测）
-- GraphQL 安全审计（内省、批查询、别名过载）
-- WebSocket 安全测试
-- JWT / OAuth 2.0 认证测试
-- BOLA/IDOR/BFLA 授权漏洞检测
-- API 限速绕过与 DoS 测试
+Covers: REST (OpenAPI/Swagger-driven or blind), GraphQL (introspection, batching, alias overload), WebSocket, JWT and OAuth 2.0 auth, BOLA/IDOR/BFLA authorization flaws, and rate-limit bypass / DoS.
 
-## 10 阶段测试流程
+## Phase 1: Discovery and reconnaissance
 
-### Phase 1: API 发现与侦察
+- Crawl for an API surface and generate an OpenAPI 3.0 / GraphQL SDL spec from observed traffic.
+- Extract endpoints from `robots.txt` and JavaScript files; brute-force undocumented paths with a tool like ffuf or kiterunner.
+- Check common paths: `/swagger.json`, `/openapi.json`, `/graphql`, `/api-docs`.
+- GraphQL introspection, three escalating attempts: full introspection query; a reduced query to bypass WAFs that block the full one; and a minimal `__schema { types { name } }` probe.
 
-```text
-主动发现：
-□ Vespasian: 无头浏览器爬取 → 自动生成 OpenAPI 3.0 / GraphQL SDL 规范
-□ Entropy --discover: 从 robots.txt + JS 文件提取端点
-□ Kiterunner / ffuf: 爆破未文档化的端点路径
-□ 检查常见路径: /swagger.json, /openapi.json, /graphql, /api-docs
+## Phase 2: Authentication testing
 
-GraphQL 内省（三级尝试）：
-  1. 标准内省查询
-  2. 精简查询（绕过 WAF 全量封禁）
-  3. 仅查 __schema { types { name } }（最小探测）
-```
+JWT (with jwt_tool or Burp):
+- `alg:none`: set header `"alg":"none"` and strip the signature.
+- Algorithm confusion: RS256 public key reused as an HS256 symmetric key.
+- Weak HMAC secret: dictionary attack (`jwt_tool -C -d wordlist.txt`).
+- Expiry / claim tampering: modify `exp`, `iat`, `sub`, `role`.
+- `kid` injection (path traversal or SQL in the `kid` header) to subvert signature verification.
 
-### Phase 2: 认证测试
+OAuth 2.0:
+- `redirect_uri` manipulation leaking the authorization code.
+- CSRF from a missing `state` parameter.
+- Token leaking via the `Referer` header.
+- Missing PKCE.
 
-```text
-JWT 分析（jwt_tool / Burp）：
-□ alg:none 攻击: 修改头部为 "alg":"none"，清空签名
-□ 密钥混淆: RS256 公钥 → HS256 对称密钥
-□ 弱 HMAC 密钥爆破: jwt_tool -C -d wordlist.txt
-□ 过期/声明篡改: 修改 exp/iat/sub/role 声明
-□ kid 注入: ../../etc/passwd → HMAC 签名绕过
+GraphQL auth:
+- Mutation via GET request to bypass auth (CSRF).
+- Auth bypass through batched queries.
 
-OAuth 2.0：
-□ redirect_uri 操控 → 授权码泄漏
-□ CSRF via state 参数缺失
-□ Token 在 Referer 头泄漏
-□ PKCE 缺失检测
+## Phase 3: Authorization (BOLA/IDOR/BFLA)
 
-GraphQL 认证：
-□ mutation 通过 GET 请求绕过认证（CSRF）
-□ 批查询认证绕过
-```
+BOLA (object-level):
+- Enumerate numeric IDs (`/user/1` to `/user/2`), UUIDs, usernames/emails.
+- Replay the same request across two sessions and diff (for example Burp Autorize).
 
-### Phase 3: 授权测试（BOLA/IDOR/BFLA）
+BFLA (function-level):
+- A normal user calling an admin API.
+- HTTP method switching: GET to PUT/PATCH/DELETE.
+- API version downgrade: `/v2/admin` to `/v1/admin`.
+- Mass-operation injection: add another tenant's id to a batch (`{"users":[1,2,3]}` to `{"users":[1,2,3,<admin_id>]}`).
 
-```text
-BOLA（对象级授权绕过）：
-□ 遍历数字 ID: /user/1 → /user/2 → /user/3
-□ 遍历 UUID
-□ 遍历用户名/邮箱
-□ Burp Autorize: 双会话重放对比
+## Phase 4: GraphQL-specific
 
-BFLA（功能级授权绕过）：
-□ 普通用户执行管理员 API
-□ HTTP 方法切换: GET → PUT → PATCH → DELETE
-□ API 版本降级: /v2/admin → /v1/admin
-□ 批量操作注入: {"users": [1,2,3]} → {"users": [1,2,3,admin_id]}
+Introspection leakage, alias overload (100+ aliases) and batched-query DoS, field duplication (`__typename` x500), directive overload (recursive `@skip`/`@include`), deeply nested/circular queries, field-suggestion leakage in error messages, exposed GraphiQL/Playground, GET mutations (CSRF), and debug/trace mode metadata leakage.
 
-工具: Burp Autorize, AuthMatrix, Entropy (malicious_insider persona)
-```
+## Phase 5: REST input validation
 
-### Phase 4: GraphQL 专项
+- HTTP method switching across GET/POST/PUT/DELETE/OPTIONS/PATCH.
+- Content-Type tampering: JSON to XML to multipart.
+- NoSQL injection: `{"username": {"$gt": ""}}`.
+- SSRF via URL parameters (webhook, avatar, import URLs).
+- XXE in XML endpoints.
+- Parameter pollution: `/api?role=user&role=admin`.
+- Mass assignment: add `is_admin: true` to the body.
 
-```text
-内省泄漏 → 信息暴露检测
-别名过载 → 100+ 别名 DoS
-批查询 → 10+ 同时查询 DoS
-字段重复 → __typename × 500
-指令过载 → 递归 @skip/@include
-循环查询 → 深度嵌套内省递归
-字段建议 → 错误消息信息泄漏
-GraphiQL/Playground 暴露 → IDE 公开风险
-GET 突变 → CSRF 风险
-追踪/调试模式 → 元数据泄漏
+## Phase 6: Business logic and differential testing
 
-工具: FireTail, Escape DAST, api.sh (Phases 1-3)
-```
+- Diff v1 vs v2 of an API: status-code changes, dropped fields, latency regressions.
+- Multi-role workflow and permission-matrix testing (admin/user/readonly).
+- Coupon, points and price manipulation.
+- Race conditions: concurrent requests to hit TOCTOU windows.
 
-### Phase 5: REST 输入验证
+## Phase 7: WebSocket
 
-```text
-□ HTTP 方法切换: GET→POST→PUT→DELETE→OPTIONS→PATCH
-□ Content-Type 篡改: JSON→XML→multipart
-□ NoSQL 注入: {"username": {"$gt": ""}}
-□ SSRF via URL 参数: webhook URL/头像 URL/导入 URL
-□ XXE in XML 端点
-□ 参数污染: /api?role=user&role=admin
-□ 批量赋值: 向请求体添加 is_admin: true
-```
+Endpoint discovery, message injection (payloads, prototype pollution), oversized-message handling, type confusion, and cross-site WebSocket hijacking (CSWH).
 
-### Phase 6: 业务逻辑与差分测试
+## Phase 8: Rate limiting and DoS
 
-```text
-□ Entropy compare: diff v1 vs v2 API → 状态码变化/字段删除/延迟回归
-□ 多角色工作流测试: admin/user/readonly 权限矩阵
-□ 优惠券/积分/价格操控
-□ 竞态条件: 并发请求测试 TOCTOU
-```
+- Bypass via headers: `X-Forwarded-For`, `X-Real-IP`.
+- Path variants: `/api/`, `/api`, `/Api/`, `/API/`.
+- Slowloris low-bandwidth exhaustion.
+- GraphQL batched / deeply nested query DoS.
+- IP rotation testing.
 
-### Phase 7: WebSocket 测试
+Keep DoS testing to approved non-production targets, and stop at proof of concept rather than sustained disruption.
 
-```text
-□ 端点发现
-□ 消息注入（注入 payload、原型污染）
-□ 超大消息处理
-□ 类型混淆
-□ 跨站点 WebSocket 劫持（CSWH）
-```
+## Phase 9: Data exposure
 
-### Phase 8: 限速与 DoS
+- Over-exposure: compare the API response against what the UI actually uses.
+- Pagination enumeration: `?page=1&limit=10000`.
+- Error-message leakage: stack traces, internal paths, SQL errors.
+- Nested GraphQL traversal reaching unauthorized data.
+- OpenAPI spec exposing sensitive endpoints.
 
-```text
-□ 限速绕过 via 头部: X-Forwarded-For, X-Real-IP
-□ 路径变体: /api/ → /api → /Api/ → /API/
-□ Slowloris 低带宽耗尽
-□ GraphQL 批查询深度嵌套 DoS
-□ IP 轮换测试（ProxyCat 代理池）
-```
+## Phase 10: CI/CD integration
 
-### Phase 9: 数据暴露
+- Re-run the assessment automatically when the API spec changes.
+- Gate builds on a DAST severity threshold.
+- Persist findings as regression tests.
 
-```text
-□ 响应过度暴露: 对比 API 返回 vs UI 展示
-□ 分页枚举: ?page=1&limit=10000
-□ 错误消息信息泄漏: 堆栈跟踪/内部路径/SQL 错误
-□ GraphQL 嵌套遍历访问越权数据
-□ OpenAPI 规范暴露敏感端点
-```
+## Tooling
 
-### Phase 10: CI/CD 集成
+| Tool | Use |
+|------|-----|
+| ffuf / kiterunner | Endpoint path brute-forcing |
+| jwt_tool | JWT attacks (alg:none, confusion, secret cracking) |
+| Burp Autorize / AuthMatrix | Two-session authorization comparison |
+| OWASP ZAP / StackHawk | DAST, CI integration |
+| traffic-to-spec generators | Build OpenAPI/GraphQL specs from observed traffic |
 
-```text
-□ Entropy --ci --watch: spec 变更时自动重跑
-□ Escape DAST: 按严重度阈值自动阻断构建
-□ 发现持久化为回归测试
-□ StackHawk（开发者优先、ZAP 内核）
-```
+Confirm each tool is installed and authorized before use; substitute equivalents as available.
 
-## 工具链
+## References
 
-| 工具 | 用途 | 获取 |
-|------|------|------|
-| Vespasian | 流量 → OpenAPI/GraphQL 规范 | GitHub: praetorian-inc/vespasian |
-| Entropy | LLM 生成攻击场景，5 personas | GitHub: arjinexe/entropy-chaos |
-| Escape DAST | 业务逻辑安全测试 | escape.tech |
-| api.sh | 8 阶段全协议攻击管道 | GitHub: Sharon-Needles/api |
-| FireTail | GraphQL 12 专项测试 | firetail.ai |
-| jwt_tool | JWT 全面测试 | GitHub: ticarpi/jwt_tool |
-| Burp Autorize | 双会话授权对比 | Burp BApp Store |
+- `references/rest-graphql-testing.md` - REST and GraphQL in depth.
+- `references/jwt-oauth-testing.md` - JWT and OAuth testing.
 
-## 参考
+## Done when
 
-- `references/rest-graphql-testing.md` — REST + GraphQL 深度测试
-- `references/jwt-oauth-testing.md` — JWT + OAuth 安全测试
-
-
-## 任务完成自检（声称完成前 MUST 通过）
-
-- [ ] 我是否执行了工作流中的每一步（而不是只阅读）？
-- [ ] 我是否基于 `tool-index` 使用了真实工具路径？
-- [ ] 我是否产出了可复现证据（命令/脚本/截图/报告）？
-- [ ] 我是否完成并回写了 RULES 要求的 Checklist 项？
+- Every step was executed (not just read), against an authorized target.
+- Each finding has reproducible evidence: the command, request/response, and impact.
+- Each finding has a remediation recommendation, optionally with a CWE reference.
+- Out-of-scope and untested areas are stated explicitly.
 
 ## Limitations
 
 - Only run against APIs you are explicitly authorized to test.
-- Some checks are intrusive; prefer non-production mirrors when available.
+- Many checks are intrusive; prefer non-production mirrors.
+- Results depend on which tools are available and on scope; absence of findings is not proof of a secure API.
 
-> Adapted from [zhaoxuya520/reverse-skill](https://github.com/zhaoxuya520/reverse-skill) (MIT).
+> Adapted from [zhaoxuya520/reverse-skill](https://github.com/zhaoxuya520/reverse-skill) (MIT); body translated to English and repository-foreign references removed.

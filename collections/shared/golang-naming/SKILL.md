@@ -1,6 +1,6 @@
 ---
 name: golang-naming
-description: "Go (Golang) naming conventions — covers packages, constructors, structs, interfaces, constants, enums, errors, booleans, receivers, getters/setters, functional options, acronyms, test functions, and subtest names. Use this skill when writing new Go code, reviewing or refactoring, choosing between naming alternatives (New vs NewTypeName, isConnected vs connected, ErrNotFound vs NotFoundError, StatusReady vs StatusUnknown at iota 0), debating Go package names (utils/helpers anti-patterns), or asking about Go naming best practices. Also trigger when the user mentions MixedCaps vs snake_case, ALL_CAPS constants, Get-prefix on getters, or error string casing. Do NOT use for general Go implementation questions that don't involve naming decisions."
+description: "Choose Go package, type, interface, method, and variable names for readable APIs. Preserve published identities and established repository conventions; renaming existing code also needs refactoring safeguards."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -46,16 +46,16 @@ To ignore a rule, just add a comment to the code.
 | Error variable | `Err` prefix | `ErrNotFound`, `ErrTimeout` |
 | Error type | `Error` suffix | `PathError`, `SyntaxError` |
 | Constructor | `New` (single type) or `NewTypeName` (multi-type) | `ring.New`, `http.NewRequest` |
-| Boolean field | `is`, `has`, `can` prefix on **fields** and methods | `isReady`, `IsConnected()` |
+| Boolean field | house style: `is`/`has`/`can` prefix (stdlib often uses bare names, e.g. `Closed`, `Valid`) | `isReady`, `IsConnected()` |
 | Test function | `Test` + function name | `TestParseToken` |
 | Acronym | all caps or all lower | `URL`, `HTTPServer`, `xmlParser` |
-| Variant: context | `WithContext` suffix | `FetchWithContext`, `QueryContext` |
-| Variant: in-place | `In` suffix | `SortIn()`, `ReverseIn()` |
+| Variant: context | `Context` suffix (stdlib style); `WithContext` is also seen | `QueryContext`, `ExecContext` |
+| Variant: in-place | no stdlib convention; in-place is usually the default (`slices.Sort`), copying variant gets a name | `slices.Sort` (in place) vs `slices.Sorted` (returns new) |
 | Variant: error | `Must` prefix | `MustParse()`, `MustLoadConfig()` |
 | Option func | `With` + field name | `WithPort()`, `WithLogger()` |
 | Enum (iota) | type name prefix, zero-value = unknown | `StatusUnknown` at 0, `StatusReady` |
 | Named return | descriptive, for docs only | `(n int, err error)` |
-| Error string | lowercase (incl. acronyms), no punctuation | `"image: unknown format"`, `"invalid id"` |
+| Error string | not capitalized (initialisms keep their case), no punctuation | `"image: unknown format"`, `"invalid ID"` |
 | Import alias | short, only on collision | `mrand "math/rand"`, `pb "app/proto"` |
 | Format func | `f` suffix | `Errorf`, `Wrapf`, `Logf` |
 | Test table fields | `got`/`expected` prefixes | `input string`, `expected int` |
@@ -103,9 +103,9 @@ These conventions are correct but non-obvious — they are the most common sourc
 
 **Constructor naming:** When a package exports a single primary type, the constructor is `New()`, not `NewTypeName()`. This avoids stuttering — callers write `apiclient.New()` not `apiclient.NewClient()`. Use `NewTypeName()` only when a package has multiple constructible types (like `http.NewRequest`, `http.NewServeMux`).
 
-**Boolean struct fields:** Unexported boolean fields MUST use `is`/`has`/`can` prefix — `isConnected`, `hasPermission`, not bare `connected` or `permission`. The exported getter keeps the prefix: `IsConnected() bool`. This reads naturally as a question and distinguishes booleans from other types.
+**Boolean struct fields (house style, not an official Go rule):** this skill prefers an `is`/`has`/`can` prefix on unexported boolean fields — `isConnected`, `hasPermission` — with the exported getter keeping it: `IsConnected() bool`. The standard library often uses bare names (`Closed`, `Valid`); follow the existing codebase's convention when it differs.
 
-**Error strings are fully lowercase — including acronyms.** Write `"invalid message id"` not `"invalid message ID"`, because error strings are often concatenated with other context (`fmt.Errorf("parsing token: %w", err)`) and mixed case looks wrong mid-sentence. Sentinel errors should include the package name as prefix: `errors.New("apiclient: not found")`.
+**Error strings start lowercase and have no trailing punctuation**, because they are often concatenated with other context (`fmt.Errorf("parsing token: %w", err)`). Per Go Code Review Comments, proper nouns and initialisms keep their case: `"invalid message ID"`, `"HTTP request failed"`. Sentinel errors should include the package name as prefix: `errors.New("apiclient: not found")`.
 
 **Enum zero values:** Always place an explicit `Unknown`/`Invalid` sentinel at iota position 0. A `var s Status` silently becomes 0 — if that maps to a real state like `StatusReady`, code can behave as if a status was deliberately chosen when it wasn't.
 
@@ -137,7 +137,7 @@ For complete rules, examples, and rationale, see:
 | `http.HTTPClient` stuttering | Package name is always present at call site — `http.Client` avoids reading "HTTP" twice |
 | `user.NewUser()` constructor | Single primary type uses `New()` — `user.New()` avoids repeating the type name |
 | `connected bool` field | Bare adjective is ambiguous — use `isConnected` so the field reads as a true/false question |
-| `"invalid message ID"` error | Error strings must be fully lowercase including acronyms — `"invalid message id"` |
+| `"Invalid message ID."` error | Error strings start lowercase with no trailing punctuation — `"invalid message ID"` (initialisms keep their case per Go Code Review Comments) |
 | `StatusReady` at iota 0 | Zero value should be a sentinel — `StatusUnknown` at 0 catches uninitialized values |
 | `"not found"` error string | Sentinel errors should include the package name — `"mypackage: not found"` identifies the origin |
 | `userSlice` type-in-name | Types encode implementation detail — `users` describes what it holds, not how |
@@ -145,8 +145,8 @@ For complete rules, examples, and rationale, see:
 | `snake_case` identifiers | Underscores conflict with Go's MixedCaps convention and tooling expectations — use `mixedCaps` |
 | Long names for short scopes | Name length should match scope — `i` is fine for a 3-line loop, `userIndex` is noise |
 | Naming constants by value | Values change, roles don't — `DefaultPort` survives a port change, `Port8080` doesn't |
-| `FetchCtx()` context variant | `WithContext` is the standard Go suffix — `FetchWithContext()` is instantly recognizable |
-| `sort()` in-place but no `In` | Readers assume functions return new values. `SortIn()` signals mutation |
+| `FetchCtx()` context variant | Spell it out: the stdlib uses a `Context` suffix (`QueryContext`, `DialContext`); `FetchWithContext()` is also common |
+| Ambiguous mutate vs copy | Document which one a function does; the stdlib makes in-place the default (`slices.Sort`) and names the copying variant (`slices.Sorted`). An `In` suffix is a house convention, not a Go one |
 | `parse()` panicking on error | `MustParse()` warns callers that failure panics — surprises belong in the name |
 | Mixing `With*`, `Set*`, `Use*` | Consistency across the codebase — `With*` is the Go convention for functional options |
 | Plural package names | Go convention is singular (`net/url` not `net/urls`) — keeps import paths consistent |

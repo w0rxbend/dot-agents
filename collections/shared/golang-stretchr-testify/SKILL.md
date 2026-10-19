@@ -1,6 +1,6 @@
 ---
 name: golang-stretchr-testify
-description: "Comprehensive guide to stretchr/testify for Golang testing. Covers assert, require, mock, and suite packages in depth. Use when writing tests with testify, creating mocks, setting up test suites, or choosing between assert and require. Covers testify assertions, mock expectations, argument matchers, call verification, suite lifecycle, and advanced patterns like Eventually, JSONEq, and custom matchers. Apply when the codebase imports github.com/stretchr/testify."
+description: "Write or review Go tests with the project's chosen testify assert, require, mock, or suite packages. Verify observable behavior and use test doubles only at appropriate boundaries."
 user-invocable: true
 license: MIT
 compatibility: Designed for Claude Code, Codex or similar harness, and for projects using Golang.
@@ -189,7 +189,7 @@ Suite methods like `s.Equal()` behave like `assert`. For require: `s.Require().N
 - **Swapped argument order** — testify assumes `(expected, actual)`. Swapping produces backwards diffs
 - **`assert` for guards** — test continues after failure and panics on nil dereference. Use `require`
 - **Missing `suite.Run()`** — without the launcher function, zero tests execute silently
-- **Comparing pointers** — `is.Equal(ptr1, ptr2)` compares addresses. Dereference or use `EqualExportedValues`
+- **Comparing pointers** — `is.Equal(ptr1, ptr2)` compares the pointed-to values (ObjectsAreEqual), not identity. Use `is.Same`/`is.NotSame` when you mean the same instance
 
 ## Linters
 

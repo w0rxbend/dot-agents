@@ -1,5 +1,9 @@
 # Kubernetes NGINX Ingress Controller Example
 #
+# NOTE: these annotations target the community ingress-nginx controller, which
+# Kubernetes SIG Network has retired (best-effort maintenance ended March 2026).
+# Use it only on existing clusters; for new ones see gateway-api.yaml.
+#
 # This example demonstrates:
 # - Basic Ingress resource with path-based routing
 # - TLS/SSL termination

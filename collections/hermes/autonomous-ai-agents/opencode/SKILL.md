@@ -1,6 +1,6 @@
 ---
 name: opencode
-description: "Delegate coding to OpenCode CLI (features, PR review)."
+description: "Delegate coding to OpenCode CLI (features, PR review). Use when the user asks to use OpenCode, or wants an external OpenCode agent to implement, refactor or review code."
 version: 1.2.0
 author: Hermes Agent
 license: MIT
@@ -127,13 +127,16 @@ terminal(command="opencode -s ses_abc123", workdir="~/project", background=true,
 | `--continue` / `-c` | Continue the last OpenCode session |
 | `--session <id>` / `-s` | Continue a specific session |
 | `--agent <name>` | Choose OpenCode agent (build or plan) |
-| `--model provider/model` | Force specific model |
+| `--model provider/model` / `-m` | Force specific model |
 | `--format json` | Machine-readable output/events |
 | `--file <path>` / `-f` | Attach file(s) to the message |
 | `--thinking` | Show model thinking blocks |
-| `--variant <level>` | Reasoning effort (high, max, minimal) |
+| `--model provider/model#variant` | Reasoning effort variant (for example `#high`); older 1.x CLIs used a separate `--variant` flag |
 | `--title <name>` | Name the session |
-| `--attach <url>` | Connect to a running opencode server |
+| `--server <url>` | Connect to a running opencode server (older 1.x CLIs: `--attach`) |
+| `--auto` | Auto-approve permissions that are not explicitly denied (use only in a disposable workdir) |
+
+Flags above match OpenCode v2.x (`opencode run --help`). Check `opencode run --help` on the installed version before relying on a flag.
 
 ## Procedure
 
@@ -149,17 +152,13 @@ terminal(command="opencode -s ses_abc123", workdir="~/project", background=true,
 
 ## PR Review Workflow
 
-OpenCode has a built-in PR command:
+OpenCode v2.x has no `pr` subcommand (`opencode pr 42` is parsed as a directory argument and fails). Check out the PR yourself, then review it with `opencode run`. Do this in a temporary clone for isolation (replace `42` and the repo URL):
 
 ```
-terminal(command="opencode pr 42", workdir="~/project", pty=true)
+terminal(command="REVIEW=$(mktemp -d) && git clone https://github.com/user/repo.git $REVIEW && cd $REVIEW && git fetch origin pull/42/head:pr-42 && git checkout pr-42 && git diff origin/main...pr-42 > /tmp/pr-42.diff && opencode run 'Review the attached PR diff against main. Report bugs, security risks, test gaps, and style issues.' -f /tmp/pr-42.diff")
 ```
 
-Or review in a temporary clone for isolation:
-
-```
-terminal(command="REVIEW=$(mktemp -d) && git clone https://github.com/user/repo.git $REVIEW && cd $REVIEW && opencode run 'Review this PR vs main. Report bugs, security risks, test gaps, and style issues.' -f $(git diff origin/main --name-only | head -20 | tr '\n' ' ')", pty=true)
-```
+Attaching the diff (one `-f` file) gives the model the exact change; it can still read any other file in the checkout.
 
 ## Parallel Work Pattern
 
@@ -183,7 +182,7 @@ Check token usage and costs:
 
 ```
 terminal(command="opencode stats")
-terminal(command="opencode stats --days 7 --models anthropic/claude-sonnet-4")
+terminal(command="opencode stats --days 7 --models --cost")  # --models is a switch: per-model usage breakdown
 ```
 
 ## Pitfalls

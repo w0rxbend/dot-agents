@@ -1,7 +1,6 @@
 ---
 name: skill-writer
-description: Create and improve agent skills following the Agent Skills specification. Use when asked to create, write, or update skills.
-risk: critical
+description: Create, update or evaluate a SKILL.md, including trigger-precise descriptions, focused references, and validation against the repository's checks. Use when asked to write a new skill, fix or extend an existing one, or tune when a skill triggers; to find or install third-party skills use find-skills.
 source: community
 date_added: "2026-09-04"
 ---
@@ -21,7 +20,7 @@ Load only the path(s) required for the task:
 | Select workflow orchestration pattern for process-heavy skills | `references/workflow-patterns.md` |
 | Select output format pattern for deterministic quality | `references/output-patterns.md` |
 | Choose workflow path and required outputs | `references/mode-selection.md` |
-| Load representative synthesis examples by skill type | `references/examples/*.md` |
+| Load the worked synthesis example (workflow-process skills) | `references/examples/workflow-process.md` |
 | Synthesize external/local sources with depth gates | `references/synthesis-path.md` |
 | Author or update SKILL.md and supporting files | `references/authoring-path.md` |
 | Optimize skill description and trigger precision | `references/description-optimization.md` |
@@ -43,9 +42,9 @@ Read `references/synthesis-path.md`.
 1. Collect and score relevant sources with provenance.
 2. Apply trust and safety rules when ingesting external content.
 3. Produce source-backed decisions and coverage/gap status.
-4. Load one or more profiles from `references/examples/*.md` when the skill is hybrid.
-5. Enforce baseline source pack for skill-authoring workflows.
-6. Enforce depth gates before moving to authoring.
+4. For a `workflow-process` skill, load `references/examples/workflow-process.md` as a worked profile; for other classes, use two or three strong existing skills of that class in the repository as the profile.
+5. For skill-authoring skills, use the Agent Skills specification and two or three strong existing skills in the repository as the baseline sources.
+6. Enforce the depth gates in `references/synthesis-path.md` before moving to authoring.
 
 ## Step 3: Run iteration first when improving from outcomes/examples
 
@@ -104,11 +103,3 @@ Return:
 2. `Changes Made`
 3. `Validation Results`
 4. `Open Gaps`
-
-## When to Use
-Use this skill when tackling tasks related to its primary domain or functionality as described above.
-
-## Limitations
-- Use this skill only when the task clearly matches the scope described above.
-- Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
-- Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.

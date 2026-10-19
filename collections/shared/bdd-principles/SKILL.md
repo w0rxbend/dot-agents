@@ -1,335 +1,194 @@
 ---
 name: bdd-principles
 user-invocable: false
-description: Core BDD concepts, philosophy, and the Three Amigos practice
+description: Run Behavior-Driven Development end to end, from discovery (Three Amigos, Example Mapping, outside-in) to Gherkin scenarios, edge cases, tags and step definitions. Use when acceptance criteria must be readable by business stakeholders or when a project already keeps `.feature` files; use test-driven-development for developer-level unit tests.
 ---
 
-# BDD Principles
+# Behavior-Driven Development
 
-Master the foundational principles and philosophy of Behavior-Driven Development.
+BDD is a collaboration practice first and a test format second. Concrete examples, agreed by business, development and testing, become executable scenarios that double as living documentation.
 
-## What is BDD?
+```
+Discovery (conversation) -> Formulation (Gherkin) -> Automation (step definitions) -> Delivery
+```
 
-Behavior-Driven Development (BDD) is a collaborative software development approach that:
+## When to Use
 
-- Bridges the gap between business and technical teams
-- Uses concrete examples to describe system behavior
-- Creates living documentation that serves as tests
-- Focuses on delivering business value
-- Promotes shared understanding through conversation
+- A feature has business rules that stakeholders need to read and approve.
+- The repository already uses Cucumber, SpecFlow/Reqnroll, behave, pytest-bdd, Godog or a similar runner.
+- Requirements are vague and need concrete examples before anyone builds anything.
 
-## Core Philosophy
+**Do not use** for pure technical internals (parsers, caches, algorithms). Write unit tests for those with `test-driven-development`. Do not add a Gherkin toolchain to a project that does not have one unless the user asks for it.
 
-### Discovery > Development > Delivery
+## Phase 1: Discovery
 
-**Discovery**: Collaborate to understand requirements
+### Three Amigos
 
-- Hold Three Amigos sessions
-- Explore with examples
-- Challenge assumptions
-- Build shared understanding
+Before writing scenarios, get three perspectives on the story:
 
-**Development**: Implement guided by examples
+| Perspective | Questions |
+|---|---|
+| Business (PO/BA) | What problem does this solve? What are the rules? What value does it deliver? |
+| Development | What are the constraints? Which edge cases come from the implementation? |
+| Testing | What could go wrong? What is missing? How will we know it works? |
 
-- Use examples as specifications
-- Automate examples as tests
-- Follow outside-in TDD
+Example outcome for "password reset": tokens expire after 1 hour; a new request invalidates older tokens; unknown emails get the same success message (no account enumeration); requests are rate-limited. Each of these answers becomes a scenario.
 
-**Delivery**: Validate against real behavior
+When working with an agent alone, play the three roles explicitly and send the open questions to the user instead of inventing the business answers.
 
-- Executable specifications provide confidence
-- Living documentation stays current
-- Regressions are caught early
+### Example Mapping
 
-## The Three Amigos
+A short session that produces four kinds of cards for one story:
 
-A practice where three perspectives collaborate to explore and define features:
+| Card | Meaning |
+|---|---|
+| Story (yellow) | The feature being explored |
+| Rule (blue) | An acceptance criterion |
+| Example (green) | A concrete case that illustrates a rule |
+| Question (red) | An unresolved uncertainty |
 
-### 1. Business Perspective (Product Owner/BA)
+Signals: many red cards mean the story is not ready. Many blue cards mean the story is too big and should be split. A rule with no examples is not understood yet.
 
-- What problem are we solving?
-- What value does it provide?
-- What are the business rules?
+### Ubiquitous language
 
-### 2. Development Perspective (Developer)
+Use the domain's words in scenarios ("Member places an order", not "user submits form; row inserted"). Keep a short glossary when terms could be confused (Member vs Guest, Cart vs Order) and reuse the same terms in code.
 
-- How might we build this?
-- What are the technical constraints?
-- What are the edge cases?
+## Phase 2: Formulation (Gherkin)
 
-### 3. Testing Perspective (Tester/QA)
+### Scenario quality
 
-- What could go wrong?
-- What are we missing?
-- How will we verify this works?
-
-### Example Three Amigos Session
-
-**Feature**: Password Reset
-
-**Business**: "Users who forget their password need a way to reset it via email."
-
-**Developer**: "We'll need to generate secure tokens with expiration. How long should tokens be valid?"
-
-**Tester**: "What happens if they request multiple reset emails? Can old tokens still be used?"
-
-**Business**: "Tokens should be valid for 1 hour. Multiple requests should invalidate old tokens."
-
-**Developer**: "Should we rate-limit reset requests to prevent abuse?"
-
-**Tester**: "What if the email address doesn't exist in our system?"
-
-**Business**: "For security, show the same success message whether or not the email exists."
-
-**Outcome**: Concrete examples that become scenarios:
+A good scenario is **specific** (one behavior), **declarative** (what, not how), in **domain language**, and **independent** (no reliance on other scenarios' state). Aim for 3-7 steps.
 
 ```gherkin
-Scenario: Request password reset with valid email
-  Given a user account exists for "user@example.com"
-  When I request a password reset for "user@example.com"
-  Then I should receive a reset email
-  And the reset link should be valid for 1 hour
+# Good: declarative, one behavior
+Scenario: Gold member receives loyalty discount
+  Given a customer with Gold membership
+  And a cart total of $100
+  When the customer checks out
+  Then a 10% loyalty discount is applied
+  And the final total is $90
 
-Scenario: Request password reset with non-existent email
-  When I request a password reset for "nonexistent@example.com"
-  Then I should see a success message
-  But no email should be sent
-
-Scenario: Multiple password reset requests
-  Given I have requested a password reset
-  When I request another password reset
-  Then the previous reset link should be invalidated
-  And I should receive a new reset email
+# Bad: UI script coupled to implementation
+Scenario: Apply discount
+  Given I click the membership dropdown
+  And I select "Gold" from the list
+  When I click the checkout button
+  Then the JavaScript calculates 10% off
 ```
 
-## Living Documentation
-
-BDD scenarios serve as:
-
-1. **Executable Specifications**: Automated tests that verify behavior
-2. **Documentation**: Up-to-date description of how the system works
-3. **Common Language**: Shared vocabulary between business and technical teams
-4. **Regression Suite**: Safety net when making changes
-
-### Example: Living Documentation
+### Feature structure: Background, Rule, Outline
 
 ```gherkin
-Feature: Promotional Discount Application
-  To attract customers and increase sales
-  As a marketing manager
-  I want to offer promotional discounts
+@cart
+Feature: Shopping cart
+  As a customer
+  I want to manage items in my cart
+  So that I can buy what I chose
 
-  Rule: Percentage discounts apply to order subtotal
-    Example: 20% off for orders over $100
-      Given I have a $150 order
-      When I apply a "20% off" promotion
-      Then my discount should be $30
-      And my order total should be $120
+  Background:
+    Given I am signed in as a customer
 
-  Rule: Minimum purchase amount must be met
-    Example: Promotion requires $50 minimum
-      Given I have a $40 order
-      When I try to apply a "$50 minimum" promotion
-      Then the promotion should not apply
-      And I should see "Minimum purchase not met"
+  Rule: Refunds are available within 30 days
+    Scenario: Refund inside the return window
+      Given an order placed 15 days ago
+      When the customer requests a refund
+      Then a full refund is processed
 
-  Rule: Only one promotion per order
-    Example: Cannot stack multiple promotions
-      Given I have a $100 order
-      And I have applied "10% off"
-      When I try to apply "Free shipping"
-      Then I should see "One promotion per order"
-      And only "10% off" should be applied
+    Scenario: Refund after the return window
+      Given an order placed 45 days ago
+      When the customer requests a refund
+      Then the refund is denied with "Return window expired"
+
+  Scenario Outline: Password validation
+    When I register with password "<password>"
+    Then I see "<message>"
+
+    Examples:
+      | password   | message                 |
+      | abc        | Password too short      |
+      | abcdefgh   | Password needs a number |
+      | abcdefgh1  | Password accepted       |
 ```
 
-## Ubiquitous Language
+- Use `Background` only for setup shared by every scenario in the file, and keep it short.
+- Group criteria with `Rule:` (Gherkin 6+). Check the runner version before using it.
+- Use `Scenario Outline` for the same behavior with different data. Do not use it to hide different behaviors in one table.
 
-Develop and use a shared vocabulary:
+### Edge cases checklist
 
-❌ **Technical Jargon**:
+Start with the happy path, then add scenarios for each of these that applies:
 
-```
-"When the user submits the form, we validate the input,
-hash the password with bcrypt, insert a record into the
-users table, and return a 201 response."
-```
+- Duplicate or conflicting data (existing email, double submit)
+- Invalid format and empty required input
+- Boundaries (limits, exactly-at-threshold, expiry times)
+- Permissions and ownership (another user's resource)
+- Repeated or concurrent actions (second reset request, retry)
+- Security-neutral responses (same message for unknown accounts)
 
-✅ **Ubiquitous Language**:
-
-```
-"When a customer registers, we verify their information,
-create their account, and send a welcome email."
-```
-
-### Building Ubiquitous Language
-
-**Discover terms through conversation:**
-
-- What do you call this?
-- What's the difference between X and Y?
-- When does this state change?
-
-**Document terms in scenarios:**
+### Tags
 
 ```gherkin
-# Use "Member" not "User" (business term)
-Given I am a Gold Member
-
-# Use "Place order" not "Submit order" (domain term)
-When I place an order
-
-# Use "Pending" not "In progress" (system state)
-Then the order should be Pending
+@authentication @critical
+Feature: Login
+  @smoke
+  Scenario: Basic login
+  @wip
+  Scenario: Two-factor authentication
 ```
 
-**Keep a glossary:**
+Use tags for selection in CI (smoke vs full suite), ownership, and quarantining work in progress. With Cucumber-style tag expressions: `--tags "@smoke and not @wip"`. Check the runner's own syntax.
 
+## Phase 3: Automation (step definitions)
+
+Bind steps in the framework the repository already uses. Cucumber (Ruby) example:
+
+```ruby
+Given('a registered user with email {string}') do |email|
+  @user = User.create!(email: email, password: 'password123')
+end
+
+When('the user signs in with correct credentials') do
+  visit login_path
+  fill_in 'Email', with: @user.email
+  fill_in 'Password', with: 'password123'
+  click_button 'Log In'
+end
+
+Then('the user sees the dashboard') do
+  expect(page).to have_current_path(dashboard_path)
+end
 ```
-Member: A customer with a subscription
-Guest: A customer without a subscription
-Order: A collection of items ready for purchase
-Cart: A temporary collection of items being considered
-```
 
-## Example Mapping
+Rules for steps:
 
-A workshop technique to explore features with examples:
-
-### The Four Colors
-
-**Yellow Cards**: User Stories/Features
-**Blue Cards**: Rules (acceptance criteria)
-**Green Cards**: Examples (scenarios)
-**Red Cards**: Questions (uncertainties)
-
-### Example Mapping Session
-
-**Story**: User registration
-
-**Rules** (Blue):
-
-- Email must be unique
-- Password must be strong
-- Age must be 18+
-
-**Examples** (Green):
-
-- Register with valid details → Success
-- Register with existing email → Error
-- Register with weak password → Error
-- Register under 18 → Error
-
-**Questions** (Red):
-
-- Do we verify email addresses?
-- What defines a "strong" password?
-- Do we need parent consent for minors?
-
-## Specification by Example
-
-Use concrete examples to drive development:
-
-### Vague Requirement
-
-"Users should be able to search for products."
-
-### Specification by Example
-
-```gherkin
-Scenario: Search by product name
-  Given products "Laptop", "Mouse", "Keyboard" exist
-  When I search for "lap"
-  Then I should see "Laptop" in results
-  But I should not see "Mouse" or "Keyboard"
-
-Scenario: Search with no results
-  Given products "Laptop", "Mouse" exist
-  When I search for "phone"
-  Then I should see "No results found"
-
-Scenario: Search is case-insensitive
-  Given a product "Laptop" exists
-  When I search for "LAPTOP"
-  Then I should see "Laptop" in results
-```
+- Keep step text business-level and put UI or API mechanics inside the step code (or in page objects or helpers).
+- Reuse step definitions through parameters. Do not copy near-identical steps.
+- Prefer driving the system through its API or service layer. Use the UI only for scenarios that are about the UI.
+- Each scenario creates and cleans up its own state.
 
 ## Outside-In Development
 
-Start from the outside (user-facing behavior) and work inward:
+1. Write a failing scenario (acceptance level).
+2. Drop to the outermost layer, write a failing unit test, and make it pass (`test-driven-development`).
+3. Move inward layer by layer, refactoring as you go.
+4. Stop when the scenario passes.
 
-1. **Write a failing scenario** (acceptance test)
-2. **Write a failing unit test** (for the layer you're working on)
-3. **Write minimum code** to make unit test pass
-4. **Refactor**
-5. **Repeat** until scenario passes
+BDD answers "what should we build?" from the outside in. TDD answers "how do we build it?" from the inside out. They complement each other. Not every scenario needs automation: automate high-value behaviors and cover the details with unit tests.
 
-```
-Scenario (Acceptance) ─┐
-                       ├─> Controller Test ─┐
-                       │                    ├─> Service Test ─┐
-                       │                    │                 ├─> Code
-                       │                    │                 │
-                       │                    ├─ Service        │
-                       │                    │                 │
-                       ├─ Controller        │                 │
-                       │                    │                 │
-Scenario Passes ───────┴────────────────────┴─────────────────┘
-```
+## Common Pitfalls
 
-## BDD vs TDD
+| Pitfall | Fix |
+|---|---|
+| Scenarios written after the code, by one person | Run discovery first, and review scenarios with stakeholders |
+| UI-scripted steps ("click", "select") | Describe intent, and move mechanics into step code |
+| Several behaviors in one scenario | Split per behavior/rule |
+| Huge outlines mixing behaviors | One outline per behavior |
+| Scenarios depending on each other | Independent setup per scenario |
+| Feature files left stale | Treat them as code: update them with the behavior change |
+| "BDD = Cucumber" | Conversation and examples are the point; the tool is optional |
 
-**TDD** (Test-Driven Development):
+## Done When
 
-- Developer-focused
-- Tests implementation
-- Red-Green-Refactor cycle
-- Unit tests guide design
-
-**BDD** (Behavior-Driven Development):
-
-- Business-focused
-- Tests behavior
-- Conversation-Specification-Automation
-- Scenarios guide development
-
-**They complement each other:**
-
-- BDD: What should we build? (outside-in)
-- TDD: How should we build it? (inside-out)
-
-## Key Principles
-
-1. **Collaboration is essential** - BDD requires active participation from business, development, and testing
-2. **Examples clarify requirements** - Concrete examples reveal ambiguities and edge cases
-3. **Automate what matters** - Not everything needs to be automated, focus on high-value scenarios
-4. **Think behaviors, not tests** - Describe what the system does, not how it's tested
-5. **Iterate and refine** - Scenarios evolve as understanding deepens
-6. **Keep scenarios maintainable** - Write clear, focused scenarios that are easy to update
-
-## Common Misconceptions
-
-❌ "BDD is just testing with Cucumber"
-✅ BDD is a collaborative practice; tools are just enablers
-
-❌ "BDD means writing tests before code"
-✅ BDD means discovering requirements through examples before implementation
-
-❌ "BDD scenarios should test everything"
-✅ BDD scenarios should document key behaviors; use unit tests for details
-
-❌ "Only testers write scenarios"
-✅ Business, developers, and testers collaborate on scenarios
-
-❌ "BDD slows down development"
-✅ BDD reduces rework by building the right thing the first time
-
-## Benefits of BDD
-
-- **Reduced rework**: Build the right thing from the start
-- **Better collaboration**: Shared understanding across roles
-- **Living documentation**: Always up-to-date specifications
-- **Faster onboarding**: New team members learn from scenarios
-- **Regression safety**: Automated scenarios catch breaking changes
-- **Business confidence**: Stakeholders see value being delivered
-
-Remember: BDD is fundamentally about communication and collaboration. The goal is to build software that delivers real value by ensuring everyone has a shared understanding of what needs to be built.
+- Every rule has at least one example, and open questions are resolved or listed for the user.
+- Scenarios are declarative, independent, and cover the happy path plus the relevant edge cases.
+- Step definitions reuse existing steps and run in the repository's runner, and the new scenarios fail before the change and pass after it.

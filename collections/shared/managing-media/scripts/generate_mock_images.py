@@ -93,7 +93,8 @@ def main():
         print(f"  ✓ Created: {filename}")
 
     print(f"\n✓ Generated {args.count} images in {output_dir}")
-    print(f"  Total size: ~{args.count * 50}KB")
+    total = sum(f.stat().st_size for f in output_dir.glob("mock-image-*.jpg"))
+    print(f"  Total size: {total / 1024:.0f} KB")
 
 if __name__ == "__main__":
     main()

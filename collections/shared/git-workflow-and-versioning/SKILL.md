@@ -1,6 +1,6 @@
 ---
 name: git-workflow-and-versioning
-description: Structures git workflow practices. Use when making any code change. Use when committing, branching, resolving conflicts, splitting uncommitted work in a messy working tree into clean atomic commits, opening or reviewing a pull request (PR), pushing to a remote, or when you need to organize work across multiple parallel streams. Use when cutting a release, choosing a semantic version bump, tagging, or writing a changelog.
+description: "Plan commits, write commit messages, manage branches/worktrees, tidy unpushed history non-interactively, and version releases (SemVer, tags, changelog). Use when asked to commit, write a commit message, branch, clean up history or cut a version; use git-pushing for the actual push and preserve repository maintainer/release commands and unrelated dirty files."
 ---
 
 # Git Workflow and Versioning
@@ -11,7 +11,10 @@ Git is your safety net. Treat commits as save points, branches as sandboxes, and
 
 ## When to Use
 
-Always. Every code change flows through git.
+- The user asks to commit, write or improve a commit message, branch, use worktrees, tidy history, tag, or version a release.
+- You need to decide how to split a change into commits.
+
+Repository instructions win. If the project defines maintainer commands (merge batches, release scripts, changelog tooling), use them instead of the defaults here. Never stage or revert unrelated dirty files.
 
 ## Core Principles
 
@@ -80,10 +83,14 @@ update auth.ts
 
 **Format:**
 ```
-<type>: <short description>
+<type>(<optional scope>): <short imperative subject, ~50 chars>
 
-<optional body explaining why, not what>
+<optional body: why, side effects, verification>
+
+<optional footer: Refs:/Closes:/BREAKING CHANGE:>
 ```
+
+Match the repository's existing convention first (`git log --oneline -20`, commitlint, hooks). For subject/body/footer rules, worked examples, and when to commit, read `references/commit-messages.md`.
 
 **Types:**
 - `feat` — New feature
@@ -186,7 +193,11 @@ Agent starts work
     └── Feature complete → All commits form a clean history
 ```
 
-This pattern means you never lose more than one increment of work. If an agent goes off the rails, `git reset --hard HEAD` takes you back to the last successful state.
+This pattern means you never lose more than one increment of work. To back out a failed attempt, restore only the files you touched (`git restore -- <paths>`). `git reset --hard` also discards unrelated dirty work, so use it only when the user confirms the whole working tree is yours.
+
+### Tidying unpushed history
+
+Fold corrections into earlier unpushed commits non-interactively (`git commit --fixup=<sha>`, then `GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash <base>`). Never rewrite commits already on a shared branch. Commands, recovery steps, and the local-vs-pushed rule are in `references/commit-messages.md`.
 
 ## Change Summaries
 
@@ -267,6 +278,16 @@ git blame src/services/task.ts
 git log --grep="validation" --oneline
 ```
 
+## Inspect CI for a Pull Request
+
+When a push or PR needs CI evidence, read it instead of assuming it passed:
+
+```bash
+gh pr checks <pr>                    # which checks fail
+gh run list --branch <branch> --limit 5
+gh run view <run-id> --log-failed    # only the failing steps' logs
+```
+
 ## Release & Versioning
 
 Commits are how *you* track change; a **version** is how your *consumers* track it. The moment anything else depends on your code — another team, a published package, a deployed client — "latest on main" stops being a sufficient answer to "what am I running, and is it safe to upgrade?" A version number and a changelog are the contract that answers it.
@@ -316,7 +337,7 @@ Write the entry in the same change that makes the change, while the impact is fr
 |---|---|
 | "I'll commit when the feature is done" | One giant commit is impossible to review, debug, or revert. Commit each slice. |
 | "The message doesn't matter" | Messages are documentation. Future you (and future agents) will need to understand what changed and why. |
-| "I'll squash it all later" | Squashing destroys the development narrative. Prefer clean incremental commits from the start. |
+| "I'll squash it all later" | Squashing everything destroys the development narrative. Make clean incremental commits, and fold only true fixups. |
 | "Branches add overhead" | Short-lived branches are free and prevent conflicting work from colliding. Long-lived branches are the problem — merge within 1-3 days. |
 | "I'll split this change later" | Large changes are harder to review, riskier to deploy, and harder to revert. Split before submitting, not after. |
 | "I don't need a .gitignore" | Until `.env` with production secrets gets committed. Set it up immediately. |

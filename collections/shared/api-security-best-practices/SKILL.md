@@ -1,6 +1,6 @@
 ---
 name: api-security-best-practices
-description: "Implement secure API design patterns including authentication, authorization, input validation, rate limiting, and protection against common API vulnerabilities"
+description: "Design and implement API request-boundary controls - token validation, object- and function-level authorization, schema validation, rate limiting and safe logging. Use when building or reviewing API endpoints; use api-security for authorized penetration testing of an API."
 risk: critical
 source: community
 date_added: "2026-02-27"
@@ -212,4 +212,4 @@ clean security posture from passing structural checks or from a risk metadata la
 - [OWASP Password Storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
 - [Express production security](https://expressjs.com/en/advanced/best-practice-security.html)
 - [Zod basic parsing](https://zod.dev/basics)
-- Related skills: `auth-implementation-patterns`, `api-patterns`, `systematic-debugging`.
+- Related skills: `designing-apis` (contract design), `api-security` (authorized testing of an API), `security-and-hardening` (general application hardening).

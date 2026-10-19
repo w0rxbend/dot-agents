@@ -1,0 +1,4 @@
+package build.unrelated
+
+object `package` extends build.JvmConventions {
+}

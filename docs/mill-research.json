@@ -1,0 +1,911 @@
+{
+  "researched_on": "2026-10-04",
+  "stable_baseline": "1.1.10",
+  "unversioned_docs": "1.3.0-M1",
+  "fetched_sources": 132,
+  "sources": [
+    {
+      "url": "https://mill-build.org/mill/android/android-initial-setup.html",
+      "title": "Android Initial Setup :: The Mill Build Tool",
+      "sha256": "01d6fc165cec37c0ee99432fef605774a5da0af5a18e3eed0b56b6dc61c223ea",
+      "bytes": 34082,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/android/android-linting.html",
+      "title": "Linting Android Projects :: The Mill Build Tool",
+      "sha256": "511bf9e86d147f51f44f61da9db9e21bd3038894c9e7c95b961244f65e702490",
+      "bytes": 39747,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/android/android-native-example.html",
+      "title": "Android Native Example :: The Mill Build Tool",
+      "sha256": "2472aab28b73600c331883338c3f603725f7942d18c1133458eef5d59df12ce7",
+      "bytes": 29799,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/android/android-release.html",
+      "title": "Android Release Guide :: The Mill Build Tool",
+      "sha256": "28ba157883f7a6498e6671dce73e7e6b24ff8b61f50bc2b5f8739d6324119f0f",
+      "bytes": 29662,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/android/compose-samples.html",
+      "title": "Android Jetpack Compose :: The Mill Build Tool",
+      "sha256": "4f45fe1812fe0ad694efe8c297593b79dd53b0bade846ec9257c07f2c0fb5d93",
+      "bytes": 41364,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/android/hilt-sample.html",
+      "title": "Android Hilt Sample :: The Mill Build Tool",
+      "sha256": "f725fcd8355436429ed5edea0beef17c2c36be717e9b386faf12b8365bd89df1",
+      "bytes": 37371,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/android/ide.html",
+      "title": "Android IDE Support :: The Mill Build Tool",
+      "sha256": "0211f6ab2c306caee7df0c282ac8f3c67dc86af3d4696e109a79a7da2765d394",
+      "bytes": 32836,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/android/java.html",
+      "title": "Android Java Projects :: The Mill Build Tool",
+      "sha256": "10a4d07176d45c65a0c776d0a693e71b0ce56ea2c7c68218dfbdb2ed39c7a0a2",
+      "bytes": 58645,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/android/koin_androidx_examples.html",
+      "title": "Koin Androidx Examples :: The Mill Build Tool",
+      "sha256": "172bfc03805a111d47d49b99fa9b2381ab10ba33a1b5fb0eb6cfb806e625025b",
+      "bytes": 30333,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/android/kotlin.html",
+      "title": "Android Kotlin Projects :: The Mill Build Tool",
+      "sha256": "d5eae33429ec4c47b2ccbf61393464ef4a5d2e7e192b3a9e532929fc208b39c2",
+      "bytes": 42621,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/android/publishing.html",
+      "title": "Android Library Publishing :: The Mill Build Tool",
+      "sha256": "6cccda6f99eea13f7c8fb8ab87bea8338472d57b5868e35e4d99df442638d95b",
+      "bytes": 32376,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/android/scala.html",
+      "title": "Android Scala Projects :: The Mill Build Tool",
+      "sha256": "d2ae465cd24f4612c6f6c275e703e7671c435457c531493ba2316c4dfebb5e5a",
+      "bytes": 30828,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/cli/build-header.html",
+      "title": "Build Header Config :: The Mill Build Tool",
+      "sha256": "19adb7f2f7bd7577876fd1637b7204b22246dddeeeb7305bd29505fbe9062870",
+      "bytes": 44696,
+      "skill": "mill-cli-and-ide"
+    },
+    {
+      "url": "https://mill-build.org/mill/cli/builtin-commands.html",
+      "title": "Built-in Commands :: The Mill Build Tool",
+      "sha256": "74057090ad36e32d60af0b4d18354a9fbeb537cf3205eac852e05ba279b0349e",
+      "bytes": 46174,
+      "skill": "mill-cli-and-ide"
+    },
+    {
+      "url": "https://mill-build.org/mill/cli/flags.html",
+      "title": "Mill Command-Line Flags :: The Mill Build Tool",
+      "sha256": "2ccd254b629e7a7788113d8691473591063e38fc6f88c37d37eeb85796011366",
+      "bytes": 38934,
+      "skill": "mill-cli-and-ide"
+    },
+    {
+      "url": "https://mill-build.org/mill/cli/installation-ide.html",
+      "title": "Installation & IDE Setup :: The Mill Build Tool",
+      "sha256": "bd7a274f001e73d56b8fd40a8103f8648da1078cb72ac9ffc435cba6c9bd95ea",
+      "bytes": 64763,
+      "skill": "mill-cli-and-ide"
+    },
+    {
+      "url": "https://mill-build.org/mill/cli/query-syntax.html",
+      "title": "Task Query Syntax :: The Mill Build Tool",
+      "sha256": "dbd2b29a0bc04ae38b851b23279f37d1c1939cb1cf557ec2a5b06eb8df537390",
+      "bytes": 38735,
+      "skill": "mill-cli-and-ide"
+    },
+    {
+      "url": "https://mill-build.org/mill/comparisons/gradle.html",
+      "title": "Comparing Mill vs Gradle: Programmable Builds :: The Mill Build Tool",
+      "sha256": "ad73570a81aea572f213768ef7b8fc6ebaeaaf2beb85fb13f17dbc55a19a1179",
+      "bytes": 91362,
+      "skill": "mill-project-models"
+    },
+    {
+      "url": "https://mill-build.org/mill/comparisons/maven.html",
+      "title": "Comparing Mill vs Maven: Declarative Builds :: The Mill Build Tool",
+      "sha256": "2e1c2f4d4d97c9104b062acad35afe0e26de1194bea4dbd636b5534accfae8f6",
+      "bytes": 56499,
+      "skill": "mill-project-models"
+    },
+    {
+      "url": "https://mill-build.org/mill/comparisons/performance.html",
+      "title": "Mill Build Performance :: The Mill Build Tool",
+      "sha256": "4c3575466683994b46ded33bda83e8f6eb6cb0b5242f46d1291999acf9de9974",
+      "bytes": 75541,
+      "skill": "mill-performance"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/artifactory.html",
+      "title": "Artifactory :: The Mill Build Tool",
+      "sha256": "732678a764c5d3c5fa3eadf43a65702dd61421ef496dbf278d80c6a46c2b60f5",
+      "bytes": 26912,
+      "skill": "mill-packaging-publishing"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/buildinfo.html",
+      "title": "BuildInfo :: The Mill Build Tool",
+      "sha256": "6d1c56f2ac26f267d95dbc566e3ce3044404c92e6cc5f95eb1ffe7d89253b399",
+      "bytes": 28888,
+      "skill": "mill-build-logic"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/codeartifact.html",
+      "title": "Codeartifact :: The Mill Build Tool",
+      "sha256": "c5bd06e831d698c81c603892d59ebef718d47bec611ea3015481b93e93014e51",
+      "bytes": 27094,
+      "skill": "mill-packaging-publishing"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/docker.html",
+      "title": "Docker :: The Mill Build Tool",
+      "sha256": "81c2b7632f66bc074b4dddfed4e1fc8f5d2b546235e53e31d97037e4192a8f66",
+      "bytes": 31171,
+      "skill": "mill-packaging-publishing"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/flyway.html",
+      "title": "Flyway :: The Mill Build Tool",
+      "sha256": "dd3e652153d6f01813e50134e1dd38ff054bd4b2fb5123bb9c0f01e971d9d649",
+      "bytes": 28313,
+      "skill": "mill-build-logic"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/gitlab.html",
+      "title": "Gitlab :: The Mill Build Tool",
+      "sha256": "0460cbb7cd891e1600fb914a80952c48993a24b56f7fc3e3b2bff97bc0227bc6",
+      "bytes": 39659,
+      "skill": "mill-packaging-publishing"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/jmh.html",
+      "title": "JMH :: The Mill Build Tool",
+      "sha256": "000f40d1fb27d9049107d9fb9a8386fbcb26373403e4932698b825c2256994fd",
+      "bytes": 27057,
+      "skill": "mill-plugins"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/owaspdependencycheck.html",
+      "title": "Dependency Check :: The Mill Build Tool",
+      "sha256": "da5bb77a5d831c4c97b0308456cd7fb90c965d5f66f7fdb040781ed1d249c8a1",
+      "bytes": 31301,
+      "skill": "mill-plugins"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/playlib.html",
+      "title": "Play Framework :: The Mill Build Tool",
+      "sha256": "6242a63ec88fe77cfc6c74719552e8ea230a601342d2eda085f17cf28556c530",
+      "bytes": 42167,
+      "skill": "mill-build-logic"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/proguard.html",
+      "title": "Proguard :: The Mill Build Tool",
+      "sha256": "ea2cd0afa21cc9d126a36fca149e91c05ba16796f43218b8ff2c2731d173e34f",
+      "bytes": 28139,
+      "skill": "mill-packaging-publishing"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/sbom.html",
+      "title": "Software Bill of Materials (SBOM) :: The Mill Build Tool",
+      "sha256": "f511fe4df62d942a824ec73c209d3b6d120b3064595fba13fe67575b19e852e9",
+      "bytes": 28796,
+      "skill": "mill-plugins"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/scalapblib.html",
+      "title": "ScalaPB :: The Mill Build Tool",
+      "sha256": "dfa2c2487b1f1569c5b9521cc54338f996515076e4c780b38fafa82b37a4cf18",
+      "bytes": 30037,
+      "skill": "mill-build-logic"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/scoverage.html",
+      "title": "Scoverage :: The Mill Build Tool",
+      "sha256": "79aff2cb056912d0a2f0e436ffbcf1e87af81ec2283a595a86e26ad7b8d35e05",
+      "bytes": 30556,
+      "skill": "mill-plugins"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/sonatypecentral.html",
+      "title": "Sonatype Central :: The Mill Build Tool",
+      "sha256": "7b3835e91424bd505ce186fb98d539a1b86c070878b82adbcbc20f079d857643",
+      "bytes": 26098,
+      "skill": "mill-packaging-publishing"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/testng.html",
+      "title": "TestNG :: The Mill Build Tool",
+      "sha256": "e4a920f6a8b5ebde49673eefede04cde43d8b2c387d656d931091e47c3d8bec2",
+      "bytes": 26956,
+      "skill": "mill-plugins"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/twirllib.html",
+      "title": "Twirl :: The Mill Build Tool",
+      "sha256": "4bbab9b20aedebea03d7492a65259003e7c79e673852000d29a0a1e32c0f201f",
+      "bytes": 33928,
+      "skill": "mill-build-logic"
+    },
+    {
+      "url": "https://mill-build.org/mill/contrib/versionfile.html",
+      "title": "Version file :: The Mill Build Tool",
+      "sha256": "e12a7c8cd8bda0fc7f44efaeb69da122ac08ea789a44968f27fddc67acffa161",
+      "bytes": 36433,
+      "skill": "mill-packaging-publishing"
+    },
+    {
+      "url": "https://mill-build.org/mill/depth/caching.html",
+      "title": "Caching in Mill :: The Mill Build Tool",
+      "sha256": "2efe541aac6a941ec1cb19c396201422547f8ff0723a2a2bca7c6c257e215605",
+      "bytes": 34438,
+      "skill": "mill-performance"
+    },
+    {
+      "url": "https://mill-build.org/mill/depth/design-principles.html",
+      "title": "Mill Design Principles :: The Mill Build Tool",
+      "sha256": "c9e2ab88f16f948c9973dbdedfba91c76b9ca785adfcc2731b68d63fe112cbff",
+      "bytes": 65036,
+      "skill": "mill-performance"
+    },
+    {
+      "url": "https://mill-build.org/mill/depth/evaluation-model.html",
+      "title": "The Mill Evaluation Model :: The Mill Build Tool",
+      "sha256": "c067f2210de492114117bd042dc5ada8308a1fea4044d9611b3be5868677a97b",
+      "bytes": 69316,
+      "skill": "mill-performance"
+    },
+    {
+      "url": "https://mill-build.org/mill/depth/parallelism.html",
+      "title": "Parallelism in Mill :: The Mill Build Tool",
+      "sha256": "d8066c6eafb9115583c3b2e154b25d63b1fcfa6b042719ad53e0d50028cbe6c8",
+      "bytes": 36385,
+      "skill": "mill-performance"
+    },
+    {
+      "url": "https://mill-build.org/mill/depth/process-architecture.html",
+      "title": "The Mill Process Architecture :: The Mill Build Tool",
+      "sha256": "f3966d5a6a9adc5e6e2c5b09156278162a7aed65bcbff055a77e8b5c4017862c",
+      "bytes": 50646,
+      "skill": "mill-performance"
+    },
+    {
+      "url": "https://mill-build.org/mill/depth/sandboxing.html",
+      "title": "Mill Sandboxing :: The Mill Build Tool",
+      "sha256": "47011fe9405c68cba6202764595f8c8a9b21b70a632dc03605aecfa89ef37671",
+      "bytes": 46759,
+      "skill": "mill-performance"
+    },
+    {
+      "url": "https://mill-build.org/mill/depth/why-scala.html",
+      "title": "Why does Mill use Scala? :: The Mill Build Tool",
+      "sha256": "917b95ef11b2673250fa9daf9b9b751d88893e7a005b9607622094ce0522d594",
+      "bytes": 50006,
+      "skill": "mill-performance"
+    },
+    {
+      "url": "https://mill-build.org/mill/extending/contrib-plugins.html",
+      "title": "Contrib Plugins :: The Mill Build Tool",
+      "sha256": "c49d764a61d00e8b9cf19f8d6a59729703186acc66701394b5e8100d3b3e05ab",
+      "bytes": 30800,
+      "skill": "mill-plugins"
+    },
+    {
+      "url": "https://mill-build.org/mill/extending/example-python-support.html",
+      "title": "Example: Python Support :: The Mill Build Tool",
+      "sha256": "e517508eb150a525b0c194d812397475bcd1f2a130cbff5ee07f9e31c81beb44",
+      "bytes": 93632,
+      "skill": "mill-plugins"
+    },
+    {
+      "url": "https://mill-build.org/mill/extending/example-typescript-support.html",
+      "title": "Example: Typescript Support :: The Mill Build Tool",
+      "sha256": "ece2a39336791b2f82980f1b9ff9ceed6e7e071a9f4f2edd15202e3aec597267",
+      "bytes": 102165,
+      "skill": "mill-plugins"
+    },
+    {
+      "url": "https://mill-build.org/mill/extending/import-mvn-plugins.html",
+      "title": "Import Libraries and Plugins :: The Mill Build Tool",
+      "sha256": "2fc8e236b9d20ba0e6a88bde8647744c415d47d1bb34d36fbbe2d82dfe1976f2",
+      "bytes": 37257,
+      "skill": "mill-plugins"
+    },
+    {
+      "url": "https://mill-build.org/mill/extending/meta-build.html",
+      "title": "The Mill Meta-Build :: The Mill Build Tool",
+      "sha256": "733de4daeab4781d68b10998cebb4cf040d1d86cf280f998d1da1a69fc4659f6",
+      "bytes": 43701,
+      "skill": "mill-plugins"
+    },
+    {
+      "url": "https://mill-build.org/mill/extending/running-jvm-code.html",
+      "title": "Running Dynamic JVM Code :: The Mill Build Tool",
+      "sha256": "20f3894cbd622cc795c4dbc48d1aedc5dfe27cc611e493bece8f070c38a153bf",
+      "bytes": 49285,
+      "skill": "mill-plugins"
+    },
+    {
+      "url": "https://mill-build.org/mill/extending/thirdparty-plugins.html",
+      "title": "Third-Party Plugins :: The Mill Build Tool",
+      "sha256": "3cd162a611f605fe9f8785d16855a9814ca0045a84d711a6791c62b273af63de",
+      "bytes": 85000,
+      "skill": "mill-plugins"
+    },
+    {
+      "url": "https://mill-build.org/mill/extending/writing-plugins.html",
+      "title": "Writing Mill Plugins :: The Mill Build Tool",
+      "sha256": "9e6143d9caab3fe4993128e0161dcd751901a013082cec34fb8a3fcefd420998",
+      "bytes": 51545,
+      "skill": "mill-plugins"
+    },
+    {
+      "url": "https://mill-build.org/mill/fundamentals/bundled-libraries.html",
+      "title": "Bundled Libraries :: The Mill Build Tool",
+      "sha256": "d9d61808a7f74004804b53019adf4ddcf1f4ea5d65232c1acedb3b966772fd79",
+      "bytes": 48313,
+      "skill": "mill-build-logic"
+    },
+    {
+      "url": "https://mill-build.org/mill/fundamentals/configuring-jvm-versions.html",
+      "title": "Managing JVM Versions :: The Mill Build Tool",
+      "sha256": "681ba28b7f27784eb3531453a6862aa360149162128aa093e1278f28c476b33d",
+      "bytes": 40856,
+      "skill": "mill-dependencies-and-toolchains"
+    },
+    {
+      "url": "https://mill-build.org/mill/fundamentals/cross-builds.html",
+      "title": "Cross Builds :: The Mill Build Tool",
+      "sha256": "93921609ad9ec46a5c8de5998845c131e307cc53fcc60ff56680d0dc2ad66219",
+      "bytes": 89746,
+      "skill": "mill-monorepo"
+    },
+    {
+      "url": "https://mill-build.org/mill/fundamentals/library-deps.html",
+      "title": "Library Dependencies in Mill :: The Mill Build Tool",
+      "sha256": "846ab11d18cfbfbb1369a987f55f79f36f7ab8784623617532c71d5880aff3b5",
+      "bytes": 53807,
+      "skill": "mill-dependencies-and-toolchains"
+    },
+    {
+      "url": "https://mill-build.org/mill/fundamentals/modules.html",
+      "title": "Modules :: The Mill Build Tool",
+      "sha256": "650012752fce3a901ae1b56fe82cf169a83101aac0b2b72a5bf8627575d28b9f",
+      "bytes": 88283,
+      "skill": "mill-monorepo"
+    },
+    {
+      "url": "https://mill-build.org/mill/fundamentals/out-dir.html",
+      "title": "The Output Directory :: The Mill Build Tool",
+      "sha256": "8c4def9d6ee0d74a3626a15c51cac03be4fa0a405335da93c4ae8ef5e79f1d15",
+      "bytes": 44119,
+      "skill": "mill-build-logic"
+    },
+    {
+      "url": "https://mill-build.org/mill/fundamentals/tasks.html",
+      "title": "Tasks :: The Mill Build Tool",
+      "sha256": "cbb7940c895feaff11451b92de3bd0ea0f4fbf56c8d7b41562f88b15a2ef8547",
+      "bytes": 112634,
+      "skill": "mill-build-logic"
+    },
+    {
+      "url": "https://mill-build.org/mill/groovylib/intro.html",
+      "title": "Building Groovy with Mill :: The Mill Build Tool",
+      "sha256": "31b75f8d1fa81b9e8d220697085500c2ccdd70a8d7ca1f6ddf3f1d98f8f68201",
+      "bytes": 43011,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/index.html",
+      "title": "Mill: A Better Build Tool for Java, Scala, & Kotlin :: The Mill Build Tool",
+      "sha256": "50b6189411eb327c21c9278f53126f6352c301fef8d98b1c6b430b59cfb3b5e0",
+      "bytes": 45899,
+      "skill": "mill-project-models"
+    },
+    {
+      "url": "https://mill-build.org/mill/javalib/build-examples.html",
+      "title": "Java Build Examples :: The Mill Build Tool",
+      "sha256": "64dc0c5218461887b5dc71f14a4441a9b113fc4b9152dae5d5fb87dcdea26bf0",
+      "bytes": 33289,
+      "skill": "mill-jvm-modules"
+    },
+    {
+      "url": "https://mill-build.org/mill/javalib/dependencies.html",
+      "title": "Java Library Dependencies :: The Mill Build Tool",
+      "sha256": "901a539c2c7df6fd5b70c0c4cdd5b065055f847d0a242dfa41b4f9e477719bfe",
+      "bytes": 39475,
+      "skill": "mill-dependencies-and-toolchains"
+    },
+    {
+      "url": "https://mill-build.org/mill/javalib/intro.html",
+      "title": "Building Java with Mill :: The Mill Build Tool",
+      "sha256": "834753c5db10e9c58174d9ef4a3ef00263ffbecf979f4ea8dc39600415be665f",
+      "bytes": 78600,
+      "skill": "mill-jvm-modules"
+    },
+    {
+      "url": "https://mill-build.org/mill/javalib/linting.html",
+      "title": "Linting Java Projects :: The Mill Build Tool",
+      "sha256": "f8b16164e9907295385537e247fa39d8b46e8539d2913465fd409c666eea01a0",
+      "bytes": 64937,
+      "skill": "mill-linting"
+    },
+    {
+      "url": "https://mill-build.org/mill/javalib/module-config.html",
+      "title": "Java Module Configuration :: The Mill Build Tool",
+      "sha256": "a67910fabdcf85b3dc589985ddd1d6ac07de1565c6fb9f0fe892b8a9f5ee7e36",
+      "bytes": 73972,
+      "skill": "mill-jvm-modules"
+    },
+    {
+      "url": "https://mill-build.org/mill/javalib/packaging.html",
+      "title": "Packaging Java Projects :: The Mill Build Tool",
+      "sha256": "a43055ab37bfe998c046f06a62cb9dc50a36d97d062f0c88e81ccddee25b707b",
+      "bytes": 48224,
+      "skill": "mill-packaging-publishing"
+    },
+    {
+      "url": "https://mill-build.org/mill/javalib/publishing.html",
+      "title": "Publishing Java Projects :: The Mill Build Tool",
+      "sha256": "74dae8f1ebf6e43ef66c69eac4428aa14a14333e922592676c82a18836034e16",
+      "bytes": 52742,
+      "skill": "mill-packaging-publishing"
+    },
+    {
+      "url": "https://mill-build.org/mill/javalib/script.html",
+      "title": "Java Single-File Scripts :: The Mill Build Tool",
+      "sha256": "291ba23a1ca947af57118684b2c9b6e8611d486bef5ce7b2b69f8b672da3ee8b",
+      "bytes": 61613,
+      "skill": "mill-jvm-modules"
+    },
+    {
+      "url": "https://mill-build.org/mill/javalib/spring-boot.html",
+      "title": "Spring Boot Projects :: The Mill Build Tool",
+      "sha256": "c7483cc2fd70ec73ca45a33a6925c7ded2f88998c7177990e63e6290920a24e4",
+      "bytes": 46749,
+      "skill": "mill-jvm-modules"
+    },
+    {
+      "url": "https://mill-build.org/mill/javalib/testing.html",
+      "title": "Testing Java Projects :: The Mill Build Tool",
+      "sha256": "2d200b148e49ad83e4907464ac1714f03cb8f837817909cd4dfead14c0baefca",
+      "bytes": 62332,
+      "skill": "mill-testing"
+    },
+    {
+      "url": "https://mill-build.org/mill/javalib/web-examples.html",
+      "title": "Java Web Project Examples :: The Mill Build Tool",
+      "sha256": "2e96c86093fbe69d94bf01384c9c8647bce718b59958a2acad21e8da0132848c",
+      "bytes": 46238,
+      "skill": "mill-jvm-modules"
+    },
+    {
+      "url": "https://mill-build.org/mill/javascriptlib/build-examples.html",
+      "title": "JavaScript Build Examples :: The Mill Build Tool",
+      "sha256": "43e0e36ee1156106e909324bd97819320b78311a537335eae955bf71df4783d8",
+      "bytes": 38307,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/javascriptlib/dependencies.html",
+      "title": "Typescript Library Dependencies :: The Mill Build Tool",
+      "sha256": "66b7112f60c8d2f328e583147885ea341707daf242a4acaaa9a9c675a7868ff7",
+      "bytes": 34392,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/javascriptlib/intro.html",
+      "title": "Building Javascript with Mill :: The Mill Build Tool",
+      "sha256": "b7060241e328bc42d59eb66ccc217c3804093b3919afec480b5a76d9e8cf91b8",
+      "bytes": 35746,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/javascriptlib/linting.html",
+      "title": "Linting Typescript Projects :: The Mill Build Tool",
+      "sha256": "fbcd8887c9c8b76743db1438e3451e9eca9fa6a9b68fb2621c9b62baa782aba7",
+      "bytes": 38698,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/javascriptlib/module-config.html",
+      "title": "Typescript Module Configuration :: The Mill Build Tool",
+      "sha256": "7bf1f5db2614c6646160b48444ff97f07bacabab5e8fccb425be374fc80a92fe",
+      "bytes": 50488,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/javascriptlib/publishing.html",
+      "title": "Typescript Packaging & Publishing :: The Mill Build Tool",
+      "sha256": "c09b70378b0a0a92c5a08c45dac96e09ad3e166409c062e485676812da359057",
+      "bytes": 32185,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/javascriptlib/testing.html",
+      "title": "Testing Typescript Projects :: The Mill Build Tool",
+      "sha256": "e2cc823a9729fef6e3688c4ef727059958eb13e4829ec9631d350191c0ccaf9b",
+      "bytes": 34538,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/kotlinlib/dependencies.html",
+      "title": "Kotlin Library Dependencies :: The Mill Build Tool",
+      "sha256": "5d4fdbd093edaea94292d4cd7c0f9e6042edfd99f840330e005b4f5759fc8da0",
+      "bytes": 39934,
+      "skill": "mill-dependencies-and-toolchains"
+    },
+    {
+      "url": "https://mill-build.org/mill/kotlinlib/intro.html",
+      "title": "Building Kotlin with Mill :: The Mill Build Tool",
+      "sha256": "44c43da9164a9d86aa4fb91fcf971954a02783bf6da66b66f6af7e84c3d0c624",
+      "bytes": 79372,
+      "skill": "mill-jvm-modules"
+    },
+    {
+      "url": "https://mill-build.org/mill/kotlinlib/linting.html",
+      "title": "Linting Kotlin Projects :: The Mill Build Tool",
+      "sha256": "e7fc08d9fb9ce74386718c3920ef1ee1c23108a2867009955c34d9f75135675b",
+      "bytes": 51562,
+      "skill": "mill-linting"
+    },
+    {
+      "url": "https://mill-build.org/mill/kotlinlib/module-config.html",
+      "title": "Kotlin Module Configuration :: The Mill Build Tool",
+      "sha256": "6492ef86653cf95a78ec946df14fa06a5de4dbb8480260b4ed40729257cff63f",
+      "bytes": 75742,
+      "skill": "mill-jvm-modules"
+    },
+    {
+      "url": "https://mill-build.org/mill/kotlinlib/packaging.html",
+      "title": "Packaging Kotlin Projects :: The Mill Build Tool",
+      "sha256": "11b842c3413c0a60c7f22695b7132efa0c8b4479436e8c39e1571cb7c3f17cf1",
+      "bytes": 40533,
+      "skill": "mill-packaging-publishing"
+    },
+    {
+      "url": "https://mill-build.org/mill/kotlinlib/publishing.html",
+      "title": "Publishing Kotlin Projects :: The Mill Build Tool",
+      "sha256": "1275d9735d1e4ff68cb8cd4561358f61103231e5a877a7399236bbd3d1f1a104",
+      "bytes": 49062,
+      "skill": "mill-packaging-publishing"
+    },
+    {
+      "url": "https://mill-build.org/mill/kotlinlib/script.html",
+      "title": "Kotlin Single-File Scripts :: The Mill Build Tool",
+      "sha256": "b21d782b7d22c0a204ccdf1af8cb44600c87f05fcf9534f2fae2c008f5e5ea24",
+      "bytes": 59127,
+      "skill": "mill-jvm-modules"
+    },
+    {
+      "url": "https://mill-build.org/mill/kotlinlib/testing.html",
+      "title": "Testing Kotlin Projects :: The Mill Build Tool",
+      "sha256": "018032aa9358abe5ba75973c3981312324632769b6f2e26c4ebc75ab3c1421e3",
+      "bytes": 60607,
+      "skill": "mill-testing"
+    },
+    {
+      "url": "https://mill-build.org/mill/kotlinlib/web-examples.html",
+      "title": "Kotlin Web Project Examples :: The Mill Build Tool",
+      "sha256": "80b259656ee585cb09fd8d3b40e79443ad691fc583f02dc7739a2976de4b5886",
+      "bytes": 59193,
+      "skill": "mill-jvm-modules"
+    },
+    {
+      "url": "https://mill-build.org/mill/large/large.html",
+      "title": "Large Builds and Monorepos :: The Mill Build Tool",
+      "sha256": "e4fe369f699cd28fe71e604b303dd0b327f718a48d1f3d1e6e9e8cdad479203e",
+      "bytes": 27506,
+      "skill": "mill-monorepo"
+    },
+    {
+      "url": "https://mill-build.org/mill/large/multi-file-builds.html",
+      "title": "Multi-File Builds :: The Mill Build Tool",
+      "sha256": "4f4aa8f971e69ea01adfb1937b5ca6c6a311c965d51ac9f7ff3d45df66ea65a4",
+      "bytes": 43713,
+      "skill": "mill-monorepo"
+    },
+    {
+      "url": "https://mill-build.org/mill/large/multi-language-builds.html",
+      "title": "Multi-Language Builds :: The Mill Build Tool",
+      "sha256": "84bd38a6284cf14fac251ad8d650e8487f8134e8e161d6b91d15c3aa9b2252ec",
+      "bytes": 30438,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/large/pre-compiled-modules.html",
+      "title": "Pre-Compiled Modules :: The Mill Build Tool",
+      "sha256": "88806fe5201d4666f7627987de3e96a7d65eec81e1934a5f61e31b567ddf0fe6",
+      "bytes": 31499,
+      "skill": "mill-monorepo"
+    },
+    {
+      "url": "https://mill-build.org/mill/large/selective-execution.html",
+      "title": "Selective Test Execution :: The Mill Build Tool",
+      "sha256": "88187a7186616951cd38f28dd197e37fdd79315a6cedc61e2cba481bfb023a90",
+      "bytes": 52424,
+      "skill": "mill-monorepo"
+    },
+    {
+      "url": "https://mill-build.org/mill/migrating/auto-migrating.html",
+      "title": "Automated Migration Tools :: The Mill Build Tool",
+      "sha256": "7a9d178acbfb4e39ea4b10d3807d8698f61e7051707a58b0d207b33bc89822b3",
+      "bytes": 39108,
+      "skill": "mill-cli-and-ide"
+    },
+    {
+      "url": "https://mill-build.org/mill/migrating/migrating.html",
+      "title": "Migrating to Mill :: The Mill Build Tool",
+      "sha256": "76dd8acf115fcbc4171e9540116e106d499db060b23be5198a9f414e44098c2d",
+      "bytes": 50637,
+      "skill": "mill-cli-and-ide"
+    },
+    {
+      "url": "https://mill-build.org/mill/pythonlib/dependencies.html",
+      "title": "Python Library Dependencies :: The Mill Build Tool",
+      "sha256": "96662be8e9e1958b35c0de0cebfb7bbeac5fa3b576c695fe9cc254f9bb702673",
+      "bytes": 38127,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/pythonlib/intro.html",
+      "title": "Building Python with Mill :: The Mill Build Tool",
+      "sha256": "09316c9303ee6e04a04dc7e69372d51b09fef2d3f6aefb3e876eaf646c792768",
+      "bytes": 47432,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/pythonlib/linting.html",
+      "title": "Linting Python Projects :: The Mill Build Tool",
+      "sha256": "4c8b02d6e25f5cdea928cee9bfa3de125944721b10e576c72e90eb7ec5596c8c",
+      "bytes": 36667,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/pythonlib/module-config.html",
+      "title": "Python Module Configuration :: The Mill Build Tool",
+      "sha256": "29cebd0f3ed775ac18315a9c702e0d2c6a67ff5c40772bd1b98ef2a46d9bf4b0",
+      "bytes": 54201,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/pythonlib/publishing.html",
+      "title": "Python Packaging & Publishing :: The Mill Build Tool",
+      "sha256": "b417828899c7e055c97f943dc4df9cff5c36ab95221bac6b310b1548494e533c",
+      "bytes": 35447,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/pythonlib/testing.html",
+      "title": "Testing Python Projects :: The Mill Build Tool",
+      "sha256": "78e8da35ea6a33b22b9a2d37e0087e233a8299ba3babf7ce77fa52f0139bbf32",
+      "bytes": 41971,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/pythonlib/web-examples.html",
+      "title": "Python Web Project Examples :: The Mill Build Tool",
+      "sha256": "15eb5b4979527cd29377e394eafce016a79c91e3bd9e882597578246b1517885",
+      "bytes": 37304,
+      "skill": "mill-polyglot"
+    },
+    {
+      "url": "https://mill-build.org/mill/reference/talks-blog-posts.html",
+      "title": "Talks & Blog Posts :: The Mill Build Tool",
+      "sha256": "2896b6aa87fff1266a711919ebf04c84576c47be51b747d9d54093040362c10c",
+      "bytes": 28254,
+      "skill": "mill-project-models"
+    },
+    {
+      "url": "https://mill-build.org/mill/scalalib/build-examples.html",
+      "title": "Scala Build Examples :: The Mill Build Tool",
+      "sha256": "4994a1d2de7751a75e190169aea556c1018055f67e0ce885bc4666a0636d0cc1",
+      "bytes": 34257,
+      "skill": "mill-project-models"
+    },
+    {
+      "url": "https://mill-build.org/mill/scalalib/dependencies.html",
+      "title": "Scala Library Dependencies :: The Mill Build Tool",
+      "sha256": "678c8993bc17e86d89be0de3341949c09eaa3ba4a4e5d39ab289f681114301a3",
+      "bytes": 48295,
+      "skill": "mill-dependencies-and-toolchains"
+    },
+    {
+      "url": "https://mill-build.org/mill/scalalib/intro.html",
+      "title": "Building Scala with Mill :: The Mill Build Tool",
+      "sha256": "92f23a1e8ff4c0b56fb17140b3ce69cda07529e0852f65c272e0393638d86888",
+      "bytes": 81765,
+      "skill": "mill-project-models"
+    },
+    {
+      "url": "https://mill-build.org/mill/scalalib/linting.html",
+      "title": "Linting Scala Projects :: The Mill Build Tool",
+      "sha256": "4c20372f30d14405c2c6a857308f22cc8fcd91b5e1793b7144454588bf2f3a8a",
+      "bytes": 57924,
+      "skill": "mill-linting"
+    },
+    {
+      "url": "https://mill-build.org/mill/scalalib/module-config.html",
+      "title": "Scala Module Configuration :: The Mill Build Tool",
+      "sha256": "0aab9ec24a395d6f5c1bc51ee0da575b5327ef5bb3d4d74aa8c25a5059c562fd",
+      "bytes": 84486,
+      "skill": "mill-jvm-modules"
+    },
+    {
+      "url": "https://mill-build.org/mill/scalalib/native-examples.html",
+      "title": "Scala Native Examples :: The Mill Build Tool",
+      "sha256": "191797596da612f65a86ac21488cc09190435edbe7c69b2d986f8c45b8c93a94",
+      "bytes": 35672,
+      "skill": "mill-scala-platforms"
+    },
+    {
+      "url": "https://mill-build.org/mill/scalalib/packaging.html",
+      "title": "Packaging Scala Projects :: The Mill Build Tool",
+      "sha256": "44eaae901c545107d9fb2034ec48de10b18c5ae769f90e4cd5185d0a5d6a2cf0",
+      "bytes": 40873,
+      "skill": "mill-packaging-publishing"
+    },
+    {
+      "url": "https://mill-build.org/mill/scalalib/publishing.html",
+      "title": "Publishing Scala Projects :: The Mill Build Tool",
+      "sha256": "01153623dc8f12b0ba603265896a21173afdefc5dca00bb7d9b898d6a7ced97d",
+      "bytes": 49096,
+      "skill": "mill-packaging-publishing"
+    },
+    {
+      "url": "https://mill-build.org/mill/scalalib/script.html",
+      "title": "Scala Single-File Scripts :: The Mill Build Tool",
+      "sha256": "0ed5477efdbf767d54a727b68b55c0e3a6f07ea0a7849316fab6222b2b055171",
+      "bytes": 61174,
+      "skill": "mill-project-models"
+    },
+    {
+      "url": "https://mill-build.org/mill/scalalib/spark.html",
+      "title": "Spark Examples :: The Mill Build Tool",
+      "sha256": "c480df4077dffe947eda4c37cff44f3b2d3f3f04bbf638f37ec87c6d3b7ceac4",
+      "bytes": 32049,
+      "skill": "mill-scala-platforms"
+    },
+    {
+      "url": "https://mill-build.org/mill/scalalib/testing.html",
+      "title": "Testing Scala Projects :: The Mill Build Tool",
+      "sha256": "d89928cce66221a4c351fa9ca3ddf57e2287d687e6cd55f6c463e92ae824ada6",
+      "bytes": 59968,
+      "skill": "mill-testing"
+    },
+    {
+      "url": "https://mill-build.org/mill/scalalib/web-examples.html",
+      "title": "Scala Web Project Examples :: The Mill Build Tool",
+      "sha256": "28c6870d3bbac712fd9b39f4fb4fd2c0d20d3861b26746dd6ca3cbf33e7e38ab",
+      "bytes": 57694,
+      "skill": "mill-scala-platforms"
+    },
+    {
+      "url": "https://mill-build.org/mill/1.1.x/scalalib/intro.html",
+      "title": "Building Scala with Mill :: The Mill Build Tool",
+      "sha256": "5ced6450a5ba03eba115046857992314aa97b37c5b303379f1b7e5b5b1c76c14",
+      "bytes": 81980,
+      "skill": "mill-project-models"
+    },
+    {
+      "url": "https://mill-build.org/mill/1.1.x/scalalib/script.html",
+      "title": "Scala Single-File Scripts :: The Mill Build Tool",
+      "sha256": "2c8da7d80f43c0a2ee3f9215a9a50080d3616185e59bbb3fe79ad0e52ee02770",
+      "bytes": 61318,
+      "skill": "mill-project-models"
+    },
+    {
+      "url": "https://mill-build.org/mill/1.1.x/kotlinlib/intro.html",
+      "title": "Building Kotlin with Mill :: The Mill Build Tool",
+      "sha256": "f9e83b1c44fb3370c1879337e43f4ce6885cc45057b1784417c145e95b92e66e",
+      "bytes": 79587,
+      "skill": "mill-jvm-modules"
+    },
+    {
+      "url": "https://mill-build.org/mill/1.1.x/javalib/intro.html",
+      "title": "Building Java with Mill :: The Mill Build Tool",
+      "sha256": "532255ba58bcdb02e2e97e55b7dcf802f8934280d5edece030008854fb585c15",
+      "bytes": 78815,
+      "skill": "mill-jvm-modules"
+    },
+    {
+      "url": "https://mill-build.org/mill/1.1.x/fundamentals/tasks.html",
+      "title": "Tasks :: The Mill Build Tool",
+      "sha256": "8483309c334fda5882f20fed92c8bd68b4d02f626d9f48003eb937427b96817c",
+      "bytes": 109406,
+      "skill": "mill-build-logic"
+    },
+    {
+      "url": "https://mill-build.org/mill/1.1.x/large/multi-file-builds.html",
+      "title": "Multi-File Builds :: The Mill Build Tool",
+      "sha256": "7cdac80c38622080761c3df6157273ebffb8e6e2ee0be7eaaba9c9201a0e274b",
+      "bytes": 43947,
+      "skill": "mill-monorepo"
+    },
+    {
+      "url": "https://mill-build.org/mill/1.1.x/large/selective-execution.html",
+      "title": "Selective Test Execution :: The Mill Build Tool",
+      "sha256": "b6a80197573aca1cc7fa53965bbb3ff6ec02564c0e7f6cdcde4fa30b5c85fe5d",
+      "bytes": 52727,
+      "skill": "mill-monorepo"
+    },
+    {
+      "url": "https://mill-build.org/mill/1.1.x/scalalib/linting.html",
+      "title": "Linting Scala Projects :: The Mill Build Tool",
+      "sha256": "d5824b51ba0c1867d91126938ab0dcc64c2b1c495e7212e02e372bd4d11e8235",
+      "bytes": 58089,
+      "skill": "mill-linting"
+    },
+    {
+      "url": "https://mill-build.org/mill/1.1.x/cli/build-header.html",
+      "title": "Build Header Config :: The Mill Build Tool",
+      "sha256": "760757972a8911a69c253affd2b06c95531e1556339532cc027ef134bf1d17dd",
+      "bytes": 43137,
+      "skill": "mill-cli-and-ide"
+    },
+    {
+      "url": "https://mill-build.org/mill/1.1.x/cli/installation-ide.html",
+      "title": "Installation & IDE Setup :: The Mill Build Tool",
+      "sha256": "c2cfa0dbdfa7498787f2aaf981f8984da051b0a37b59320b79514c2ad744e9e4",
+      "bytes": 64823,
+      "skill": "mill-cli-and-ide"
+    },
+    {
+      "url": "https://mill-build.org/api/latest/mill.html",
+      "title": "mill",
+      "sha256": "1b79f0b4c796f85ed058e5ee1ff1f6fd169088a8818d42a8d542c5620f62f012",
+      "bytes": 362632,
+      "skill": "mill-plugins"
+    },
+    {
+      "url": "https://vss.virtuslab.com/llms.txt",
+      "title": "",
+      "sha256": "6fa1b6ca746f1f500bc380fcbb1372bc70a1e3073ba18563101695ab46d50381",
+      "bytes": 17350,
+      "skill": "mill-vss"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/com-lihaoyi/mill/1.1.10/LICENSE",
+      "title": "",
+      "sha256": "12aa35771883da734611e2de588c2d11dbf5a5ca731a1c5df38a678e47bb2269",
+      "bytes": 1086,
+      "skill": "mill-project-models"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/com-lihaoyi/mill/main/changelog.adoc",
+      "title": "",
+      "sha256": "4a02beae747ffd5fd6b3898b876e8ad22ca2b9db97db271c66259743d4ce393a",
+      "bytes": 177880,
+      "skill": "mill-plugins"
+    }
+  ]
+}

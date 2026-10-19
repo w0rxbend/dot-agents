@@ -18,6 +18,12 @@ or a bot-detection interstitial — don't give up and don't loop on the same
 URL. Third-party services often hold a **copy** of the page. Work down this
 ladder, cheapest first.
 
+**Respect access terms.** Use archive copies of paywalled or login-gated
+content only when the user has legitimate access (e.g. a subscription) or the
+use is otherwise permitted; otherwise report the paywall and cite the public
+abstract/summary instead. Rungs 1–3 send the URL to a third party — skip them
+for internal, private, or tokenized URLs unless the user agrees.
+
 ## The ladder
 
 ```

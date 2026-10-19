@@ -1,6 +1,6 @@
 ---
 name: code-review-and-quality
-description: Conducts multi-axis code review. Use before merging any change. Use when reviewing code written by yourself, another agent, or a human. Use when you need to assess code quality across multiple dimensions before it enters the main branch.
+description: "Review rubric and approval standard for any change before merge, including code written by you, another agent, or a human: five axes (correctness, readability, architecture, security, performance), change sizing, structural remedies, severity labels, and feedback technique. Use to judge whether a change is fit to merge; use code-review to run a PR or diff review end to end."
 risk: critical
 source: https://github.com/addyosmani/agent-skills/tree/main/skills/code-review-and-quality
 source_repo: addyosmani/agent-skills
@@ -209,30 +209,24 @@ Check the author's verification story:
 - Is there a before/after comparison?
 ```
 
-## Multi-Model Review Pattern
+## Multi-Perspective Review
 
-Use different models for different review perspectives:
+A second reviewer (another model, a fresh-context agent, or a human) catches blind spots the author shares with itself. Delegate only when the user authorizes it and the host supports it. Otherwise, run the perspectives one after another yourself and say that it was a self-review.
+
+1. Pin the scope: repository, base/head, changed paths, intended behavior, and available tests.
+2. Pick only the perspectives that are relevant (for example correctness, authorization, performance). Give each reviewer a bounded question, the paths it owns, and the evidence format you expect: location, trigger, consequence, reproduction.
+3. Keep hypotheses separate from demonstrated failures, and don't invent confidence scores.
+4. Reproduce important findings centrally and deduplicate them by root cause, not wording.
+5. Resolve disagreements with code or tests. Several reviewers repeating a claim, or a weighted vote, is not evidence.
+6. Report blockers first, then material improvements, then areas left untested. A passing rerun does not erase an earlier failing result.
+
+Example prompt for a review agent:
 
 ```
-Model A writes the code
-    │
-    ▼
-Model B reviews for correctness and architecture
-    │
-    ▼
-Model A addresses the feedback
-    │
-    ▼
-Human makes the final call
-```
-
-This catches issues that a single model might miss — different models have different blind spots.
-
-**Example prompt for a review agent:**
-```
-Review this code change for correctness, security, and adherence to
-our project conventions. The spec says [X]. The change should [Y].
-Flag any issues as Critical, Required, Optional, or Nit.
+Review this change for correctness, security, and adherence to the project's
+conventions. The spec says [X]. The change should [Y]. Report each finding
+with file:line, trigger, and consequence, labelled Critical, Required,
+Optional, or Nit. Mark anything you could not reproduce as a hypothesis.
 ```
 
 ## Dead Code Hygiene
@@ -279,7 +273,7 @@ When reviewing code — whether written by you, another agent, or a human:
 
 - **Don't rubber-stamp.** "LGTM" without evidence of review helps no one.
 - **Don't soften real issues.** "This might be a minor concern" when it's a bug that will hit production is dishonest.
-- **Quantify problems when possible.** "This N+1 query will add ~50ms per item in the list" is better than "this could be slow."
+- **Quantify problems only from evidence.** "This loop issues one query per item (N+1): 200 queries for the 200-row page in the test fixture" is better than "this could be slow." Cite a measurement or a count from the code; never invent latency or cost figures.
 - **Push back on approaches with clear problems.** Sycophancy is a failure mode in reviews. If the implementation has issues, say so directly and propose alternatives.
 - **Accept override gracefully.** If the author has full context and disagrees, defer to their judgment. Comment on code, not people — reframe personal critiques to focus on the code itself.
 
@@ -343,10 +337,16 @@ Part of code review is dependency review:
 - [ ] **Approve** — Ready to merge
 - [ ] **Request changes** — Issues must be addressed
 ```
+## References
+
+- [references/language-checks.md](references/language-checks.md): read during Step 3 for Python, JS/TS, Go, or Rust diffs, and for the anti-patterns to always flag.
+- [references/feedback-and-comments.md](references/feedback-and-comments.md): read before writing comments for a person. Covers question vs. assertion, difficult feedback, disagreements, reviewer pitfalls, and comment templates.
+
 ## See Also
 
-- For detailed security review guidance, see `references/security-checklist.md`
-- For performance review checks, see `references/performance-checklist.md`
+- `security-and-hardening` for a deeper review of changed trust boundaries, authentication, authorization, input handling, and secrets.
+- `performance-optimization` when a suspected bottleneck needs measurement.
+- `doubt-driven-development` for in-flight cross-examination of a single risky decision before the change is finished.
 
 ## Common Rationalizations
 
@@ -389,6 +389,4 @@ After review is complete:
 
 ## Limitations
 
-- Use this skill only when the task clearly matches its upstream source and local project context.
-- Verify commands, generated code, dependencies, credentials, and external service behavior before applying changes.
-- Do not treat examples as a substitute for environment-specific tests, security review, or user approval for destructive or costly actions.
+- Review evidence comes from reading the code and running checks. It does not replace environment-specific tests, a dedicated security review, or user approval for destructive or costly actions.

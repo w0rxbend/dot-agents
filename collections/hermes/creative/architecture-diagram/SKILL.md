@@ -9,7 +9,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [architecture, diagrams, SVG, HTML, visualization, infrastructure, cloud]
-    related_skills: [concept-diagrams, excalidraw]
+    related_skills: [design-md, claude-design]
 ---
 
 # Architecture Diagram Skill
@@ -29,7 +29,7 @@ Generate professional, dark-themed technical architecture diagrams as standalone
 - Physics, chemistry, math, biology, or other scientific subjects
 - Physical objects (vehicles, hardware, anatomy, cross-sections)
 - Floor plans, narrative journeys, educational / textbook-style visuals
-- Hand-drawn whiteboard sketches (consider `excalidraw`)
+- Hand-drawn whiteboard sketches (use a whiteboard tool such as Excalidraw)
 - Animated explainers (consider an animation skill)
 
 If a more specialized skill is available for the subject, prefer that. If none fits, this skill can also serve as a general SVG diagram fallback — the output will just carry the dark tech aesthetic described below.
@@ -41,7 +41,7 @@ Based on [Cocoon AI's architecture-diagram-generator](https://github.com/Cocoon-
 1. User describes their system architecture (components, connections, technologies)
 2. Generate the HTML file following the design system below
 3. Save with `write_file` to a `.html` file (e.g. `~/architecture-diagram.html`)
-4. User opens in any browser — works offline, no dependencies
+4. User opens in any browser — no build step; offline it falls back from JetBrains Mono (Google Fonts) to the system monospace font
 
 ### Output Location
 
@@ -77,7 +77,7 @@ Use specific `rgba` fills and hex strokes to categorize components:
 | **External** | `rgba(30, 41, 59, 0.5)` | `#94a3b8` (slate-400) |
 
 ### Typography & Background
-- **Font:** JetBrains Mono (Monospace), loaded from Google Fonts
+- **Font:** JetBrains Mono (Monospace), loaded from Google Fonts; keep the `monospace` fallback in `font-family` so it renders offline
 - **Sizes:** 12px (Names), 9px (Sublabels), 8px (Annotations), 7px (Tiny labels)
 - **Background:** Slate-950 (`#020617`) with a subtle 40px grid pattern
 

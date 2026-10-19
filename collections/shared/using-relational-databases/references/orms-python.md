@@ -33,18 +33,17 @@
 
 Python database libraries span from high-level ORMs to low-level drivers, each with different trade-offs.
 
-| Library | Context7 ID | Type | Async | Type Safety | Best For |
-|---------|-------------|------|-------|-------------|----------|
-| **SQLAlchemy 2.0** | `/websites/sqlalchemy_en_21` | ORM + Core | ✅ | Pydantic v2 | Production apps, flexibility |
-| **SQLModel** | - | ORM | ✅ | Pydantic v2 | FastAPI, rapid prototyping |
-| **Tortoise ORM** | - | ORM | ✅ | Pydantic | Async-first apps |
-| **asyncpg** | - | Driver | ✅ | Manual | Maximum performance |
-| **psycopg3** | - | Driver | ✅ | Manual | PostgreSQL-specific |
+| Library | Type | Async | Type Safety | Best For |
+|---------|------|-------|-------------|----------|
+| **SQLAlchemy 2.0** | ORM + Core | ✅ | Pydantic v2 | Production apps, flexibility |
+| **SQLModel** | ORM | ✅ | Pydantic v2 | FastAPI, rapid prototyping |
+| **Tortoise ORM** | ORM | ✅ | Pydantic | Async-first apps |
+| **asyncpg** | Driver | ✅ | Manual | Maximum performance |
+| **psycopg3** | Driver | ✅ | Manual | PostgreSQL-specific |
 
 ## SQLAlchemy 2.0 (Recommended for Most Projects)
 
-**Context7:** `/websites/sqlalchemy_en_21` (7,090 snippets)
-**ORM Docs:** `/websites/sqlalchemy_en_20_orm` (2,047 snippets)
+**Docs:** https://docs.sqlalchemy.org/en/20/
 
 ### Core Concepts
 

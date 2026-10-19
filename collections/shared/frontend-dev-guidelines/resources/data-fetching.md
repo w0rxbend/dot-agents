@@ -61,6 +61,8 @@ export const MyComponent: React.FC<Props> = ({ id }) => {
 
 ## Cache-First Strategy
 
+> Example from one project that keeps list data in a "grid" query. Use it only if your app has an equivalent list query; otherwise a plain `useSuspenseQuery` is enough.
+
 ### Cache-First Pattern Example
 
 **Smart caching** reduces API calls by checking React Query cache first:
@@ -273,7 +275,9 @@ export const myFeatureApi = {
 
 ---
 
-## Route Format Rules (IMPORTANT)
+## Route Format Rules (example project convention)
+
+> These paths come from one project whose proxy adds the `/api` prefix. Check your own `apiClient` base URL and proxy before applying them.
 
 ### Correct Format
 
@@ -464,22 +468,20 @@ import apiClient from '@/lib/apiClient';
 
 ## Error Handling in Queries
 
-### onError Callback
+### Global Query Error Handler
+
+TanStack Query v5 removed `onError`/`onSuccess` from `useQuery` and `useSuspenseQuery` (they remain on `useMutation`). `useSuspenseQuery` throws errors to the nearest error boundary. For a toast on every failed query, attach the handler to the `QueryCache` once:
 
 ```typescript
-import { useMuiSnackbar } from '@/hooks/useMuiSnackbar';
+import { QueryCache, QueryClient } from '@tanstack/react-query';
 
-const { showError } = useMuiSnackbar();
-
-const { data } = useSuspenseQuery({
-    queryKey: ['entity', id],
-    queryFn: () => myFeatureApi.getEntity(id),
-
-    // Handle errors
-    onError: (error) => {
-        showError('Failed to load entity');
-        console.error('Load error:', error);
-    },
+export const queryClient = new QueryClient({
+    queryCache: new QueryCache({
+        onError: (error, query) => {
+            // Call a non-hook notifier here (hooks cannot run outside components)
+            console.error('Query failed:', query.queryKey, error);
+        },
+    }),
 });
 ```
 
@@ -754,11 +756,11 @@ useSuspenseQuery({
 
 1. **Create API Service**: `features/X/api/XApi.ts` using apiClient
 2. **Use useSuspenseQuery**: In components wrapped by SuspenseLoader
-3. **Cache-First**: Check grid cache before API call
+3. **Cache-First (optional)**: Seed from an existing list query when your app has one
 4. **Query Keys**: Consistent naming ['entity', id]
-5. **Route Format**: `/blog/route` NOT `/api/blog/route`
+5. **Route Format**: Match your `apiClient` base URL and proxy setup
 6. **Mutations**: invalidateQueries after success
-7. **Error Handling**: onError + useMuiSnackbar
+7. **Error Handling**: Error boundaries / `QueryCache` `onError` for queries, `useMutation` `onError` for mutations, + useMuiSnackbar
 8. **Type Safety**: Type all parameters and returns
 
 **See Also:**

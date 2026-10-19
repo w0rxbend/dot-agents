@@ -148,7 +148,7 @@ resource "google_cloud_run_service" "app" {
   template {
     spec {
       containers {
-        image = "gcr.io/project/app:latest"
+        image = "us-central1-docker.pkg.dev/project/my-repo/app:1.0.0"
 
         env {
           name = "DB_PASSWORD"

@@ -190,8 +190,8 @@ Validate client-side before upload:
 ### Image Optimization Checklist
 
 ```bash
-# Generate optimized image set
-python scripts/optimize_images.py --input image.jpg --formats webp,jpg,avif
+# Generate optimized image set (requires Pillow; run from this skill's directory)
+python scripts/optimize_images.py --input image.jpg --output optimized/ --formats webp,jpg,avif --sizes 400,800,1200
 ```
 
 Strategies:
@@ -242,10 +242,7 @@ Essential patterns:
 - ARIA labels for controls
 - Reference `references/accessibility-audio.md`
 
-To validate accessibility:
-```bash
-node scripts/validate_media_accessibility.js
-```
+Verify with real tooling: run axe-core (for example `@axe-core/playwright` or `npx @axe-core/cli <url>`) against the rendered page, and check captions, transcripts and keyboard control by hand.
 
 For complete requirements, reference `references/accessibility-patterns.md`.
 
@@ -304,7 +301,7 @@ See `examples/audio-waveform.tsx` for implementation.
 Best for PDF rendering in React:
 - Page-by-page rendering
 - Text selection support
-- Annotations (premium)
+- Annotation layer (links, form fields) via `renderAnnotationLayer`
 - Worker-based for performance
 
 ```bash
@@ -317,7 +314,7 @@ For detailed comparison, reference `references/library-comparison.md`.
 
 ## Design Token Integration
 
-All media components use the design-tokens skill for theming:
+Style media components with design tokens (see the `theming-components` skill):
 - Color tokens for backgrounds, overlays, controls
 - Spacing tokens for padding and gaps
 - Border tokens for thumbnails and containers
@@ -325,7 +322,7 @@ All media components use the design-tokens skill for theming:
 - Motion tokens for animations
 
 Supports light, dark, high-contrast, and custom themes.
-Reference the design-tokens skill for theme switching.
+Reference the `theming-components` skill for theme switching.
 
 Example token usage:
 ```css
@@ -391,22 +388,13 @@ Reference `references/cloud-storage.md` for setup.
 
 Generate mock media:
 ```bash
-# Generate test images
-python scripts/generate_mock_images.py --count 50 --sizes thumb,medium,large
-
-# Generate test video metadata
-python scripts/generate_video_metadata.py --duration 300
+# Generate test images (requires Pillow)
+python scripts/generate_mock_images.py --count 50 --width 1600 --height 900 --output ./mock-images
 ```
 
-Validate media accessibility:
-```bash
-node scripts/validate_media_accessibility.js
-```
+Validate media accessibility: Verify with real tooling: run axe-core (for example `@axe-core/playwright` or `npx @axe-core/cli <url>`) against the rendered page, and check captions, transcripts and keyboard control by hand.
 
-Analyze performance:
-```bash
-node scripts/analyze_media_performance.js --files images/*.jpg
-```
+Analyze performance with Lighthouse or WebPageTest (image weight, LCP, lazy-loading) rather than a custom script.
 
 ## Working Examples
 
@@ -429,10 +417,8 @@ responsive-gallery.tsx        # Responsive image gallery patterns
 ## Resources
 
 ### Scripts (Token-Free Execution)
-- `scripts/optimize_images.py` - Batch image optimization
-- `scripts/generate_mock_images.py` - Test image generation
-- `scripts/validate_media_accessibility.js` - Accessibility validation
-- `scripts/analyze_media_performance.js` - Performance analysis
+- `scripts/optimize_images.py` - Batch resize and convert (WebP/AVIF/JPEG/PNG) with srcset output; requires Pillow
+- `scripts/generate_mock_images.py` - Test image generation; requires Pillow
 
 ### References (Detailed Documentation)
 - `references/upload-patterns.md` - File upload implementations
@@ -450,7 +436,6 @@ responsive-gallery.tsx        # Responsive image gallery patterns
 
 ### Assets (Templates and Configs)
 - `assets/upload-config.json` - Upload constraints and settings
-- `assets/media-templates/` - Placeholder images and icons
 
 ## Cross-Skill Integration
 
@@ -460,7 +445,7 @@ This skill works with other component skills:
 - **Feedback**: Upload progress, success/error messages
 - **AI Chat**: Image attachments, file sharing
 - **Dashboards**: Media widgets, thumbnails
-- **Design Tokens**: All visual styling via token system
+- **Theming** (`theming-components`): visual styling via design tokens
 
 ## Next Steps
 
@@ -472,3 +457,4 @@ This skill works with other component skills:
 6. Apply optimization strategies
 7. Test performance and responsive behavior
 8. Integrate with cloud storage (optional)
+
