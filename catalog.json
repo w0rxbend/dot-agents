@@ -4479,7 +4479,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "688b1365e078aa615d479c9ba356b9ac60e6849b68c22850ca9e46ff3ca4543c",
+      "sha256": "d9377cf16edc7276a7ec89270842e0e4e4e7e972d6e0b6e643a57bdce0836052",
       "local_globs": [
         "~/.agents/skills/implementing-api-patterns"
       ],
