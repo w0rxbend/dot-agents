@@ -1,11 +1,18 @@
 ---
 name: dockerfile-optimise
-description: Dockerfile optimization guidelines from official Docker documentation. This skill should be used when writing, reviewing, or refactoring Dockerfiles to ensure optimal build time, image size, security, and robustness. Triggers on tasks involving Dockerfile creation, Docker image builds, container optimization, multi-stage builds, build cache, or Docker security hardening.
+description: Write, review or refactor Dockerfiles against prioritized rules for layer caching, multi-stage builds, base images, build context, secrets, scanning and language-specific templates (Python, Node.js, Go, Rust). Use for any Dockerfile or image-build task; use docker-compose-basics for multi-container Compose files.
 ---
 
 # Dockerfile Optimization Best Practices
 
-Comprehensive Dockerfile optimization guide sourced exclusively from official Docker documentation. Contains 48 rules across 8 categories, prioritized by impact to guide automated refactoring and code generation.
+Dockerfile rules based on official Docker documentation plus language-specific templates: 52 rules across 9 categories, prioritized by impact to guide refactoring and code generation.
+
+## Workflow
+
+1. Identify the language and pick the matching `lang-` template as the starting structure.
+2. Apply CRITICAL rules first (cache order, multi-stage), then HIGH (base image pinning, context, secrets, scanning).
+3. Build and measure: `docker build --check .` (build checks), `docker history <image>` and `docker image ls <image>` for size, then rebuild after a source-only change to confirm the dependency layers stay cached.
+4. Scan the built image (`sec-scan-images`) and confirm it runs as a non-root user (`docker inspect --format '{{.Config.User}}' <image>`).
 
 ## When to Apply
 
@@ -29,6 +36,7 @@ Reference these guidelines when:
 | 6 | Dependency Management | MEDIUM-HIGH | `dep-` |
 | 7 | Instruction Patterns | MEDIUM | `inst-` |
 | 8 | Quality & Validation | MEDIUM | `lint-` |
+| 9 | Language Patterns | HIGH | `lang-` |
 
 ## Quick Reference
 
@@ -77,6 +85,7 @@ Reference these guidelines when:
 - [`sec-attestations`](references/sec-attestations.md) - Enable SBOM and provenance attestations
 - [`sec-no-unnecessary-packages`](references/sec-no-unnecessary-packages.md) - Avoid installing unnecessary packages
 - [`sec-ephemeral-containers`](references/sec-ephemeral-containers.md) - Design ephemeral, stateless containers
+- [`sec-scan-images`](references/sec-scan-images.md) - Scan built images for vulnerabilities in CI
 
 ### 6. Dependency Management (MEDIUM-HIGH)
 
@@ -103,6 +112,13 @@ Reference these guidelines when:
 - [`lint-sort-arguments`](references/lint-sort-arguments.md) - Sort multi-line arguments alphabetically
 - [`lint-single-concern`](references/lint-single-concern.md) - One concern per container
 
+### 9. Language Patterns (HIGH)
+
+- [`lang-python`](references/lang-python.md) - venv built in a builder stage (uv, pip, Poetry), slim runtime
+- [`lang-node`](references/lang-node.md) - Lockfile install, production deps only, `node` as PID 1
+- [`lang-go`](references/lang-go.md) - Static cross-compiled binary on distroless/scratch
+- [`lang-rust`](references/lang-rust.md) - Cached cargo builds, distroless/cc or musl on scratch
+
 ## How to Use
 
 Read individual reference files for detailed explanations and code examples:
@@ -116,3 +132,4 @@ Read individual reference files for detailed explanations and code examples:
 |------|-------------|
 | [references/_sections.md](references/_sections.md) | Category definitions and ordering |
 | [assets/templates/_template.md](assets/templates/_template.md) | Template for new rules |
+| [references/ATTRIBUTION.md](references/ATTRIBUTION.md) | Origins of merged rules |

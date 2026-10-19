@@ -1,6 +1,6 @@
 ---
 name: pixijs-application
-description: "Use this skill when creating and configuring a PixiJS v8 Application. Covers new Application() + async app.init() options (width, height, background, antialias, resolution, autoDensity, preference, resizeTo, autoStart, sharedTicker, canvas, useBackBuffer, powerPreference, eventFeatures, accessibilityOptions, gcActive, bezierSmoothness, webgl/webgpu/canvasOptions per-renderer overrides), app.stage/renderer/canvas/screen/domContainerRoot access, ResizePlugin, TickerPlugin, CullerPlugin (cullable, cullArea), custom ApplicationPlugin via ExtensionType.Application, start/stop lifecycle, and app.destroy() with releaseGlobalResources. Triggers on: Application, app.init, app.stage, app.renderer, app.canvas, app.screen, app.domContainerRoot, ApplicationOptions, ApplicationPlugin, ExtensionType.Application, resizeTo, sharedTicker, skipExtensionImports, preferWebGLVersion, preserveDrawingBuffer, cullable, CullerPlugin, app.start, app.stop, app.destroy, releaseGlobalResources."
+description: "Use this skill when creating and configuring a PixiJS v8 Application. Covers new Application() + async app.init() options (width, height, background, antialias, resolution, autoDensity, preference, resizeTo, autoStart, sharedTicker, canvas, useBackBuffer, powerPreference, eventFeatures, accessibilityOptions, gcActive, bezierSmoothness, webgl/webgpu/canvasOptions per-renderer overrides), app.stage/renderer/canvas/screen/domContainerRoot access, ResizePlugin, TickerPlugin, CullerPlugin (cullable, cullArea), custom ApplicationPlugin via ExtensionType.Application, start/stop lifecycle, and app.destroy() with releaseGlobalResources. Triggers on (in PixiJS code): PixiJS Application, app.init, app.stage, app.renderer, app.canvas, app.screen, app.domContainerRoot, ApplicationOptions, ApplicationPlugin, ExtensionType.Application, resizeTo, sharedTicker, skipExtensionImports, preferWebGLVersion, preserveDrawingBuffer, cullable, CullerPlugin, app.start, app.stop, app.destroy, releaseGlobalResources."
 license: MIT
 ---
 
@@ -25,7 +25,7 @@ await app.init({
 document.body.appendChild(app.canvas);
 ```
 
-**Related skills:** `pixijs-core-concepts` (renderers, render pipeline), `pixijs-ticker` (render loop detail), `pixijs-scene-container` (working with `app.stage`), `pixijs-environments` (non-browser setups).
+**Related skills:** `pixijs-core-concepts` (renderers, render pipeline), `pixijs-ticker` (render loop detail), `pixijs-scene-container` (working with `app.stage`). Non-browser setups (Web Worker, SSR, strict CSP) are summarized in `pixijs-core-concepts` (Decision guide).
 
 ## Core Patterns
 
@@ -88,7 +88,7 @@ app.screen; // Rectangle describing the visible area in CSS pixels
 app.domContainerRoot; // HTMLDivElement that holds DOMContainer overlays
 ```
 
-`app.stage` is a plain `Container`. For scene graph detail (transforms, addChild, destroy) see `pixijs-scene-container`. For renderer-level operations (extract, generateTexture, custom systems) see `pixijs-core-concepts` and `pixijs-custom-rendering`. `app.domContainerRoot` is the `<div>` that the renderer uses to host `DOMContainer` overlays; append it next to `app.canvas` when you need DOM elements pinned to scene nodes (see `pixijs-scene-dom-container`).
+`app.stage` is a plain `Container`. For scene graph detail (transforms, addChild, destroy) see `pixijs-scene-container`. For renderer-level operations (extract, generateTexture, custom systems) see `pixijs-core-concepts` (custom render pipes are not covered by these skills; see the [RenderPipe API](https://pixijs.download/release/docs/rendering.RenderPipe.html.md)). `app.domContainerRoot` is the `<div>` that the renderer uses to host `DOMContainer` overlays; append it next to `app.canvas` when you need DOM elements pinned to scene nodes (see the [DOMContainer API](https://pixijs.download/release/docs/scene.DOMContainer.html.md); requires `import 'pixi.js/dom'`).
 
 ### ResizePlugin
 
@@ -277,7 +277,7 @@ await app.init({ width: 800, height: 600 });
 document.body.appendChild(app.canvas);
 ```
 
-`app.renderer`, `app.canvas`, and `app.screen` are only populated once the `init()` promise resolves. Accessing them earlier returns `undefined`.
+`app.renderer`, `app.canvas`, and `app.screen` are only usable once the `init()` promise resolves. Before that, `app.renderer` is `undefined`, and the `app.canvas` / `app.screen` getters throw a `TypeError` because they read from the missing renderer.
 
 
 ## API Reference

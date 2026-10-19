@@ -1,5 +1,7 @@
 # LGTM Stack Docker Compose
-# Production-ready observability platform with unified telemetry collection
+# Local development observability stack with unified telemetry collection.
+# Not production-ready as is: change the Grafana admin credentials, review
+# retention/storage, and bump the pinned image versions before shared use.
 #
 # Components:
 # - Grafana Alloy: OpenTelemetry collector (receives OTLP, forwards to backends)
@@ -38,7 +40,7 @@ services:
   # Receives telemetry via OTLP protocol and forwards to Loki, Tempo, and Mimir
   # Acts as the single entry point for all application telemetry
   alloy:
-    image: grafana/alloy:latest
+    image: grafana/alloy:v1.20.1  # pin versions; never :latest
     container_name: lgtm-alloy
     restart: unless-stopped
 

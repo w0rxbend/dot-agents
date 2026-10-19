@@ -421,6 +421,46 @@ def transition(state: ConnectionState, event: String): ConnectionState =
 ADTs provide exhaustive pattern matching guarantees and make illegal states
 unrepresentable at compile time.
 
+**Scala 3 equivalents.** The examples above are Scala 2 syntax and still
+compile in Scala 3. New Scala 3 code usually expresses the same ADTs as enums,
+and may use the optional braceless syntax if the project's formatter allows it:
+
+```scala
+enum Result[+T]:
+  case Success(value: T)
+  case Failure(error: String) extends Result[Nothing]
+
+enum PaymentMethod:
+  case CreditCard(number: String, cvv: String)
+  case PayPal(email: String)
+  case BankTransfer(accountNumber: String)
+
+enum ConnectionState:
+  case Disconnected, Connecting, Connected, Disconnecting
+
+enum Expr:
+  case Num(value: Double)
+  case Add(left: Expr, right: Expr)
+  case Divide(left: Expr, right: Expr)
+
+def evaluate(expr: Expr): Either[String, Double] = expr match
+  case Expr.Num(v) => Right(v)
+  case Expr.Add(l, r) =>
+    for a <- evaluate(l); b <- evaluate(r) yield a + b
+  case Expr.Divide(l, r) =>
+    for
+      a <- evaluate(l)
+      b <- evaluate(r)
+      q <- if b != 0 then Right(a / b) else Left("Division by zero")
+    yield q
+```
+
+Enum cases are referenced through the enum (`Expr.Num`) unless imported
+(`import Expr.*`). Their `apply` returns the enum type (`Expr`), not the case
+type, which helps inference. Keep sealed traits when cases need their own
+methods or extend several hierarchies, or when the code must cross-build with
+Scala 2.
+
 ## Option and Either Monads
 
 Option and Either provide functional error handling without exceptions, enabling
@@ -715,8 +755,8 @@ components.
 1. **Prefer immutable data structures** to eliminate entire classes of bugs
    related to shared mutable state
 
-2. **Use sealed traits for ADTs** to enable exhaustive pattern matching and
-   compile-time guarantees
+2. **Use sealed ADTs** (Scala 3 `enum`, or sealed traits/case classes in
+   Scala 2) to get exhaustive pattern matching
 
 3. **Leverage for-comprehensions** for monadic composition instead of nested
    flatMap calls
@@ -793,6 +833,18 @@ readability.
 
 Employ function composition when building data transformation pipelines or
 reusable utility functions.
+
+## Scala Version and Effect-System Notes
+
+- Scala 3: `enum` for ADTs, `extension` methods instead of implicit classes,
+  `given`/`using` instead of implicit values/parameters, `derives` for type
+  class derivation, and optional braceless syntax. See the `scala-type-system`
+  skill for the implicit-to-given mapping.
+- Scala 2.13: `Either` is right-biased (`map`/`flatMap` without `.right`), and
+  the `-Xsource:3` flag eases cross-building.
+- Effects: plain `Either`/`Option`/`Try` covers pure logic. For I/O, follow the
+  stack the project already uses (ZIO, Cats Effect, or direct style with Ox);
+  do not introduce a second effect system to apply a pattern.
 
 ## Resources
 

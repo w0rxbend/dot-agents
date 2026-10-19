@@ -496,4 +496,4 @@ describe('Theme switching', () => {
 
 ---
 
-**Complete theme switching implementation in:** `examples/theme-switcher.tsx`
+**Complete theme switching implementation in:** `../examples/theme-switcher.html` (React versions: `../examples/ThemeProvider.tsx`, `../examples/ThemeToggle.tsx`)

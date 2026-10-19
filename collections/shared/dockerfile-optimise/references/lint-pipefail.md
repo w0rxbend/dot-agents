@@ -16,12 +16,12 @@ FROM ubuntu:24.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends wget
 
-# If wget fails (DNS error, 404, timeout), bash receives empty input
-# but exits 0 because bash itself succeeds -- build continues silently
-RUN wget -O - https://example.com/install.sh | bash
+# If wget fails (DNS error, 404, timeout), sort receives empty input
+# but exits 0 -- build continues silently with an empty allowlist
+RUN wget -O - https://example.com/allowed-hosts.txt | sort -u > /etc/allowed-hosts
 ```
 
-(If `wget` fails due to a network error or 404, `bash` receives empty input and exits with code 0. The build continues without any indication that the installation script never ran.)
+(If `wget` fails due to a network error or 404, `sort` receives empty input and exits with code 0. The build continues without any indication that the download failed.)
 
 **Correct (pipefail causes the pipeline to fail on any command error):**
 
@@ -32,7 +32,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget
 
 # set -o pipefail makes the pipeline return the exit code of the
 # first command that fails, not just the last command
-RUN set -o pipefail && wget -O - https://example.com/install.sh | bash
+RUN set -o pipefail && wget -O - https://example.com/allowed-hosts.txt | sort -u > /etc/allowed-hosts
 ```
 
 (With `pipefail` enabled, if `wget` exits with a non-zero code, the entire pipeline fails immediately and the build stops with a clear error.)
@@ -42,13 +42,21 @@ RUN set -o pipefail && wget -O - https://example.com/install.sh | bash
 ```dockerfile
 FROM debian:12-slim
 
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl gnupg
+
 # dash (the default /bin/sh on Debian) does not support pipefail.
 # Explicitly invoke bash to ensure the option is available.
-RUN ["/bin/bash", "-c", "set -o pipefail && curl -fsSL https://deb.nodesource.com/setup_22.x | bash -"]
+# Install the repository signing key instead of piping a setup script into a shell.
+RUN ["/bin/bash", "-c", "set -o pipefail && mkdir -p /etc/apt/keyrings && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg"]
 
-RUN apt-get install -y --no-install-recommends nodejs \
+RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" \
+      > /etc/apt/sources.list.d/nodesource.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
 ```
+
+Never pipe a downloaded script straight into a shell (`curl ... | bash`): prefer a package repository with a signing key, or a pinned release verified against a published checksum.
 
 (The exec form `["/bin/bash", "-c", "..."]` guarantees bash is the interpreter regardless of what `/bin/sh` points to.)
 
@@ -74,7 +82,7 @@ RUN set -euo pipefail && \
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # All subsequent RUN instructions now use bash with pipefail enabled
-RUN curl -fsSL https://example.com/install.sh | bash
+RUN curl -fsSL https://example.com/release.tar.gz | tar -xz -C /opt
 ```
 
 Reference: [Building best practices](https://docs.docker.com/build/building/best-practices/)

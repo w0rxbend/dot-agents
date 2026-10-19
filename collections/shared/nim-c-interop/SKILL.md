@@ -1,7 +1,7 @@
 ---
-name: Nim C Interop
+name: nim-c-interop
 user-invocable: false
-description: Use when nim-C interoperability including calling C from Nim, wrapping C libraries, importc/exportc pragmas, header generation, FFI patterns, and building high-performance systems code integrating Nim with existing C codebases.
+description: Nim/C interop - importc/exportc/header/dynlib pragmas, wrapping C libraries with Nim 2 destructor-based handles, callbacks, struct layout, cstring lifetimes and building Nim as a C library. Use when calling C from Nim or exposing Nim to C; use nim-memory-management for hook semantics and memory models.
 allowed-tools: []
 ---
 
@@ -64,25 +64,29 @@ proc formatString(): string =
   discard snprintf(cstring(addr buffer), 256, "Value: %d", 42)
   result = $cstring(addr buffer)
 
-# C macros as inline procs
-proc EXIT_SUCCESS(): cint {.importc: "EXIT_SUCCESS", header: "<stdlib.h>".}
-proc EXIT_FAILURE(): cint {.importc: "EXIT_FAILURE", header: "<stdlib.h>".}
+# C object-like macros as imported variables (importing them as procs would
+# generate `EXIT_SUCCESS()`, which is invalid C)
+var EXIT_SUCCESS {.importc: "EXIT_SUCCESS", header: "<stdlib.h>".}: cint
+var EXIT_FAILURE {.importc: "EXIT_FAILURE", header: "<stdlib.h>".}: cint
 
 # Function pointers
 type
-  CompareFunc = proc (a, b: pointer): cint {.cdecl.}
+  # qsort's prototype takes `const void*`; GCC 14+ rejects a plain `void*`
+  # comparator as an incompatible pointer type, so import the const type
+  ConstPtr {.importc: "const void*", nodecl.} = pointer
+  CompareFunc = proc (a, b: ConstPtr): cint {.cdecl.}
 
 proc qsort(base: pointer, nmemb, size: csize_t, compar: CompareFunc)
   {.importc, header: "<stdlib.h>".}
 
-proc compareInts(a, b: pointer): cint {.cdecl.} =
+proc compareInts(a, b: ConstPtr): cint {.cdecl.} =
   let x = cast[ptr cint](a)[]
   let y = cast[ptr cint](b)[]
-  return x - y
+  return cint(x > y) - cint(x < y)  # x - y can overflow
 
 proc sortArray() =
-  var arr = [5, 2, 8, 1, 9]
-  qsort(addr arr[0], arr.len, sizeof(cint), compareInts)
+  var arr = [5.cint, 2, 8, 1, 9]  # element type must match the comparator (cint, not int)
+  qsort(addr arr[0], arr.len.csize_t, sizeof(cint).csize_t, compareInts)
 
 # C struct access
 type
@@ -157,23 +161,31 @@ proc close(curl: CurlHandle) =
 proc setUrl(curl: CurlHandle, url: string) =
   discard curl_easy_setopt(curl.handle, 10002, cstring(url))
 
-# RAII wrapper with destructor
+# RAII wrapper with destructor (Nim 2 hook signatures; Nim 1.x used
+# `=destroy(x: var T)` and reset fields inside it)
 type
   CurlSession = object
     curl: Curl
 
-proc `=destroy`(session: var CurlSession) =
+proc `=destroy`(session: CurlSession) =
   if session.curl.pointer != nil:
     curl_easy_cleanup(session.curl)
-    session.curl = Curl(nil)
+
+proc `=wasMoved`(session: var CurlSession) = session.curl = Curl(nil)
+# Without this, a copy would call curl_easy_cleanup twice.
+proc `=copy`(dst: var CurlSession; src: CurlSession) {.error: "move-only".}
 
 proc newSession(): CurlSession =
   result.curl = curl_easy_init()
 
 # Wrapping complex C API
 type
-  SqliteDb = distinct pointer
-  SqliteStmt = distinct pointer
+  # Import the opaque C structs so pointer types match the header exactly
+  # (a `distinct pointer` becomes void* and GCC 14+ rejects void** for sqlite3**)
+  Sqlite3 {.importc: "sqlite3", header: "<sqlite3.h>", incompleteStruct.} = object
+  Sqlite3Stmt {.importc: "sqlite3_stmt", header: "<sqlite3.h>", incompleteStruct.} = object
+  SqliteDb = ptr Sqlite3
+  SqliteStmt = ptr Sqlite3Stmt
 
 proc sqlite3_open(filename: cstring, db: ptr SqliteDb): cint
   {.importc, header: "<sqlite3.h>".}
@@ -190,16 +202,21 @@ type
   Database = object
     handle: SqliteDb
 
+# Declare hooks right after the type, before any proc uses Database:
+# Nim 2 rejects a hook bound after the type's first use.
+proc `=destroy`(db: Database) =
+  if db.handle != nil:
+    discard sqlite3_close(db.handle)
+
+proc `=wasMoved`(db: var Database) = db.handle = nil
+proc `=copy`(dst: var Database; src: Database) {.error: "move-only".}
+
 proc openDatabase(filename: string): Database =
   var db: SqliteDb
   let rc = sqlite3_open(cstring(filename), addr db)
   if rc != 0:
     raise newException(IOError, "Cannot open database")
   result.handle = db
-
-proc `=destroy`(db: var Database) =
-  if db.handle.pointer != nil:
-    discard sqlite3_close(db.handle)
 
 # C callback wrapping
 type
@@ -244,26 +261,33 @@ type
 proc createPoint(x, y: cint): Point {.exportc.} =
   Point(x: x, y: y)
 
-proc pointDistance(p1, p2: Point): cdouble {.exportc.} =
+proc pointDistance(p1, p2: Point): cdouble {.exportc.} =  # import std/math
   let dx = (p2.x - p1.x).float
   let dy = (p2.y - p1.y).float
   sqrt(dx * dx + dy * dy)
 
-# Export string operations
-proc processString(input: cstring): cstring {.exportc.} =
-  let s = $input
-  result = cstring(s.toUpperAscii())
+# Export string operations. Never return cstring(someNimString): the Nim
+# string is freed when the proc returns and C gets a dangling pointer.
+# Either write into a caller-owned buffer...
+proc upperInto(input: cstring; buf: ptr char; bufLen: csize_t): cint {.exportc.} =
+  let s = toUpperAscii($input)              # import std/strutils
+  if s.len.csize_t + 1 > bufLen: return -1
+  copyMem(buf, cast[pointer](s.cstring), s.len + 1)
+  result = s.len.cint
 
-# Generating header file
-{.emit: """/*TYPESECTION*/
-typedef struct {
-  int x;
-  int y;
-} Point;
-""".}
+# ...or hand out a copy C must release through a matching exported free.
+proc upperDup(input: cstring): cstring {.exportc.} =
+  let s = toUpperAscii($input)
+  let p = allocShared0(s.len + 1)          # zeroed, so NUL-terminated
+  copyMem(p, cast[pointer](s.cstring), s.len)
+  result = cast[cstring](p)
 
-proc generateHeader() {.exportc: "lib_init".} =
-  echo "Library initialized"
+proc upperFree(p: cstring) {.exportc.} = deallocShared(cast[pointer](p))
+
+# C consumers need a header: write the .h yourself (declaring Point and the
+# exported procs), or try `--header` and check that your Nim version still
+# supports it. Do not also {.emit.} a typedef for an exportc type such as
+# Point: the generated C would then define it twice.
 
 # Export callbacks
 type
@@ -310,10 +334,10 @@ echo sizeof(PackedStruct)  # 6 bytes (no padding)
 
 # Aligned structures
 type
-  AlignedStruct {.align(16).} = object
-    data: array[4, float32]
+  AlignedStruct = object
+    data {.align(16).}: array[4, float32]  # align applies to fields and variables
 
-echo sizeof(AlignedStruct)  # Aligned to 16 bytes
+echo alignof(AlignedStruct)  # 16
 
 # C struct layout
 type
@@ -407,13 +431,16 @@ type
   Resource = object
     handle: pointer
 
-proc acquire(): Resource =
-  result.handle = malloc(1024)
-
-proc `=destroy`(r: var Resource) =
+# Hooks first, then the procs that create or use Resource
+proc `=destroy`(r: Resource) =
   if r.handle != nil:
-    free(r.handle)
-    r.handle = nil
+    deallocShared(r.handle)
+
+proc `=wasMoved`(r: var Resource) = r.handle = nil
+proc `=copy`(dst: var Resource; src: Resource) {.error: "move-only".}
+
+proc acquire(): Resource =
+  result.handle = allocShared(1024)
 
 # Callback with closure
 type
@@ -442,12 +469,6 @@ proc createHandle(): ptr OpaqueHandle
 proc destroyHandle(h: ptr OpaqueHandle)
   {.importc, header: "lib.h".}
 
-# Version checking
-when sizeof(clong) == 8:
-  type CLong = int64
-else:
-  type CLong = int32
-
 # Platform-specific code
 when defined(windows):
   proc windowsFunc() {.importc, dynlib: "kernel32.dll".}
@@ -471,9 +492,12 @@ Safe FFI patterns prevent common C interop errors and resource leaks.
 
 6. **Test interop code** thoroughly as type mismatches cause runtime errors
 
-7. **Use const for read-only** C parameters to prevent accidental modification
+7. **Make every handle wrapper move-only** (`=copy {.error.}`) so a copy can
+   never double-free the C resource
 
-8. **Generate headers** when exporting to make C integration easier
+8. **Ship a hand-written header** for exported procs and keep it in sync with
+   the `exportc` names; call `NimMain()` once before other exports when built
+   with `--noMain`
 
 9. **Handle C errors** explicitly and convert to Nim exceptions
 
@@ -492,13 +516,17 @@ Safe FFI patterns prevent common C interop errors and resource leaks.
 
 5. **Incorrect memory layout** for C structs causes data corruption
 
-6. **Using GC types in C callbacks** causes crashes as GC may move objects
+6. **Handing a `ref` to C without keeping a Nim-side owner** lets ARC/ORC free
+   it while C still holds the pointer; keep it alive (store it, or `GC_ref`
+   and later `GC_unref`) for as long as C may call back with it
 
 7. **Not checking C return values** misses error conditions
 
 8. **Mixing Nim and C memory** management causes double-free or leaks
 
-9. **Assuming C struct padding** matches Nim without packed pragma
+9. **Re-declaring C structs by hand** instead of importing them: prefer
+   `{.importc: "struct x", header: "x.h".} = object` so the C compiler owns the
+   layout; use `{.packed.}` only when the C side is packed
 
 10. **Not testing on target platform** misses platform-specific issues
 
@@ -515,6 +543,17 @@ Integrate with system APIs only available through C interfaces.
 Optimize hot paths by calling optimized C implementations.
 
 Build upon C ecosystems while writing higher-level Nim code.
+
+## Done when
+
+- Every imported proc matches the C prototype (types, `cint`/`csize_t`,
+  calling convention) and links (`{.passL: "-lfoo".}` or `dynlib`).
+- Each owned C handle lives in a move-only wrapper with Nim 2 hooks
+  (`=destroy(x: T)`, `=wasMoved`, `=copy {.error.}`).
+- No `cstring` derived from a Nim string outlives that string, and every
+  pointer handed to C has a documented owner and free function.
+- Built and run on the target platform; examples here were not compiled while
+  editing this skill.
 
 ## Resources
 

@@ -59,7 +59,7 @@ This matrix demonstrates how to implement security controls once and satisfy mul
 | Control | Description | SOC 2 | HIPAA | PCI-DSS 4.0 | GDPR | ISO 27001 | Implementation |
 |---------|-------------|-------|-------|-------------|------|-----------|----------------|
 | **LOG-001** | Comprehensive audit logging | CC7.2 | §164.312(b) | Req 10.2 | Art 30 | A.12.4.1 | CloudWatch, Splunk |
-| **LOG-002** | 7-year log retention | CC7.2 | §164.316(b)(2)(i) | Req 10.5.1 | Art 5(1)(e) | A.12.4.1 | S3 with Object Lock |
+| **LOG-002** | Log retention per framework minimum (PCI 12 months; HIPAA documentation 6 years; GDPR minimisation) | CC7.2 | §164.316(b)(2)(i) | Req 10.5.1 | Art 5(1)(e) | A.12.4.1 | S3 with Object Lock |
 | **LOG-003** | Log integrity protection | CC7.2 | §164.312(c)(1) | Req 10.5.2 | Art 32(1)(b) | A.12.4.2 | Immutable storage |
 | **LOG-004** | Log review and analysis | CC7.2 | §164.308(a)(1)(ii)(D) | Req 10.6 | Art 32(2) | A.12.4.1 | SIEM correlation |
 | **MON-001** | Security monitoring and alerting | CC7.2, CC7.3 | §164.308(a)(1)(ii)(D) | Req 10.6.1 | Art 32 | A.12.4.1 | Real-time alerting |
@@ -220,7 +220,7 @@ Implement controls in this order for maximum framework coverage:
 | Penetration Testing | Annual | Annual | Annual | Annual |
 | Disaster Recovery | Annual | Annual | Annual | Annual |
 
-**2025 SOC 2 Update:** Monthly testing now required (previously annual) for Type II certification.
+**Note:** These frequencies are suggested internal cadences. SOC 2 does not mandate monthly testing; auditors sample evidence across the observation period.
 
 ## Cross-Framework Dependencies
 

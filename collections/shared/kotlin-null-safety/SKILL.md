@@ -1,7 +1,7 @@
 ---
-name: Kotlin Null Safety
+name: kotlin-null-safety
 user-invocable: false
-description: Use when kotlin's null safety system including nullable types, safe calls, Elvis operator, smart casts, and patterns for eliminating NullPointerExceptions while maintaining code expressiveness and clarity.
+description: Apply Kotlin null safety - nullable types, safe calls, Elvis, smart casts, platform types from Java interop, and null-safe API design. Use when fixing NPE risks, removing `!!`, or designing Kotlin APIs that cross Java boundaries.
 allowed-tools: []
 ---
 
@@ -71,8 +71,10 @@ class Person(
 val nullableList: List<String?> = listOf("A", null, "B")
 val listOfNullable: List<String>? = null
 
-// Platform types from Java (String!)
-// Treated as nullable for safety in Kotlin
+// Platform types from Java (String!) have unknown nullability and are NOT checked:
+// the compiler lets you use them as non-null, so an unexpected null throws an NPE
+// at the use site. Declare the Kotlin type explicitly (String?) or annotate the
+// Java side with @Nullable/@NonNull.
 
 // Nullable this
 class Service {
@@ -127,7 +129,7 @@ fun String?.orDefault(default: String): String {
     return this ?: default
 }
 
-val result = nullName?.orDefault("Unknown")
+val result = nullName.orDefault("Unknown") // plain call: the extension handles null itself
 
 // Safe calls in expressions
 class Profile(val bio: String?)
@@ -343,12 +345,6 @@ class JavaInterop {
     }
 }
 
-// Mocking platform types in tests
-@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-fun mockJavaString(): java.lang.String? {
-    return null
-}
-
 // lateinit for non-null initialization
 class Service {
     lateinit var apiClient: ApiClient
@@ -445,13 +441,15 @@ fun <T> List<T?>.filterNotNullAndMap(transform: (T) -> String): List<String> {
 
 val result = listOf(1, null, 3).filterNotNullAndMap { it.toString() }
 
-// Nullable receivers
-fun String?.isNullOrEmpty(): Boolean {
-    return this == null || this.isEmpty()
+// Nullable receivers: define your own like this (the stdlib already ships
+// isNullOrEmpty/isNullOrBlank with contracts, so prefer those for strings)
+fun String?.isNullOrShort(min: Int = 3): Boolean {
+    return this == null || this.length < min
 }
 
 val empty: String? = null
-println(empty.isNullOrEmpty()) // true
+println(empty.isNullOrShort()) // true
+println(empty.isNullOrEmpty()) // true (stdlib)
 
 // Sequences with nullable elements
 fun processSequence(items: Sequence<String?>) {

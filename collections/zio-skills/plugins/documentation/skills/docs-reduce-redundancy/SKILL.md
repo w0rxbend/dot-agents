@@ -1,6 +1,6 @@
 ---
 name: docs-reduce-redundancy
-description: Remove redundant content from documentation. Use when sections repeat information unnecessarily, type definitions appear multiple times, concepts are introduced more than once, or transition words clutter meaning. Reduces cognitive load through deduplication and strategic cross-referencing.
+description: Remove redundant content from ZIO-ecosystem library documentation (Docusaurus + mdoc). Use, in such a repo, when sections repeat information unnecessarily, type definitions appear multiple times, concepts are introduced more than once, or transition words clutter meaning. Reduces cognitive load through deduplication and strategic cross-referencing.
 argument-hint: "[path/to/doc.md]"
 allowed-tools: Read, Edit, Bash, Grep
 ---

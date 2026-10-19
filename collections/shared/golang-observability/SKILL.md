@@ -60,7 +60,6 @@ When using observability libraries (Prometheus client, OpenTelemetry SDK, vendor
 - → See `samber/cc-skills-golang@golang-troubleshooting` skill for using observability signals to diagnose production issues.
 - → See `samber/cc-skills-golang@golang-security` skill for protecting pprof endpoints and avoiding PII in logs.
 - → See `samber/cc-skills-golang@golang-context` skill for propagating trace context across service boundaries.
-- → See `samber/cc-skills@promql-cli` skill for querying and exploring PromQL expressions against Prometheus from the CLI.
 
 ### Go 1.26+: slog multi-handler
 
@@ -109,17 +108,35 @@ Signals are most powerful when connected. A trace_id in your logs lets you jump 
 
 ### Logs + Traces: `otelslog` bridge
 
+`otelslog.NewHandler` does not write to stdout: it emits OTel log records to the global `LoggerProvider`, which is a no-op until you install an SDK provider with an exporter. Without that setup every log line is silently dropped, so configure the provider and keep a local handler alongside it:
+
 ```go
-import "go.opentelemetry.io/contrib/bridges/otelslog"
+import (
+    "go.opentelemetry.io/contrib/bridges/otelslog"
+    "go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"
+    "go.opentelemetry.io/otel/log/global"
+    sdklog "go.opentelemetry.io/otel/sdk/log"
+)
 
-// Create a logger that automatically injects trace_id and span_id
-logger := otelslog.NewHandler("my-service")
-slog.SetDefault(slog.New(logger))
+exp, err := otlploghttp.New(ctx) // endpoint from OTEL_EXPORTER_OTLP_* env vars
+if err != nil {
+    return err
+}
+lp := sdklog.NewLoggerProvider(sdklog.WithProcessor(sdklog.NewBatchProcessor(exp)))
+defer lp.Shutdown(ctx) // flushes buffered records
+global.SetLoggerProvider(lp)
 
-// Now every slog call with context includes trace correlation
+// Go 1.26+: keep stdout JSON and also send records to OTel
+slog.SetDefault(slog.New(slog.NewMultiHandler(
+    slog.NewJSONHandler(os.Stdout, nil),
+    otelslog.NewHandler("my-service"),
+)))
+
+// The OTel log record carries the trace_id/span_id of the span in ctx
 slog.InfoContext(ctx, "order created", "order_id", orderID)
-// Output includes: {"trace_id":"abc123", "span_id":"def456", "msg":"order created", ...}
 ```
+
+The stdout JSON handler does not add `trace_id`/`span_id` by itself; add a small handler middleware that reads `trace.SpanContextFromContext(ctx)` if you need them in local logs too.
 
 ### Metrics + Traces: Exemplars
 

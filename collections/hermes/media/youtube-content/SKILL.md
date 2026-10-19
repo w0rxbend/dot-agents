@@ -1,6 +1,6 @@
 ---
 name: youtube-content
-description: "YouTube transcripts to summaries, threads, blogs."
+description: "YouTube transcripts to summaries, threads, blogs. Use when the user shares a YouTube link or asks to summarize or repurpose a video."
 version: 1.0.0
 author: Teknium (teknium1), Hermes Agent
 license: MIT
@@ -35,6 +35,18 @@ python -c "import pm; pm.sync_venv(['youtube'], explicit=True)"
 source ./activate
 python -c "import youtube_transcript_api; print(youtube_transcript_api.__file__)"
 ```
+
+**No Hermes source checkout?** The helper only needs `youtube-transcript-api`
+(v1.x API). Install it into a dedicated virtual environment, never into Hermes'
+own environment or the system Python:
+
+```bash
+python3 -m venv ~/.cache/youtube-content-venv
+~/.cache/youtube-content-venv/bin/pip install 'youtube-transcript-api>=1,<2'
+~/.cache/youtube-content-venv/bin/python -c "import youtube_transcript_api"
+```
+
+Then run the helper below with `~/.cache/youtube-content-venv/bin/python`.
 
 On Windows, use `. .\activate.ps1` instead of `source ./activate`. If the terminal
 runs on a different host or in a sandbox, use an explicitly isolated helper
@@ -93,4 +105,4 @@ After fetching the transcript, format it based on what the user asks for:
 - **Transcript disabled**: tell the user; suggest they check if subtitles are available on the video page.
 - **Private/unavailable video**: relay the error and ask the user to verify the URL.
 - **No matching language**: retry without `--language` to fetch any available transcript, then note the actual language to the user.
-- **Dependency missing**: repeat PM preparation and reactivation above, then verify the helper uses that Python. Do not repair the selected generation with pip.
+- **Dependency missing**: in a Hermes checkout, repeat PM preparation and reactivation above, then verify the helper uses that Python (do not repair the selected generation with pip). Otherwise reinstall into the dedicated venv described in Setup.

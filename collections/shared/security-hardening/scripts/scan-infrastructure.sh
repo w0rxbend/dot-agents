@@ -48,14 +48,25 @@ if command_exists docker; then
 fi
 
 # Kubernetes CIS Benchmark
+# Creates a Job in the current kubectl context, so it only runs when you point
+# KUBE_BENCH_JOB at a manifest you downloaded from a pinned release and reviewed:
+#   curl -fsSLo kube-bench-job.yaml \
+#     https://raw.githubusercontent.com/aquasecurity/kube-bench/v0.16.0/job.yaml
+#   less kube-bench-job.yaml
+#   KUBE_BENCH_JOB=./kube-bench-job.yaml ./scan-infrastructure.sh
 if command_exists kubectl; then
     echo
     echo "=== Kubernetes Security Scan ==="
-    run_scanner "kube-bench" \
-        "kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml && \
-         sleep 10 && \
-         kubectl logs job/kube-bench > $REPORT_DIR/kube-bench-$TIMESTAMP.txt && \
-         kubectl delete job/kube-bench"
+    if [ -n "${KUBE_BENCH_JOB:-}" ] && [ -f "$KUBE_BENCH_JOB" ]; then
+        echo "kubectl context: $(kubectl config current-context)"
+        run_scanner "kube-bench" \
+            "kubectl apply -f '$KUBE_BENCH_JOB' && \
+             kubectl wait --for=condition=complete job/kube-bench --timeout=300s && \
+             kubectl logs job/kube-bench > $REPORT_DIR/kube-bench-$TIMESTAMP.txt; \
+             kubectl delete -f '$KUBE_BENCH_JOB'"
+    else
+        echo "[-] kube-bench skipped: set KUBE_BENCH_JOB to a reviewed, pinned job.yaml (see comment above)"
+    fi
 fi
 
 # Container Image Scanning with Trivy

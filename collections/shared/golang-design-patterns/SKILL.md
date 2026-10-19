@@ -103,6 +103,32 @@ srv := NewServer(":8080",
 )
 ```
 
+When an option can be invalid, make the option type return an error and have the constructor return it (rule 2):
+
+```go
+type Option func(*Server) error
+
+func WithMaxConns(n int) Option {
+    return func(s *Server) error {
+        if n <= 0 {
+            return fmt.Errorf("max conns must be positive, got %d", n)
+        }
+        s.maxConns = n
+        return nil
+    }
+}
+
+func NewServer(addr string, opts ...Option) (*Server, error) {
+    s := &Server{addr: addr, readTimeout: 5 * time.Second, writeTimeout: 10 * time.Second, maxConns: 100}
+    for _, opt := range opts {
+        if err := opt(s); err != nil {
+            return nil, fmt.Errorf("new server: %w", err)
+        }
+    }
+    return s, nil
+}
+```
+
 Constructors SHOULD use **functional options** — they scale better with API evolution and require less code. Use builder pattern only if you need complex validation between configuration steps.
 
 ## Constructors & Initialization

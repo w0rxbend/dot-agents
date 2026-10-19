@@ -1,7 +1,7 @@
 ---
 name: python-data-classes
 user-invocable: false
-description: Use when Python data modeling with dataclasses, attrs, and Pydantic. Use when creating data structures and models.
+description: Choose and write Python data models with dataclasses, attrs or Pydantic v2 - field options, frozen/slots/kw_only, validation, serialization and conversion. Use when defining or refactoring model classes; use python-type-system for general annotations.
 allowed-tools:
   - Bash
   - Read
@@ -84,13 +84,13 @@ p1 = Person(30, "Alice")
 p2 = Person(25, "Bob")
 print(p1 > p2)  # True (compares by age first)
 
-# slots=True uses __slots__ for memory efficiency
+# slots=True uses __slots__ for memory efficiency (3.10+)
 @dataclass(slots=True)
 class Coordinate:
     x: float
     y: float
 
-# kw_only=True requires keyword arguments
+# kw_only=True requires keyword arguments (3.10+)
 @dataclass(kw_only=True)
 class Config:
     host: str
@@ -104,8 +104,10 @@ config = Config(host="localhost", port=8080)
 **Using field() for advanced configuration:**
 
 ```python
+import itertools
 from dataclasses import dataclass, field
-from typing import List
+
+_product_ids = itertools.count(1)
 
 @dataclass
 class Product:
@@ -119,17 +121,18 @@ class Product:
     secret: str = field(repr=False, default="")
 
     # Default factory for mutable defaults
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
 
     # Exclude from comparison
     created_at: float = field(compare=False, default=0.0)
 
     def __post_init__(self) -> None:
-        # Set id after initialization
-        self.id = hash(self.name)
+        # Set id after initialization. Do not use hash(self.name): str hashes
+        # are salted per process, so the id would change between runs.
+        self.id = next(_product_ids)
 
 product = Product(name="Widget", price=9.99)
-print(product.id)  # Auto-generated hash
+print(product.id)  # 1, then 2, 3, ... (use uuid.uuid4() for global ids)
 ```
 
 **Computed fields:**
@@ -291,7 +294,9 @@ print(user.tags)  # ["admin", "user"]
 **Install Pydantic:**
 
 ```bash
-pip install pydantic
+pip install pydantic               # core
+pip install 'pydantic[email]'      # adds email-validator, needed for EmailStr
+pip install pydantic-settings      # needed for BaseSettings (separate package in v2)
 ```
 
 **Basic Pydantic model:**
@@ -534,15 +539,14 @@ print(event.model_dump())
 - Simple data containers with type hints
 - Part of standard library (no dependencies)
 - Basic validation not required
-- Python 3.7+ compatibility needed
+- No third-party dependency allowed
 - Immutability with frozen=True
 
 **When to use attrs:**
 
 - More features than dataclasses (validators, converters)
-- Better performance than dataclasses
+- Slots by default (`@define`), plus converters and on-setattr hooks
 - Advanced field configuration needed
-- Backward compatibility (Python 2.7+)
 - Custom initialization logic
 
 **When to use Pydantic:**
@@ -556,16 +560,11 @@ print(event.model_dump())
 
 ## Best Practices
 
-- Use type hints for all fields
-- Provide default values for optional fields
-- Use default_factory for mutable defaults
-- Validate data at boundaries (API, database)
-- Keep dataclasses focused and cohesive
-- Use frozen=True for immutable data
-- Leverage validators for business rules
-- Use computed fields for derived data
-- Document complex field requirements
-- Choose the right tool for your use case
+- Mutable defaults always go through `default_factory` (dataclasses/attrs) or
+  `Field(default_factory=...)` (Pydantic).
+- Validate at trust boundaries (API input, files, env) with Pydantic; use plain
+  dataclasses or attrs for internal, already-trusted data.
+- Prefer `frozen=True` (and `slots=True` on 3.10+) for value objects.
 
 ## Common Patterns
 
@@ -573,23 +572,23 @@ print(event.model_dump())
 
 ```python
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Self  # 3.11+; typing_extensions on older versions
 
 @dataclass
 class QueryBuilder:
     _select: list[str] = field(default_factory=list)
     _where: list[str] = field(default_factory=list)
-    _limit: Optional[int] = None
+    _limit: int | None = None
 
-    def select(self, *columns: str) -> "QueryBuilder":
+    def select(self, *columns: str) -> Self:
         self._select.extend(columns)
         return self
 
-    def where(self, condition: str) -> "QueryBuilder":
+    def where(self, condition: str) -> Self:
         self._where.append(condition)
         return self
 
-    def limit(self, n: int) -> "QueryBuilder":
+    def limit(self, n: int) -> Self:
         self._limit = n
         return self
 
@@ -614,48 +613,39 @@ query = (
 
 ```python
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
     app_name: str = "My App"
-    database_url: str = Field(..., env="DATABASE_URL")
+    # Field names map to env vars case-insensitively (DATABASE_URL here);
+    # use validation_alias only when the env var name differs.
+    database_url: str = Field(validation_alias="APP_DB_URL")
     debug: bool = False
     max_connections: int = Field(10, ge=1, le=100)
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
 
 settings = Settings()
 ```
 
-## When to Use This Skill
-
-Use python-data-classes when you need to:
-
-- Create data transfer objects (DTOs)
-- Model API request/response payloads
-- Define configuration structures
-- Implement value objects in domain models
-- Build type-safe data containers
-- Handle JSON serialization/deserialization
-- Validate user input or external data
-- Create immutable data structures
-- Implement builder or factory patterns
-- Model database schemas or ORM entities
-
 ## Common Pitfalls
 
-- Using mutable defaults (list, dict) without default_factory
-- Not validating data from external sources
-- Over-complicating simple data structures
-- Mixing business logic with data models
-- Not using frozen for immutable data
-- Forgetting to handle None values properly
-- Not leveraging type hints effectively
-- Using wrong tool (dataclass vs attrs vs Pydantic)
-- Not documenting field constraints
-- Ignoring validation performance in hot paths
+- `x: list = []` on a dataclass raises `ValueError: mutable default`; on a plain
+  class it silently shares one list across instances.
+- Pydantic v1 idioms (`class Config:`, `Field(env=...)`, `.dict()`,
+  `@validator`) still appear in examples online; in v2 use `model_config`,
+  `validation_alias`, `.model_dump()` and `@field_validator`.
+- `EmailStr` needs `pydantic[email]`; `BaseSettings` needs `pydantic-settings`.
+
+## Done when
+
+- Every model imports and instantiates in a quick REPL or test with valid data,
+  and invalid data raises the expected `ValidationError`/`TypeError`.
+- `python -W error::DeprecationWarning` runs the model module without Pydantic
+  deprecation warnings (no v1-style config left).
+- Round-trip holds where serialization matters:
+  `Model.model_validate(m.model_dump()) == m` (or `asdict`/constructor for dataclasses).
+- A type checker (mypy/pyright) passes on the model module.
 
 ## Resources
 

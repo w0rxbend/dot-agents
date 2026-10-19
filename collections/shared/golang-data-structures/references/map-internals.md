@@ -1,23 +1,22 @@
 # Map Internals Deep Dive
 
-## Hash Table Structure
+## Hash Table Structure (Go 1.24+: Swiss tables)
 
-Go maps use hash tables with bucket-based collision resolution. The map header holds:
+Since Go 1.24 the runtime implements maps as [Swiss tables](https://go.dev/blog/swisstable) (`internal/runtime/maps`). Check `go.mod`'s `go`/`toolchain` line before relying on details below.
 
-- `count` — number of entries
-- `B` — log₂ of bucket count (2^B buckets total)
-- `buckets` — pointer to bucket array
-- `oldbuckets` — pointer to old buckets during growth
+- **Groups**: slots are organized in groups of 8. Each group has an 8-byte control word, one control byte per slot, holding 7 bits of the key's hash (or an empty/deleted marker). A lookup compares all 8 control bytes at once and only compares full keys for matching slots.
+- **Open addressing**: there are no overflow chains. A lookup probes groups in a quadratic sequence until it finds the key or an empty slot.
+- **Small maps**: a map with at most 8 entries is a single group, with no table or directory.
+- **Directory of tables**: larger maps are a directory of independent tables, each with a bounded capacity (1024 slots in the current implementation). A full table grows by itself, or splits into two (extendible hashing). Growth therefore touches one bounded table at a time instead of rehashing the whole map, which keeps the worst-case latency of a single insert low.
+- **Load factor**: a table grows when it would exceed 7/8 full.
+- **No shrinking**: `delete` marks slots deleted or empty but never releases table memory. To reclaim memory from a map that was once large, build a new map and copy the surviving entries.
+- **No `cap()` function**: use `make(map[K]V, hint)` to size it up front.
 
-Each bucket holds 8 key-value pairs. Keys and values are stored in separate arrays within buckets to minimize padding waste.
+Exact constants are runtime internals and can change between releases; do not write code that depends on them.
 
-## Memory Growth and Capacity
+### Before Go 1.24 (classic buckets)
 
-- **Load factor threshold**: 6.5 entries per bucket triggers growth (sweet spot between memory efficiency and collision performance)
-- **Overflow bucket chains** also trigger growth if too long (prevents O(1)→O(n) degradation)
-- **Bucket count doubles**: 2^B → 2^(B+1) (efficient rehashing with powers of 2)
-- **Incremental evacuation**: Old and new buckets coexist during growth; entries move lazily during operations to avoid GC pauses
-- **No `cap()` function**: Capacity depends on hash distribution and load factor, not a fixed limit. Preallocation (`make(map[string]int, expectedSize)`) is worthwhile for large maps to avoid repeated growth cycles
+Older toolchains used buckets of 8 key/value pairs (keys and values in separate arrays), overflow bucket chains, a load factor of 6.5 entries per bucket, power-of-two bucket doubling, and incremental evacuation from old to new buckets during growth.
 
 ## Preallocation
 
@@ -25,11 +24,11 @@ Each bucket holds 8 key-value pairs. Keys and values are stored in separate arra
 // Without preallocation — multiple growths as entries are added
 m := map[string]int{}
 
-// With preallocation — allocates enough buckets upfront
+// With preallocation — sizes the map for expectedSize entries upfront
 m := make(map[string]int, expectedSize)
 ```
 
-Preallocation avoids repeated growths. The hint is approximate — Go allocates 2^B buckets where 2^B \* 6.5 >= hint.
+Preallocation avoids repeated growths. The hint is approximate: the runtime allocates enough capacity for `hint` entries under its load factor.
 
 ## Pointers vs Values
 

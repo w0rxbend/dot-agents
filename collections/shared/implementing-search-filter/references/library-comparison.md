@@ -94,7 +94,7 @@
 | Client | Abstraction Level | Learning Curve | Features |
 |--------|------------------|----------------|----------|
 | **elasticsearch-py** | Low | High | Full API access |
-| **elasticsearch-dsl** | Medium | Medium | Pythonic queries |
+| **elasticsearch.dsl** (in elasticsearch-py 8.18+, formerly elasticsearch-dsl) | Medium | Medium | Pythonic queries |
 | **elastic-apm** | N/A | Low | Performance monitoring |
 
 ## Detailed Library Analysis

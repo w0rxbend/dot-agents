@@ -1,6 +1,6 @@
 ---
 name: pixijs-ticker
-description: "Use this skill when running per-frame logic or controlling the PixiJS v8 render loop. Covers Ticker.add/addOnce/remove, deltaTime vs deltaMS vs elapsedMS, UPDATE_PRIORITY ordering, maxFPS/minFPS capping, speed scaling, Ticker.shared vs new instances, per-object onRender hook, manual rendering. Triggers on: Ticker, UPDATE_PRIORITY, deltaTime, deltaMS, elapsedMS, onRender, app.ticker, maxFPS, minFPS, Ticker.shared."
+description: "Use this skill when running per-frame logic or controlling the PixiJS v8 render loop. Covers Ticker.add/addOnce/remove, deltaTime vs deltaMS vs elapsedMS, UPDATE_PRIORITY ordering, maxFPS/minFPS capping, speed scaling, Ticker.shared vs new instances, per-object onRender hook, manual rendering. Triggers on (in PixiJS code): Ticker, UPDATE_PRIORITY, deltaTime, deltaMS, elapsedMS, onRender, app.ticker, maxFPS, minFPS, Ticker.shared."
 license: MIT
 ---
 
@@ -30,7 +30,7 @@ sprite.onRender = () => {
 };
 ```
 
-**Related skills:** `pixijs-application` (Application setup and sharedTicker option), `pixijs-performance` (frame rate optimization), `pixijs-migration-v8` (v7 ticker signature changes).
+**Related skills:** `pixijs-application` (Application setup and sharedTicker option), `pixijs-performance` (frame rate optimization). For v7 ticker signature changes see the [v8 migration guide](https://pixijs.com/8.x/guides/migrations/v8).
 
 ## Core Patterns
 

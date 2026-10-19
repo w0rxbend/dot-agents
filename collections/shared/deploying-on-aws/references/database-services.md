@@ -514,7 +514,7 @@ Q1: What is the data model?
   ├─ Document (JSON/BSON) → Q5
   ├─ Key-Value → DynamoDB
   ├─ Graph → Neptune
-  └─ Time-Series → Timestream
+  └─ Time-Series → Timestream for InfluxDB (LiveAnalytics closed to new customers in 2025)
 
 Q2: What is the scale requirement?
   ├─ <64TB, standard RDS features → RDS

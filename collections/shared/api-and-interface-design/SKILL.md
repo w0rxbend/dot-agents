@@ -1,6 +1,6 @@
 ---
 name: api-and-interface-design
-description: Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts between modules, or establishing boundaries between frontend and backend.
+description: "Design stable in-process interfaces and type contracts - module boundaries, library public APIs, TypeScript types between layers or frontend and backend - using contract-first design, Hyrum's Law, additive evolution, boundary validation, idempotency keys and branded IDs. Use when defining or changing a code-level interface; use designing-apis for HTTP/GraphQL network API design."
 ---
 
 # API and Interface Design
@@ -142,6 +142,12 @@ interface CreateTaskInput {
   priority: number;         // Changed from string — breaks existing consumers
 }
 ```
+
+### Scala specifics
+
+- Default arguments compile to `$default$N` getters whose numbering shifts when a parameter is inserted (a binary break), and whose values are invisible to bytecode gates such as japicmp or a JVM-signature golden.
+- Only one overload alternative may declare defaults, which constrains additive typed overloads and one-parameter conveniences: `foreach(f)` next to `foreach(attempts)(f)` works because the new alternative carries no defaults.
+- A companion `apply` with the same signature as the synthetic case-class one is binary-compatible and is the place for defensive copies of caller-supplied collections.
 
 ### 5. Predictable Naming
 

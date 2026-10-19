@@ -64,13 +64,13 @@
   {
     "id": 3,
     "name": "error-string-lowercase-acronyms",
-    "description": "Error strings and test subtest names must be fully lowercase including acronyms like ID, URL, HTTP",
+    "description": "Error strings start lowercase with no punctuation (initialisms keep their case); subtest names are lowercase phrases",
     "prompt": "Write a Go file `handler.go` in package `webhook` and its test file `handler_test.go`. The webhook handler should:\n\n1. A Handler struct with a secret key (for HMAC validation), a base URL for callbacks, and a boolean tracking if it's processing\n2. A method to validate an incoming webhook payload — it must verify the HMAC signature and the source URL\n3. Sentinel errors for: invalid HMAC signature, invalid source URL, missing request ID\n4. A Processor interface with a single method Process(ctx context.Context, payload []byte) error\n\nFor the test file, write table-driven tests for the validate method covering: valid request, invalid HMAC, invalid URL, missing request ID, empty payload. Use proper Go test naming conventions.",
-    "trap": "Model capitalizes acronyms in error strings ('invalid source URL', 'missing request ID') and in subtest names ('invalid URL', 'missing request ID') — but Go's convention requires fully lowercase error strings and subtest names, including acronyms. Also likely to write bare boolean field (processing) without is prefix.",
+    "trap": "Model capitalizes the first word of error strings or ends them with punctuation, or mixes casing styles across subtest names. Also likely to write bare boolean field (processing) without is prefix (house style).",
     "assertions": [
       {
         "id": "3.1",
-        "text": "Error strings are fully lowercase including acronyms — 'invalid source url' not 'invalid source URL', 'missing request id' not 'missing request ID'. Acronyms that are capitalized in identifiers are lowercase in error strings"
+        "text": "Error strings start with a lowercase letter and have no trailing punctuation; initialisms keep their case per Go Code Review Comments ('invalid source URL', 'missing request ID')"
       },
       {
         "id": "3.2",
@@ -86,7 +86,7 @@
       },
       {
         "id": "3.5",
-        "text": "Sentinel errors use Err prefix (ErrInvalidSignature, ErrInvalidSourceURL, ErrMissingRequestID) matching the Go convention — note the capitalized acronyms in error variable names contrast with lowercase in error string values"
+        "text": "Sentinel errors use Err prefix (ErrInvalidSignature, ErrInvalidSourceURL, ErrMissingRequestID) matching the Go convention — initialisms stay all caps in identifiers"
       }
     ]
   },
@@ -296,17 +296,17 @@
   {
     "id": 11,
     "name": "context-variant-and-in-place-suffixes",
-    "description": "Tests WithContext suffix for context variants and In suffix for in-place mutations",
+    "description": "Tests naming of context, in-place and panicking variants",
     "prompt": "I have a Go data processing library. I need to add variants to existing functions:\n\n1. `Fetch(key string) ([]byte, error)` needs a variant that accepts a context.Context\n2. `Sort(items []Item) []Item` (returns a new sorted slice) needs an in-place variant that modifies the slice directly\n3. `ParseConfig(path string) (*Config, error)` needs a variant that panics instead of returning an error\n4. `Reverse(s string) string` (returns a new string) needs an in-place variant for byte slices\n5. `Query(sql string) (*Rows, error)` needs a context-aware variant\n\nWhat should the variant function names be? Write the signatures.",
-    "trap": "Model uses FetchCtx/FetchWithCtx instead of FetchWithContext, SortMut/SortSlice instead of SortIn, or ParseConfigOrPanic instead of MustParseConfig.",
+    "trap": "Model uses abbreviated FetchCtx/FetchWithCtx, leaves in-place vs copy undocumented, or uses ParseConfigOrPanic instead of MustParseConfig.",
     "assertions": [
       {
         "id": "11.1",
-        "text": "Context-accepting variants use WithContext suffix (FetchWithContext, QueryWithContext or QueryContext) — NOT FetchCtx, FetchWithCtx, or CtxFetch"
+        "text": "Context-accepting variants spell out Context (FetchContext, QueryContext as in the stdlib, or FetchWithContext) — NOT FetchCtx, FetchWithCtx, or CtxFetch"
       },
       {
         "id": "11.2",
-        "text": "In-place mutation variants use the In suffix (SortIn, ReverseIn) — NOT SortMut, SortInPlace, SortSlice, or MutateSort"
+        "text": "In-place variants have a clear, documented name and mutate their argument (e.g. SortInPlace, or SortIn if the codebase already uses that convention); the answer notes the stdlib pattern of in-place Sort vs copying Sorted"
       },
       {
         "id": "11.3",

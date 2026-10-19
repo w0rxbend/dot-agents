@@ -1,0 +1,324 @@
+{
+  "schema_version": 1,
+  "repository": "http4s/http4s",
+  "evidence": [
+    {
+      "id": "e7369-drain-doubt",
+      "kind": "review-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/7369#discussion_r1587508509",
+      "occurred_at": "2024-05-02T11:50:01Z",
+      "excerpt": "is actually draining things from the socket or just saying \"there wasn't anything on the socket\".",
+      "interpretation": "Reviewer explicitly questions whether empty Drain metadata means actual socket consumption. Inspection confirms the discard branch returns pure None without invoking read; connection disposal is a separate obligation.",
+      "author": "valencik",
+      "role_basis": "unknown",
+      "pull_number": 7369,
+      "provenance": {
+        "corpus_path": "pulls/7369-8bc52126fdbd5e28cf8b.json",
+        "collection": "review_comments",
+        "record_id": 1587508509
+      }
+    },
+    {
+      "id": "e7369-connection-risk",
+      "kind": "review-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/7369#discussion_r1587968439",
+      "occurred_at": "2024-05-02T16:50:58Z",
+      "excerpt": "What happens to the connection in this case?  Discarding an ad hoc number of bytes and then continuing to parse makes me nervous about smuggling attacks.",
+      "interpretation": "Review demands connection-level reasoning beyond an empty public body. No exploit or vulnerability is claimed from this comment alone.",
+      "author": "rossabaker",
+      "role_basis": "unknown",
+      "pull_number": 7369,
+      "provenance": {
+        "corpus_path": "pulls/7369-8bc52126fdbd5e28cf8b.json",
+        "collection": "review_comments",
+        "record_id": 1587968439
+      }
+    },
+    {
+      "id": "e7369-disposition",
+      "kind": "review",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/7369#pullrequestreview-2038478780",
+      "occurred_at": "2024-05-03T15:59:30Z",
+      "excerpt": "As far as I can tell, Ember is closing the connection after a successful HEAD request, both on series/0.23 and on this branch.",
+      "interpretation": "Reviewer reported checking existing and proposed behavior and accepted the fix with over-aggressive closing still present. This is historical reviewer testimony, not socket execution by this researcher.",
+      "author": "rossabaker",
+      "role_basis": "unknown",
+      "pull_number": 7369,
+      "provenance": {
+        "corpus_path": "pulls/7369-8bc52126fdbd5e28cf8b.json",
+        "collection": "reviews",
+        "record_id": 2038478780
+      }
+    },
+    {
+      "id": "e7369-parser-disposition",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/7e5a97468d631e9aece50aecbbc74bc792e30b60/ember-core/shared/src/main/scala/org/http4s/ember/core/Parser.scala#L413-L427",
+      "occurred_at": "2024-02-02T21:16:15Z",
+      "excerpt": "        resp <-\n          if (discardBody) {\n            (baseResp -> none[Array[Byte]].pure[F]).pure[F]\n          } else if (expectNoBody(prelude.status)) {\n            (baseResp -> finalBuffer.some.pure[F]).pure[F]\n          } else if (headerP.chunked) {\n            Ref.of[F, Option[Array[Byte]]](None).product(Deferred[F, Headers]).map {\n              case (rest, trailers) =>\n                baseResp\n                  .withAttribute(Message.Keys.TrailerHeaders[F], trailers.get)\n                  .withBodyStream(\n                    ChunkedEncoding\n                      .decode(finalBuffer, read, maxHeaderSize, maxHeaderSize, trailers, rest)\n                  ) ->\n                  rest.get",
+      "interpretation": "Source observation: discardBody returns a pure empty drain marker; status-implied empty bodies preserve finalBuffer, and chunked processing is separate. This branch by itself performs no socket draining.",
+      "commit_sha": "7e5a97468d631e9aece50aecbbc74bc792e30b60",
+      "path": "ember-core/shared/src/main/scala/org/http4s/ember/core/Parser.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/7e5a97468d631e9aece50aecbbc74bc792e30b60/ember-core/shared/src/main/scala/org/http4s/ember/core/Parser.scala",
+        "source_path": "ember-core/shared/src/main/scala/org/http4s/ember/core/Parser.scala"
+      }
+    },
+    {
+      "id": "e7369-parser-test",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/7e5a97468d631e9aece50aecbbc74bc792e30b60/ember-core/shared/src/test/scala/org/http4s/ember/core/ParserSuite.scala#L382-L397",
+      "occurred_at": "2024-02-02T21:16:15Z",
+      "excerpt": "    for {\n      take <- Helpers.taking[IO, Byte](byteStream)\n      result <- Parser.Response\n        .parser[IO](defaultMaxHeaderLength, discardBody = true)(Array.emptyByteArray, take)\n      body <- result._1.body.through(text.utf8.decode).compile.string\n      rest <- Stream\n        .eval(result._2)\n        .unNone\n        .flatMap(chunk => Stream.chunk(Chunk.byteVector(ByteVector(chunk))))\n        .through(text.utf8.decode)\n        .compile\n        .string\n    } yield {\n      assertEquals(body, \"\")\n      assertEquals(rest, \"\")\n    }",
+      "interpretation": "Source observation: the added regression asserts empty response body and empty rest. It is a parser test, not a persistent-connection or delayed-socket-read test; historical test title is misleading.",
+      "commit_sha": "7e5a97468d631e9aece50aecbbc74bc792e30b60",
+      "path": "ember-core/shared/src/test/scala/org/http4s/ember/core/ParserSuite.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/7e5a97468d631e9aece50aecbbc74bc792e30b60/ember-core/shared/src/test/scala/org/http4s/ember/core/ParserSuite.scala",
+        "source_path": "ember-core/shared/src/test/scala/org/http4s/ember/core/ParserSuite.scala"
+      }
+    },
+    {
+      "id": "e7369-effect-pins",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/7e5a97468d631e9aece50aecbbc74bc792e30b60/project/Http4sPlugin.scala#L104-L113",
+      "occurred_at": "2024-02-02T21:16:15Z",
+      "excerpt": "    val cats = \"2.10.0\"\n    val catsEffect = \"3.5.3\"\n    val catsParse = \"1.0.0\"\n    val circe = \"0.14.6\"\n    val crypto = \"0.2.4\"\n    val cryptobits = \"1.3\"\n    val disciplineCore = \"1.5.1\"\n    val epollcat = \"0.1.6\"\n    val fs2 = \"3.9.4\"\n    val ip4s = \"3.4.0\"",
+      "interpretation": "Source observation: these dependency pins belong to this exact commit, not to every branch in the calendar year. The separate version matrix records compiler/platform context and known gaps.",
+      "commit_sha": "7e5a97468d631e9aece50aecbbc74bc792e30b60",
+      "path": "project/Http4sPlugin.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/7e5a97468d631e9aece50aecbbc74bc792e30b60/project/Http4sPlugin.scala",
+        "source_path": "project/Http4sPlugin.scala"
+      }
+    },
+    {
+      "id": "e4348-fixed-drain-state",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/32893c3373bd735b101f28f28bec70936293a7f7/ember-core/src/main/scala/org/http4s/ember/core/Parser.scala#L595-L603",
+      "occurred_at": "2021-02-12T07:44:01Z",
+      "excerpt": "            // If the remaining bytes for the body have not yet been read, close the connection.\n            // followup: Check if there are bytes immediately available without blocking\n            val drain: F[Option[Array[Byte]]] = state.get.map(_.toOption)\n\n            (Stream.chunk(Chunk.bytes(head)) ++ bodyStream, drain)\n          }\n        }\n      } else {\n        (EmptyBody.covary[F], (Some(head): Option[Array[Byte]]).pure[F]).pure[F]",
+      "interpretation": "Source observation: fixed-length drain reads parser state rather than the socket; completion can preserve an empty next buffer. The historical follow-up comment is not implemented socket draining.",
+      "commit_sha": "32893c3373bd735b101f28f28bec70936293a7f7",
+      "path": "ember-core/src/main/scala/org/http4s/ember/core/Parser.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/32893c3373bd735b101f28f28bec70936293a7f7/ember-core/src/main/scala/org/http4s/ember/core/Parser.scala",
+        "source_path": "ember-core/src/main/scala/org/http4s/ember/core/Parser.scala"
+      }
+    },
+    {
+      "id": "e4348-reuse-consumer",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/32893c3373bd735b101f28f28bec70936293a7f7/ember-client/src/main/scala/org/http4s/ember/client/internal/ClientHelpers.scala#L132-L146",
+      "occurred_at": "2021-02-12T07:44:01Z",
+      "excerpt": "  private[ember] def postProcessResponse[F[_]](\n      req: Request[F],\n      resp: Response[F],\n      drain: F[Option[Array[Byte]]],\n      nextBytes: Ref[F, Array[Byte]],\n      canBeReused: Ref[F, Reusable])(implicit F: Concurrent[F]): F[Unit] =\n    drain.flatMap {\n      case Some(bytes) =>\n        val requestClose = req.headers.get(Connection).exists(_.hasClose)\n        val responseClose = resp.headers.get(Connection).exists(_.hasClose)\n\n        if (requestClose || responseClose) F.unit\n        else nextBytes.set(bytes) >> canBeReused.set(Reusable.Reuse)\n      case None => F.unit\n    }",
+      "interpretation": "Source observation: only Some(bytes), absent close headers, saves remainder and marks reuse; None leaves the default non-reusable state unchanged.",
+      "commit_sha": "32893c3373bd735b101f28f28bec70936293a7f7",
+      "path": "ember-client/src/main/scala/org/http4s/ember/client/internal/ClientHelpers.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/32893c3373bd735b101f28f28bec70936293a7f7/ember-client/src/main/scala/org/http4s/ember/client/internal/ClientHelpers.scala",
+        "source_path": "ember-client/src/main/scala/org/http4s/ember/client/internal/ClientHelpers.scala"
+      }
+    },
+    {
+      "id": "e4348-resource-release",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/32893c3373bd735b101f28f28bec70936293a7f7/ember-client/src/main/scala/org/http4s/ember/client/EmberClientBuilder.scala#L155-L178",
+      "occurred_at": "2021-02-12T07:44:01Z",
+      "excerpt": "          responseResource <- Resource.makeCase(\n            ClientHelpers\n              .request[F](\n                request,\n                managed.value,\n                chunkSize,\n                maxResponseHeaderSize,\n                idleConnectionTime,\n                timeout,\n                userAgent\n              )\n          ) { case ((response, drain), exitCase) =>\n            exitCase match {\n              case ExitCase.Completed =>\n                ClientHelpers.postProcessResponse(\n                  request,\n                  response,\n                  drain,\n                  managed.value.nextBytes,\n                  managed.canBeReused)\n              case _ => Applicative[F].unit\n            }\n          }\n        } yield responseResource._1",
+      "interpretation": "Source observation: post-processing belongs to response Resource release on Completed, not exclusively to a body stream finalizer; a never-pulled body still has an owner release path.",
+      "commit_sha": "32893c3373bd735b101f28f28bec70936293a7f7",
+      "path": "ember-client/src/main/scala/org/http4s/ember/client/EmberClientBuilder.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/32893c3373bd735b101f28f28bec70936293a7f7/ember-client/src/main/scala/org/http4s/ember/client/EmberClientBuilder.scala",
+        "source_path": "ember-client/src/main/scala/org/http4s/ember/client/EmberClientBuilder.scala"
+      }
+    },
+    {
+      "id": "e4348-remainder-tests",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/32893c3373bd735b101f28f28bec70936293a7f7/ember-core/src/test/scala/org/http4s/ember/core/ParsingSpec.scala#L471-L480",
+      "occurred_at": "2021-02-12T07:44:01Z",
+      "excerpt": "    (for {\n      take <- Helpers.taking[IO, Byte](byteStream)\n      resp1 <- Parser.Response\n        .parser[IO](defaultMaxHeaderLength, None)(Array.emptyByteArray, take)\n      body1 <- resp1._1.body.through(fs2.text.utf8Decode).compile.string\n      drained <- resp1._2\n      resp2 <- Parser.Response\n        .parser[IO](defaultMaxHeaderLength, None)(drained.get, take)\n      body2 <- resp2._1.body.through(fs2.text.utf8Decode).compile.string\n    } yield body1 == \"hello\" && body2 == \"world\").assert",
+      "interpretation": "Source observation: a parser-level sequential-response regression passes drained bytes into the next parse and independently expects hello then world. This is not socket execution.",
+      "commit_sha": "32893c3373bd735b101f28f28bec70936293a7f7",
+      "path": "ember-core/src/test/scala/org/http4s/ember/core/ParsingSpec.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/32893c3373bd735b101f28f28bec70936293a7f7/ember-core/src/test/scala/org/http4s/ember/core/ParsingSpec.scala",
+        "source_path": "ember-core/src/test/scala/org/http4s/ember/core/ParsingSpec.scala"
+      }
+    },
+    {
+      "id": "e4348-partial-body-test",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/32893c3373bd735b101f28f28bec70936293a7f7/ember-core/src/test/scala/org/http4s/ember/core/ParsingSpec.scala#L506-L514",
+      "occurred_at": "2021-02-12T07:44:01Z",
+      "excerpt": "    for {\n      take <- Helpers.taking(byteStream)\n      body <- Parser.Body.parseFixedBody(12L, Array.emptyByteArray, take)\n      bodyString <- body._1.take(2).through(fs2.text.utf8Decode).compile.string\n      drained <- body._2\n    } yield {\n      assertEquals(bodyString, \"he\")\n      assertEquals(drained, None)\n    }",
+      "interpretation": "Source observation: reading only two bytes from a split fixed-length body yields he and None drain metadata, distinguishing incomplete framing from an empty completed remainder.",
+      "commit_sha": "32893c3373bd735b101f28f28bec70936293a7f7",
+      "path": "ember-core/src/test/scala/org/http4s/ember/core/ParsingSpec.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/32893c3373bd735b101f28f28bec70936293a7f7/ember-core/src/test/scala/org/http4s/ember/core/ParsingSpec.scala",
+        "source_path": "ember-core/src/test/scala/org/http4s/ember/core/ParsingSpec.scala"
+      }
+    },
+    {
+      "id": "e4348-empty-reuse-test",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/32893c3373bd735b101f28f28bec70936293a7f7/ember-client/src/test/scala/org/http4s/ember/client/internal/ClientHelpersSuite.scala#L104-L120",
+      "occurred_at": "2021-02-12T07:44:01Z",
+      "excerpt": "  test(\"Postprocess response should reuse\") {\n    for {\n      nextBytes <- Ref[IO].of(Array.emptyByteArray)\n      reuse <- Ref[IO].of(Reusable.DontReuse: Reusable)\n\n      _ <- ClientHelpers\n        .postProcessResponse[IO](\n          Request[IO](),\n          Response[IO](),\n          IO.pure(Some(Array.emptyByteArray)),\n          nextBytes,\n          reuse\n        )\n      testResult <- reuse.get.map { case r =>\n        assertEquals(r, Reusable.Reuse)\n      }\n    } yield testResult",
+      "interpretation": "Source observation: helper test explicitly permits reuse with Some(empty), independently of any following response already being buffered. No real pool/socket is exercised by this helper assertion.",
+      "commit_sha": "32893c3373bd735b101f28f28bec70936293a7f7",
+      "path": "ember-client/src/test/scala/org/http4s/ember/client/internal/ClientHelpersSuite.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/32893c3373bd735b101f28f28bec70936293a7f7/ember-client/src/test/scala/org/http4s/ember/client/internal/ClientHelpersSuite.scala",
+        "source_path": "ember-client/src/test/scala/org/http4s/ember/client/internal/ClientHelpersSuite.scala"
+      }
+    },
+    {
+      "id": "e4348-effect-pins",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/32893c3373bd735b101f28f28bec70936293a7f7/project/Http4sPlugin.scala#L303-L312",
+      "occurred_at": "2021-02-12T07:44:01Z",
+      "excerpt": "    val boopickle = \"1.3.3\"\n    val cats = \"2.3.1\"\n    val catsEffect = \"2.3.1\"\n    val catsEffectTesting = \"0.5.1\"\n    val circe = \"0.13.0\"\n    val cryptobits = \"1.3\"\n    val disciplineCore = \"1.1.3\"\n    val disciplineSpecs2 = \"1.1.3\"\n    val dropwizardMetrics = \"4.1.17\"\n    val fs2 = \"2.5.0\"",
+      "interpretation": "Source observation: the earlier framing revision uses Cats Effect 2.3.1 and FS2 2.5.0. Its release/finalizer API must not be treated as the CE3 branch API.",
+      "commit_sha": "32893c3373bd735b101f28f28bec70936293a7f7",
+      "path": "project/Http4sPlugin.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/32893c3373bd735b101f28f28bec70936293a7f7/project/Http4sPlugin.scala",
+        "source_path": "project/Http4sPlugin.scala"
+      }
+    },
+    {
+      "id": "e4348-build-project",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/32893c3373bd735b101f28f28bec70936293a7f7/build.sbt#L214-L220",
+      "occurred_at": "2021-02-12T07:44:01Z",
+      "excerpt": "lazy val emberCore = libraryProject(\"ember-core\")\n  .settings(\n    description := \"Base library for ember http4s clients and servers\",\n    startYear := Some(2019),\n    unusedCompileDependenciesFilter -= moduleFilter(\"io.chrisdavenport\", \"log4cats-core\"),\n    libraryDependencies ++= Seq(\n      log4catsTesting % Test,",
+      "interpretation": "Source observation: the actual build declares the ember-core library project; suite selectors are grounded in this module rather than guessed from Scala filenames.",
+      "commit_sha": "32893c3373bd735b101f28f28bec70936293a7f7",
+      "path": "build.sbt",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/32893c3373bd735b101f28f28bec70936293a7f7/build.sbt",
+        "source_path": "build.sbt"
+      }
+    },
+    {
+      "id": "e7369-reuse-consumer",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/7e5a97468d631e9aece50aecbbc74bc792e30b60/ember-client/shared/src/main/scala/org/http4s/ember/client/internal/ClientHelpers.scala#L223-L234",
+      "occurred_at": "2024-02-02T21:16:15Z",
+      "excerpt": "    drain.flatMap {\n      case Some(bytes) =>\n        val requestClose = connectionFor(req.httpVersion, req.headers).hasClose\n        val responseClose = connectionFor(resp.httpVersion, resp.headers).hasClose\n\n        if (requestClose || responseClose) F.unit\n        else\n          nextBytes.set(bytes) *>\n            startNextRead *> // start the next read before returning to pool\n            canBeReused.set(Reusable.Reuse) // now it is safe to mark as re-usable\n      case None => F.unit\n    }",
+      "interpretation": "Source observation: at the HEAD fix revision None does not mark reuse. Some(bytes) stores the remainder and starts the next read before setting Reuse; this is source support, not observed network closure.",
+      "commit_sha": "7e5a97468d631e9aece50aecbbc74bc792e30b60",
+      "path": "ember-client/shared/src/main/scala/org/http4s/ember/client/internal/ClientHelpers.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/7e5a97468d631e9aece50aecbbc74bc792e30b60/ember-client/shared/src/main/scala/org/http4s/ember/client/internal/ClientHelpers.scala",
+        "source_path": "ember-client/shared/src/main/scala/org/http4s/ember/client/internal/ClientHelpers.scala"
+      }
+    },
+    {
+      "id": "e4348-resource-placement",
+      "kind": "review-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/4348#discussion_r573734431",
+      "occurred_at": "2021-02-10T13:41:30Z",
+      "excerpt": "Stick it in the vault and move it up to where we have a `Resource[F, Response[F]]`?  Is it too late to flip the `canBeReused` at that point?",
+      "interpretation": "Ross responds to the author concern that a body-only finalizer misses unconsumed bodies. Author reply 574239402 and commit 562ef734b79c820bd1c276b247894bcb7695e778 move the handling into the Resource; final head confirms that change.",
+      "author": "rossabaker",
+      "role_basis": "unknown",
+      "pull_number": 4348,
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/supplemental/4348/review_comments.json",
+        "collection": "review_comments",
+        "record_id": 573734431
+      }
+    },
+    {
+      "id": "e4348-completed-not-next-message",
+      "kind": "review-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/4348#discussion_r574987281",
+      "occurred_at": "2021-02-12T04:46:50Z",
+      "excerpt": "If we've read and consumed all available bytes and are awaiting the next message, `drain` is going to return `Some(Array.emptyByteArray)`. I'll add some tests to exercise that behavior",
+      "interpretation": "PR author answers the reviewer concern that aggressive closing could prevent ordinary non-pipelined reuse. Final parser/helper tests distinguish completed empty remainder from incomplete None.",
+      "author": "RaasAhsan",
+      "role_basis": "unknown",
+      "pull_number": 4348,
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/supplemental/4348/review_comments.json",
+        "collection": "review_comments",
+        "record_id": 574987281
+      }
+    },
+    {
+      "id": "e4348-no-unbounded-drain",
+      "kind": "issue-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/4348#issuecomment-774493038",
+      "occurred_at": "2021-02-06T15:20:57Z",
+      "excerpt": "If there are gigabytes left to read, and we don't want them, it's kinder to server and client to close and start over.",
+      "interpretation": "Reviewer states a bounded-work tradeoff, not an unconditional requirement to drain bodies. Later author comments explicitly defer socket-consuming drain behavior and exhaustive tests.",
+      "author": "rossabaker",
+      "role_basis": "unknown",
+      "pull_number": 4348,
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/supplemental/4348/issue_comments.json",
+        "collection": "issue_comments",
+        "record_id": 774493038
+      }
+    }
+  ],
+  "claims": [
+    {
+      "id": "c-framing-connection-contract",
+      "rule": "For HEAD/no-body response parsing, review exposed body, buffered remainder, unread socket bytes and connection reuse separately; an empty drain marker alone must not be presented as consumed network data.",
+      "evidence_ids": [
+        "e7369-drain-doubt",
+        "e7369-connection-risk",
+        "e7369-disposition",
+        "e7369-parser-disposition",
+        "e7369-parser-test",
+        "e7369-reuse-consumer",
+        "e7369-effect-pins"
+      ],
+      "applicability": "Inference from a 2024 HTTP/1 Ember response-parser review. Reviewer-reported connection closure explains disposition, but future pooling changes require fresh connection-level tests. A HEAD Content-Length need not imply body bytes to read.",
+      "counterexample": "Do not blindly read Content-Length bytes from a valid HEAD response: they may never arrive. This is not a request-parser rule, an HTTP/2 framing prescription, or a mandate to discard every status-related remainder."
+    },
+    {
+      "id": "c-drain-reuse-state",
+      "rule": "When refactoring Ember response cleanup, preserve the distinction between incomplete None and completed Some(empty), save next-message remainder before allowing reuse, and release at response Resource scope even when no body is consumed.",
+      "evidence_ids": [
+        "e4348-resource-placement",
+        "e4348-completed-not-next-message",
+        "e4348-no-unbounded-drain",
+        "e4348-fixed-drain-state",
+        "e4348-reuse-consumer",
+        "e4348-resource-release",
+        "e4348-remainder-tests",
+        "e4348-partial-body-test",
+        "e4348-empty-reuse-test",
+        "e4348-effect-pins",
+        "e4348-build-project"
+      ],
+      "applicability": "Derived from the adopted CE2 series/0.21 body-draining revision and checked against the later CE3 HEAD consumer. Socket draining and exhaustive chunking were explicitly deferred; current reuse changes need fresh owner-level tests.",
+      "counterexample": "A completely consumed response with no already-buffered next response is not incomplete. Do not replace Some(empty) with None or insist on reading arbitrarily large unwanted bodies before releasing a connection."
+    }
+  ]
+}

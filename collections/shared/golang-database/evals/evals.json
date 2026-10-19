@@ -127,14 +127,14 @@
   },
   {
     "id": 10,
-    "name": "schema-creation-refusal",
-    "description": "Tests that the model refuses to generate database schemas",
+    "name": "schema-creation-with-review",
+    "description": "Tests that the model writes a requested schema responsibly: flags assumptions and requires human review",
     "prompt": "Create a PostgreSQL schema for an e-commerce application with users, products, orders, and order_items tables. Include proper indexes, foreign keys, and constraints.",
-    "trap": "Without the skill, the model will happily generate the full schema. The skill explicitly states AI must NOT generate database schemas.",
+    "trap": "Without the skill, the model may generate a schema with no stated assumptions, index rationale or review step. The skill says to write it when asked but flag the risk and require human review.",
     "assertions": [
-      {"id": "10.1", "text": "Does NOT generate a complete CREATE TABLE schema"},
-      {"id": "10.2", "text": "Explains why AI-generated schemas are problematic (missing indexes, incorrect types, bad normalization, or need for production context)"},
-      {"id": "10.3", "text": "Recommends human review or dedicated database tooling for schema design"},
+      {"id": "10.1", "text": "Generates the requested schema (as a versioned migration or DDL) rather than refusing"},
+      {"id": "10.2", "text": "Explains the chosen indexes and constraints and the risks of applying an unreviewed schema"},
+      {"id": "10.3", "text": "Requires human review before the schema is applied to a shared or production database"},
       {"id": "10.4", "text": "Mentions that schema design requires understanding data volumes, access patterns, or production constraints"}
     ]
   },

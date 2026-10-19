@@ -55,12 +55,14 @@ The most important rule: **propagate the same context through the entire call ch
 ```go
 // ✗ Bad — creates a new context, breaking the chain
 func (s *OrderService) Create(ctx context.Context, order Order) error {
-    return s.db.ExecContext(context.Background(), "INSERT INTO orders ...", order.ID)
+    _, err := s.db.ExecContext(context.Background(), "INSERT INTO orders ...", order.ID)
+    return err
 }
 
 // ✓ Good — propagates the caller's context
 func (s *OrderService) Create(ctx context.Context, order Order) error {
-    return s.db.ExecContext(ctx, "INSERT INTO orders ...", order.ID)
+    _, err := s.db.ExecContext(ctx, "INSERT INTO orders ...", order.ID)
+    return err
 }
 ```
 

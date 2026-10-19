@@ -802,5 +802,5 @@ def contact(request):
 ## Next Steps
 
 - Pydantic for FastAPI → `pydantic-forms.md`
-- See working examples → `examples/`
+- See working examples → `../../examples/python/`
 - Validation concepts → `../validation-concepts.md`

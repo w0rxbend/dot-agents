@@ -12,7 +12,7 @@
   - [Step 3: Theme Switching Works Automatically](#step-3-theme-switching-works-automatically)
 - [Complete Examples](#complete-examples)
   - [Button Component (forms skill)](#button-component-forms-skill)
-  - [Chart Component (data-viz skill)](#chart-component-data-viz-skill)
+  - [Chart Component](#chart-component)
 - [Integration Checklist](#integration-checklist)
   - [✅ Design Phase](#design-phase)
   - [✅ Implementation Phase](#implementation-phase)
@@ -184,7 +184,7 @@ setTheme('brand'); // All buttons use brand colors
 
 ---
 
-### Chart Component (data-viz skill)
+### Chart Component
 
 **Tokens** (`tokens/components/chart.json`):
 ```json
@@ -250,7 +250,7 @@ When creating a component skill:
 - [ ] Add "Styling & Theming" section to SKILL.md
 - [ ] List component tokens used
 - [ ] Provide custom theming example
-- [ ] Reference design-tokens skill
+- [ ] Reference the theming-components tokens
 
 ### ✅ Testing Phase
 - [ ] Test light theme
@@ -329,11 +329,11 @@ Add this to your component skill's SKILL.md:
 ```markdown
 ## Styling & Theming
 
-This component uses design tokens from the **design-tokens** skill for all visual styling.
+This component uses design tokens from the **theming-components** skill for all visual styling.
 
 ### Component Tokens
 
-See `design-tokens/tokens/components/{component}.json` for complete list.
+See `../tokens/components/{component}.json` for the complete list.
 
 **Primary Tokens:**
 - `--{component}-bg-primary` - Primary background color
@@ -360,7 +360,7 @@ Override these tokens in your theme file:
 - ✅ Custom brand themes
 - ✅ RTL languages
 
-See `design-tokens/` skill for complete theming documentation.
+See `../SKILL.md` for the complete theming documentation.
 ```
 
 ---
@@ -409,11 +409,6 @@ See `design-tokens/` skill for complete theming documentation.
 
 ## Resources
 
-- **SKILL_CHAINING_ARCHITECTURE.md** - Complete integration architecture
-- **tokens/components/** - Example component token files
-- **examples/** - Working code examples
-- **SKILL.md** - Main design-tokens skill documentation
-
----
-
-**For complete skill chaining architecture, see:** `SKILL_CHAINING_ARCHITECTURE.md`
+- **`../tokens/components/`** - Example component token files
+- **`../examples/`** - Working code examples
+- **`../SKILL.md`** - Main theming-components skill documentation

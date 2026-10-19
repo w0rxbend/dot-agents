@@ -3,8 +3,26 @@ name: cavecrew
 description: >
   When to delegate to `cavecrew-investigator` (locate code), `cavecrew-builder`
   (1-2 file edit) or `cavecrew-reviewer` (diff review) instead of working inline
-  or using `Explore`. Their output is compressed, so main context lasts longer.
+  or using `Explore`. Use only when those three Claude Code subagents are
+  installed; they come from upstream Caveman and dot-agents does not install
+  them.
 ---
+
+## Prerequisite: the cavecrew subagents
+
+This skill only routes work; the agents themselves are separate files from
+upstream Caveman (`agents/cavecrew-*.md` in https://github.com/JuliusBrussee/caveman).
+dot-agents does not install them. Check before delegating:
+
+- `cavecrew-investigator`, `cavecrew-builder` and `cavecrew-reviewer` appear as
+  agent types in your Agent/Task tool, or
+- `ls ~/.claude/agents/cavecrew-*.md .claude/agents/cavecrew-*.md` lists them.
+
+If they are absent, do not spawn them. Tell the user once: "cavecrew subagents
+are not installed; using the built-in agents instead. To use cavecrew, install
+the three agent files from the Caveman repo into ~/.claude/agents/." Then use
+the vanilla column of the table below (`Explore`, the main thread, or a
+general-purpose agent).
 
 Cavecrew = three subagent presets that answer in ultracave voice (tool runs: one status line in, one out; nothing between routine calls). Same job as Anthropic defaults (`Explore`, edit-style agents, reviewer); difference is the tool-result they return is compressed, so main context shrinks per delegation.
 
@@ -24,7 +42,7 @@ Rule of thumb: **if you'd want the subagent's output in 1/3 the tokens, pick cav
 
 ## Why this exists (the real win)
 
-Subagent tool results get injected into main context verbatim. A vanilla `Explore` that returns 2k tokens of prose costs 2k tokens of main-context budget every time. The same finding from `cavecrew-investigator` returns ~700 tokens. Across 20 delegations in one session that's the difference between context exhaustion and finishing the task.
+Subagent tool results get injected into main context verbatim. A vanilla `Explore` that returns 2k tokens of prose costs 2k tokens of main-context budget every time. The same finding from `cavecrew-investigator` comes back as a compressed `path:line` table instead. Across 20 delegations in one session that's the difference between context exhaustion and finishing the task.
 
 ## Output contracts
 

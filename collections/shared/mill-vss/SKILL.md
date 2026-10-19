@@ -1,6 +1,6 @@
 ---
 name: mill-vss
-description: Build VirtusLab Scala Stack applications with Mill as the preferred tool while retaining direct-style Scala Ox and synchronous Tapir guidance and translating Scala CLI or sbt examples.
+description: Build VirtusLab Scala Stack applications with Mill as the preferred tool while retaining direct-style Scala Ox and synchronous Tapir guidance and translating Scala CLI or sbt examples. Use when building a VirtusLab Scala Stack (Ox, Tapir) project with Mill.
 license: MIT
 ---
 

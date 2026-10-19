@@ -1,7 +1,7 @@
 ---
 name: effect-error-handling
 user-invocable: false
-description: Use when Effect error handling patterns including catchAll, catchTag, either, option, and typed errors. Use for handling expected errors in Effect applications.
+description: "Effect-TS v3: model expected failures as Data.TaggedError, recover with catchTag/catchTags/catchAll, convert with either/option, retry with Schedule, and handle defects and interruptions via Cause. Use when designing or fixing the E channel of Effect code; for fp-ts Either/TaskEither use fp-errors."
 allowed-tools:
   - Bash
   - Read
@@ -11,643 +11,209 @@ allowed-tools:
 
 # Effect Error Handling
 
-Master type-safe error handling in Effect applications. This skill covers
-expected errors, error recovery, selective error handling, and error
-transformations using Effect's error management operators.
+> **Version:** targets `effect` 3.x. In Effect 4, `Effect.catchAll` became
+> `Effect.catch`, `Effect.either` became `Effect.result` and `Either` became
+> `Result`; check `effect` in package.json first.
 
-## Expected Errors vs Defects
+## Errors vs defects vs interruption
 
-Effect distinguishes between two types of failures:
+| Kind | Where it lives | Created by | Handle with |
+| --- | --- | --- | --- |
+| Expected error | `E` type parameter | `Effect.fail`, `try`/`tryPromise` `catch`, `yield* new TaggedErr()` | `catchTag`, `catchAll`, `either`, `retry` |
+| Defect | `Cause` only (not in types) | throw inside `sync`/`promise`, `Effect.die`, `orDie` | `catchAllDefect`, `catchAllCause`, top-level logging |
+| Interruption | `Cause` only | timeout, race loser, `Fiber.interrupt` | finalizers, `onInterrupt` |
 
-- **Expected Errors (E channel)**: Recoverable errors tracked in the type system
-- **Defects**: Unexpected failures (bugs, programming errors)
+Decision rule: if a caller can reasonably do something different because of
+the failure (show a 404, retry, fall back), it is an expected error with its
+own tag. If it means a bug or broken invariant, let it be a defect (`orDie`)
+and let the edge log it.
+
+## Define errors as tagged classes
 
 ```typescript
-import { Effect } from "effect"
+import { Data, Effect } from "effect"
 
-// Expected error - tracked in type
-interface ValidationError {
-  _tag: "ValidationError"
-  field: string
-  message: string
-}
+class NotFound extends Data.TaggedError("NotFound")<{ readonly id: string }> {}
+class Unauthorized extends Data.TaggedError("Unauthorized")<{ readonly userId: string }> {}
+class NetworkError extends Data.TaggedError("NetworkError")<{ readonly cause: unknown }> {}
 
-const validateEmail = (email: string): Effect.Effect<string, ValidationError, never> => {
-  if (!email.includes("@")) {
-    return Effect.fail({
-      _tag: "ValidationError",
-      field: "email",
-      message: "Invalid email format"
+interface User { readonly id: string; readonly name: string }
+
+const fetchUser = (id: string): Effect.Effect<User, NotFound | NetworkError> =>
+  Effect.gen(function* () {
+    const res = yield* Effect.tryPromise({
+      try: (signal) => fetch(`/api/users/${id}`, { signal }),
+      catch: (cause) => new NetworkError({ cause })
     })
-  }
-  return Effect.succeed(email)
-}
-
-// Defect - throws, becomes unexpected failure
-const riskyOperation = Effect.sync(() => {
-  throw new Error("Unexpected error") // This is a defect
-})
-
-// Proper way - expected error
-const safeOperation = Effect.try({
-  try: () => {
-    // Code that might throw
-    return riskyParse(data)
-  },
-  catch: (error) => ({
-    _tag: "ParseError",
-    message: String(error)
+    if (res.status === 404) return yield* new NotFound({ id })
+    return yield* Effect.promise(() => res.json() as Promise<User>)
   })
-})
 ```
 
-## Tagged Error Types
+`Data.TaggedError` gives a `_tag` for `catchTag`, a real `Error` with a stack,
+and lets you `yield*` the instance directly to fail. Use `Schema.TaggedError`
+instead when the error must be serialized (RPC, HTTP API).
 
-Use tagged unions for error types to enable pattern matching:
-
-```typescript
-import { Effect } from "effect"
-
-// Define tagged error types
-interface NotFoundError {
-  _tag: "NotFoundError"
-  id: string
-}
-
-interface UnauthorizedError {
-  _tag: "UnauthorizedError"
-  userId: string
-}
-
-interface NetworkError {
-  _tag: "NetworkError"
-  message: string
-}
-
-type AppError = NotFoundError | UnauthorizedError | NetworkError
-
-// Functions returning typed errors
-const fetchUser = (id: string): Effect.Effect<User, NotFoundError | NetworkError, never> => {
-  // Implementation
-}
-
-const authenticate = (token: string): Effect.Effect<User, UnauthorizedError | NetworkError, never> => {
-  // Implementation
-}
-```
-
-## Catching All Errors
-
-### Effect.catchAll - Recover from Any Error
-
-Catches all expected errors and provides fallback:
+## Recovering
 
 ```typescript
-import { Effect } from "effect"
+import { Effect, Data } from "effect"
 
-const program = Effect.gen(function* () {
-  const user = yield* fetchUser("123")
-  return user
-}).pipe(
-  Effect.catchAll((error) =>
-    Effect.succeed({ id: "default", name: "Guest" })
-  )
-)
-// Effect<User, never, never> - Error channel is now never
+class NotFound extends Data.TaggedError("NotFound")<{ readonly id: string }> {}
+class NetworkError extends Data.TaggedError("NetworkError")<{ readonly cause: unknown }> {}
+class Timeout extends Data.TaggedError("Timeout") {}
+declare const op: Effect.Effect<string, NotFound | NetworkError | Timeout>
 
-// With error inspection
-const programWithLogging = Effect.gen(function* () {
-  const user = yield* fetchUser("123")
-  return user
-}).pipe(
-  Effect.catchAll((error) => {
-    console.error("Error occurred:", error)
-    return Effect.succeed(defaultUser)
-  })
-)
+// One tag; the rest stay in E
+const a = op.pipe(Effect.catchTag("NotFound", (e) => Effect.succeed(`missing ${e.id}`)))
+// Effect<string, NetworkError | Timeout>
 
-// Fallback to another effect
-const programWithFallback = pipe(
-  fetchUser("123"),
-  Effect.catchAll(() => fetchUserFromCache("123"))
-)
-```
-
-## Selective Error Handling
-
-### Effect.catchTag - Handle Specific Error Types
-
-Catches errors by their `_tag` field:
-
-```typescript
-import { Effect, pipe } from "effect"
-
-const program = pipe(
-  fetchUser("123"),
-  Effect.catchTag("NotFoundError", (error) =>
-    Effect.succeed({ id: error.id, name: "Not Found" })
-  )
-)
-// Still can fail with NetworkError
-
-// Handling multiple tags
-const program2 = pipe(
-  authenticatedRequest(),
-  Effect.catchTag("UnauthorizedError", (error) =>
-    Effect.fail({ _tag: "LoginRequired" })
-  ),
-  Effect.catchTag("NetworkError", (error) =>
-    retryRequest()
-  )
-)
-
-// Using Effect.gen with early return
-const program3 = Effect.gen(function* () {
-  const result = yield* riskyOperation().pipe(
-    Effect.catchTag("TemporaryError", () =>
-      Effect.succeed(null)
-    )
-  )
-  return result
-})
-```
-
-### Effect.catchTags - Handle Multiple Error Types
-
-```typescript
-import { Effect, pipe } from "effect"
-
-const program = pipe(
-  complexOperation(),
+// Several tags at once
+const b = op.pipe(
   Effect.catchTags({
-    NotFoundError: (error) =>
-      Effect.succeed(defaultValue),
-    UnauthorizedError: (error) =>
-      Effect.fail({ _tag: "LoginRequired" }),
-    NetworkError: (error) =>
-      retryOperation()
+    NotFound: () => Effect.succeed("default"),
+    Timeout: () => Effect.succeed("cached")
   })
 )
+// Effect<string, NetworkError>
 
-// With different recovery strategies
-const programWithStrategies = pipe(
-  processPayment(amount),
-  Effect.catchTags({
-    InsufficientFunds: (error) =>
-      Effect.fail({ _tag: "PaymentDeclined", reason: "insufficient-funds" }),
-    NetworkError: () =>
-      retryPayment(amount),
-    ValidationError: (error) =>
-      Effect.fail({ _tag: "InvalidPayment", field: error.field })
-  })
-)
-```
+// Everything expected (removes E); prefer catchTag(s) so new errors stay visible
+const c = op.pipe(Effect.catchAll((e) => Effect.succeed(`failed: ${e._tag}`)))
 
-### Effect.catchIf - Conditional Error Handling
-
-Catches errors that match a predicate:
-
-```typescript
-import { Effect, pipe } from "effect"
-
-const isRetryable = (error: AppError): boolean => {
-  return error._tag === "NetworkError" || error._tag === "TimeoutError"
-}
-
-const program = pipe(
-  fetchData(),
-  Effect.catchIf(isRetryable, (error) =>
-    retryFetchData()
-  )
-)
-
-// With type narrowing
-const program2 = pipe(
-  operation(),
+// Predicate-based
+const d = op.pipe(
   Effect.catchIf(
-    (error): error is NetworkError => error._tag === "NetworkError",
-    (error) => {
-      // TypeScript knows error is NetworkError here
-      console.log("Network error:", error.message)
-      return retry()
-    }
+    (e): e is NetworkError | Timeout => e._tag !== "NotFound",
+    () => Effect.succeed("transient")
   )
 )
 ```
 
-### Effect.catchSome - Partial Error Handling
-
-Catches errors and optionally handles them:
-
-```typescript
-import { Effect, Option, pipe } from "effect"
-
-const program = pipe(
-  fetchUser("123"),
-  Effect.catchSome((error) => {
-    if (error._tag === "NotFoundError") {
-      return Option.some(Effect.succeed(guestUser))
-    }
-    return Option.none() // Don't handle, propagate error
-  })
-)
-
-// Complex decision logic
-const programWithDecision = pipe(
-  processRequest(request),
-  Effect.catchSome((error) => {
-    if (error._tag === "RateLimitError" && error.retryAfter < 1000) {
-      return Option.some(
-        Effect.sleep(error.retryAfter).pipe(
-          Effect.andThen(processRequest(request))
-        )
-      )
-    }
-    return Option.none()
-  })
-)
-```
-
-## Converting Errors
-
-### Effect.either - Convert to Either<Success, Error>
-
-Transforms an effect into one that cannot fail, wrapping result in Either:
+| Need | Operator |
+| --- | --- |
+| Handle one or a few tags | `catchTag`, `catchTags` |
+| Translate errors between layers | `mapError` |
+| Observe without handling (log, metric) | `tapError`, `tapErrorTag` |
+| Fallback effect on any error | `orElse`, `orElseSucceed` |
+| Get a value you can branch on | `Effect.either` (`Either<A, E>`), `Effect.option`, `Effect.exit` |
+| Both channels into one handler | `Effect.match`, `Effect.matchEffect` |
+| Turn "impossible" errors into defects | `Effect.orDie`, `Effect.orDieWith` |
+| Fail if a value is bad | `Effect.filterOrFail` |
 
 ```typescript
 import { Effect, Either } from "effect"
 
-const program = Effect.gen(function* () {
-  const result = yield* fetchUser("123").pipe(Effect.either)
+declare const load: Effect.Effect<number, "Bad">
 
-  if (Either.isLeft(result)) {
-    // Handle error
-    console.error("Error:", result.left)
-    return null
-  } else {
-    // Handle success
-    return result.right
-  }
+const handled = Effect.gen(function* () {
+  const r = yield* Effect.either(load)
+  if (Either.isLeft(r)) return `error: ${r.left}`
+  return `ok: ${r.right}`
 })
-// Effect<User | null, never, never>
+// Effect<string, never>
+```
 
-// Pattern matching on Either
-const program2 = pipe(
-  fetchUser("123"),
-  Effect.either,
-  Effect.map(
-    Either.match({
-      onLeft: (error) => ({ success: false, error }),
-      onRight: (user) => ({ success: true, data: user })
-    })
-  )
+## Retry, timeout, fallback
+
+```typescript
+import { Data, Duration, Effect, Schedule } from "effect"
+
+class NetworkError extends Data.TaggedError("NetworkError") {}
+class BadRequest extends Data.TaggedError("BadRequest") {}
+declare const call: Effect.Effect<string, NetworkError | BadRequest>
+
+// Exponential backoff with jitter, max 5 retries, only for transient errors
+const policy = Schedule.exponential("100 millis").pipe(
+  Schedule.jittered,
+  Schedule.intersect(Schedule.recurs(5))
+)
+
+const robust = call.pipe(
+  Effect.retry({ schedule: policy, while: (e) => e._tag === "NetworkError" }),
+  Effect.timeoutFail({
+    duration: Duration.seconds(10),
+    onTimeout: () => new NetworkError()
+  }),
+  Effect.orElse(() => Effect.succeed("fallback"))
 )
 ```
 
-### Effect.option - Convert to Option<Success>
+- `Effect.retry` re-runs the whole effect; make it idempotent first.
+- `Effect.timeout(d)` fails with `TimeoutException`; `timeoutFail` lets you
+  choose the error. The timed-out effect is interrupted, so its finalizers run.
+- Never retry validation/authorization errors; filter with `while`/`until`.
 
-Converts failures to None, success to Some:
+## Collecting several errors
+
+`Effect.all` short-circuits on the first failure. To report every failure:
 
 ```typescript
-import { Effect, Option } from "effect"
+import { Effect } from "effect"
 
-const program = Effect.gen(function* () {
-  const maybeUser = yield* fetchUser("123").pipe(Effect.option)
+declare const validateField: (f: string) => Effect.Effect<string, string>
+const fields = ["name", "email", "age"]
 
-  if (Option.isNone(maybeUser)) {
-    return guestUser
-  } else {
-    return maybeUser.value
-  }
-})
-// Effect<User, never, never>
+// Fails with Array<string> of all errors if any fail
+const all = Effect.validateAll(fields, validateField)
 
-// Using Option.match
-const program2 = pipe(
-  fetchUser("123"),
-  Effect.option,
-  Effect.map(
-    Option.match({
-      onNone: () => "No user found",
-      onSome: (user) => `Found: ${user.name}`
-    })
-  )
-)
+// Keeps both sides: [failures, successes]
+const split = Effect.partition(fields, validateField)
+
+// Per-item Either, never fails
+const each = Effect.all(fields.map(validateField), { mode: "either" })
 ```
 
-## Error Transformation
+For parsing input, prefer `effect/Schema` with `{ errors: "all" }` (see
+**effect-schema**).
 
-### Effect.mapError - Transform Error Types
-
-```typescript
-import { Effect, pipe } from "effect"
-
-interface DbError {
-  _tag: "DbError"
-  code: string
-  message: string
-}
-
-interface AppError {
-  _tag: "AppError"
-  message: string
-  context: string
-}
-
-const program = pipe(
-  queryDatabase(),
-  Effect.mapError((dbError: DbError): AppError => ({
-    _tag: "AppError",
-    message: dbError.message,
-    context: `Database operation failed: ${dbError.code}`
-  }))
-)
-
-// Enriching errors with context
-const enrichError = <E extends { message: string }>(
-  context: string
-) => (error: E) => ({
-  ...error,
-  message: `${context}: ${error.message}`
-})
-
-const programWithContext = pipe(
-  fetchData(),
-  Effect.mapError(enrichError("Failed to fetch user data"))
-)
-```
-
-### Effect.tapError - Side Effects on Error
-
-Perform side effects when an error occurs without changing it:
+## Defects and causes
 
 ```typescript
-import { Effect, pipe } from "effect"
+import { Cause, Effect, Option } from "effect"
 
-const program = pipe(
-  processPayment(amount),
-  Effect.tapError((error) =>
-    Effect.sync(() => {
-      console.error("Payment failed:", error)
-      logToMonitoring(error)
-    })
-  ),
-  Effect.tapError((error) =>
-    sendErrorNotification(error)
-  )
-)
-// Error still propagates after taps
-```
+declare const risky: Effect.Effect<number, "Expected">
 
-## Retry and Fallback Patterns
-
-### Effect.orElse - Fallback Effect
-
-Provide alternative effect on failure:
-
-```typescript
-import { Effect, pipe } from "effect"
-
-const program = pipe(
-  fetchFromPrimarySource(),
-  Effect.orElse(() => fetchFromSecondarySource())
-)
-
-// With error-specific fallbacks
-const programWithCheck = pipe(
-  fetchData(),
-  Effect.orElse((error) => {
-    if (error._tag === "NetworkError") {
-      return fetchFromCache()
-    }
-    return Effect.fail(error)
-  })
-)
-
-// Multiple fallbacks
-const programWithMultipleFallbacks = pipe(
-  fetchFromPrimary(),
-  Effect.orElse(() => fetchFromSecondary()),
-  Effect.orElse(() => fetchFromTertiary()),
-  Effect.orElse(() => Effect.succeed(defaultData))
-)
-```
-
-### Effect.retry - Retry on Failure
-
-```typescript
-import { Effect, Schedule, pipe } from "effect"
-
-// Retry with schedule
-const program = pipe(
-  fetchData(),
-  Effect.retry(Schedule.recurs(3)) // Retry up to 3 times
-)
-
-// Exponential backoff
-const programWithBackoff = pipe(
-  fetchData(),
-  Effect.retry(
-    Schedule.exponential("100 millis", 2.0) // 100ms, 200ms, 400ms, ...
-  )
-)
-
-// Conditional retry
-const programConditionalRetry = pipe(
-  fetchData(),
-  Effect.retry({
-    while: (error) => error._tag === "NetworkError",
-    schedule: Schedule.recurs(5)
-  })
-)
-```
-
-## Combining Error Handlers
-
-### Chaining Multiple Handlers
-
-```typescript
-import { Effect, pipe } from "effect"
-
-const program = pipe(
-  complexOperation(),
-  Effect.catchTag("NotFoundError", () =>
-    Effect.succeed(defaultValue)
-  ),
-  Effect.catchTag("NetworkError", () =>
-    retryOperation()
-  ),
-  Effect.catchTag("UnauthorizedError", () =>
-    Effect.fail({ _tag: "LoginRequired" })
-  ),
-  Effect.catchAll((unknownError) =>
-    Effect.sync(() => {
-      console.error("Unhandled error:", unknownError)
-      return fallbackValue
-    })
-  )
-)
-```
-
-### Error Accumulation
-
-```typescript
-import { Effect, Array } from "effect"
-
-interface ValidationError {
-  _tag: "ValidationError"
-  errors: string[]
-}
-
-const validateAll = (fields: string[]) =>
-  Effect.gen(function* () {
-    const results = yield* Effect.all(
-      fields.map(validateField),
-      { mode: "either" } // Don't short-circuit on first error
-    )
-
-    const errors = results.filter(Either.isLeft)
-    if (errors.length > 0) {
-      return yield* Effect.fail({
-        _tag: "ValidationError",
-        errors: errors.map(e => e.left.message)
-      })
-    }
-
-    return results.map(r => r.right)
-  })
-```
-
-## Handling Defects
-
-### Effect.catchAllCause - Handle Both Errors and Defects
-
-```typescript
-import { Effect, Cause, Exit, pipe } from "effect"
-
-const program = pipe(
-  riskyOperation(),
+const safe = risky.pipe(
   Effect.catchAllCause((cause) => {
-    if (Cause.isFailure(cause)) {
-      // Expected error
-      const error = Cause.failureOption(cause)
-      return handleExpectedError(error)
-    } else if (Cause.isDie(cause)) {
-      // Defect (unexpected error)
-      const defect = Cause.dieOption(cause)
-      return handleDefect(defect)
-    } else {
-      // Interruption
-      return Effect.succeed(defaultValue)
-    }
+    if (Cause.isInterruptedOnly(cause)) return Effect.succeed(-1)
+    const expected = Cause.failureOption(cause)
+    if (Option.isSome(expected)) return Effect.succeed(0)
+    // defect: log the whole cause (includes stack and parallel failures)
+    return Effect.logError("defect", Cause.pretty(cause)).pipe(Effect.as(-2))
   })
 )
+
+// Defects only
+const noCrash = risky.pipe(Effect.catchAllDefect((defect) => Effect.succeed(-3)))
 ```
 
-### Effect.sandbox - Expose Defects as Errors
+`Effect.sandbox` moves the full `Cause<E>` into the error channel and
+`Effect.unsandbox` reverses it; use it when you need cause-aware handling in
+the middle of a pipeline. Catching defects should be rare: at a request or job
+boundary, to log and convert to a 500/failed-job result.
 
-Converts defects into the error channel for handling:
+## Pitfalls
 
-```typescript
-import { Effect, Cause, pipe } from "effect"
+- `catchAll` early in a pipeline erases error types callers could have used.
+- Plain `throw` inside `Effect.sync`/`gen` is a defect; it will not be caught by
+  `catchTag`/`catchAll`.
+- `try/catch` around `Effect.runPromise` sees a `FiberFailure`, not your tagged
+  error; use `runPromiseExit` or handle inside the effect.
+- Error unions growing to many tags in a high-level function: map lower-level
+  errors to a domain error with `mapError` at module boundaries.
+- Retrying non-idempotent writes without an idempotency key.
 
-const program = pipe(
-  riskyOperation(),
-  Effect.sandbox,
-  Effect.catchAll((cause) => {
-    console.error("Failure cause:", cause)
-    return Effect.succeed(fallbackValue)
-  })
-)
-```
+## Done when
 
-## Best Practices
+- Each module exposes a small set of tagged errors in its signatures; no
+  `unknown`/`Error` in `E` except at external boundaries being wrapped.
+- Every retry has a bounded schedule and an error filter.
+- Defects are logged once with `Cause.pretty` at the edge.
 
-1. **Use Tagged Error Types**: Always tag errors with `_tag` for catchTag.
+## Related skills
 
-2. **Keep Error Types Specific**: Don't use generic Error. Define specific
-   error types for each failure mode.
+- effect-core-patterns - constructors and `Effect.gen`
+- effect-schema - parse errors and `Schema.TaggedError`
+- effect-testing - asserting on `Exit` and failures
 
-3. **Handle Errors Close to Source**: Catch errors where you have enough
-   context to handle them properly.
-
-4. **Use catchTag Over catchAll**: Prefer specific error handling to blanket
-   catching.
-
-5. **Convert at Boundaries**: Use either/option when interfacing with code that
-   doesn't expect errors.
-
-6. **Log Before Catching**: Use tapError to log before handling errors.
-
-7. **Don't Swallow Errors**: Always handle errors meaningfully or propagate
-   them.
-
-8. **Use Retry Strategically**: Only retry transient failures, not all errors.
-
-9. **Enrich Errors with Context**: Add context to errors as they propagate up.
-
-10. **Document Error Types**: Clearly document what errors each function can
-    produce.
-
-## Common Pitfalls
-
-1. **Using catchAll Everywhere**: Over-using catchAll hides error types. Use
-   catchTag.
-
-2. **Not Tagging Errors**: Without tags, you can't use catchTag effectively.
-
-3. **Swallowing Errors**: Catching errors and returning success without proper
-   handling.
-
-4. **Infinite Retry**: Not limiting retries or checking error types before
-   retrying.
-
-5. **Losing Error Information**: Transforming errors without preserving
-   important details.
-
-6. **Not Handling Defects**: Forgetting that some operations can throw
-   unexpectedly.
-
-7. **Wrong Error Boundaries**: Catching errors too early or too late in the
-   pipeline.
-
-8. **Type Widening**: Losing specific error types by combining with catchAll
-   too early.
-
-9. **Ignoring Error Channel**: Not checking the E type parameter when composing
-   effects.
-
-10. **Not Testing Error Paths**: Only testing happy paths, not failure
-    scenarios.
-
-## When to Use This Skill
-
-Use effect-error-handling when you need to:
-
-- Handle expected errors in a type-safe manner
-- Recover from failures with fallback logic
-- Implement retry strategies for transient failures
-- Transform errors between different layers
-- Log errors without stopping execution
-- Implement error boundaries in applications
-- Handle specific error types differently
-- Convert errors to Option or Either
-- Accumulate validation errors
-- Build resilient error recovery systems
-
-## Resources
-
-### Official Documentation
-
-- [Error Management](https://effect.website/docs/error-management/expected-errors)
-- [Expected Errors](https://effect.website/docs/error-management/expected-errors)
-- [Unexpected Errors](https://effect.website/docs/error-management/unexpected-errors)
-- [Error Channel Operations](https://effect.website/docs/error-management/error-channel-operations)
-- [Fallback](https://effect.website/docs/error-management/fallback)
-- [Retrying](https://effect.website/docs/error-management/retrying)
-- [Sandboxing](https://effect.website/docs/error-management/sandboxing)
-
-### Related Skills
-
-- effect-core-patterns - Basic Effect operations
-- effect-testing - Testing error scenarios
+Docs: <https://effect.website/docs/error-management/expected-errors/>

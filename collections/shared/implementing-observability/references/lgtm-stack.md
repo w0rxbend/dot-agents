@@ -175,7 +175,8 @@ datasources:
     jsonData:
       derivedFields:
         - datasourceUid: tempo
-          matcherRegex: "trace_id=(\\w+)"
+          # Matches JSON ("trace_id": "...") and logfmt (trace_id=...) logs
+          matcherRegex: '"?trace_id"?\s*[:=]\s*"?(\w+)'
           name: TraceID
           url: "$${__value.raw}"
 

@@ -1,6 +1,6 @@
 ---
 name: docs-writing-style
-description: Prose style rules for documentation (reference pages, how-to guides, tutorials). Use this skill whenever writing or editing documentation to ensure consistency, clarity, and professionalism across all docs. 
+description: Prose style rules for ZIO-ecosystem library documentation (Docusaurus + mdoc reference pages, how-to guides, tutorials). Use when writing or editing docs in a ZIO or ZIO-style Scala library repo; not for READMEs or docs in unrelated projects.
 allowed-tools: Read, Glob, Grep
 ---
 
@@ -20,8 +20,10 @@ Apply all fixes. Mark each task `completed` as you finish it.
 
 **Phase 3 — Mechanical validation**
 After all tasks are `completed`, run:
+Paths: `<this-skill-dir>` is this skill's own directory (where this file lives).
+
 ```
-bash ${CLAUDE_PLUGIN_ROOT}/skills/docs-writing-style/check-docs-style.sh <file.md>
+bash <this-skill-dir>/check-docs-style.sh <file.md>
 ```
 Verify exit code is 0. If not, re-open the relevant tasks and fix.
 
@@ -30,7 +32,7 @@ Verify exit code is 0. If not, re-open the relevant tasks and fix.
 Before validating manually, run the mechanical style checks to catch common violations of the most critical rules:
 
 ```
-bash ${CLAUDE_PLUGIN_ROOT}/skills/docs-writing-style/check-docs-style.sh <file.md>
+bash <this-skill-dir>/check-docs-style.sh <file.md>
 ```
 
 This checks Rules 2, 3, 4, 7, 8, 10, 11, 12, 13, 15, 16, 18, 21, 22, 23, and 25 for mechanical violations. Run with `--help` for the full rule list and usage examples.

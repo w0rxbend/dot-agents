@@ -1,7 +1,7 @@
 ---
-name: Nim Metaprogramming
+name: nim-metaprogramming
 user-invocable: false
-description: Use when nim's metaprogramming including macros, templates, compile-time evaluation, AST manipulation, code generation, DSL creation, and leveraging compile-time computation for performance and abstraction in systems programming.
+description: Nim templates, macros (quote, AST construction, typed vs untyped parameters), compile-time evaluation (const, static, when, staticRead) and DSL building. Use when writing or debugging Nim code generation; prefer a plain proc or generic when no AST rewriting is needed.
 allowed-tools: []
 ---
 
@@ -28,6 +28,8 @@ generation patterns, DSL creation, and metaprogramming best practices.
 Templates provide hygienic code substitution with type safety and inline expansion.
 
 ```nim
+import std/times  # cpuTime, used by benchmark below
+
 # Basic template
 template max(a, b: untyped): untyped =
   if a > b: a else: b
@@ -36,7 +38,9 @@ echo max(5, 10)  # Expands inline
 
 # Template with multiple statements
 template withFile(filename: string, body: untyped): untyped =
-  let file = open(filename, fmRead)
+  # Template locals are hygienic (gensym'd); {.inject.} makes `file`
+  # visible to the caller's body
+  let file {.inject.} = open(filename, fmRead)
   try:
     body
   finally:
@@ -83,22 +87,25 @@ var y = 10
 swap(x, y)
 echo x, " ", y  # 10 5
 
-# Template for DSL
+# Template for DSL (an injected `output` is visible to the caller's body;
+# a plain local would be gensym'd and invisible)
 template html(body: untyped): string =
-  var result = ""
-  template tag(name: string, content: untyped): untyped =
-    result.add "<" & name & ">"
-    content
-    result.add "</" & name & ">"
+  block:
+    var output {.inject.} = ""
+    template tag(name: string, content: untyped) {.inject.} =
+      output.add "<" & name & ">"
+      content
+      output.add "</" & name & ">"
 
-  body
-  result
+    body
+    output
 
 let page = html:
   tag "html":
     tag "body":
       tag "h1":
-        result.add "Hello World"
+        output.add "Hello World"
+echo page  # <html><body><h1>Hello World</h1></body></html>
 
 # Template with generic constraints
 template findMax[T: Ordinal](items: openArray[T]): T =
@@ -127,7 +134,7 @@ template `~=`(a, b: float): bool =
 
 echo 1.0 ~= 1.00001  # true
 
-# Template with immediate parameter
+# Template that compiles to nothing unless -d:debug
 template log(msg: string): untyped =
   when defined(debug):
     echo "[LOG] ", msg
@@ -197,49 +204,19 @@ property(count, int)
 setCount(42)
 echo getCount()
 
-# Case statement macro
-macro switch(value: typed, branches: varargs[untyped]): untyped =
-  result = nnkCaseStmt.newTree(value)
+# Compile-time assertions need no macro: use `static: doAssert cond, msg`,
+# or `{.error: "msg".}` inside a `when` branch.
 
-  for branch in branches:
-    expectKind(branch, nnkCall)
-    let pattern = branch[0]
-    let body = branch[1]
-    result.add nnkOfBranch.newTree(pattern, body)
+# Unrolling loop macro (std/macros has no generic replace; write a helper)
+proc subst(n: NimNode; name: string; by: NimNode): NimNode =
+  if n.kind == nnkIdent and n.eqIdent(name): return by.copyNimTree
+  result = n.copyNimNode
+  for child in n: result.add subst(child, name, by)
 
-switch(5):
-  1: echo "one"
-  2: echo "two"
-  5: echo "five"
-
-# Builder pattern macro
-macro build(typ: typedesc, fields: varargs[untyped]): untyped =
-  result = nnkObjConstr.newTree(typ)
-
-  for field in fields:
-    expectKind(field, nnkExprEqExpr)
-    result.add field
-
-type Person = object
-  name: string
-  age: int
-
-let p = build(Person, name = "Alice", age = 30)
-
-# Compile-time assertion macro
-macro staticAssert(condition: bool, message: string): untyped =
-  if not condition.boolVal:
-    error(message.strVal)
-  result = newEmptyNode()
-
-staticAssert sizeof(int) >= 4, "int must be at least 4 bytes"
-
-# Unrolling loop macro
 macro unroll(count: static[int], body: untyped): untyped =
   result = newStmtList()
   for i in 0..<count:
-    let iNode = newLit(i)
-    result.add body.replace(ident("it"), iNode)
+    result.add subst(body, "it", newLit(i))
 
 unroll 5:
   echo "Iteration: ", it
@@ -267,6 +244,8 @@ manipulation.
 Nim executes code at compile time for constants, optimizations, and validations.
 
 ```nim
+import std/[strutils, strformat]
+
 # Compile-time constants
 const maxSize = 100
 const computed = maxSize * 2 + 10  # Evaluated at compile time
@@ -284,8 +263,8 @@ static:
 
 # Compile-time type information
 proc sizeInfo[T](x: T): string =
-  static:
-    "Size of " & $T & " is " & $sizeof(T) & " bytes"
+  const info = "Size of " & $T & " is " & $sizeof(T) & " bytes"
+  info
 
 echo sizeInfo(5)
 echo sizeInfo(5.0)
@@ -296,7 +275,7 @@ when sizeof(int) == 8:
 else:
   proc printSize() = echo "32-bit platform"
 
-# Compile-time string operations
+# Compile-time string operations (import std/strutils)
 const
   version = "1.0.0"
   parts = version.split('.')
@@ -305,16 +284,19 @@ const
 when major >= 1:
   echo "Version 1.0 or later"
 
-# Compile-time file reading
+# Compile-time file reading (path is relative to this source file; a missing
+# file is a compile error)
 const configData = staticRead("config.txt")
 
 proc getConfig(): string =
   configData
 
-# Compile-time HTTP requests (with stdlib)
-const apiResponse = staticExec("curl -s https://api.example.com/data")
+# Running a command at compile time. Keep builds hermetic: prefer reading a
+# checked-in file over network access.
+const gitRev = staticExec("git rev-parse --short HEAD")
 
-# Compile-time code generation
+# Generating source text at compile time (import std/strformat); turn the
+# string into code inside a macro with parseStmt(accessors)
 proc generateAccessors(fields: seq[string]): string =
   result = ""
   for field in fields:
@@ -337,21 +319,10 @@ processArray([1, 2, 3, 4, 5])
 # Compile-time assertions
 static:
   doAssert sizeof(int) >= 4, "int too small"
-  doAssert sizeof(ptr) == sizeof(int), "pointer size mismatch"
+  doAssert sizeof(pointer) == sizeof(int), "pointer size mismatch"
 
-# Compile-time regex compilation
-import re
-
-const emailPattern = re"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
-
-proc validateEmail(email: string): bool =
-  email.match(emailPattern)
-
-# Compile-time validation
-proc validateConfig() =
-  static:
-    when not fileExists("config.txt"):
-      {.fatal: "config.txt not found".}
+# std/re and std/nre wrap PCRE through C, so they cannot run at compile time;
+# build those patterns at runtime (e.g. in a `let` at module level).
 
 # Compile-time optimization
 proc optimizedPower(base: float, exp: static[int]): float =
@@ -377,35 +348,46 @@ Nim's metaprogramming enables creating domain-specific languages with natural
 syntax.
 
 ```nim
-# HTML DSL
+import std/macros
+
+# HTML DSL: every `tag:` / `tag "text"` call becomes output.add calls.
+# (No HTML escaping here; escape untrusted text before adding it.)
 macro html(body: untyped): string =
-  proc processNode(node: NimNode): NimNode =
+  let output = genSym(nskVar, "output")
+
+  proc processNode(node, output: NimNode): NimNode =
     case node.kind
+    of nnkStmtList:
+      result = newStmtList()
+      for child in node:
+        result.add processNode(child, output)
     of nnkCall, nnkCommand:
-      let tag = node[0]
-      let attrs = newSeq[NimNode]()
-      var content = newStmtList()
-
+      let tag = $node[0]
+      var attrs = ""
+      let content = newStmtList()
       for i in 1..<node.len:
-        if node[i].kind == nnkExprEqExpr:
-          attrs.add node[i]
+        if node[i].kind == nnkExprEqExpr:      # tag(class = "x"): ...
+          attrs.add " " & $node[i][0] & "=\"" & node[i][1].strVal & "\""
         else:
-          content.add processNode(node[i])
-
+          content.add processNode(node[i], output)
+      let openTag = "<" & tag & attrs & ">"
+      let closeTag = "</" & tag & ">"
       result = quote do:
-        result.add "<" & `tag`.astToStr & ">"
+        `output`.add `openTag`
         `content`
-        result.add "</" & `tag`.astToStr & ">"
+        `output`.add `closeTag`
     of nnkStrLit:
       result = quote do:
-        result.add `node`
+        `output`.add `node`
     else:
-      result = newStmtList()
+      error("unsupported HTML DSL node: " & node.repr, node)
 
+  let inner = processNode(body, output)
   result = quote do:
-    var result = ""
-    `processNode(body)`
-    result
+    block:
+      var `output` = ""
+      `inner`
+      `output`
 
 let page = html:
   html:
@@ -413,7 +395,9 @@ let page = html:
       title: "My Page"
     body:
       h1: "Welcome"
-      p: "Hello World"
+      p(class = "lead"): "Hello World"
+echo page
+# <html><head><title>My Page</title></head><body><h1>Welcome</h1><p class="lead">Hello World</p></body></html>
 
 # SQL DSL
 macro select(fields: varargs[untyped]): string =
@@ -434,7 +418,8 @@ macro describe(name: string, tests: untyped): untyped =
   result = newStmtList()
 
   for test in tests:
-    if test.kind == nnkCall and $test[0] == "it":
+    # `it "name": body` parses as nnkCommand; `it("name"): body` as nnkCall
+    if test.kind in {nnkCall, nnkCommand} and test.len == 3 and test[0].eqIdent("it"):
       let testName = test[1]
       let testBody = test[2]
 
@@ -443,8 +428,10 @@ macro describe(name: string, tests: untyped): untyped =
         try:
           `testBody`
           echo "  ✓ Passed"
-        except:
+        except CatchableError, AssertionDefect:
           echo "  ✗ Failed"
+    else:
+      error("expected `it \"name\": body`", test)
 
 describe "Math operations":
   it "adds numbers":
@@ -491,12 +478,12 @@ macro builder(typ: typedesc, body: untyped): untyped =
 
 type Request = object
   url: string
-  method: string
+  httpMethod: string   # `method` is a reserved keyword
   headers: seq[string]
 
 let req = builder(Request):
   url("https://api.example.com")
-  method("GET")
+  httpMethod("GET")
 ```
 
 DSLs enable domain-specific notation within Nim while maintaining type safety.
@@ -507,6 +494,8 @@ Metaprogramming enables automated code generation from specifications or runtime
 data.
 
 ```nim
+import std/[macros, strutils]
+
 # Generate enum from compile-time list
 macro generateEnum(name: untyped, values: static[seq[string]]): untyped =
   result = nnkTypeSection.newTree(
@@ -573,22 +562,6 @@ macro stateMachine(states: varargs[untyped]): untyped =
 
 stateMachine Idle, Running, Stopped
 
-# Generate serialization
-macro deriveJson(typ: typedesc): untyped =
-  result = newStmtList()
-
-  # Generate toJson proc
-  result.add quote do:
-    proc toJson(obj: `typ`): JsonNode =
-      result = newJObject()
-      # Add fields...
-
-# Generate validators
-macro validate(typ: typedesc, rules: untyped): untyped =
-  result = quote do:
-    proc validate(obj: `typ`): bool =
-      # Generated validation logic
-      true
 ```
 
 Code generation reduces boilerplate and ensures consistency across similar
@@ -599,8 +572,9 @@ implementations.
 1. **Use templates for simple substitutions** to avoid macro complexity when AST
    manipulation isn't needed
 
-2. **Prefer typed macro parameters** over untyped when possible for better type
-   checking
+2. **Choose parameter kinds deliberately**: `untyped` for DSL syntax that is not
+   semantically valid yet (it is not type-checked), `typed` when the macro needs
+   resolved symbols or types (`getType`, `getImpl`), `static[T]` for values
 
 3. **Test macros thoroughly** as compile-time errors are harder to debug than
    runtime errors
@@ -645,8 +619,8 @@ implementations.
 7. **Assuming AST structure** without checking node kinds breaks on different
    inputs
 
-8. **Not using result variable** in templates returns last statement
-   unexpectedly
+8. **Evaluating a template argument twice**: a template pastes the expression at
+   every use, so bind it once (`let v = arg`) when it has side effects
 
 9. **Creating DSLs that are too magical** reduces code readability and
    maintainability
@@ -674,4 +648,13 @@ Use metaprogramming for performance-critical abstractions with zero runtime cost
 - [Nim Macros Module](<https://nim-lang.org/docs/macros.html>)
 - [Nim Manual - Macros](<https://nim-lang.org/docs/manual.html#macros>)
 - [Nim by Example - Metaprogramming](<https://nim-by-example.github.io/macros/>)
-- [Nim AST Pattern Matching](<https://nim-lang.org/docs/ast_pattern_matching.html>)
+
+## Done when
+
+- A template or generic was tried first and the macro is justified by AST
+  rewriting or compile-time introspection.
+- The expansion was inspected (`expandMacros:` block, `dumpTree`/`dumpAstGen`,
+  or `--expandMacro:name`) and malformed input produces an `error(msg, node)`
+  pointing at the user's code.
+- Code was compiled with the project's Nim version (`nim -v`); nothing here was
+  compiled while editing this skill, so check examples before copying.

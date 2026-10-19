@@ -1,7 +1,7 @@
 ---
 name: effect-schema
 user-invocable: false
-description: Use when effect/Schema patterns including schema definition, validation, parsing, encoding, and transformations. Use for type-safe data validation in Effect applications.
+description: "Effect-TS v3: define schemas with effect/Schema (Struct, Union, Class, TaggedError, brands), decode unknown input and encode output, write filters and transformations, and format ParseError messages. Use when validating or transforming data at a boundary in Effect code; for fp-ts io-ts or Zod codebases keep their existing validator."
 allowed-tools:
   - Bash
   - Read
@@ -11,563 +11,237 @@ allowed-tools:
 
 # Effect Schema
 
-Inspect the project's Effect major version before choosing API signatures. The examples below target the maintained v3 `Schema` module (`import { Schema } from "effect"`); preserve legacy standalone `@effect/schema` only in an existing older project. For v4, follow its migration guide rather than assuming v3 signatures are identical. See [v3 Schema introduction](https://effect.website/docs/v3/schema/introduction) and [v4 migration](https://github.com/Effect-TS/effect/blob/main/MIGRATION.md).
+> **Version:** examples target the `Schema` module bundled in `effect` 3.10+
+> (`import { Schema } from "effect"`, checked against 3.22). Projects on older
+> releases import the standalone `@effect/schema` package with the same
+> concepts; keep that import only in an existing older project. Effect 4
+> reworks Schema (new modules and signatures); follow its migration guide
+> rather than assuming these signatures carry over. Check the installed
+> version first.
 
-Master type-safe data validation and transformation with effect/Schema. This
-skill covers schema definition, parsing, encoding, and advanced schema patterns
-for building robust data pipelines.
+A `Schema<Type, Encoded, R>` describes both a runtime validator and a two-way
+transformation: **decode** turns `Encoded` (wire/JSON shape) into `Type`
+(domain shape); **encode** goes back. For plain validation `Type = Encoded`.
 
-## Basic Schema Types
+## Workflow
 
-### Primitive Schemas
+1. Define the schema once, next to the domain type; derive the type with
+   `typeof X.Type` (or `Schema.Schema.Type<typeof X>`) instead of writing an
+   interface by hand.
+2. Decode at the boundary (HTTP body, env, message, file) with
+   `Schema.decodeUnknown` inside Effect code, or `decodeUnknownSync` /
+   `decodeUnknownEither` outside it.
+3. Encode when sending data out (`Schema.encode`), so transformations (Date ->
+   string) run in reverse.
+4. Turn `ParseError` into a domain error or an HTTP 400 with a formatted
+   message.
 
-```typescript
-import { Schema } from "effect"
-
-// Primitive types
-const StringSchema = Schema.String
-const NumberSchema = Schema.Number
-const BooleanSchema = Schema.Boolean
-const BigIntSchema = Schema.BigIntFromSelf
-const SymbolSchema = Schema.SymbolFromSelf
-
-// Special types
-const UndefinedSchema = Schema.Undefined
-const VoidSchema = Schema.Void
-const NullSchema = Schema.Null
-const UnknownSchema = Schema.Unknown
-const AnySchema = Schema.Any
-```
-
-### Literal Values
+## Core schemas
 
 ```typescript
 import { Schema } from "effect"
 
-// String literal
-const HelloSchema = Schema.Literal("hello")
+const Status = Schema.Literal("pending", "approved", "rejected")
 
-// Number literal
-const FortyTwoSchema = Schema.Literal(42)
-
-// Boolean literal
-const TrueSchema = Schema.Literal(true)
-
-// Multiple literals (union)
-const StatusSchema = Schema.Literal("pending", "approved", "rejected")
-```
-
-## Struct Schemas
-
-### Basic Struct
-
-```typescript
-import { Schema } from "effect"
-
-// Define user schema
-const UserSchema = Schema.Struct({
-  id: Schema.String,
-  name: Schema.String,
-  age: Schema.Number,
-  email: Schema.String
-})
-
-// Infer TypeScript type
-type User = Schema.Schema.Type<typeof UserSchema>
-// { id: string; name: string; age: number; email: string }
-```
-
-### Optional Fields
-
-```typescript
-import { Schema } from "effect"
-
-const PersonSchema = Schema.Struct({
-  name: Schema.String,
-  age: Schema.Number,
-  email: Schema.optional(Schema.String),
-  phone: Schema.optional(Schema.String)
-})
-
-type Person = Schema.Schema.Type<typeof PersonSchema>
-// { name: string; age: number; email?: string; phone?: string }
-```
-
-### Nested Schemas
-
-```typescript
-import { Schema } from "effect"
-
-const AddressSchema = Schema.Struct({
+const Address = Schema.Struct({
   street: Schema.String,
-  city: Schema.String,
-  zipCode: Schema.String
+  city: Schema.String
 })
 
-const UserWithAddressSchema = Schema.Struct({
+const User = Schema.Struct({
   id: Schema.String,
+  name: Schema.String.pipe(Schema.minLength(1)),
+  age: Schema.Number.pipe(Schema.int(), Schema.between(0, 150)),
+  email: Schema.optional(Schema.String), // email?: string | undefined
+  role: Schema.optionalWith(Schema.String, { default: () => "member" }), // filled on decode
+  status: Status,
+  address: Address,
+  tags: Schema.Array(Schema.String),
+  scores: Schema.Record({ key: Schema.String, value: Schema.Number }),
+  point: Schema.Tuple(Schema.Number, Schema.Number),
+  nickname: Schema.NullOr(Schema.String)
+})
+
+type User = typeof User.Type
+type UserJson = typeof User.Encoded
+
+// Discriminated union: TaggedStruct adds a `_tag` literal field
+const Shape = Schema.Union(
+  Schema.TaggedStruct("Circle", { radius: Schema.Number }),
+  Schema.TaggedStruct("Rect", { width: Schema.Number, height: Schema.Number })
+)
+
+// Reuse and reshape
+const UserSummary = User.pipe(Schema.pick("id", "name"))
+const UserPatch = Schema.partial(User.pipe(Schema.omit("id")))
+const WithTimestamps = Schema.Struct({ ...Address.fields, updatedAt: Schema.Date })
+```
+
+| Need | v3 API |
+| --- | --- |
+| Optional key | `Schema.optional(S)`; `Schema.optionalWith(S, { default, exact, nullable })` |
+| Nullable value | `Schema.NullOr(S)`, `Schema.UndefinedOr(S)`, `Schema.NullishOr(S)` |
+| Optional tuple element | `Schema.Tuple(A, Schema.optionalElement(B))` |
+| Non-empty array | `Schema.NonEmptyArray(S)` |
+| Recursive schema | `Schema.suspend(() => Node)` with an explicit type annotation |
+| Extend a struct | spread `X.fields` into a new `Struct`, or `Schema.extend` |
+
+## Built-in transformations
+
+| Schema | Encoded -> Type |
+| --- | --- |
+| `Schema.NumberFromString` | `"42"` -> `42` |
+| `Schema.Date` | ISO string -> valid `Date` |
+| `Schema.DateFromSelf` | `Date` -> `Date` (no transformation) |
+| `Schema.BooleanFromString` | `"true"` -> `true` |
+| `Schema.parseJson(S)` | JSON string -> decoded `S` |
+| `Schema.Trim`, `Schema.Lowercase` | normalized string |
+| `Schema.Redacted(S)` | value hidden from logs |
+| `Schema.BigInt` | string -> `bigint` |
+
+Rule of thumb: the `...FromSelf` variants validate an already-typed value;
+the plain names decode from a JSON-friendly encoding.
+
+## Filters, brands, custom transformations
+
+```typescript
+import { ParseResult, Schema } from "effect"
+
+// Filter: return true, or a string / false to fail with a message
+const Password = Schema.String.pipe(
+  Schema.minLength(8),
+  Schema.filter((s) => (/[A-Z]/.test(s) && /[0-9]/.test(s)) || "needs an uppercase letter and a digit")
+)
+
+// Cross-field check on a struct
+const Signup = Schema.Struct({ password: Password, confirm: Schema.String }).pipe(
+  Schema.filter((f) => f.password === f.confirm || "passwords must match")
+)
+
+// Brand: nominal type so a raw string cannot be passed as a UserId
+const UserId = Schema.String.pipe(Schema.pattern(/^usr_[a-z0-9]+$/), Schema.brand("UserId"))
+type UserId = typeof UserId.Type
+
+// Total transformation (cannot fail)
+const CsvList = Schema.transform(Schema.String, Schema.Array(Schema.String), {
+  strict: true,
+  decode: (s) => s.split(",").map((x) => x.trim()),
+  encode: (xs) => xs.join(",")
+})
+
+// Fallible transformation
+const UrlFromString = Schema.transformOrFail(Schema.String, Schema.instanceOf(URL), {
+  strict: true,
+  decode: (s, _, ast) => {
+    try {
+      return ParseResult.succeed(new URL(s))
+    } catch {
+      return ParseResult.fail(new ParseResult.Type(ast, s, `invalid URL: ${s}`))
+    }
+  },
+  encode: (u) => ParseResult.succeed(u.toString())
+})
+```
+
+## Classes and errors
+
+```typescript
+import { Effect, Schema } from "effect"
+
+class Person extends Schema.Class<Person>("Person")({
   name: Schema.String,
-  address: AddressSchema
-})
-```
-
-## Arrays and Collections
-
-### Array Schemas
-
-```typescript
-import { Schema } from "effect"
-
-// Array of strings
-const StringArraySchema = Schema.Array(Schema.String)
-
-// Array of numbers
-const NumberArraySchema = Schema.Array(Schema.Number)
-
-// Array of complex objects
-const UsersSchema = Schema.Array(UserSchema)
-
-// Non-empty array
-const NonEmptyStringArray = Schema.NonEmptyArray(Schema.String)
-```
-
-### Tuple Schemas
-
-```typescript
-import { Schema } from "effect"
-
-// Fixed tuple
-const CoordinatesSchema = Schema.Tuple(
-  Schema.Number, // latitude
-  Schema.Number  // longitude
-)
-
-// Tuple with optional elements
-const ResponseSchema = Schema.Tuple(
-  Schema.Number,                    // status code
-  Schema.String,                    // message
-  Schema.optional(Schema.Unknown)   // optional data
-)
-```
-
-### Record Schemas
-
-```typescript
-import { Schema } from "effect"
-
-// String keys, number values
-const ScoresSchema = Schema.Record({
-  key: Schema.String,
-  value: Schema.Number
-})
-
-// Using template literals for keys
-const ConfigSchema = Schema.Record({
-  key: Schema.TemplateLiteral("config.", Schema.String),
-  value: Schema.String
-})
-```
-
-## Union and Intersection
-
-### Union Types
-
-```typescript
-import { Schema } from "effect"
-
-// Simple union
-const StringOrNumberSchema = Schema.Union(
-  Schema.String,
-  Schema.Number
-)
-
-// Tagged union (discriminated)
-const ShapeSchema = Schema.Union(
-  Schema.Struct({
-    kind: Schema.Literal("circle"),
-    radius: Schema.Number
-  }),
-  Schema.Struct({
-    kind: Schema.Literal("rectangle"),
-    width: Schema.Number,
-    height: Schema.Number
-  })
-)
-
-type Shape = Schema.Schema.Type<typeof ShapeSchema>
-// { kind: "circle"; radius: number } | { kind: "rectangle"; width: number; height: number }
-```
-
-### Intersection Types
-
-```typescript
-import { Schema } from "effect"
-
-const TimestampsSchema = Schema.Struct({
-  createdAt: Schema.Date,
-  updatedAt: Schema.Date
-})
-
-const UserWithTimestampsSchema = Schema.extend(
-  UserSchema,
-  TimestampsSchema
-)
-
-// Equivalent to intersection
-const ManualIntersection = Schema.Struct({
-  ...UserSchema.fields,
-  ...TimestampsSchema.fields
-})
-```
-
-## Parsing and Validation
-
-### Synchronous Parsing
-
-```typescript
-import { Schema } from "effect"
-
-const UserSchema = Schema.Struct({
-  name: Schema.String,
-  age: Schema.Number
-})
-
-// Parse unknown data
-const parseUser = Schema.decodeUnknownSync(UserSchema)
-
-try {
-  const user = parseUser({ name: "Alice", age: 30 })
-  console.log(user) // { name: "Alice", age: 30 }
-} catch (error) {
-  console.error("Validation failed:", error)
+  born: Schema.Date
+}) {
+  get age() {
+    return new Date().getFullYear() - this.born.getFullYear()
+  }
 }
 
-// Invalid data throws
-parseUser({ name: "Bob" }) // Throws: missing 'age' field
+// Serializable tagged error, usable with Effect.catchTag
+class UserNotFound extends Schema.TaggedError<UserNotFound>()("UserNotFound", {
+  id: Schema.String
+}) {}
+
+const p = Schema.decodeUnknownSync(Person)({ name: "Ada", born: "1815-12-10" })
+// p instanceof Person, p.born is a Date
+
+const find = (id: string) => Effect.fail(new UserNotFound({ id }))
 ```
 
-### Effect-Based Parsing
+Use `Schema.TaggedClass` / `Schema.TaggedRequest` for tagged data and RPC
+requests.
+
+## Decoding and handling errors
 
 ```typescript
-import { Schema } from "effect"
-import { Effect } from "effect"
+import { Effect, Either, ParseResult, Schema } from "effect"
 
-const parseUserEffect = Schema.decodeUnknown(UserSchema)
+const Body = Schema.Struct({ name: Schema.String, age: Schema.NumberFromString })
 
-const program = Effect.gen(function* () {
-  const user = yield* parseUserEffect({ name: "Alice", age: 30 })
-  return user
-})
-
-// Handle parse errors
-const safeProgram = program.pipe(
-  Effect.catchTag("ParseError", (error) =>
-    Effect.sync(() => {
-      console.error("Parse error:", error.message)
-      return null
-    })
-  )
-)
-```
-
-### Encoding
-
-```typescript
-import { Schema } from "effect"
-
-// Encode typed data back to raw format
-const encodeUser = Schema.encodeSync(UserSchema)
-
-const user: User = { name: "Alice", age: 30 }
-const encoded = encodeUser(user)
-// { name: "Alice", age: 30 }
-```
-
-## Schema Transformations
-
-### Transform Schemas
-
-```typescript
-import { Schema } from "effect"
-
-// String to Date transformation
-const DateFromString = Schema.transform(
-  Schema.String,
-  Schema.ValidDateFromSelf,
-  {
-    decode: (s) => new Date(s),
-    encode: (d) => d.toISOString()
-  }
-)
-
-// Parse ISO string to Date
-const parseDate = Schema.decodeUnknownSync(DateFromString)
-const date = parseDate("2024-01-01T00:00:00Z")
-// Date object
-
-// Encode Date back to string
-const encodeDate = Schema.encodeSync(DateFromString)
-const isoString = encodeDate(date)
-// "2024-01-01T00:00:00.000Z"
-```
-
-### Validated Transformations
-
-```typescript
-import { Schema } from "effect"
-import { ParseResult } from "effect"
-
-// Email validation and transformation
-const EmailSchema = Schema.transformOrFail(
-  Schema.String,
-  Schema.String,
-  {
-    decode: (s) => {
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) {
-        return ParseResult.fail(
-          new ParseResult.Type(Schema.String.ast, s, "Invalid email format")
-        )
-      }
-      return ParseResult.succeed(s.toLowerCase())
-    },
-    encode: (s) => ParseResult.succeed(s)
-  }
-)
-```
-
-## Refinements and Constraints
-
-### String Refinements
-
-```typescript
-import { Schema } from "effect"
-
-// Min/max length
-const UsernameSchema = Schema.String.pipe(
-  Schema.minLength(3),
-  Schema.maxLength(20)
-)
-
-// Pattern matching
-const UUIDSchema = Schema.String.pipe(
-  Schema.pattern(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
-)
-
-// Email
-const EmailSchema = Schema.String.pipe(Schema.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/))
-
-// Starts with
-const HttpUrlSchema = Schema.String.pipe(Schema.startsWith("http"))
-```
-
-### Number Refinements
-
-```typescript
-import { Schema } from "effect"
-
-// Positive numbers
-const PositiveSchema = Schema.Number.pipe(Schema.positive())
-
-// Range
-const AgeSchema = Schema.Number.pipe(
-  Schema.greaterThanOrEqualTo(0),
-  Schema.lessThanOrEqualTo(120)
-)
-
-// Integer
-const IntegerSchema = Schema.Number.pipe(Schema.int())
-
-// Multiple of
-const EvenSchema = Schema.Number.pipe(Schema.multipleOf(2))
-```
-
-### Custom Refinements
-
-```typescript
-import { Schema } from "effect"
-
-const PasswordSchema = Schema.String.pipe(
-  Schema.minLength(8),
-  Schema.filter((s) => ({
-    message: () => "Password must contain uppercase, lowercase, and number",
-    test: () =>
-      /[A-Z]/.test(s) &&
-      /[a-z]/.test(s) &&
-      /[0-9]/.test(s)
-  }))
-)
-```
-
-## Common Schema Patterns
-
-### API Response Schema
-
-```typescript
-import { Schema } from "effect"
-
-const ApiResponseSchema = <A, I, R>(dataSchema: Schema.Schema<A, I, R>) =>
-  Schema.Struct({
-    success: Schema.Boolean,
-    data: Schema.optional(dataSchema),
-    error: Schema.optional(Schema.String)
-  })
-
-const UserResponseSchema = ApiResponseSchema(UserSchema)
-
-type UserResponse = Schema.Schema.Type<typeof UserResponseSchema>
-// { success: boolean; data?: User; error?: string }
-```
-
-### Paginated Response
-
-```typescript
-import { Schema } from "effect"
-
-const PaginatedSchema = <A, I, R>(itemSchema: Schema.Schema<A, I, R>) =>
-  Schema.Struct({
-    items: Schema.Array(itemSchema),
-    total: Schema.Number,
-    page: Schema.Number,
-    pageSize: Schema.Number
-  })
-
-const PaginatedUsersSchema = PaginatedSchema(UserSchema)
-```
-
-### Form Data Schema
-
-```typescript
-import { Schema } from "effect"
-
-const SignupFormSchema = Schema.Struct({
-  email: Schema.String.pipe(
-    Schema.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
-  ),
-  password: Schema.String.pipe(
-    Schema.minLength(8)
-  ),
-  confirmPassword: Schema.String,
-  acceptTerms: Schema.Literal(true)
-}).pipe(
-  Schema.filter((data) => ({
-    message: () => "Passwords must match",
-    test: () => data.password === data.confirmPassword
-  }))
-)
-```
-
-## Integration with Effect
-
-### Parsing in Effect Pipelines
-
-```typescript
-import { Schema } from "effect"
-import { Effect } from "effect"
-
-const processUserData = (rawData: unknown) =>
-  Effect.gen(function* () {
-    // Parse data
-    const user = yield* Schema.decodeUnknown(UserSchema)(rawData)
-
-    // Use parsed data
-    const saved = yield* saveUser(user)
-    const notified = yield* sendNotification(user.email)
-
-    return saved
-  })
-```
-
-### Handling Parse Errors
-
-```typescript
-import { Schema } from "effect"
-import { Effect } from "effect"
-
-const safeParseUser = (data: unknown) =>
-  Schema.decodeUnknown(UserSchema)(data).pipe(
-    Effect.catchTag("ParseError", (error) =>
-      Effect.fail({
-        _tag: "ValidationError",
-        message: error.message,
-        errors: error.errors
-      })
+// Inside Effect: fails with ParseError (tag "ParseError")
+const handler = (raw: unknown) =>
+  Schema.decodeUnknown(Body)(raw, { errors: "all", onExcessProperty: "error" }).pipe(
+    Effect.catchTag("ParseError", (e) =>
+      Effect.fail({ status: 400, message: ParseResult.TreeFormatter.formatErrorSync(e) })
     )
   )
+
+// Outside Effect
+const result = Schema.decodeUnknownEither(Body)({ name: "Ada", age: "x" })
+if (Either.isLeft(result)) {
+  // [{ _tag: "Transformation", path: ["age"], message: 'Unable to decode "x" into a number' }]
+  console.log(ParseResult.ArrayFormatter.formatErrorSync(result.left))
+}
+
+// Throws on failure: scripts and tests only
+const ok = Schema.decodeUnknownSync(Body)({ name: "Ada", age: "36" }) // { name: "Ada", age: 36 }
 ```
 
-## Best Practices
+| Option | Effect |
+| --- | --- |
+| `errors: "all"` | report every issue, not just the first (good for forms) |
+| `onExcessProperty: "error"` | reject unknown keys (default: strip them) |
+| `onExcessProperty: "preserve"` | keep unknown keys |
 
-1. **Define Schemas Centrally**: Keep schema definitions in a shared module.
+`ParseError` has an `issue` tree, not an `errors` array; use
+`TreeFormatter` for humans and `ArrayFormatter` for field-level API errors.
 
-2. **Use Type Inference**: Let TypeScript infer types from schemas with
-   `Schema.Schema.Type`.
+## Interop
 
-3. **Compose Small Schemas**: Build complex schemas from smaller, reusable
-   pieces.
+- `JSONSchema.make(S)` produces JSON Schema (for OpenAPI or LLM tools).
+- `Schema.standardSchemaV1(S)` (v3.13+) exposes a Standard Schema validator
+  for libraries that accept one (form libraries, tRPC, etc.).
+- `Arbitrary.make(S)` produces fast-check arbitraries for property tests.
+- `Schema.Config` reads and validates a config value with a schema.
 
-4. **Validate at Boundaries**: Parse external data at API boundaries.
+## Pitfalls
 
-5. **Use Tagged Unions**: Add discriminant fields for union types.
+- Using `decodeUnknownSync` in request handlers: it throws; use the Effect or
+  Either variant.
+- Declaring a TS interface and a schema separately: they drift. Derive the
+  type from the schema.
+- Using `Schema.Date` when the input is already a `Date` (use `DateFromSelf`)
+  or vice versa.
+- Encoding with `JSON.stringify(value)` instead of `Schema.encode`: skips
+  reverse transformations (Dates, brands, bigint).
+- Union order: put the more specific member first when members overlap
+  (prefer tagged unions, which are unambiguous).
+- Old `@effect/schema` snippets: `Schema.filter` predicates returning
+  `{ message, test }` objects, `ParseError.errors`, and some renamed
+  combinators do not exist in v3; check the API reference.
 
-6. **Document Schemas**: Add JSDoc comments to schema definitions.
+## Done when
 
-7. **Test Schemas**: Write tests for schema validation logic.
+- Every external input is decoded through a schema before use, with
+  `errors: "all"` where users need all messages.
+- Domain types are derived from schemas (`typeof S.Type`).
+- Outgoing data is encoded with the same schema; round-trip tests
+  (`encode(decode(x))`) pass for transforming schemas.
 
-8. **Use Transformations**: Convert between internal and external
-   representations.
+## Related skills
 
-9. **Handle Errors Gracefully**: Provide meaningful error messages.
+- effect-error-handling - mapping `ParseError` to domain errors
+- effect-core-patterns - running decode effects
+- effect-testing - property tests with `Arbitrary`
 
-10. **Version Schemas**: Consider versioning for API schemas.
-
-## Common Pitfalls
-
-1. **Over-Validation**: Validating internal data unnecessarily.
-
-2. **Weak Constraints**: Not adding sufficient refinements.
-
-3. **Missing Optional Fields**: Forgetting to mark optional fields.
-
-4. **Wrong Union Order**: Putting general schemas before specific ones.
-
-5. **Not Handling Parse Errors**: Assuming parsing always succeeds.
-
-6. **Circular References**: Creating schemas with circular dependencies.
-
-7. **Performance**: Validating large datasets synchronously.
-
-8. **Type Mismatches**: Schema and TypeScript type definitions diverging.
-
-9. **Missing Transformations**: Not transforming between formats.
-
-10. **Exposing Internal Types**: Returning internal types from APIs.
-
-## When to Use This Skill
-
-Use effect-schema when you need to:
-
-- Validate API request/response data
-- Parse configuration files
-- Validate form inputs
-- Transform data between formats
-- Ensure data integrity at boundaries
-- Generate TypeScript types from schemas
-- Build type-safe data pipelines
-- Validate database queries and results
-- Parse environment variables
-- Build robust data validation layers
-
-## Resources
-
-### Official Documentation
-
-- [Effect Schema Introduction](https://effect.website/docs/schema/introduction)
-- [Basic Usage](https://effect.website/docs/schema/basic-usage)
-- [Built-in Schemas](https://effect.website/docs/schema/built-in-schemas)
-- [Transformations](https://effect.website/docs/schema/transformations)
-- [API Reference](https://effect-ts.github.io/effect/schema/Schema.ts.html)
-
-### Related Skills
-
-- effect-core-patterns - Basic Effect operations
-- effect-error-handling - Handling parse errors
+Docs: <https://effect.website/docs/schema/introduction/>

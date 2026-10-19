@@ -1,14 +1,14 @@
 ---
 name: accessibility-review
-description: Run a WCAG 2.1 AA accessibility audit on a design or page. Trigger with "audit accessibility", "check a11y", "is this accessible?", or when reviewing a design for color contrast, keyboard navigation, touch target size, or screen reader behavior before handoff.
+description: Run a WCAG 2.2 AA accessibility audit on a design or page. Trigger with "audit accessibility", "check a11y", "is this accessible?", or when reviewing a design for color contrast, keyboard navigation, touch target size, or screen reader behavior before handoff.
 argument-hint: "<Figma URL, URL, or description>"
 ---
 
 # /accessibility-review
 
-> If you see unfamiliar placeholders or need to check which tools are connected, see [CONNECTORS.md](../../CONNECTORS.md).
+> `~~category` placeholders stand for whatever tool the user has connected in that category (usually via MCP): `~~design tool` (e.g. Figma, Sketch, Adobe XD), `~~project tracker` (e.g. Linear, Jira, Asana). If nothing in a category is connected, ask the user for that input or skip the step and say so.
 
-Audit a design or page for WCAG 2.1 AA accessibility compliance.
+Audit a design or page for WCAG 2.2 AA accessibility compliance (WCAG 2.2 is the current W3C Recommendation and is backward compatible with 2.1; if the user's contract or regulation names 2.1, report against 2.1 and skip the 2.2-only criteria marked below).
 
 ## Usage
 
@@ -18,7 +18,7 @@ Audit a design or page for WCAG 2.1 AA accessibility compliance.
 
 Audit for accessibility: @$1
 
-## WCAG 2.1 AA Quick Reference
+## WCAG 2.2 AA Quick Reference
 
 ### Perceivable
 - **1.1.1** Non-text content has alt text
@@ -30,12 +30,18 @@ Audit for accessibility: @$1
 - **2.1.1** All functionality available via keyboard
 - **2.4.3** Logical focus order
 - **2.4.7** Visible focus indicator
-- **2.5.5** Touch target >= 44x44 CSS pixels
+- **2.4.11** Focus not obscured: focused element is not entirely hidden by sticky headers, banners, or overlays (2.2 only)
+- **2.5.7** Dragging movements have a single-pointer alternative (2.2 only)
+- **2.5.8** Target size >= 24x24 CSS pixels, or enough spacing around smaller targets (2.2 only)
 
 ### Understandable
 - **3.2.1** Predictable on focus (no unexpected changes)
 - **3.3.1** Error identification (describe the error)
 - **3.3.2** Labels or instructions for inputs
+- **3.3.8** Accessible authentication: no cognitive test (memorizing, transcribing, puzzles) without an alternative such as paste or password-manager support (2.2 only)
+
+### Advisory (AAA, not required for AA)
+- **2.5.5** Target size >= 44x44 CSS pixels: recommend it, but report a miss as a Minor/advisory finding, not an AA failure
 
 ### Robust
 - **4.1.2** Name, role, value for all UI components
@@ -63,7 +69,7 @@ Audit for accessibility: @$1
 
 ```markdown
 ## Accessibility Audit: [Design/Page Name]
-**Standard:** WCAG 2.1 AA | **Date:** [Date]
+**Standard:** WCAG 2.2 AA | **Date:** [Date]
 
 ### Summary
 **Issues found:** [X] | **Critical:** [X] | **Major:** [X] | **Minor:** [X]

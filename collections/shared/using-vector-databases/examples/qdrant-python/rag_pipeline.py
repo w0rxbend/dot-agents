@@ -22,8 +22,11 @@ class RAGPipeline:
         self.client = QdrantClient(qdrant_url, port=qdrant_port)
         self.collection_name = collection_name
         self.embeddings = OpenAIEmbeddings(model=embedding_model)
+        llm_model = os.getenv("LLM_MODEL")
+        if not llm_model:
+            raise RuntimeError("Set LLM_MODEL to a current chat model id from your provider")
         self.llm = ChatOpenAI(
-            model=os.getenv("LLM_MODEL", "gpt-4-turbo-preview"),
+            model=llm_model,
             temperature=float(os.getenv("LLM_TEMPERATURE", "0.1"))
         )
 
@@ -133,13 +136,13 @@ class RAGPipeline:
             query_filter = Filter(must=conditions)
 
         # Search
-        results = self.client.search(
+        results = self.client.query_points(
             collection_name=self.collection_name,
-            query_vector=query_embedding,
+            query=query_embedding,
             limit=limit,
             query_filter=query_filter,
             with_payload=True
-        )
+        ).points
 
         return [
             {

@@ -152,12 +152,17 @@ Events:
 ```
 **Solution:**
 ```yaml
-# Increase initialDelaySeconds
+# Give slow starts a startupProbe; liveness only begins after it succeeds
+startupProbe:
+  httpGet:
+    path: /health
+    port: 8080
+  periodSeconds: 5
+  failureThreshold: 24     # up to 120s to start
 livenessProbe:
   httpGet:
     path: /health
     port: 8080
-  initialDelaySeconds: 60  # Give app time to start
   periodSeconds: 10
   timeoutSeconds: 5
   failureThreshold: 3
@@ -337,7 +342,7 @@ curl: (7) Failed to connect to backend-service port 8080: Connection refused
 kubectl get svc backend-service -n production
 
 # Check endpoints (should list pod IPs)
-kubectl get endpoints backend-service -n production
+kubectl get endpointslices -n production -l kubernetes.io/service-name=backend-service
 
 # Describe service
 kubectl describe svc backend-service -n production
@@ -626,7 +631,7 @@ rate(container_cpu_cfs_throttled_seconds_total[5m]) > 0.1
 ```
 
 **Solution:**
-- Increase CPU limits
+- Raise or remove the CPU limit (keep the CPU request)
 - Reduce CPU usage in application
 
 ```yaml
@@ -693,7 +698,7 @@ kubectl exec -it <pod-name> -n production -- /bin/sh
 
 # Service debugging
 kubectl get svc -n production
-kubectl get endpoints <service-name> -n production
+kubectl get endpointslices -n production -l kubernetes.io/service-name=<service-name>
 kubectl describe svc <service-name> -n production
 
 # Events

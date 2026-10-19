@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [design, design-system, tokens, ui, accessibility, wcag, tailwind, dtcg, google]
-    related_skills: [popular-web-designs, claude-design, excalidraw, architecture-diagram]
+    related_skills: [popular-web-designs, claude-design, architecture-diagram]
 ---
 
 # DESIGN.md Skill
@@ -174,7 +174,9 @@ On Windows, the `design.md` bin name can collide with the `.md` file
 association (silent no-op or the file opens in an editor). Use the dot-free
 alias: `npx -y -p @google/design.md designmd lint DESIGN.md`.
 
-### Lint rule reference (the 9 rules, as of CLI 0.3.0)
+### Lint rule reference (the 11 rules, as of CLI 0.4.0)
+
+Run `npx -y @google/design.md spec --rules-only` for the authoritative list of the installed version.
 
 - `broken-ref` (error) — `{colors.missing}` points at a non-existent token
 - `contrast-ratio` (warning) — component `textColor` vs `backgroundColor`
@@ -185,8 +187,14 @@ alias: `npx -y -p @google/design.md designmd lint DESIGN.md`.
 - `section-order` (warning) — sections out of the canonical order
 - `unknown-key` (warning) — top-level YAML key that looks like a typo of a
   schema key (`colours:` → `colors:`); custom extension keys stay silent
+- `token-like-ignored` (warning) — unrecognized top-level key whose value
+  looks like a token map; `export` would silently drop it
 - `token-summary`, `missing-sections` (info) — counts and absent optional
   sections
+- `omitted-rules` (info) — redundant or unknown entries in the omitted-sections
+  list
+- Unrecognized typography sub-properties (e.g. `fontwight:`) are reported as a
+  warning since 0.4.0
 
 When the user cares about accessibility, call this out explicitly in your
 summary — WCAG findings are the most load-bearing reason to use the CLI.
@@ -197,18 +205,20 @@ summary — WCAG findings are the most load-bearing reason to use the CLI.
   `button-primary-hover` as a sibling key is right.
 - **Hex colors must be quoted strings.** YAML will otherwise choke on `#` or
   truncate values like `#1A1C1E` oddly.
-- **Negative dimensions need quotes too.** `letterSpacing: -0.02em` parses as
-  a YAML flow — write `letterSpacing: "-0.02em"`.
+- **Quote dimensions for consistency.** `letterSpacing: -0.02em` already
+  parses as the string `"-0.02em"`, but a bare number such as `-0.02` would
+  become a float and lose its unit — writing `letterSpacing: "-0.02em"`
+  keeps every dimension an explicit string.
 - **Section order matters even though the linter only warns.** If the user
   gives you prose in a random order, reorder it to match the canonical list
   before saving — spec-compliant consumers expect it.
-- **Typography sub-property typos are silently dropped.** As of CLI 0.3.0 a
-  typo like `fontwight:` produces no finding and the value vanishes from
-  exports — double-check sub-property names against the schema
+- **Typography sub-property typos lose the value.** CLI 0.3.0 dropped a typo
+  like `fontwight:` silently; 0.4.0 warns about it, but either way the value
+  vanishes from exports — fix every such warning and check names against the schema
   (`fontFamily`, `fontSize`, `fontWeight`, `lineHeight`, `letterSpacing`,
   `fontFeature`, `fontVariation`).
-- **`version: alpha` is the current spec version** (as of Jul 2026, CLI
-  0.3.0). The spec is marked alpha — watch for breaking changes.
+- **`version: alpha` is the current spec version** (as of Oct 2026, CLI
+  0.4.0). The spec is marked alpha — watch for breaking changes.
 - **Token references resolve by dotted path.** `{colors.primary}` works;
   `{primary}` does not.
 

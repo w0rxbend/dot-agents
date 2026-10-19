@@ -1,6 +1,6 @@
 ---
 name: memory-management
-description: Two-tier memory system that makes Claude a true workplace collaborator. Decodes shorthand, acronyms, nicknames, and internal language so Claude understands requests like a colleague would. CLAUDE.md for working memory, memory/ directory for the full knowledge base.
+description: Two-tier workplace memory (CLAUDE.md hot cache plus memory/ glossary, people, projects) in a dedicated personal workspace directory. Use when the user's personal productivity workspace (set up by the start skill) is active and they use workplace shorthand, nicknames, acronyms or project codenames to decode or remember; not for code repositories or project instructions.
 user-invocable: false
 ---
 
@@ -72,8 +72,10 @@ This tiered approach keeps CLAUDE.md lean (~100 lines) while supporting unlimite
 
 ## File Locations
 
-- **Working memory:** `CLAUDE.md` in current working directory
-- **Deep memory:** `memory/` subdirectory
+- **Working memory:** `CLAUDE.md` in the user's personal productivity workspace directory (set up by the start skill)
+- **Deep memory:** `memory/` subdirectory of that workspace
+
+Never write this memory into a code repository: a repo's `CLAUDE.md` holds committed project instructions and must not receive personal workplace data. If the current directory is a git repo or its `CLAUDE.md` does not start with `# Memory`, ask the user where their workspace is instead of writing there.
 
 ## Working Memory Format (CLAUDE.md)
 
@@ -285,7 +287,7 @@ When user asks "who is X" or "what does X mean":
 
 ## Bootstrapping
 
-Use `/productivity:start` to initialize by scanning your chat, calendar, email, and documents. Extracts people, projects, and starts building the glossary.
+Use the `start` skill to initialize by scanning your chat, calendar, email, and documents. Extracts people, projects, and starts building the glossary.
 
 ## Conventions
 

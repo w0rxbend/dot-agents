@@ -1,6 +1,6 @@
 ---
 name: performance-engineering
-description: When validating system performance under load, identifying bottlenecks through profiling, or optimizing application responsiveness. Covers load testing (k6, Locust), profiling (CPU, memory, I/O), and optimization strategies (caching, query optimization, Core Web Vitals). Use for capacity planning, regression detection, and establishing performance SLOs.
+description: Plan and run load, stress, soak and spike tests (k6, Locust), profile backend CPU/memory/I/O (py-spy, pprof, clinic.js), and set performance SLOs and CI performance gates. Use for capacity validation, pre-launch load checks and regression gates; to fix one known slow page, query or endpoint use performance-optimization.
 ---
 
 # Performance Engineering
@@ -16,18 +16,16 @@ Use this skill to validate system capacity before launch, detect performance reg
 **Common Triggers:**
 - "Validate API can handle expected traffic"
 - "Find maximum capacity and breaking points"
-- "Identify why the application is slow"
 - "Detect memory leaks or resource exhaustion"
-- "Optimize Core Web Vitals for SEO"
 - "Set up performance testing in CI/CD"
-- "Reduce cloud infrastructure costs"
+- "How many instances do we need for the expected peak?"
 
 **Use Cases:**
 - Pre-launch capacity planning and load validation
 - Post-refactor performance regression testing
 - Investigating slow response times or high latency
 - Detecting memory leaks in long-running services
-- Optimizing database query performance
+- Measuring database query latency under load (fixes: performance-optimization)
 - Validating auto-scaling configuration
 - Establishing performance SLOs and budgets
 
@@ -74,7 +72,7 @@ For detailed testing patterns, load scenarios, and interpreting results, see `re
 **Installation:**
 ```bash
 brew install k6  # macOS
-sudo apt-get install k6  # Linux
+sudo apt-get install k6  # Debian/Ubuntu, after adding Grafana's k6 apt repository (see k6 install docs)
 ```
 
 **Basic Load Test:**
@@ -105,7 +103,7 @@ export default function () {
 
 **Run:** `k6 run script.js`
 
-For stress, soak, and spike testing examples, see `examples/k6/`.
+For stress and soak scripts, see `examples/k6/` (`stress-test.js`, `soak-test.js`); for spike profiles, see `references/testing-types.md`.
 
 ### Locust (Python)
 
@@ -133,7 +131,7 @@ class WebsiteUser(HttpUser):
 
 **Run:** `locust -f locustfile.py --headless -u 100 -r 10 --run-time 10m`
 
-For REST API testing and data-driven testing, see `examples/locust/`.
+For a fuller Locust example, see `examples/locust/load_test.py`.
 
 ## Profiling Quick Starts
 
@@ -214,81 +212,15 @@ npm install -g clinic
 clinic doctor -- node app.js
 ```
 
-For detailed profiling workflows and analysis, see `references/profiling-guide.md` and `examples/profiling/`.
+For detailed profiling workflows across Python, Go and Node.js, see `references/profiling-guide.md`; a runnable py-spy script is in `examples/profiling/python/pyspy_example.sh`.
 
-## Optimization Strategies
+## After Finding the Bottleneck
 
-### Caching
-
-**When to cache:**
-- Data queried frequently (>100 req/min)
-- Data freshness tolerance (>1 minute acceptable staleness)
-
-**Redis example:**
-```python
-import redis
-r = redis.Redis()
-
-def get_cached_data(key, fn, ttl=300):
-    cached = r.get(key)
-    if cached:
-        return json.loads(cached)
-    data = fn()
-    r.setex(key, ttl, json.dumps(data))
-    return data
-```
-
-### Database Query Optimization
-
-**N+1 prevention:**
-```python
-# Bad: N+1 queries
-users = User.query.all()
-for user in users:
-    print(user.orders)  # Separate query per user
-
-# Good: Eager loading
-users = User.query.options(joinedload(User.orders)).all()
-```
-
-**Indexing:**
-```sql
-CREATE INDEX idx_users_email ON users(email);
-```
-
-### API Performance
-
-**Cursor-based pagination:**
-```typescript
-app.get('/api/products', async (req, res) => {
-  const { cursor, limit = 20 } = req.query;
-
-  const products = await db.query(
-    'SELECT * FROM products WHERE id > ? ORDER BY id LIMIT ?',
-    [cursor || 0, limit]
-  );
-
-  res.json({
-    data: products,
-    next_cursor: products[products.length - 1]?.id,
-  });
-});
-```
-
-### Frontend Performance (Core Web Vitals)
-
-**Key metrics:**
-- **LCP (Largest Contentful Paint):** < 2.5s
-- **INP (Interaction to Next Paint):** < 200ms
-- **CLS (Cumulative Layout Shift):** < 0.1
-
-**Optimization techniques:**
-- Code splitting (lazy loading)
-- Image optimization (WebP, responsive, lazy loading)
-- Preload critical resources
-- Minimize render-blocking resources
-
-For detailed optimization strategies, see `references/optimization-strategies.md` and `references/frontend-performance.md`.
+This skill measures and gates; it does not own the fixes. Once a load test or profile points
+at a specific slow query, endpoint, cache miss or page, hand off to **performance-optimization**
+(caching, N+1 queries, indexing, pagination, Core Web Vitals, bundle size), then re-run the
+same test here to confirm the gain. Background notes on common fixes are in
+`references/optimization-strategies.md` and `references/frontend-performance.md`.
 
 ## Performance SLOs
 
@@ -306,8 +238,8 @@ For detailed optimization strategies, see `references/optimization-strategies.md
 
 1. Measure baseline performance
 2. Identify user expectations
-3. Set achievable targets (10-20% better than baseline)
-4. Iterate as system matures
+3. Set targets at or slightly below the measured baseline, so the SLO is met from day one
+4. Tighten targets as reliability improves
 
 For detailed SLO framework and performance budgets, see `references/slo-framework.md`.
 
@@ -330,9 +262,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install k6
-        run: |
-          curl https://github.com/grafana/k6/releases/download/v0.48.0/k6-v0.48.0-linux-amd64.tar.gz -L | tar xvz
-          sudo mv k6-v0.48.0-linux-amd64/k6 /usr/local/bin/
+        uses: grafana/setup-k6-action@v1   # pin a k6 version via its `k6-version` input for reproducible runs
 
       - name: Run load test
         run: k6 run tests/load/api-test.js
@@ -413,10 +343,10 @@ For detailed tool comparisons, see `references/testing-types.md` and `references
 - `references/benchmarking.md` - Benchmarking best practices
 
 **Examples:**
-- `examples/k6/` - Load, stress, soak, spike tests
-- `examples/locust/` - Python-based load testing
-- `examples/profiling/` - Profiling examples (Python, Go, TypeScript)
-- `examples/optimization/` - Caching, query, API optimization
+- `examples/k6/` - Load, stress and soak tests
+- `examples/locust/load_test.py` - Python-based load testing
+- `examples/profiling/python/pyspy_example.sh` - py-spy CPU profiling (Go and Node.js workflows are in `references/profiling-guide.md`)
+- `examples/optimization/api_optimization.ts` - API caching and pagination patterns
 
 ## Related Skills
 
@@ -424,6 +354,6 @@ For comprehensive testing strategies, see the `testing-strategies` skill.
 
 For CI/CD integration patterns, see the `building-ci-pipelines` skill.
 
-For infrastructure sizing based on load tests, see the `infrastructure-as-code` skill.
+For fixing a specific measured bottleneck (frontend, query, algorithm), see the `performance-optimization` skill.
 
-For Kubernetes performance testing, see the `kubernetes-operations` skill.
+For Kubernetes resource requests/limits and autoscaling validated by load tests, see the `operating-kubernetes` skill.

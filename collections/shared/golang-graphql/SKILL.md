@@ -228,7 +228,10 @@ Production GraphQL servers require explicit limits. Without them, a single deepl
 
 ```go
 // gqlgen — wire these into every production handler
-srv := handler.NewDefaultServer(es)
+// handler.NewDefaultServer is deprecated (examples only) and always enables introspection
+srv := handler.New(es)
+srv.AddTransport(transport.GET{})
+srv.AddTransport(transport.POST{})
 srv.Use(extension.FixedComplexityLimit(200)) // max cost per query
 
 // Gate introspection — only in non-production environments

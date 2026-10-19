@@ -270,7 +270,7 @@ jobs:
       id-token: write  # For signing
       actions: read    # For reading workflow context
       packages: write  # For attaching attestation
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.10.0
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@vX.Y.Z  # use the current release tag; this generator must be referenced by tag, not SHA
     with:
       image: ghcr.io/${{ github.repository }}
       digest: ${{ needs.build.outputs.digest }}
@@ -321,7 +321,7 @@ jobs:
       id-token: write
       actions: read
       contents: write  # For attaching to release
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.10.0
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@vX.Y.Z  # use the current release tag; this generator must be referenced by tag, not SHA
     with:
       base64-subjects: "${{ needs.build.outputs.hashes }}"
       upload-assets: true
@@ -376,7 +376,7 @@ jobs:
     permissions:
       id-token: write
       actions: read
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.10.0
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@vX.Y.Z  # use the current release tag; this generator must be referenced by tag, not SHA
     with:
       base64-subjects: "${{ needs.build.outputs.package-digest }}"
 

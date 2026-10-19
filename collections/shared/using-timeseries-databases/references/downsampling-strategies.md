@@ -75,11 +75,14 @@ TimescaleDB Toolkit provides built-in LTTB function:
 CREATE EXTENSION timescaledb_toolkit;
 
 -- Downsample to 1000 points
+-- lttb(time, value, resolution) is an aggregate returning a timevector;
+-- unnest() turns it back into (time, value) rows
 SELECT time, value
-FROM lttb(
-  'SELECT time, temperature FROM sensor_data WHERE sensor_id = 123',
-  1000  -- target number of points
-);
+FROM unnest((
+  SELECT lttb(time, temperature, 1000)  -- 1000 = target number of points
+  FROM sensor_data
+  WHERE sensor_id = 123
+));
 ```
 
 ### PostgreSQL (Custom Function)

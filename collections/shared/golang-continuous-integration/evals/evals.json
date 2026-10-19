@@ -75,13 +75,13 @@
     "name": "dependabot-auto-merge-security",
     "description": "Tests awareness of security implications in auto-merge workflow (elevated permissions, actor guard, branch protection as safety net)",
     "prompt": "I want Dependabot PRs to auto-merge when CI passes, but only for minor and patch updates. Create the workflow. What security concerns should I be aware of?",
-    "trap": "Model may create the workflow without the github.actor guard, without mentioning elevated permissions risk, or without recommending branch protection as the real safety net",
+    "trap": "Model may create the workflow without the dependabot author guard, without mentioning elevated permissions risk, or without recommending branch protection as the real safety net",
     "assertions": [
-      {"id": "6.1", "text": "Workflow has 'if: github.actor == dependabot[bot]' guard to restrict execution"},
+      {"id": "6.1", "text": "Workflow has an 'if: github.event.pull_request.user.login == dependabot[bot]' guard to restrict execution"},
       {"id": "6.2", "text": "Workflow checks metadata to exclude major updates from auto-merge"},
       {"id": "6.3", "text": "Warns about contents: write and pull-requests: write being elevated/high-risk permissions"},
       {"id": "6.4", "text": "Mentions branch protection rules as the real safety net (not just the actor guard)"},
-      {"id": "6.5", "text": "Notes that github.actor checks are not fully spoof-proof"}
+      {"id": "6.5", "text": "Notes that the author check is not a substitute for branch protection"}
     ]
   },
   {
@@ -159,12 +159,12 @@
   {
     "id": 12,
     "name": "action-version-pinning",
-    "description": "Tests whether actions are pinned to major versions not branches",
+    "description": "Tests whether actions are pinned to full commit SHAs, not branches or mutable tags",
     "prompt": "Review this GitHub Actions step and tell me if there are any issues:\n\n```yaml\nsteps:\n  - uses: actions/checkout@master\n  - uses: actions/setup-go@main\n    with:\n      go-version: stable\n```",
-    "trap": "Model may not notice the branch references (@master, @main) instead of pinned major versions",
+    "trap": "Model may not notice the branch references (@master, @main) instead of SHA-pinned versions",
     "assertions": [
       {"id": "12.1", "text": "Identifies that using @master and @main is wrong and insecure"},
-      {"id": "12.2", "text": "Recommends pinning to major versions like @v4, @v6"},
+      {"id": "12.2", "text": "Recommends pinning to a full commit SHA with a version comment (e.g. @<sha> # v6.1.0) rather than a mutable tag like @v6"},
       {"id": "12.3", "text": "Explains the risk: branch references can change unexpectedly or be compromised"}
     ]
   },
@@ -190,7 +190,7 @@
     "trap": "Model may suggest generic tools (CodeRabbit, PR-Agent, Reviewdog) or manual checklists instead of Claude Code Action / Copilot with Go skills loaded",
     "assertions": [
       {"id": "14.1", "text": "Recommends using anthropics/claude-code-action or GitHub Copilot for AI review"},
-      {"id": "14.2", "text": "Mentions installing Go skills via 'npx skills add' so the agent loads skill-based review guidelines"},
+      {"id": "14.2", "text": "Vendors Go skills into the repository from a pinned, reviewed commit (no runtime skill download in the job) so the agent loads skill-based review guidelines"},
       {"id": "14.3", "text": "Workflow includes pull-requests: write permission for inline PR comments"},
       {"id": "14.4", "text": "References review areas mapped to specific Go skills (golang-security, golang-concurrency, etc.)"},
       {"id": "14.5", "text": "References the claude-code-review.yml or copilot-review-instructions.md asset"}

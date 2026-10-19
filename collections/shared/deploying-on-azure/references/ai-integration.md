@@ -14,7 +14,7 @@ Comprehensive guide to integrating Azure OpenAI Service, Cognitive Services, and
 
 ## Azure OpenAI Service
 
-**Enterprise-grade access to GPT-4, GPT-3.5, embeddings, and other OpenAI models**
+**Enterprise-grade access to OpenAI chat, reasoning and embedding models**
 
 ### Key Advantages
 
@@ -27,23 +27,32 @@ Comprehensive guide to integrating Azure OpenAI Service, Cognitive Services, and
 | **Microsoft Support** | Enterprise support contracts |
 | **Managed Identity** | Secure authentication without API keys |
 
-### Available Models (2025)
+### Choosing Models
 
-| Model | Use Case | Context Window | Cost per 1K tokens |
-|-------|----------|----------------|-------------------|
-| **GPT-4 Turbo** | Complex reasoning, coding | 128K | $0.01 input, $0.03 output |
-| **GPT-4** | Advanced tasks | 8K | $0.03 input, $0.06 output |
-| **GPT-3.5 Turbo** | Simple tasks, chatbots | 16K | $0.0005 input, $0.0015 output |
-| **text-embedding-ada-002** | Embeddings for RAG | 8K | $0.0001 |
+Model availability, versions, retirement dates and prices change often and vary by region.
+Check the Azure OpenAI "models" and "model retirements" pages and the pricing page before
+creating a deployment. Older families (GPT-4, GPT-4 Turbo, GPT-3.5 Turbo, text-embedding-ada-002)
+are retired or being retired; do not create new deployments of them.
+
+| Need | Pick | Notes |
+|------|------|-------|
+| General chat, tool calling | A current GPT-4o-class or newer chat model | Default for most apps |
+| Cheap, high-volume tasks | The current "mini" variant of that family | Classification, extraction |
+| Hard reasoning, coding | A current reasoning model (o-series or newer) | Higher latency and cost |
+| Embeddings for RAG | text-embedding-3-small (1536 dims) or -large (3072 dims) | Re-embed if you switch models |
+
+In code, `model=` is your **deployment name**. The examples below use `chat-deployment` and
+`embedding-deployment`; name deployments by role so code does not change when you upgrade the model.
 
 ### Python SDK Setup
 
 ```python
 # requirements.txt
-openai==1.10.0
-azure-identity==1.15.0
-azure-search-documents==11.4.0
-azure-core==1.29.0
+# Pin to versions you have tested; these are minimums for the APIs used here
+openai>=1.55
+azure-identity>=1.19
+azure-search-documents>=11.5
+azure-core>=1.32
 
 # app.py
 import os
@@ -60,12 +69,13 @@ token_provider = get_bearer_token_provider(
 client = AzureOpenAI(
     azure_endpoint="https://myopenai.openai.azure.com",
     azure_ad_token_provider=token_provider,
-    api_version="2024-02-15-preview"
+    # A GA api-version; check the Azure OpenAI API version lifecycle page for the latest
+    api_version="2024-10-21"
 )
 
 # Chat completion
 response = client.chat.completions.create(
-    model="gpt-4-turbo",
+    model="chat-deployment",
     messages=[
         {
             "role": "system",
@@ -89,36 +99,42 @@ print(response.choices[0].message.content)
 ### TypeScript SDK Setup
 
 ```typescript
-// package.json
+// package.json  (the @azure/openai 1.0 beta OpenAIClient is deprecated; use the openai package)
 {
   "dependencies": {
-    "@azure/openai": "^1.0.0-beta.11",
-    "@azure/identity": "^4.0.0"
+    "openai": "^4.70.0",
+    "@azure/identity": "^4.5.0"
   }
 }
 
 // app.ts
-import { OpenAIClient, AzureKeyCredential } from "@azure/openai";
-import { DefaultAzureCredential } from "@azure/identity";
+import { AzureOpenAI } from "openai";
+import { DefaultAzureCredential, getBearerTokenProvider } from "@azure/identity";
 
 // Use Managed Identity
 const credential = new DefaultAzureCredential();
-const endpoint = "https://myopenai.openai.azure.com";
+const azureADTokenProvider = getBearerTokenProvider(
+  credential,
+  "https://cognitiveservices.azure.com/.default"
+);
 
-const client = new OpenAIClient(endpoint, credential);
+const client = new AzureOpenAI({
+  endpoint: "https://myopenai.openai.azure.com",
+  azureADTokenProvider,
+  apiVersion: "2024-10-21", // a GA api-version; check for the latest
+  deployment: "chat-deployment",
+});
 
 async function getChatCompletion() {
-  const deploymentName = "gpt-4-turbo";
-
-  const messages = [
-    { role: "system", content: "You are a helpful assistant." },
-    { role: "user", content: "What is the capital of France?" }
-  ];
-
-  const result = await client.getChatCompletions(deploymentName, messages, {
+  const result = await client.chat.completions.create({
+    model: "chat-deployment",
+    messages: [
+      { role: "system", content: "You are a helpful assistant." },
+      { role: "user", content: "What is the capital of France?" },
+    ],
     temperature: 0.2,
-    maxTokens: 500,
-    topP: 0.95
+    max_tokens: 500,
+    top_p: 0.95,
   });
 
   for (const choice of result.choices) {
@@ -132,7 +148,7 @@ getChatCompletion();
 ### Bicep Deployment
 
 ```bicep
-resource openAI 'Microsoft.CognitiveServices/accounts@2023-10-01-preview' = {
+resource openAI 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
   name: 'myopenai'
   location: location
   kind: 'OpenAI'
@@ -148,10 +164,10 @@ resource openAI 'Microsoft.CognitiveServices/accounts@2023-10-01-preview' = {
   }
 }
 
-// Deploy GPT-4 Turbo model
-resource gpt4Deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-10-01-preview' = {
+// Deploy a chat model (pick a model/version that is currently available in your region)
+resource chatDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
   parent: openAI
-  name: 'gpt-4-turbo'
+  name: 'chat-deployment'
   sku: {
     name: 'Standard'
     capacity: 10  // Tokens per minute (thousands)
@@ -159,16 +175,16 @@ resource gpt4Deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-1
   properties: {
     model: {
       format: 'OpenAI'
-      name: 'gpt-4'
-      version: 'turbo-2024-04-09'
+      name: 'gpt-4o'
+      version: '2024-11-20'
     }
   }
 }
 
 // Deploy embedding model
-resource embeddingDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-10-01-preview' = {
+resource embeddingDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
   parent: openAI
-  name: 'text-embedding-ada-002'
+  name: 'embedding-deployment'
   sku: {
     name: 'Standard'
     capacity: 10
@@ -176,8 +192,8 @@ resource embeddingDeployment 'Microsoft.CognitiveServices/accounts/deployments@2
   properties: {
     model: {
       format: 'OpenAI'
-      name: 'text-embedding-ada-002'
-      version: '2'
+      name: 'text-embedding-3-small'
+      version: '1'
     }
   }
 }
@@ -220,7 +236,7 @@ Retrieve top-k relevant documents
     ↓
 Construct prompt with context
     ↓
-Azure OpenAI (GPT-4)
+Azure OpenAI (chat deployment)
     ↓
 Grounded response
 ```
@@ -246,7 +262,7 @@ token_provider = get_bearer_token_provider(
 openai_client = AzureOpenAI(
     azure_endpoint="https://myopenai.openai.azure.com",
     azure_ad_token_provider=token_provider,
-    api_version="2024-02-15-preview"
+    api_version="2024-10-21"
 )
 
 # Azure AI Search setup
@@ -259,7 +275,7 @@ search_client = SearchClient(
 def generate_embedding(text: str) -> list[float]:
     """Generate embedding using Azure OpenAI."""
     response = openai_client.embeddings.create(
-        model="text-embedding-ada-002",
+        model="embedding-deployment",
         input=text
     )
     return response.data[0].embedding
@@ -305,7 +321,7 @@ Rules:
 """
 
     response = openai_client.chat.completions.create(
-        model="gpt-4-turbo",
+        model="chat-deployment",
         messages=[
             {"role": "system", "content": system_message},
             {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {user_question}"}
@@ -393,7 +409,7 @@ index = SearchIndex(
             name="contentVector",
             type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
             searchable=True,
-            vector_search_dimensions=1536,  # text-embedding-ada-002 dimension
+            vector_search_dimensions=1536,  # text-embedding-3-small dimension
             vector_search_profile_name="my-vector-profile"
         )
     ],
@@ -451,7 +467,7 @@ token_provider = get_bearer_token_provider(
 client = AzureOpenAI(
     azure_endpoint="https://myopenai.openai.azure.com",
     azure_ad_token_provider=token_provider,
-    api_version="2024-02-15-preview"
+    api_version="2024-10-21"
 )
 
 # Define available functions
@@ -542,7 +558,7 @@ def run_conversation(user_message: str) -> str:
 
     # Initial API call with tools
     response = client.chat.completions.create(
-        model="gpt-4-turbo",
+        model="chat-deployment",
         messages=messages,
         tools=tools,
         tool_choice="auto"  # Let model decide when to use functions
@@ -574,7 +590,7 @@ def run_conversation(user_message: str) -> str:
 
         # Get final response after function execution
         second_response = client.chat.completions.create(
-            model="gpt-4-turbo",
+            model="chat-deployment",
             messages=messages
         )
 

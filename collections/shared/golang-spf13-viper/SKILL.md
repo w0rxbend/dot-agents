@@ -72,7 +72,7 @@ This pipeline is fixed and cannot be reordered. Understanding it prevents most v
 viper.SetConfigName("config")
 viper.AddConfigPath("$HOME/.myapp")
 if err := viper.ReadInConfig(); err != nil {
-    var notFound *viper.ConfigFileNotFoundError
+    var notFound viper.ConfigFileNotFoundError
     if !errors.As(err, &notFound) {
         return fmt.Errorf("reading config: %w", err) // propagate real errors only
     }
@@ -171,7 +171,7 @@ For `t.Setenv` interactions and `Reset()` limitations, see [testing-and-isolatio
 | `AutomaticEnv` without `SetEnvKeyReplacer` | `database.host` looks for `MYAPP_DATABASE.HOST` (dot preserved) — never matches | Add `SetEnvKeyReplacer(strings.NewReplacer(".", "_"))` before `AutomaticEnv` |
 | No `mapstructure` tags on struct fields | Silently misses nested and underscore-named fields | Add `mapstructure:"key_name"` to every field |
 | Using global viper in tests | State from one test contaminates the next, causing flaky ordering | Create `viper.New()` per test |
-| Missing `ConfigFileNotFoundError` check | Missing config file crashes a service that should run on flags/env alone | `errors.As(err, &notFound)` — only propagate non-not-found errors |
+| Missing `ConfigFileNotFoundError` check | Missing config file crashes a service that should run on flags/env alone | `var notFound viper.ConfigFileNotFoundError` (value, not pointer) + `errors.As(err, &notFound)` — only propagate non-not-found errors |
 
 ## Further Reading
 

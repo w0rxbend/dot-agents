@@ -184,12 +184,12 @@ User Research:
 ```
 
 **Step 3: Set Achievable Targets**
-10-20% better than baseline, aligned with user expectations.
+At or slightly below the measured baseline (so the SLO is met from day one), aligned with user expectations; tighten as reliability improves.
 
 ```
 SLOs:
 - p95 latency: < 200ms (current: 150ms, room for growth)
-- Availability: 99.9% (current: 99.5%, achievable improvement)
+- Availability: 99.5% (current: 99.6%; tighten toward 99.9% once met consistently)
 - Error Rate: < 0.1% (current: 0.05%, buffer for spikes)
 ```
 
@@ -549,7 +549,7 @@ Priority: High (optimize to < 200ms)
 ### Defining SLOs
 - [ ] Measure baseline performance (load tests or production metrics)
 - [ ] Identify user expectations (user research, industry benchmarks)
-- [ ] Set achievable targets (10-20% better than baseline)
+- [ ] Set targets at or slightly below the measured baseline; tighten later
 - [ ] Define key metrics (latency, availability, error rate, throughput)
 - [ ] Prioritize endpoints (critical path stricter than background)
 

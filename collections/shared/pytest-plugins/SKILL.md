@@ -1,495 +1,167 @@
 ---
 name: pytest-plugins
 user-invocable: false
-description: Use when pytest plugin ecosystem including pytest-cov, pytest-mock, and custom plugin development.
+description: Use and author pytest plugins - pytest-mock, pytest-xdist, pytest-asyncio/anyio, pytest-cov, pytest-randomly, pytest-timeout, Hypothesis - and write installable plugins tested with pytester. Use when adding a pytest plugin, debugging plugin interactions, or packaging shared test hooks and fixtures.
 allowed-tools: [Read, Write, Edit, Bash, Glob, Grep]
 ---
 
 # pytest plugins
 
-Master Pytest plugin ecosystem including pytest-cov, pytest-mock, and custom plugin development. This skill provides comprehensive coverage of essential concepts, patterns, and best practices for professional Pytest development.
-
-## Overview
-
-Pytest is a powerful tool for python development, providing robust capabilities for maintaining code quality and ensuring reliable software delivery. This skill covers the fundamental through advanced aspects of working with Pytest.
-
-## Installation and Setup
-
-### Basic Installation
-
-Setting up Pytest requires proper installation and configuration in your development environment.
+Check what is already installed and active before adding anything:
 
 ```bash
-# Installation command specific to Pytest
-# Follow official documentation for latest version
+pytest --version -VV        # shows registered third-party plugins
+pip list | grep -i pytest   # or: uv pip list / poetry show
+pytest --trace-config -q --co | head -50
 ```
 
-### Project Configuration
+Add a plugin to the project's declared test dependencies (dependency group, extras, or
+requirements file), not just the current environment.
 
-Create appropriate configuration files and setup for your project structure:
+## Common plugins and their sharp edges
 
-- Configuration file setup
-- Project structure organization
-- Team collaboration setup
-- CI/CD integration preparation
-
-## Core Concepts
-
-### Fundamental Principles
-
-Understanding the core principles of Pytest is essential for effective usage:
-
-1. **Architecture** - How Pytest is structured and operates
-2. **Configuration** - Setting up and customizing behavior
-3. **Integration** - Working with other tools and frameworks
-4. **Best Practices** - Industry-standard approaches
-
-### Key Features
-
-Pytest provides several key features that make it valuable:
-
-- Feature 1: Core functionality
-- Feature 2: Advanced capabilities  
-- Feature 3: Integration options
-- Feature 4: Performance optimization
-- Feature 5: Extensibility
-
-### Configuration Strategy
-
-Proper configuration ensures Pytest works optimally:
-
-- Environment-specific setup
-- Team standards enforcement
-- Performance tuning
-- Error handling configuration
-
-### Advanced Usage
-
-For complex scenarios, Pytest offers advanced capabilities:
-
-- Custom extensions
-- Advanced patterns
-- Performance optimization
-- Scalability considerations
-
-## Code Examples
-
-### Example 1: Basic Setup
+### pytest-mock
 
 ```python
-// Basic Pytest setup
-// Demonstrates fundamental usage patterns
-// Shows proper initialization and configuration
-
-// Core setup code
-function basicSetup() {
-  // Initialize framework
-  // Configure basic options
-  // Return configured instance
-}
-
-// Usage example
-const instance = basicSetup();
+def test_sends_email(mocker):
+    send = mocker.patch("app.orders.send_email", autospec=True)
+    place_order()
+    send.assert_called_once_with(to="a@example.com", template="confirm")
 ```
 
-### Example 2: Configuration
+- Patch where the name is **looked up** (`app.orders.send_email`), not where it is
+  defined.
+- Use `autospec=True` so calls with the wrong signature fail.
+- `mocker.spy(obj, "method")` records calls while keeping real behavior.
+- Patches are undone automatically at test end; no `with` or `stop()` needed.
 
-```python
-// Configuration example for Pytest
-// Shows how to properly configure
-// Includes common options and patterns
-
-// Configuration object
-const config = {
-  option1: 'value1',
-  option2: 'value2',
-  advanced: {
-    setting1: true,
-    setting2: false
-  }
-};
-
-// Apply configuration
-function applyConfig(config) {
-  // Validation logic
-  // Application logic
-  // Return result
-}
-```
-
-### Example 3: Advanced Pattern
-
-```python
-// Advanced usage pattern
-// Demonstrates sophisticated techniques
-// Shows best practices in action
-
-function advancedPattern() {
-  // Setup phase
-  // Execution phase
-  // Cleanup phase
-}
-```
-
-### Example 4: Integration
-
-```python
-// Integration with other tools
-// Shows real-world usage
-// Demonstrates interoperability
-
-function integrationExample() {
-  // Setup integration
-  // Execute workflow
-  // Handle results
-}
-```
-
-### Example 5: Error Handling
-
-```python
-// Proper error handling approach
-// Defensive programming patterns
-// Graceful degradation
-
-function withErrorHandling() {
-  try {
-    // Main logic
-  } catch (error) {
-    // Error recovery
-  } finally {
-    // Cleanup
-  }
-}
-```
-
-### Example 6: Performance Optimization
-
-```python
-// Performance-optimized implementation
-// Shows efficiency techniques
-// Demonstrates best practices
-
-function optimizedApproach() {
-  // Efficient implementation
-  // Resource management
-  // Performance monitoring
-}
-```
-
-### Example 7: Testing
-
-```python
-// Testing approach for Pytest
-// Unit test examples
-// Integration test patterns
-
-function testExample() {
-  // Test setup
-  // Execution
-  // Assertions
-  // Teardown
-}
-```
-
-### Example 8: Production Usage
-
-```python
-// Production-ready implementation
-// Includes monitoring and logging
-// Error recovery and resilience
-
-function productionExample() {
-  // Production configuration
-  // Monitoring setup
-  // Error handling
-  // Logging
-}
-```
-
-## Best Practices
-
-1. **Follow conventions** - Adhere to established naming and structural patterns for consistency
-2. **Configure appropriately** - Set up framework configuration that matches project requirements
-3. **Validate inputs** - Always validate and sanitize inputs before processing
-4. **Handle errors gracefully** - Implement comprehensive error handling and recovery
-5. **Document decisions** - Comment configuration choices and non-obvious implementations
-6. **Test thoroughly** - Write comprehensive tests for all functionality
-7. **Optimize performance** - Profile and optimize critical paths
-8. **Maintain security** - Follow security best practices and guidelines
-9. **Keep updated** - Regularly update framework and dependencies
-10. **Monitor production** - Implement logging and monitoring for production systems
-
-## Common Pitfalls
-
-1. **Incorrect configuration** - Misconfiguration leads to unexpected behavior and bugs
-2. **Missing error handling** - Not handling edge cases causes production issues
-3. **Poor performance** - Not optimizing leads to scalability problems
-4. **Inadequate testing** - Insufficient test coverage misses bugs
-5. **Security vulnerabilities** - Not following security best practices exposes risks
-6. **Tight coupling** - Poor architecture makes maintenance difficult
-7. **Ignoring warnings** - Dismissing framework warnings leads to future problems
-8. **Outdated dependencies** - Using old versions exposes security risks
-9. **No monitoring** - Lack of observability makes debugging difficult
-10. **Inconsistent standards** - Team inconsistency reduces code quality
-
-## Advanced Topics
-
-### Customization
-
-Pytest allows extensive customization for specific needs:
-
-- Custom plugins and extensions
-- Behavior modification
-- Integration adapters
-- Domain-specific adaptations
-
-### Performance Tuning
-
-Optimize Pytest performance for production:
-
-- Profiling and benchmarking
-- Resource optimization
-- Caching strategies
-- Parallel execution
-
-### CI/CD Integration
-
-Integrate Pytest into continuous integration pipelines:
-
-- Automated execution
-- Result reporting
-- Quality gates
-- Deployment integration
-
-### Troubleshooting
-
-Common issues and their solutions:
-
-- Configuration errors
-- Integration problems
-- Performance issues
-- Unexpected behavior
-
-## When to Use This Skill
-
-- Setting up Pytest in new projects
-- Configuring Pytest for specific requirements
-- Migrating to Pytest from alternatives
-- Optimizing Pytest performance
-- Implementing advanced patterns
-- Troubleshooting Pytest issues
-- Integrating Pytest with CI/CD
-- Training team members on Pytest
-- Establishing team standards
-- Maintaining existing Pytest implementations
-
-## Additional Resources
-
-### Documentation
-
-- Official Pytest documentation
-- Community guides and tutorials
-- API reference materials
-- Migration guides
-
-### Tools and Utilities
-
-- Development tools
-- Testing utilities
-- Monitoring solutions
-- Helper libraries
-
-### Community
-
-- Online forums and communities
-- Open source contributions
-- Best practice repositories
-- Example implementations
-
-## Conclusion
-
-Mastering Pytest requires understanding both fundamentals and advanced concepts. This skill provides the foundation for professional-grade usage, from initial setup through production deployment. Apply these principles consistently for best results.
-
-## Detailed Configuration Examples
-
-### Configuration Option 1
-
-Comprehensive configuration example demonstrating best practices and common patterns used in production environments.
+### pytest-xdist
 
 ```bash
-# Detailed configuration setup
-# Includes all necessary options
-# Optimized for production use
+pytest -n auto                 # one worker per CPU
+pytest -n 4 --dist loadscope   # keep a module's/class's tests on one worker
 ```
 
-### Configuration Option 2
+- Tests must be independent: no shared files, ports, or DB rows without per-worker
+  isolation. The `worker_id` fixture (`gw0`, `gw1`, or `master`) helps namespace them.
+- Session fixtures run once **per worker**.
+- `-p no:xdist` or `-n 0` disables it for debugging.
 
-Alternative configuration approach for different use cases, showing flexibility and adaptability of the framework.
+### pytest-asyncio / anyio
 
-```bash
-# Alternative configuration
-# Different optimization strategy
-# Suitable for specific scenarios
+- pytest-asyncio has `strict` (default: mark tests with `@pytest.mark.asyncio`, use
+  `@pytest_asyncio.fixture`) and `auto` modes (`asyncio_mode = "auto"`). Match the
+  project's mode.
+- Event loop scope is configured with `loop_scope` on markers/fixtures and the
+  `asyncio_default_fixture_loop_scope` ini option in current releases; the old
+  overridden `event_loop` fixture pattern is deprecated/removed. Check the installed
+  version's docs before copying examples.
+- If the project uses `anyio` (common with Trio or FastAPI/Starlette), use
+  `@pytest.mark.anyio` and the `anyio_backend` fixture instead. Do not install both
+  plugins to run the same tests.
+
+### pytest-cov
+
+Configure in `[tool.coverage.*]` (see `pytest-advanced`). With xdist, pytest-cov
+combines worker data automatically. For subprocess coverage, follow coverage.py's
+subprocess instructions rather than adding ad-hoc hooks.
+
+### pytest-randomly
+
+Shuffles test order and reseeds `random`, Faker, and NumPy per test. It prints the seed;
+reproduce with `--randomly-seed=<n>` and disable with `-p no:randomly`.
+
+### pytest-timeout
+
+`timeout = 60` in config or `@pytest.mark.timeout(5)`. The `signal` method is cleaner
+but POSIX main-thread only; `thread` works everywhere but kills the process.
+
+### Hypothesis
+
+```python
+from hypothesis import given, strategies as st
+
+@given(st.lists(st.integers()))
+def test_sort_is_idempotent(xs):
+    assert sorted(sorted(xs)) == sorted(xs)
 ```
 
-### Configuration Option 3
+Function-scoped fixtures are not reset between Hypothesis examples; Hypothesis warns
+about this (`HealthCheck.function_scoped_fixture`). Create per-example state inside
+the test body instead.
 
-Advanced configuration for complex environments with multiple requirements and constraints.
+### pytest-rerunfailures
 
-```bash
-# Advanced configuration
-# Handles complex scenarios
-# Production-ready setup
+Retries mask real defects. Use only on narrowly marked, ticketed flaky tests, never as
+a global `--reruns` in `addopts`.
+
+## Writing a plugin
+
+Start in `conftest.py`. Promote to a package only when several projects need it.
+
+```python
+# src/pytest_myorg/plugin.py
+import pytest
+
+def pytest_addoption(parser):
+    group = parser.getgroup("myorg")
+    group.addoption("--myorg-env", default="local", help="target environment")
+
+@pytest.fixture
+def myorg_env(request):
+    return request.config.getoption("--myorg-env")
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_call(item):
+    # new-style hook wrapper: code before/after the actual test call
+    result = yield
+    return result
 ```
 
-## Advanced Usage Patterns
+Register it as an entry point so pytest auto-loads it when installed:
 
-### Pattern 1: Modular Organization
+```toml
+[project.entry-points.pytest11]
+myorg = "pytest_myorg.plugin"
+```
 
-Organize your setup in a modular way to improve maintainability and scalability across large projects.
+- Name the distribution `pytest-<name>` and add the `Framework :: Pytest` classifier.
+- Use `tryfirst=True` / `trylast=True` on `@pytest.hookimpl` only when ordering
+  matters; document why.
+- Prefix options and fixtures with the plugin name to avoid collisions.
+- `pytest_plugins = ["pytest_myorg.plugin"]` in the rootdir `conftest.py` loads an
+  uninstalled plugin; it is ignored in non-root conftests.
 
-Implementation details:
+## Testing a plugin with pytester
 
-- Separate concerns appropriately
-- Use composition over inheritance
-- Follow single responsibility principle
-- Maintain clear interfaces
+```python
+pytest_plugins = ["pytester"]
 
-### Pattern 2: Performance Optimization
+def test_env_option(pytester):
+    pytester.makepyfile(
+        """
+        def test_env(myorg_env):
+            assert myorg_env == "staging"
+        """
+    )
+    result = pytester.runpytest("--myorg-env=staging")
+    result.assert_outcomes(passed=1)
+```
 
-Optimize for performance in production environments with proven strategies and techniques.
+Use `runpytest_subprocess` when the plugin touches global state or import machinery.
 
-Key considerations:
+## Diagnosing plugin problems
 
-- Profile before optimizing
-- Focus on bottlenecks
-- Cache appropriately
-- Monitor in production
+| Symptom | Check |
+| --- | --- |
+| Option "unrecognized arguments" | option added in a non-root conftest, or plugin not installed in this env |
+| Fixture not found | plugin not loaded: `pytest --trace-config`; entry point name/module path |
+| Behavior differs locally vs CI | different plugin set installed; compare `pytest -VV` output |
+| Two plugins fight | disable one with `-p no:<name>` to bisect |
 
-### Pattern 3: Error Recovery
+## Done when
 
-Implement robust error recovery mechanisms to handle failures gracefully.
-
-Recovery strategies:
-
-- Graceful degradation
-- Retry with backoff
-- Circuit breaker pattern
-- Comprehensive logging
-
-### Pattern 4: Testing Strategy
-
-Comprehensive testing approach ensuring code quality and reliability.
-
-Testing layers:
-
-- Unit tests for components
-- Integration tests for workflows
-- End-to-end tests for user scenarios
-- Performance tests for scalability
-
-## Integration Strategies
-
-### Integration with CI/CD
-
-Seamless integration into continuous integration and deployment pipelines.
-
-Steps:
-
-1. Configure pipeline
-2. Set up automation
-3. Define quality gates
-4. Monitor execution
-
-### Integration with Development Tools
-
-Connect with popular development tools and IDEs for improved workflow.
-
-Tools:
-
-- IDE plugins and extensions
-- CLI tools and utilities
-- Build system integration
-- Version control hooks
-
-### Integration with Monitoring
-
-Implement monitoring and observability for production systems.
-
-Monitoring aspects:
-
-- Performance metrics
-- Error tracking
-- Usage analytics
-- Health checks
-
-## Team Practices
-
-### Establishing Standards
-
-Create and maintain consistent standards across the team.
-
-Standards to define:
-
-- Naming conventions
-- Code organization
-- Documentation requirements
-- Review processes
-
-### Onboarding Process
-
-Streamline onboarding for new team members.
-
-Onboarding steps:
-
-- Initial setup guide
-- Training materials
-- Practice exercises
-- Mentorship program
-
-### Code Review Guidelines
-
-Effective code review practices for quality assurance.
-
-Review checklist:
-
-- Correctness
-- Performance
-- Security
-- Maintainability
-
-## Troubleshooting Guide
-
-### Common Issue 1
-
-Detailed troubleshooting steps for frequently encountered problem.
-
-Resolution steps:
-
-1. Identify symptoms
-2. Check configuration
-3. Verify dependencies
-4. Test solution
-
-### Common Issue 2
-
-Another common issue with comprehensive resolution approach.
-
-Diagnostic steps:
-
-1. Reproduce issue
-2. Gather logs
-3. Analyze data
-4. Apply fix
-
-### Common Issue 3
-
-Third common scenario with clear resolution path.
-
-Investigation process:
-
-1. Understand context
-2. Review recent changes
-3. Test hypotheses
-4. Implement solution
+- The plugin is declared in project test dependencies and appears in `pytest -VV`.
+- The suite passes with the plugin enabled and, where relevant, under `-n auto` and
+  random order.
+- A custom plugin has pytester tests covering its options, fixtures, and hooks.

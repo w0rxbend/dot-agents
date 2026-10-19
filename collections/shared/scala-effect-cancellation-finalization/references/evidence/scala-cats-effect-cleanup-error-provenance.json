@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "repository": "typelevel/cats-effect",
+  "evidence": [
+    {
+      "id": "ce-polymorphic-errors",
+      "kind": "review-comment",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/pull/394#discussion_r235616800",
+      "occurred_at": "2018-11-22T06:54:07Z",
+      "excerpt": "It's undefined only from the point of view of polymorphic code making use of the `Bracket` type class.",
+      "interpretation": "The correction distinguishes unspecified typeclass behavior from specified concrete IO behavior. The author revised the documentation; do not generalize an IO regression test into a law for every effect.",
+      "author": "alexandru",
+      "role_basis": "unknown",
+      "pull_number": 394,
+      "cache_path": "evidence-cache/pr-394.txt"
+    },
+    {
+      "id": "ce-error-siblings",
+      "kind": "review",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/pull/458#pullrequestreview-188034431",
+      "occurred_at": "2018-12-27T08:56:17Z",
+      "excerpt": "Also usage of `composeErrors` needs to be reviewed. If there are no other uses of it, we should just delete it from the project.",
+      "interpretation": "Alexandru requests tracing all helper usages, not just the reported bracket path. The final patch changes cancellation utilities, racing, parallel mapping and both platform implementations.",
+      "author": "alexandru",
+      "role_basis": "unknown",
+      "pull_number": 458,
+      "cache_path": "evidence-cache/pr-458.txt"
+    },
+    {
+      "id": "ce-error-test-platform",
+      "kind": "review-comment",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/pull/458#discussion_r244108413",
+      "occurred_at": "2018-12-27T08:53:54Z",
+      "excerpt": "execute that logic on top of a thread with your own [UncaughtExceptionHandler](https://docs.oracle.com/javase/7/docs/api/java/lang/Thread.UncaughtExceptionHandler.html), this only works on the JVM",
+      "interpretation": "The reviewer contrasts a JVM-only handler with System.err capture that also works on Scala.js. The final tests use shared stderr capture; platform coverage is an explicit design constraint.",
+      "author": "alexandru",
+      "role_basis": "unknown",
+      "pull_number": 458,
+      "cache_path": "evidence-cache/pr-458.txt"
+    },
+    {
+      "id": "ce-code-error-recover",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa/core/shared/src/main/scala/cats/effect/internals/IOBracket.scala#L169-L180",
+      "occurred_at": "2019-01-02T15:21:46Z",
+      "excerpt": "  private final class ReleaseRecover(e: Throwable)\n    extends IOFrame[Unit, IO[Nothing]] {\n\n    def recover(e2: Throwable): IO[Nothing] = {\n      // Logging the error somewhere, because exceptions\n      // should never be silent\n      Logger.reportFailure(e2)\n      IO.raiseError(e)\n    }\n\n    def apply(a: Unit): IO[Nothing] =\n      IO.raiseError(e)",
+      "interpretation": "Observed CE1 IO implementation reports the release failure separately and re-raises the original failure; source-only inference is to preserve both observability and primary throwable identity.",
+      "commit_sha": "c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa",
+      "path": "core/shared/src/main/scala/cats/effect/internals/IOBracket.scala",
+      "cache_path": "evidence-cache/source/c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa/core/shared/src/main/scala/cats/effect/internals/IOBracket.scala"
+    },
+    {
+      "id": "ce-code-error-test",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa/laws/shared/src/test/scala/cats/effect/IOTests.scala#L677-L691",
+      "occurred_at": "2019-01-02T15:21:46Z",
+      "excerpt": "  test(\"bracket signals the error in use and logs the error from release\") {\n    val e1 = new RuntimeException(\"error in use\")\n    val e2 = new RuntimeException(\"error in release\")\n\n    var r: Option[Either[Throwable, Nothing]] = None\n    val sysErr = catchSystemErr {\n      r = Some(IO.unit.bracket(_ => IO.raiseError(e1))(_ => IO.raiseError(e2))\n          .attempt\n          .unsafeRunSync())\n    }\n\n    r shouldEqual Some(Left(e1))\n    sysErr should include(\"error in release\")\n    e1.getSuppressed shouldBe empty // ensure memory isn't leaked with addSuppressed\n    e2.getSuppressed shouldBe empty // ensure memory isn't leaked with addSuppressed",
+      "interpretation": "The shared test asserts primary failure, visible secondary error and no suppressed mutations. This is concrete IO behavior, not an abstract Bracket law.",
+      "commit_sha": "c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa",
+      "path": "laws/shared/src/test/scala/cats/effect/IOTests.scala",
+      "cache_path": "evidence-cache/source/c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa/laws/shared/src/test/scala/cats/effect/IOTests.scala"
+    },
+    {
+      "id": "ce-code-cancel-test",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa/core/shared/src/test/scala/cats/effect/internals/CancelUtilsTests.scala#L70-L81",
+      "occurred_at": "2019-01-02T15:21:46Z",
+      "excerpt": "    val sysErr = new ByteArrayOutputStream()\n    try {\n      catchSystemErrInto(sysErr) {\n        io.unsafeRunSync()\n      }\n      fail(\"should have throw exception\")\n    } catch {\n      case NonFatal(error) =>\n        error shouldBe dummy1\n        sysErr.toString(\"utf-8\") should include(\"dummy2\")\n        dummy1.getSuppressed shouldBe empty // ensure memory isn't leaked with addSuppressed\n        dummy2.getSuppressed shouldBe empty // ensure memory isn't leaked with addSuppressed",
+      "interpretation": "Cancellation utility tests similarly inspect both error channels and empty suppressed lists. Other tests in this file check later finalizers still run.",
+      "commit_sha": "c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa",
+      "path": "core/shared/src/test/scala/cats/effect/internals/CancelUtilsTests.scala",
+      "cache_path": "evidence-cache/source/c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa/core/shared/src/test/scala/cats/effect/internals/CancelUtilsTests.scala"
+    },
+    {
+      "id": "ce-code-build-serial",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa/build.sbt#L104-L109",
+      "occurred_at": "2019-01-02T15:21:46Z",
+      "excerpt": "  // Disable parallel execution in tests; otherwise we cannot test System.err\n  parallelExecution in Test := false,\n  parallelExecution in IntegrationTest := false,\n  testForkedParallel in Test := false,\n  testForkedParallel in IntegrationTest := false,\n  concurrentRestrictions in Global += Tags.limit(Tags.Test, 1),",
+      "interpretation": "The CE1 build serializes tests because System.err is process-global. A proposed stderr test needs that isolation; this is not a recommendation to disable parallelism for all modern suites.",
+      "commit_sha": "c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa",
+      "path": "build.sbt",
+      "cache_path": "evidence-cache/source/c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa/build.sbt"
+    },
+    {
+      "id": "ce-code-build-2019",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa/build.sbt#L61-L64",
+      "occurred_at": "2019-01-02T15:21:46Z",
+      "excerpt": "val commonSettings = Seq(\n  scalaVersion := \"2.12.6\",\n\n  crossScalaVersions := Seq(\"2.11.12\", \"2.12.7\", \"2.13.0-M5\"),",
+      "interpretation": "Version evidence: Scala default 2.12.6; cross builds 2.11.12, 2.12.7 and 2.13.0-M5. This snapshot is CE1 with Cats 1.5.0, not CE2 or stable Scala 3.",
+      "commit_sha": "c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa",
+      "path": "build.sbt",
+      "cache_path": "evidence-cache/source/c6d7dd5e8c454baf242ab24487a9dc9aa4b6e8fa/build.sbt"
+    },
+    {
+      "id": "ce2-error-recover",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/1b51cb1411adcfec5daf8dc1a9557d3e554bbe4e/core/shared/src/main/scala/cats/effect/internals/IOBracket.scala#L179-L188",
+      "occurred_at": "2022-03-28T06:57:10Z",
+      "excerpt": "  final private class ReleaseRecover(e: Throwable) extends IOFrame[Unit, IO[Nothing]] {\n    def recover(e2: Throwable): IO[Nothing] = {\n      // Logging the error somewhere, because exceptions\n      // should never be silent\n      Logger.reportFailure(e2)\n      IO.raiseError(e)\n    }\n\n    def apply(a: Unit): IO[Nothing] =\n      IO.raiseError(e)",
+      "interpretation": "Independent later CE2 source preserves primary IO error propagation and reports the secondary release failure without suppressed mutation. This corroborates the CE1 policy at this SHA only.",
+      "commit_sha": "1b51cb1411adcfec5daf8dc1a9557d3e554bbe4e",
+      "path": "core/shared/src/main/scala/cats/effect/internals/IOBracket.scala",
+      "cache_path": "evidence-cache/resume/source/1b51cb1411adcfec5daf8dc1a9557d3e554bbe4e/core/shared/src/main/scala/cats/effect/internals/IOBracket.scala"
+    },
+    {
+      "id": "ce2-release-progress",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/1b51cb1411adcfec5daf8dc1a9557d3e554bbe4e/core/shared/src/main/scala/cats/effect/internals/IOBracket.scala#L144-L162",
+      "occurred_at": "2022-03-28T06:57:10Z",
+      "excerpt": "  abstract private class BaseReleaseFrame[A, B] extends IOFrame[B, IO[B]] {\n    // Guard used for thread-safety, to ensure the idempotency\n    // of the release; otherwise `release` can be called twice\n    private[this] val waitsForResult = new AtomicBoolean(true)\n    private[this] val p: Promise[Unit] = Promise()\n\n    def release(c: ExitCase[Throwable]): CancelToken[IO]\n\n    private def applyRelease(e: ExitCase[Throwable]): IO[Unit] =\n      IO.defer {\n        if (waitsForResult.compareAndSet(true, false))\n          release(e)\n            .redeemWith[Unit](ex => IO(p.success(())).flatMap(_ => IO.raiseError(ex)), _ => IO { p.success(()); () })\n        else\n          IOFromFuture.apply(p.future)\n      }\n\n    final val cancel: CancelToken[IO] =\n      applyRelease(ExitCase.Canceled).uncancelable",
+      "interpretation": "Compared with CE1, the release-once guard is joined by a Promise and IOFromFuture wait for an already-running release. Copying the old frame would erase synchronization unrelated to the error policy.",
+      "commit_sha": "1b51cb1411adcfec5daf8dc1a9557d3e554bbe4e",
+      "path": "core/shared/src/main/scala/cats/effect/internals/IOBracket.scala",
+      "cache_path": "evidence-cache/resume/source/1b51cb1411adcfec5daf8dc1a9557d3e554bbe4e/core/shared/src/main/scala/cats/effect/internals/IOBracket.scala"
+    },
+    {
+      "id": "ce2-error-test",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/1b51cb1411adcfec5daf8dc1a9557d3e554bbe4e/laws/shared/src/test/scala/cats/effect/IOTests.scala#L720-L738",
+      "occurred_at": "2022-03-28T06:57:10Z",
+      "excerpt": "  test(\"bracket signals the error in use and logs the error from release\") {\n    val e1 = new RuntimeException(\"error in use\")\n    val e2 = new RuntimeException(\"error in release\")\n\n    var r: Option[Either[Throwable, Nothing]] = None\n    val sysErr = catchSystemErr {\n      r = Some(\n        IO.unit\n          .bracket(_ => IO.raiseError(e1))(_ => IO.raiseError(e2))\n          .attempt\n          .unsafeRunSync()\n      )\n    }\n\n    assertEquals(r, Some(Left(e1)))\n    assert(sysErr.contains(\"error in release\"))\n    assert(e1.getSuppressed.isEmpty) // ensure memory isn't leaked with addSuppressed\n    assert(e2.getSuppressed.isEmpty) // ensure memory isn't leaked with addSuppressed\n  }",
+      "interpretation": "The CE2 test independently retains primary error, reported secondary error and empty suppressed-array assertions. It uses MUnit-style assertions rather than the CE1 ScalaTest syntax.",
+      "commit_sha": "1b51cb1411adcfec5daf8dc1a9557d3e554bbe4e",
+      "path": "laws/shared/src/test/scala/cats/effect/IOTests.scala",
+      "cache_path": "evidence-cache/resume/source/1b51cb1411adcfec5daf8dc1a9557d3e554bbe4e/laws/shared/src/test/scala/cats/effect/IOTests.scala"
+    }
+  ],
+  "claims": [
+    {
+      "id": "ce-claim-error-provenance",
+      "rule": "When refactoring CE1 IO error combination, preserve primary throwable identity, report secondary cleanup errors without mutating a reusable throwable, and inspect every composeErrors caller on JVM and JS.",
+      "evidence_ids": [
+        "ce-polymorphic-errors",
+        "ce-error-siblings",
+        "ce-error-test-platform",
+        "ce-code-error-recover",
+        "ce-code-error-test",
+        "ce-code-cancel-test",
+        "ce-code-build-serial",
+        "ce2-error-recover",
+        "ce2-error-test",
+        "ce2-release-progress",
+        "ce-code-build-2019"
+      ],
+      "applicability": "Historical CE1 IO policy corroborated by concrete CE2 ReleaseRecover and IOTests source at 1b51cb1411adcfec5daf8dc1a9557d3e554bbe4e. Repeated-use checks are inferred hardening extensions. Re-read CE3 reporting before applying there. PR394 specifically discusses impure release-function throws; it does not erase laws for effectful errors or establish all effects must use stderr.",
+      "counterexample": "An effect-polymorphic Bracket implementation may define different behavior for an impure release function. A collector deliberately returning an immutable aggregate of domain errors is not the same as mutating shared Throwables."
+    }
+  ]
+}

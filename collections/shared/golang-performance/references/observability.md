@@ -62,7 +62,6 @@ Third-party monitoring tools complement local profiling (pprof, benchmarks) by p
 
 [Example alerting rules](../assets/prometheus-alerts.yml) — adjust thresholds to your application; a high-throughput data pipeline will have different baselines than a lightweight API server.
 
-→ See `samber/cc-skills@promql-cli` skill for interactively testing these PromQL expressions against your Prometheus instance from the CLI.
 
 ### Grafana Dashboards
 

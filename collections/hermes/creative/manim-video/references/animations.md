@@ -157,7 +157,7 @@ self.add(brace)
 self.play(square.animate.scale(2))  # brace auto-adjusts
 
 # Horizontal line that tracks a moving dot
-h_line = always_redraw(lambda: axes.get_h_line(dot.get_left()))
+h_line = always_redraw(lambda: axes.get_horizontal_line(dot.get_left()))
 
 # Label that always stays next to another mobject
 label = always_redraw(lambda: Text("here", font_size=20).next_to(dot, UP, buff=0.2))

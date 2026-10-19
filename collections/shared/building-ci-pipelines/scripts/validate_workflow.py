@@ -47,6 +47,13 @@ class WorkflowValidator:
         try:
             with open(self.workflow_path, 'r') as f:
                 self.workflow = yaml.safe_load(f)
+            if not isinstance(self.workflow, dict):
+                self.errors.append("Workflow must be a YAML mapping")
+                return False
+            # PyYAML follows YAML 1.1, where a bare `on` key parses as the
+            # boolean True. Normalize it back to the string key GitHub uses.
+            if 'on' not in self.workflow and True in self.workflow:
+                self.workflow['on'] = self.workflow.pop(True)
             return True
         except yaml.YAMLError as e:
             self.errors.append(f"YAML syntax error: {e}")
@@ -57,10 +64,12 @@ class WorkflowValidator:
 
     def _validate_structure(self):
         """Validate basic workflow structure."""
-        required_keys = ['name', 'on', 'jobs']
-        for key in required_keys:
+        for key in ('on', 'jobs'):
             if key not in self.workflow:
                 self.errors.append(f"Missing required key: '{key}'")
+
+        if 'name' not in self.workflow:
+            self.warnings.append("No 'name' key: GitHub will display the file path instead")
 
         if 'name' in self.workflow and not self.workflow['name']:
             self.errors.append("Workflow name cannot be empty")

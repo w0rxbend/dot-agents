@@ -1,6 +1,6 @@
 ---
 name: providing-feedback
-description: Implements feedback and notification systems including toasts, alerts, modals, progress indicators, and error states. Use when communicating system state, displaying messages, confirming actions, or showing errors.
+description: Build UI feedback components in frontend apps (React examples) - toasts, snackbars, alerts, confirmation modals, progress indicators, empty and error states - with timing, stacking and ARIA. Use when implementing in-app notifications or status UI; not for giving feedback on code, designs or writing.
 ---
 
 # Providing User Feedback and Notifications
@@ -18,7 +18,7 @@ Activate this skill when:
 - Adding tooltips or contextual help
 - Determining notification timing, stacking, or positioning
 - Implementing accessible feedback patterns with ARIA
-- Communicating any system state to users
+- Showing loading, success or failure state for a user action in the UI
 
 ## Feedback Type Decision Matrix
 
@@ -147,7 +147,7 @@ See `references/accessibility-feedback.md` for complete patterns.
 
 ### Step 5: Integrate Design Tokens
 
-All feedback components use the design-tokens skill for consistent theming:
+All feedback components should read colors, spacing and motion from design tokens (see the theming-components skill) for consistent theming:
 
 ```css
 /* Example token usage */
