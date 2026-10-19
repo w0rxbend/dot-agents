@@ -6506,7 +6506,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "583d73754a68983cf7f1fd158512e5c7b519c1e61d08ec32b623c3b72bf7f814",
+      "sha256": "1138d624f3afbe24103ce473b156fa3f08c2aca2469ff90252dfe92bc695349e",
       "local_globs": [
         "~/.agents/skills/theming-components"
       ],
