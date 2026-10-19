@@ -8,14 +8,14 @@
     "build": "bun build index.ts --outdir dist"
   },
   "dependencies": {
-    "hono": "^4.0.0",
+    "hono": "^4.13.13",
     "@hono/zod-validator": "^0.9.1",
     "@hono/zod-openapi": "^1.6.3",
     "@hono/swagger-ui": "^0.6.1",
-    "zod": "^4.6.5"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@types/bun": "^1.0.0",
+    "@types/bun": "^1.4.3",
     "typescript": "^7.0.2"
   }
 }
