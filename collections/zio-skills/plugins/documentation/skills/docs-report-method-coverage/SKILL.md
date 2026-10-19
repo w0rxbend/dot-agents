@@ -7,16 +7,18 @@ description: Use when checking if documentation covers all public members of a S
 
 Cross-checks the public members of a Scala data type against a reference doc page and reports any members that are not documented.
 
+Paths: `<this-skill-dir>` is this skill's own directory (where this file lives); `<docs-data-type-list-members-skill-dir>` is the directory of the `docs-data-type-list-members` skill from the same zio-skills set (installed next to this one, e.g. as `zio-skills--docs-data-type-list-members`).
+
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/skills/docs-report-method-coverage/check-method-coverage.sh \
+bash <this-skill-dir>/check-method-coverage.sh \
   <TypeName> <doc-file.md> [members-file]
 ```
 
-Members may be supplied via `[members-file]` or piped on stdin (typically from `/docs-data-type-list-members`):
+Members may be supplied via `[members-file]` or piped on stdin (typically from the `docs-data-type-list-members` script):
 
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/skills/docs-data-type-list-members/extract-members.scala Reader.scala Reader \
-  | bash ${CLAUDE_PLUGIN_ROOT}/skills/docs-report-method-coverage/check-method-coverage.sh \
+scala-cli <docs-data-type-list-members-skill-dir>/extract-members.scala -- Reader.scala Reader \
+  | bash <this-skill-dir>/check-method-coverage.sh \
       Reader docs/reference/reader.md
 ```
 
@@ -35,7 +37,7 @@ Run the script with `--help` for the full usage.
 For machine-readable output (e.g., CI gates, downstream filtering with `jq`), pass `--json`:
 
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/skills/docs-report-method-coverage/check-method-coverage.sh \
+bash <this-skill-dir>/check-method-coverage.sh \
   --json Reader docs/reference/reader.md members.txt | jq '.fullCoverage'
 ```
 

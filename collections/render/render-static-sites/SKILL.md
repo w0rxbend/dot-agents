@@ -37,7 +37,7 @@ For SSR frameworks (Next.js, Nuxt, SvelteKit) that need a running server, use **
 |------|-----|-----|
 | Pure HTML/CSS/JS, SPA, docs, blog | **Static Site** | Free, global CDN, instant cache invalidation |
 | SSR (Next.js `next start`, Nuxt server) | **Web Service** | Needs a running Node/Python/etc. process |
-| Static export from SSR framework | **Static Site** | If the framework supports full static export (`next export`, `nuxt generate`) |
+| Static export from SSR framework | **Static Site** | If the framework supports full static export (Next.js `output: 'export'` in `next.config.js`, `nuxt generate`) |
 | API backend | **Web Service** | Static sites cannot run server code |
 
 **Key constraint:** Static sites are **not on the private network**. They cannot communicate with other Render services over internal hostnames.

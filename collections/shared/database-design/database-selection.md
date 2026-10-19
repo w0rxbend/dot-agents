@@ -32,7 +32,7 @@ What are your requirements?
 | **Neon** | Serverless PG, branching | PG complexity |
 | **Turso** | Edge, low latency | SQLite limitations |
 | **SQLite** | Simple, embedded, local | Single-writer |
-| **PlanetScale** | MySQL, global scale | No foreign keys |
+| **PlanetScale** | Managed Vitess/MySQL (and Postgres offering), horizontal scale | Foreign-key and feature support differ from vanilla engines; check current docs |
 
 ## Questions to Ask
 

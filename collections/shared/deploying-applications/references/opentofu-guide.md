@@ -102,8 +102,10 @@ brew install opentofu
 
 **Linux (Package Manager)**:
 ```bash
-# Debian/Ubuntu
-curl -L https://get.opentofu.org/install-opentofu.sh | bash
+# Debian/Ubuntu: download the installer, inspect it, then run it with an install method
+curl --proto '=https' --tlsv1.2 -fsSL https://get.opentofu.org/install-opentofu.sh -o install-opentofu.sh
+less install-opentofu.sh
+sh install-opentofu.sh --install-method deb   # adds the signed OpenTofu apt repo
 
 # Fedora/RHEL
 dnf install opentofu
@@ -1471,8 +1473,8 @@ jobs:
   detect-drift:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: opentofu/setup-opentofu@v1
+      - uses: actions/checkout@<pinned-sha> # current release, pinned by full SHA
+      - uses: opentofu/setup-opentofu@<pinned-sha> # current release
 
       - name: Detect drift
         run: |

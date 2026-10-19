@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: "4-phase root cause debugging: understand bugs before fixing."
+description: "4-phase root cause debugging: understand bugs before fixing. Use when a bug, test failure, build failure or unexpected behavior needs its cause found."
 version: 1.1.0
 author: Hermes Agent (adapted from obra/superpowers)
 license: MIT
@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [debugging, troubleshooting, problem-solving, root-cause, investigation]
-    related_skills: [test-driven-development, subagent-driven-development]
+    related_skills: [test-driven-development]
 ---
 
 # Systematic Debugging
@@ -37,7 +37,7 @@ When a clean repro is hard, spend disproportionate effort building the loop. Gue
 
 ## When to Use
 
-Use for ANY technical issue:
+Use when a technical problem needs its root cause found, for example:
 - Test failures
 - Bugs in production
 - Unexpected behavior
@@ -400,12 +400,4 @@ When fixing bugs:
 3. Fix the root cause (GREEN)
 4. The test proves the fix and prevents regression
 
-## Real-World Impact
-
-From debugging sessions:
-- Systematic approach: 15-30 minutes to fix
-- Random fixes approach: 2-3 hours of thrashing
-- First-time fix rate: 95% vs 40%
-- New bugs introduced: Near zero vs common
-
-**No shortcuts. No guessing. Systematic always wins.**
+**No shortcuts. No guessing.**

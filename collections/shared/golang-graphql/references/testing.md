@@ -17,11 +17,12 @@ The `github.com/99designs/gqlgen/client` package drives the full stack (directiv
 ```go
 func TestCreateUser(t *testing.T) {
     // Build the full handler with real dependencies (use a test DB)
-    srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
+    srv := handler.New(graph.NewExecutableSchema(graph.Config{
         Resolvers: &graph.Resolver{
             DB: testDB,
         },
     }))
+    srv.AddTransport(transport.POST{}) // client.New posts JSON
 
     c := client.New(srv)
 
@@ -60,7 +61,8 @@ For unit testing individual resolvers, call resolver methods directly with a con
 Wrap the test server with the DataLoader middleware so resolver tests exercise the full batching path:
 
 ```go
-srv := handler.NewDefaultServer(es)
+srv := handler.New(es)
+srv.AddTransport(transport.POST{})
 h := dataloaders.Middleware(testDB, srv)
 
 c := client.New(h)

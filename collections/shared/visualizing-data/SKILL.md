@@ -1,6 +1,6 @@
 ---
 name: visualizing-data
-description: Builds dashboards, reports, and data-driven interfaces requiring charts, graphs, or visual analytics. Provides systematic framework for selecting appropriate visualizations based on data characteristics and analytical purpose. Includes 24+ visualization types organized by purpose (trends, comparisons, distributions, relationships, flows, hierarchies, geospatial), accessibility patterns (WCAG 2.1 AA compliance), colorblind-safe palettes, and performance optimization strategies. Use when creating visualizations, choosing chart types, displaying data graphically, or designing data interfaces.
+description: Chooses and builds individual charts and graphs for data-driven interfaces and reports. Provides systematic framework for selecting appropriate visualizations based on data characteristics and analytical purpose. Includes 24+ visualization types organized by purpose (trends, comparisons, distributions, relationships, flows, hierarchies, geospatial), accessibility patterns (WCAG 2.1 AA compliance), colorblind-safe palettes, and performance optimization strategies. Use when choosing a chart type, building a specific chart, or making a chart accessible; for multi-widget React dashboards use creating-dashboards and for Grafana use grafana-dashboards.
 ---
 
 # Data Visualization Component Library
@@ -308,8 +308,10 @@ Geographic (locations)
 - `examples/javascript/scatter-plot.tsx`
 - `examples/javascript/accessible-chart.tsx`
 
+These are standalone React components, not a runnable project. To try one, copy it into any React app (for example a Vite React + TypeScript template) and install the dependency:
+
 ```bash
-cd examples/javascript && npm install && npm start
+npm install recharts
 ```
 
 ---

@@ -26,6 +26,29 @@ func NewChannelPaginationClient(apiKey string) *ChannelPaginationClient {
 	return &ChannelPaginationClient{apiKey: apiKey}
 }
 
+// fetchPage stands in for a real API call: it returns one page of users and
+// the cursor for the next page ("" when there are no more pages).
+func (c *ChannelPaginationClient) fetchPage(ctx context.Context, cursor string, limit int) ([]User, string, error) {
+	pages := map[string]struct {
+		users []User
+		next  string
+	}{
+		"":      {[]User{{ID: "1", Name: "Alice", Email: "alice@example.com"}, {ID: "2", Name: "Bob", Email: "bob@example.com"}}, "page2"},
+		"page2": {[]User{{ID: "3", Name: "Carol", Email: "carol@example.com"}}, ""},
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, "", err
+	}
+	p, ok := pages[cursor]
+	if !ok {
+		return nil, "", fmt.Errorf("unknown cursor %q", cursor)
+	}
+	if limit > 0 && len(p.users) > limit {
+		p.users = p.users[:limit]
+	}
+	return p.users, p.next, nil
+}
+
 // ListUsers returns channels for users and errors
 func (c *ChannelPaginationClient) ListUsers(ctx context.Context, limit int) (<-chan User, <-chan error) {
 	userCh := make(chan User)
@@ -37,10 +60,10 @@ func (c *ChannelPaginationClient) ListUsers(ctx context.Context, limit int) (<-c
 
 		cursor := ""
 		for {
-			// Fetch page (simplified - would call real API)
-			users := []User{
-				{ID: "1", Name: "Alice", Email: "alice@example.com"},
-				{ID: "2", Name: "Bob", Email: "bob@example.com"},
+			users, next, err := c.fetchPage(ctx, cursor, limit)
+			if err != nil {
+				errCh <- err
+				return
 			}
 
 			for _, user := range users {
@@ -52,8 +75,10 @@ func (c *ChannelPaginationClient) ListUsers(ctx context.Context, limit int) (<-c
 				}
 			}
 
-			// No more pages (simplified)
-			break
+			if next == "" {
+				return // no more pages
+			}
+			cursor = next
 		}
 	}()
 

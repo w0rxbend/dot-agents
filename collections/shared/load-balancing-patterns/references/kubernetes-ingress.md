@@ -18,6 +18,8 @@ Complete guide to Kubernetes ingress for HTTP load balancing.
 
 ## NGINX Ingress Controller
 
+Two different controllers share this name. The community `ingress-nginx` (annotations `nginx.ingress.kubernetes.io/*`, used in the examples below) has been retired, with best-effort maintenance ending in March 2026. F5's NGINX Ingress Controller (Helm repo below) uses `nginx.org/*` annotations and its own CRDs, so the community annotations do not apply to it. For new clusters prefer the Gateway API section.
+
 ### Installation
 
 ```bash

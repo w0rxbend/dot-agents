@@ -73,7 +73,7 @@ See `references/communication-patterns.md` for discovery-oriented patterns.
 ## Port Rules
 
 - **Maximum 75 open ports** per service.
-- **Reserved ports** (do not bind your app to these for normal use): **10000** (public HTTP proxy path), **18012**, **18013**, **19099**.
+- **Reserved ports** (do not bind your app to these for normal use): **18012**, **18013**, **19099**. Port **10000** is not reserved: it is the usual default `PORT` value, which a web service should bind.
 - **Multi-port Web Services:** Only **one** port receives **public** HTTP traffic; that port must align with the **`PORT`** environment variable. **Additional** ports are for **private network** access only.
 
 When something fails to connect, verify the target is listening on the expected port and that the port is not reserved or blocked by misconfiguration.
@@ -104,5 +104,5 @@ Short summaries; full diagrams and Blueprint notes live in `references/communica
 ## Related Skills
 
 - **render-web-services** — Public web services, `PORT`, and HTTP behavior
-- **render-private-services** (planned) — Private Service–specific setup and scaling
+- **render-private-services** — Private Service–specific setup and scaling
 - **render-blueprints** — `render.yaml`, `fromService`, and multi-service wiring

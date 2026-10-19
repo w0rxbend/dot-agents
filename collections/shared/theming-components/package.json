@@ -35,7 +35,6 @@
     "build/",
     "tokens/",
     "config.js",
-    "SKILL.md",
-    "README.md"
+    "SKILL.md"
   ]
 }

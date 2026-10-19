@@ -213,10 +213,10 @@ metadata:
       - "authenticating-users (for API authentication)"
 
     after:
-      - "databases-relational (for SQL destinations)"
-      - "databases-document (for NoSQL destinations)"
-      - "databases-vector (via ai-data-engineering for embeddings)"
-      - "databases-timeseries (for time-series data)"
+      - "using-relational-databases (for SQL destinations)"
+      - "using-document-databases (for NoSQL destinations)"
+      - "using-vector-databases (embeddings and vector stores)"
+      - "using-timeseries-databases (for time-series data)"
       - "transforming-data (for post-ingestion transformations)"
 
   key_libraries:

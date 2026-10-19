@@ -1,6 +1,6 @@
 ---
 name: implementing-drag-drop
-description: Implements drag-and-drop and sortable interfaces with React/TypeScript including kanban boards, sortable lists, file uploads, and reorderable grids. Use when building interactive UIs requiring direct manipulation, spatial organization, or touch-friendly reordering.
+description: Implements drag-and-drop and sortable interfaces with React/TypeScript including kanban boards, sortable lists, drop-zone interactions, and reorderable grids. Use when building interactive UIs requiring direct manipulation, spatial organization, or touch-friendly reordering; for file upload handling (chunking, S3, progress, media processing) use managing-media.
 ---
 
 # Drag-and-Drop & Sortable Interfaces
@@ -36,11 +36,12 @@ Reference `references/kanban-implementation.md` for:
 - Column management (add/remove/collapse)
 
 ### File Upload Zones
-Reference `references/file-dropzone.md` for:
+Reference `references/file-dropzone.md` for the drag-and-drop interaction of a dropzone:
 - Visual feedback states
 - File type validation
 - Multi-file handling
-- Progress indicators
+
+For the upload itself (chunked and resumable uploads, S3 direct upload, progress, image/video processing), use the `managing-media` skill.
 
 ### Accessibility
 Reference `references/accessibility-dnd.md` for:
@@ -96,16 +97,16 @@ Reference `references/accessibility-dnd.md` to:
 - Provide alternative controls
 - Test with assistive technologies
 
-Run `scripts/validate_accessibility.js` to check implementation.
+Verify with real tooling: run axe-core (for example `@axe-core/playwright` in an end-to-end test) on the rendered page, test keyboard-only drag with Playwright (`page.keyboard.press('Space')`, arrow keys), and try a screen reader (VoiceOver, NVDA).
 
 ### Step 5: Optimize Performance
 For lists with >100 items:
 - Reference `references/performance-optimization.md`
 - Implement virtual scrolling
-- Use `scripts/calculate_drop_position.js` for efficient calculations
+- Use the helpers in `scripts/calculate_drop_position.js` (browser functions, import them into client code) for drop-index and auto-scroll calculations
 
 ### Step 6: Style with Design Tokens
-Apply theming using the design-tokens skill:
+Apply theming using the `theming-components` skill:
 - Reference design token variables
 - Implement drag states (hovering, dragging, dropping)
 - Add visual feedback and animations
@@ -129,7 +130,7 @@ Reference `references/state-management.md` for:
 ## Scripts
 
 ### Calculate Drop Position
-Run `scripts/calculate_drop_position.js` to:
+`scripts/calculate_drop_position.js` exports browser helpers (they take DOM elements and cursor coordinates) to:
 - Determine valid drop zones
 - Calculate insertion indices
 - Handle edge cases
@@ -140,11 +141,6 @@ Run `scripts/generate_dnd_config.js` to:
 - Set up sensors and modifiers
 - Configure animations
 
-### Validate Accessibility
-Run `scripts/validate_accessibility.js` to:
-- Check keyboard navigation
-- Verify ARIA attributes
-- Test screen reader compatibility
 
 ## Examples
 
@@ -165,7 +161,7 @@ Each example includes complete TypeScript code with accessibility:
 
 ### File Dropzone
 `examples/file-dropzone.tsx`
-- Drag files to upload
+- Drag files onto a drop target (upload handling: see `managing-media`)
 - Visual feedback states
 - File type validation
 - Upload progress

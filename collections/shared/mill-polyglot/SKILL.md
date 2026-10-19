@@ -1,6 +1,6 @@
 ---
 name: mill-polyglot
-description: Integrate Mill Python JavaScript TypeScript Groovy and experimental Android modules with JVM monorepos using typed artifact edges and platform-specific toolchains.
+description: Integrate Mill Python JavaScript TypeScript Groovy and experimental Android modules with JVM monorepos using typed artifact edges and platform-specific toolchains. Use when a Mill build includes non-JVM modules.
 license: MIT
 ---
 

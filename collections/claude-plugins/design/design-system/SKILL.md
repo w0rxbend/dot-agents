@@ -6,7 +6,7 @@ argument-hint: "[audit | document | extend] <component or system>"
 
 # /design-system
 
-> If you see unfamiliar placeholders or need to check which tools are connected, see [CONNECTORS.md](../../CONNECTORS.md).
+> `~~category` placeholders stand for whatever tool the user has connected in that category (usually via MCP): `~~design tool` (e.g. Figma, Sketch, Adobe XD), `~~knowledge base` (e.g. Notion, Confluence). If nothing in a category is connected, ask the user for that input or skip the step and say so.
 
 Manage your design system — audit for consistency, document components, or design new patterns.
 

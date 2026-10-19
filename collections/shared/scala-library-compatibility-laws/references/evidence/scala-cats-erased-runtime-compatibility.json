@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "repository": "typelevel/cats",
+  "evidence": [
+    {
+      "id": "cats-trait-val-review",
+      "kind": "issue-comment",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/pull/3392#issuecomment-643148810",
+      "occurred_at": "2020-06-12T08:34:57Z",
+      "excerpt": "The issue is that adding a `val` to a trait still breaks bincompat even on 2.12+, because of synthetic methods.",
+      "interpretation": "travisbrown corrected an earlier assumption that dropping Scala 2.11 removed the compatibility problem. The author supplied concrete MiMa errors; the follow-up proposal uses a def forwarding to a private cached instance, reflected in the final source.",
+      "author": "travisbrown",
+      "role_basis": "unknown",
+      "pull_number": 3392,
+      "corpus_path": "pulls/3392-a8fa678f2cfc86c2749b.json",
+      "source_field": "issue_comments[id=643148810].body",
+      "contextual_only": false
+    },
+    {
+      "id": "cats-runtime-compat-review",
+      "kind": "review-comment",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/pull/4352#discussion_r1028520174",
+      "occurred_at": "2022-11-21T21:13:58Z",
+      "excerpt": "MiMa can only detect linking errors but not other errors such as class casting exceptions.",
+      "interpretation": "armanbilge distinguished signature/linkage checks from the old-client runtime compatibility project. The same comment explains compilation against Cats 2.0.0 and execution against development sources; the actual regression input passes String values to traverse_.",
+      "author": "armanbilge",
+      "role_basis": "unknown",
+      "pull_number": 4352,
+      "corpus_path": "pulls/4352-2e2d751513aa03c8945f.json",
+      "source_field": "review_comments[id=1028520174].body",
+      "contextual_only": false
+    },
+    {
+      "id": "cats-runtime-erasure-review",
+      "kind": "review-comment",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/pull/4352#discussion_r1028505880",
+      "occurred_at": "2022-11-21T20:53:46Z",
+      "excerpt": "Cats still has to retain compatibility with calling code that was passing e.g. a `G[String]` there.",
+      "interpretation": "armanbilge explains why the apparent G[Unit] signature does not justify removing void in a binary-compatible implementation. This corrects the competing suggestion that void is always redundant. The proposal remained unmerged.",
+      "author": "armanbilge",
+      "role_basis": "unknown",
+      "pull_number": 4352,
+      "corpus_path": "pulls/4352-2e2d751513aa03c8945f.json",
+      "source_field": "review_comments[id=1028505880].body",
+      "contextual_only": false
+    },
+    {
+      "id": "cats-instance-source",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/4fd89272ba41cf5ed989c840262ce3076a8df80a/core/src/main/scala/cats/instances/partialFunction.scala#L6-L7",
+      "occurred_at": "2020-06-12T11:52:57Z",
+      "excerpt": "implicit def catsStdInstancesForPartialFunction: ArrowChoice[PartialFunction] with CommutativeArrow[PartialFunction] =\n    PartialFunctionInstances.instance",
+      "interpretation": "The final instance accessor is a def delegating to a cached private-object value, rather than a new val field added to the public trait.",
+      "commit_sha": "4fd89272ba41cf5ed989c840262ce3076a8df80a",
+      "path": "core/src/main/scala/cats/instances/partialFunction.scala",
+      "cache_path": "evidence-cache/3392-core--src--main--scala--cats--instances--partialFunction.scala",
+      "pull_number": 3392
+    },
+    {
+      "id": "cats-old-client-test",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/b96d97136cba46c0b324a7db47af6b19105a3ea6/binCompatTest/src/main/scala-2/catsBC/MimaExceptions.scala#L58-L58",
+      "occurred_at": "2022-11-20T10:49:05Z",
+      "excerpt": "List(\"foo\", \"bar\", \"baz\").traverse_(x => Either.right(x))",
+      "interpretation": "This historical closed-PR regression uses non-Unit values at a call site compiled against the old library; it is designed to expose new implementation casts despite unchanged erased linkage. The test was not executed in this research run.",
+      "commit_sha": "b96d97136cba46c0b324a7db47af6b19105a3ea6",
+      "path": "binCompatTest/src/main/scala-2/catsBC/MimaExceptions.scala",
+      "cache_path": "evidence-cache/4352-binCompatTest--src--main--scala-2--catsBC--MimaExceptions.scala",
+      "pull_number": 4352
+    },
+    {
+      "id": "cats-build-2020",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/f6ee8129e65ddd488d146044d31c073185326a1c/build.sbt#L49-L49",
+      "occurred_at": "2020-12-26T19:06:24Z",
+      "excerpt": "ThisBuild / crossScalaVersions := Seq(Scala212, Scala213, DottyOld, DottyNew)",
+      "interpretation": "The December 2020 build declares Scala 2.12.12, 2.13.4 and Dotty 3.0.0-M2/M3 with JVM/JS projects, MUnit discipline dependencies and separate laws/testkit modules. This is snapshot context, not the precise compiler matrix of every earlier PR.",
+      "commit_sha": "f6ee8129e65ddd488d146044d31c073185326a1c",
+      "path": "build.sbt",
+      "corpus_path": "snapshots/2020-db382058b541cf933a82.json"
+    },
+    {
+      "id": "cats-build-2022",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/d0e6d3b8e38f20fd7c9b5ee7f88f71992fa82587/build.sbt#L274-L274",
+      "occurred_at": "2022-12-29T23:49:25Z",
+      "excerpt": "val oldV = if (tlIsScala3.value) \"2.6.1\" else \"2.0.0\"",
+      "interpretation": "The December 2022 binCompatTest compiles against oldV as Provided and depends on core.jvm in Test. Build declares Scala 2.12.17/2.13.10/3.2.1 and JVM/JS/Native. The exact PR 4352 build was separately retrieved during resume; see cats-exact-compat-build.",
+      "commit_sha": "d0e6d3b8e38f20fd7c9b5ee7f88f71992fa82587",
+      "path": "build.sbt",
+      "corpus_path": "snapshots/2022-e5bc6ef5a43138f3df73.json"
+    },
+    {
+      "id": "cats-runtime-runner",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/d0e6d3b8e38f20fd7c9b5ee7f88f71992fa82587/binCompatTest/src/test/scala-2/catsBC/MimaExceptionsTest.scala#L27-L29",
+      "occurred_at": "2022-12-29T23:49:25Z",
+      "excerpt": "test(\"is binary compatible\") {\n    MimaExceptions.isBinaryCompatible\n  }",
+      "interpretation": "The compatibility test runs the old-compiled method, complementing static signature comparison. Its name must not be mistaken for evidence that MiMa itself executes old clients.",
+      "commit_sha": "d0e6d3b8e38f20fd7c9b5ee7f88f71992fa82587",
+      "path": "binCompatTest/src/test/scala-2/catsBC/MimaExceptionsTest.scala",
+      "corpus_path": "snapshots/2022-e5bc6ef5a43138f3df73.json"
+    },
+    {
+      "id": "cats-exact-compat-build",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/b96d97136cba46c0b324a7db47af6b19105a3ea6/build.sbt#L285-L285",
+      "occurred_at": "2022-11-20T10:49:05Z",
+      "excerpt": "val oldV = if (tlIsScala3.value) \"2.6.1\" else \"2.0.0\"",
+      "interpretation": "Exact PR 4352 head compiles binCompatTest against old Cats as Provided and depends on current core.jvm in Test. Scala 2.12.17/2.13.10/3.2.1 and CI Java 8/17/GraalVM11 declarations are visible in this same file. The proposal is closed unmerged; no execution is claimed.",
+      "commit_sha": "b96d97136cba46c0b324a7db47af6b19105a3ea6",
+      "path": "build.sbt",
+      "cache_path": "evidence-cache/resume-4352-build.sbt",
+      "pull_number": 4352
+    },
+    {
+      "id": "cats-exact-compat-plugins",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/b96d97136cba46c0b324a7db47af6b19105a3ea6/project/plugins.sbt#L1-L1",
+      "occurred_at": "2022-11-20T10:49:05Z",
+      "excerpt": "val sbtTypelevelVersion = \"0.4.17\"",
+      "interpretation": "Exact experimental PR build pins sbt-typelevel 0.4.17, sbt-jmh 0.4.3, Scala.js 1.11.0 and Native 0.4.7. These declarations bound reproduction prerequisites; they do not establish platform test execution.",
+      "commit_sha": "b96d97136cba46c0b324a7db47af6b19105a3ea6",
+      "path": "project/plugins.sbt",
+      "cache_path": "evidence-cache/resume-4352-project--plugins.sbt",
+      "pull_number": 4352
+    },
+    {
+      "id": "cats-exact-compat-sbt",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/b96d97136cba46c0b324a7db47af6b19105a3ea6/project/build.properties#L1-L1",
+      "occurred_at": "2022-11-20T10:49:05Z",
+      "excerpt": "sbt.version=1.8.0",
+      "interpretation": "Exact PR 4352 head pins sbt 1.8.0. This resolves the earlier build-context gap but does not authorize running downloaded builds or installing historical toolchains.",
+      "commit_sha": "b96d97136cba46c0b324a7db47af6b19105a3ea6",
+      "path": "project/build.properties",
+      "cache_path": "evidence-cache/resume-4352-project--build.properties",
+      "pull_number": 4352
+    },
+    {
+      "id": "cats-exact-list-conversion",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/b96d97136cba46c0b324a7db47af6b19105a3ea6/core/src/main/scala/cats/instances/list.scala#L159-L160",
+      "occurred_at": "2022-11-20T10:49:05Z",
+      "excerpt": "val fb = f(a)\n              G.void(fb)",
+      "interpretation": "The closed proposal retains void in the List override after the runtime incompatibility was reported. The declared callback type is G[Unit], but already-compiled old clients may still supply other payloads.",
+      "commit_sha": "b96d97136cba46c0b324a7db47af6b19105a3ea6",
+      "path": "core/src/main/scala/cats/instances/list.scala",
+      "cache_path": "evidence-cache/resume-4352-core--src--main--scala--cats--instances--list.scala",
+      "pull_number": 4352
+    },
+    {
+      "id": "cats-exact-vector-conversion",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/b96d97136cba46c0b324a7db47af6b19105a3ea6/core/src/main/scala/cats/instances/vector.scala#L165-L166",
+      "occurred_at": "2022-11-20T10:49:05Z",
+      "excerpt": "val fb = f(a)\n              G.void(fb)",
+      "interpretation": "The corresponding Vector override also retains conversion; repairing only the generic default misses this dispatch path. This is experimental PR source, not evidence that narrowing shipped.",
+      "commit_sha": "b96d97136cba46c0b324a7db47af6b19105a3ea6",
+      "path": "core/src/main/scala/cats/instances/vector.scala",
+      "cache_path": "evidence-cache/resume-4352-core--src--main--scala--cats--instances--vector.scala",
+      "pull_number": 4352
+    },
+    {
+      "id": "cats-exact-runtime-runner",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/b96d97136cba46c0b324a7db47af6b19105a3ea6/binCompatTest/src/test/scala-2/catsBC/MimaExceptionsTest.scala#L27-L29",
+      "occurred_at": "2022-11-20T10:49:05Z",
+      "excerpt": "test(\"is binary compatible\") {\n    MimaExceptions.isBinaryCompatible\n  }",
+      "interpretation": "The exact PR-head runner calls the old-compiled consumer method. Its MimaExceptionsTest name must not be confused with static MiMa signature analysis.",
+      "commit_sha": "b96d97136cba46c0b324a7db47af6b19105a3ea6",
+      "path": "binCompatTest/src/test/scala-2/catsBC/MimaExceptionsTest.scala",
+      "cache_path": "evidence-cache/resume-4352-binCompatTest--src--test--scala-2--catsBC--MimaExceptionsTest.scala",
+      "pull_number": 4352
+    }
+  ],
+  "claims": [
+    {
+      "id": "cats-c-runtime-compat",
+      "rule": "For erased generic API changes, test an old-compiled caller against the new runtime and inspect every specialized override, not only MiMa signatures or the default implementation.",
+      "evidence_ids": [
+        "cats-runtime-compat-review",
+        "cats-runtime-erasure-review",
+        "cats-old-client-test",
+        "cats-runtime-runner",
+        "cats-build-2022",
+        "cats-exact-compat-build",
+        "cats-exact-compat-plugins",
+        "cats-exact-compat-sbt",
+        "cats-exact-list-conversion",
+        "cats-exact-vector-conversion",
+        "cats-exact-runtime-runner"
+      ],
+      "applicability": "Closed PR 4352 establishes the G[String]-to-G[Unit] runtime-cast hazard. Existing Cats build separates old compile dependencies from current Test runtime; verify current baselines before running.",
+      "counterexample": "Recompiling every client against the narrowed signature cannot reproduce old-bytecode compatibility. Conversely, source-incompatible changes may be intentional in an approved breaking release."
+    },
+    {
+      "id": "cats-c-trait-accessors",
+      "rule": "For a new cached instance in an inherited public Scala 2 trait, consider a concrete def delegating to a private cached value and verify generated compatibility rather than adding a new val field.",
+      "evidence_ids": [
+        "cats-trait-val-review",
+        "cats-instance-source",
+        "cats-build-2020"
+      ],
+      "applicability": "PR 3392 corrected an incorrect assumption about Scala 2.12 trait compatibility. This is a targeted historical strategy, not proof that every def addition is compatible or every val must be changed.",
+      "counterexample": "Replacing an already-published val arbitrarily can itself affect compatibility; a private non-inherited object value is not the problematic public trait addition."
+    }
+  ]
+}

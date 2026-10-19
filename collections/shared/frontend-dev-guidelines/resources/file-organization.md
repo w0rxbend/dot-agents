@@ -18,7 +18,7 @@ Proper file and directory structure for maintainable, scalable frontend code in 
 
 **Examples:**
 - `features/posts/` - Project catalog/post management
-- `features/blogs/` - Blog builder and rendering
+- `features/forms/` - Form builder and rendering
 - `features/auth/` - Authentication flows
 
 **Structure:**
@@ -165,7 +165,7 @@ components/
   presentational/
     MyFeatureDisplay.tsx
   blogs/
-    MyFeatureBlog.tsx
+    MyFeatureForm.tsx
 ```
 
 #### hooks/ Directory
@@ -194,7 +194,7 @@ hooks/
 helpers/
   myFeatureHelpers.ts           # General utilities
   validation.ts                 # Validation logic
-  transblogers.ts               # Data transblogations
+  transformers.ts               # Data transformations
   constants.ts                  # Constants
 ```
 
@@ -312,7 +312,7 @@ userApi.ts
 ```
 myFeatureHelpers.ts
 validation.ts
-transblogers.ts
+transformers.ts
 constants.ts
 ```
 

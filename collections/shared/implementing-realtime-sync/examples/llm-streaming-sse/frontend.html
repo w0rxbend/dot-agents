@@ -304,8 +304,8 @@
                 // Remove cursor before adding content
                 removeCursor();
 
-                // Append token
-                responseDiv.textContent += event.data;
+                // Append token (the server JSON-encodes each payload)
+                responseDiv.textContent += JSON.parse(event.data);
 
                 // Re-add cursor
                 addCursor();
@@ -321,7 +321,8 @@
 
             eventSource.addEventListener('error', (event) => {
                 removeCursor();
-                const errorMsg = event.data || 'Stream error occurred';
+                // Server-sent error events carry JSON data; connection errors have none
+                const errorMsg = event.data ? JSON.parse(event.data) : 'Stream error occurred';
                 showError(errorMsg);
                 eventSource.close();
                 eventSource = null;

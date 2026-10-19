@@ -1,8 +1,8 @@
-.PHONY: check test catalog install uninstall release
+.PHONY: check test catalog review install uninstall render release
 check:
 	python3 scripts/validate.py
 	python3 -m unittest discover -s tests -v
-	sh -n install.sh uninstall.sh update.sh
+	./install.sh render --check
 
 test:
 	python3 -m unittest discover -s tests -v
@@ -10,11 +10,17 @@ test:
 catalog:
 	python3 scripts/catalog.py
 
+review:
+	python3 scripts/refresh_review.py --list
+
+render:
+	./install.sh render
+
 install:
 	./install.sh
 
 uninstall:
-	./uninstall.sh
+	./install.sh uninstall
 
 release:
 	python3 scripts/package.py --version "$$(cat VERSION)"

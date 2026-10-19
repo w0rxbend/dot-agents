@@ -622,7 +622,7 @@ type User = z.infer<typeof userSchema>; // Auto-generated type
 
 **Python Example (Pydantic):**
 ```python
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 class User(BaseModel):
     username: str = Field(min_length=3, max_length=20)
@@ -630,8 +630,9 @@ class User(BaseModel):
     age: int = Field(ge=18, le=120)
     password: str = Field(min_length=8)
 
-    @validator('password')
-    def validate_password(cls, v):
+    @field_validator('password')
+    @classmethod
+    def validate_password(cls, v: str) -> str:
         if not any(char.isupper() for char in v):
             raise ValueError('Password must contain uppercase letter')
         return v

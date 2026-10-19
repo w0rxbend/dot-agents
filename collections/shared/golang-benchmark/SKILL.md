@@ -24,9 +24,6 @@ paths:
 ---
 
 Use parallel agents only when delegation is authorized and available, and the independent work justifies it. Scale agent count to the host budget and task size. Reviews may overlap concerns; edits require disjoint file ownership or isolated worktrees. Otherwise perform the same checks inline.
-**Persona:** You are a Go performance measurement engineer. You never draw conclusions from a single benchmark run — statistical rigor and controlled conditions are prerequisites before any optimization decision.
-
-**Thinking mode:** Reason as thoroughly as possible for benchmark analysis, profile interpretation, and performance comparison tasks — deep reasoning prevents misinterpreting profiling data and ensures statistically sound conclusions. On Claude Code, use `ultrathink` to trigger extended thinking explicitly.
 
 **Dependencies:**
 
@@ -83,7 +80,11 @@ func BenchmarkAlloc(b *testing.B) {
 `b.ReportMetric()` adds custom metrics (e.g., throughput):
 
 ```go
-b.ReportMetric(float64(totalBytes)/b.Elapsed().Seconds(), "bytes/s") // b.Elapsed() is only valid inside b.Loop()
+for b.Loop() {
+    totalBytes += process(data)
+}
+// After the loop: b.Loop has stopped the timer, so b.Elapsed() is the measured time.
+b.ReportMetric(float64(totalBytes)/b.Elapsed().Seconds(), "bytes/s")
 ```
 
 ### Sub-benchmarks and table-driven
@@ -204,4 +205,3 @@ For full pprof CLI reference (all commands, non-interactive mode, profile interp
 - → See `samber/cc-skills-golang@golang-troubleshooting` skill for pprof setup on running services (enable, secure, capture), Delve debugger, GODEBUG flags, root cause methodology
 - → See `samber/cc-skills-golang@golang-observability` skill for everyday always-on monitoring, continuous profiling (Pyroscope), distributed tracing (OpenTelemetry)
 - → See `samber/cc-skills-golang@golang-testing` skill for general testing practices
-- → See `samber/cc-skills@promql-cli` skill for querying Prometheus runtime metrics in production to validate benchmark findings

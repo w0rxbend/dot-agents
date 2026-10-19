@@ -2,12 +2,22 @@
 name: docs-how-to-guide
 description: Write a how-to guide on a specific topic in a ZIO library. Use when the user asks to write a guide or walkthrough that teaches how to accomplish a concrete goal using the library's data types and APIs.
 argument-hint: "[guide title or topic description]"
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(sbt:*), Bash(sbt gh-query*), Bash(git:*), Task, Skill
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(sbt:*), Bash(sbt gh-query*), Bash(git:*), Task, Agent, Skill
 ---
 
 # Write a How-To Guide
 
 Write a comprehensive, goal-oriented how-to guide for the ZIO library being documented.
+
+## Subagents Used by This Skill
+
+The `docs-*` agents this skill delegates to ([`docs-fixer`](references/agents/docs-fixer.md), [`docs-integrator`](references/agents/docs-integrator.md), [`docs-researcher`](references/agents/docs-researcher.md), [`docs-reviewer`](references/agents/docs-reviewer.md)) are not installed as Claude Code agents; each
+has a role brief in this skill's `references/agents/` directory. Wherever a step says to delegate to
+one of them with the `Task` tool, start a fresh general-purpose subagent (`subagent_type:
+"general-purpose"`) whose prompt is the full text of that brief followed by the task prompt shown. If
+you cannot start subagents, do the step yourself as a separate pass that follows the brief exactly —
+the separation rules still hold (a fix pass applies only the reviewer's verbatim findings, and a
+review pass grades the page as written).
 
 ## Guide Topic
 
@@ -44,7 +54,7 @@ conversation, so its only knowledge of what to research is what you tell it:
 ```
 Task(
   description: "Research <topic> for a how-to guide",
-  subagent_type: "documentation:docs-researcher",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-researcher.md, then the text below
   prompt: "Research <topic> for a goal-oriented how-to guide. Find: the specific problem this guide
            solves and what a reader would write to solve it without this library (a real 'before' code
            example); the minimal set of types and operations needed to reach the goal; the key decision
@@ -292,7 +302,7 @@ Follow the **"Running the Examples" section template** from the `docs-examples` 
 
 Two details specific to this guide's needs:
 - Clone and `cd` in one path straight into the examples module directory — `cd <repo>/<examples-module>`, not a separate `cd <repo>` followed by a separate `cd <examples-module>`.
-- Embed each step's file, in order, the same way "Putting It Together" does: a collapsible `<details><summary>` wrapping `` scala mdoc:embed:<path>:show-line-numbers ``, a short sentence on how to run it, and its `sbt "<examples-module>/runMain ..."` command.
+- Embed each step's file, in order, the same way "Putting It Together" does: a collapsible `<details><summary>` wrapping `` scala mdoc:embed:<path>:showLineNumbers ``, a short sentence on how to run it, and its `sbt "<examples-module>/runMain ..."` command.
 
 #### Going Further (Optional)
 
@@ -361,7 +371,7 @@ covers both a full-page checklist/style review and a fact-check — say plainly 
 ```
 Task(
   description: "Fact-check <guide-id> how-to guide",
-  subagent_type: "documentation:docs-reviewer",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-reviewer.md, then the text below
   prompt: "Fact-check this page against source (not a checklist/style review).
            Page: docs/guides/<guide-id>.md
            Subject: <topic>
@@ -376,7 +386,7 @@ the **`docs-fixer`** agent with the `Task` tool — correcting only the **guide*
 ```
 Task(
   description: "Apply fact-check fixes to <guide-id> how-to guide",
-  subagent_type: "documentation:docs-fixer",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-fixer.md, then the text below
   prompt: "Page: docs/guides/<guide-id>.md
            Findings (apply each verbatim):
            <every drift from the fact-check reply, its exact statement included>"
@@ -397,7 +407,7 @@ Delegate to the **`docs-integrator`** agent with the `Task` tool:
 ```
 Task(
   description: "Integrate <guide-id> how-to guide",
-  subagent_type: "documentation:docs-integrator",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-integrator.md, then the text below
   prompt: "Page: docs/guides/<guide-id>.md
            Category: Guides (create it if absent)
            Cross-reference direction: add 'See also' links from related reference pages that already
@@ -418,7 +428,7 @@ to give the exact corrected statement for every failing item, not just what's wr
 ```
 Task(
   description: "Review <guide-id> how-to guide",
-  subagent_type: "documentation:docs-reviewer",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-reviewer.md, then the text below
   prompt: "Full-page review (not a fact-check): evaluate docs/guides/<guide-id>.md against this
            checklist: <CHECKLIST.md's content>
            For every failing item, give the exact corrected statement to apply."
@@ -431,7 +441,7 @@ for each), to the **`docs-fixer`** agent with the `Task` tool:
 ```
 Task(
   description: "Apply review fixes to <guide-id> how-to guide",
-  subagent_type: "documentation:docs-fixer",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-fixer.md, then the text below
   prompt: "Page: docs/guides/<guide-id>.md
            Findings (apply each verbatim):
            <every failing item from the review reply, its exact statement included>"

@@ -1,420 +1,165 @@
 #!/usr/bin/env node
 
 /**
- * Table Performance Analyzer
- * Benchmarks table rendering performance and identifies bottlenecks
+ * Table Data-Operation Benchmark
+ *
+ * Measures how long client-side table operations take on in-memory rows in
+ * Node.js: building row objects, sorting, filtering and paginating. Use it to
+ * decide whether a dataset is small enough for client-side sort/filter or
+ * should move to server-side operations or virtual scrolling.
+ *
+ * It does NOT measure DOM rendering, layout or scroll FPS - those need a
+ * browser (Chrome DevTools Performance panel, React Profiler, Lighthouse).
+ * Browser JavaScript is usually somewhat slower than these Node numbers,
+ * especially on low-end devices, so treat results as a lower bound.
+ *
+ * Usage:
+ *   node analyze_performance.js                       # 100, 1000, 10000 rows
+ *   node analyze_performance.js --rows 10000          # one size
+ *   node analyze_performance.js --rows=1000,50000 --columns=20
+ *   node analyze_performance.js --json                # machine-readable output
  */
 
+const { performance } = require('perf_hooks');
+
+// Budgets for an operation to feel instant in the UI (blocking the main thread)
+const INSTANT_MS = 50;
+const ACCEPTABLE_MS = 200;
+
 class TablePerformanceAnalyzer {
-  constructor() {
-    this.metrics = {
-      renderTime: [],
-      scrollFPS: [],
-      memoryUsage: [],
-      reRenderTime: [],
-      sortTime: [],
-      filterTime: []
-    };
+  constructor({ columnCount = 10 } = {}) {
+    this.columnCount = columnCount;
+    this.results = [];
   }
 
-  /**
-   * Measure initial render performance
-   */
-  measureRenderTime(rowCount, columnCount) {
-    const startTime = performance.now();
+  createRows(rowCount) {
+    const departments = ['Engineering', 'Sales', 'Support', 'Finance', 'Legal'];
+    const rows = new Array(rowCount);
+    for (let i = 0; i < rowCount; i++) {
+      const row = { id: i, name: `User ${(i * 7919) % rowCount}`, dept: departments[i % 5], amount: (i * 2654435761) % 100000 };
+      for (let c = 4; c < this.columnCount; c++) row[`col${c}`] = `v${(i + c) % 997}`;
+      rows[i] = row;
+    }
+    return rows;
+  }
 
-    // Simulate table render
-    const table = this.createVirtualTable(rowCount, columnCount);
+  time(fn, repeats = 5) {
+    // Median of several runs to dampen JIT warm-up and GC noise
+    const samples = [];
+    let result;
+    for (let r = 0; r < repeats; r++) {
+      const start = performance.now();
+      result = fn();
+      samples.push(performance.now() - start);
+    }
+    samples.sort((a, b) => a - b);
+    return { ms: samples[Math.floor(samples.length / 2)], result };
+  }
 
-    const endTime = performance.now();
-    const renderTime = endTime - startTime;
+  benchmark(rowCount) {
+    const build = this.time(() => this.createRows(rowCount), 3);
+    const rows = build.result;
+    const collator = new Intl.Collator(undefined, { numeric: true });
 
-    this.metrics.renderTime.push({
+    const sortNumeric = this.time(() => rows.slice().sort((a, b) => a.amount - b.amount));
+    const sortString = this.time(() => rows.slice().sort((a, b) => collator.compare(a.name, b.name)));
+    const filter = this.time(() => rows.filter(r => r.dept === 'Sales' && r.name.includes('1')));
+    const search = this.time(() => {
+      const q = 'user 12';
+      return rows.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(q)));
+    });
+    const page = this.time(() => rows.slice(rowCount / 2, rowCount / 2 + 50));
+
+    const result = {
       rows: rowCount,
-      columns: columnCount,
-      time: renderTime,
-      throughput: (rowCount * columnCount) / renderTime * 1000 // cells per second
-    });
-
-    return renderTime;
-  }
-
-  /**
-   * Create virtual table structure for testing
-   */
-  createVirtualTable(rows, columns) {
-    const table = [];
-    for (let i = 0; i < rows; i++) {
-      const row = [];
-      for (let j = 0; j < columns; j++) {
-        row.push({
-          value: `Cell ${i}-${j}`,
-          metadata: {
-            row: i,
-            column: j,
-            isSelected: false,
-            isEditable: true
-          }
-        });
-      }
-      table.push(row);
-    }
-    return table;
-  }
-
-  /**
-   * Measure scroll performance
-   */
-  measureScrollPerformance(rowCount, visibleRows = 20) {
-    const frames = [];
-    const duration = 1000; // 1 second of scrolling
-    const targetFPS = 60;
-    const frameTime = 1000 / targetFPS;
-
-    let currentPosition = 0;
-    let frameCount = 0;
-    const maxPosition = rowCount - visibleRows;
-
-    const startTime = performance.now();
-
-    // Simulate scrolling
-    while (performance.now() - startTime < duration) {
-      const frameStart = performance.now();
-
-      // Simulate viewport update
-      currentPosition = Math.min(currentPosition + 10, maxPosition);
-      this.renderViewport(currentPosition, visibleRows);
-
-      const frameEnd = performance.now();
-      const frameDuration = frameEnd - frameStart;
-
-      frames.push(frameDuration);
-      frameCount++;
-
-      // If we've scrolled to the end, reset
-      if (currentPosition >= maxPosition) {
-        currentPosition = 0;
-      }
-    }
-
-    const averageFPS = frameCount / (duration / 1000);
-    const droppedFrames = frames.filter(f => f > frameTime).length;
-
-    this.metrics.scrollFPS.push({
-      rows: rowCount,
-      averageFPS: Math.round(averageFPS),
-      droppedFrames,
-      smoothness: ((frameCount - droppedFrames) / frameCount * 100).toFixed(2)
-    });
-
-    return averageFPS;
-  }
-
-  /**
-   * Simulate viewport rendering
-   */
-  renderViewport(startRow, visibleRows) {
-    const viewport = [];
-    for (let i = startRow; i < startRow + visibleRows; i++) {
-      viewport.push({ row: i, rendered: true });
-    }
-    return viewport;
-  }
-
-  /**
-   * Measure sorting performance
-   */
-  measureSortPerformance(data, columnIndex = 0) {
-    const startTime = performance.now();
-
-    // Clone data to avoid mutation
-    const sortedData = [...data].sort((a, b) => {
-      const aVal = a[columnIndex]?.value || '';
-      const bVal = b[columnIndex]?.value || '';
-      return aVal.localeCompare(bVal);
-    });
-
-    const endTime = performance.now();
-    const sortTime = endTime - startTime;
-
-    this.metrics.sortTime.push({
-      rows: data.length,
-      time: sortTime,
-      itemsPerSecond: (data.length / sortTime * 1000).toFixed(0)
-    });
-
-    return sortTime;
-  }
-
-  /**
-   * Measure filtering performance
-   */
-  measureFilterPerformance(data, filterTerm = 'Cell') {
-    const startTime = performance.now();
-
-    const filteredData = data.filter(row =>
-      row.some(cell =>
-        cell.value.toLowerCase().includes(filterTerm.toLowerCase())
-      )
-    );
-
-    const endTime = performance.now();
-    const filterTime = endTime - startTime;
-
-    this.metrics.filterTime.push({
-      rows: data.length,
-      filtered: filteredData.length,
-      time: filterTime,
-      throughput: (data.length / filterTime * 1000).toFixed(0)
-    });
-
-    return filterTime;
-  }
-
-  /**
-   * Measure memory usage
-   */
-  measureMemoryUsage(rowCount) {
-    if (typeof process !== 'undefined' && process.memoryUsage) {
-      const usage = process.memoryUsage();
-      this.metrics.memoryUsage.push({
-        rows: rowCount,
-        heapUsed: (usage.heapUsed / 1024 / 1024).toFixed(2), // MB
-        heapTotal: (usage.heapTotal / 1024 / 1024).toFixed(2), // MB
-        rss: (usage.rss / 1024 / 1024).toFixed(2) // MB
-      });
-      return usage.heapUsed;
-    }
-    return null;
-  }
-
-  /**
-   * Simulate virtual scrolling performance
-   */
-  measureVirtualScrolling(totalRows, viewportRows = 20) {
-    const windowSize = viewportRows * 3; // Typical buffer
-    const metrics = {
-      totalRows,
-      viewportRows,
-      windowSize,
-      memoryEstimate: (windowSize * 100) / 1024 + ' KB', // ~100 bytes per row
-      domNodes: windowSize,
-      constantComplexity: true
+      columns: this.columnCount,
+      buildMs: build.ms,
+      sortNumericMs: sortNumeric.ms,
+      sortStringMs: sortString.ms,
+      filterMs: filter.ms,
+      globalSearchMs: search.ms,
+      pageSliceMs: page.ms,
+      heapUsedMB: process.memoryUsage().heapUsed / 1024 / 1024,
     };
-
-    return metrics;
+    result.recommendation = this.recommend(result);
+    this.results.push(result);
+    return result;
   }
 
-  /**
-   * Generate performance report
-   */
-  generateReport() {
-    console.log('\n═══════════════════════════════════════');
-    console.log('    TABLE PERFORMANCE ANALYSIS REPORT   ');
-    console.log('═══════════════════════════════════════\n');
-
-    // Render Performance
-    if (this.metrics.renderTime.length > 0) {
-      console.log('📊 RENDER PERFORMANCE');
-      console.log('────────────────────');
-      this.metrics.renderTime.forEach(metric => {
-        const grade = this.gradeRenderTime(metric.time, metric.rows);
-        console.log(`  ${metric.rows} rows × ${metric.columns} columns:`);
-        console.log(`  ⏱  Time: ${metric.time.toFixed(2)}ms ${grade}`);
-        console.log(`  📈 Throughput: ${metric.throughput.toFixed(0)} cells/sec`);
-        console.log('');
-      });
-    }
-
-    // Scroll Performance
-    if (this.metrics.scrollFPS.length > 0) {
-      console.log('📜 SCROLL PERFORMANCE');
-      console.log('────────────────────');
-      this.metrics.scrollFPS.forEach(metric => {
-        const grade = this.gradeFPS(metric.averageFPS);
-        console.log(`  ${metric.rows} rows:`);
-        console.log(`  🎯 FPS: ${metric.averageFPS} ${grade}`);
-        console.log(`  📉 Dropped frames: ${metric.droppedFrames}`);
-        console.log(`  ✨ Smoothness: ${metric.smoothness}%`);
-        console.log('');
-      });
-    }
-
-    // Sort Performance
-    if (this.metrics.sortTime.length > 0) {
-      console.log('🔄 SORT PERFORMANCE');
-      console.log('────────────────────');
-      this.metrics.sortTime.forEach(metric => {
-        const grade = this.gradeSortTime(metric.time, metric.rows);
-        console.log(`  ${metric.rows} rows:`);
-        console.log(`  ⏱  Time: ${metric.time.toFixed(2)}ms ${grade}`);
-        console.log(`  📊 Items/sec: ${metric.itemsPerSecond}`);
-        console.log('');
-      });
-    }
-
-    // Filter Performance
-    if (this.metrics.filterTime.length > 0) {
-      console.log('🔍 FILTER PERFORMANCE');
-      console.log('─────────────────────');
-      this.metrics.filterTime.forEach(metric => {
-        const grade = this.gradeFilterTime(metric.time, metric.rows);
-        console.log(`  ${metric.rows} rows → ${metric.filtered} results:`);
-        console.log(`  ⏱  Time: ${metric.time.toFixed(2)}ms ${grade}`);
-        console.log(`  📊 Throughput: ${metric.throughput} rows/sec`);
-        console.log('');
-      });
-    }
-
-    // Memory Usage
-    if (this.metrics.memoryUsage.length > 0) {
-      console.log('💾 MEMORY USAGE');
-      console.log('───────────────');
-      this.metrics.memoryUsage.forEach(metric => {
-        console.log(`  ${metric.rows} rows:`);
-        console.log(`  📦 Heap Used: ${metric.heapUsed} MB`);
-        console.log(`  📊 Total Heap: ${metric.heapTotal} MB`);
-        console.log(`  🖥  RSS: ${metric.rss} MB`);
-        console.log('');
-      });
-    }
-
-    // Recommendations
-    this.printRecommendations();
+  recommend(r) {
+    const worst = Math.max(r.sortStringMs, r.globalSearchMs);
+    if (worst <= INSTANT_MS) return 'client-side sort/filter is fine';
+    if (worst <= ACCEPTABLE_MS) return 'client-side works but debounce search and memoize sorted rows; consider a Web Worker';
+    return 'move sort/filter/search to the server (or a Worker) and paginate or virtualize rendering';
   }
 
-  /**
-   * Grade performance metrics
-   */
-  gradeRenderTime(time, rows) {
-    const msPerRow = time / rows;
-    if (msPerRow < 0.1) return '✅ Excellent';
-    if (msPerRow < 0.5) return '🟢 Good';
-    if (msPerRow < 1) return '🟡 Fair';
-    return '🔴 Poor';
-  }
-
-  gradeFPS(fps) {
-    if (fps >= 60) return '✅ Perfect';
-    if (fps >= 50) return '🟢 Good';
-    if (fps >= 30) return '🟡 Fair';
-    return '🔴 Poor';
-  }
-
-  gradeSortTime(time, rows) {
-    const msPerRow = time / rows;
-    if (msPerRow < 0.01) return '✅ Excellent';
-    if (msPerRow < 0.05) return '🟢 Good';
-    if (msPerRow < 0.1) return '🟡 Fair';
-    return '🔴 Poor';
-  }
-
-  gradeFilterTime(time, rows) {
-    const msPerRow = time / rows;
-    if (msPerRow < 0.01) return '✅ Excellent';
-    if (msPerRow < 0.05) return '🟢 Good';
-    if (msPerRow < 0.1) return '🟡 Fair';
-    return '🔴 Poor';
-  }
-
-  /**
-   * Print performance recommendations
-   */
-  printRecommendations() {
-    console.log('\n💡 RECOMMENDATIONS');
-    console.log('═════════════════════════════════════');
-
-    const recommendations = [];
-
-    // Check render performance
-    const lastRender = this.metrics.renderTime[this.metrics.renderTime.length - 1];
-    if (lastRender && lastRender.rows > 1000 && lastRender.time > 500) {
-      recommendations.push({
-        issue: 'Slow initial render for large dataset',
-        solution: 'Consider implementing virtual scrolling or pagination'
-      });
+  printReport() {
+    const fmt = ms => `${ms.toFixed(2)}ms`;
+    console.log('\nTable data-operation benchmark (Node.js, median of runs; excludes DOM rendering)\n');
+    for (const r of this.results) {
+      console.log(`${r.rows} rows x ${r.columns} columns`);
+      console.log(`  build rows      ${fmt(r.buildMs)}`);
+      console.log(`  sort (number)   ${fmt(r.sortNumericMs)}`);
+      console.log(`  sort (string)   ${fmt(r.sortStringMs)}`);
+      console.log(`  filter          ${fmt(r.filterMs)}`);
+      console.log(`  global search   ${fmt(r.globalSearchMs)}`);
+      console.log(`  page slice      ${fmt(r.pageSliceMs)}`);
+      console.log(`  heap used       ${r.heapUsedMB.toFixed(1)} MB`);
+      console.log(`  => ${r.recommendation}\n`);
     }
-
-    // Check scroll performance
-    const lastScroll = this.metrics.scrollFPS[this.metrics.scrollFPS.length - 1];
-    if (lastScroll && lastScroll.averageFPS < 50) {
-      recommendations.push({
-        issue: 'Poor scroll performance',
-        solution: 'Implement virtual scrolling to maintain 60fps'
-      });
-    }
-
-    // Check memory usage
-    const lastMemory = this.metrics.memoryUsage[this.metrics.memoryUsage.length - 1];
-    if (lastMemory && parseFloat(lastMemory.heapUsed) > 100) {
-      recommendations.push({
-        issue: 'High memory usage',
-        solution: 'Use virtual scrolling to reduce DOM nodes'
-      });
-    }
-
-    if (recommendations.length === 0) {
-      console.log('  ✅ Performance looks good!');
-      console.log('  Continue monitoring as data grows.');
-    } else {
-      recommendations.forEach((rec, index) => {
-        console.log(`\n  ${index + 1}. ⚠️  ${rec.issue}`);
-        console.log(`     💡 ${rec.solution}`);
-      });
-    }
-
-    console.log('\n═════════════════════════════════════\n');
-  }
-
-  /**
-   * Run complete benchmark suite
-   */
-  runBenchmark(options = {}) {
-    const {
-      rowCounts = [100, 1000, 10000],
-      columnCount = 10
-    } = options;
-
-    console.log('Starting performance benchmark...\n');
-
-    rowCounts.forEach(rowCount => {
-      console.log(`Testing with ${rowCount} rows...`);
-
-      // Create test data
-      const data = this.createVirtualTable(rowCount, columnCount);
-
-      // Run tests
-      this.measureRenderTime(rowCount, columnCount);
-      this.measureScrollPerformance(rowCount);
-      this.measureSortPerformance(data);
-      this.measureFilterPerformance(data);
-      this.measureMemoryUsage(rowCount);
-    });
-
-    // Generate report
-    this.generateReport();
+    console.log(`Budgets: <=${INSTANT_MS}ms feels instant, <=${ACCEPTABLE_MS}ms acceptable with feedback.`);
+    console.log('Measure rendering and scrolling separately in the browser (DevTools Performance panel).');
   }
 }
 
-// CLI interface
-if (require.main === module) {
-  const analyzer = new TablePerformanceAnalyzer();
-
-  // Parse command line arguments
-  const args = process.argv.slice(2);
-  const options = {};
-
-  args.forEach(arg => {
-    if (arg.startsWith('--rows=')) {
-      const rows = arg.split('=')[1].split(',').map(Number);
-      options.rowCounts = rows;
-    } else if (arg.startsWith('--columns=')) {
-      options.columnCount = Number(arg.split('=')[1]);
+function parseArgs(argv) {
+  const opts = { rowCounts: [100, 1000, 10000], columnCount: 10, json: false };
+  const takeValue = (i, name) => {
+    const arg = argv[i];
+    if (arg.includes('=')) return [arg.split('=')[1], i];
+    if (i + 1 >= argv.length) throw new Error(`${name} needs a value`);
+    return [argv[i + 1], i + 1];
+  };
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === '--help' || arg === '-h') {
+      opts.help = true;
+    } else if (arg === '--json') {
+      opts.json = true;
+    } else if (arg.startsWith('--rows')) {
+      const [value, next] = takeValue(i, '--rows');
+      opts.rowCounts = value.split(',').map(Number);
+      i = next;
+    } else if (arg.startsWith('--columns')) {
+      const [value, next] = takeValue(i, '--columns');
+      opts.columnCount = Number(value);
+      i = next;
+    } else {
+      throw new Error(`Unknown argument: ${arg}`);
     }
-  });
+  }
+  if (opts.rowCounts.some(n => !Number.isInteger(n) || n <= 0)) throw new Error('--rows must be positive integers');
+  if (!Number.isInteger(opts.columnCount) || opts.columnCount < 4) throw new Error('--columns must be an integer >= 4');
+  return opts;
+}
 
-  // Run benchmark
-  analyzer.runBenchmark(options);
+if (require.main === module) {
+  let opts;
+  try {
+    opts = parseArgs(process.argv.slice(2));
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+    process.exit(2);
+  }
+  if (opts.help) {
+    console.log('Usage: node analyze_performance.js [--rows N[,N...]] [--columns N] [--json]');
+    console.log('Benchmarks in-memory sort/filter/search/pagination; does not measure DOM rendering.');
+    process.exit(0);
+  }
+  const analyzer = new TablePerformanceAnalyzer({ columnCount: opts.columnCount });
+  for (const n of opts.rowCounts) analyzer.benchmark(n);
+  if (opts.json) console.log(JSON.stringify(analyzer.results, null, 2));
+  else analyzer.printReport();
 }
 
 module.exports = TablePerformanceAnalyzer;

@@ -1,0 +1,415 @@
+{
+  "schema_version": 1,
+  "repository": "http4s/http4s",
+  "evidence": [
+    {
+      "id": "e1851-builder-question",
+      "kind": "review-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/1851#discussion_r187616026",
+      "occurred_at": "2018-05-11T13:38:50Z",
+      "excerpt": "A `Sync` constraint is sufficient to get `delay`.  But is this even a side effect?  Why isn't this pure?",
+      "interpretation": "Ross questioned the allocation effect, not mandated its removal. The author explained shared executor/pool state and Ross explicitly changed his view in discussion_r187729473; read the entire exchange before deriving advice.",
+      "author": "rossabaker",
+      "role_basis": "unknown",
+      "pull_number": 1851,
+      "provenance": {
+        "corpus_path": "pulls/1851-393f99deb22988f02f01.json",
+        "collection": "review_comments",
+        "record_id": 187616026
+      }
+    },
+    {
+      "id": "e1851-builder-response",
+      "kind": "review-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/1851#discussion_r187637850",
+      "occurred_at": "2018-05-11T14:50:03Z",
+      "excerpt": "Creating the `Builder` creates all of the internals which the `OkHttpClient` is going to use, including an `Executor` and a `ConnectionPool`, so during testing when I shared the same configuration between two clients, shutting one down shut down the other.",
+      "interpretation": "Author report of a concrete shared-resource failure supports retaining per-acquisition builder allocation. It is not a test execution performed in this research run; this PR closed in favor of #1864.",
+      "author": "andimiller",
+      "role_basis": "unknown",
+      "pull_number": 1851,
+      "provenance": {
+        "corpus_path": "pulls/1851-393f99deb22988f02f01.json",
+        "collection": "review_comments",
+        "record_id": 187637850
+      }
+    },
+    {
+      "id": "e1851-version-boundary",
+      "kind": "review-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/1851#discussion_r187617755",
+      "occurred_at": "2018-05-11T13:44:39Z",
+      "excerpt": "Note that as soon as we're on cats-effect-1.0, we're going to want this to return a `Resource[F, Client[F]]`.  But this is the right thing for now.",
+      "interpretation": "Explicit historical version boundary: do not demand the later Resource-based factory on the reviewed pre-1.0 Cats Effect API.",
+      "author": "rossabaker",
+      "role_basis": "unknown",
+      "pull_number": 1851,
+      "provenance": {
+        "corpus_path": "pulls/1851-393f99deb22988f02f01.json",
+        "collection": "review_comments",
+        "record_id": 187617755
+      }
+    },
+    {
+      "id": "e6077-state-scope",
+      "kind": "review-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/6077#discussion_r816443611",
+      "occurred_at": "2022-03-01T04:39:24Z",
+      "excerpt": "Hmm, sorry, this doesn't seem quite right either, since it would create a new `NonceKeeper` per-request.",
+      "interpretation": "Reviewer corrects the placement of F.delay: middleware state must be allocated once per factory execution, not freshly for every request. Proposed type is F[Kleisli[...]].",
+      "author": "armanbilge",
+      "role_basis": "unknown",
+      "pull_number": 6077,
+      "provenance": {
+        "corpus_path": "pulls/6077-ab84047f3c6940563fde.json",
+        "collection": "review_comments",
+        "record_id": 816443611
+      }
+    },
+    {
+      "id": "e6077-source-compat",
+      "kind": "issue-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/6077#issuecomment-1069447411",
+      "occurred_at": "2022-03-16T18:39:14Z",
+      "excerpt": "Oh, good point about `IO` and the default parameters issue. This is clearly a source-compatibility problem more than a bin-compatibility problem",
+      "interpretation": "After the author demonstrated ambiguous IO overloads and default-argument conflicts, the reviewer accepted applyF. Binary signature reasoning alone was insufficient.",
+      "author": "armanbilge",
+      "role_basis": "unknown",
+      "pull_number": 6077,
+      "provenance": {
+        "corpus_path": "pulls/6077-ab84047f3c6940563fde.json",
+        "collection": "issue_comments",
+        "record_id": 1069447411
+      }
+    },
+    {
+      "id": "e6077-no-speculative-api",
+      "kind": "review",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/6077#pullrequestreview-912408726",
+      "occurred_at": "2022-03-17T00:10:25Z",
+      "excerpt": "Personally I'd feel a bit funny shipping this without a matching implementation, since without one it's hard to know for sure if we got the constraints right and/or missed anything else.",
+      "interpretation": "The reviewer resisted shipping speculative typeclass constraints before implementing the new nonce keeper. This proposal was superseded by #6138, not merged as-is.",
+      "author": "armanbilge",
+      "role_basis": "unknown",
+      "pull_number": 6077,
+      "provenance": {
+        "corpus_path": "pulls/6077-ab84047f3c6940563fde.json",
+        "collection": "reviews",
+        "record_id": 912408726
+      }
+    },
+    {
+      "id": "e6138-compat-adapter",
+      "kind": "issue-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/6138#issuecomment-1072343000",
+      "occurred_at": "2022-03-18T11:59:29Z",
+      "excerpt": "Annoying, but I think we have to keep the old `NonceKeeper` as well, because we need it to implement the deprecated methods in `DigestAuth` that are not using `F[_]` to preserve backwards-compatibility.",
+      "interpretation": "Historical CE2 maintenance release kept the old implementation behind deprecated APIs while adding an effectful replacement. Not permission to use deprecated unsafe allocation in new code.",
+      "author": "armanbilge",
+      "role_basis": "unknown",
+      "pull_number": 6138,
+      "provenance": {
+        "corpus_path": "pulls/6138-9c49bdd4f03733fd2d04.json",
+        "collection": "issue_comments",
+        "record_id": 1072343000
+      }
+    },
+    {
+      "id": "e6138-monotonic",
+      "kind": "review-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/6138#discussion_r831371816",
+      "occurred_at": "2022-03-21T17:31:32Z",
+      "excerpt": "`realTime` is prone to non-monotonicity.  If this is about intervals and not about wall time, we might want the monotonic time.",
+      "interpretation": "Review distinguishes elapsed lifetime measurement from calendar time. Final NonceKeeperF reads Clock.monotonic; this does not verify its stale-eviction comparison itself.",
+      "author": "rossabaker",
+      "role_basis": "unknown",
+      "pull_number": 6138,
+      "provenance": {
+        "corpus_path": "pulls/6138-9c49bdd4f03733fd2d04.json",
+        "collection": "review_comments",
+        "record_id": 831371816
+      }
+    },
+    {
+      "id": "e6469-test-not-sleep",
+      "kind": "review-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/6469#discussion_r899155432",
+      "occurred_at": "2022-06-16T14:35:10Z",
+      "excerpt": "Given that `testee.takeToken` is non-blocking, it seems to me it is testing if `IO.sleep` works",
+      "interpretation": "The reviewer revises an earlier timestamp suggestion after learning takeToken is nonblocking. The useful assertion is availability before/after refill, not merely observing virtual sleep.",
+      "author": "armanbilge",
+      "role_basis": "unknown",
+      "pull_number": 6469,
+      "provenance": {
+        "corpus_path": "pulls/6469-68ab1007eb1734854042.json",
+        "collection": "review_comments",
+        "record_id": 899155432
+      }
+    },
+    {
+      "id": "e6469-before-after",
+      "kind": "review-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/6469#discussion_r899172151",
+      "occurred_at": "2022-06-16T14:50:58Z",
+      "excerpt": "1. test that before that threshold the outcome is not the expected value\r\n2. test that after instead it is",
+      "interpretation": "Author states the repaired temporal oracle. Final ThrottleSuite observes unavailable before sleeping and available after; other tests must independently assert their intended invariants.",
+      "author": "FrancescoSerra",
+      "role_basis": "unknown",
+      "pull_number": 6469,
+      "provenance": {
+        "corpus_path": "pulls/6469-68ab1007eb1734854042.json",
+        "collection": "review_comments",
+        "record_id": 899172151
+      }
+    },
+    {
+      "id": "e6469-rejection-generator",
+      "kind": "review-comment",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/pull/6469#discussion_r900874272",
+      "occurred_at": "2022-06-18T12:36:58Z",
+      "excerpt": "IIUC the problem is that `genFiniteDuration.suchThat(_ < fd1)` is a rejection sampler: it will keep generating new samples until it satisfies the criterion that `fd2 < fd1`.",
+      "interpretation": "Reviewer explains why constrained duration generation may exhaust samples; the ensuing zero/resolution discussion must accompany any generator change.",
+      "author": "armanbilge",
+      "role_basis": "unknown",
+      "pull_number": 6469,
+      "provenance": {
+        "corpus_path": "pulls/6469-68ab1007eb1734854042.json",
+        "collection": "review_comments",
+        "record_id": 900874272
+      }
+    },
+    {
+      "id": "e6138-factory-scope",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/11ef78bee0d730a24c42a22f5d32f05db97839c0/server/src/main/scala/org/http4s/server/middleware/authentication/DigestAuth.scala#L164-L179",
+      "occurred_at": "2022-03-22T20:57:53Z",
+      "excerpt": "  def challenge[F[_], A](\n      realm: String,\n      store: AuthStore[F, A],\n      blocker: Blocker,\n      nonceCleanupInterval: Duration = 1.hour,\n      nonceStaleTime: Duration = 1.hour,\n      nonceBits: Int = 160,\n  )(implicit\n      F: Concurrent[F],\n      t: Timer[F],\n      cs: ContextShift[F],\n  ): F[Kleisli[F, Request[F], Either[Challenge, AuthedRequest[F, A]]]] =\n    NonceKeeperF[F](nonceStaleTime, nonceCleanupInterval, nonceBits, blocker)\n      .map { nonceKeeper =>\n        challengeInterop[F, A](realm, store, nonceKeeper.newNonce(), nonceKeeper.receiveNonce _)\n      }",
+      "interpretation": "Source observation: the new challenge allocates the keeper in F before mapping to a reusable Kleisli. Its state is not reallocated in the request callback.",
+      "commit_sha": "11ef78bee0d730a24c42a22f5d32f05db97839c0",
+      "path": "server/src/main/scala/org/http4s/server/middleware/authentication/DigestAuth.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/11ef78bee0d730a24c42a22f5d32f05db97839c0/server/src/main/scala/org/http4s/server/middleware/authentication/DigestAuth.scala",
+        "source_path": "server/src/main/scala/org/http4s/server/middleware/authentication/DigestAuth.scala"
+      }
+    },
+    {
+      "id": "e6138-old-factory-kept",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/11ef78bee0d730a24c42a22f5d32f05db97839c0/server/src/main/scala/org/http4s/server/middleware/authentication/DigestAuth.scala#L92-L103",
+      "occurred_at": "2022-03-22T20:57:53Z",
+      "excerpt": "  @deprecated(\"Calling apply is side-effecting, please use applyF\", \"0.22.13\")\n  def apply[F[_]: Sync, A](\n      realm: String,\n      store: String => F[Option[(A, String)]],\n      nonceCleanupInterval: Duration = 1.hour,\n      nonceStaleTime: Duration = 1.hour,\n      nonceBits: Int = 160,\n  ): AuthMiddleware[F, A] = {\n    val nonceKeeper =\n      new NonceKeeper(nonceStaleTime.toMillis, nonceCleanupInterval.toMillis, nonceBits)\n    challenged(challenge(realm, store, nonceKeeper))\n  }",
+      "interpretation": "Source observation: the old impure apply remains deprecated for compatibility. Reusing this implementation as a new-code exemplar would invert the purpose of the migration.",
+      "commit_sha": "11ef78bee0d730a24c42a22f5d32f05db97839c0",
+      "path": "server/src/main/scala/org/http4s/server/middleware/authentication/DigestAuth.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/11ef78bee0d730a24c42a22f5d32f05db97839c0/server/src/main/scala/org/http4s/server/middleware/authentication/DigestAuth.scala",
+        "source_path": "server/src/main/scala/org/http4s/server/middleware/authentication/DigestAuth.scala"
+      }
+    },
+    {
+      "id": "e6138-nonce-permit",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/11ef78bee0d730a24c42a22f5d32f05db97839c0/server/src/main/scala/org/http4s/server/middleware/authentication/NonceKeeperF.scala#L124-L139",
+      "occurred_at": "2022-03-22T20:57:53Z",
+      "excerpt": "  def receiveNonce(data: String, nc: Int): F[NonceKeeper.Reply] =\n    semaphore.withPermit {\n      for {\n        _ <- unsafeCheckStale()\n        res <- nonces.get(data) match {\n          case null => F.pure(NonceKeeper.StaleReply)\n          case n: NonceF[F] =>\n            n.nc.modify { lastNc =>\n              if (nc > lastNc) {\n                (lastNc + 1, NonceKeeper.OKReply)\n              } else\n                (lastNc, NonceKeeper.BadNCReply)\n            }\n        }\n      } yield res\n    }",
+      "interpretation": "Source observation: nonce lookup/update is under withPermit and Ref.modify. The code advances lastNc by one rather than storing submitted nc; tests with larger counter jumps remain an explicit audit gap.",
+      "commit_sha": "11ef78bee0d730a24c42a22f5d32f05db97839c0",
+      "path": "server/src/main/scala/org/http4s/server/middleware/authentication/NonceKeeperF.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/11ef78bee0d730a24c42a22f5d32f05db97839c0/server/src/main/scala/org/http4s/server/middleware/authentication/NonceKeeperF.scala",
+        "source_path": "server/src/main/scala/org/http4s/server/middleware/authentication/NonceKeeperF.scala"
+      }
+    },
+    {
+      "id": "e6138-stale-predicate",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/11ef78bee0d730a24c42a22f5d32f05db97839c0/server/src/main/scala/org/http4s/server/middleware/authentication/NonceKeeperF.scala#L79-L99",
+      "occurred_at": "2022-03-22T20:57:53Z",
+      "excerpt": "  private def unsafeCheckStale(): F[Unit] =\n    for {\n      nowMillis <- clock.monotonic(MILLISECONDS)\n      lastCleanupTime <- lastCleanupMillis.get\n      result <-\n        if (nowMillis - lastCleanupTime > nonceCleanupInterval.toMillis) {\n          lastCleanupMillis\n            .set(nowMillis)\n            .flatMap { _ =>\n              // Because we are using an LinkedHashMap, the keys will be returned in the order they were\n              // inserted. Therefore, once we reach a non-stale value, the remaining values are also not stale.\n              F.tailRecM[ju.Iterator[NonceF[F]], Unit](nonces.values().iterator()) {\n                case it\n                    if it.hasNext && staleTimeout.toMillis > nowMillis - it.next().createdMillis =>\n                  F.delay(Left {\n                    it.remove()\n                    it\n                  })\n                case _ => F.delay(Right(()))\n              }\n            }",
+      "interpretation": "Source observation: cleanup uses monotonic time but removes entries under a staleTimeout greater-than-age predicate. That comparison deserves a boundary regression; this report does not certify nonce-expiry correctness.",
+      "commit_sha": "11ef78bee0d730a24c42a22f5d32f05db97839c0",
+      "path": "server/src/main/scala/org/http4s/server/middleware/authentication/NonceKeeperF.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/11ef78bee0d730a24c42a22f5d32f05db97839c0/server/src/main/scala/org/http4s/server/middleware/authentication/NonceKeeperF.scala",
+        "source_path": "server/src/main/scala/org/http4s/server/middleware/authentication/NonceKeeperF.scala"
+      }
+    },
+    {
+      "id": "e6138-blocker-not-yet-used",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/11ef78bee0d730a24c42a22f5d32f05db97839c0/server/src/main/scala/org/http4s/server/middleware/authentication/NonceF.scala#L41-L54",
+      "occurred_at": "2022-03-22T20:57:53Z",
+      "excerpt": "  private def getRandomData[F[_]](bits: Int)(implicit F: Sync[F]): F[String] =\n    F.delay(new BigInteger(bits, random).toString(16))\n\n  @nowarn(\"msg=parameter value\")\n  def gen[F[_]](blocker: Blocker, bits: Int)(implicit\n      F: Sync[F],\n      t: Timer[F],\n      cs: ContextShift[F],\n  ): F[NonceF[F]] = for {\n    nc <- Ref[F].of(0)\n    data <- getRandomData[F](bits)\n    createdMillis <- Clock[F].monotonic(MILLISECONDS)\n  } yield new NonceF(createdMillis, nc, data)\n}",
+      "interpretation": "Source observation: gen accepts a Blocker but calls getRandomData directly under F.delay. Passing an argument alone is not proof of blocking isolation; reviews mention later helper integration.",
+      "commit_sha": "11ef78bee0d730a24c42a22f5d32f05db97839c0",
+      "path": "server/src/main/scala/org/http4s/server/middleware/authentication/NonceF.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/11ef78bee0d730a24c42a22f5d32f05db97839c0/server/src/main/scala/org/http4s/server/middleware/authentication/NonceF.scala",
+        "source_path": "server/src/main/scala/org/http4s/server/middleware/authentication/NonceF.scala"
+      }
+    },
+    {
+      "id": "e6138-replay-test",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/11ef78bee0d730a24c42a22f5d32f05db97839c0/server/src/test/scala/org/http4s/server/middleware/authentication/AuthenticationSuite.scala#L302-L320",
+      "occurred_at": "2022-03-22T20:57:53Z",
+      "excerpt": "    test(\"DigestAuthentication should avoid many concurrent replay attacks\") {\n      val n = 100\n      val results = for {\n        digestAuthMiddleware <- DigestAuth.applyF(realm, plainTextAuthStore, testBlocker)\n        digestAuthService = digestAuthMiddleware(service)\n        challenge <- doDigestAuth1(digestAuthService.orNotFound)\n        results <- (1 to n)\n          .map(_ =>\n            doDigestAuth2(digestAuthService.orNotFound, challenge, withReplay = false)\n              .map(_._1.status)\n          )\n          .toList\n          .parSequence\n      } yield results\n\n      results.map { res =>\n        assertEquals(res.count(s => s == Ok), 1)\n        assertEquals(res.count(s => s == Unauthorized), n - 1)\n      }",
+      "interpretation": "Source observation: concurrent replay test requires one successful request and remaining unauthorized responses. It exercises repeated use of the first counter, not arbitrary monotonically increasing counters.",
+      "commit_sha": "11ef78bee0d730a24c42a22f5d32f05db97839c0",
+      "path": "server/src/test/scala/org/http4s/server/middleware/authentication/AuthenticationSuite.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/11ef78bee0d730a24c42a22f5d32f05db97839c0/server/src/test/scala/org/http4s/server/middleware/authentication/AuthenticationSuite.scala",
+        "source_path": "server/src/test/scala/org/http4s/server/middleware/authentication/AuthenticationSuite.scala"
+      }
+    },
+    {
+      "id": "e6469-clock-and-positive-refill",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/d04cf43f349a86564ff4475d5ab13e58d0d55203/server/shared/src/main/scala/org/http4s/server/middleware/Throttle.scala#L65-L76",
+      "occurred_at": "2022-06-20T17:13:23Z",
+      "excerpt": "    def local[F[_]](capacity: Int, refillEvery: FiniteDuration)(implicit\n        F: Temporal[F]\n    ): F[TokenBucket[F]] = {\n      val getNanoTime = Temporal[F].monotonic.map(_.toNanos)\n      val refillEveryNanos = refillEvery.toNanos\n      for {\n        // make sure that refillEvery is positive\n        _ <- F.raiseUnless(refillEveryNanos > 0L)(\n          new IllegalArgumentException(\"refillEvery should be > 0 nano\")\n        )\n        creationTime <- getNanoTime\n        counter <- F.ref((capacity.toDouble, creationTime))",
+      "interpretation": "Source observation: interval arithmetic uses monotonic nanoseconds and rejects a nonpositive refill period inside F. A val holding an effect is distinct from executing and memoizing its clock result.",
+      "commit_sha": "d04cf43f349a86564ff4475d5ab13e58d0d55203",
+      "path": "server/shared/src/main/scala/org/http4s/server/middleware/Throttle.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/d04cf43f349a86564ff4475d5ab13e58d0d55203/server/shared/src/main/scala/org/http4s/server/middleware/Throttle.scala",
+        "source_path": "server/shared/src/main/scala/org/http4s/server/middleware/Throttle.scala"
+      }
+    },
+    {
+      "id": "e6469-availability-test",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/d04cf43f349a86564ff4475d5ab13e58d0d55203/server/shared/src/test/scala/org/http4s/server/middleware/ThrottleSuite.scala#L63-L75",
+      "occurred_at": "2022-06-20T17:13:23Z",
+      "excerpt": "      val takeTokenAfterRefill = createBucket.flatMap { testee =>\n        for {\n          _ <- testee.takeToken\n          unavailable <- testee.takeToken\n          _ <- IO.sleep(someRefillTime)\n          available <- testee.takeToken\n        } yield unavailable -> available\n      }\n\n      TestControl\n        .executeEmbed(takeTokenAfterRefill)\n        .map { case (a, b) => a.isInstanceOf[TokenUnavailable] && b == TokenAvailable }\n        .assert",
+      "interpretation": "Source observation: TestControl executes a program checking unavailable before refill and available after. This tests token state, not just elapsed sleep.",
+      "commit_sha": "d04cf43f349a86564ff4475d5ab13e58d0d55203",
+      "path": "server/shared/src/test/scala/org/http4s/server/middleware/ThrottleSuite.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/d04cf43f349a86564ff4475d5ab13e58d0d55203/server/shared/src/test/scala/org/http4s/server/middleware/ThrottleSuite.scala",
+        "source_path": "server/shared/src/test/scala/org/http4s/server/middleware/ThrottleSuite.scala"
+      }
+    },
+    {
+      "id": "e6138-effect-pins",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/11ef78bee0d730a24c42a22f5d32f05db97839c0/project/Http4sPlugin.scala#L144-L153",
+      "occurred_at": "2022-03-22T20:57:53Z",
+      "excerpt": "    val cats = \"2.7.0\"\n    val catsEffect = \"2.5.4\"\n    val catsParse = \"0.3.6\"\n    val circe = \"0.14.1\"\n    val crypto = \"0.1.0\"\n    val cryptobits = \"1.3\"\n    val disciplineCore = \"1.4.0\"\n    val dropwizardMetrics = \"4.2.9\"\n    val fs2 = \"2.5.10\"\n    val ip4s = \"2.0.4\"",
+      "interpretation": "Source observation: these dependency pins belong to this exact commit, not to every branch in the calendar year. The separate version matrix records compiler/platform context and known gaps.",
+      "commit_sha": "11ef78bee0d730a24c42a22f5d32f05db97839c0",
+      "path": "project/Http4sPlugin.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/11ef78bee0d730a24c42a22f5d32f05db97839c0/project/Http4sPlugin.scala",
+        "source_path": "project/Http4sPlugin.scala"
+      }
+    },
+    {
+      "id": "e6469-effect-pins",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/d04cf43f349a86564ff4475d5ab13e58d0d55203/project/Http4sPlugin.scala#L102-L110",
+      "occurred_at": "2022-06-20T17:13:23Z",
+      "excerpt": "    val cats = \"2.8.0\"\n    val catsEffect = \"3.3.12\"\n    val catsParse = \"0.3.7\"\n    val circe = \"0.14.2\"\n    val crypto = \"0.2.3\"\n    val cryptobits = \"1.3\"\n    val disciplineCore = \"1.5.1\"\n    val fs2 = \"3.2.8\"\n    val ip4s = \"3.1.3\"",
+      "interpretation": "Source observation: these dependency pins belong to this exact commit, not to every branch in the calendar year. The separate version matrix records compiler/platform context and known gaps.",
+      "commit_sha": "d04cf43f349a86564ff4475d5ab13e58d0d55203",
+      "path": "project/Http4sPlugin.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/d04cf43f349a86564ff4475d5ab13e58d0d55203/project/Http4sPlugin.scala",
+        "source_path": "project/Http4sPlugin.scala"
+      }
+    },
+    {
+      "id": "e6469-discarded-cancel-assertion",
+      "kind": "code",
+      "repository": "http4s/http4s",
+      "url": "https://github.com/http4s/http4s/blob/d04cf43f349a86564ff4475d5ab13e58d0d55203/server/shared/src/test/scala/org/http4s/server/middleware/TimeoutSuite.scala#L121-L134",
+      "occurred_at": "2022-06-20T17:13:23Z",
+      "excerpt": "  test(\"cancel the loser\") {\n    forAllF(genFiniteDuration) { (timeOut: FiniteDuration) =>\n      val canceled = new AtomicBoolean(false)\n      val routes = HttpRoutes.of[IO] { case _ =>\n        IO.never.guarantee(IO(canceled.set(true)))\n      }\n\n      val prog = testMiddleware(timeOut, routes) { app =>\n        checkStatus(app(Request[IO]()), Status.ServiceUnavailable) *>\n          // Give the losing response enough time to finish\n          IO.sleep(100.milliseconds) *> IO(canceled.get).map(_ => ())\n      }\n\n      TestControl.executeEmbed(prog)",
+      "interpretation": "Source observation: cancel the loser reads canceled.get then maps the Boolean to Unit, so removing the finalizer would not be detected by this flag observation. A replacement assertion is prospective, not executed here.",
+      "commit_sha": "d04cf43f349a86564ff4475d5ab13e58d0d55203",
+      "path": "server/shared/src/test/scala/org/http4s/server/middleware/TimeoutSuite.scala",
+      "provenance": {
+        "candidate_cache_path": "evidence-cache/source/d04cf43f349a86564ff4475d5ab13e58d0d55203/server/shared/src/test/scala/org/http4s/server/middleware/TimeoutSuite.scala",
+        "source_path": "server/shared/src/test/scala/org/http4s/server/middleware/TimeoutSuite.scala"
+      }
+    }
+  ],
+  "claims": [
+    {
+      "id": "c-factory-state-lifetime",
+      "rule": "For stateful middleware and client factories, suspend allocation at the acquisition boundary and share that one acquired state across its requests; do not fix eagerness by recreating state per request.",
+      "evidence_ids": [
+        "e1851-builder-question",
+        "e1851-builder-response",
+        "e1851-version-boundary",
+        "e6077-state-scope",
+        "e6138-factory-scope",
+        "e6138-replay-test",
+        "e6138-effect-pins"
+      ],
+      "applicability": "Historical pre-1.0 Cats Effect client allocation and CE2 DigestAuth show the same scope error in different APIs. This is a derived cross-case rule; use the target version's F/Resource constructors and retain the repository effect model.",
+      "counterexample": "Immutable configuration values with no owned executor, pool or mutable authentication state need not be delayed. An intentionally request-local counter is not middleware-wide state."
+    },
+    {
+      "id": "c-factory-entrypoint-migration",
+      "rule": "When making a published http4s middleware factory effectful on a compatibility-preserving branch, keep the promised legacy signature and compile concrete IO calls with defaults; use a distinct factory name when constraint-only overloads remain ambiguous.",
+      "evidence_ids": [
+        "e6077-source-compat",
+        "e6077-no-speculative-api",
+        "e6138-compat-adapter",
+        "e6138-old-factory-kept"
+      ],
+      "applicability": "A narrow factory-specific procedure derived from the superseded #6077 and implemented #6138 discussion, not a new general MiMa or API-design checklist. Establish constraints from the actual new state implementation.",
+      "counterexample": "A deliberate incompatible major-version migration may remove old entrypoints; do not preserve every historical deprecated method when the target release does not promise that compatibility."
+    },
+    {
+      "id": "c-temporal-test-oracle",
+      "rule": "Replace wall-clock-sensitive middleware tests with version-appropriate virtual time, but assert domain state before and after the threshold; record completion timestamps only when the operation itself waits. Use monotonic time for intervals.",
+      "evidence_ids": [
+        "e6469-test-not-sleep",
+        "e6469-before-after",
+        "e6469-rejection-generator",
+        "e6138-monotonic",
+        "e6469-clock-and-positive-refill",
+        "e6469-availability-test",
+        "e6469-effect-pins"
+      ],
+      "applicability": "CE3 TestControl in the 2022 throttle/timeout tests; CE2 Clock API differs. Generator resolution, positive periods and cancellation assertions remain separate proof obligations, not consequences of executeEmbed.",
+      "counterexample": "Virtual time does not validate a real socket, blocking executor or foreign clock. A test that merely sleeps then checks elapsed time cannot establish that a nonblocking token bucket changed state."
+    },
+    {
+      "id": "c-middleware-oracle-boundaries",
+      "rule": "Inference: before claiming a stateful middleware refactor is hardened, inspect assertions and primitive wiring; independently test expiry boundaries, nonconsecutive nonce replay and cancellation signals rather than inferring those properties from effects, parameter names or test titles.",
+      "evidence_ids": [
+        "e6138-blocker-not-yet-used",
+        "e6138-stale-predicate",
+        "e6138-nonce-permit",
+        "e6138-replay-test",
+        "e6469-discarded-cancel-assertion"
+      ],
+      "applicability": "Source-only inference tied to narrow historical CE2 nonce and CE3 timeout examples. The observed unused Blocker and discarded Boolean are limits to the historical exemplar, not verified present-day vulnerabilities or executed exploit reports.",
+      "counterexample": "A narrow allocation fix can intentionally leave a documented unrelated expiry follow-up. Report that coverage gap separately rather than claiming the patch introduced every pre-existing weakness."
+    }
+  ]
+}

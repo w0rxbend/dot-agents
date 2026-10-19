@@ -92,7 +92,7 @@ TEAM PRIORITIES?
 ### Python: SQLAlchemy 2.0 + SQLModel
 
 **Recommended Libraries:**
-- **SQLAlchemy 2.0** (`/websites/sqlalchemy_en_21`) - ORM + Core, 7,090 snippets
+- **SQLAlchemy 2.0** - ORM + Core
 - **SQLModel** - FastAPI integration, Pydantic validation
 - **asyncpg** - High-performance async PostgreSQL driver
 
@@ -114,8 +114,8 @@ class User(SQLModel, table=True):
 ### TypeScript: Prisma vs Drizzle
 
 **Recommended Libraries:**
-- **Prisma 6.x** (`/prisma/prisma`, score: 96.4, 4,281 doc snippets) - Best DX, migrations
-- **Drizzle ORM** (`/drizzle-team/drizzle-orm-docs`, score: 95.4, 4,037 snippets) - Performance, SQL-like
+- **Prisma** - Best DX, migrations
+- **Drizzle ORM** - Performance, SQL-like
 
 **Quick Comparison:**
 - **Prisma**: Best DX, auto-generated types, migrations included
@@ -135,9 +135,11 @@ class User(SQLModel, table=True):
 use sqlx::FromRow;
 #[derive(FromRow)]
 struct User { id: i32, email: String, name: String }
-// Compile-time checked queries (verified at build time!)
-let user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE email = $1")
-    .bind("test@example.com").fetch_one(&pool).await?;
+// The query_as! macro checks SQL and column types at build time
+// (needs DATABASE_URL or `cargo sqlx prepare` offline data)
+let user = sqlx::query_as!(User, "SELECT id, email, name FROM users WHERE email = $1", "test@example.com")
+    .fetch_one(&pool).await?;
+// sqlx::query_as::<_, User>(...).bind(..) also works but is only checked at runtime
 ```
 
 **See:** `references/orms-rust.md` for SQLx macros, SeaORM, Diesel patterns, and compile-time guarantees.
@@ -200,7 +202,7 @@ user, err := queries.CreateUser(ctx, db.CreateUserParams{Email: "test@example.co
 - **Dashboards skill**: Aggregation queries (COUNT, SUM) → API → KPI cards
 - **Search-filter skill**: Full-text search (PostgreSQL tsvector) → Ranked results
 
-**See working examples in:** `examples/python-sqlalchemy/`, `examples/typescript-drizzle/`, `examples/rust-sqlx/`
+**See the working example in:** `examples/python-sqlalchemy/`
 
 ## Bundled Resources
 
@@ -218,10 +220,8 @@ user, err := queries.CreateUser(ctx, db.CreateUserParams{Email: "test@example.co
 
 ### Working Examples
 - `examples/python-sqlalchemy/` - SQLAlchemy 2.0 + FastAPI with pooling, migrations
-- `examples/typescript-prisma/` - Prisma + Next.js with schema, migrations
-- `examples/typescript-drizzle/` - Drizzle + Hono with type-safe queries
-- `examples/rust-sqlx/` - SQLx + Axum with compile-time checks
-- `examples/go-sqlc/` - sqlc + Gin with generated type-safe code
+
+For Prisma, Drizzle, SQLx and sqlc, use the patterns in the matching `references/orms-*.md` file.
 
 ### Utility Scripts
 - `scripts/validate_schema.py` - Validate database schema structure, constraints

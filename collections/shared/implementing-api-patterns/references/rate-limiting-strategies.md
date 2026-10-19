@@ -57,7 +57,7 @@ async def list_items():
 @app.post("/items")
 @limiter.limit("10/second;100/minute;1000/hour")
 async def create_item(item: Item):
-    return {"id": 1, **item.dict()}
+    return {"id": 1, **item.model_dump()}
 ```
 
 **Hono + Redis Implementation:**

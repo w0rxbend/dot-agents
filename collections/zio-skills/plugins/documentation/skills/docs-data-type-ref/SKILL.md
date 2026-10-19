@@ -2,13 +2,23 @@
 name: docs-data-type-ref
 description: Write a reference documentation page for a specific data type in a ZIO library. Use when the user asks to document a data type, write an API reference for a type, or create a reference page for a class/trait/object.
 argument-hint: "[fully-qualified-type-name or simple-type-name]"
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(sbt:*), Bash(sbt gh-query*), Bash(git:*), Task, Skill
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(sbt:*), Bash(sbt gh-query*), Bash(git:*), Bash(scala-cli:*), Bash(bash:*), Task, Agent, Skill
 ---
 
 # Write Data Type Reference Page
 
 **REQUIRED BACKGROUND:** Use the `docs-writing-style` skill for prose conventions and the
 `docs-mdoc-conventions` skill for code block syntax throughout.
+
+## Subagents Used by This Skill
+
+The `docs-*` agents this skill delegates to ([`docs-fixer`](references/agents/docs-fixer.md), [`docs-integrator`](references/agents/docs-integrator.md), [`docs-researcher`](references/agents/docs-researcher.md), [`docs-reviewer`](references/agents/docs-reviewer.md)) are not installed as Claude Code agents; each
+has a role brief in this skill's `references/agents/` directory. Wherever a step says to delegate to
+one of them with the `Task` tool, start a fresh general-purpose subagent (`subagent_type:
+"general-purpose"`) whose prompt is the full text of that brief followed by the task prompt shown. If
+you cannot start subagents, do the step yourself as a separate pass that follows the brief exactly —
+the separation rules still hold (a fix pass applies only the reviewer's verbatim findings, and a
+review pass grades the page as written).
 
 ## Target Type
 
@@ -32,7 +42,7 @@ Write the page following the plan from Step 2. Mark each task `completed` as you
 **Phase 3 — Verify and Complete (Steps 4–10)**
 
 Execute Steps 4–10 in order: compliance, examples, method coverage, mdoc, fact-check, integrate,
-review. Do not reorder these — Step 6 (examples) must land before Step 7 (mdoc) because an embedded
+review. Do not reorder these — Step 5 (examples) must land before Step 7 (mdoc) because an embedded
 example file that doesn't exist yet fails mdoc outright, and Step 10 (review) must be last because it
 grades the page's final, integrated state. Complete all tasks before claiming done.
 
@@ -46,7 +56,7 @@ this page needs:
 ```
 Task(
   description: "Research <TypeName> for a reference page",
-  subagent_type: "documentation:docs-researcher",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-researcher.md, then the text below
   prompt: "Research <TypeName> for a data type reference page. Find the full public API surface —
            structural signature, type parameters, every companion constructor and factory, predefined
            instances, EVERY public operation with its verbatim signature and a short real usage
@@ -310,7 +320,7 @@ the same diagram here.
 **How to create the section:**
 1. Use the **`docs-companion-examples`** skill to commission the example files — see that skill for
    the choice between `SourceFile.print` and `mdoc:embed`, and its warning that either mechanism must
-   have its file on disk before mdoc runs (Step 6, below, handles the ordering).
+   have its file on disk before mdoc runs (Step 5, below, handles the ordering).
 2. Embed each example with a short description paragraph, source link, and run command.
 3. Place the section at the very end of the page (after Integration).
 
@@ -325,7 +335,7 @@ the same diagram here.
 ## Step 4: Verify Documentation Compliance
 
 Run the `docs-check-compliance` skill against both `docs-writing-style` and `docs-mdoc-conventions`
-(or `docs-verify-compliance`, which does both). Fix everything it reports before continuing — this
+(one rule skill per run). Fix everything it reports before continuing — this
 catches prose and code-block issues early, before the more expensive steps below.
 
 ## Step 5: Write Examples
@@ -340,15 +350,19 @@ Pass as context: the examples module name, the package name derived from the typ
 
 ## Step 6: Verify Method Coverage
 
-Use **`docs-data-type-list-members`** to extract members, then **`docs-report-method-coverage`** to verify coverage:
+Use the scripts of **`docs-data-type-list-members`** (extract members) and
+**`docs-report-method-coverage`** (verify coverage). They live in those skills' directories, installed
+next to this one (e.g. as `zio-skills--docs-data-type-list-members`); substitute the real paths:
 
 ```bash
-/docs-data-type-list-members <TypeName> | /docs-report-method-coverage <TypeName> docs/reference/<type-name>.md
+scala-cli <docs-data-type-list-members-skill-dir>/extract-members.scala -- <path/to/TypeName.scala> <TypeName> \
+  | bash <docs-report-method-coverage-skill-dir>/check-method-coverage.sh <TypeName> docs/reference/<type-name>.md
 ```
 
-Or save members to file first, then report:
+Or save members to a file first, then report:
 ```bash
-/docs-report-method-coverage <TypeName> docs/reference/<type-name>.md members.txt
+scala-cli <docs-data-type-list-members-skill-dir>/extract-members.scala -- <path/to/TypeName.scala> <TypeName> > members.txt
+bash <docs-report-method-coverage-skill-dir>/check-method-coverage.sh <TypeName> docs/reference/<type-name>.md members.txt
 ```
 
 Coverage report shows completeness by category: Companion Object, Public API, Inherited Methods. Every
@@ -387,7 +401,7 @@ call (not a full-page checklist/style review — the agent covers both jobs now)
 ```
 Task(
   description: "Fact-check <TypeName> reference page",
-  subagent_type: "documentation:docs-reviewer",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-reviewer.md, then the text below
   prompt: "Fact-check this page against source (not a checklist/style review).
            Page: docs/reference/<type-name>.md
            Subject: <TypeName>
@@ -403,7 +417,7 @@ match what the page claims, only the page:
 ```
 Task(
   description: "Apply fact-check fixes to <TypeName> reference page",
-  subagent_type: "documentation:docs-fixer",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-fixer.md, then the text below
   prompt: "Page: docs/reference/<type-name>.md
            Findings (apply each verbatim):
            <every drift from the fact-check reply, its exact statement included>"
@@ -431,7 +445,7 @@ links from those pages where relevant:
 ```
 Task(
   description: "Integrate <TypeName> reference page",
-  subagent_type: "documentation:docs-integrator",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-integrator.md, then the text below
   prompt: "Page: docs/reference/<type-name>.md
            Category: Reference
            Cross-reference direction: this page is linked TO from tutorials and how-to guides that use
@@ -452,7 +466,7 @@ path and the checklist itself:
 ```
 Task(
   description: "Review <TypeName> reference page",
-  subagent_type: "documentation:docs-reviewer",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-reviewer.md, then the text below
   prompt: "Full-page review (not a fact-check): evaluate
            docs/reference/<type-name>.md against this checklist. For every failing item, give the
            exact corrected statement to apply, not just what's wrong.
@@ -498,7 +512,7 @@ for each), to the **`docs-fixer`** agent with the `Task` tool:
 ```
 Task(
   description: "Apply review fixes to <TypeName> reference page",
-  subagent_type: "documentation:docs-fixer",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-fixer.md, then the text below
   prompt: "Page: docs/reference/<type-name>.md
            Findings (apply each verbatim):
            <every failing item from the review reply, its exact statement included>"

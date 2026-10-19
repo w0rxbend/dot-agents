@@ -8,6 +8,7 @@ This example shows how to:
 3. Combine both for context-rich retrieval
 """
 
+import re
 from neo4j import GraphDatabase
 from typing import List, Dict, Optional
 import numpy as np
@@ -189,15 +190,23 @@ class KnowledgeGraphRAG:
             Dict with expanded concepts and relationships
         """
         # Build relationship filter
+        # Relationship types and variable-length bounds cannot be parameters,
+        # so both are validated before being inlined (prevents Cypher injection).
+        depth = int(max_depth)
+        if not 1 <= depth <= 5:
+            raise ValueError("max_depth must be 1..5")
         rel_filter = ""
         if relationship_types:
-            rel_filter = ":" + "|:".join(relationship_types)
+            for t in relationship_types:
+                if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", t):
+                    raise ValueError(f"invalid relationship type: {t!r}")
+            rel_filter = ":" + "|".join(relationship_types)
 
         query = f"""
         MATCH (c:Concept) WHERE c.id IN $conceptIds
 
         // Traverse graph to find related concepts
-        OPTIONAL MATCH path = (c)-[r{rel_filter}*1..$maxDepth]-(related:Concept)
+        OPTIONAL MATCH path = (c)-[r{rel_filter}*1..{depth}]-(related:Concept)
 
         // Collect results
         WITH c, related, relationships(path) AS rels
@@ -216,7 +225,7 @@ class KnowledgeGraphRAG:
         """
 
         with self.driver.session() as session:
-            result = session.run(query, conceptIds=concept_ids, maxDepth=max_depth)
+            result = session.run(query, conceptIds=concept_ids)
             return {record['source_id']: record for record in result}
 
     def hybrid_search(

@@ -1,6 +1,6 @@
 ---
 name: docs-enrich-section
-description: Use when a documentation section exists but lacks motivation or use-cases — thin sections that show a signature and a toy example but never explain why a reader would choose this API over alternatives.
+description: Use when a section of ZIO-ecosystem library documentation (Docusaurus + mdoc) exists but lacks motivation or use-cases — thin sections that show a signature and a toy example but never explain why a reader would choose this API over alternatives.
 ---
 
 # Enrich a Documentation Section with Motivation and Use-Cases
@@ -106,7 +106,7 @@ After enriching the section, run the mdoc compilation check to ensure all code e
 
 ```bash
 # Single file:
-sbt "docs/mdoc --in <path/to/file.md>"
+sbt "docs/mdoc --in <path/to/file.md> --out website/<path/to/file.md>"
 
 # Multiple files — repeat --in/--out pairs:
 sbt "docs/mdoc --in docs/reference/file1.md --out out/file1.md --in docs/reference/file2.md --out out/file2.md"

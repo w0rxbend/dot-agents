@@ -1,6 +1,6 @@
 ---
 name: documentation-and-adrs
-description: Records decisions and documentation. Use when you need to document an architecture decision (ADR) or the reasoning behind a design choice, when changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase.
+description: Write ADRs, READMEs, inline comments, API reference updates and changelog entries that record why a change was made, and check documented examples against the code. Use when making a hard-to-reverse decision, changing a public API, or shipping user-visible behavior; use generating-documentation for docs-site and doc-tooling setup.
 ---
 
 # Documentation and ADRs
@@ -197,6 +197,20 @@ paths:
           description: Validation error
 ```
 
+### Keep API docs true to the code
+
+Generated or hand-written examples are claims about the code, so check them:
+
+1. Read the implementation and its test fixtures, not just the route name or type signature.
+2. Update the request/response examples and any prose (pagination, errors, auth) that the change affects.
+3. Run the project's existing doc or schema build (OpenAPI validation, TypeDoc/Sphinx build, doc tests). Where it is safe, run a documented read-only call against a local or test fixture.
+4. Record which commands actually ran and which checks you could not run. Never present an untested example as verified.
+5. Keep secrets, internal hostnames and real customer data out of examples.
+
+*Worked example:* an endpoint changes from offset to cursor pagination. Read the handler and its tests. Update the response example (`next_cursor`) and the pagination section, regenerate or validate the OpenAPI spec with the repository's command, and exercise one documented request against the test server. Report: "spec validated with `<cmd>`; example request checked against fixture X."
+
+For setting up doc tooling (docs sites, generators, CI publishing), use `generating-documentation`.
+
 ## README Structure
 
 Every project should have a README that covers:
@@ -286,3 +300,4 @@ After documenting:
 - [ ] Known gotchas are documented inline where they matter
 - [ ] No commented-out code remains
 - [ ] Rules files (CLAUDE.md etc.) are current and accurate
+- [ ] Changed API examples were checked against the code or build, and the commands run are reported

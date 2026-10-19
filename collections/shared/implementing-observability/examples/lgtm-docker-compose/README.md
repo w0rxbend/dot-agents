@@ -1,6 +1,6 @@
 # LGTM Stack Docker Compose
 
-Production-ready observability stack: Loki (Logs), Grafana (Visualization), Tempo (Traces), Mimir (Metrics).
+Local development observability stack (see "Production Deployment" below before shared use): Loki (Logs), Grafana (Visualization), Tempo (Traces), Mimir (Metrics).
 
 ## What is LGTM?
 
@@ -203,7 +203,7 @@ sdk.start();
 {service_name="my-app"} |= "error"
 
 # By trace ID
-{service_name="my-app"} |= "trace_id=abc123"
+{service_name="my-app"} | json | trace_id="abc123"
 ```
 
 ### TraceQL (Tempo)

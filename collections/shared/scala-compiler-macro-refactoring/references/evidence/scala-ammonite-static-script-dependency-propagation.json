@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "repository": "com-lihaoyi/Ammonite",
+  "evidence": [
+    {
+      "id": "e1053-isolation",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/pull/1053#issuecomment-607694031",
+      "occurred_at": "2020-04-02T08:17:26Z",
+      "excerpt": "I think in the long term, your new inter-script dependencies semantic is the way I would like to go forward: scripts would only have access to things they directly import, rather than having access to whatever happens to have been `import $ivy`ed or `import $file`d at the moment they are run.",
+      "interpretation": "Explicit future direction for isolated script compilation. Same comment says this need not happen in this PR. Existing Interpreter runtime semantics must not be silently changed to match BSP during an unrelated refactor.",
+      "author": "lihaoyi",
+      "role_basis": "Historical reviewer and repository decision-maker: in PR 736 issuecomment-364713178 on 2018-02-11, lihaoyi explicitly grants alexarchambault commit access and sets review expectations. The 2018 build.sbt also lists lihaoyi as a project developer. No present-day association label is used.",
+      "pull_number": 1053
+    },
+    {
+      "id": "e1053-dag-response",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/pull/1053#issuecomment-607971851",
+      "occurred_at": "2020-04-02T17:04:14Z",
+      "excerpt": "We don't necessarily need a class loader DAG.",
+      "interpretation": "The author counters the proposed implementation mechanism, explaining that isolated compilation can coexist with one aggregate runtime classpath. This is a meaningful design response, not endorsement of a mandatory loader DAG.",
+      "author": "alexarchambault",
+      "role_basis": "PR 736 author; commit access was explicitly granted by lihaoyi in issuecomment-364713178 on 2018-02-11. Later records show substantive compiler/BSP reviewing. This does not establish sole or lead maintainer status.",
+      "pull_number": 1053
+    },
+    {
+      "id": "e1090-propagation",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/pull/1090#issuecomment-638956149",
+      "occurred_at": "2020-06-04T16:11:59Z",
+      "excerpt": "checking for example that if you depend on a script, all its repositories are used in the current one too.",
+      "interpretation": "Reviewer asks for BSP transitive repository coverage in addition to interactive import behavior. The merged patch adds Repo to dependency extraction, a multi-script fixture, and a JitPack artifact assertion.",
+      "author": "alexarchambault",
+      "role_basis": "PR 736 author; commit access was explicitly granted by lihaoyi in issuecomment-364713178 on 2018-02-11. Later records show substantive compiler/BSP reviewing. This does not establish sole or lead maintainer status.",
+      "pull_number": 1090
+    },
+    {
+      "id": "e1090-interface",
+      "kind": "review-comment",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/pull/1090#discussion_r435401057",
+      "occurred_at": "2020-06-04T16:45:28Z",
+      "excerpt": "Wouldn't it work to just call `repositories.update` here, instead of adding `addRepository`?",
+      "interpretation": "Reviewer challenges widening the InterpreterInterface for repository updates. The author removes the public addition; the final patch still has a private synchronized addRepository helper. Do not misread the request as banning all helper methods.",
+      "author": "alexarchambault",
+      "role_basis": "PR 736 author; commit access was explicitly granted by lihaoyi in issuecomment-364713178 on 2018-02-11. Later records show substantive compiler/BSP reviewing. This does not establish sole or lead maintainer status.",
+      "pull_number": 1090
+    },
+    {
+      "id": "e1090-skipped-test",
+      "kind": "review-comment",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/pull/1090#discussion_r435974671",
+      "occurred_at": "2020-06-05T14:52:05Z",
+      "excerpt": "Scala 2.11 isn't supported anymore by Ammonite (the test won't be run).",
+      "interpretation": "The initial Scala-2.11-only guard made the new regression ineffective on supported versions. The author explicitly removes it, and final ScriptTests patch has no such guard.",
+      "author": "alexarchambault",
+      "role_basis": "PR 736 author; commit access was explicitly granted by lihaoyi in issuecomment-364713178 on 2018-02-11. Later records show substantive compiler/BSP reviewing. This does not establish sole or lead maintainer status.",
+      "pull_number": 1090
+    },
+    {
+      "id": "e1090-repo-code",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/7017cb94d6f95c7405696affd5887d1e43116aaa/amm/interp/src/main/scala/ammonite/interp/script/Script.scala#L117-L128",
+      "occurred_at": "2020-06-06T08:56:21Z",
+      "excerpt": "      case s: ImportHook.Result.Source =>\n        s.codeSource.path match {\n          case Some(p) =>\n            Dependencies(\n              scriptDependencies =\n                Seq(Import(Right(p), s.exec, s.codeSource, s.hookImports))\n            )\n          case None =>\n            Dependencies() // TODO import $url\n        }\n      case ImportHook.Result.Repo(r) =>\n        Dependencies(extraRepositories = Seq(r))",
+      "interpretation": "Static dependency extraction converts a repository hook result into extraRepositories, independently of script execution. Source imports and repository imports are represented by separate cases.",
+      "commit_sha": "7017cb94d6f95c7405696affd5887d1e43116aaa",
+      "path": "amm/interp/src/main/scala/ammonite/interp/script/Script.scala"
+    },
+    {
+      "id": "e1090-combine-code",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/7017cb94d6f95c7405696affd5887d1e43116aaa/amm/interp/src/main/scala/ammonite/interp/script/Script.scala#L56-L73",
+      "occurred_at": "2020-06-06T08:56:21Z",
+      "excerpt": "    def +(other: Dependencies): Dependencies =\n      Dependencies(\n        scriptDependencies ++ other.scriptDependencies,\n        dependencies ++ other.dependencies,\n        jarDependencies ++ other.jarDependencies,\n        pluginDependencies ++ other.pluginDependencies,\n        jarPluginDependencies ++ other.jarPluginDependencies,\n        extraRepositories ++ other.extraRepositories\n      )\n    def noDuplicates: Dependencies =\n      Dependencies(\n        scriptDependencies.distinct,\n        dependencies.distinct,\n        jarDependencies.distinct,\n        pluginDependencies.distinct,\n        jarPluginDependencies.distinct,\n        extraRepositories.distinct\n      )",
+      "interpretation": "Repository metadata participates in both combination and deduplication alongside script, JAR and plugin dependencies. A handler-only change would leave this static representation incomplete.",
+      "commit_sha": "7017cb94d6f95c7405696affd5887d1e43116aaa",
+      "path": "amm/interp/src/main/scala/ammonite/interp/script/Script.scala"
+    },
+    {
+      "id": "e1090-test-code",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/7017cb94d6f95c7405696affd5887d1e43116aaa/amm/src/test/scala/ammonite/interp/script/AmmoniteBuildServerTests.scala#L374-L382",
+      "occurred_at": "2020-06-06T08:56:21Z",
+      "excerpt": "      val expectedClassPath = List(\n        s\"io/circe/circe-core_$sbv/0.12.3/circe-core_$sbv-0.12.3.jar\",\n        s\"io/circe/circe-generic_$sbv/0.12.3/circe-generic_$sbv-0.12.3.jar\",\n        s\"io/circe/circe-parser_$sbv/0.12.3/circe-parser_$sbv-0.12.3.jar\",\n        s\"io/circe/circe-numbers_$sbv/0.12.3/circe-numbers_$sbv-0.12.3.jar\",\n        s\"io/circe/circe-jawn_$sbv/0.12.3/circe-jawn_$sbv-0.12.3.jar\"\n      ).map(\"https/repo1.maven.org/maven2/\" + _) ++ List(\n        \"https/jitpack.io/com/github/jupyter/jvm-repr/0.4.0/jvm-repr-0.4.0.jar\"\n      )",
+      "interpretation": "The multi-script BSP test expects a JitPack-only Java artifact in the main target classpath. Assertions below check each suffix, compilation status, event order and empty diagnostics; remote fixture availability is not tested here.",
+      "commit_sha": "7017cb94d6f95c7405696affd5887d1e43116aaa",
+      "path": "amm/src/test/scala/ammonite/interp/script/AmmoniteBuildServerTests.scala"
+    },
+    {
+      "id": "e1053-static-semantics",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/pull/1053#issuecomment-605952752",
+      "occurred_at": "2020-03-30T11:48:54Z",
+      "excerpt": "A script only pulls the library dependencies of its scripts dependencies, and knows nothing of the one of its dependees.",
+      "interpretation": "Author explicitly contrasts BSP compilation with the existing Interpreter, using a lib1.sc that incorrectly relies on its caller's shapeless import. This supports an inverse visibility test but is not evidence that that test was implemented. Explicit baseline classpaths remain separate inputs.",
+      "author": "alexarchambault",
+      "role_basis": "PR author and historical contributor granted commit access by lihaoyi in PR 736 issuecomment-364713178 on 2018-02-11; this does not establish sole or lead maintainer status.",
+      "pull_number": 1053
+    },
+    {
+      "id": "e1090-resolver-paths",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/7017cb94d6f95c7405696affd5887d1e43116aaa/amm/interp/src/main/scala/ammonite/interp/script/ScriptProcessor.scala#L123-L143",
+      "occurred_at": "2020-06-06T08:56:21Z",
+      "excerpt": "      dependencyLoader.load(deps.dependencies, defaultRepositories ++ deps.extraRepositories, Nil)",
+      "interpretation": "jarDependencies merges the current module with imported modules before invoking the resolver. The adjacent jarPluginDependencies independently passes the same extra repositories for plugin artifacts. Static load invokes hooks through a dummy interpreter interface; this avoids running script bodies, not all custom-hook side effects.",
+      "commit_sha": "7017cb94d6f95c7405696affd5887d1e43116aaa",
+      "path": "amm/interp/src/main/scala/ammonite/interp/script/ScriptProcessor.scala"
+    },
+    {
+      "id": "e1090-bsp-classpath",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/7017cb94d6f95c7405696affd5887d1e43116aaa/amm/interp/src/main/scala/ammonite/interp/script/AmmoniteBuildServer.scala#L430-L436",
+      "occurred_at": "2020-06-06T08:56:21Z",
+      "excerpt": "      (scriptDependenciesTargets ++ jars ++ extra.map(_.toASCIIString)).asJava,",
+      "interpretation": "BSP compiler options combine imported-script target directories, resolver JARs and an explicit initial classpath. Script isolation is not absence of all baseline dependencies. This closes the metadata-to-protocol trace without inferring correctness solely from a hook handler.",
+      "commit_sha": "7017cb94d6f95c7405696affd5887d1e43116aaa",
+      "path": "amm/interp/src/main/scala/ammonite/interp/script/AmmoniteBuildServer.scala"
+    },
+    {
+      "id": "e1090-pinned-fixture",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/7017cb94d6f95c7405696affd5887d1e43116aaa/amm/src/test/resources/bsp/multi/lib3.sc#L2-L5",
+      "occurred_at": "2020-06-06T08:56:21Z",
+      "excerpt": "import $repo.`https://jitpack.io`\nimport $ivy.`com.github.jupyter:jvm-repr:0.4.0`",
+      "interpretation": "Historical fixture source and coordinates are now pinned and cached; main.sc imports lib3 and references jupyter.Displayers. This does not pin downloaded artifact bytes or establish present remote availability. A current regression should use controlled bytes and a missing-hook negative control to avoid cache masking.",
+      "commit_sha": "7017cb94d6f95c7405696affd5887d1e43116aaa",
+      "path": "amm/src/test/resources/bsp/multi/lib3.sc"
+    },
+    {
+      "id": "e1090-build-command",
+      "kind": "code",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/7017cb94d6f95c7405696affd5887d1e43116aaa/build.sc#L498-L505",
+      "occurred_at": "2020-06-06T08:56:21Z",
+      "excerpt": "def unitTest(scalaVersion: String = sys.env(\"TRAVIS_SCALA_VERSION\")) = T.command{\n  ops(scalaVersion).test.test()()\n  terminal(scalaVersion).test.test()()\n  amm.repl(scalaVersion).test.test()()\n  amm(scalaVersion).test.test()()",
+      "interpretation": "The real historical unitTest command dispatches the cross-built REPL and main test modules, including the BSP suite. The same build declares Scala 2.12.11/2.13.2 primary cells, uTest 0.7.3, BSP 2.0.0-M6 and coursier-interface 0.0.21. Its Git-derived build version requires checkout/tag/master context, so an isolated source archive is not sufficient.",
+      "commit_sha": "7017cb94d6f95c7405696affd5887d1e43116aaa",
+      "path": "build.sc"
+    },
+    {
+      "id": "e1090-launcher",
+      "kind": "documentation",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/7017cb94d6f95c7405696affd5887d1e43116aaa/mill#L3-L6",
+      "occurred_at": "2020-06-06T08:56:21Z",
+      "excerpt": "DEFAULT_MILL_VERSION=0.7.0",
+      "interpretation": "Pinned launcher source documents its default Mill version and allows environment or .mill-version overrides. Reading this file does not execute it or download Mill. Inspect overrides in an authorized checkout rather than assuming the default was every contributor's tool version.",
+      "commit_sha": "7017cb94d6f95c7405696affd5887d1e43116aaa",
+      "path": "mill"
+    },
+    {
+      "id": "e1090-ci-matrix",
+      "kind": "documentation",
+      "repository": "com-lihaoyi/Ammonite",
+      "url": "https://github.com/com-lihaoyi/Ammonite/blob/7017cb94d6f95c7405696affd5887d1e43116aaa/.travis.yml#L12-L25",
+      "occurred_at": "2020-06-06T08:56:21Z",
+      "excerpt": "  - stage: build\n    env: CI_SCRIPT=\"./mill -i unitTest\"\n    jdk: oraclejdk8\n    scala: 2.13.2",
+      "interpretation": "Observed CI declares unit tests for Scala 2.13.2/JDK 8 and Scala 2.12.11/JDK 8 or 11. It is not an executed compatibility result. Only build-stage commands are relevant; publication stages must not be run. The cached configuration redacts its personal notification address.",
+      "commit_sha": "7017cb94d6f95c7405696affd5887d1e43116aaa",
+      "path": ".travis.yml"
+    }
+  ],
+  "claims": [
+    {
+      "id": "c-static-repos",
+      "rule": "When adding a repository import hook, carry repository metadata through static dependency extraction, combination and deduplication, and assert that a dependent script can resolve the imported script's artifact through BSP as well as the interactive path.",
+      "evidence_ids": [
+        "e1053-isolation",
+        "e1090-propagation",
+        "e1090-repo-code",
+        "e1090-combine-code",
+        "e1090-test-code",
+        "e1090-interface",
+        "e1090-skipped-test",
+        "e1090-resolver-paths",
+        "e1090-bsp-classpath",
+        "e1090-pinned-fixture",
+        "e1090-build-command",
+        "e1090-launcher",
+        "e1090-ci-matrix"
+      ],
+      "applicability": "Observed in the 2020 BSP and $repo change sequence, including ordinary and plugin resolver paths. This is a dependency visibility contract, not a reason to execute scripts during IDE discovery or add a public mutation method. Inference: use isolated caches and a controlled repository with a missing-hook negative control for current tests; pinned historical fixture sources alone do not freeze remote artifact bytes.",
+      "counterexample": "Matching static and interactive resolution does not authorize silently replacing the older Interpreter's shared execution context with BSP's isolated compile semantics during an unrelated refactor."
+    },
+    {
+      "id": "c-isolated-compile",
+      "rule": "Preserve isolated BSP script compilation without requiring a particular runtime classloader graph: each script's compile dependencies come from itself and its imports, not from whichever parent happens to execute it.",
+      "evidence_ids": [
+        "e1053-isolation",
+        "e1053-dag-response",
+        "e1053-static-semantics",
+        "e1090-repo-code",
+        "e1090-resolver-paths",
+        "e1090-bsp-classpath"
+      ],
+      "applicability": "The reviewer endorses a future direction, and the author disputes the necessity of a loader DAG. The original BSP addition deliberately retained a parallel Interpreter implementation and documented multi-stage limitations.",
+      "counterexample": "A REPL session is intentionally stateful and sequential. The historical discussion does not establish that every REPL evaluation should have isolated dependencies or that a DAG implementation is mandatory."
+    }
+  ]
+}

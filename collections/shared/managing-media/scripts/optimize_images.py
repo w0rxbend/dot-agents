@@ -3,65 +3,115 @@
 Image Optimization Script
 
 Optimizes images for web delivery by:
-- Converting to modern formats (WebP, AVIF)
-- Resizing to multiple sizes
-- Compressing with quality settings
-- Generating responsive image sets
+- Resizing to multiple widths (never upscaling)
+- Converting to modern formats (WebP, AVIF) and/or JPEG/PNG
+- Compressing with a quality setting
+- Printing a srcset string per source image
+
+Requires Pillow (pip install Pillow). AVIF output needs Pillow 11.2+ built with
+AVIF support (or the pillow-avif-plugin package); unsupported formats are skipped
+with a warning.
 
 Usage:
-    python optimize_images.py --input images/ --quality 80 --formats webp,jpg
+    python scripts/optimize_images.py --input images/ --output optimized/ \
+        --quality 80 --formats webp,jpg --sizes 400,800,1200
+    python scripts/optimize_images.py --input photo.jpg --formats webp,avif
 """
 
 import argparse
+import sys
 from pathlib import Path
 
-def optimize_images(input_path, quality=80, formats=['webp', 'jpg'], sizes=None):
-    """
-    Optimize images for web delivery.
+SOURCE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff", ".bmp"}
+PIL_FORMATS = {"jpg": "JPEG", "jpeg": "JPEG", "png": "PNG", "webp": "WEBP", "avif": "AVIF"}
 
-    Args:
-        input_path: Path to input images
-        quality: Compression quality (0-100)
-        formats: List of output formats
-        sizes: List of target widths (e.g., [400, 800, 1200])
-    """
-    if sizes is None:
-        sizes = [400, 800, 1200, 1600]
 
-    print(f"Optimizing images from: {input_path}")
-    print(f"Quality: {quality}")
-    print(f"Formats: {', '.join(formats)}")
-    print(f"Sizes: {sizes}")
+def find_sources(input_path: Path):
+    if input_path.is_file():
+        return [input_path]
+    return sorted(p for p in input_path.rglob("*") if p.suffix.lower() in SOURCE_SUFFIXES)
 
-    # Note: This is a placeholder script
-    # In a real implementation, you would use PIL/Pillow or similar:
-    #
-    # from PIL import Image
-    #
-    # for image_path in Path(input_path).glob('**/*.jpg'):
-    #     img = Image.open(image_path)
-    #
-    #     for size in sizes:
-    #         # Resize
-    #         resized = img.resize((size, int(size * img.height / img.width)))
-    #
-    #         for fmt in formats:
-    #             # Convert and save
-    #             output = f"{image_path.stem}-{size}w.{fmt}"
-    #             resized.save(output, quality=quality, optimize=True)
 
-    print("Optimization complete!")
+def supported_formats(formats):
+    from PIL import features
+    ok = []
+    for fmt in formats:
+        if fmt not in PIL_FORMATS:
+            print(f"warning: unknown format '{fmt}', skipping", file=sys.stderr)
+        elif fmt in ("webp", "avif") and not features.check(fmt):
+            print(f"warning: this Pillow build cannot write {fmt}, skipping", file=sys.stderr)
+        else:
+            ok.append(fmt)
+    return ok
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Optimize images for web')
-    parser.add_argument('--input', required=True, help='Input directory')
-    parser.add_argument('--quality', type=int, default=80, help='Quality (0-100)')
-    parser.add_argument('--formats', default='webp,jpg', help='Output formats (comma-separated)')
-    parser.add_argument('--sizes', help='Target widths (comma-separated)')
 
+def optimize_image(src: Path, output_dir: Path, quality: int, formats, sizes):
+    from PIL import Image, ImageOps
+
+    written = []
+    with Image.open(src) as opened:
+        img = ImageOps.exif_transpose(opened)  # apply camera rotation
+        widths = sorted({w for w in sizes if w < img.width} | {min(max(sizes), img.width)})
+        for width in widths:
+            height = round(img.height * width / img.width)
+            resized = img.resize((width, height), Image.Resampling.LANCZOS)
+            for fmt in formats:
+                frame = resized
+                if PIL_FORMATS[fmt] == "JPEG" and frame.mode not in ("RGB", "L"):
+                    frame = frame.convert("RGB")  # JPEG has no alpha
+                out = output_dir / f"{src.stem}-{width}w.{fmt}"
+                options = {"optimize": True} if PIL_FORMATS[fmt] in ("JPEG", "PNG") else {}
+                if PIL_FORMATS[fmt] != "PNG":
+                    options["quality"] = quality
+                frame.save(out, PIL_FORMATS[fmt], **options)
+                written.append((fmt, width, out))
+    return written
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Optimize images for web delivery")
+    parser.add_argument("--input", required=True, help="Input image file or directory")
+    parser.add_argument("--output", default="./optimized", help="Output directory")
+    parser.add_argument("--quality", type=int, default=80, help="Quality 1-100 (JPEG/WebP/AVIF)")
+    parser.add_argument("--formats", default="webp,jpg", help="Comma-separated: webp,avif,jpg,png")
+    parser.add_argument("--sizes", default="400,800,1200,1600", help="Comma-separated target widths")
     args = parser.parse_args()
 
-    formats = args.formats.split(',')
-    sizes = [int(s) for s in args.sizes.split(',')] if args.sizes else None
+    try:
+        import PIL  # noqa: F401
+    except ImportError:
+        sys.exit("Error: Pillow is required (pip install Pillow)")
 
-    optimize_images(args.input, args.quality, formats, sizes)
+    input_path = Path(args.input)
+    if not input_path.exists():
+        sys.exit(f"Error: {input_path} does not exist")
+    if not 1 <= args.quality <= 100:
+        sys.exit("Error: --quality must be between 1 and 100")
+
+    formats = supported_formats([f.strip().lower() for f in args.formats.split(",") if f.strip()])
+    sizes = [int(s) for s in args.sizes.split(",") if s.strip()]
+    if not formats or not sizes:
+        sys.exit("Error: need at least one supported format and one size")
+
+    sources = find_sources(input_path)
+    if not sources:
+        sys.exit(f"Error: no images found under {input_path}")
+
+    output_dir = Path(args.output)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    total_in = total_out = 0
+    for src in sources:
+        written = optimize_image(src, output_dir, args.quality, formats, sizes)
+        total_in += src.stat().st_size
+        for fmt in formats:
+            srcset = ", ".join(f"{out.name} {w}w" for f, w, out in written if f == fmt)
+            print(f"{src.name} [{fmt}] srcset: {srcset}")
+        total_out += sum(out.stat().st_size for _, _, out in written)
+
+    print(f"\nProcessed {len(sources)} image(s): {total_in / 1024:.0f} KB in, "
+          f"{total_out / 1024:.0f} KB written to {output_dir}")
+
+
+if __name__ == "__main__":
+    main()

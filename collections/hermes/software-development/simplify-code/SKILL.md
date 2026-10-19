@@ -1,6 +1,6 @@
 ---
 name: simplify-code
-description: "Parallel 4-agent cleanup of recent code changes."
+description: "Parallel 4-agent cleanup of recent code changes (reuse, quality, efficiency, altitude). Use when the user asks to simplify or clean up their changes; not a bug hunt or general code review."
 version: 1.1.0
 author: Hermes Agent (inspired by Claude Code /simplify)
 license: MIT
@@ -31,7 +31,9 @@ run concurrently, so you pay the latency of one review, not four.
 Trigger this skill when the user says any of:
 
 - "simplify" / "simplify my changes" / "simplify these changes"
-- "review my code" / "review my recent changes" / "clean up my changes"
+- "clean up my changes" / "tidy up my recent changes"
+
+For "review my code" or a correctness review, use `requesting-code-review` instead.
 - "/simplify" (if they're carrying the Claude Code habit over)
 
 Optional modifiers the user may add — honor them:

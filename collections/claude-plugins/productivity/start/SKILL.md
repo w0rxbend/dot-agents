@@ -5,15 +5,19 @@ description: Initialize the productivity system and open the dashboard. Use when
 
 # Start Command
 
-> If you see unfamiliar placeholders or need to check which tools are connected, see [CONNECTORS.md](../../CONNECTORS.md).
+> Uses whatever chat, email, calendar, knowledge base, and project tracker tools are connected (usually via MCP). Skip any source that is not available and note the gap.
 
 Initialize the task and memory systems, then open the unified dashboard.
 
 ## Instructions
 
+### 0. Pick the Workspace
+
+These files hold personal workplace data (colleague names, deals, internal terms). Write them only in a dedicated personal workspace directory, never in a code repository. If the current directory is inside a git repo (`git rev-parse --is-inside-work-tree` succeeds) or already has a `CLAUDE.md` that does not start with `# Memory`, stop and ask the user for a separate directory (for example `~/work-memory`) and use that instead. Never overwrite or append to a project's existing `CLAUDE.md`.
+
 ### 1. Check What Exists
 
-Check the working directory for:
+Check the workspace directory for:
 - `TASKS.md` — task list
 - `CLAUDE.md` — working memory
 - `memory/` — deep memory directory
@@ -21,11 +25,11 @@ Check the working directory for:
 
 ### 2. Create What's Missing
 
-**If `TASKS.md` doesn't exist:** Create it with the standard template (see task-management skill). Place it in the current working directory.
+**If `TASKS.md` doesn't exist:** Create it with the standard template (see task-management skill). Place it in the workspace directory.
 
-**If `dashboard.html` doesn't exist:** Copy it from `${CLAUDE_PLUGIN_ROOT}/skills/dashboard.html` to the current working directory.
+**If `dashboard.html` doesn't exist:** Copy `dashboard.html` from this skill's directory (it ships next to this SKILL.md) to the workspace directory.
 
-**If `CLAUDE.md` and `memory/` don't exist:** This is a fresh setup — after opening the dashboard, begin the memory bootstrap workflow (see below). Place these in the current working directory.
+**If `CLAUDE.md` and `memory/` don't exist:** This is a fresh setup — after opening the dashboard, begin the memory bootstrap workflow (see below). Place these in the workspace directory.
 
 ### 3. Open the Dashboard
 
@@ -36,8 +40,8 @@ Do NOT use `open` or `xdg-open` — in Cowork, the agent runs in a VM and shell 
 If everything was already initialized:
 ```
 Dashboard open. Your tasks and memory are both loaded.
-- /productivity:update to sync tasks and check memory
-- /productivity:update --comprehensive for a deep scan of all activity
+- Use the update skill to sync tasks and check memory
+- Use the update skill with --comprehensive for a deep scan of all activity
 ```
 
 If memory hasn't been bootstrapped yet, continue to step 5.
@@ -147,7 +151,7 @@ Productivity system ready:
 - Memory: X people, X terms, X projects
 - Dashboard: open in browser
 
-Use /productivity:update to keep things current (add --comprehensive for a deep scan).
+Use the update skill to keep things current (add --comprehensive for a deep scan).
 ```
 
 ## Notes

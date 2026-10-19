@@ -1,8 +1,6 @@
 ---
 name: architecture-review
-description: Review repository architecture using Ontoly Software Graph and MCP capabilities.
-  Use when asked to explain architecture, module boundaries, package topology, service
-  ownership, or architectural risk.
+description: Graph-backed architecture and dependency review with the Ontoly CLI/MCP - module boundaries, package topology, service ownership, dependents, cycles and architectural risk, cited by graph node ids. Use only when the Ontoly CLI or MCP server is available in the repository; for tool-agnostic design trade-offs use architecture.
 license: AGPL-3.0-only
 compatibility: Portable Agent Skills format; requires Ontoly CLI and MCP-capable or
   CLI-capable coding agent.
@@ -10,7 +8,7 @@ metadata:
   ontoly.skill.version: 1.3.3
   ontoly.min.version: 1.3.3
   ontoly.capabilities: ExplainArchitecture, GraphStatistics, FindCycles, FindDependencies,
-    EvidencePack
+    FindDependents, EvidencePack
   ontoly.category: architecture
   ontoly.enhancement: LLM Enhancement
   ontoly.deprecated: 'false'
@@ -20,21 +18,37 @@ source: community
 date_added: '2026-09-21'
 risk: unknown
 ---
+
+# Architecture Review (Ontoly)
+
+Answer architecture and dependency questions from Ontoly's Software Graph instead of reading files: what the main modules are, who depends on what, where cycles are, and which boundaries are risky.
+
 ## When to Use
-- Use when this upstream workflow matches the user's stated goal.
-- Use when the task requires the procedures documented in this skill.
 
-# Architecture Review
+- The repository has Ontoly available (`ontoly` on PATH, or an `ontoly mcp` server connected)
+- Questions such as: "What are the main packages and services?", "Which modules depend on X?", "What would a change to X affect?", "Are there dependency cycles?", "Who owns this request path?"
 
-Use this skill when the user asks for architecture review using Ontoly evidence.
+If Ontoly is not installed, do not use this skill; use `architecture` for design trade-offs and ordinary code search for dependency questions.
 
 ## Required Workflow
 
-Follow [the shared Ontoly workflow. Also read [graph evidence rules, [MCP usage, [best practices, and [fallback rules when the task requires detail.
+Follow [the shared Ontoly workflow](reference/workflow.md). Also read [graph evidence rules](reference/graph.md), [MCP usage](reference/mcp.md), [best practices](reference/best-practices.md) and [fallback rules](reference/fallbacks.md) when the task requires detail.
 
-## Ontoly Capabilities
+In short:
 
-Use these capabilities first: `ExplainArchitecture`, `GraphStatistics`, `FindCycles`, `FindDependencies`, `EvidencePack`.
+1. Ensure `.ontoly/SoftwareGraph.json` exists; if missing or stale run `ontoly build .`.
+2. Check graph trust with `ontoly coverage .` or `ontoly stats . --json`.
+3. Query `EvidencePack` first, then the capabilities for the mode below.
+4. Inspect repository files only when Ontoly cannot answer, confidence is low, or a source quote is needed.
+
+## Modes and Capabilities
+
+| Mode | Question shape | Capabilities, in order |
+|------|----------------|------------------------|
+| Architecture review | Boundaries, topology, ownership, risk | `EvidencePack`, `ExplainArchitecture`, `GraphStatistics`, `FindCycles`, `FindDependencies` |
+| Dependency analysis | "What depends on X / what does X use / impact of changing X" | `EvidencePack`, `FindDependencies`, `FindDependents`, `FindCycles`, `GraphStatistics` |
+
+See [capability notes](reference/capabilities.md) for required evidence fields.
 
 ## Output Contract
 
@@ -46,32 +60,13 @@ Return:
 - confidence: high, medium, or low
 - fallback reason if repository files were inspected
 
+Templates: [architecture review](templates/architecture-review.md), [dependency review](templates/dependency-review.md). Worked examples: [examples](examples.md).
+
 ## Boundaries
 
-Do not implement compiler, query, MCP, SDK, or business logic in the skill. Do not search repository files until Ontoly cannot answer or evidence must be confirmed.
+Do not implement compiler, query, MCP, SDK, or business logic in the skill. Do not search repository files until Ontoly cannot answer or evidence must be confirmed. Separate graph facts from inference.
 
-## Resources
-
-- [Examples
-- [Prompt template
-- [Capability notes
-
-## Learn more
+## Learn More
 
 - Documentation: https://ontoly.xyz/docs
-- This skill on the web: https://ontoly.xyz/skills#architecture-review
-- All Ontoly Agent Skills: https://ontoly.xyz/skills
-- Install via skills.sh: https://www.skills.sh/?q=0xsarwagya/ontoly
-
-
-## Examples
-
-```text
-User: Apply this skill to my current task.
-Assistant: Follow the workflow in this skill, cite limitations, and ask before risky steps.
-```
-
-## Limitations
-
-- Imported upstream skill; verify credentials, permissions, and safety boundaries before execution.
-- Does not replace environment-specific validation, testing, or maintainer review.
+- Ontoly Agent Skills: https://ontoly.xyz/skills

@@ -90,7 +90,7 @@ For the full methodology with Go examples, DFD trust boundaries, DREAD scoring, 
 | --- | --- | --- | --- |
 | Critical | SQL Injection | Parameterized queries separate data from code | `database/sql` with `?` placeholders |
 | Critical | Command Injection | Pass args separately, never via shell concatenation | `exec.Command` with separate args |
-| High | XSS | Auto-escaping renders user data as text, not HTML/JS | `html/template`, `text/template` |
+| High | XSS | Auto-escaping renders user data as text, not HTML/JS | `html/template` (never `text/template` for HTML — it does no escaping) |
 | High | Path Traversal | Scope untrusted file access to an allowed root | Go 1.24+: use `os.Root`. Pre-Go 1.24: use `filepath.IsLocal` + `filepath.Rel` + separator-aware checks; never rely on `filepath.Clean` + `strings.HasPrefix` alone. |
 | Medium | Timing Attacks | Constant-time comparison avoids byte-by-byte leaks | `crypto/subtle.ConstantTimeCompare` |
 | High | Crypto Issues | Use vetted algorithms; never roll your own | `crypto/aes`, `crypto/rand` |
@@ -128,13 +128,15 @@ Security-relevant linters: `bodyclose`, `sqlclosecheck`, `nilerr`, `errcheck`, `
 For deeper security-specific analysis:
 
 ```bash
-# Go security checker (SAST)
-go get -tool github.com/securego/gosec/v2/cmd/gosec@latest
-go tool gosec ./...
+# Go security checker (SAST) — `go run` does not modify go.mod
+go run github.com/securego/gosec/v2/cmd/gosec@latest ./...
 
 # Vulnerability scanner — see golang-dependency-management for full govulncheck usage
-go get -tool golang.org/x/vuln/cmd/govulncheck@latest
-go tool govulncheck ./...
+go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+
+# Pin a version (e.g. @v2.x.y) for reproducible CI runs. Only add them as project
+# tool dependencies (`go get -tool ...`, which edits go.mod) if the user asks.
+
 ```
 
 To check the known CVEs of a specific module or version without scanning the whole tree (e.g. when vetting a dependency on pkg.go.dev), → See `samber/cc-skills-golang@golang-pkg-go-dev` skill.

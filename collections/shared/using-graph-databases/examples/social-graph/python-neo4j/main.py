@@ -71,10 +71,15 @@ class SocialNetworkGraph:
         Returns:
             List of potential connections with degree of separation
         """
-        query = """
-        MATCH path = (u:Person {id: $userId})-[:FRIEND*1..$maxDepth]->(connection)
+        # Cypher cannot take a parameter in a variable-length bound (*1..$x),
+        # so validate an int and inline it.
+        depth = int(max_depth)
+        if not 1 <= depth <= 6:
+            raise ValueError("max_depth must be 1..6")
+        query = f"""
+        MATCH path = (u:Person {{id: $userId}})-[:FRIEND*1..{depth}]->(connection)
         WHERE u <> connection
-          AND NOT exists((u)-[:FRIEND]-(connection))
+          AND NOT EXISTS {{ (u)-[:FRIEND]-(connection) }}
         WITH connection, length(path) AS degrees
         RETURN DISTINCT connection.id AS id,
                connection.name AS name,
@@ -84,7 +89,7 @@ class SocialNetworkGraph:
         """
 
         with self.driver.session() as session:
-            result = session.run(query, userId=user_id, maxDepth=max_depth)
+            result = session.run(query, userId=user_id)
             return [dict(record) for record in result]
 
     def find_mutual_friends(self, user1_id: str, user2_id: str) -> Dict:
@@ -123,7 +128,7 @@ class SocialNetworkGraph:
         """
         query = """
         MATCH (u:Person {id: $userId})-[:FRIEND]->()-[:FRIEND]->(recommendation)
-        WHERE NOT exists((u)-[:FRIEND]-(recommendation))
+        WHERE NOT EXISTS { (u)-[:FRIEND]-(recommendation) }
           AND u <> recommendation
         WITH recommendation, count(*) AS mutual_friends
         WHERE mutual_friends >= 2

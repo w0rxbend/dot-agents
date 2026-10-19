@@ -51,8 +51,7 @@ REVOKE ALL ON pg_catalog.pg_authid FROM PUBLIC;
 local   all   postgres   peer
 local   all   all        scram-sha-256
 
-# Remote connections: require SSL
-hostssl all   all   0.0.0.0/0   scram-sha-256
+# Remote connections: refuse anything without TLS
 hostnossl all   all   0.0.0.0/0   reject
 
 # Specific networks only

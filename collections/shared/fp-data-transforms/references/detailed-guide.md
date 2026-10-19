@@ -1,7 +1,5 @@
 # Practical Data Transformations - Detailed Guide
 
-> This file contains the detailed procedure and reference material extracted from `SKILL.md` for focused loading. The root skill defines activation, examples, safety constraints, and limitations.
-
 ## Table of Contents
 
 1. [Array Operations](#1-array-operations)

@@ -1,6 +1,6 @@
 ---
 name: mill-dependencies-and-toolchains
-description: Manage Mill module and Maven dependencies, Scala cross artifacts, BOMs, compiler plugins, private repositories, and JVM versions in mixed Scala Java Kotlin builds.
+description: Manage Mill module and Maven dependencies, Scala cross artifacts, BOMs, compiler plugins, private repositories, and JVM versions in mixed Scala Java Kotlin builds. Use when adding, upgrading or debugging dependencies or JDK/Scala versions in a Mill build.
 license: MIT
 ---
 

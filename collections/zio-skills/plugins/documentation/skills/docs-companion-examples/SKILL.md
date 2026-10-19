@@ -11,6 +11,18 @@ need nothing here. **Embedded** files — pulled in with `mdoc:embed:<path>` or 
 tutorial's "Putting It Together" or a reference page's "Running the Examples" — are real `.scala` files
 that must exist on disk before mdoc runs, in their own sbt build.
 
+## Subagents Used by This Skill
+
+The `docs-*` agents this skill delegates to ([`docs-examples-builder`](references/agents/docs-examples-builder.md)) are not installed as Claude Code agents; each
+has a role brief in this skill's `references/agents/` directory. Wherever a step says to delegate to
+one of them with the `Task` tool, start a fresh general-purpose subagent (`subagent_type:
+"general-purpose"`) whose prompt is the full text of that brief followed by the task prompt shown. If
+you cannot start subagents, do the step yourself as a separate pass that follows the brief exactly —
+the separation rules still hold (a fix pass applies only the reviewer's verbatim findings, and a
+review pass grades the page as written).
+
+## Commissioning the Build
+
 Delegate the build to the **`docs-examples-builder`** agent with the `Task` tool — it must NOT share
 your conversation, so its only knowledge of the page is what you tell it. The agent already knows the
 decoupled sbt build topology, file templates, and the compile/lint/self-check procedure; give it only
@@ -19,7 +31,7 @@ the page-specific parameters:
 ```
 Task(
   description: "Build companion examples for <page-id>",
-  subagent_type: "documentation:docs-examples-builder",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-examples-builder.md, then the text below
   prompt: "Page: <path to the page being documented>
            Embeds this page declares: <every mdoc:embed:<path> or SourceFile.print path it names,
              each of which must end up at exactly that path>

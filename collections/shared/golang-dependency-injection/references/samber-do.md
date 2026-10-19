@@ -2,7 +2,7 @@
 
 > **For the full samber/do API, patterns, and advanced features, see the `samber/cc-skills-golang@golang-samber-do` skill.**
 
-Type-safe dependency injection using Go generics. No reflection, no code generation, simple API.
+Type-safe dependency injection using Go generics. No reflection-based autowiring, no code generation, simple API. Dependencies are resolved at runtime when a provider calls `do.Invoke`/`do.MustInvoke`.
 
 - Docs: [do.samber.dev](https://do.samber.dev) | [github.com/samber/do/v2](https://github.com/samber/do)
 
@@ -26,7 +26,7 @@ injector.ShutdownOnSignalsWithContext(ctx, os.Interrupt)
 ## Why samber/do
 
 - **No code generation** — no build step, no generated files to maintain
-- **No reflection** — errors are caught at compile time via generics, not at runtime
+- **No reflection-based autowiring** — generics give typed `Invoke` calls, but the graph is resolved at runtime: a missing provider surfaces as an error from `do.Invoke` (or a panic from `do.MustInvoke`), not at compile time
 - **Strongly typed** — Go generics provide full type safety without `interface{}` casts
 - **Built-in lifecycle** — health checks and graceful shutdown detected automatically
 - **Container cloning** — create isolated test containers from production configuration

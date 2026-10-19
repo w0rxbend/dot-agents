@@ -4,7 +4,8 @@ description: >
   Analyze a recent docs-* skill execution to close the feedback loop. Identifies
   deviations from documented workflow, unclear instructions, missing edge cases,
   and better approaches. Applies targeted improvements to the skill file based on
-  what was learned. Run after any docs-* skill to capture retrospective insights.
+  what was learned, with user confirmation, only for skill files the current repo owns.
+  Use when the user asks for a retrospective after running a zio-skills docs-* skill.
 argument-hint: "<skill-name>"
 allowed-tools: Read, Glob, Grep, Edit, Bash
 ---
@@ -35,6 +36,13 @@ plugins defining the same name), stop and ask which one actually ran — never g
 check the global user-level skill directory as a last resort: `~/.claude/skills/<skill-name>/SKILL.md`
 (never a specific user's literal home directory path — this file is shared, checked-in content, and a
 hardcoded `/home/<user>/...` path only ever works on one machine).
+
+Resolve the real location before going further: `realpath <path-found>`. Installed skills are often
+symlinks into a vendored copy (for example a dot-agents checkout's `collections/zio-skills/...`) or live
+in a git repository other than the one you are working in. **Only edit the file in place when its real
+path is inside the current repository's work tree** (`git rev-parse --show-toplevel` is a prefix of the
+real path) **and is not under a vendored `collections/` tree.** Otherwise, run Steps 2–3, then in Step 4
+present the proposed changes as a diff for the user to apply upstream, and skip Step 5.
 
 Read the full content of the SKILL.md found. Treat each numbered step in the
 **Workflow** section as the ground truth for what *should* happen.
@@ -81,7 +89,8 @@ are **not** worth updating — skip them.
 
 ### Step 4: Apply Improvements
 
-Edit the skill file with **minimal, targeted changes**:
+First show the user the list of proposed changes (category, location, one-line fix) and ask for
+confirmation. Apply only the ones they approve. Edit the skill file with **minimal, targeted changes**:
 
 - Add missing steps at the correct position
 - Rewrite ambiguous instructions in-place (preserve structure)
@@ -95,6 +104,9 @@ Rules:
 - Prefer one precise sentence over a paragraph
 
 ### Step 5: Commit
+
+Only if the user agreed to a commit, and only in the repository that owns the skill file (run git
+from that file's directory, never from an unrelated repo you happen to be in):
 
 ```bash
 git add <path-found-in-step-1>

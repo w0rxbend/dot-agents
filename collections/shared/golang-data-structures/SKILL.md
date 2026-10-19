@@ -71,7 +71,7 @@ Key functions: `Sort`/`SortFunc`, `BinarySearch`, `Contains`, `Compact`, `Grow`.
 
 ## Map Internals
 
-Maps are hash tables with 8-entry buckets and overflow chains. They are reference types — assigning a map copies the pointer, not the data.
+Maps are hash tables (Swiss tables since Go 1.24: groups of 8 slots with control bytes, open addressing; earlier versions used 8-entry buckets with overflow chains). They never shrink after `delete`. They are reference types — assigning a map copies the pointer, not the data.
 
 ### Preallocation
 

@@ -36,6 +36,10 @@ Supporting assets: `scripts/gh-env.sh` + `scripts/git-credential-token.py`
 `references/ci-troubleshooting.md`, `references/conventional-commits.md`,
 `references/github-api-cheatsheet.md`, `references/review-output-template.md`.
 
+The references call the helpers as `$GH_SKILL_DIR/scripts/...`. Set
+`GH_SKILL_DIR` to this skill's directory (the folder containing this
+SKILL.md) before running those snippets.
+
 ## Core discipline (applies to every workflow)
 
 - Preflight once per session: `gh auth status` — if it fails, go to

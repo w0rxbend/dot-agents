@@ -361,7 +361,7 @@ db.users.aggregate([
 ## Best Practices
 
 1. **Index all queries** - Every filter should have supporting index
-2. **Compound index order** - Equality, Range, Sort
+2. **Compound index order** - Equality, Sort, Range (ESR)
 3. **Use partial indexes** - Index only needed subset
 4. **Cursor pagination** - Avoid skip for large offsets
 5. **Soft deletes** - Preserve data, add isDeleted flag

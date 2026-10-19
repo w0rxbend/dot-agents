@@ -113,7 +113,7 @@ Example log output:
   "line": 12,
   "trace_id": "0af7651916cd43dd8448eb211c80319c",
   "span_id": "b7ad6b7169203331",
-  "model": "gpt-4o",
+  "model": "example-model",
   "prompt_tokens": 1842,
   "completion_tokens": 356,
   "duration_seconds": 2.417,
@@ -280,28 +280,27 @@ Save this JSON as `agent-overview.json` and import it into Grafana.
 # cost_tracker.py
 from dataclasses import dataclass
 
+from prometheus_client import Counter
+
+UNPRICED_CALLS = Counter("llm_unpriced_calls_total", "LLM calls with no configured pricing", ["model"])
+
 @dataclass
 class ModelPricing:
     prompt_cost_per_1k: float    # USD per 1,000 prompt tokens
     completion_cost_per_1k: float  # USD per 1,000 completion tokens
 
-# Updated pricing as of early 2026 -- adjust to your negotiated rates
+# Fill from each provider's current price list (and your negotiated rates) and record the
+# date you copied it. Prices change often, and caching/batch discounts are not modelled here.
+# Use the exact model IDs your client sends, e.g. the dated ID returned in the API response.
 MODEL_PRICING: dict[str, ModelPricing] = {
-    "gpt-4o":           ModelPricing(0.0025, 0.0100),
-    "gpt-4o-mini":      ModelPricing(0.00015, 0.0006),
-    "gpt-4.1":          ModelPricing(0.002, 0.008),
-    "gpt-4.1-mini":     ModelPricing(0.0004, 0.0016),
-    "gpt-4.1-nano":     ModelPricing(0.0001, 0.0004),
-    "claude-sonnet-4":  ModelPricing(0.003, 0.015),
-    "claude-haiku-3.5": ModelPricing(0.0008, 0.004),
-    "claude-opus-4":    ModelPricing(0.015, 0.075),
+    # "<model-id>": ModelPricing(prompt_cost_per_1k=..., completion_cost_per_1k=...),
 }
 
 def calculate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> float:
-    """Return estimated cost in USD. Falls back to zero if model is unknown."""
+    """Return estimated cost in USD. Raises for unknown models so cost is never silently zero."""
     pricing = MODEL_PRICING.get(model)
     if pricing is None:
-        return 0.0
+        raise KeyError(f"no pricing configured for model {model!r}")
     prompt_cost = (prompt_tokens / 1000) * pricing.prompt_cost_per_1k
     completion_cost = (completion_tokens / 1000) * pricing.completion_cost_per_1k
     return prompt_cost + completion_cost
@@ -310,6 +309,7 @@ def record_cost(model: str, prompt_tokens: int, completion_tokens: int, agent_na
     """Calculate cost and record it in the Prometheus counter."""
     pricing = MODEL_PRICING.get(model)
     if pricing is None:
+        UNPRICED_CALLS.labels(model=model).inc()   # alert on this: cost dashboards are incomplete
         return
     prompt_cost = (prompt_tokens / 1000) * pricing.prompt_cost_per_1k
     completion_cost = (completion_tokens / 1000) * pricing.completion_cost_per_1k
@@ -377,23 +377,29 @@ groups:
 
 Langfuse provides trace-level visibility with prompt management and scoring. It can run alongside your existing OTel stack.
 
+Code below targets the current Langfuse Python SDK (OTel-based, v3+; checked against v5). The v2
+`langfuse.decorators` / `langfuse_context` API no longer exists. `capture_input=False` / `capture_output=False`
+keep prompts and completions out of Langfuse, consistent with the no-prompt-logging rule above; set them to
+`True` only where policy allows, or pass a `mask=` function to `Langfuse(...)` to redact first.
+
 ```python
 # langfuse_integration.py
-from langfuse import Langfuse
-from langfuse.decorators import observe, langfuse_context
+import os
+from langfuse import get_client, observe, propagate_attributes
 
-# Initialize -- reads LANGFUSE_SECRET_KEY, LANGFUSE_PUBLIC_KEY, LANGFUSE_HOST from env
-langfuse = Langfuse()
+# Reads LANGFUSE_SECRET_KEY, LANGFUSE_PUBLIC_KEY and LANGFUSE_HOST (or LANGFUSE_BASE_URL) from env
+langfuse = get_client()
+MODEL = os.environ.get("LLM_MODEL", "your-model-id")
 
-@observe(as_type="generation")
-def call_llm(client, messages, model="gpt-4o", **kwargs):
-    """Langfuse automatically captures input/output, tokens, latency, and cost."""
+@observe(as_type="generation", capture_input=False, capture_output=False)
+def call_llm(client, messages, model=MODEL, **kwargs):
+    """Record model, token usage and latency without storing prompt/response text."""
     response = client.chat.completions.create(
         model=model, messages=messages, **kwargs
     )
-    langfuse_context.update_current_observation(
+    langfuse.update_current_generation(
         model=model,
-        usage={
+        usage_details={
             "input": response.usage.prompt_tokens,
             "output": response.usage.completion_tokens,
         },
@@ -401,15 +407,15 @@ def call_llm(client, messages, model="gpt-4o", **kwargs):
     )
     return response
 
-@observe()
+@observe(capture_input=False, capture_output=False)
 def run_agent(user_input: str):
-    """Top-level agent trace -- all nested @observe calls become child spans."""
-    langfuse_context.update_current_trace(
-        user_id="user-123",
+    """Top-level agent span -- nested @observe calls become child observations."""
+    with propagate_attributes(
+        user_id="user-123",       # use a pseudonymous id, not an email
         session_id="session-abc",
         tags=["production"],
-    )
-    # ... agent logic with nested call_llm() and tool calls ...
+    ):
+        ...  # agent logic with nested call_llm() and tool calls
 ```
 
 Environment variables for Langfuse:
@@ -422,16 +428,17 @@ export LANGFUSE_HOST="https://cloud.langfuse.com"  # or your self-hosted URL
 
 ### Helicone (Proxy-based)
 
-Helicone acts as a logging proxy. Point your OpenAI base URL at Helicone and it captures everything automatically.
+Helicone acts as a logging proxy. Point your OpenAI base URL at Helicone and every prompt and completion transits and is stored by a third party. Only set this up with the user's explicit consent and after checking the data-handling policy; prefer the OTel or Langfuse (`capture_input=False`) routes when prompts may contain PII or secrets.
 
 ```python
 # helicone_integration.py
+import os
 from openai import OpenAI
 
 client = OpenAI(
     base_url="https://oai.helicone.ai/v1",
     default_headers={
-        "Helicone-Auth": "Bearer sk-helicone-...",
+        "Helicone-Auth": f"Bearer {os.environ['HELICONE_API_KEY']}",
         "Helicone-Property-Agent": "support-agent",
         "Helicone-Property-Environment": "production",
         "Helicone-User-Id": "user-123",
@@ -443,7 +450,7 @@ client = OpenAI(
 
 # All calls through this client are automatically logged in Helicone
 response = client.chat.completions.create(
-    model="gpt-4o",
+    model=os.environ["LLM_MODEL"],
     messages=[{"role": "user", "content": "Summarise this document..."}],
 )
 ```
@@ -780,7 +787,6 @@ logger.addFilter(PIIRedactingFilter())
 
 ## Related Skills
 
-- alerting-oncall (`alerting-oncall`) - Alert workflows and on-call routing
-- agent-evals (`agent-evals`) - Quality verification and evaluation pipelines
-- sre-dashboards (`sre-dashboards`) - General SRE dashboard patterns
-
+- `observability-and-instrumentation` - general logging, metrics, tracing and alert design
+- `grafana-dashboards` - building and provisioning the dashboards above
+- `agent-orchestration-improve-agent` - using these traces to evaluate and improve an agent

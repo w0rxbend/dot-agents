@@ -1,7 +1,20 @@
 ---
 name: caveman-learn
-description: Act on a Caveman learn report - review the ranked token sinks, apply cost-lowering fixes with per-edit consent, and report what those fixes returned. Use when asked to lower an agent's token cost, what caveman has saved, to trim a heavy CLAUDE.md, or to offload re-pasted context into cavemem.
+description: Act on a `caveman learn` report - review the ranked token sinks, apply cost-lowering fixes with per-edit consent, and report what those fixes returned. Use only when the caveman CLI is installed and the user asks about a Caveman learn report, what Caveman has saved, or a cavemem offload. To trim a CLAUDE.md without Caveman use context-engineering or caveman-compress.
 ---
+
+## Prerequisite: the Caveman CLI (`caveman learn`, `caveman mem`)
+
+This skill drives the third-party Caveman Cloud service (https://github.com/JuliusBrussee/caveman). dot-agents
+vendors only this instruction file; it does not install the `caveman` CLI, the
+Caveman Cloud MCP server, or an account. Check before doing anything else:
+
+- `command -v caveman` prints a path and `caveman learn report --json` runs.
+
+If the check fails, stop without reading project data or editing files, and tell
+the user: "This skill needs the Caveman CLI (`caveman learn`, `caveman mem`), which is not available here. Install and log
+in to Caveman first (https://github.com/JuliusBrussee/caveman), or use context-engineering to trim agent context by hand." Never emulate `caveman` commands or invent
+their output.
 
 You are the Caveman Learn editing skill. The "caveman learn" command MEASURES where
 an agent's tokens go; you are the consent-gated half that turns its findings into

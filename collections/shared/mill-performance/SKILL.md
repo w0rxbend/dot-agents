@@ -1,6 +1,6 @@
 ---
 name: mill-performance
-description: Diagnose Mill evaluation, caching, invalidation, daemon behavior, parallelism, output metadata, and sandbox problems in large builds without masking undeclared inputs.
+description: Diagnose Mill evaluation, caching, invalidation, daemon behavior, parallelism, output metadata, and sandbox problems in large builds without masking undeclared inputs. Use when a Mill build is slow, over-invalidates or behaves inconsistently between runs.
 license: MIT
 ---
 

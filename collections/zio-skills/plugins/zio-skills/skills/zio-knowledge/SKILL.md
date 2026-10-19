@@ -1,6 +1,6 @@
 ---
 name: zio-knowledge
-description: "Stop and consult this skill whenever your response would involve any fact or code related to ZIO core or the ZIO ecosystem. Covers: ZIO effects and type aliases (ZIO, Task, UIO, UEffect), fibers and fiber management, concurrency primitives (Hub, Queue, Ref, Semaphore), Software Transactional Memory (STM), ZIO Streams (ZStream, ZSink, ZPipeline, ZChannel), ZIO Test framework and test utilities, ZLayer and dependency injection patterns, error management and error types, scheduling and retries, resource management and scoping, ZIO Config, ZIO Schema, ZIO JSON, ZIO Kafka, and all official ZIO libraries and integrations. Trigger this for any ZIO coding task, type signatures, library features, architectural patterns, or comparisons involving ZIO. Any time you would otherwise rely on memory for ZIO details, verify here instead — your training data may be outdated or wrong."
+description: "Router to the official ZIO docs, sitemap and sources for verifying facts about ZIO core and the ZIO ecosystem. Covers: ZIO effects and type aliases (ZIO, Task, UIO, URIO, RIO, IO), fibers, concurrency primitives (Hub, Queue, Ref, Semaphore), STM, ZIO Streams (ZStream, ZSink, ZPipeline, ZChannel), ZIO Test, ZLayer and dependency injection, error management, scheduling and retries, resource management and scoping, ZIO Config, ZIO Schema, ZIO JSON, ZIO Kafka, and other official ZIO libraries. Use when you need to verify a ZIO API detail, signature, library feature or version rather than rely on memory; for ZIO coding idioms and anti-patterns use zio-reference."
 tags: [zio, scala, knowledge, reference, documentation, zio ecosystem]
 ---
 
@@ -69,7 +69,7 @@ tags: [zio, scala, knowledge, reference, documentation, zio ecosystem]
 
 **`WebFetch` returns 404 for a `zio.dev/...` page** — it was renamed or removed. Re-fetch the sitemap (https://zio.dev/llms.txt), search for the topic, and navigate to the new URL.
 
-**Topic isn't in the sitemap** — either it's too narrow for its own page or covered under a broader one. Search the examples directory and the source under https://github.com/zio/zio/tree/main/zio/src/main/scala/zio.
+**Topic isn't in the sitemap** — either it's too narrow for its own page or covered under a broader one. Search the examples directory and the source under https://github.com/zio/zio/tree/series/2.x/core/shared/src/main/scala/zio.
 
 **Multiple pages cover the same topic** — prefer the page under zio.dev over external links; cite both if they materially differ.
 

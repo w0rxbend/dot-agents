@@ -1,6 +1,6 @@
 ---
 name: mill-linting
-description: Configure Mill formatting, linting, coverage, and binary compatibility checks across Scala Java Kotlin modules, with separate fix and CI check workflows.
+description: Configure Mill formatting, linting, coverage, and binary compatibility checks across Scala Java Kotlin modules, with separate fix and CI check workflows. Use when setting up or running format, lint, coverage or MiMa checks in a Mill build.
 license: MIT
 ---
 

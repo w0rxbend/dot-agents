@@ -6,7 +6,7 @@ description: >
   entirely absent from an existing docs/reference/*.md file. The user provides the doc path
   and a description of what section is needed and why.
 argument-hint: "[path/to/reference-doc.md] [description of missing section and why it is needed]"
-allowed-tools: Read, Glob, Grep, Bash(sbt:*), Bash(sbt gh-query*), Skill
+allowed-tools: Read, Glob, Grep, Edit, Bash(sbt:*), Bash(git:*), Skill
 ---
 
 # Add a Missing Section to a Reference Page
@@ -149,16 +149,10 @@ After insertion, re-read ±10 lines around the insertion point to confirm natura
 
 **Step 6a: Compliance Check**
 
-Run the compliance verification:
+Run the compliance checks with the Skill tool, one rule skill at a time:
 
-```bash
-/docs-verify-compliance <path-to-doc.md>
-```
-
-This delegates to:
-1. `docs-check-compliance <path> docs-writing-style`
-2. `docs-check-compliance <path> docs-mdoc-conventions`
-3. `sbt "docs/mdoc --in <path>"`
+1. `docs-check-compliance` with arguments `<path-to-doc.md> docs-writing-style`
+2. `docs-check-compliance` with arguments `<path-to-doc.md> docs-mdoc-conventions`
 
 Fix any violations before proceeding.
 
@@ -167,10 +161,11 @@ Fix any violations before proceeding.
 Run:
 
 ```bash
-sbt "docs/mdoc --in <path-to-doc.md>"
+sbt "docs/mdoc --in <path-to-doc.md> --out website/<path-to-doc.md>"
 ```
 
-**Never use bare `sbt docs/mdoc`** — it recompiles all documentation (~90 seconds).
+**Never use bare `sbt docs/mdoc`** — it recompiles all documentation (~90 seconds). `--out` is the same
+path prefixed with `website/` (see `docs-mdoc-conventions`, "Verifying the Full Compile").
 
 **Success criterion:** The output contains **zero `[error]` lines**. Warnings are acceptable.
 
@@ -180,7 +175,8 @@ sbt "docs/mdoc --in <path-to-doc.md>"
 
 ## Step 7 — Commit
 
-Stage and commit the modified file:
+Ask the user whether to commit (they may prefer to review the change first). If they agree, stage and
+commit the modified file:
 
 ```bash
 git add <path-to-doc.md>
@@ -207,7 +203,7 @@ Example commit messages:
 | Predefined instances listed in prose instead of table | Convert to a Markdown table grouped by category |
 | Inline result comments (`// Right(42)`) in code examples | Delete comments; use `mdoc:compile-only` or Setup + Evaluated Output pattern |
 | Section inserted at wrong position (not matching canonical ordering) | Re-check the canonical sequence and move to the correct line range |
-| Bare `sbt docs/mdoc` without `--in` flag | Always use `sbt "docs/mdoc --in <path>"`; bare compilation takes ~90 seconds |
+| Bare `sbt docs/mdoc` without `--in` flag | Always use `sbt "docs/mdoc --in <path> --out website/<path>"`; bare compilation takes ~90 seconds |
 | Example code does not compile under mdoc | Verify all imports are included; run `mdoc --in` to check for errors |
 | No blank line above or below the new section | Enforce exactly one blank line before the `##` and after the last line |
 | Method signatures shown with extra keywords (`override`, `final`, `sealed`) | Strip to structural shape only; show method names, parameters, return types |
@@ -221,7 +217,7 @@ Example commit messages:
 | `docs-research` | Step 2 — baseline research (delegate with `/docs-research`) |
 | `docs-writing-style` | Step 4 — mandatory background before writing |
 | `docs-mdoc-conventions` | Step 4 — mandatory background before writing |
-| `docs-verify-compliance` | Step 6 — verify compliance and mdoc compilation |
+| `docs-check-compliance` | Step 6 — verify compliance (once per rule skill) |
 
 ---
 

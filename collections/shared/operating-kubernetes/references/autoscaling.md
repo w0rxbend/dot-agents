@@ -405,9 +405,26 @@ spec:
   triggers:
   - type: rabbitmq
     metadata:
-      host: amqp://user:password@rabbitmq.default.svc.cluster.local:5672
+      protocol: amqp
       queueName: tasks
-      queueLength: "10"  # Scale up when >10 messages
+      mode: QueueLength   # replaces the deprecated queueLength field
+      value: "10"         # Scale up when >10 messages per replica
+    authenticationRef:
+      name: rabbitmq-auth
+---
+# Connection string comes from a Secret, never inline in the ScaledObject.
+# kubectl create secret generic rabbitmq-conn -n production \
+#   --from-literal=host='amqp://<user>:<password>@rabbitmq.default.svc.cluster.local:5672/'
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: rabbitmq-auth
+  namespace: production
+spec:
+  secretTargetRef:
+  - parameter: host
+    name: rabbitmq-conn
+    key: host
 ```
 
 ### Kafka Scaler
@@ -705,7 +722,10 @@ spec:
   - type: rabbitmq
     metadata:
       queueName: tasks
-      queueLength: "10"
+      mode: QueueLength
+      value: "10"
+    authenticationRef:
+      name: rabbitmq-auth   # TriggerAuthentication with the host from a Secret (see RabbitMQ Scaler)
 ---
 # VPA for right-sizing (Off mode)
 apiVersion: autoscaling.k8s.io/v1

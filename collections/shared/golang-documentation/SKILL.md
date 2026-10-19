@@ -20,9 +20,8 @@ paths:
 ---
 
 Use parallel agents only when delegation is authorized and available, and the independent work justifies it. Scale agent count to the host budget and task size. Reviews may overlap concerns; edits require disjoint file ownership or isolated worktrees. Otherwise perform the same checks inline.
-**Persona:** You are a Go technical writer and API designer. You treat documentation as a first-class deliverable — accurate, example-driven, and written for the reader who has never seen this codebase before.
 
-**Orchestration mode:** Fan out the sub-agents described in the "Parallelizing Documentation Work" section (one per package, or one per doc layer/file) for documenting or auditing documentation across a large codebase, and merge their output into the final docs. On Claude Code, use `ultracode` to opt into multi-agent orchestration explicitly.
+**Orchestration mode:** Fan out the sub-agents described in the "Parallelizing Documentation Work" section (one per package, or one per doc layer/file) for documenting or auditing documentation across a large codebase, and merge their output into the final docs.
 
 **Modes:**
 
@@ -40,7 +39,6 @@ Write documentation that serves both humans and AI agents. Good documentation ma
 - See `samber/cc-skills-golang@golang-naming` skill for naming conventions in doc comments.
 - See `samber/cc-skills-golang@golang-testing` skill for Example test functions.
 - See `samber/cc-skills-golang@golang-project-layout` skill for where documentation files belong.
-- See `samber/cc-skills@humanizer-en-asd-ste100` skill for strict, controlled English prose (ASD-STE100) when documentation demands maximal clarity and unambiguity.
 
 ## Writing Principles
 
@@ -110,41 +108,21 @@ When documenting a large codebase with many packages, use up to 5 parallel sub-a
 
 Every exported function and method MUST have a doc comment. Document complex internal functions too. Skip test functions.
 
-The comment starts with the function name and a verb phrase. Focus on **why** and **when**, not restating what the code already shows. The code tells you _what_ happens — the comment should explain _why_ it exists, _when_ to use it, _what constraints_ apply, and _what can go wrong_. Include parameters, return values, error cases, and a usage example:
+The comment starts with the function name and a verb phrase. Focus on **why** and **when**, not restating what the code already shows. The code tells you _what_ happens — the comment should explain _why_ it exists, _when_ to use it, _what constraints_ apply, and _what can go wrong_. Write Go-style prose (as in the standard library), not `Parameters:`/`Returns:` headings; mention parameters, errors and concurrency only where they are not obvious from the signature. Put longer usage examples in `ExampleXxx` test functions rather than in the comment:
 
 ```go
-// CalculateDiscount computes the final price after applying tiered discounts.
-// Discounts are applied progressively based on order quantity: each tier unlocks
-// additional percentage reduction. Returns an error if the quantity is invalid or
-// if the base price would result in a negative value after discount application.
+// CalculateDiscount returns basePrice after applying the highest tier in tiers
+// whose MinQuantity is at most quantity, rounded to 2 decimal places.
+// tiers must be sorted by MinQuantity.
 //
-// Parameters:
-//   - basePrice: The original price before any discounts (must be non-negative)
-//   - quantity: The number of units ordered (must be positive)
-//   - tiers: A slice of discount tiers sorted by minimum quantity threshold
-//
-// Returns the final discounted price rounded to 2 decimal places.
-// Returns ErrInvalidPrice if basePrice is negative.
-// Returns ErrInvalidQuantity if quantity is zero or negative.
-//
-// Play: https://go.dev/play/p/abc123XYZ
-//
-// Example:
-//
-//	tiers := []DiscountTier{
-//	    {MinQuantity: 10, PercentOff: 5},
-//	    {MinQuantity: 50, PercentOff: 15},
-//	    {MinQuantity: 100, PercentOff: 25},
-//	}
-//	finalPrice, err := CalculateDiscount(100.00, 75, tiers)
-//	if err != nil {
-//	    log.Fatalf("Discount calculation failed: %v", err)
-//	}
-//	log.Printf("Ordered 75 units at $100 each: final price = $%.2f", finalPrice)
+// It returns ErrInvalidPrice if basePrice is negative and ErrInvalidQuantity
+// if quantity is not positive.
 func CalculateDiscount(basePrice float64, quantity int, tiers []DiscountTier) (float64, error) {
     // implementation
 }
 ```
+
+If the user asks for a brief or one-line comment, write that; a single accurate sentence is a valid Go doc comment.
 
 For the full comment format, deprecated markers, interface docs, and file-level comments, see **[Code Comments](./references/code-comments.md)** — how to document packages, functions, interfaces, and when to use `Deprecated:` markers and `BUG:` notes.
 
@@ -185,7 +163,7 @@ For Go libraries, add these on top of the basics:
 - **Generous code examples** — include multiple examples in doc comments showing common use cases.
 - **godoc** — your doc comments render on [pkg.go.dev](https://pkg.go.dev). Use `go doc` locally to preview; to inspect how a published package renders its docs, symbols, and examples, → See `samber/cc-skills-golang@golang-pkg-go-dev` skill.
 - **Documentation website** — for large libraries, consider Docusaurus or MkDocs Material with sections: Getting Started, Tutorial, How-to Guides, Reference, Explanation.
-- **Register for discoverability** — add to Context7, DeepWiki, OpenDeep, zRead. Even for private libraries.
+- **Register for discoverability** (public repositories only) — add to Context7, DeepWiki, OpenDeep, zRead. Never submit a private library to these third-party indexers.
 
 See [Library Documentation](./references/library.md) for details.
 

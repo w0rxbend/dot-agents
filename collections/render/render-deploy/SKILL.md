@@ -109,7 +109,7 @@ render --version
 ```
 If not installed, offer to install:
 - macOS: `brew install render`
-- Linux/macOS: `curl -fsSL https://raw.githubusercontent.com/render-oss/cli/main/bin/install.sh | sh`
+- Linux/macOS without Homebrew: download a pinned release zip and its `SHA256SUMS` from the [CLI releases page](https://github.com/render-oss/cli/releases/), verify the checksum, and put the `cli_v<version>` binary on `PATH` as `render` (see the render-cli skill). Ask the user before installing anything; do not pipe the install script from `curl` into `sh`.
 
 **4. MCP Setup (if MCP isn't configured)**
 
@@ -176,7 +176,7 @@ Create a `render.yaml` Blueprint file following the Blueprint specification.
 Complete specification: [references/blueprint-spec.md](references/blueprint-spec.md)
 
 **Key Points:**
-- Always use `plan: free` unless user specifies otherwise
+- Use `plan: free` unless the user specifies otherwise, but only where a free instance type exists (web services, static sites, Postgres, Key Value); workers, cron jobs and private services need a paid plan such as `starter`
 - Include ALL environment variables the app needs
 - Mark secrets with `sync: false` (user fills these in Dashboard)
 - Use appropriate service type: `web`, `worker`, `cron`, `static`, or `pserv`
@@ -222,7 +222,7 @@ After creating `render.yaml`, always give the user a short, explicit checklist a
 1. **Authenticate (CLI)**: run `render whoami -o json` (if not logged in, run `render login` or set `RENDER_API_KEY`)
 2. **Validate (recommended)**: run `render blueprints validate`
    - If the CLI isn't installed, offer to install it and provide the command.
-3. **Commit + push**: `git add render.yaml && git commit -m "Add Render deployment configuration" && git push origin main`
+3. **Commit + push**: ask the user first, then `git add render.yaml && git commit -m "Add Render deployment configuration" && git push origin HEAD` (the current branch; Render deploys the branch the Blueprint names, so make sure they match)
 4. **Open Dashboard**: Use the Blueprint deeplink and complete Git OAuth if prompted
 5. **Fill secrets**: Set env vars marked `sync: false`
 6. **Deploy**: Click "Apply" and monitor the deploy
@@ -248,12 +248,13 @@ Configuration guide: [references/configuration-guide.md](references/configuratio
 
 **IMPORTANT:** You must merge the `render.yaml` file into your repository before deploying.
 
-Ensure the `render.yaml` file is committed and pushed to your Git remote:
+Ensure the `render.yaml` file is committed and pushed to your Git remote. Show the user these
+commands and run them only after they confirm (they may prefer to commit or open a PR themselves):
 
 ```bash
 git add render.yaml
 git commit -m "Add Render deployment configuration"
-git push origin main
+git push origin HEAD   # pushes the current branch; deploy from the branch render.yaml names
 ```
 
 If there is no Git remote yet, stop here and guide the user to create a GitHub/GitLab/Bitbucket repo, add it as `origin`, and push before continuing.
@@ -349,9 +350,11 @@ For simple deployments without Infrastructure-as-Code, create services directly 
 **Repository must be pushed to a Git provider.** Render clones your repository to build and deploy services.
 
 ```bash
-git remote -v  # Verify remote exists
-git push origin main  # Ensure code is pushed
+git remote -v                 # Verify remote exists
+git status -sb                # Check whether the current branch is ahead of its remote
 ```
+
+If the branch has unpushed commits, ask the user before running `git push origin HEAD`.
 
 Supported providers: GitHub, GitLab, Bitbucket
 

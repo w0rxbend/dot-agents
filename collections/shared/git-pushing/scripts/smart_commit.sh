@@ -6,8 +6,17 @@ set -euo pipefail
 unset GIT_INDEX_FILE
 
 CONVENTIONAL_PATTERN='^(feat|fix|ref|refactor|perf|docs|test|build|ci|chore|style|meta|license|revert)(\([A-Za-z0-9._/-]+\))?(!)?: .+'
-MESSAGE="${1:-chore: update code}"
-shift || true
+usage() {
+  echo "Usage: smart_commit.sh '<type>(<scope>): <subject>' -- <path>...   (stage only these paths)" >&2
+  echo "       smart_commit.sh '<type>(<scope>): <subject>' --all          (stage every change; only when the user asked for all)" >&2
+  exit 1
+}
+
+if [[ "$#" -lt 2 ]]; then
+  usage
+fi
+MESSAGE=$1
+shift
 
 validate_message() {
   local subject=$1
@@ -20,12 +29,13 @@ validate_message() {
 validate_message "$MESSAGE"
 
 PATH_MODE=false
-if [[ "${1:-}" == "--" ]]; then
+if [[ "$1" == "--" ]]; then
   PATH_MODE=true
   shift
-elif [[ "$#" -gt 0 ]]; then
-  echo "Pass selected paths after an explicit -- separator." >&2
-  exit 1
+elif [[ "$1" == "--all" && "$#" -eq 1 ]]; then
+  shift
+else
+  usage
 fi
 
 if [[ "$PATH_MODE" == true && "$#" -eq 0 ]]; then

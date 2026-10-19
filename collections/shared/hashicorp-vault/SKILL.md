@@ -1,6 +1,6 @@
 ---
 name: hashicorp-vault
-description: Manage secrets and PKI with HashiCorp Vault.
+description: "Operate HashiCorp Vault - KV v2, dynamic database and cloud credentials, PKI, transit encryption, auth methods, policies, audit devices and production init/unseal. Use when storing, issuing or rotating secrets and certificates through Vault."
 category: security
 risk: critical
 source: https://github.com/BagelHole/DevOps-Security-Agent-Skills
@@ -9,9 +9,7 @@ source_type: community
 date_added: '2026-09-20'
 license: MIT
 license_source: https://github.com/BagelHole/DevOps-Security-Agent-Skills/blob/main/LICENSE
-compatibility: Requires the relevant security tooling (scanners, vault CLIs) and an
-  authorized scope for any active assessment. Docs-only; helper scripts and templates
-  not bundled.
+compatibility: Requires the vault CLI and a Vault server (dev mode is fine for learning); production steps need operator access.
 metadata:
   author: devops-skills
   version: '1.0'
@@ -165,7 +163,7 @@ vault write aws/roles/deploy \
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": ["s3:*"],
+      "Action": ["s3:GetObject", "s3:PutObject"],
       "Resource": ["arn:aws:s3:::my-bucket/*"]
     }
   ]
@@ -310,6 +308,22 @@ vault policy list
 vault policy read myapp
 ```
 
+## Audit Devices
+
+Enable at least one audit device before production traffic; Vault logs every request and response with secret values HMAC'd.
+
+```bash
+# File audit device (ship the file with your log agent)
+vault audit enable file file_path=/var/log/vault/audit.log
+
+# Optional second device: if every enabled device fails to write, Vault refuses requests
+vault audit enable -path=syslog syslog tag="vault" facility="AUTH"
+
+vault audit list -detailed
+```
+
+Rotate the audit file with logrotate and send `SIGHUP` to Vault afterwards so it reopens the file.
+
 ## Application Integration
 
 ### Python
@@ -352,7 +366,7 @@ metadata:
     vault.hashicorp.com/agent-inject-secret-config: "secret/data/myapp/config"
     vault.hashicorp.com/agent-inject-template-config: |
       {{- with secret "secret/data/myapp/config" -}}
-      export DB_PASSWORD  # populated from the referenced Vault/K8s Secret at deploy time
+      export DB_PASSWORD="{{ .Data.data.password }}"
       {{- end }}
 spec:
   serviceAccountName: myapp
@@ -381,28 +395,22 @@ spec:
 - Use short-lived tokens
 - Implement auto-unseal
 - Enable audit logging
-- Use namespaces for isolation
-- Rotate root tokens regularly
+- Use namespaces for isolation (Vault Enterprise / HCP only; use separate mounts and policies on Community Edition)
+- Revoke the initial root token; when one is needed again, generate a short-lived one with `vault operator generate-root` and revoke it afterwards
 - Implement least-privilege policies
 - Use dynamic secrets where possible
 - Regular backup and DR testing
 
 ## Related Skills
 
-- aws-secrets-manager (`aws-secrets-manager`) - AWS native secrets
-- sops-encryption (`sops-encryption`) - File encryption
-- kubernetes-hardening (`kubernetes-hardening`) - K8s security
+- `kubernetes-hardening` - consuming Vault secrets in Kubernetes and encrypting Secrets at rest
+- `security-hardening` - host and cloud hardening around the Vault cluster
+- `deploying-on-aws` - when AWS Secrets Manager / Parameter Store is the better fit
 
-## Limitations
+## Safety
 
-- Apply guidance only within authorized scope; test destructive steps in non-production first.
-- Docs-only import: upstream scripts and templates not bundled.
+- Run `vault status` and read-only commands (`vault secrets list`, `vault policy read`, `vault audit list`) before changing anything.
+- Never paste unseal keys, root tokens or secret values into chat, tickets or logs; revoke the initial root token once admin policies exist (`vault token revoke <token>`).
+- Test policy, auth-method and seal changes on a non-production cluster; a wrong seal or storage change can make data unrecoverable.
 
-### Example
-
-```bash
-# Read-only first: inventory before any active step.
-which <tool> && <tool> --help | head -n 20
-```
-
-> Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT); frontmatter, When to Use/Limitations, and safety boundaries added for upstream compliance. Docs-only import: helper scripts and templates not bundled.
+> Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT).

@@ -1,7 +1,7 @@
 ---
 name: effect-dependency-injection
 user-invocable: false
-description: Use when Effect dependency injection patterns including Context, Layer, service definitions, and dependency composition. Use for managing dependencies in Effect applications.
+description: "Effect-TS v3: define services with Context.Tag classes or Effect.Service, build them with Layer (succeed/effect/scoped), compose and provide layers, and swap implementations for tests or environments. Use when an effect has a non-never R channel or you are wiring an Effect application's dependency graph."
 allowed-tools:
   - Bash
   - Read
@@ -11,703 +11,294 @@ allowed-tools:
 
 # Effect Dependency Injection
 
-Master dependency injection and management in Effect applications using Context
-and Layers. This skill covers service definitions, layer construction, and
-composing complex dependency graphs.
+> **Version:** targets `effect` 3.x (examples checked against 3.22). Effect 4
+> replaces `Context.Tag`/`Effect.Service` with `Context.Service`; check
+> `effect` in package.json before copying.
 
-## Context and Services
+The `R` in `Effect<A, E, R>` lists the services an effect needs. A **tag**
+identifies a service; a **layer** (`Layer<ROut, E, RIn>`) is a recipe that
+builds `ROut` from `RIn`. You provide layers once at the edge; until then the
+compiler refuses to run an effect whose `R` is not `never`.
 
-### Defining Services with Context.Tag
+## Choosing how to define a service
 
-Services are defined using Context.Tag to create type-safe identifiers:
+| Situation | Use |
+| --- | --- |
+| Interface with several implementations (live, test, in-memory) defined separately | `class X extends Context.Tag("X")<X, Shape>() {}` + layers |
+| One canonical implementation that is constructed from other services | `class X extends Effect.Service<X>()("X", { effect, dependencies })` |
+| Value with a sensible default that callers may override (feature flag, log level) | `Context.Reference` |
+| Library code that must not use classes, or legacy code | `Context.GenericTag<Shape>("X")` (older style; prefer the class forms) |
 
-```typescript
-import { Context, Effect } from "effect"
+Tag keys must be globally unique strings; use a package-qualified name
+(`"@app/UserRepo"`) in libraries.
 
-// Define service interface
-interface UserService {
-  getUser: (id: string) => Effect.Effect<User, UserNotFound, never>
-  createUser: (data: UserData) => Effect.Effect<User, ValidationError, never>
-}
-
-// Create service tag
-const UserService = Context.GenericTag<UserService>("UserService")
-
-// Using the service
-const program = Effect.gen(function* () {
-  const userService = yield* UserService
-  const user = yield* userService.getUser("123")
-  return user
-})
-// Effect<User, UserNotFound, UserService>
-```
-
-### Multiple Services
+## Context.Tag + Layer
 
 ```typescript
-import { Context, Effect } from "effect"
+import { Context, Data, Effect, Layer, Option } from "effect"
 
-interface Logger {
-  info: (message: string) => Effect.Effect<void, never, never>
-  error: (message: string) => Effect.Effect<void, never, never>
-}
+class DbError extends Data.TaggedError("DbError")<{ readonly cause: unknown }> {}
+interface User { readonly id: string; readonly name: string }
 
-interface Database {
-  query: <T>(sql: string) => Effect.Effect<T, DbError, never>
-}
-
-const Logger = Context.GenericTag<Logger>("Logger")
-const Database = Context.GenericTag<Database>("Database")
-
-// Using multiple services
-const program = Effect.gen(function* () {
-  const logger = yield* Logger
-  const db = yield* Database
-
-  yield* logger.info("Querying database...")
-  const users = yield* db.query<User[]>("SELECT * FROM users")
-  yield* logger.info(`Found ${users.length} users`)
-
-  return users
-})
-// Effect<User[], DbError, Logger | Database>
-```
-
-## Creating Layers
-
-Layers are blueprints for constructing services.
-
-### Layer.succeed - Simple Service Implementation
-
-```typescript
-import { Context, Effect, Layer } from "effect"
-
-interface Config {
-  apiUrl: string
-  timeout: number
-}
-
-const Config = Context.GenericTag<Config>("Config")
-
-// Create a layer with a fixed value
-const ConfigLive = Layer.succeed(
-  Config,
+// 1. Tag: the class is both the type and the key
+class UserRepo extends Context.Tag("@app/UserRepo")<
+  UserRepo,
   {
-    apiUrl: "https://api.example.com",
-    timeout: 5000
+    readonly findById: (id: string) => Effect.Effect<Option.Option<User>, DbError>
+    readonly save: (user: User) => Effect.Effect<void, DbError>
   }
-)
-```
+>() {}
 
-### Layer.effect - Service with Dependencies
+class AppConfig extends Context.Tag("@app/AppConfig")<
+  AppConfig,
+  { readonly dbUrl: string }
+>() {}
 
-Create a service that depends on other services:
-
-```typescript
-import { Context, Effect, Layer } from "effect"
-
-interface HttpClient {
-  get: (url: string) => Effect.Effect<Response, NetworkError, never>
-  post: (url: string, body: unknown) => Effect.Effect<Response, NetworkError, never>
-}
-
-const HttpClient = Context.GenericTag<HttpClient>("HttpClient")
-
-// HttpClient depends on Config and Logger
-const HttpClientLive = Layer.effect(
-  HttpClient,
+// 2. Use it: yield the tag to get the implementation
+const rename = (id: string, name: string) =>
   Effect.gen(function* () {
-    const config = yield* Config
-    const logger = yield* Logger
-
-    return {
-      get: (url: string) =>
-        Effect.gen(function* () {
-          yield* logger.info(`GET ${url}`)
-          const response = yield* Effect.tryPromise({
-            try: () => fetch(`${config.apiUrl}${url}`, {
-              timeout: config.timeout
-            }),
-            catch: (error) => ({
-              _tag: "NetworkError",
-              message: String(error)
-            })
-          })
-          return response
-        }),
-      post: (url: string, body: unknown) =>
-        Effect.gen(function* () {
-          yield* logger.info(`POST ${url}`)
-          const response = yield* Effect.tryPromise({
-            try: () => fetch(`${config.apiUrl}${url}`, {
-              method: "POST",
-              body: JSON.stringify(body),
-              timeout: config.timeout
-            }),
-            catch: (error) => ({
-              _tag: "NetworkError",
-              message: String(error)
-            })
-          })
-          return response
-        })
-    }
+    const repo = yield* UserRepo
+    const user = yield* repo.findById(id)
+    if (Option.isNone(user)) return false
+    yield* repo.save({ ...user.value, name })
+    return true
   })
-)
-// Layer<HttpClient, never, Config | Logger>
-```
+// Effect<boolean, DbError, UserRepo>
 
-### Layer.scoped - Resources with Cleanup
+// 3. Layers
+const AppConfigLive = Layer.succeed(AppConfig, { dbUrl: "postgres://localhost/app" })
 
-For services that need cleanup:
-
-```typescript
-import { Context, Effect, Layer } from "effect"
-
-interface DatabaseConnection {
-  query: <T>(sql: string) => Effect.Effect<T, DbError, never>
-}
-
-const DatabaseConnection = Context.GenericTag<DatabaseConnection>("DatabaseConnection")
-
-const DatabaseConnectionLive = Layer.scoped(
-  DatabaseConnection,
+const UserRepoLive = Layer.effect(
+  UserRepo,
   Effect.gen(function* () {
-    const config = yield* Config
-
-    // Acquire connection
-    const connection = yield* Effect.tryPromise({
-      try: () => createConnection(config.dbUrl),
-      catch: (error) => ({
-        _tag: "ConnectionError",
-        message: String(error)
-      })
+    const { dbUrl } = yield* AppConfig // dependency becomes RIn
+    yield* Effect.log(`connecting to ${dbUrl}`)
+    const rows = new Map<string, User>()
+    return UserRepo.of({
+      findById: (id) => Effect.succeed(Option.fromNullable(rows.get(id))),
+      save: (user) => Effect.sync(() => void rows.set(user.id, user))
     })
-
-    // Register cleanup
-    yield* Effect.addFinalizer(() =>
-      Effect.sync(() => {
-        console.log("Closing database connection")
-        connection.close()
-      })
-    )
-
-    return {
-      query: <T>(sql: string) =>
-        Effect.tryPromise({
-          try: () => connection.query<T>(sql),
-          catch: (error) => ({
-            _tag: "DbError",
-            message: String(error)
-          })
-        })
-    }
   })
 )
+// Layer<UserRepo, never, AppConfig>
+
+// 4. Provide at the edge
+const MainLive = UserRepoLive.pipe(Layer.provide(AppConfigLive))
+// Layer<UserRepo, never, never>
+
+const main = rename("1", "Ada").pipe(Effect.provide(MainLive))
+// Effect<boolean, DbError, never>  -> Effect.runPromise(main)
 ```
 
-## Providing Layers
+Keep the service shape free of requirements (`R = never` on its methods):
+dependencies belong in the layer that builds it, not in each method's type.
 
-### Effect.provide - Provide Single Layer
+## Effect.Service (one canonical implementation)
+
+`Effect.Service` defines the tag and its default layer together. The class
+gets a `Default` layer (with `dependencies` already provided) and
+`DefaultWithoutDependencies`.
 
 ```typescript
 import { Effect, Layer } from "effect"
 
-const program = Effect.gen(function* () {
-  const config = yield* Config
-  return config.apiUrl
-})
-// Effect<string, never, Config>
+class Clock2 extends Effect.Service<Clock2>()("@app/Clock2", {
+  succeed: { now: () => new Date() }
+}) {}
 
-// Provide the Config layer
-const runnable = program.pipe(
-  Effect.provide(ConfigLive)
-)
+class Greeter extends Effect.Service<Greeter>()("@app/Greeter", {
+  effect: Effect.gen(function* () {
+    const clock = yield* Clock2
+    return {
+      greet: (name: string) => Effect.succeed(`Hello ${name} at ${clock.now().toISOString()}`)
+    }
+  }),
+  dependencies: [Clock2.Default],
+  accessors: true // adds static Greeter.greet(...) returning Effect<..., Greeter>
+}) {}
+
+const program = Greeter.greet("Ada").pipe(Effect.provide(Greeter.Default))
 // Effect<string, never, never>
 
-// Now can run without dependencies
-const result = await Effect.runPromise(runnable)
-```
-
-### Effect.provideService - Provide Service Directly
-
-For testing or simple cases:
-
-```typescript
-import { Effect } from "effect"
-
-const testConfig: Config = {
-  apiUrl: "http://localhost:3000",
-  timeout: 1000
-}
-
-const program = Effect.gen(function* () {
-  const config = yield* Config
-  return config.apiUrl
-})
-
-const runnable = program.pipe(
-  Effect.provideService(Config, testConfig)
+// Tests: keep the real Greeter, swap its dependency for a fake
+const FixedClock = Layer.succeed(Clock2, new Clock2({ now: () => new Date(0) }))
+const testGreeter = Greeter.greet("Ada").pipe(
+  Effect.provide(Greeter.DefaultWithoutDependencies.pipe(Layer.provide(FixedClock)))
 )
 ```
 
-## Composing Layers
+Instances of an `Effect.Service` class are created with `new X(impl)`, which
+is how you build fakes for `Layer.succeed`. Use `scoped:` instead of
+`effect:` when construction acquires resources (see below).
 
-### Layer.provide - Layer Dependencies
+## Constructors for layers
 
-Provide dependencies to a layer:
+| Constructor | When |
+| --- | --- |
+| `Layer.succeed(Tag, impl)` | implementation is a plain value |
+| `Layer.sync(Tag, () => impl)` | lazy, synchronous construction |
+| `Layer.effect(Tag, effect)` | construction needs other services or async work |
+| `Layer.scoped(Tag, effect)` | construction acquires a resource that must be released (pool, connection, subscription) |
+| `Layer.unwrapEffect(effect)` | choose a layer at runtime (env var, config) |
+| `Layer.function(In, Out, f)` | derive one service from another |
 
 ```typescript
-import { Layer } from "effect"
+import { Config, Context, Effect, Layer } from "effect"
 
-// UserServiceLive needs HttpClient
-// HttpClient needs Config and Logger
+class Db extends Context.Tag("@app/Db")<Db, { readonly query: (sql: string) => Effect.Effect<unknown[]> }>() {}
 
-const UserServiceLive = Layer.effect(
-  UserService,
+declare const openPool: (url: string) => Promise<{ query(sql: string): Promise<unknown[]>; end(): Promise<void> }>
+
+// Scoped layer: the finalizer runs when the application (or test) scope closes
+const DbLive = Layer.scoped(
+  Db,
   Effect.gen(function* () {
-    const http = yield* HttpClient
-
-    return {
-      getUser: (id: string) =>
-        Effect.gen(function* () {
-          const response = yield* http.get(`/users/${id}`)
-          const user = yield* Effect.tryPromise({
-            try: () => response.json(),
-            catch: () => ({ _tag: "ParseError" })
-          })
-          return user
-        })
-    }
+    const url = yield* Config.string("DATABASE_URL")
+    const pool = yield* Effect.acquireRelease(
+      Effect.promise(() => openPool(url)),
+      (p) => Effect.promise(() => p.end())
+    )
+    return { query: (sql) => Effect.promise(() => pool.query(sql)) }
   })
 )
+// Layer<Db, ConfigError, never>
 
-// Provide HttpClient to UserService
-const UserServiceWithDeps = UserServiceLive.pipe(
-  Layer.provide(HttpClientLive)
-)
-// Layer<UserService, never, Config | Logger>
-```
-
-### Layer.merge - Combine Layers
-
-Merge multiple independent layers:
-
-```typescript
-import { Layer } from "effect"
-
-// Combine Config and Logger
-const AppConfigLayer = Layer.merge(
-  ConfigLive,
-  LoggerLive
-)
-// Layer<Config | Logger, never, never>
-
-// Use merged layer
-const program = Effect.gen(function* () {
-  const config = yield* Config
-  const logger = yield* Logger
-  yield* logger.info(`API URL: ${config.apiUrl}`)
-})
-
-const runnable = program.pipe(
-  Effect.provide(AppConfigLayer)
+// Environment-selected implementation
+const DbInMemory = Layer.succeed(Db, { query: () => Effect.succeed([]) })
+const DbAuto = Layer.unwrapEffect(
+  Config.boolean("USE_FAKE_DB").pipe(
+    Config.withDefault(false),
+    Effect.map((fake) => (fake ? DbInMemory : DbLive))
+  )
 )
 ```
 
-### Layer Pipelines
+## Composing layers
 
-Build complex dependency graphs:
-
-```typescript
-import { Layer, Effect } from "effect"
-
-// Build dependency graph
-const AppLayer = Layer.merge(
-  ConfigLive,
-  LoggerLive
-).pipe(
-  Layer.provideMerge(HttpClientLive),
-  Layer.provideMerge(DatabaseConnectionLive),
-  Layer.provideMerge(UserServiceLive)
-)
-
-// All services now available
-const program = Effect.gen(function* () {
-  const userService = yield* UserService
-  const logger = yield* Logger
-
-  yield* logger.info("Fetching user...")
-  const user = yield* userService.getUser("123")
-  yield* logger.info(`User: ${user.name}`)
-
-  return user
-})
-
-const runnable = program.pipe(
-  Effect.provide(AppLayer)
-)
-```
-
-## Service Patterns
-
-### Repository Pattern
+| Operator | Result |
+| --- | --- |
+| `Layer.merge(a, b)` / `Layer.mergeAll(...)` | outputs of both; inputs of both |
+| `outer.pipe(Layer.provide(inner))` | feeds `inner`'s outputs into `outer`'s inputs; output is only `outer`'s |
+| `outer.pipe(Layer.provideMerge(inner))` | same, but output also includes `inner`'s services |
 
 ```typescript
 import { Context, Effect, Layer } from "effect"
 
-interface UserRepository {
-  findById: (id: string) => Effect.Effect<Option<User>, DbError, never>
-  save: (user: User) => Effect.Effect<User, DbError, never>
-  delete: (id: string) => Effect.Effect<void, DbError, never>
-}
+class A extends Context.Tag("A")<A, { readonly a: number }>() {}
+class B extends Context.Tag("B")<B, { readonly b: number }>() {}
+class C extends Context.Tag("C")<C, { readonly c: number }>() {}
 
-const UserRepository = Context.GenericTag<UserRepository>("UserRepository")
+const ALive = Layer.succeed(A, { a: 1 })
+const BLive = Layer.effect(B, Effect.map(A, ({ a }) => ({ b: a + 1 }))) // needs A
+const CLive = Layer.effect(C, Effect.map(B, ({ b }) => ({ c: b + 1 }))) // needs B
 
-const UserRepositoryLive = Layer.effect(
-  UserRepository,
-  Effect.gen(function* () {
-    const db = yield* Database
-
-    return {
-      findById: (id: string) =>
-        Effect.gen(function* () {
-          const rows = yield* db.query<User[]>(
-            `SELECT * FROM users WHERE id = ?`,
-            [id]
-          )
-          return rows.length > 0 ? Option.some(rows[0]) : Option.none()
-        }),
-
-      save: (user: User) =>
-        db.query(
-          `INSERT INTO users (id, name, email) VALUES (?, ?, ?)`,
-          [user.id, user.name, user.email]
-        ).pipe(
-          Effect.map(() => user)
-        ),
-
-      delete: (id: string) =>
-        db.query(`DELETE FROM users WHERE id = ?`, [id]).pipe(
-          Effect.asVoid
-        )
-    }
-  })
+const AppLive = CLive.pipe(
+  Layer.provide(BLive),
+  Layer.provide(ALive)
 )
+// Layer<C, never, never>  (A and B are internal)
+
+const AppWithAll = CLive.pipe(
+  Layer.provideMerge(BLive),
+  Layer.provideMerge(ALive)
+)
+// Layer<A | B | C, never, never>
+
+// Wrong: merge does NOT feed BLive into CLive -> Layer<B | C, never, A | B>
+const notWired = Layer.mergeAll(CLive, BLive)
 ```
 
-### Service Facade Pattern
+Build one `MainLive` layer per entry point and provide it once. If the type
+still shows a requirement, the error message names the missing service.
+
+**Memoization:** a layer value is built once per `Effect.provide` even if it
+appears in several branches of the graph (layers are compared by reference).
+Calling a function that returns a *new* layer each time defeats this; define
+layers as constants. Use `Layer.fresh(layer)` when you really want a second
+instance.
+
+**Do not** call `Effect.provide` deep inside library functions: each call
+builds the layer again (new pool, new connections). Provide at the edge.
+
+## Integrating with non-Effect frameworks
+
+Use `ManagedRuntime` to build layers once and run effects from callbacks
+(Express handlers, React server actions, queues):
 
 ```typescript
-import { Context, Effect, Layer } from "effect"
+import { Context, Effect, Layer, ManagedRuntime } from "effect"
 
-// High-level service that coordinates multiple services
-interface UserFacade {
-  registerUser: (data: UserData) => Effect.Effect<User, ValidationError | DbError | NetworkError, never>
-  getUserProfile: (id: string) => Effect.Effect<UserProfile, NotFoundError | DbError, never>
+class Greeting extends Context.Tag("Greeting")<Greeting, { readonly text: string }>() {}
+
+const runtime = ManagedRuntime.make(Layer.succeed(Greeting, { text: "hi" }))
+
+export async function handler(): Promise<string> {
+  return runtime.runPromise(Effect.map(Greeting, (g) => g.text))
 }
-
-const UserFacade = Context.GenericTag<UserFacade>("UserFacade")
-
-const UserFacadeLive = Layer.effect(
-  UserFacade,
-  Effect.gen(function* () {
-    const userRepo = yield* UserRepository
-    const emailService = yield* EmailService
-    const logger = yield* Logger
-
-    return {
-      registerUser: (data: UserData) =>
-        Effect.gen(function* () {
-          yield* logger.info(`Registering user: ${data.email}`)
-
-          const user = yield* userRepo.save({
-            id: generateId(),
-            ...data
-          })
-
-          yield* emailService.sendWelcomeEmail(user.email)
-          yield* logger.info(`User registered: ${user.id}`)
-
-          return user
-        }),
-
-      getUserProfile: (id: string) =>
-        Effect.gen(function* () {
-          const userOption = yield* userRepo.findById(id)
-
-          if (Option.isNone(userOption)) {
-            return yield* Effect.fail({
-              _tag: "NotFoundError",
-              id
-            })
-          }
-
-          const user = userOption.value
-          const posts = yield* postRepo.findByUserId(user.id)
-
-          return {
-            user,
-            posts,
-            postCount: posts.length
-          }
-        })
-    }
-  })
-)
+// on shutdown: await runtime.dispose()  (runs scoped-layer finalizers)
 ```
 
-## Testing with Layers
-
-### Creating Test Layers
-
-```typescript
-import { Context, Effect, Layer, Ref } from "effect"
-
-// In-memory test implementation
-const UserRepositoryTest = Layer.effect(
-  UserRepository,
-  Effect.gen(function* () {
-    const storage = yield* Ref.make<Map<string, User>>(new Map())
-
-    return {
-      findById: (id: string) =>
-        storage.get.pipe(
-          Effect.map(map => {
-            const user = map.get(id)
-            return user ? Option.some(user) : Option.none()
-          })
-        ),
-
-      save: (user: User) =>
-        storage.update(map => map.set(user.id, user)).pipe(
-          Effect.map(() => user)
-        ),
-
-      delete: (id: string) =>
-        storage.update(map => {
-          map.delete(id)
-          return map
-        }).pipe(Effect.asVoid)
-    }
-  })
-)
-
-// Mock logger for tests
-const LoggerTest = Layer.succeed(
-  Logger,
-  {
-    info: (message) => Effect.sync(() => { /* no-op */ }),
-    error: (message) => Effect.sync(() => { /* no-op */ })
-  }
-)
-
-// Test layer composition
-const TestLayer = Layer.merge(
-  UserRepositoryTest,
-  LoggerTest
-)
-
-// Use in tests
-const testProgram = Effect.gen(function* () {
-  const repo = yield* UserRepository
-  const user = yield* repo.save({ id: "1", name: "Test", email: "test@example.com" })
-  const found = yield* repo.findById("1")
-  return found
-}).pipe(
-  Effect.provide(TestLayer)
-)
-
-const result = await Effect.runPromise(testProgram)
-```
-
-### Spy Layers for Testing
-
-```typescript
-import { Context, Effect, Layer, Ref } from "effect"
-
-interface LoggerSpy {
-  readonly logger: Logger
-  readonly infoMessages: Ref.Ref<string[]>
-  readonly errorMessages: Ref.Ref<string[]>
-}
-
-const LoggerSpy = Context.GenericTag<LoggerSpy>("LoggerSpy")
-
-const LoggerSpyLive = Layer.effect(
-  LoggerSpy,
-  Effect.gen(function* () {
-    const infoMessages = yield* Ref.make<string[]>([])
-    const errorMessages = yield* Ref.make<string[]>([])
-
-    const logger: Logger = {
-      info: (message) =>
-        infoMessages.update(msgs => [...msgs, message]),
-      error: (message) =>
-        errorMessages.update(msgs => [...msgs, message])
-    }
-
-    return {
-      logger,
-      infoMessages,
-      errorMessages
-    }
-  })
-)
-
-// Use in test
-const testWithSpy = Effect.gen(function* () {
-  const spy = yield* LoggerSpy
-  const logger = spy.logger
-
-  yield* logger.info("Test message")
-
-  const messages = yield* spy.infoMessages.get
-  expect(messages).toEqual(["Test message"])
-}).pipe(
-  Effect.provide(LoggerSpyLive)
-)
-```
-
-## Advanced Patterns
-
-### Optional Dependencies
+## Optional and default services
 
 ```typescript
 import { Context, Effect, Option } from "effect"
 
-interface CacheService {
-  get: (key: string) => Effect.Effect<Option<string>, never, never>
-  set: (key: string, value: string) => Effect.Effect<void, never, never>
-}
+class Cache extends Context.Tag("Cache")<Cache, { readonly get: (k: string) => Effect.Effect<Option.Option<string>> }>() {}
 
-const CacheService = Context.GenericTag<CacheService>("CacheService")
-
-// Service that can work with or without cache
-const getUserWithOptionalCache = (id: string) =>
+// Optional dependency: does not add Cache to R
+const lookup = (k: string) =>
   Effect.gen(function* () {
-    const cache = yield* Effect.serviceOption(CacheService)
-
-    if (Option.isSome(cache)) {
-      const cached = yield* cache.value.get(`user:${id}`)
-      if (Option.isSome(cached)) {
-        return JSON.parse(cached.value)
-      }
-    }
-
-    const user = yield* fetchUserFromDb(id)
-
-    if (Option.isSome(cache)) {
-      yield* cache.value.set(`user:${id}`, JSON.stringify(user))
-    }
-
-    return user
+    const cache = yield* Effect.serviceOption(Cache)
+    return Option.isSome(cache) ? yield* cache.value.get(k) : Option.none()
   })
+
+// Service with a default value: never appears in R; override with provideService
+class LogLevelRef extends Context.Reference<LogLevelRef>()("LogLevelRef", {
+  defaultValue: () => "info" as "info" | "debug"
+}) {}
+
+const level = Effect.gen(function* () {
+  return yield* LogLevelRef
+}) // Effect<"info" | "debug", never, never>
+const debugLevel = level.pipe(Effect.provideService(LogLevelRef, "debug"))
 ```
 
-### Environment-Based Layers
+## GenericTag (legacy)
 
-```typescript
-import { Layer } from "effect"
+`Context.GenericTag<Shape>("Key")` creates a tag without a class. It still
+works in v3 and appears in older code and docs, but the class form gives a
+nominal type, `Tag.of(...)`, and better error messages. When editing such
+code, migrate opportunistically: `const X = Context.GenericTag<XShape>("X")`
+becomes `class X extends Context.Tag("X")<X, XShape>() {}`, and call sites
+(`yield* X`, `Layer.succeed(X, ...)`) do not change.
 
-const getConfigLayer = (env: "development" | "production") => {
-  if (env === "production") {
-    return Layer.succeed(Config, {
-      apiUrl: "https://api.production.com",
-      timeout: 10000
-    })
-  } else {
-    return Layer.succeed(Config, {
-      apiUrl: "http://localhost:3000",
-      timeout: 5000
-    })
-  }
-}
+## Pitfalls
 
-const AppLayer = getConfigLayer(process.env.NODE_ENV as any).pipe(
-  Layer.provideMerge(LoggerLive),
-  Layer.provideMerge(HttpClientLive)
-)
-```
+- Service methods whose types include `R`: the requirement leaks to every
+  caller. Resolve dependencies when building the layer instead.
+- Reusing a tag key string for two different tags: they collide at runtime.
+- Creating layers inside functions or per request: destroys memoization and
+  re-opens resources.
+- `Layer.provide` vs `provideMerge` confusion: if a service "disappears" from
+  the output type, you used `provide` where you meant `provideMerge`.
+- Circular service dependencies: split the shared part into its own service.
+- Heavy work in `Layer.effect` without a scope (sockets, timers): use
+  `Layer.scoped` with `acquireRelease` so shutdown is clean.
 
-## Best Practices
+## Done when
 
-1. **Define Service Interfaces**: Always define clear interfaces for services.
+- Every service has a class tag (or `Effect.Service`) with a single live layer
+  and, where tests need it, a test layer.
+- There is one composed `MainLive` per entry point, provided once; `R` is
+  `never` at `run*` / `ManagedRuntime`.
+- Resources acquired in layers are released on shutdown (`Layer.scoped`,
+  `runtime.dispose()`).
 
-2. **Use Context.GenericTag**: Create service tags for type-safe access.
+## Related skills
 
-3. **Layer Composition**: Build complex dependency graphs through layer
-   composition.
+- effect-core-patterns - `Effect.gen`, running effects
+- effect-resource-management - scopes and finalizers inside `Layer.scoped`
+- effect-testing - test layers with `@effect/vitest` `it.layer`
 
-4. **Separate Concerns**: Keep service interfaces focused and single-purpose.
-
-5. **Test with Mock Layers**: Create test implementations for easy testing.
-
-6. **Document Dependencies**: Make service dependencies explicit in types.
-
-7. **Resource Management**: Use Layer.scoped for services needing cleanup.
-
-8. **Avoid Circular Dependencies**: Design layers to avoid circular references.
-
-9. **Environment Configuration**: Use layers to switch implementations by
-   environment.
-
-10. **Type Safety**: Leverage Effect's type system to catch dependency issues at
-    compile time.
-
-## Common Pitfalls
-
-1. **Circular Dependencies**: Creating layers that depend on each other.
-
-2. **Missing Layers**: Forgetting to provide required layers.
-
-3. **Over-Abstraction**: Creating too many tiny services unnecessarily.
-
-4. **Not Using scoped**: Forgetting cleanup for resources like database
-   connections.
-
-5. **Mixing Live and Test Layers**: Accidentally using production services in
-   tests.
-
-6. **Global State in Services**: Storing mutable state incorrectly in service
-   implementations.
-
-7. **Ignoring Type Errors**: Not paying attention to the R (Requirements) type
-   parameter.
-
-8. **Heavy Layers**: Creating layers that do too much during construction.
-
-9. **Not Reusing Layers**: Recreating the same layer in multiple places.
-
-10. **Wrong Layer Scope**: Not understanding when layers are constructed and
-    torn down.
-
-## When to Use This Skill
-
-Use effect-dependency-injection when you need to:
-
-- Manage complex dependency graphs
-- Build testable applications with Effect
-- Implement repository patterns
-- Create service facades
-- Handle resource lifecycle (acquire/release)
-- Switch implementations by environment
-- Mock dependencies for testing
-- Build modular, composable applications
-- Ensure type-safe dependency injection
-- Manage application configuration
-
-## Resources
-
-### Official Documentation
-
-- [Context Management](https://effect.website/docs/guides/context-management/)
-- [Layers](https://effect.website/docs/guides/context-management/layers)
-- [Services](https://effect.website/docs/guides/context-management/services)
-- [Managing Services](https://effect.website/docs/guides/context-management/managing-services)
-
-### Related Skills
-
-- effect-core-patterns - Basic Effect operations
-- effect-testing - Testing with Effect
-- effect-resource-management - Resource cleanup patterns
+Docs: <https://effect.website/docs/requirements-management/services/>,
+<https://effect.website/docs/requirements-management/layers/>

@@ -1,6 +1,6 @@
 ---
 name: designing-apis
-description: Design APIs that are secure, scalable, and maintainable using RESTful, GraphQL, and event-driven patterns. Use when designing new APIs, evolving existing APIs, or establishing API standards for teams.
+description: Design or review an HTTP, GraphQL or event API contract - protocol choice (REST/GraphQL/tRPC/gRPC/async), resources, status codes, Problem Details errors, versioning, pagination, idempotency, rate limits, OAuth scopes, OpenAPI/AsyncAPI specs and reference docs. Use before or while defining a network API; use implementing-api-patterns for server framework code and api-and-interface-design for in-process module contracts.
 ---
 
 # Designing APIs
@@ -17,13 +17,26 @@ Use when:
 - Defining error response formats and HTTP status code usage
 - Implementing pagination, filtering, and rate limiting patterns
 - Designing OAuth2 flows or API key authentication
-- Creating OpenAPI or AsyncAPI specifications
+- Creating OpenAPI or AsyncAPI specifications and API reference docs, changelogs and migration guides
+- Reviewing an API design before implementation or release
 
 Do NOT use for:
-- Implementation code (use `api-patterns` skill for Express, FastAPI code)
-- Authentication implementation (use `auth-security` skill for JWT, sessions)
-- API testing strategies (use `testing-strategies` skill)
-- API deployment and infrastructure (use `deploying-applications` skill)
+- Server implementation code (use `implementing-api-patterns` for FastAPI, Hono, Axum, Gin, tRPC, gRPC)
+- Module/library boundaries inside one process (use `api-and-interface-design`)
+- Client libraries for an API (use `designing-sdks`)
+- Authentication implementation (use `api-security-best-practices` or `security-and-hardening`)
+- Docs-site tooling and renderers (use `generating-documentation`)
+
+## Workflow
+
+1. **Consumers and constraints.** Who calls the API (public third parties, own frontends, internal services)? Latency, caching, real-time and language constraints.
+2. **Pick the style** with the matrix below (details in `references/protocol-selection.md`).
+3. **Model resources or operations,** then errors, pagination, versioning, idempotency and auth, using the sections below.
+4. **Write the contract** (OpenAPI 3.1, AsyncAPI 3.0, GraphQL SDL or `.proto`) with examples for every body.
+5. **Review** against `references/api-design-checklist.md` and run `references/api-security-testing.md` before public release.
+6. **Check the spec:** `python3 scripts/check_openapi.py <spec-or-dir>` for design gaps, `scripts/validate-openapi.sh <spec>` for Spectral linting.
+
+**Done when:** the contract lints clean, every operation has examples and documented error responses, the checklist has no unexplained gaps, and the versioning/deprecation policy is written down.
 
 ## Core Design Principles
 
@@ -125,16 +138,18 @@ Timeline:
 
 Include deprecation headers:
 ```http
-Deprecation: true
+Deprecation: @1735689599
 Sunset: Sat, 31 Dec 2025 23:59:59 GMT
 Link: </api/v2/users>; rel="successor-version"
 ```
+
+`Deprecation` takes the date the resource was deprecated as `@<unix-seconds>` (RFC 9745); older drafts used `Deprecation: true`.
 
 For complete versioning guide, see references/versioning-strategies.md
 
 ## Error Response Standards
 
-### RFC 7807 Problem Details (Recommended)
+### Problem Details (RFC 9457, formerly RFC 7807) (Recommended)
 
 ```json
 {
@@ -184,7 +199,7 @@ GET /users?limit=20&cursor=eyJpZCI6MTIzfQ==
 Cursor is base64-encoded JSON with position information.
 Response includes: `nextCursor`, `hasNext`
 
-For implementation details, see references/pagination-patterns.md
+For implementation details, see references/pagination-patterns.md. For Link-header pagination, bulk endpoints, `Idempotency-Key` handling, CORS and health endpoints, see references/rest-operations.md.
 
 ## Rate Limiting
 
@@ -291,7 +306,7 @@ OpenAPI enables:
 - Mock servers (testing against spec)
 - Documentation (interactive docs)
 
-For complete OpenAPI examples, see examples/openapi/
+For the reference-docs workflow (spec as source of truth, examples, guides, changelog and migration guides), see references/api-reference-docs.md
 
 ## AsyncAPI Specification
 
@@ -303,9 +318,10 @@ AsyncAPI defines message-based APIs (WebSockets, Kafka, MQTT):
 asyncapi: 3.0.0
 info:
   title: Order Events API
+  version: 1.0.0
 
 channels:
-  orders/created:
+  ordersCreated:
     address: orders.created
     messages:
       orderCreated:
@@ -350,7 +366,7 @@ const userLoader = new DataLoader(async (userIds) => {
 });
 ```
 
-For GraphQL patterns, see references/graphql-design.md
+For GraphQL patterns, see references/graphql-design.md (type system, DataLoader, Relay pagination, errors) and references/graphql-schema-patterns.md (interfaces/unions, mutation payloads, batch mutations, subscriptions, directives, cost limits, schema evolution).
 
 ## Quick Reference Tables
 
@@ -373,29 +389,38 @@ For GraphQL patterns, see references/graphql-design.md
 
 ## Integration with Other Skills
 
-- **api-patterns**: Implement API designs in Express, FastAPI, Go
-- **auth-security**: Implement OAuth2, JWT, session management
-- **database-design**: Design database schemas for API resources
+- **implementing-api-patterns**: Implement the design in FastAPI, Hono, Axum, Gin, tRPC or gRPC
+- **designing-sdks**: Client libraries for the API
+- **api-security-best-practices** / **security-and-hardening**: Implement OAuth2, JWT, sessions, input validation
+- **api-security**: Authorized offensive assessment of a running API
+- **database-design**: Database schemas behind API resources
 - **testing-strategies**: API testing (integration, contract, load)
-- **deploying-applications**: Deploy and scale APIs
-- **observability**: Monitor API performance and errors
+- **generating-documentation**: Render and host the reference docs
+- **observability-and-instrumentation**: Monitor API latency, errors and usage
 
 ## Additional Resources
 
 **Detailed guidance:**
-- references/rest-design.md - RESTful patterns and best practices
-- references/graphql-design.md - GraphQL schema and resolver patterns
+- references/protocol-selection.md - Choosing REST, GraphQL, tRPC, gRPC, WebSockets or messaging
+- references/rest-design.md - RESTful patterns, status codes, query parameters, caching
+- references/rest-operations.md - Idempotency keys, bulk endpoints, Link-header pagination, CORS, health endpoints
+- references/graphql-design.md - GraphQL type system, DataLoader, pagination, errors
+- references/graphql-schema-patterns.md - GraphQL schema shapes, mutation payloads, cost limits, evolution
 - references/versioning-strategies.md - Comprehensive versioning guide
-- references/error-handling.md - RFC 7807 implementation details
+- references/error-handling.md - Problem Details implementation details
 - references/pagination-patterns.md - Pagination implementation patterns
 - references/rate-limiting.md - Rate limiting algorithms and strategies
 - references/authentication.md - OAuth2, API keys, scopes
-- references/protocol-selection.md - Choosing the right API style
+- references/api-reference-docs.md - OpenAPI/AsyncAPI docs workflow, changelog and migration guides
+- references/api-design-checklist.md - Pre-implementation and pre-release review checklist
+- references/api-security-testing.md - OWASP API Top 10 test plan
 
 **Working examples:**
-- examples/openapi/ - Complete OpenAPI 3.1 specifications
-- examples/asyncapi/ - Event-driven API specifications
-- examples/graphql/ - GraphQL schemas and patterns
+- examples/asyncapi/ - Event-driven API specification
+- examples/graphql/ - GraphQL schema
 
 **Validation and tooling:**
-- scripts/validate-openapi.sh - Validate OpenAPI specifications
+- scripts/check_openapi.py - Read-only design-gap check of OpenAPI/Swagger files (operationIds, error responses, pagination, security)
+- scripts/validate-openapi.sh - Lint spec files with Spectral
+
+Attribution for merged material: references/ATTRIBUTION.md

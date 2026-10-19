@@ -56,8 +56,9 @@ envVars:
 ```yaml
 envVars:
   - key: REDIS_URL
-    fromDatabase:
+    fromService:
       name: redis
+      type: keyvalue
       property: connectionString
 ```
 
@@ -73,8 +74,9 @@ envVars:
       name: postgres-analytics
       property: connectionString
   - key: CACHE_URL
-    fromDatabase:
+    fromService:
       name: redis
+      type: keyvalue
       property: connectionString
 ```
 
@@ -583,7 +585,7 @@ routes:
 - [ ] SSL enabled if needed
 
 **Plans:**
-- [ ] Using `plan: free` by default
+- [ ] Using `plan: free` by default where available (not for workers, cron jobs or private services)
 - [ ] Documented upgrade path for users
 
 **Git Repository:**

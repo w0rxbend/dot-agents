@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "repository": "typelevel/cats",
+  "evidence": [
+    {
+      "id": "cats-strictness-review",
+      "kind": "review-comment",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/pull/4209#discussion_r879782750",
+      "occurred_at": "2022-05-23T19:00:24Z",
+      "excerpt": "`Seq` is an interface and I don't think it makes any promise about the order that `map` is applied.",
+      "interpretation": "johnynek challenged use of a mutable accumulator through an arbitrary Seq map. The author then acknowledged lazy Seq subtypes; the final patch omits a strict mapAccumulate override for Seq.",
+      "author": "johnynek",
+      "role_basis": "unknown",
+      "pull_number": 4209,
+      "corpus_path": "pulls/4209-c2bd578093d74f4e2e81.json",
+      "source_field": "review_comments[id=879782750].body",
+      "contextual_only": false
+    },
+    {
+      "id": "cats-composition-review",
+      "kind": "review-comment",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/pull/4209#discussion_r879777925",
+      "occurred_at": "2022-05-23T18:53:13Z",
+      "excerpt": "We don't know that F and G iterate from left to right, and without that I think we will break the laws.",
+      "interpretation": "johnynek proposed composing F.mapAccumulate with G.mapAccumulate rather than running a strict-helper shortcut on the composite. The final Composed.scala follows that proposal and keeps each inner final state.",
+      "author": "johnynek",
+      "role_basis": "unknown",
+      "pull_number": 4209,
+      "corpus_path": "pulls/4209-c2bd578093d74f4e2e81.json",
+      "source_field": "review_comments[id=879777925].body",
+      "contextual_only": false
+    },
+    {
+      "id": "cats-branching-counterexample",
+      "kind": "issue-comment",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/pull/4498#issuecomment-1806479051",
+      "occurred_at": "2023-11-10T21:47:03Z",
+      "excerpt": "For `List`-like monads, you may invoke that map function multiple times for each element of the `List`.",
+      "interpretation": "armanbilge corrected his earlier sequentiality argument after a focused reproducer exposed branch-shared mutable accumulation. The reproducer artificially marks List as StackSafeMonad solely to enter the optimized path; it is not evidence that List implements that marker in production.",
+      "author": "armanbilge",
+      "role_basis": "unknown",
+      "pull_number": 4498,
+      "corpus_path": "pulls/4498-fd784b37045915e054dc.json",
+      "source_field": "issue_comments[id=1806479051].body",
+      "contextual_only": false
+    },
+    {
+      "id": "cats-benchmark-correction",
+      "kind": "issue-comment",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/pull/4498#issuecomment-2088548540",
+      "occurred_at": "2024-05-01T14:30:00Z",
+      "excerpt": "I misread the plots. I was looking at this pr vs traverseDirectlyVector I think (the second set of metrics) but the relevant set is this pr vs main",
+      "interpretation": "johnynek withdrew the proposed Vector exception after correcting which benchmark comparison was being read. Do not teach the earlier tentative recommendation as the final decision. The PR merged with the direct path still present for Vector.",
+      "author": "johnynek",
+      "role_basis": "unknown",
+      "pull_number": 4498,
+      "corpus_path": "pulls/4498-fd784b37045915e054dc.json",
+      "source_field": "issue_comments[id=2088548540].body",
+      "contextual_only": false
+    },
+    {
+      "id": "cats-strict-helper-source",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/bc33be342afdb474bc2bfd0533000377ab386d4d/core/src/main/scala/cats/instances/StaticMethods.scala#L42-L46",
+      "occurred_at": "2022-05-24T16:40:16Z",
+      "excerpt": "val fb = ev.map(fa) { a =>\n      val (newState, b) = f(state, a)\n      state = newState\n      b\n    }",
+      "interpretation": "Local mutation is accepted inside the private strict-functor helper, but correctness depends on strict evaluation and the expected traversal order. The Functor type alone does not prove those preconditions.",
+      "commit_sha": "bc33be342afdb474bc2bfd0533000377ab386d4d",
+      "path": "core/src/main/scala/cats/instances/StaticMethods.scala",
+      "cache_path": "evidence-cache/4209-core--src--main--scala--cats--instances--StaticMethods.scala",
+      "pull_number": 4209
+    },
+    {
+      "id": "cats-composition-source",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/bc33be342afdb474bc2bfd0533000377ab386d4d/core/src/main/scala/cats/Composed.scala#L129-L129",
+      "occurred_at": "2022-05-24T16:40:16Z",
+      "excerpt": "F.mapAccumulate(init, fga)((s, ga) => G.mapAccumulate(s, ga)(f))",
+      "interpretation": "The composed implementation threads the evolving state through each inner traversal, preserving constituent implementations rather than assuming generic map is strict.",
+      "commit_sha": "bc33be342afdb474bc2bfd0533000377ab386d4d",
+      "path": "core/src/main/scala/cats/Composed.scala",
+      "cache_path": "evidence-cache/4209-core--src--main--scala--cats--Composed.scala",
+      "pull_number": 4209
+    },
+    {
+      "id": "cats-accumulate-tests",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/bc33be342afdb474bc2bfd0533000377ab386d4d/tests/shared/src/test/scala/cats/tests/TraverseSuite.scala#L48-L48",
+      "occurred_at": "2022-05-24T16:40:16Z",
+      "excerpt": "assert(lhs.map(_.toList) === rhs.map(_.reverse))",
+      "interpretation": "The property compares both the final state and transformed container with an explicit foldLeft reference. Underlying proxy suites exercise defaults separately from optimized collection overrides.",
+      "commit_sha": "bc33be342afdb474bc2bfd0533000377ab386d4d",
+      "path": "tests/shared/src/test/scala/cats/tests/TraverseSuite.scala",
+      "cache_path": "evidence-cache/4209-tests--shared--src--test--scala--cats--tests--TraverseSuite.scala",
+      "pull_number": 4209
+    },
+    {
+      "id": "cats-traverse-source",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/6cb787db2579b957c009a7e2929d656c9f08709f/core/src/main/scala/cats/Traverse.scala#L292-L296",
+      "occurred_at": "2024-03-26T11:33:18Z",
+      "excerpt": "fa.iterator.foldLeft(G.pure(Chain.empty[B])) { case (accG, a) =>\n      G.map2(accG, f(a)) { case (acc, x) =>\n        acc :+ x\n      }\n    }",
+      "interpretation": "The final direct traversal accumulates immutable Chain values inside G, avoiding a single shared mutable builder. This does not claim all Cats internal mutation is unsafe.",
+      "commit_sha": "6cb787db2579b957c009a7e2929d656c9f08709f",
+      "path": "core/src/main/scala/cats/Traverse.scala",
+      "cache_path": "evidence-cache/4498-core--src--main--scala--cats--Traverse.scala",
+      "pull_number": 4498
+    },
+    {
+      "id": "cats-traverse-tests",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/6cb787db2579b957c009a7e2929d656c9f08709f/tests/shared/src/test/scala/cats/tests/ListSuite.scala#L57-L57",
+      "occurred_at": "2024-03-26T11:33:18Z",
+      "excerpt": "checkAll(\"List[Int] with Eval\", TraverseTests[List].traverse[Int, Int, Int, Set[Int], Eval, Eval])",
+      "interpretation": "Alongside the Option case, Eval exercises the runtime StackSafeMonad branch in the law suite. These additional laws do not by themselves cover the branching reproducer or prove all fast paths safe.",
+      "commit_sha": "6cb787db2579b957c009a7e2929d656c9f08709f",
+      "path": "tests/shared/src/test/scala/cats/tests/ListSuite.scala",
+      "cache_path": "evidence-cache/4498-tests--shared--src--test--scala--cats--tests--ListSuite.scala",
+      "pull_number": 4498
+    },
+    {
+      "id": "cats-eval-source",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/5c84daa942693d03882f0f22c31a07620b9dc262/core/src/main/scala/cats/Eval.scala#L48-L48",
+      "occurred_at": "2024-12-29T10:16:40Z",
+      "excerpt": "Computation done within .map and .flatMap is always done lazily,",
+      "interpretation": "Eval documents lazy map/flatMap even for Now, and its source implements a trampoline. It is not Cats Effect IO; this evidence does not establish cancellation, resource safety or typed error semantics.",
+      "commit_sha": "5c84daa942693d03882f0f22c31a07620b9dc262",
+      "path": "core/src/main/scala/cats/Eval.scala",
+      "corpus_path": "snapshots/2024-639de29dfff512a4d9c8.json"
+    },
+    {
+      "id": "cats-branching-regression-commit",
+      "kind": "commit",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/commit/2210d8271792a14c20b5b25b7b54b82f464779f6",
+      "occurred_at": "2023-11-10T21:36:14Z",
+      "excerpt": "assertEquals(traversed, List(List(()), List(())))",
+      "interpretation": "Historical reproducer commit uses a deliberately fake StackSafeMonad[List] to route a one-element traversal with two alternatives into the optimized implementation. It demonstrates the intended branch-isolation invariant; no compilation or execution was performed here.",
+      "commit_sha": "2210d8271792a14c20b5b25b7b54b82f464779f6",
+      "cache_path": "evidence-cache/branching-regression-commit.json"
+    },
+    {
+      "id": "cats-traverse-list-dispatch",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/6cb787db2579b957c009a7e2929d656c9f08709f/core/src/main/scala/cats/instances/list.scala#L125-L125",
+      "occurred_at": "2024-03-26T11:33:18Z",
+      "excerpt": "case x: StackSafeMonad[G] => x.map(Traverse.traverseDirectly[G, A, B](fa)(f)(x))(_.toList)",
+      "interpretation": "The actual List instance selects the direct helper from the runtime Applicative instance; Option-only laws cannot be assumed to reach this path. The fallback temporary input buffer has different ownership from an output accumulator inside G.",
+      "commit_sha": "6cb787db2579b957c009a7e2929d656c9f08709f",
+      "path": "core/src/main/scala/cats/instances/list.scala",
+      "cache_path": "evidence-cache/resume-4498-core--src--main--scala--cats--instances--list.scala",
+      "pull_number": 4498
+    },
+    {
+      "id": "cats-traverse-map-repair",
+      "kind": "code",
+      "repository": "typelevel/cats",
+      "url": "https://github.com/typelevel/cats/blob/6cb787db2579b957c009a7e2929d656c9f08709f/core/src/main/scala/cats/instances/map.scala#L49-L51",
+      "occurred_at": "2024-03-26T11:33:18Z",
+      "excerpt": "fa.iterator.foldLeft(G.pure(Map.empty[K, B])) { case (accG, (k, a)) =>\n                x.map2(accG, f(a)) { case (acc, b) => acc + (k -> b) }\n              }",
+      "interpretation": "The separate unorderedTraverse path uses immutable Map accumulation with CommutativeApplicative and runtime StackSafeMonad checks. This closes the sibling-path inspection gap; do not apply a noncommutative List effect as a lawful Map traversal instance.",
+      "commit_sha": "6cb787db2579b957c009a7e2929d656c9f08709f",
+      "path": "core/src/main/scala/cats/instances/map.scala",
+      "cache_path": "evidence-cache/resume-4498-core--src--main--scala--cats--instances--map.scala",
+      "pull_number": 4498
+    }
+  ],
+  "claims": [
+    {
+      "id": "cats-c-branch-isolation",
+      "rule": "Do not share a mutable output builder across branches of a generic effectful traversal; retain immutable per-branch accumulators and deliberately exercise the optimized runtime branch.",
+      "evidence_ids": [
+        "cats-branching-counterexample",
+        "cats-traverse-source",
+        "cats-traverse-tests",
+        "cats-branching-regression-commit",
+        "cats-eval-source",
+        "cats-traverse-list-dispatch",
+        "cats-traverse-map-repair",
+        "cats-benchmark-correction"
+      ],
+      "applicability": "PR 4498, 2023-2024: the demonstrated failure is repeated continuation use in List-like branching, not a proven concurrent race. StackSafeMonad is a branch condition, not evidence of single-shot evaluation.",
+      "counterexample": "A strict local builder consumed before entering any effect can be safe. A fake marker instance is a targeted reproducer, not a production recommendation to advertise List flatMap as stack-safe."
+    },
+    {
+      "id": "cats-c-strict-accumulate",
+      "rule": "Use mutable state inside mapAccumulate helpers only for known strict, ordered maps; for composition, thread each inner final state through the outer traversal and test both final state and transformed values.",
+      "evidence_ids": [
+        "cats-strictness-review",
+        "cats-composition-review",
+        "cats-strict-helper-source",
+        "cats-composition-source",
+        "cats-accumulate-tests"
+      ],
+      "applicability": "Observed accepted specialization boundary in PR 4209, 2022. Seq/IndexedSeq interfaces alone do not establish strictness; applying the same optimization today requires a fresh contract check.",
+      "counterexample": "Local mutation in a proven strict List map is not the same as mutable accumulation inside an arbitrary branching effect; a blanket ban on all vars would reject the accepted implementation."
+    }
+  ]
+}

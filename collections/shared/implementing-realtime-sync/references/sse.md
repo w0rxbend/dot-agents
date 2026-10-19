@@ -103,12 +103,12 @@ retry: 10000
 
 ## Automatic Reconnection
 
-Browser's EventSource automatically reconnects with exponential backoff.
+Browser's EventSource automatically reconnects after a network error.
 
 **Default Behavior:**
-- Initial reconnect: ~1 second
-- Subsequent: exponential backoff (2s, 4s, 8s, 16s, 32s)
-- Max delay: ~64 seconds
+- Reconnect delay: browser default (a few seconds), overridden by the server's `retry: <ms>` field
+- The spec defines a fixed delay; browsers may add their own backoff, so do not rely on one
+- A response with a non-200 status or wrong content type stops reconnection entirely
 - Browser sends `Last-Event-ID` header on reconnect
 
 **Server-Side Resumption:**
@@ -176,16 +176,18 @@ Stream LLM tokens progressively to frontend.
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from openai import AsyncOpenAI
+import json
 import os
 
 app = FastAPI()
 client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-@app.post("/chat/stream")
+# GET: the browser EventSource API can only send GET requests
+@app.get("/chat/stream")
 async def stream_chat(prompt: str):
     async def generate():
         stream = await client.chat.completions.create(
-            model="gpt-4",
+            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
             messages=[{"role": "user", "content": prompt}],
             stream=True
         )
@@ -194,9 +196,8 @@ async def stream_chat(prompt: str):
             if chunk.choices[0].delta.content is not None:
                 content = chunk.choices[0].delta.content
 
-                # SSE format
-                yield f"event: token\n"
-                yield f"data: {content}\n\n"
+                # JSON-encode so newlines inside a token cannot end the event early
+                yield f"event: token\ndata: {json.dumps(content)}\n\n"
 
         # Done signal
         yield f"event: done\n"
@@ -219,17 +220,17 @@ from anthropic import AsyncAnthropic
 
 client = AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-@app.post("/chat/stream")
+# GET: the browser EventSource API can only send GET requests
+@app.get("/chat/stream")
 async def stream_chat(prompt: str):
     async def generate():
         async with client.messages.stream(
-            model="claude-3-5-sonnet-20241022",
+            model="claude-sonnet-5-5",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1024
         ) as stream:
             async for text in stream.text_stream:
-                yield f"event: token\n"
-                yield f"data: {text}\n\n"
+                yield f"event: token\ndata: {json.dumps(text)}\n\n"
 
         yield f"event: done\n"
         yield f"data: [DONE]\n\n"
@@ -254,7 +255,7 @@ function streamLLMResponse(prompt: string) {
   )
 
   eventSource.addEventListener('token', (event) => {
-    const token = event.data
+    const token = JSON.parse(event.data)  // server JSON-encodes each token
     appendToMessage(token)  // Progressive rendering
   })
 
@@ -284,7 +285,7 @@ function useSSEStream(url: string) {
     const eventSource = new EventSource(url)
 
     eventSource.addEventListener('token', (event) => {
-      setData(prev => prev + event.data)
+      setData(prev => prev + JSON.parse(event.data))  // JSON-encoded tokens (see above)
     })
 
     eventSource.addEventListener('done', () => {

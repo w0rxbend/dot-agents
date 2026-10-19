@@ -42,7 +42,7 @@ For applications (services, APIs, workers), follow [12-Factor App](https://12fac
 | Project Type | Use When | Key Directories |
 | --- | --- | --- |
 | **CLI Tool** | Building a command-line application | `cmd/{name}/`, `internal/`, optional `pkg/` |
-| **Library** | Creating reusable code for others | `pkg/{name}/`, `internal/` for private code |
+| **Library** | Creating reusable code for others | packages at the module root (the official go.dev layout), `internal/` for private code; `pkg/` is an optional convention |
 | **Service** | HTTP API, microservice, or web app | `cmd/{service}/`, `internal/`, `api/`, `web/` |
 | **Monorepo** | Multiple related packages/modules | `go.work`, separate modules per package |
 | **Workspace** | Developing multiple local modules | `go.work`, replace directives |
@@ -76,7 +76,7 @@ Packages MUST be lowercase, singular, and match their directory name. → See `s
 
 ## Directory Layout
 
-All `main` packages must reside in `cmd/` with minimal logic — parse flags, wire dependencies, call `Run()`. Business logic belongs in `internal/` or `pkg/`. Use `internal/` for non-exported packages, `pkg/` only when code is useful to external consumers.
+Keep `main` packages minimal — parse flags, wire dependencies, call `Run()`. A single-binary module may keep `main` at the module root (as go.dev/doc/modules/layout allows); with several binaries, put each under `cmd/{name}/`. Business logic belongs in `internal/` or importable packages. Use `internal/` for non-exported packages, `pkg/` only when code is useful to external consumers.
 
 See [directory layout examples](references/directory-layouts.md) for universal, small project, and library layouts, plus common mistakes.
 
@@ -85,7 +85,7 @@ See [directory layout examples](references/directory-layouts.md) for universal, 
 Every Go project should include at the root:
 
 - **Makefile** — build automation. See [Makefile template](assets/Makefile)
-- **.gitignore** — git ignore patterns. See [.gitignore template](assets/.gitignore)
+- **.gitignore** — git ignore patterns. Copy the [.gitignore template](assets/gitignore) to `.gitignore`
 - **.golangci.yml** — linter config. See the `samber/cc-skills-golang@golang-lint` skill for the recommended configuration
 
 For application configuration with Cobra + Viper, see [config reference](references/config.md).
