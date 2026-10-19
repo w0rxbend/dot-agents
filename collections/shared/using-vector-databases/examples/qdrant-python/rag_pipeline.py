@@ -3,7 +3,7 @@ Complete RAG pipeline implementation with Qdrant.
 """
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, MatchValue
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from typing import List, Dict, Optional
 import tiktoken
@@ -183,7 +183,7 @@ Question: {query}
 
 Answer:"""
 
-        response = self.llm.predict(prompt)
+        response = self.llm.invoke(prompt).text
 
         return {
             "answer": response,

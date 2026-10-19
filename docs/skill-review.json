@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-10-18T13:22:12.719575+00:00",
+  "reviewed_at": "2026-10-19T09:06:40.662173+00:00",
   "summary": {
     "baseline_catalog_skills": 509,
     "canonical_entrypoint_files_read": 583,
@@ -33,8 +33,8 @@
     "public_repositories": 92,
     "private_repositories_local_only": 8,
     "entrypoint_words_saved": 17985,
-    "carried_forward": 509,
-    "refreshed_after_change": 0,
+    "carried_forward": 508,
+    "refreshed_after_change": 1,
     "added": 0,
     "needs_review": 0
   },
@@ -18255,7 +18255,7 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "9a8d0a789ff8da517befd3b66aa51cf40b0a27e7c3b81a2403acd3e87fe1eed7",
+      "sha256": "582d6e198c6ea7bad6a2c396433a6ab7237b40a74f296cc15b3500deeb8f838a",
       "current_entry_sha256": "11a59fbecc4d334f59ab939e09245dded5f368823e4bbaf3a5a73ec4a2bfbb97",
       "current_entry_words": 1681,
       "post_review_changes": [
@@ -18268,6 +18268,11 @@
           "at": "2026-10-18T08:54:56.434629+00:00",
           "from_sha256": "c0438462f8c8cd34fad240c98075108367bd6a9279831b4fc2392e790a49129e",
           "tree_sha256": "9a8d0a789ff8da517befd3b66aa51cf40b0a27e7c3b81a2403acd3e87fe1eed7"
+        },
+        {
+          "at": "2026-10-19T09:06:40.660964+00:00",
+          "from_sha256": "9a8d0a789ff8da517befd3b66aa51cf40b0a27e7c3b81a2403acd3e87fe1eed7",
+          "tree_sha256": "582d6e198c6ea7bad6a2c396433a6ab7237b40a74f296cc15b3500deeb8f838a"
         }
       ],
       "review_log": [
@@ -18275,6 +18280,11 @@
           "at": "2026-10-18T08:55:42.361666+00:00",
           "note": "2026-10-18 review-fix round: 13 independent reviewers audited every vendored skill and the codebase; fix agents applied verified fixes (toolchain-checked where available); main agent re-scanned all skills, syntax-checked every changed script and spot-ran the guardrails hook and hardening script.",
           "sha256": "9a8d0a789ff8da517befd3b66aa51cf40b0a27e7c3b81a2403acd3e87fe1eed7"
+        },
+        {
+          "at": "2026-10-19T09:06:40.661893+00:00",
+          "note": "Reviewed dependency updates and compatibility fixes; checked package resolution and example validation.",
+          "sha256": "582d6e198c6ea7bad6a2c396433a6ab7237b40a74f296cc15b3500deeb8f838a"
         }
       ]
     },
