@@ -17852,7 +17852,7 @@
           "long-discovery"
         ]
       },
-      "sha256": "583d73754a68983cf7f1fd158512e5c7b519c1e61d08ec32b623c3b72bf7f814",
+      "sha256": "1138d624f3afbe24103ce473b156fa3f08c2aca2469ff90252dfe92bc695349e",
       "current_entry_sha256": "280800252d617137e50967242f0a741ba9d47bcf77c660f6bbb743581847df1f",
       "current_entry_words": 1027,
       "post_review_changes": [
@@ -17860,6 +17860,11 @@
           "at": "2026-10-18T08:54:56.430534+00:00",
           "from_sha256": "7e26729755c3952b9d5296301b6e469dfeb3236d2d6d86cd345985c7f7089c6b",
           "tree_sha256": "583d73754a68983cf7f1fd158512e5c7b519c1e61d08ec32b623c3b72bf7f814"
+        },
+        {
+          "at": "2026-10-19T09:11:48.647207+00:00",
+          "from_sha256": "583d73754a68983cf7f1fd158512e5c7b519c1e61d08ec32b623c3b72bf7f814",
+          "tree_sha256": "1138d624f3afbe24103ce473b156fa3f08c2aca2469ff90252dfe92bc695349e"
         }
       ],
       "review_log": [
@@ -17867,6 +17872,11 @@
           "at": "2026-10-18T08:55:42.361654+00:00",
           "note": "2026-10-18 review-fix round: 13 independent reviewers audited every vendored skill and the codebase; fix agents applied verified fixes (toolchain-checked where available); main agent re-scanned all skills, syntax-checked every changed script and spot-ran the guardrails hook and hardening script.",
           "sha256": "583d73754a68983cf7f1fd158512e5c7b519c1e61d08ec32b623c3b72bf7f814"
+        },
+        {
+          "at": "2026-10-19T09:11:48.647546+00:00",
+          "note": "Reviewed dependency updates and compatibility fixes; checked package resolution and example validation.",
+          "sha256": "1138d624f3afbe24103ce473b156fa3f08c2aca2469ff90252dfe92bc695349e"
         }
       ]
     },
