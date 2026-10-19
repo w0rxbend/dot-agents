@@ -142,21 +142,21 @@ export default {
           destination: 'colors.xml',
           format: 'android/colors',
           filter: {
-            type: 'color'
+            $type: 'color'
           }
         },
         {
           destination: 'dimens.xml',
           format: 'android/dimens',
           filter: {
-            type: 'dimension'
+            $type: 'dimension'
           }
         },
         {
           destination: 'font_dimens.xml',
           format: 'android/fontDimens',
           filter: {
-            type: 'fontSize'
+            $type: 'fontSize'
           }
         }
       ]

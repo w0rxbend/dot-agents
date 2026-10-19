@@ -1,76 +1,28 @@
-# pgvector + Prisma Integration Example
+# pgvector + Prisma integration example
 
-TypeScript/Node.js example using PostgreSQL with pgvector extension and Prisma ORM.
+Requires Node.js 22.12+, PostgreSQL 15+ with pgvector installed, and an OpenAI API key.
+Prisma CLI, client, and PostgreSQL adapter are pinned together on stable version 7.10.1.
 
-## Features
-
-- pgvector PostgreSQL extension
-- Prisma ORM integration
-- Vector similarity search
-- OpenAI embeddings
-- TypeScript type safety
-
-## Prerequisites
-
-- Node.js 18+
-- PostgreSQL 15+ with pgvector extension
-- OpenAI API key
-
-## Setup
-
-```bash
-# Install dependencies
-npm install
-
-# Set up database
+```sh
+npm ci
 cp .env.example .env
-# Edit .env with your DATABASE_URL and OPENAI_API_KEY
-
-# Run migrations
-npx prisma migrate dev
-
-# Generate Prisma client
-npx prisma generate
+# Edit DATABASE_URL and OPENAI_API_KEY.
+# Enable pgvector before creating the schema (requires database permission):
+psql "$DATABASE_URL" -c 'CREATE EXTENSION IF NOT EXISTS vector'
+npx prisma db push
+npm run generate
+npm run build
+npm run dev -- "How do I search vectors?"
 ```
 
-## Usage
+Export DATABASE_URL in your shell for the psql command; Prisma and the example load `.env` automatically.
+`prisma db push` creates the example table. Use reviewed migrations for production.
 
-```typescript
-import { PrismaClient } from '@prisma/client';
-import { generateEmbedding, similaritySearch } from './vector-search';
+The example embeds documents with 1536 dimensions, inserts them with parameterized SQL,
+and performs cosine-distance search using pgvector's `<=>` operator. Vector literals
+are serialized as JSON arrays and bound as parameters before casting to `vector`.
+The generated client uses the Prisma 7 PostgreSQL adapter and an explicit output directory.
 
-const prisma = new PrismaClient();
-
-// Insert document with embedding
-const embedding = await generateEmbedding('Document content');
-await prisma.$executeRaw`
-  INSERT INTO documents (content, embedding, metadata)
-  VALUES (${content}, ${embedding}::vector, ${metadata}::jsonb)
-`;
-
-// Search
-const results = await similaritySearch('search query', 5);
-console.log(results);
-```
-
-## Running
-
-```bash
-npm run dev
-```
-
-## Project Structure
-
-```
-pgvector-prisma/
-├── package.json
-├── tsconfig.json
-├── prisma/
-│   └── schema.prisma
-├── src/
-│   ├── index.ts
-│   └── vector-search.ts
-└── README.md
-```
-
-See individual files for implementation details.
+`npm run generate` and `npm run build` need no running database or API credentials
+(a placeholder DATABASE_URL suffices for generation). Running the example requires
+both services and makes paid embedding requests. Generated files are not committed.
