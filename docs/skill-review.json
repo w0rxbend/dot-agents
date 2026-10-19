@@ -6004,7 +6004,7 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "1de47443bb01d673b41da808b0f59a79a911c2a4448a5618b04f044401ee30d9",
+      "sha256": "c98f27278b10d5c4972b3eada6e5f89c58dd9645c865eb846328711780c7f700",
       "current_entry_sha256": "6388b95e40dc519a0de72f0e7a96ebbadd067e8e6a64bd1cacba44718e015572",
       "current_entry_words": 798,
       "post_review_changes": [
@@ -6017,6 +6017,11 @@
           "at": "2026-10-18T08:54:56.314504+00:00",
           "from_sha256": "9306ea23b08af511eb9d573a616416008ddbd2c8ed8be1c2128efa19b8e9dd75",
           "tree_sha256": "1de47443bb01d673b41da808b0f59a79a911c2a4448a5618b04f044401ee30d9"
+        },
+        {
+          "at": "2026-10-19T09:11:45.189992+00:00",
+          "from_sha256": "1de47443bb01d673b41da808b0f59a79a911c2a4448a5618b04f044401ee30d9",
+          "tree_sha256": "c98f27278b10d5c4972b3eada6e5f89c58dd9645c865eb846328711780c7f700"
         }
       ],
       "review_log": [
@@ -6024,6 +6029,11 @@
           "at": "2026-10-18T08:55:42.361385+00:00",
           "note": "2026-10-18 review-fix round: 13 independent reviewers audited every vendored skill and the codebase; fix agents applied verified fixes (toolchain-checked where available); main agent re-scanned all skills, syntax-checked every changed script and spot-ran the guardrails hook and hardening script.",
           "sha256": "1de47443bb01d673b41da808b0f59a79a911c2a4448a5618b04f044401ee30d9"
+        },
+        {
+          "at": "2026-10-19T09:11:45.190316+00:00",
+          "note": "Reviewed dependency updates and compatibility fixes; checked package resolution and example validation.",
+          "sha256": "c98f27278b10d5c4972b3eada6e5f89c58dd9645c865eb846328711780c7f700"
         }
       ]
     },

@@ -6,7 +6,7 @@ Complete example deploying a containerized application to AWS ECS Fargate with P
 
 - AWS account with credentials configured
 - Pulumi CLI installed (`brew install pulumi`)
-- Node.js 18+ installed
+- Node.js 22.12+ installed
 - Docker (for building container images)
 
 ## Project Structure
@@ -127,3 +127,5 @@ aws logs tail /ecs/app-service --follow
 - Set up auto-scaling policies
 - Add RDS database
 - Implement blue-green deployment
+
+TypeScript stays on version 6 because the Pulumi SDK currently requires TypeScript <7.
