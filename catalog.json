@@ -2344,7 +2344,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "1de47443bb01d673b41da808b0f59a79a911c2a4448a5618b04f044401ee30d9",
+      "sha256": "c98f27278b10d5c4972b3eada6e5f89c58dd9645c865eb846328711780c7f700",
       "local_globs": [
         "~/.agents/skills/deploying-applications"
       ],

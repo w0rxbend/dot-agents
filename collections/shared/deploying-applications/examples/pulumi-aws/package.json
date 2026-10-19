@@ -9,12 +9,15 @@
     "destroy": "pulumi destroy"
   },
   "dependencies": {
-    "@pulumi/pulumi": "^3.100.0",
-    "@pulumi/aws": "^7.48.0",
-    "@pulumi/awsx": "^3.10.0"
+    "@pulumi/pulumi": "^3.270.0",
+    "@pulumi/aws": "^7.51.1",
+    "@pulumi/awsx": "^3.11.0"
   },
   "devDependencies": {
-    "@types/node": "^26.6.4",
-    "typescript": "^7.0.2"
+    "@types/node": "^26.6.5",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }
