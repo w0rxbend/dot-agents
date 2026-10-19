@@ -1,8 +1,9 @@
-#!/usr/bin/env node
-
 /**
  * Calculate Drop Position Utility
- * Determines valid drop zones and insertion indices for drag-and-drop operations
+ * Determines valid drop zones and insertion indices for drag-and-drop operations.
+ *
+ * Browser helpers: the functions take DOM elements (getBoundingClientRect) and
+ * cursor coordinates, so import or copy them into client code; there is no CLI.
  */
 
 // Calculate the drop position based on cursor position
@@ -203,67 +204,8 @@ function handleDropEdgeCases(dropPosition, container, item) {
   return adjustedPosition;
 }
 
-// Main function for CLI usage
-if (require.main === module) {
-  const args = process.argv.slice(2);
-
-  if (args.length === 0 || args[0] === '--help') {
-    console.log(`
-Calculate Drop Position Utility
-
-Usage:
-  node calculate_drop_position.js [command] [options]
-
-Commands:
-  position <x> <y> <orientation>  Calculate drop position for cursor at (x,y)
-  validate <item-type> <max-items> Validate if drop is allowed
-  autoscroll <x> <y> <threshold>  Calculate auto-scroll speed
-
-Examples:
-  node calculate_drop_position.js position 100 200 vertical
-  node calculate_drop_position.js validate card 10
-  node calculate_drop_position.js autoscroll 50 400 30
-
-Options:
-  --help    Show this help message
-    `);
-    process.exit(0);
-  }
-
-  // Example output for demonstration
-  const command = args[0];
-
-  switch (command) {
-    case 'position':
-      console.log(JSON.stringify({
-        index: 3,
-        closestElement: 'element-3',
-        distance: 15.5,
-      }, null, 2));
-      break;
-
-    case 'validate':
-      console.log(JSON.stringify({
-        valid: true,
-        reason: null,
-      }, null, 2));
-      break;
-
-    case 'autoscroll':
-      console.log(JSON.stringify({
-        x: 0,
-        y: 10,
-      }, null, 2));
-      break;
-
-    default:
-      console.error(`Unknown command: ${command}`);
-      process.exit(1);
-  }
-}
-
-// Export functions for use in other scripts
-module.exports = {
+// Export functions for CommonJS/bundler use (no-op when loaded as a plain script)
+if (typeof module !== 'undefined') module.exports = {
   calculateDropPosition,
   calculateDropZone,
   calculateGridPosition,

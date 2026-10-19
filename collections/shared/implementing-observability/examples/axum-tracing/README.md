@@ -166,7 +166,7 @@ async fn main() {
 ## Query in Grafana
 
 ```logql
-{service_name="axum-api"} |= "trace_id=4bf92f3577b34da6a3ce929d0e0e4736"
+{service_name="axum-api"} |= "4bf92f3577b34da6a3ce929d0e0e4736"
 ```
 
 ## Benefits

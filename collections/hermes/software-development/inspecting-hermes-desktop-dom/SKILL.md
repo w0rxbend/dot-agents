@@ -1,6 +1,6 @@
 ---
 name: inspecting-hermes-desktop-dom
-description: "Read the live Hermes desktop DOM/CSS over CDP."
+description: "Read the live Hermes desktop DOM/CSS over CDP. Use when working in the hermes-agent repo's desktop app and you need computed styles, selectors or renderer console errors from the running UI."
 version: 1.0.0
 author: Hermes Agent
 license: MIT
@@ -38,8 +38,8 @@ CDP; hand aesthetics to the user.
 - Checking a design token's computed value on a real node
 - Reading renderer console errors the user mentions but can't copy out
 
-**Don't use for:** perf profiling or heap work (`node-inspect-debugger`,
-`debugging-hermes-desktop`), or anything where the real question is "does this
+**Don't use for:** perf profiling or heap work (`node-inspect-debugger`),
+or anything where the real question is "does this
 look right".
 
 ## The port

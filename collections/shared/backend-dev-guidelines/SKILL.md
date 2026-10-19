@@ -9,6 +9,8 @@ description: "Implement Node.js/Express/TypeScript service routes, validation, d
 
 Use the Node.js/Express/TypeScript patterns that match the repository. The referenced BaseController, unifiedConfig, Prisma, Sentry, and Zod arrangements are examples from one service architecture; preserve existing FastAPI, Tapir, Go, and other backend conventions.
 
+The resource files quote code from one sample codebase (paths such as `blog-api/` and `form/`, an `SSOMiddleware` auth client). Treat those names as placeholders: map them to the equivalent service, auth middleware and config module in the current repository instead of creating them.
+
 ## When to Use This Skill
 
 Use for Node.js/Express/TypeScript services when working on:
@@ -196,7 +198,7 @@ import * as Sentry from '@sentry/node';
 import { config } from './config/unifiedConfig';
 
 // Middleware
-import { SSOMiddlewareClient } from './middleware/SSOMiddleware';
+import { authMiddleware } from './middleware/auth'; // your project's auth middleware
 import { asyncErrorWrapper } from './middleware/errorBoundary';
 ```
 
@@ -218,8 +220,7 @@ import { asyncErrorWrapper } from './middleware/errorBoundary';
 
 ### Service Templates
 
-**Blog API** (✅ Mature) - Use as template for REST APIs
-**Auth Service** (✅ Mature) - Use as template for authentication patterns
+Use the most mature existing service in the repository as the template for new routes and services. If none exists, start from [complete-examples.md](resources/complete-examples.md).
 
 ---
 
@@ -291,9 +292,9 @@ Full examples, refactoring guide
 
 ## Related Skills
 
-- **database-verification** - Verify column names and schema consistency
-- **error-tracking** - Sentry integration patterns
-- **skill-developer** - Meta-skill for creating and managing skills
+- **backend-patterns** - Framework-neutral backend patterns (caching, queues, rate limiting)
+- **observability-and-instrumentation** - Logging, metrics, tracing and error tracking
+- **using-relational-databases** - Schema, migrations and ORM usage beyond Prisma basics
 
 ---
 

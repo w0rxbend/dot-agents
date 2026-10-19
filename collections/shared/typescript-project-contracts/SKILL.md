@@ -1,6 +1,6 @@
 ---
 name: typescript-project-contracts
-description: Maintain TypeScript workspace build boundaries, Solid UI and Hono backend contracts, and pinned editor-extension or Pixi integration toolchains in worxbend repositories.
+description: Maintain TypeScript workspace build boundaries, Solid UI and Hono backend contracts, and pinned editor-extension or Pixi integration toolchains in worxbend repositories. Use when changing builds, package scripts or cross-package contracts in a worxbend TypeScript workspace.
 license: MIT
 ---
 

@@ -6,7 +6,7 @@ argument-hint: "[yesterday | today | blockers]"
 
 # /standup
 
-> If you see unfamiliar placeholders or need to check which tools are connected, see [CONNECTORS.md](../../CONNECTORS.md).
+> `~~category` placeholders stand for whatever tool the user has connected in that category (usually via MCP): `~~source control` (e.g. GitHub, GitLab), `~~project tracker` (e.g. Linear, Jira, Asana), `~~chat` (e.g. Slack, Microsoft Teams). If nothing in a category is connected, ask the user for that input or skip the step and say so.
 
 Generate a standup update by pulling together recent activity across your tools.
 

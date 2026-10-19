@@ -87,13 +87,14 @@ services:
   - type: worker
     name: job-processor
     runtime: python
-    plan: free
+    plan: starter  # free instances are web/static/Postgres/Key Value only
     buildCommand: pip install -r requirements.txt
     startCommand: celery -A tasks worker --loglevel=info
     envVars:
       - key: REDIS_URL
-        fromDatabase:
+        fromService:
           name: redis
+          type: keyvalue
           property: connectionString
 ```
 
@@ -188,7 +189,7 @@ services:
   - type: pserv
     name: internal-api
     runtime: go
-    plan: free
+    plan: starter  # free instances are web/static/Postgres/Key Value only
     buildCommand: go build -o bin/app
     startCommand: ./bin/app
 ```
@@ -274,7 +275,7 @@ Available instance types:
 | `pro` | 4 GB | 2 | $85/month |
 | `pro_plus` | 8 GB | 4 | $175/month |
 
-**Always default to `plan: free` unless user specifies otherwise.**
+**Default to `plan: free` for web services, static sites, Postgres and Key Value unless the user specifies otherwise.** Background workers, cron jobs and private services have no free instance type; use `starter` (the cheapest paid plan) for them and tell the user they will be billed.
 
 ## Regions
 
@@ -352,8 +353,9 @@ envVars:
       name: postgres
       property: connectionString
   - key: REDIS_URL
-    fromDatabase:
+    fromService:
       name: redis
+      type: keyvalue
       property: connectionString
 ```
 
@@ -452,17 +454,21 @@ databases:
         region: frankfurt
 ```
 
-### Redis (Key-Value Store)
+### Key Value (Redis-compatible)
+
+Key Value instances are declared under `services:` with `type: keyvalue` (not under `databases:`), and
+other services reference them with `fromService` + `type: keyvalue`:
 
 ```yaml
-databases:
-  - name: redis
+services:
+  - type: keyvalue
+    name: redis
     plan: free
     maxmemoryPolicy: allkeys-lru
-    ipAllowList: []
+    ipAllowList: []  # internal only
 ```
 
-**Plans:** Same as PostgreSQL
+**Plans:** Key Value has its own plan list (`free`, `starter`, `standard`, `pro`, ...); see the render-keyvalue skill
 
 **maxmemoryPolicy options:**
 - `allkeys-lru`: Evict least recently used keys
@@ -626,8 +632,9 @@ services:
           name: postgres
           property: connectionString
       - key: REDIS_URL
-        fromDatabase:
+        fromService:
           name: redis
+          type: keyvalue
           property: connectionString
       - key: JWT_SECRET
         sync: false
@@ -636,13 +643,14 @@ services:
   - type: worker
     name: queue-worker
     runtime: node
-    plan: free
+    plan: starter  # free instances are web/static/Postgres/Key Value only
     buildCommand: npm ci
     startCommand: node worker.js
     envVars:
       - key: REDIS_URL
-        fromDatabase:
+        fromService:
           name: redis
+          type: keyvalue
           property: connectionString
 
   # Cron job
@@ -669,17 +677,19 @@ services:
         source: /*
         destination: /index.html
 
+  # Key Value (Redis-compatible) instance
+  - type: keyvalue
+    name: redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
+
 databases:
   - name: postgres
     databaseName: app_production
     user: app_user
     plan: free
     postgresMajorVersion: "15"
-    ipAllowList: []
-
-  - name: redis
-    plan: free
-    maxmemoryPolicy: allkeys-lru
     ipAllowList: []
 ```
 
@@ -700,9 +710,9 @@ render blueprint validate
 
 ## Best Practices
 
-1. **Always use `plan: free` by default** - Let users upgrade if needed
+1. **Use `plan: free` by default where it exists** (web, static, Postgres, Key Value) - workers, cron jobs and private services need a paid plan such as `starter`
 2. **Mark all secrets with `sync: false`** - Never hardcode sensitive values
-3. **Use `fromDatabase` for database URLs** - Automatic internal connection strings
+3. **Use `fromDatabase` for Postgres URLs and `fromService` (with `type: keyvalue`) for Key Value URLs** - Automatic internal connection strings
 4. **Add health check endpoints** - Faster deployment detection
 5. **Use non-interactive build commands** - Prevents build hangs
 6. **Bind to `0.0.0.0:$PORT`** - Required for web services

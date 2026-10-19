@@ -1,6 +1,6 @@
 ---
 name: platform-engineering
-description: Design and implement Internal Developer Platforms (IDPs) with self-service capabilities, golden paths, and developer experience optimization. Covers platform strategy, IDP architecture (Backstage, Port), infrastructure orchestration (Crossplane), GitOps (Argo CD), and adoption patterns. Use when building developer platforms, improving DevEx, or establishing platform teams.
+description: "Design an internal developer platform - platform-as-product strategy, golden paths, developer portals (Backstage, Port), infrastructure orchestration (Crossplane), GitOps integration, maturity assessment and adoption. Use when planning or evolving an IDP or platform team; use implementing-gitops or operating-kubernetes for the underlying delivery and cluster work."
 ---
 
 # Platform Engineering
@@ -199,7 +199,6 @@ For team sizing, roles, responsibilities, and governance models, see `references
 ### Developer Portals
 
 **Backstage** (Open Source, CNCF)
-- Trust Score: 78.7/100, 8,876 code snippets
 - Software catalog, scaffolder, TechDocs, plugin ecosystem
 - Recommended for: Enterprises with platform teams
 
@@ -214,7 +213,7 @@ For team sizing, roles, responsibilities, and governance models, see `references
 ### Platform Orchestration
 
 **Crossplane** (Open Source, CNCF)
-- Trust Score: 67.4/100, universal control plane for multi-cloud
+- Universal control plane for multi-cloud
 - Kubernetes-native declarative infrastructure
 - Recommended for: Multi-cloud abstractions
 
@@ -222,16 +221,15 @@ For team sizing, roles, responsibilities, and governance models, see `references
 - Platform Orchestrator backend, environment and deployment management
 - Recommended for: Complex infrastructure, complements portals
 
-**Terraform Cloud** (Commercial)
+**HCP Terraform** (Commercial, formerly Terraform Cloud)
 - Mature IaC orchestration, workspace management
 - Recommended for: Terraform-heavy organizations
 
 ### GitOps Continuous Delivery
 
 **Argo CD** (Open Source, CNCF) - **RECOMMENDED**
-- Trust Score: 91.8/100 (HIGHEST)
 - Declarative GitOps for Kubernetes, multi-cluster management
-- Industry-leading documentation and community
+- Large community and thorough documentation
 
 **Flux** (Open Source, CNCF)
 - Toolkit approach, Kubernetes-native
@@ -361,31 +359,33 @@ For adoption metrics, tracking dashboards, and success patterns, see `references
 
 **Related Skills:**
 
-- `kubernetes-operations`: Cluster operations, namespace management, RBAC, network policies
-- `infrastructure-as-code`: Terraform, Pulumi for infrastructure provisioning integrated with platform
-- `gitops-workflows`: GitOps principles, Argo CD / Flux implementation patterns
+- `operating-kubernetes`: Cluster operations, namespace management, RBAC, network policies
+- `pulumi-components` / `pulumi-stacks`: Infrastructure provisioning integrated with the platform
+- `implementing-gitops`: Argo CD / Flux implementation patterns
 - `building-ci-pipelines`: CI/CD pipeline design integrated into platform templates
-- `security-hardening`: Security best practices enforced through golden paths
-- `secret-management`: Secrets management integrated into platform (Vault, cloud providers)
-- `observability`: Monitoring, logging, tracing integrated into developer portal
+- `security-hardening` / `kubernetes-hardening`: Security defaults enforced through golden paths
+- `hashicorp-vault`: Secrets management integrated into the platform
+- `implementing-observability`: Monitoring, logging, tracing integrated into the developer portal
 
 **Cross-Skill Workflows:**
 
 **Platform Bootstrapping:**
-1. Use `infrastructure-as-code` to provision platform infrastructure
-2. Use `kubernetes-operations` to configure clusters
+1. Use `pulumi-stacks` (or your IaC tool) to provision platform infrastructure
+2. Use `operating-kubernetes` to configure clusters
 3. Deploy developer portal (Backstage) on platform infrastructure
-4. Integrate `gitops-workflows` (Argo CD) for continuous delivery
-5. Add `observability` integrations (Prometheus, Grafana plugins)
+4. Integrate `implementing-gitops` (Argo CD) for continuous delivery
+5. Add `implementing-observability` integrations (Prometheus, Grafana plugins)
 
 **Golden Path Creation:**
 1. Design template based on common use case
 2. Use `building-ci-pipelines` patterns for CI/CD configuration
 3. Apply `security-hardening` best practices (SAST, container scanning)
-4. Integrate `secret-management` (Vault, encrypted configs)
-5. Add `observability` instrumentation (metrics, logging, tracing)
+4. Integrate `hashicorp-vault` (or the cloud secret manager)
+5. Add `observability-and-instrumentation` defaults (metrics, logging, tracing)
 
 ## Example Use Cases
+
+Illustrative scenarios, not measured case studies; the "Target outcomes" are the kind of goals to set, not results to promise.
 
 ### Use Case 1: E-Commerce Platform Team
 
@@ -393,22 +393,22 @@ For adoption metrics, tracking dashboards, and success patterns, see `references
 
 **Approach:** Deploy Backstage, create 3 golden paths, integrate Argo CD, pilot with 3 teams, expand to 20 teams over 6 months.
 
-**Results:** Onboarding time 2 days → 2 hours, deployment frequency 2x/week → 10x/day, developer NPS +35.
+**Target outcomes:** Onboarding time 2 days → 2 hours, deployment frequency 2x/week → 10x/day, developer NPS +35.
 
 ### Use Case 2: Financial Services Platform
 
 **Context:** 1500-engineer bank, strict compliance, legacy infrastructure, fragmented tooling.
 
-**Approach:** Adopt Port (commercial), high standardization golden paths, OPA Gatekeeper, federated model, Terraform Cloud.
+**Approach:** Adopt Port (commercial), high standardization golden paths, OPA Gatekeeper, federated model, HCP Terraform.
 
-**Results:** Compliance audit prep 3 weeks → 3 days, infrastructure drift incidents 90% reduction, per-service cost attribution.
+**Target outcomes:** Compliance audit prep 3 weeks → 3 days, infrastructure drift incidents 90% reduction, per-service cost attribution.
 
 ### Use Case 3: Startup Platform
 
 **Context:** 50-engineer startup, rapid growth, need fast developer onboarding.
 
-**Approach:** Lightweight Backstage (2 engineers), 2 golden paths, GitHub Actions, PaaS infrastructure (Fly.io), documentation focus.
+**Approach:** No self-hosted portal yet (a README-based service catalog or a managed portal), 2 golden paths as repo templates, GitHub Actions, PaaS infrastructure (Fly.io), documentation focus.
 
-**Results:** New engineer to production 1 day (vs. 2 weeks), 100% self-service, 2 engineers supporting 50 developers.
+**Target outcomes:** New engineer to production 1 day (vs. 2 weeks), 100% self-service, 2 engineers supporting 50 developers. Revisit a full Backstage deployment only once the org nears the scale in Build vs. Buy above.
 
 For code examples and template structures, see `examples/` directory.

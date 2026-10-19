@@ -1,6 +1,6 @@
 ---
 name: gof-patterns
-description: "Identify Gang of Four patterns in specified code and assess whether their complexity earns its place. Use for a pattern analysis or design question; do not turn ordinary edits into a whole-codebase pattern audit."
+description: "Detect Gang of Four patterns already present in existing code (including idiomatic forms) and judge each as appropriate, over-engineered, misapplied, or degraded, with file:line evidence. Use for a pattern audit of specified code; to choose a pattern for a new problem use design-patterns. Don't turn ordinary edits into a whole-codebase audit."
 license: MIT (see LICENSE)
 metadata:
   author: jaeleeps

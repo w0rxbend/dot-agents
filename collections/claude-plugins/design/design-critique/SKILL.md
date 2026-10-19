@@ -6,7 +6,7 @@ argument-hint: "<Figma URL, screenshot, or description>"
 
 # /design-critique
 
-> If you see unfamiliar placeholders or need to check which tools are connected, see [CONNECTORS.md](../../CONNECTORS.md).
+> `~~category` placeholders stand for whatever tool the user has connected in that category (usually via MCP): `~~design tool` (e.g. Figma, Sketch, Adobe XD), `~~user feedback` (e.g. Intercom, Productboard, Dovetail). If nothing in a category is connected, ask the user for that input or skip the step and say so.
 
 Get structured design feedback across multiple dimensions.
 

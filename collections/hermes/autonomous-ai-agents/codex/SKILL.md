@@ -22,14 +22,14 @@ Delegate coding tasks to [Codex](https://github.com/openai/codex) via the Hermes
 - PR reviews
 - Batch issue fixing
 
-Requires the codex CLI and a git repository.
+Requires the codex CLI; run it in a git repository (or pass `--skip-git-repo-check`).
 
 ## Prerequisites
 
 - Codex installed: `npm install -g @openai/codex`
 - OpenAI auth configured: either `OPENAI_API_KEY` or Codex OAuth credentials
   from the Codex CLI login flow
-- **Must run inside a git repository** — Codex refuses to run outside one
+- **Run inside a git repository** — `codex exec` refuses to start outside one unless you pass `--skip-git-repo-check`; a repo also gives you `git diff` to review the result
 - Use `pty=true` in terminal calls — Codex is an interactive terminal app
 
 For Hermes itself, `model.provider: openai-codex` uses Hermes-managed Codex
@@ -44,7 +44,7 @@ that Codex auth is missing.
 terminal(command="codex exec 'Add dark mode toggle to settings'", workdir="~/project", pty=true)
 ```
 
-For scratch work (Codex needs a git repo):
+For scratch work (a throwaway repo keeps changes reviewable):
 ```
 terminal(command="cd $(mktemp -d) && git init && codex exec 'Build a snake game in Python'", pty=true)
 ```
@@ -75,8 +75,9 @@ process(action="kill", session_id="<id>")
 | `--sandbox workspace-write` (`-s`) | Sandboxed but auto-approves file changes in the workspace (the recommended auto-build mode) |
 | `--dangerously-bypass-approvals-and-sandbox` | No sandbox, no approvals (fastest, most dangerous; `--yolo` still works as a hidden alias) |
 | `--sandbox danger-full-access` | No Codex sandbox; useful when the host service context breaks bubblewrap |
+| `--skip-git-repo-check` | Allow `codex exec` outside a git repository |
 
-> **Deprecated:** `--full-auto` still works but the live CLI warns to use `--sandbox workspace-write` instead.
+> **Removed:** older CLIs accepted `--full-auto`; current releases (e.g. 0.162.x) reject it. Use `--sandbox workspace-write` instead.
 
 ## Hermes Gateway Caveat
 
@@ -143,9 +144,9 @@ terminal(command="gh pr comment 86 --body '<review>'", workdir="~/project")
 ## Rules
 
 1. **Always use `pty=true`** — Codex is an interactive terminal app and hangs without a PTY
-2. **Git repo required** — Codex won't run outside a git directory. Use `mktemp -d && git init` for scratch
+2. **Git repo expected** — `codex exec` won't run outside a git directory without `--skip-git-repo-check`. Prefer `mktemp -d && git init` for scratch so the result is diffable
 3. **Use `exec` for one-shots** — `codex exec "prompt"` runs and exits cleanly
-4. **`--sandbox workspace-write` for building** — auto-approves changes within the sandbox (`--full-auto` is deprecated for this)
+4. **`--sandbox workspace-write` for building** — auto-approves changes within the sandbox (older `--full-auto` flag is gone in current releases)
 5. **Background for long tasks** — use `background=true` and monitor with `process` tool
 6. **Don't interfere** — monitor with `poll`/`log`, be patient with long-running tasks
 7. **Parallel is fine** — run multiple Codex processes at once for batch work

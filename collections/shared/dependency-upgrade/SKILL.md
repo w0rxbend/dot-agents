@@ -1,6 +1,6 @@
 ---
 name: dependency-upgrade
-description: "Master major dependency version upgrades, compatibility analysis, staged upgrade strategies, and comprehensive testing approaches."
+description: "Plan and execute a major JavaScript/npm dependency version upgrade (examples use npm, React and TypeScript) - semver and breaking-change review, compatibility matrix, one-major-at-a-time staged rollout, and test/verification strategy. Use when bumping an npm dependency across a major version or a JS framework migration; for Go modules use golang-dependency-management; use dependency-scanning to find which dependencies are vulnerable."
 risk: critical
 source: community
 date_added: "2026-02-27"
@@ -8,18 +8,7 @@ date_added: "2026-02-27"
 
 # Dependency Upgrade
 
-Master major dependency version upgrades, compatibility analysis, staged upgrade strategies, and comprehensive testing approaches.
-
-## Do not use this skill when
-
-- The task is unrelated to dependency upgrade
-- You need a different domain or tool outside this scope
-
-## Instructions
-
-- Clarify goals, constraints, and required inputs.
-- Apply relevant best practices and validate outcomes.
-- Provide actionable steps and verification.
+Major dependency version upgrades for JavaScript/npm projects: compatibility analysis, staged upgrade strategies, and testing approaches. The method (one major at a time, read the changelog, baseline tests first) carries over to other ecosystems; the commands do not.
 
 ## Use this skill when
 
@@ -169,33 +158,29 @@ describe('Dependency Compatibility', () => {
 
 ### Identifying Breaking Changes
 ```bash
-# Use changelog parsers
-npx changelog-parser react 16.0.0 17.0.0
+# Read the changelog / release notes between your current and target versions
+curl -fsSL https://raw.githubusercontent.com/facebook/react/main/CHANGELOG.md | less
+gh release list --repo facebook/react
 
-# Or manually check
-curl https://raw.githubusercontent.com/facebook/react/main/CHANGELOG.md
+# Upstream migration guides (e.g. react.dev/blog "React 19 Upgrade Guide") list the breaking changes
 ```
 
 ### Codemod for Automated Fixes
 ```bash
-# React upgrade codemods
-npx react-codeshift <transform> <path>
+# React upgrade codemods (react-codemod, runs jscodeshift)
+npx react-codemod <transform> <path>
 
-# Example: Update lifecycle methods
-npx react-codeshift \
-  --parser tsx \
-  --transform react-codeshift/transforms/rename-unsafe-lifecycles.js \
-  src/
+# Example: rename deprecated lifecycle methods
+npx react-codemod rename-unsafe-lifecycles src/
 ```
 
 ### Custom Migration Script
 ```javascript
 // migration-script.js
 const fs = require('fs');
-const glob = require('glob');
+const { globSync } = require('glob'); // glob >= 9 has no callback API
 
-glob('src/**/*.tsx', (err, files) => {
-  files.forEach(file => {
+globSync('src/**/*.tsx').forEach(file => {
     let content = fs.readFileSync(file, 'utf8');
 
     // Replace old API with new API
@@ -211,7 +196,6 @@ glob('src/**/*.tsx', (err, files) => {
     );
 
     fs.writeFileSync(file, content);
-  });
 });
 ```
 
@@ -273,7 +257,7 @@ describe('E2E Tests', () => {
 ```json
 // renovate.json
 {
-  "extends": ["config:base"],
+  "extends": ["config:recommended"],
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch"],
@@ -300,8 +284,7 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
-    reviewers:
-      - "team-leads"
+    # assign reviewers via CODEOWNERS (the `reviewers:` key is deprecated)
     commit-message:
       prefix: "chore"
       include: "scope"
@@ -309,27 +292,28 @@ updates:
 
 ## Rollback Plan
 
-```javascript
-// rollback.sh
-#!/bin/bash
+Do the upgrade in a separate worktree so uncommitted work in the main checkout is never touched, and leave cleanup to an explicit, confirmed step.
 
-# Save current state
-git stash
-git checkout -b upgrade-branch
+```bash
+#!/usr/bin/env bash
+# upgrade-in-worktree.sh <package> [version]
+set -euo pipefail
+pkg="$1"; ver="${2:-latest}"
+base="$(git rev-parse --abbrev-ref HEAD)"
+branch="upgrade/${pkg//\//-}-${ver}"
+dir="../upgrade-${pkg//\//-}"
 
-# Attempt upgrade
-npm install package@latest
+git worktree add -b "$branch" "$dir" "$base"
+cd "$dir"
+npm ci
+npm install "${pkg}@${ver}"
 
-# Run tests
-if npm run test; then
-  echo "Upgrade successful"
-  git add package.json package-lock.json
-  git commit -m "chore: upgrade package"
+if npm test; then
+  echo "Upgrade passed tests on branch $branch in $dir - review the diff, then commit when ready."
 else
-  echo "Upgrade failed, rolling back"
-  git checkout main
-  git branch -D upgrade-branch
-  npm install  # Restore from package-lock.json
+  echo "Upgrade failed. Nothing in your main checkout changed."
+  echo "To discard it (after confirming you no longer need it):"
+  echo "  git worktree remove $dir && git branch -D $branch"
 fi
 ```
 
@@ -416,7 +400,3 @@ Post-Upgrade:
 - Skipping major versions
 - Not having rollback plan
 
-## Limitations
-- Use this skill only when the task clearly matches the scope described above.
-- Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
-- Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.

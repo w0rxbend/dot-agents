@@ -1,6 +1,6 @@
 ---
 name: wiki-builder
-description: "Create and maintain reusable research wikis with source provenance, configurable structure, and local markdown outputs."
+description: "Create and maintain a local Markdown research wiki (sources with provenance, compiled concept/source pages, index, maintenance log) driven by a per-wiki config. Use when the user wants to start a wiki or knowledge base, ingest sources into one, or query and update it; use wiki-page-writer for a single code deep-dive page."
 category: "knowledge-management"
 risk: "safe"
 source: "official"
@@ -80,10 +80,10 @@ Add more folders only when the wiki's config needs them. Common additions includ
 
 ## Starting A Wiki
 
-For new wikis, use the bundled script (resolve its path via the plugin install location, typically `${CLAUDE_PLUGIN_ROOT}/skills/wiki-builder/scripts/init_wiki.sh`):
+For new wikis, run the bundled `scripts/init_wiki.sh` from this skill's directory (the directory containing this SKILL.md):
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/skills/wiki-builder/scripts/init_wiki.sh" <slug> --title "Readable Title" --flavor research
+bash scripts/init_wiki.sh <slug> --title "Readable Title" --flavor research
 ```
 
 Pass `--root /custom/path` to put the wiki somewhere other than `~/dair-wikis`.
@@ -149,9 +149,4 @@ Use `references/wiki-flavors.md` when choosing or adapting wiki types. The refer
 - Mark speculation and unknowns clearly.
 - Avoid rewriting the same source summary in many places.
 - Keep generated pages navigable for future agents and humans.
-
-## Limitations
-
-- Requires the upstream tool, account, API key, or local setup when the workflow names one.
-- Does not authorize destructive, production, paid, or external-message actions without explicit user approval.
-- Validate generated artifacts or recommendations against the user's real sources before treating them as final.
+- Validate compiled pages against the real sources before treating them as final.

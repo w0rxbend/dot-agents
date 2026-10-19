@@ -179,8 +179,11 @@ helm status my-app
 **Installation**:
 
 ```bash
-# Install Linkerd CLI
-curl --proto '=https' --tlsv1.2 -sSfL https://run.linkerd.io/install | sh
+# Install Linkerd CLI (package manager)
+brew install linkerd
+# Or download the installer, inspect it, then run it (do not pipe straight to sh)
+curl --proto '=https' --tlsv1.2 -sSfL https://run.linkerd.io/install -o linkerd-install.sh
+less linkerd-install.sh && sh linkerd-install.sh
 
 # Check pre-requisites
 linkerd check --pre
@@ -224,8 +227,10 @@ linkerd edges deployment
 **Installation**:
 
 ```bash
-# Install Istio CLI
-curl -L https://istio.io/downloadIstio | sh -
+# Install Istio CLI (package manager)
+brew install istioctl
+# Or download a pinned release from https://github.com/istio/istio/releases,
+# verify its .sha256 file, extract it and put bin/istioctl on PATH
 
 # Install Istio
 istioctl install --set profile=default -y

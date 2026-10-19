@@ -14,6 +14,8 @@ Refactoring is not general cleanup or pattern application. It is a small, smell-
 - Diagnose the smell before choosing a technique: symptom, maintenance cost, scope, expected cleaner end state, verification path, and stop condition.
 - Prefer the smallest treatment that directly reduces the diagnosed smell; escalate only when the smaller technique is blocked.
 - Keep the code runnable and understandable through small named transformations rather than broad redesign.
+- Keep every intermediate state buildable and testable, and move one ownership boundary at a time.
+- Establish the behavior proof before editing; when no tests cover the code, add characterization or golden-master tests that record current behavior first.
 - Run relevant checks after risky moves, public interface changes, state-flow changes, or algorithm substitution.
 - Stop when the named smell is gone or materially reduced; record new smells separately unless they block the current change.
 - Use the Rule of Three: tolerate uncertain duplication early, but refactor the third similar occurrence unless the similarity is coincidental.

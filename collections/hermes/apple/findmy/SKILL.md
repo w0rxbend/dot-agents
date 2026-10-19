@@ -42,8 +42,9 @@ osascript -e 'tell application "FindMy" to activate'
 # Wait for it to load
 sleep 3
 
-# Take a screenshot of the Find My window
-screencapture -w -o ~/.hermes/cache/scratch/findmy.png
+# Take a non-interactive screenshot (Find My is frontmost after activate).
+# Do not use `screencapture -w`: it waits for a mouse click and blocks the agent.
+screencapture -x ~/.hermes/cache/scratch/findmy.png
 ```
 
 Then use `vision_analyze` to read the screenshot:
@@ -106,10 +107,12 @@ sleep 3
 
 # 2. Click on the AirTag item (stay on page — AirTag only updates when page is open)
 
-# 3. Periodically capture location
-while true; do
-    screencapture -w -o ~/.hermes/cache/scratch/findmy-$(date +%H%M%S).png
-    sleep 300  # Every 5 minutes
+# 3. Periodically capture location — bounded: 12 captures x 5 min = 1 hour.
+#    Agree the duration with the user; run it with background=true.
+for i in $(seq 1 12); do
+    osascript -e 'tell application "FindMy" to activate'
+    screencapture -x ~/.hermes/cache/scratch/findmy-$(date +%H%M%S).png
+    sleep 300
 done
 ```
 

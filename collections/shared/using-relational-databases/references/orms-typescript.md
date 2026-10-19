@@ -35,18 +35,16 @@
 
 ## Overview
 
-| Library | Context7 ID | Trust | Snippets | Score | Type | Best For |
-|---------|-------------|-------|----------|-------|------|----------|
-| **Prisma 6.x** | `/prisma/prisma` | High | 115 | 96.4 | ORM | Best DX, migrations, type generation |
-| Prisma Docs | `/prisma/docs` | High | 4,281 | - | - | Comprehensive documentation |
-| **Drizzle ORM** | `/llmstxt/orm_drizzle_team-llms.txt` | High | 4,037 | 95.4 | Query Builder | Performance, SQL-like syntax |
-| Drizzle Docs | `/drizzle-team/drizzle-orm-docs` | High | 1,666 | - | - | Documentation |
-| **Kysely** | - | - | - | - | Query Builder | Type-safe SQL builder |
-| **TypeORM** | - | - | - | - | ORM | Legacy projects, decorators |
+| Library | Type | Best For |
+|---------|------|----------|
+| **Prisma** | ORM | Best DX, migrations, type generation |
+| **Drizzle ORM** | Query Builder | Performance, SQL-like syntax |
+| **Kysely** | Query Builder | Type-safe SQL builder |
+| **TypeORM** | ORM | Legacy projects, decorators |
 
 ## Prisma (Recommended for Best DX)
 
-**Context7:** `/prisma/prisma` (96.4 score, 4,281 doc snippets)
+**Docs:** https://www.prisma.io/docs
 
 ### Installation
 
@@ -211,7 +209,7 @@ npx prisma db push  # Prototype mode (skip migrations)
 
 ## Drizzle ORM (Recommended for Performance)
 
-**Context7:** `/drizzle-team/drizzle-orm-docs` (95.4 score, 4,037 snippets)
+**Docs:** https://orm.drizzle.team/docs/overview
 
 ### Installation
 

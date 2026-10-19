@@ -1,6 +1,6 @@
 ---
 name: frontend-ui-engineering
-description: Builds production-quality, accessible, responsive user-facing UIs. Use when building or modifying interfaces and pages, creating components, implementing layouts, meeting WCAG accessibility requirements, managing state, or when the output needs to look and feel production-quality rather than AI-generated.
+description: Implement accessible, responsive UI components and pages that follow the project's design system - component structure, state placement, WCAG 2.2 AA keyboard/ARIA/focus, loading/empty/error states, and compound-component and virtualized-list patterns. Use when writing or changing user-facing frontend code; use frontend-design for visual direction and frontend-dev-guidelines in React + MUI + TanStack repos.
 ---
 
 # Frontend UI Engineering
@@ -79,7 +79,7 @@ export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
 ```tsx
 // Container: handles data
 export function TaskListContainer() {
-  const { tasks, isLoading, error } = useTasks();
+  const { tasks, isLoading, error, refetch } = useTasks();
 
   if (isLoading) return <TaskListSkeleton />;
   if (error) return <ErrorState message="Failed to load tasks" retry={refetch} />;
@@ -173,7 +173,7 @@ Don't skip heading levels. Don't use heading styles for non-heading content.
 - Ensure sufficient contrast (4.5:1 for normal text, 3:1 for large text)
 - Don't rely solely on color to convey information (use icons, text, or patterns too)
 
-## Accessibility (WCAG 2.1 AA)
+## Accessibility (WCAG 2.2 AA)
 
 Every component must meet these standards:
 
@@ -212,17 +212,26 @@ Every component must meet these standards:
 ### Focus Management
 
 ```tsx
-// Move focus when content changes
+// Open as a modal so the browser traps focus, makes the page behind it inert,
+// and closes it on Escape. The `open` attribute alone shows a NON-modal dialog.
 function Dialog({ isOpen, onClose }: DialogProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (isOpen) closeRef.current?.focus();
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (isOpen && !dialog.open) {
+      dialog.showModal();
+      closeRef.current?.focus();
+    } else if (!isOpen && dialog.open) {
+      dialog.close();
+    }
   }, [isOpen]);
 
-  // Trap focus inside dialog when open
   return (
-    <dialog open={isOpen}>
+    // onClose fires on Escape and on dialog.close(); keep parent state in sync
+    <dialog ref={dialogRef} onClose={onClose}>
       <button ref={closeRef} onClick={onClose}>Close</button>
       {/* dialog content */}
     </dialog>
@@ -256,12 +265,9 @@ Design for mobile first, then expand:
 
 ```tsx
 // Tailwind: mobile-first responsive
-<div className="
-  grid grid-cols-1      /* Mobile: single column */
-  sm:grid-cols-2        /* Small: 2 columns */
-  lg:grid-cols-3        /* Large: 3 columns */
-  gap-4
-">
+// Mobile: 1 column; sm: 2 columns; lg: 3 columns.
+// (Keep comments out of the className string: they would become class tokens.)
+<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 ```
 
 Test at these breakpoints: 320px, 768px, 1024px, 1440px.
@@ -305,7 +311,7 @@ function useToggleTask() {
 
 ## See Also
 
-For detailed accessibility requirements and testing tools, see the repository's accessibility requirements and the component guidance above.
+- [references/component-patterns.md](references/component-patterns.md): read when building a multi-part widget (tabs, accordion, menu) as compound components, or when a list may render hundreds of rows and needs virtualization.
 
 ## Common Rationalizations
 

@@ -66,7 +66,7 @@
     "assertions": [
       {
         "id": "3.1",
-        "text": "Uses errors.As(err, &notFound) with *viper.ConfigFileNotFoundError"
+        "text": "Uses errors.As(err, &notFound) with a value-typed viper.ConfigFileNotFoundError (not a pointer: viper returns the error by value)"
       },
       {
         "id": "3.2",

@@ -1,6 +1,6 @@
 ---
 name: bash-linux
-description: "Bash/Linux terminal patterns. Critical commands, piping, error handling, scripting. Use when working on macOS or Linux systems."
+description: "Quick-reference table of everyday shell commands (files, processes, ports, text tools, env vars, curl) with GNU vs BSD/macOS differences. Use when you need the right one-liner for an interactive terminal task; for writing or reviewing Bash scripts use bash-pro."
 risk: critical
 source: community
 date_added: "2026-02-27"
@@ -49,9 +49,9 @@ date_added: "2026-02-27"
 |------|---------|
 | List processes | `ps aux` |
 | Find by name | `ps aux \| grep node` |
-| Kill by PID | `kill -9 <PID>` |
+| Stop by PID | `kill <PID>` (SIGTERM); `kill -9 <PID>` only if it ignores SIGTERM |
 | Find port user | `lsof -i :3000` |
-| Kill port | `kill -9 $(lsof -t -i :3000)` |
+| Stop port owner | `lsof -t -i :3000` to see the PID(s) and confirm they are yours, then `kill <PID>` |
 | Background | `npm run dev &` |
 | Jobs | `jobs -l` |
 | Bring to front | `fg %1` |
@@ -65,7 +65,7 @@ date_added: "2026-02-27"
 | Tool | Purpose | Example |
 |------|---------|---------|
 | `grep` | Search | `grep -rn "TODO" src/` |
-| `sed` | Replace | `sed -i 's/old/new/g' file.txt` |
+| `sed` | Replace in place | GNU/Linux: `sed -i 's/old/new/g' file.txt`; BSD/macOS: `sed -i '' 's/old/new/g' file.txt`; portable: `sed -i.bak 's/old/new/g' file.txt && rm file.txt.bak` |
 | `awk` | Extract columns | `awk '{print $1}' file.txt` |
 | `cut` | Cut fields | `cut -d',' -f1 data.csv` |
 | `sort` | Sort lines | `sort -u file.txt` |
@@ -200,10 +200,4 @@ trap cleanup EXIT
 
 > **Remember:** Bash is text-based. Use `&&` for success chains, `set -e` for safety, and quote your variables!
 
-## When to Use
-This skill is applicable to execute the workflow or actions described in the overview.
-
-## Limitations
-- Use this skill only when the task clearly matches the scope described above.
-- Do not treat the output as a substitute for environment-specific validation, testing, or expert review.
-- Stop and ask for clarification if required inputs, permissions, safety boundaries, or success criteria are missing.
+On macOS the default tools are BSD variants (`sed`, `grep`, `find`, `date`, `stat`) and `/bin/bash` is 3.2; flags differ from GNU. Check `man <tool>` or install GNU coreutils (`brew install coreutils gnu-sed`) when a Linux one-liner fails.

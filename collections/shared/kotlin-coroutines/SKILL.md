@@ -1,7 +1,7 @@
 ---
-name: Kotlin Coroutines
+name: kotlin-coroutines
 user-invocable: false
-description: Use when kotlin coroutines for structured concurrency including suspend functions, coroutine builders, Flow, channels, and patterns for building efficient asynchronous code with cancellation and exception handling.
+description: Write and debug Kotlin coroutines and Flow - structured scopes, dispatchers, StateFlow/SharedFlow, channels, cancellation, exception handling, and runTest-based testing. Use for async Kotlin on Android or the server.
 allowed-tools: []
 ---
 
@@ -133,17 +133,16 @@ Coroutine builders launch coroutines with different lifecycle and result
 handling semantics, enabling structured and unstructured concurrency.
 
 ```kotlin
-// launch: fire-and-forget coroutine
-fun launchExample() {
-    GlobalScope.launch {
-        val user = fetchUser(1)
-        println("User: ${user.name}")
-    }
+// launch: fire-and-forget child of a scope you own (viewModelScope,
+// lifecycleScope, a request scope, or an injected application scope)
+fun CoroutineScope.launchExample() = launch {
+    val user = fetchUser(1)
+    println("User: ${user.name}")
 }
 
 // async: coroutine with result
-fun asyncExample() {
-    GlobalScope.launch {
+fun CoroutineScope.asyncExample() {
+    launch {
         val deferredUser = async { fetchUser(1) }
         val deferredPosts = async { fetchPosts(1) }
 
@@ -154,7 +153,8 @@ fun asyncExample() {
     }
 }
 
-// runBlocking: bridges blocking and suspending worlds
+// runBlocking: bridges blocking and suspending worlds - only in main() or
+// legacy blocking entry points, never inside a coroutine or on a UI thread
 fun runBlockingExample() = runBlocking {
     val user = fetchUser(1)
     println("User loaded: ${user.name}")
@@ -192,24 +192,30 @@ suspend fun fetchWithTimeout(id: Int): User? {
     }
 }
 
-// Structured concurrency with lifecycle
-class ViewModel : CoroutineScope {
-    private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
-
+// Structured concurrency with lifecycle (Android): viewModelScope is
+// SupervisorJob + Dispatchers.Main.immediate and is cancelled in onCleared()
+class UserViewModel(private val repo: UserRepository) : ViewModel() {
     fun loadData() {
-        launch {
-            val user = fetchUser(1)
-            // Update UI
+        viewModelScope.launch {
+            val user = repo.fetchUser(1)
+            // Update UI state
         }
     }
+}
 
-    fun onCleared() {
-        job.cancel()
-    }
+// Outside Android: own the scope explicitly and cancel it on shutdown
+class SyncService(
+    private val scope: CoroutineScope =
+        CoroutineScope(SupervisorJob() + Dispatchers.Default)
+) {
+    fun start() = scope.launch { /* periodic work */ }
+    fun close() = scope.cancel()
 }
 ```
+
+Never use `GlobalScope`: it has no owner, so its coroutines leak, ignore
+cancellation of the caller, and cannot be awaited in tests. If work must outlive
+a screen or request, inject an application-level `CoroutineScope` instead.
 
 Structured concurrency with `coroutineScope` ensures child coroutines complete
 before the scope exits, preventing leaks and ensuring proper cleanup.
@@ -404,6 +410,20 @@ class DataRepository {
 
 data class Event(val type: String)
 
+// Typical search pipeline: debounce input, cancel stale requests, do I/O off main
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
+fun searchResults(query: Flow<String>, repo: SearchRepository): Flow<List<Item>> =
+    query
+        .debounce(300)
+        .distinctUntilChanged()
+        .flatMapLatest { q -> repo.search(q) }   // previous search is cancelled
+        .flowOn(Dispatchers.IO)                  // affects upstream only
+
+// Inside a ViewModel: expose hot state; WhileSubscribed stops upstream when no UI
+val uiState: StateFlow<UiState> = repository.users
+    .map { UiState.Loaded(it) }
+    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UiState.Loading)
+
 // Flow on different dispatchers
 suspend fun flowWithContext() {
     flow {
@@ -445,7 +465,7 @@ between coroutines, similar to BlockingQueue but suspending.
 
 ```kotlin
 // Basic channel usage
-suspend fun channelExample() {
+suspend fun channelExample() = coroutineScope {
     val channel = Channel<Int>()
 
     launch {
@@ -461,10 +481,10 @@ suspend fun channelExample() {
 }
 
 // Buffered channels
-fun bufferedChannelExample() {
+suspend fun bufferedChannelExample() = coroutineScope {
     val channel = Channel<Int>(capacity = 4)
 
-    GlobalScope.launch {
+    launch {
         for (x in 1..10) {
             println("Sending $x")
             channel.send(x)
@@ -472,7 +492,7 @@ fun bufferedChannelExample() {
         channel.close()
     }
 
-    GlobalScope.launch {
+    launch {
         delay(1000)
         for (y in channel) {
             println("Received: $y")
@@ -496,21 +516,21 @@ fun channelTypes() {
     val conflated = Channel<Int>(Channel.CONFLATED)
 }
 
-// Produce builder
-fun produceNumbers(): ReceiveChannel<Int> = GlobalScope.produce {
+// Produce builder (extension on the caller's scope)
+fun CoroutineScope.produceNumbers(): ReceiveChannel<Int> = produce {
     for (x in 1..5) {
         send(x * x)
         delay(100)
     }
 }
 
-suspend fun consumeNumbers() {
+suspend fun consumeNumbers() = coroutineScope {
     val channel = produceNumbers()
     channel.consumeEach { println(it) }
 }
 
 // Multiple consumers
-suspend fun multipleConsumers() {
+suspend fun multipleConsumers() = coroutineScope {
     val channel = Channel<Int>()
 
     repeat(3) { id ->
@@ -530,7 +550,7 @@ suspend fun multipleConsumers() {
 }
 
 // Select expression for multiple channels
-suspend fun selectExample() {
+suspend fun selectExample() = coroutineScope {
     val channel1 = produce { send("A") }
     val channel2 = produce { send("B") }
 
@@ -542,12 +562,7 @@ suspend fun selectExample() {
             println("From channel2: $value")
         }
     }
-}
-
-fun CoroutineScope.produce(block: suspend () -> Unit): ReceiveChannel<String> {
-    return produce {
-        block()
-    }
+    coroutineContext.cancelChildren() // stop the producer that lost the race
 }
 ```
 
@@ -561,8 +576,8 @@ ensure proper resource cleanup and error propagation.
 
 ```kotlin
 // Basic cancellation
-suspend fun cancellationExample() {
-    val job = GlobalScope.launch {
+suspend fun cancellationExample() = coroutineScope {
+    val job = launch {
         repeat(1000) { i ->
             println("Working: $i")
             delay(500)
@@ -576,19 +591,17 @@ suspend fun cancellationExample() {
     println("Cancelled")
 }
 
-// Checking for cancellation
-suspend fun checkCancellation() {
-    GlobalScope.launch {
-        var i = 0
-        while (isActive) {
-            println("Computing: ${i++}")
-        }
+// Checking for cancellation in CPU loops (no suspension points)
+fun CoroutineScope.checkCancellation() = launch(Dispatchers.Default) {
+    var i = 0
+    while (isActive) {          // or ensureActive() / yield()
+        println("Computing: ${i++}")
     }
 }
 
 // Non-cancellable work
-suspend fun nonCancellableCleanup() {
-    val job = GlobalScope.launch {
+suspend fun nonCancellableCleanup() = coroutineScope {
+    val job = launch {
         try {
             repeat(1000) {
                 delay(500)
@@ -620,17 +633,21 @@ suspend fun timeoutExample() {
     }
 }
 
-// Exception handling in coroutines
-suspend fun exceptionHandlingExample() {
-    val handler = CoroutineExceptionHandler { _, exception ->
-        println("Caught: $exception")
-    }
+// CoroutineExceptionHandler: last-resort logging for uncaught failures in a
+// root launch. It has no effect on async (exceptions surface on await) or on
+// child coroutines. Use try/catch inside suspend code for real handling.
+val handler = CoroutineExceptionHandler { _, exception ->
+    println("Caught: $exception")
+}
 
-    GlobalScope.launch(handler) {
-        throw Exception("Coroutine failed")
+class Screen(private val scope: CoroutineScope) {
+    fun refresh() = scope.launch(handler) {
+        try {
+            riskyOperation()
+        } catch (e: IOException) {
+            // handle the specific, expected failure here
+        }
     }
-
-    delay(100)
 }
 
 // Structured exception handling
@@ -680,6 +697,50 @@ suspend fun errorHandling() {
 Cancellation is cooperative—coroutines must check `isActive` or call suspending
 functions. Exception handling respects structured concurrency boundaries.
 
+## Testing Coroutines
+
+Use `kotlinx-coroutines-test`. `runTest` runs on virtual time (delays are
+skipped), waits for child coroutines, and rethrows their uncaught failures.
+
+```kotlin
+class UserRepository(
+    private val api: UserApi,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO, // inject it
+) {
+    suspend fun load(id: Int) = withContext(ioDispatcher) { api.fetch(id) }
+}
+
+@Test
+fun loadsUser() = runTest {
+    val dispatcher = StandardTestDispatcher(testScheduler)
+    val repo = UserRepository(FakeApi(), dispatcher)
+
+    val user = repo.load(1)
+
+    assertEquals(1, user.id)
+}
+
+// Time-based operators: advance virtual time explicitly
+@Test
+fun retriesAfterDelay() = runTest {
+    val job = launch { retryingSync(delayMs = 1_000) }
+    advanceTimeBy(1_001)
+    runCurrent()
+    // assert on fakes here
+    job.cancel()
+}
+```
+
+- Inject dispatchers; never hard-code `Dispatchers.IO` (including in `flowOn`)
+  where a test must control time - work on a real dispatcher runs on real time. For code that uses `Dispatchers.Main`, call
+  `Dispatchers.setMain(StandardTestDispatcher())` in setup and `resetMain()` in
+  teardown.
+- `TestCoroutineDispatcher`, `TestCoroutineScope` and `runBlockingTest` are
+  deprecated; migrate to `runTest` with `StandardTestDispatcher` /
+  `UnconfinedTestDispatcher`.
+- If a test hangs, look for a dispatcher that is not tied to `testScheduler` or
+  an infinite collector launched in the test scope instead of `backgroundScope`.
+
 ## Best Practices
 
 1. **Use structured concurrency with scopes** to ensure coroutines are properly
@@ -697,8 +758,8 @@ functions. Exception handling respects structured concurrency boundaries.
 5. **Use supervisorScope for independent operations** to prevent one failure
    from cancelling unrelated coroutines
 
-6. **Avoid GlobalScope except for truly application-wide work** to prevent leaks
-   and maintain structured concurrency benefits
+6. **Do not use GlobalScope**; inject an application-level `CoroutineScope`
+   for work that must outlive a screen or request
 
 7. **Apply withContext for dispatcher switching** instead of launching new
    coroutines to maintain structure and reduce overhead
@@ -709,8 +770,8 @@ functions. Exception handling respects structured concurrency boundaries.
 9. **Use StateFlow for state** and SharedFlow for events to provide observable
    streams with proper lifecycle awareness
 
-10. **Test coroutines with TestCoroutineDispatcher** to control time and ensure
-    deterministic test execution
+10. **Test coroutines with `runTest`** and injected `StandardTestDispatcher`s
+    to control virtual time and get deterministic execution
 
 11. **Avoid using volatile for synchronization of coroutines** running on multi-threaded dispatchers.
     This can cause shared mutable state problems. Prefer Atomic types or synchronization structures like Mutex.withLock.
@@ -732,8 +793,9 @@ functions. Exception handling respects structured concurrency boundaries.
 5. **Catching CancellationException** and not rethrowing it prevents proper
    cancellation propagation in structured concurrency
 
-6. **Using delay(0) to yield** is less clear than explicitly calling yield() for
-   cooperative multitasking
+6. **Using delay(0) to yield** does not work: `delay` returns immediately for a
+   non-positive duration without suspending, so call `yield()` for cooperative
+   multitasking
 
 7. **Creating too many coroutines unnecessarily** can degrade performance; batch
    or throttle operations when possible
@@ -773,3 +835,6 @@ requiring explicit communication between concurrent coroutines.
 - [Flow Documentation](<https://kotlinlang.org/docs/flow.html>)
 - [KotlinConf Coroutines Talks](<https://www.youtube.com/kotlinconf>)
 - [Coroutines Best Practices](<https://developer.android.com/kotlin/coroutines/coroutines-best-practices>)
+- [Testing coroutines](<https://kotlinlang.org/api/kotlinx.coroutines/kotlinx-coroutines-test/>)
+
+Attribution for merged content: see [references/ATTRIBUTION.md](references/ATTRIBUTION.md).

@@ -15,13 +15,14 @@ This skill closes the gap before it costs anything. The other Define-phase skill
 
 ## When to Use
 
-Apply this skill when:
+Apply this skill only when a missing decision would materially change what you build, and you cannot recover it from the conversation, established preferences or the repository:
 
-- The ask is missing at least one of: **who** the user is, **why** they want it, what **success** looks like, what the binding **constraint** is
+- The ask is missing **who** the user is, **why** they want it, what **success** looks like, or the binding **constraint**, and a wrong guess would mean building the wrong thing
 - The request is conventional rather than specific ("build me X", "make it faster") and you can't unpack the convention without guessing
-- You're tempted to start with assumptions you haven't surfaced
-- The user hasn't said which value they're optimizing for when two reasonable ones are in tension (simplicity vs. flexibility, cost vs. speed)
-- The user explicitly invokes: "interview me", "grill me", "before we start, are we sure?", "stress-test my thinking"
+- The user hasn't said which value they're optimizing for when two reasonable ones are in tension (simplicity vs. flexibility, cost vs. speed), and the choice changes the result
+- The user explicitly invokes: "interview me", "before we start, are we sure?"
+
+If a gap is small or reversible, state your assumption and keep working instead of interviewing. For stress-testing a plan the user already has ("grill me", "stress-test my thinking"), use `mattpocock--grilling` instead.
 
 **When NOT to use:**
 
@@ -112,7 +113,7 @@ Including "Out of scope" is non-negotiable. Half of misalignment is silent disag
 
 ### Step 5: Confirm — explicit yes, not "whatever you think"
 
-The gate is an explicit "yes." The following are **not** yes:
+When you ran a full interview, the gate is an explicit "yes." If the user has already authorized you to proceed, or you only asked one clarifying question, take their answer and continue; do not restart intake. In a full interview, the following are **not** yes:
 
 - "Whatever you think is best." → The user is delegating, which means they don't have 95% confidence either. Re-ask with two concrete options framed as a choice.
 - "Sounds good." → Ambiguous. Ask: "Anything you'd refine?" Silence isn't confirmation.

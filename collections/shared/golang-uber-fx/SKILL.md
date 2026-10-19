@@ -73,14 +73,14 @@ app := fx.New(
 app.Run() // blocks until SIGINT/SIGTERM, then runs OnStop hooks
 ```
 
-Boot stages: `fx.New` validates types (constructors do not run); `app.Start(ctx)` runs each `fx.Invoke` and fires OnStart hooks in topological order; main blocks on `app.Done()`; `app.Stop(ctx)` fires OnStop hooks in reverse order. Default timeout is **15 seconds** — override with `fx.StartTimeout` / `fx.StopTimeout`.
+Boot stages: `fx.New` builds the graph and immediately runs every `fx.Invoke` function — and the constructors those invokes need — so constructor side effects happen inside `fx.New`, before `Start`; `app.Start(ctx)` fires the registered OnStart hooks in the order they were appended (dependency order); main blocks on `app.Done()`; `app.Stop(ctx)` fires OnStop hooks in reverse order. Default timeout is **15 seconds** — override with `fx.StartTimeout` / `fx.StopTimeout`.
 
 ## Provide and Invoke
 
 ```go
 fx.New(
     fx.Provide(NewLogger, NewDatabase, NewServer),  // lazy
-    fx.Invoke(RegisterRoutes, StartMetricsExporter), // always run during Start
+    fx.Invoke(RegisterRoutes, StartMetricsExporter), // run inside fx.New, not Start
 )
 ```
 
@@ -211,7 +211,7 @@ For `fx.Supply`/`fx.Replace`/`fx.Decorate`, optional deps, custom logging, manua
 | `fx.Provide` something that should be `fx.Supply` | Pre-built values (config, secrets) belong in `fx.Supply` — clearer and avoids a no-op constructor. |
 | Module decorator leaking to siblings | Decorate inside `fx.Module(...)` — decorators flow only to descendants. A top-level `fx.Decorate` is global. |
 | Group order assumed | Groups are unordered. If order matters, provide an ordered slice from one constructor. |
-| Constructors with side effects | Side effects belong in OnStart — constructors should be cheap and pure-ish, since they may run concurrently and lazily. |
+| Constructors with side effects | Side effects belong in OnStart — constructors should be cheap and pure-ish: they run lazily (only when something needs them), sequentially, during `fx.New` — before any OnStart hook and before `app.Start` timeouts apply. |
 | Forgotten `fx.Invoke` | Without an Invoke (or downstream consumer), constructors never run. Add at least one Invoke per app. |
 
 ## Testing

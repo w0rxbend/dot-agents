@@ -22,9 +22,11 @@ Configure kernel parameters in `/etc/sysctl.d/99-hardening.conf`:
 # Network Security
 # ----------------
 
-# Disable IP forwarding (unless this is a router)
-net.ipv4.ip_forward = 0
-net.ipv6.conf.all.forwarding = 0
+# IP forwarding: disable ONLY on hosts that do not route traffic.
+# Docker/Podman/Kubernetes nodes, routers and VPN gateways need forwarding;
+# setting 0 there breaks container and pod networking.
+# net.ipv4.ip_forward = 0
+# net.ipv6.conf.all.forwarding = 0
 
 # Ignore ICMP redirects (prevents MITM attacks)
 net.ipv4.conf.all.accept_redirects = 0
@@ -116,7 +118,21 @@ sysctl kernel.randomize_va_space
 
 ## SSH Hardening
 
-Configure SSH in `/etc/ssh/sshd_config.d/hardening.conf`:
+Configure SSH in `/etc/ssh/sshd_config.d/00-hardening.conf`.
+
+**Avoid locking yourself out (remote hosts):**
+1. Confirm key login works *before* the change, from a second terminal:
+   `ssh -o PreferredAuthentications=publickey -o PasswordAuthentication=no user@host`.
+   Keep your current session open until step 5.
+2. Name the drop-in `00-hardening.conf`. sshd keeps the **first** value it reads for most
+   keywords, so a file that sorts after `50-cloud-init.conf` loses to cloud-init's
+   `PasswordAuthentication yes`. The main `sshd_config` must `Include /etc/ssh/sshd_config.d/*.conf`
+   near its top (RHEL 8 and older distros do not ship that line).
+3. Run `sshd -t` and fix any error before reloading.
+4. Reload (not restart) the right unit: `ssh` on Debian/Ubuntu, `sshd` elsewhere.
+5. Check the effective values with `sshd -T` and open a **new** session before closing the old one.
+
+```bash
 
 ```bash
 # Authentication
@@ -141,16 +157,14 @@ PubkeyAuthentication yes
 
 # Limit authentication attempts
 MaxAuthTries 3
-MaxSessions 2
+# Too low breaks ControlMaster multiplexing and IDE remotes
+MaxSessions 4
 
 # Set login grace time (time to complete authentication)
 LoginGraceTime 30
 
 # Protocol and Encryption
 # -----------------------
-
-# Use only SSH Protocol 2
-Protocol 2
 
 # Specify strong key exchange algorithms
 KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512
@@ -164,13 +178,13 @@ MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,h
 # Access Control
 # --------------
 
-# Limit users and groups
-AllowUsers deploy admin
+# Limit users and groups (uncomment and customize; a wrong list locks everyone out)
+# AllowUsers deploy admin
 # OR
-AllowGroups ssh-users
+# AllowGroups ssh-users
 
 # Deny specific users
-DenyUsers root guest
+# DenyUsers root guest
 
 # Session Security
 # ----------------
@@ -178,7 +192,7 @@ DenyUsers root guest
 # Disable X11 forwarding
 X11Forwarding no
 
-# Disable TCP forwarding
+# Disable TCP forwarding (breaks SSH tunnels and IDE remotes; skip if you rely on them)
 AllowTcpForwarding no
 
 # Disable agent forwarding
@@ -203,24 +217,26 @@ Banner /etc/issue.net
 # Logging level
 LogLevel VERBOSE
 
-# Use privilege separation
-UsePrivilegeSeparation sandbox
-
 # Disable host-based authentication
 HostbasedAuthentication no
 IgnoreRhosts yes
 ```
 
-**Restart SSH after changes:**
+**Apply SSH changes safely:**
 ```bash
-# Test configuration first
-sshd -t
+# Test configuration first; do not continue on error
+sshd -t || exit 1
 
-# Restart SSH service
-systemctl restart sshd
+# Detect the unit: ssh.service on Debian/Ubuntu, sshd.service elsewhere
+unit=$(systemctl list-unit-files ssh.service sshd.service --no-legend | awk 'NR==1{print $1}')
 
-# Verify SSH is running
-systemctl status sshd
+# Reload keeps existing sessions open
+systemctl reload "$unit"
+
+# Confirm the effective values (catches an earlier file overriding yours)
+sshd -T | grep -E '^(passwordauthentication|permitrootlogin|pubkeyauthentication) '
+
+# Now open a NEW key-based session before closing the current one
 ```
 
 **Generate strong SSH keys:**
@@ -408,10 +424,11 @@ chmod 600 /etc/ssh/sshd_config
 chmod 600 /etc/ssh/sshd_config.d/*
 chown root:root /etc/ssh/sshd_config
 
-# Shadow files
-chmod 600 /etc/shadow
-chmod 600 /etc/gshadow
-chown root:root /etc/shadow /etc/gshadow
+# Shadow files: at most 640, owner root. Keep the distro group: Debian/Ubuntu
+# ship root:shadow 640 and unix_chkpwd (screen lockers) needs that read bit;
+# RHEL ships 000 root:root.
+chmod o-rwx,g-wx /etc/shadow /etc/gshadow
+chown root /etc/shadow /etc/gshadow
 
 # Cron directories
 chmod 600 /etc/crontab
@@ -591,21 +608,26 @@ aa-genprof /usr/bin/myapp
         reload: yes
       loop:
         - { name: 'kernel.randomize_va_space', value: '2' }
-        - { name: 'net.ipv4.ip_forward', value: '0' }
+        # Add net.ipv4.ip_forward=0 only on hosts that are not container,
+        # Kubernetes, router or VPN hosts.
         - { name: 'net.ipv4.conf.all.accept_redirects', value: '0' }
         - { name: 'net.ipv4.tcp_syncookies', value: '1' }
 
+    # Precondition: key login for the Ansible user already works (Ansible itself
+    # connects with it). 00- sorts before 50-cloud-init.conf so these values win.
     - name: Harden SSH configuration
       lineinfile:
-        path: /etc/ssh/sshd_config.d/hardening.conf
+        path: /etc/ssh/sshd_config.d/00-hardening.conf
         line: "{{ item }}"
         create: yes
+        mode: "0600"
+        validate: "sshd -t -f %s"
       loop:
         - "PermitRootLogin no"
         - "PasswordAuthentication no"
         - "X11Forwarding no"
         - "MaxAuthTries 3"
-      notify: restart sshd
+      notify: reload sshd
 
     - name: Disable unnecessary services
       systemd:
@@ -619,10 +641,10 @@ aa-genprof /usr/bin/myapp
       ignore_errors: yes
 
   handlers:
-    - name: restart sshd
+    - name: reload sshd
       systemd:
-        name: sshd
-        state: restarted
+        name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
+        state: reloaded
 ```
 
 ### Verification Script
@@ -636,7 +658,8 @@ echo "=== Linux Hardening Verification ==="
 # Check sysctl settings
 echo -e "\n[Kernel Parameters]"
 sysctl kernel.randomize_va_space | grep -q "2" && echo "✓ ASLR enabled" || echo "✗ ASLR disabled"
-sysctl net.ipv4.ip_forward | grep -q "0" && echo "✓ IP forwarding disabled" || echo "✗ IP forwarding enabled"
+# Informational only: container/Kubernetes/VPN hosts need forwarding on
+echo "  ip_forward = $(sysctl -n net.ipv4.ip_forward)"
 sysctl net.ipv4.tcp_syncookies | grep -q "1" && echo "✓ SYN cookies enabled" || echo "✗ SYN cookies disabled"
 
 # Check SSH configuration
@@ -647,7 +670,7 @@ sshd -T | grep -q "^x11forwarding no" && echo "✓ X11 forwarding disabled" || e
 
 # Check file permissions
 echo -e "\n[File Permissions]"
-[ "$(stat -c %a /etc/shadow)" = "600" ] && echo "✓ /etc/shadow permissions correct" || echo "✗ /etc/shadow permissions incorrect"
+case "$(stat -c %a /etc/shadow)" in 600|640|0) true;; *) false;; esac && echo "✓ /etc/shadow permissions correct" || echo "✗ /etc/shadow permissions incorrect"
 [ "$(stat -c %a /etc/ssh/sshd_config)" = "600" ] && echo "✓ sshd_config permissions correct" || echo "✗ sshd_config permissions incorrect"
 
 # Check disabled services

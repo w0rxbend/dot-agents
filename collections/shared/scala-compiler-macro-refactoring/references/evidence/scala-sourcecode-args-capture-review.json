@@ -1,0 +1,275 @@
+{
+  "schema_version": 1,
+  "repository": "com-lihaoyi/sourcecode",
+  "evidence": [
+    {
+      "id": "e-args-scala2-owner",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/95d0433764bc66a50bb5379505f65a2702b1933c/sourcecode/src-2/sourcecode/Compat.scala#L8-L13",
+      "occurred_at": "2024-11-27T04:04:25Z",
+      "excerpt": "if (owner.isMethod) owner\n      else if (owner.isClass) owner.asClass.primaryConstructor\n      else nearestEnclosingMethod(owner.owner)",
+      "interpretation": "Scala 2 selects the nearest method or primary constructor and then uses method paramLists. This is source evidence for separate compiler representations, not proof of Scala 3 generic-extension behavior.",
+      "commit_sha": "95d0433764bc66a50bb5379505f65a2702b1933c",
+      "path": "sourcecode/src-2/sourcecode/Compat.scala"
+    },
+    {
+      "id": "e-args-scala2-emission",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/95d0433764bc66a50bb5379505f65a2702b1933c/sourcecode/src-2/sourcecode/Macros.scala#L155-L158",
+      "occurred_at": "2024-11-27T04:04:25Z",
+      "excerpt": "val texts = param.map(_.map(p => c.Expr[Text[_]](q\"\"\"sourcecode.Text($p, ${p.name.toString})\"\"\")))",
+      "interpretation": "The Scala 2 emission inserts parameter symbols into Text expressions and retains two levels of sequences. Do not rewrite both compiler implementations to an assumed common ValDef representation.",
+      "commit_sha": "95d0433764bc66a50bb5379505f65a2702b1933c",
+      "path": "sourcecode/src-2/sourcecode/Macros.scala"
+    },
+    {
+      "id": "e-build-2023",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/502d980afce26eff20def43ec345a4e712e95926/build.sc#L10-L14",
+      "occurred_at": "2023-05-03T20:16:41Z",
+      "excerpt": "val scalaVersions =\n  \"2.11.12\" :: \"2.12.16\" :: \"2.13.8\" :: \"3.1.3\" :: dottyCommunityBuildVersion\n\nval scalaJSVersions = scalaVersions.map((_, \"1.10.1\"))\nval scalaNativeVersions = scalaVersions.map((_, \"0.4.5\"))",
+      "interpretation": "The Args value repair is evaluated against this declared compiler/platform matrix, not a presumed modern Scala release. This records configuration only, not a passing test run.",
+      "commit_sha": "502d980afce26eff20def43ec345a4e712e95926",
+      "path": "build.sc"
+    },
+    {
+      "id": "e-build-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/95d0433764bc66a50bb5379505f65a2702b1933c/build.mill#L12-L13",
+      "occurred_at": "2024-11-27T04:04:25Z",
+      "excerpt": "val scalaVersions =\n  \"2.12.16\" :: \"2.13.8\" :: \"3.3.3\" :: dottyCommunityBuildVersion",
+      "interpretation": "The late snapshot uses Scala 3.3.3 with Scala 2.12.16 and 2.13.8; the persistence of casts here does not prove identical reflection representations or runtime failures to Scala 3.0.0-RC1.",
+      "commit_sha": "95d0433764bc66a50bb5379505f65a2702b1933c",
+      "path": "build.mill"
+    },
+    {
+      "id": "e-platforms-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/95d0433764bc66a50bb5379505f65a2702b1933c/build.mill#L68-L77",
+      "occurred_at": "2024-11-27T04:04:25Z",
+      "excerpt": "def scalaJSVersion = \"1.17.0\"\n    object test extends ScalaJSTests{\n      def testFramework = \"\"\n    }\n  }\n\n  object native extends Cross[NativeSourcecodeModule](scalaVersions)\n  trait NativeSourcecodeModule extends SourcecodeMainModule with ScalaNativeModule with SourcecodeModule {\n\n    def scalaNativeVersion = \"0.5.0\"",
+      "interpretation": "JS 1.17.0 and Native 0.5.0 are configured with the shared compiler version list. The absence of a test framework is intentional; running the main remains a separate obligation.",
+      "commit_sha": "95d0433764bc66a50bb5379505f65a2702b1933c",
+      "path": "build.mill"
+    },
+    {
+      "id": "e-mill-pin-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/95d0433764bc66a50bb5379505f65a2702b1933c/.mill-version#L1",
+      "occurred_at": "2024-11-27T04:04:25Z",
+      "excerpt": "0.12.0",
+      "interpretation": "The historical launcher pin is Mill 0.12.0. A future authorized validation run must trust and provision the matching toolchain rather than substitute today's Mill syntax.",
+      "commit_sha": "95d0433764bc66a50bb5379505f65a2702b1933c",
+      "path": ".mill-version"
+    },
+    {
+      "id": "e-tests-dispatch-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/95d0433764bc66a50bb5379505f65a2702b1933c/sourcecode/test/src/sourcecode/Tests.scala#L22-L25",
+      "occurred_at": "2024-11-27T04:04:25Z",
+      "excerpt": "ManualImplicit()\n    TextTests()\n    ArgsTests()\n    FileNameOffset.main()",
+      "interpretation": "Tests.run dispatches into ArgsTests, completing the source-level call chain from Main. This prevents confusing test-module compilation with execution, but does not establish that any command actually ran.",
+      "commit_sha": "95d0433764bc66a50bb5379505f65a2702b1933c",
+      "path": "sourcecode/test/src/sourcecode/Tests.scala"
+    },
+    {
+      "id": "e103-erasure",
+      "kind": "review-comment",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/pull/103#discussion_r577495682",
+      "occurred_at": "2021-02-17T10:27:49Z",
+      "excerpt": "`paramss` is a `List[ParamClause[T]`, with `ParamClause[T]` being `List[ValDef[T]] | List[TypeDef[T]]`.",
+      "interpretation": "Author alexarchambault explains the term/type clause ambiguity; the rest of his comment says erased list type matching cannot distinguish them. The malformed type spelling in the original quotation is deliberately preserved.",
+      "author": "alexarchambault",
+      "role_basis": "PR 56 issuecomment-423537069 establishes historical commit/merge access. Here alexarchambault is the PR author explaining an unresolved implementation assumption, not an independent reviewer.",
+      "pull_number": 103
+    },
+    {
+      "id": "e103-counterexample",
+      "kind": "review-comment",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/pull/103#discussion_r577846016",
+      "occurred_at": "2021-02-17T18:29:28Z",
+      "excerpt": "It can currently happen with extension methods with a type parameter clause on the extension block and the method itself",
+      "interpretation": "Reviewer smarter supplies a then-current counterexample to the all-ValDef assumption during the Scala 3.0.0-RC1 upgrade. The merged patch and later snapshots still contain casts; a verified fix was not found.",
+      "author": "smarter",
+      "role_basis": "unknown",
+      "pull_number": 103
+    },
+    {
+      "id": "e154-runner",
+      "kind": "review-comment",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/pull/154#discussion_r1564716506",
+      "occurred_at": "2024-04-14T13:04:02Z",
+      "excerpt": "@lolgab sourcecode doesnt use a test framework, it just runs through the asserts starting from `def main`. But the build level plumbing for nested test modules w.r.t. cross version and cross platform modules is very handy, so I'm abusing it a bit",
+      "interpretation": "Li Haoyi answers lolgab\u2019s test-execution concern with the actual main-driven assertion architecture. CI changes to test.run and Main delegates to Tests.run. Empty testFramework is not sufficient evidence that assertions are disabled.",
+      "author": "lihaoyi",
+      "role_basis": "Li Haoyi is the PR 154 author and historically attributed developer, with governance evidence in PR 56. This is his explanation of the submitted build design, not an approval-only inference.",
+      "pull_number": 154
+    },
+    {
+      "id": "e-api-2020",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/e911b9f27b23ca38d3cb657ea9c85856d6685aa9/sourcecode/src/sourcecode/SourceContext.scala#L41-L44",
+      "occurred_at": "2020-12-18T11:37:39Z",
+      "excerpt": "case class Text[T](value: T, source: String)\nobject Text extends TextMacros\n\ncase class Args(value: Seq[Seq[Text[_]]]) extends SourceValue[Seq[Seq[Text[_]]]]",
+      "interpretation": "The historical shared API has a strict Text payload and nested Args lists. Scala 3 by-name macro entry syntax must be read together with generated construction; it does not make the stored case-class field lazy.",
+      "commit_sha": "e911b9f27b23ca38d3cb657ea9c85856d6685aa9",
+      "path": "sourcecode/src/sourcecode/SourceContext.scala"
+    },
+    {
+      "id": "e-args-broken-2022",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/28b4f6c21fddeb33d694dc210f51b0535a2ada68/sourcecode/src-3/sourcecode/Macros.scala#L208-L209",
+      "occurred_at": "2022-08-16T15:25:13Z",
+      "excerpt": "case (vd @ ValDef(nme, _, optV), l) =>\n        '{Text(${optV.fold('None)(_.asExpr)}, ${Expr(nme)}) :: $l}",
+      "interpretation": "The pre-fix Scala 3 Args implementation substitutes None when a parameter has no RHS. That is a tree-initializer lookup, not a runtime reference to the supplied argument.",
+      "commit_sha": "28b4f6c21fddeb33d694dc210f51b0535a2ada68",
+      "path": "sourcecode/src-3/sourcecode/Macros.scala"
+    },
+    {
+      "id": "e-args-oracle-2022",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/28b4f6c21fddeb33d694dc210f51b0535a2ada68/sourcecode/test/src/sourcecode/ArgsTests.scala#L11-L11",
+      "occurred_at": "2022-08-16T15:25:13Z",
+      "excerpt": "val checkValues = !TestUtil.isDotty",
+      "interpretation": "The surrounding check asserts names alone on Dotty/Scala 3. Merely running this test entrypoint cannot establish argument-value correctness for that branch.",
+      "commit_sha": "28b4f6c21fddeb33d694dc210f51b0535a2ada68",
+      "path": "sourcecode/test/src/sourcecode/ArgsTests.scala"
+    },
+    {
+      "id": "e-args-fixed-2023",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/502d980afce26eff20def43ec345a4e712e95926/sourcecode/src-3/sourcecode/Macros.scala#L208-L209",
+      "occurred_at": "2023-05-03T20:16:41Z",
+      "excerpt": "case (vd @ ValDef(nme, _, _), l) =>\n        '{Text(${Ref(vd.symbol).asExpr}, ${Expr(nme)}) :: $l}",
+      "interpretation": "PR 126 references the parameter symbol to obtain the value. It preserves parameter-list nesting and source names. This observed repair does not fix the separate mixed-type-clause casts.",
+      "commit_sha": "502d980afce26eff20def43ec345a4e712e95926",
+      "path": "sourcecode/src-3/sourcecode/Macros.scala"
+    },
+    {
+      "id": "e-args-oracle-2023",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/502d980afce26eff20def43ec345a4e712e95926/sourcecode/test/src/sourcecode/ArgsTests.scala#L10-L11",
+      "occurred_at": "2023-05-03T20:16:41Z",
+      "excerpt": "def check(expected: Seq[Seq[(String, Any)]]): Unit =\n      assert(args == expected, s\"Expected: $expected, got: $args\")",
+      "interpretation": "The repaired oracle compares names and values unconditionally. Full inspected tests exercise curried methods, nested blocks, constructors, empty argument lists, and implicit parameters; no execution result is claimed.",
+      "commit_sha": "502d980afce26eff20def43ec345a4e712e95926",
+      "path": "sourcecode/test/src/sourcecode/ArgsTests.scala"
+    },
+    {
+      "id": "e-casts-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/95d0433764bc66a50bb5379505f65a2702b1933c/sourcecode/src-3/sourcecode/Macros.scala#L234-L237",
+      "occurred_at": "2024-11-27T04:04:25Z",
+      "excerpt": "defSym.tree.asInstanceOf[DefDef].paramss\n              // FIXME Could be a List[TypeDef] too, although I'm not\n              // sure under which conditions this can happen\u2026\n              .map(_.asInstanceOf[List[ValDef]])",
+      "interpretation": "The unchecked cast remains in the late-2024 snapshot. Combined with the PR 103 counterexample this supports a focused regression investigation, not an assertion that all argument extraction cases were repaired.",
+      "commit_sha": "95d0433764bc66a50bb5379505f65a2702b1933c",
+      "path": "sourcecode/src-3/sourcecode/Macros.scala"
+    },
+    {
+      "id": "e-main-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/95d0433764bc66a50bb5379505f65a2702b1933c/sourcecode/test/src/sourcecode/Main.scala#L3-L5",
+      "occurred_at": "2024-11-27T04:04:25Z",
+      "excerpt": "def main(args: Array[String]): Unit = {\n    Tests.run()\n  }",
+      "interpretation": "The executable assertion harness enters Tests.run from main. Tests.run was also inspected and invokes ArgsTests and TextTests. Test-module naming alone does not identify this execution path.",
+      "commit_sha": "95d0433764bc66a50bb5379505f65a2702b1933c",
+      "path": "sourcecode/test/src/sourcecode/Main.scala"
+    },
+    {
+      "id": "e-runner-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/95d0433764bc66a50bb5379505f65a2702b1933c/build.mill#L78-L82",
+      "occurred_at": "2024-11-27T04:04:25Z",
+      "excerpt": "object test extends ScalaNativeTests{\n      // stub to make use of test plumbing but not running a test suite\n      def mainClass = Some(\"sourcecode.Main\")\n      def testFramework = \"\"\n    }",
+      "interpretation": "The Native test module intentionally supplies a main class without a test framework. This is compatible with assertions running through test.run; converting it to a conventional framework runner would change how execution is discovered.",
+      "commit_sha": "95d0433764bc66a50bb5379505f65a2702b1933c",
+      "path": "build.mill"
+    },
+    {
+      "id": "e-ci-2024",
+      "kind": "code",
+      "repository": "com-lihaoyi/sourcecode",
+      "url": "https://github.com/com-lihaoyi/sourcecode/blob/95d0433764bc66a50bb5379505f65a2702b1933c/.github/workflows/actions.yml#L26-L26",
+      "occurred_at": "2024-11-27T04:04:25Z",
+      "excerpt": "run: ./mill -i __.publishArtifacts + __.test.run",
+      "interpretation": "The historical CI command explicitly executes nested test mains while building publication artifacts. It is observed configuration only, not proof that CI passed and not permission to publish anything.",
+      "commit_sha": "95d0433764bc66a50bb5379505f65a2702b1933c",
+      "path": ".github/workflows/actions.yml"
+    }
+  ],
+  "claims": [
+    {
+      "id": "c-args-versioned-boundary",
+      "rule": "Inference: before repairing Args extraction, trace the shared nested Text payload through the compiler-specific implementation and its version matrix; preserve term-clause order and constructor/method ownership rather than unifying Scala 2 symbols and Scala 3 trees through unchecked casts.",
+      "evidence_ids": [
+        "e-api-2020",
+        "e-args-fixed-2023",
+        "e-args-oracle-2023",
+        "e-args-scala2-owner",
+        "e-args-scala2-emission",
+        "e-build-2023",
+        "e-build-2024",
+        "e-platforms-2024",
+        "e-mill-pin-2024"
+      ],
+      "applicability": "Source-derived procedure for sourcecode Args implementation and compiler migrations. The 2023 repair build declares Scala 3.1.3 and the 2024 snapshot declares Scala 3.3.3; neither source observation proves every method shape compiles. The plain-value API has no effect-library version or effect migration requirement.",
+      "counterexample": "A names-only reflection utility or a Name/File macro has a different payload contract. Do not flatten Args clauses, materialize type definitions as values, or import Ox/ZIO/Cats Effect merely to perform the same compile-time metadata extraction."
+    },
+    {
+      "id": "c-args-runtime-values",
+      "rule": "Inference from PR 126: when materializing Args, read runtime parameter symbols rather than optional ValDef RHS values; preserve parameter-list nesting, names, and supplied values, and remove names-only regression exemptions when repairing value capture.",
+      "evidence_ids": [
+        "e-args-broken-2022",
+        "e-args-oracle-2022",
+        "e-args-fixed-2023",
+        "e-args-oracle-2023"
+      ],
+      "applicability": "Source-based inference for the Scala 3 sourcecode Args implementation in the inspected Scala 3.1.3 build. The PR approval contains no design reasoning. Verify actual compiler APIs and declared behavior before transferring the repair to another version.",
+      "counterexample": "No-argument methods legitimately produce empty outer argument lists. A macro intended only to enumerate parameter names has no runtime-value obligation; sourcecode.Args does. Name-only equality cannot validate its repaired payload."
+    },
+    {
+      "id": "c-parameter-clause-boundary",
+      "rule": "When reviewing Args compiler upgrades, challenge every unchecked assumption that a parameter clause contains only ValDef nodes; use the supported compiler representation to distinguish term/type clauses and add a generic extension-method regression before claiming support.",
+      "evidence_ids": [
+        "e103-erasure",
+        "e103-counterexample",
+        "e-casts-2024",
+        "e-args-fixed-2023"
+      ],
+      "applicability": "The erasure concern and generic-extension counterexample are explicit historical discussion. The proposed version-specific classification and regression are researcher inference; no repaired implementation or executed extension-method test is demonstrated here.",
+      "counterexample": "A successful non-generic method test or the 2023 runtime-value fix does not disprove mixed-clause failure. Do not invent termParamss availability for Scala 3.0.0-RC1 or mechanically transplant current reflection APIs into historical code."
+    },
+    {
+      "id": "c-assertion-runner",
+      "rule": "For sourcecode build refactors, trace CI to the selected test.run main and from Main to Tests.run; preserve assertion execution on each declared compiler/platform combination rather than inferring it from a test module name or framework setting.",
+      "evidence_ids": [
+        "e154-runner",
+        "e-main-2024",
+        "e-tests-dispatch-2024",
+        "e-runner-2024",
+        "e-ci-2024",
+        "e-args-oracle-2023"
+      ],
+      "applicability": "The main-driven design is explicitly explained in PR 154 and corroborated at the late-2024 Mill 0.12.0 snapshot. Current checkout selectors must be rediscovered. No historical command was executed in this research run.",
+      "counterexample": "An empty testFramework is intentional when CI uses test.run; flagging it alone is a false positive. Conversely, compiling a nested module or a green names-only assertion does not prove semantic coverage."
+    }
+  ]
+}

@@ -1,7 +1,6 @@
 ---
 name: aws-rds
-description: Provision and manage RDS databases. Configure backups, replication, and
-  security. Use when deploying managed relational databases on AWS.
+description: "Operate Amazon RDS - provisioning, Multi-AZ, read replicas, parameter groups, backups, snapshots and point-in-time recovery, IAM auth, Performance Insights and connection troubleshooting. Use for hands-on RDS changes; use deploying-on-aws to choose a database service."
 category: devops
 risk: critical
 source: https://github.com/BagelHole/DevOps-Security-Agent-Skills
@@ -10,8 +9,7 @@ source_type: community
 date_added: '2026-09-20'
 license: MIT
 license_source: https://github.com/BagelHole/DevOps-Security-Agent-Skills/blob/main/LICENSE
-compatibility: Requires the relevant OS/platform tooling and privileged access where
-  noted. Docs-only; helper scripts and templates not bundled.
+compatibility: Requires AWS CLI v2 with credentials for the target account; mutating commands need the corresponding IAM permissions.
 metadata:
   author: devops-skills
   version: '1.0'
@@ -115,6 +113,33 @@ aws secretsmanager get-secret-value \
   --query SecretString --output text
 ```
 
+## IAM Database Authentication
+
+Supported for MySQL, MariaDB and PostgreSQL engines. Tokens are valid for 15 minutes and
+the connection must use TLS.
+
+```bash
+# Enable on an existing instance
+aws rds modify-db-instance \
+  --db-instance-identifier production-api-db \
+  --enable-iam-database-authentication \
+  --apply-immediately
+
+# PostgreSQL: create the DB user and grant the rds_iam role (run in psql as admin)
+#   CREATE USER app_user; GRANT rds_iam TO app_user;
+# MySQL: CREATE USER app_user IDENTIFIED WITH AWSAuthenticationPlugin AS 'RDS';
+
+# Generate a short-lived token and connect
+TOKEN=$(aws rds generate-db-auth-token \
+  --hostname production-api-db.xxxx.us-east-1.rds.amazonaws.com \
+  --port 5432 --username app_user --region us-east-1)
+PGPASSWORD="$TOKEN" psql "host=production-api-db.xxxx.us-east-1.rds.amazonaws.com \
+  port=5432 user=app_user dbname=app sslmode=verify-full sslrootcert=global-bundle.pem"
+```
+
+The caller needs `rds-db:connect` on
+`arn:aws:rds-db:<region>:<account>:dbuser:<DbiResourceId>/app_user` (see `aws-iam`).
+
 ## Parameter Groups
 
 ```bash
@@ -164,8 +189,11 @@ aws rds create-db-instance-read-replica \
   --source-db-instance-identifier arn:aws:rds:us-east-1:123456789012:db:production-api-db \
   --db-instance-class db.r6g.large \
   --region us-west-2 \
-  --storage-encrypted \
+  --source-region us-east-1 \
   --kms-key-id alias/rds-dr-key
+# Encryption is inherited from the source; for an encrypted source in another region,
+# --kms-key-id must be a key in the destination region and --source-region lets the
+# CLI generate the required presigned URL.
 
 # Promote a read replica to standalone (for DR failover)
 aws rds promote-read-replica \
@@ -186,19 +214,20 @@ aws cloudwatch get-metric-statistics \
 ## Snapshots and Point-in-Time Recovery
 
 ```bash
-# Create a manual snapshot
+# Create a manual snapshot (reuse SNAP in the commands below)
+SNAP="production-api-db-pre-migration-$(date +%Y%m%d)"
 aws rds create-db-snapshot \
   --db-instance-identifier production-api-db \
-  --db-snapshot-identifier production-api-db-pre-migration-$(date +%Y%m%d)
+  --db-snapshot-identifier "$SNAP"
 
 # Wait for snapshot to complete
 aws rds wait db-snapshot-available \
-  --db-snapshot-identifier production-api-db-pre-migration-20260324
+  --db-snapshot-identifier "$SNAP"
 
 # Restore from snapshot (creates a new instance)
 aws rds restore-db-instance-from-db-snapshot \
   --db-instance-identifier production-api-db-restored \
-  --db-snapshot-identifier production-api-db-pre-migration-20260324 \
+  --db-snapshot-identifier "$SNAP" \
   --db-instance-class db.r6g.large \
   --db-subnet-group-name production-db-subnets \
   --vpc-security-group-ids sg-db-access
@@ -211,14 +240,21 @@ aws rds restore-db-instance-to-point-in-time \
   --db-instance-class db.r6g.large \
   --db-subnet-group-name production-db-subnets
 
-# Copy snapshot to another region
+# Copy snapshot to another region (run against the destination region; --source-region
+# makes the CLI generate the presigned URL needed for encrypted cross-region copies,
+# and --kms-key-id must be a key in the destination region)
 aws rds copy-db-snapshot \
-  --source-db-snapshot-identifier arn:aws:rds:us-east-1:123456789012:snapshot:production-api-db-pre-migration-20260324 \
+  --source-db-snapshot-identifier "arn:aws:rds:us-east-1:123456789012:snapshot:$SNAP" \
   --target-db-snapshot-identifier production-api-db-dr-copy \
   --region us-west-2 \
+  --source-region us-east-1 \
   --kms-key-id alias/rds-dr-key
 
-# Delete old snapshots
+# Delete an old snapshot - irreversible. List and confirm the exact identifier with the
+# user first:
+aws rds describe-db-snapshots --db-instance-identifier production-api-db \
+  --snapshot-type manual \
+  --query "DBSnapshots[].{Id:DBSnapshotIdentifier,Created:SnapshotCreateTime}" --output table
 aws rds delete-db-snapshot --db-snapshot-identifier old-snapshot-name
 ```
 
@@ -367,14 +403,14 @@ resource "aws_db_instance" "read_replica" {
 
 ## Related Skills
 
-- terraform-aws (`terraform-aws`) - IaC deployment for RDS
-- aws-vpc (`aws-vpc`) - Subnet groups and security groups
-- aws-iam (`aws-iam`) - RDS IAM authentication
-- aws-cost-optimization (`aws-cost-optimization`) - Reserved instances for RDS
-- aws-s3 (`aws-s3`) - Export snapshots to S3
+- `aws-iam` - RDS IAM authentication
+- `aws-s3` - exporting snapshots to S3
+- `architecting-networks` - subnet groups and security groups
+- `deploying-on-aws` - choosing RDS versus Aurora or DynamoDB
+- `database-design` - schema, indexing and migration planning
 
-## Limitations
+## Safety
 
-- Infrastructure commands can disrupt services: confirm target host/scope and have backups/snapshots before mutating state.
-- Docs-only import: upstream scripts and templates not bundled.
+- Run `aws sts get-caller-identity` and confirm the account, region and profile before any change.
+- Use `describe-*` calls first (RDS has no `--dry-run`); take a manual snapshot before deleting or modifying a database, and confirm identifiers with the user before any delete.
 

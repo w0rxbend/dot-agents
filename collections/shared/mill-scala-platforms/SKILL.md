@@ -1,6 +1,6 @@
 ---
 name: mill-scala-platforms
-description: Design Mill Scala JVM JS Native cross builds, web resource pipelines, and Spark projects with correct platform dependencies, source sharing, and runtime constraints.
+description: Design Mill Scala JVM JS Native cross builds, web resource pipelines, and Spark projects with correct platform dependencies, source sharing, and runtime constraints. Use when a Mill build targets Scala.js, Scala Native, cross platforms or Spark.
 license: MIT
 ---
 

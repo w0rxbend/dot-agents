@@ -19,28 +19,17 @@ This skill implements comprehensive media and file management components followi
 ## Structure
 
 ```
-media/
-├── SKILL.md                    # Main skill file (474 lines)
+managing-media/
+├── SKILL.md                    # Main skill file
 ├── README.md                   # This file
-├── init.md                     # Master plan (preserved from planning phase)
-├── references/                 # Detailed documentation
-│   ├── implementation-guide.md
-│   ├── upload-patterns.md
-│   ├── gallery-patterns.md
-│   ├── video-player.md
-│   ├── library-comparison.md
-│   ├── accessibility-patterns.md
-│   └── performance-optimization.md
-├── examples/                   # Working code examples
-│   ├── basic-upload.tsx
-│   ├── image-gallery.tsx
-│   └── video-player.tsx
-├── scripts/                    # Utility scripts (token-free execution)
+├── references/                 # Detailed documentation (upload, gallery, video,
+│                               # audio, PDF, accessibility, performance, cloud storage)
+├── examples/                   # Working code examples (.tsx)
+├── scripts/                    # Utility scripts (require Pillow)
 │   ├── optimize_images.py
-│   └── validate_media_accessibility.js
-└── assets/                     # Configuration and templates
-    ├── upload-config.json
-    └── media-templates/
+│   └── generate_mock_images.py
+└── assets/
+    └── upload-config.json
 ```
 
 ## Usage
@@ -57,7 +46,7 @@ This skill activates when:
 ## Progressive Disclosure
 
 The skill follows Anthropic's progressive disclosure pattern:
-1. **SKILL.md** - Core guidance and quick decision frameworks (474 lines)
+1. **SKILL.md** - Core guidance and quick decision frameworks
 2. **references/** - Detailed documentation loaded as needed
 3. **scripts/** - Executable utilities (no context cost)
 4. **examples/** - Working implementations
@@ -94,10 +83,10 @@ The skill follows Anthropic's progressive disclosure pattern:
 ## Integration
 
 This skill integrates with:
-- **design-tokens** - Visual styling via token system
-- **forms** - File input fields and validation
-- **feedback** - Upload progress and error messages
-- **ai-chat** - Image attachments and file sharing
+- **theming-components** - Visual styling via design tokens
+- **building-forms** - File input fields and validation
+- **providing-feedback** - Upload progress and error messages
+- **building-ai-chat** - Image attachments and file sharing
 - **dashboards** - Media widgets and thumbnails
 
 ## Line Count

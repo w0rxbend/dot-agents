@@ -74,7 +74,7 @@ The root command initializes Viper configuration and sets up global behavior via
 Key points:
 
 - `SilenceUsage: true` MUST be set — prevents printing the full usage text on every error
-- `SilenceErrors: true` MUST be set — lets you control error output format yourself
+- `SilenceErrors: true` MUST be set — lets you control error output format yourself, so `main` MUST print the returned error to stderr before exiting
 - `PersistentPreRunE` runs before every subcommand, so config is always initialized
 - Logs go to stderr, output goes to stdout
 
@@ -114,7 +114,7 @@ Cobra provides built-in validators for positional arguments. See [assets/example
 | `cobra.MinimumNArgs(n)`     | Requires at least n args             |
 | `cobra.MaximumNArgs(n)`     | Allows at most n args                |
 | `cobra.RangeArgs(min, max)` | Requires between min and max         |
-| `cobra.ExactValidArgs(n)`   | Exactly n args, must be in ValidArgs |
+| `cobra.MatchAll(cobra.ExactArgs(n), cobra.OnlyValidArgs)` | Exactly n args, each in ValidArgs (replaces deprecated `ExactValidArgs`) |
 
 ## Configuration with Viper
 

@@ -16,7 +16,7 @@ Strategies for reducing Google Cloud Platform costs.
 - [BigQuery Cost Optimization](#bigquery-cost-optimization)
   - [Partitioned and Clustered Tables](#partitioned-and-clustered-tables)
   - [Query Best Practices](#query-best-practices)
-  - [Flat-Rate Pricing](#flat-rate-pricing)
+  - [Capacity Pricing (Editions)](#capacity-pricing-editions)
 - [Database Cost Optimization](#database-cost-optimization)
   - [Cloud SQL Instance Scheduling](#cloud-sql-instance-scheduling)
   - [Use Read Replicas Instead of Scaling Up](#use-read-replicas-instead-of-scaling-up)
@@ -97,34 +97,29 @@ gcloud compute instances set-machine-type INSTANCE_NAME \
 ### Cloud Run Cost Optimization
 
 ```hcl
-resource "google_cloud_run_service" "optimized" {
+resource "google_cloud_run_v2_service" "optimized" {
   name     = "optimized-service"
   location = "us-central1"
 
   template {
-    spec {
-      containers {
-        image = "gcr.io/project/app:latest"
-
-        resources {
-          limits = {
-            cpu    = "1"      # Right-size CPU
-            memory = "512Mi"  # Right-size memory
-          }
-        }
-      }
-
-      # Scale to zero when idle
-      container_concurrency = 80
+    # Scale to zero when idle
+    scaling {
+      min_instance_count = 0
+      max_instance_count = 10
     }
 
-    metadata {
-      annotations = {
-        "autoscaling.knative.dev/minScale" = "0"  # Scale to zero
-        "autoscaling.knative.dev/maxScale" = "10"
+    max_instance_request_concurrency = 80
 
-        # CPU allocated only during requests
-        "run.googleapis.com/cpu-throttling" = "true"
+    containers {
+      # Artifact Registry path (Container Registry gcr.io is shut down)
+      image = "us-central1-docker.pkg.dev/my-project/my-repo/app:1.0.0"
+
+      resources {
+        limits = {
+          cpu    = "1"      # Right-size CPU
+          memory = "512Mi"  # Right-size memory
+        }
+        cpu_idle = true     # CPU allocated only during requests
       }
     }
   }
@@ -273,18 +268,23 @@ FROM `project.dataset.table`
 TABLESAMPLE SYSTEM (1 PERCENT);
 ```
 
-### Flat-Rate Pricing
+### Capacity Pricing (Editions)
 
-For heavy BigQuery usage:
+Flat-rate pricing was retired; heavy, steady BigQuery usage uses BigQuery Editions
+(Standard/Enterprise/Enterprise Plus) slot reservations with autoscaling and optional commitments.
+Compare against on-demand per-TB pricing on the current BigQuery pricing page before committing.
 
 ```hcl
 resource "google_bigquery_reservation" "reservation" {
   name     = "production-reservation"
   location = "US"
 
-  # 100 slots = ~$2,000/month (vs on-demand at $5/TB)
-  # Break-even: ~400 TB queried per month
-  slot_capacity = 100
+  edition       = "ENTERPRISE"
+  slot_capacity = 0      # baseline slots (billed continuously)
+
+  autoscale {
+    max_slots = 100      # scale up on demand, billed per slot-hour used
+  }
 }
 
 resource "google_bigquery_reservation_assignment" "assignment" {
@@ -434,7 +434,7 @@ gcloud billing accounts anomalies list \
 | **Cloud Run** | Scale to zero | 100% when idle |
 | **Storage** | Lifecycle management | 80-98% |
 | **BigQuery** | Partitioning/clustering | 50-90% |
-| **BigQuery** | Flat-rate (heavy use) | 40-60% |
+| **BigQuery** | Editions reservations/commitments (heavy use) | Varies; measure vs on-demand |
 | **Cloud SQL** | Instance scheduling | 50% (off hours) |
 | **Networking** | CDN for egress | 30-50% |
 | **Networking** | Standard tier | 25-40% |

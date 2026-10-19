@@ -244,18 +244,8 @@ scaffolding:
       # Open frontend.html in browser
       ```
 
-      ### WebSocket Chat
-      ```bash
-      cd examples/chat-websocket
-      # Follow README instructions
-      ```
-
-      ### Collaborative Editing
-      ```bash
-      cd examples/collaborative-yjs
-      npm install
-      npm run dev
-      ```
+      ### WebSocket Chat and Collaborative Editing
+      See the code in references/websockets.md and references/crdts.md.
 
       ## Testing
       ```bash
@@ -316,8 +306,6 @@ metadata:
 
   examples_reference:
     - "examples/llm-streaming-sse/"
-    - "examples/chat-websocket/"
-    - "examples/collaborative-yjs/"
 
   references:
     - "references/sse.md"

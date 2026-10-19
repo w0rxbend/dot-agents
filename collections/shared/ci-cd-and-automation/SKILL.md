@@ -1,6 +1,6 @@
 ---
 name: ci-cd-and-automation
-description: Automates CI/CD pipeline setup. Use when setting up or modifying build and deployment pipelines. Use when you need to automate quality gates, configure test runners in CI, or establish deployment strategies.
+description: "Quality-gate philosophy for CI/CD - shift-left ordering of lint/type/test/build/deploy gates, feeding CI failures back into the dev loop, preview deploys, staged rollouts and rollback. Use for the strategy of what gates to enforce and why; use building-ci-pipelines for concrete multi-platform pipeline construction and github-actions-advanced for GitHub workflow syntax."
 ---
 
 # CI/CD and Automation
@@ -69,6 +69,8 @@ on:
 
 jobs:
   quality:
+    # Action majors below (@v4) are examples: check each action's latest major
+    # before copying, and pin third-party actions to a full commit SHA.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -184,7 +186,7 @@ Agent fixes → pushes → CI runs again
 **Key patterns:**
 
 ```
-Lint failure → Agent runs `npm run lint --fix` and commits
+Lint failure → Agent runs `npm run lint -- --fix` and commits
 Type error  → Agent reads the error location and fixes the type
 Test failure → Agent follows debugging-and-error-recovery skill
 Build error → Agent checks config and dependencies

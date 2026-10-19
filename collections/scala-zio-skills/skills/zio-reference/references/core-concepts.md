@@ -6,7 +6,7 @@
 * **Type Parameters (R, E, A)**
     * **Definition**: `R` is the contravariant input (environment); `E` is the covariant failure output; `A` is the covariant success output.
     * **Role**: Provides a statically typed model for dependency injection and error tracking at compile time.
-    * **Example**: `ZIO[Console, IOException, String]`.
+    * **Example**: `ZIO[UserRepo, IOException, String]` (in ZIO 2, built-ins such as `Console` and `Clock` are not part of `R`).
 
 * **Fibers**
     * **Definition**: Lightweight, virtual threads of execution managed by the ZIO runtime.

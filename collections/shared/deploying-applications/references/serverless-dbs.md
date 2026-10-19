@@ -132,7 +132,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@<pinned-sha> # current release, pinned by full SHA
 
       - name: Create Neon branch
         id: create-branch

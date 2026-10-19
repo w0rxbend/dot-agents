@@ -19,7 +19,7 @@ Before generating any migration commands, verify readiness:
 
    If not installed, offer to install it:
    - macOS: `brew install render`
-   - Linux/macOS: `curl -fsSL https://raw.githubusercontent.com/render-oss/cli/main/bin/install.sh | sh`
+   - Linux/macOS without Homebrew: download a pinned release zip and its `SHA256SUMS` from the [CLI releases page](https://github.com/render-oss/cli/releases/), verify the checksum, and put the `cli_v<version>` binary on `PATH` as `render` (see the render-cli skill). Ask the user before installing anything; do not pipe the install script from `curl` into `sh`.
 
    If not authenticated, run `render login` to authorize via the Dashboard.
 

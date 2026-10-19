@@ -231,4 +231,4 @@ Always present findings as suggestions with data (scan counts, table size), neve
 - NEVER create indexes blindly — check existing indexes, measure with `EXPLAIN ANALYZE`, and present findings as suggestions.
 - N+1 queries MUST be eliminated — use `JOIN` or batch `WHERE id IN (...)`.
 
-→ See `samber/cc-skills-golang@golang-observability` skill for database metrics and query monitoring. → See `samber/cc-skills@promql-cli` skill for querying pool metrics (`db_open_connections`, `db_in_use_connections`, `db_idle_connections`) via CLI.
+→ See `samber/cc-skills-golang@golang-observability` skill for database metrics and query monitoring. Query the pool metrics (`db_open_connections`, `db_in_use_connections`, `db_idle_connections`) in Prometheus or Grafana, or with `promtool query instant <prometheus-url> '<expr>'`.

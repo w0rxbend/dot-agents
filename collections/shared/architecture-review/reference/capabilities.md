@@ -1,6 +1,8 @@
-# Architecture Review Capability Notes
+# Ontoly Capability Notes (architecture and dependency review)
 
-Primary capabilities: `ExplainArchitecture`, `GraphStatistics`, `FindCycles`, `FindDependencies`, `EvidencePack`.
+Architecture review: `EvidencePack`, `ExplainArchitecture`, `GraphStatistics`, `FindCycles`, `FindDependencies`.
+
+Dependency analysis: `EvidencePack`, `FindDependencies`, `FindDependents`, `FindCycles`, `GraphStatistics`.
 
 Use [../reference/mcp.md](../reference/mcp.md) for common capability behavior and fallback CLI equivalents.
 

@@ -1,8 +1,9 @@
 ---
 name: caveman-commit
 description: >
-  Write a Conventional Commits message compressed to intent only. Use for
-  "write a commit", "commit message", /commit or /caveman-commit.
+  Write a Conventional Commits message compressed to intent only. Use only
+  when the user asks for it by name: /caveman-commit or "caveman commit".
+  Ordinary commit-message requests follow the repository's own conventions.
 ---
 
 Write commit messages terse and exact. Conventional Commits format. No fluff. Why over what.

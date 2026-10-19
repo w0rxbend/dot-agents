@@ -6,7 +6,7 @@ argument-hint: "<context or copy to review>"
 
 # /ux-copy
 
-> If you see unfamiliar placeholders or need to check which tools are connected, see [CONNECTORS.md](../../CONNECTORS.md).
+> `~~category` placeholders stand for whatever tool the user has connected in that category (usually via MCP): `~~knowledge base` (e.g. Notion, Confluence), `~~design tool` (e.g. Figma, Sketch, Adobe XD). If nothing in a category is connected, ask the user for that input or skip the step and say so.
 
 Write or review UX copy for any interface context.
 

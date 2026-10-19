@@ -68,7 +68,7 @@ ENTRYPOINT ["java", "-jar", "/app.jar"]
 FROM node:22-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --production
+RUN npm ci --omit=dev
 COPY . .
 
 FROM gcr.io/distroless/nodejs22-debian12

@@ -30,6 +30,8 @@ Use the Skill tool with the rule-skill name. For example, if the rule-skill argu
 Skill: docs-writing-style
 ```
 
+(If the skills are installed with a collection prefix, the Skill tool may list it as `zio-skills--docs-writing-style`; use whichever name the listing shows.)
+
 Read all rules it defines. For enumerated rule skills, note the rule numbers and create a checklist. These are the only rules you will enforce.
 
 **Not every rule skill is numbered.** `docs-mdoc-conventions`, for one, is a decision tree and a set of named checks (modifier selection, public-symbols-only, admonition frequency, …), not a numbered list. When the rule skill has no numbers, build your checklist from its distinct named points instead — each named check or named subsection is one checklist item, cited by name rather than number (e.g. "mdoc-conventions: modifier-matches-decision-tree" instead of "rule 4").
@@ -58,7 +60,9 @@ For each rule in your checklist:
 
 2. **Fix violations** — Apply minimal edits (add, remove, edit, or restructure as needed). Preserve the intent of the document.
 
-3. **Commit immediately** — Run:
+3. **Commit** — Before the first commit, ask the user once whether they want one commit per rule
+   (the default in ZIO-ecosystem repos) or prefer to review and commit the changes themselves. If they
+   decline commits, skip every `git commit` below and leave the edits in the working tree. Otherwise run:
    ```bash
    git add <docs-file>
    git commit -m "docs(<docs-file-stem>): fix <rule-name>"
@@ -80,7 +84,7 @@ sbt "docs/mdoc --in docs/reference/chunk.md --out website/docs/reference/chunk.m
 with `website/`.) Never bare `sbt docs/mdoc` without `--in`/`--out` — it recompiles every doc in the
 tree, minutes of sbt for a one-file check.
 
-If mdoc fails, identify the error, fix it, and commit:
+If mdoc fails, identify the error, fix it, and (if the user agreed to commits) commit:
 ```bash
 git add <docs-file>
 git commit -m "docs(<docs-file-stem>): fix mdoc error"
@@ -97,8 +101,9 @@ Output a summary including:
 
 ## Key Principles
 
-- **One commit per rule violation** — not one big commit
+- **One commit per rule violation** — not one big commit (once the user has agreed to commits)
 - **Commit immediately after each fix** — don't batch
+- **Checking several rule skills** — run this workflow once per rule skill (e.g. `docs-writing-style`, then `docs-mdoc-conventions`); the final mdoc compile is needed only after the last one
 - **Verify mdoc passes at the end** — this is the final proof of correctness
 - **Be concise** — minimal changes, preserve intent
 

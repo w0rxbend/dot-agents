@@ -125,17 +125,27 @@ import * as ini from 'ini';
 const configPath = path.join(__dirname, '../../config.ini');
 const iniConfig = ini.parse(fs.readFileSync(configPath, 'utf-8'));
 
+function required(envName: string, iniValue?: string): string {
+    const value = process.env[envName] || iniValue;
+    if (!value) {
+        throw new Error(`Missing required configuration: ${envName}`);
+    }
+    return value;
+}
+
 export const config: UnifiedConfig = {
     database: {
-        host: iniConfig.database?.host || process.env.DB_HOST || 'localhost',
-        port: parseInt(iniConfig.database?.port || process.env.DB_PORT || '3306'),
-        username: iniConfig.database?.username || process.env.DB_USER || 'root',
-        password: iniConfig.database?.password || process.env.DB_PASSWORD || '',
-        database: iniConfig.database?.database || process.env.DB_NAME || 'blog_dev',
+        // Environment variables override config.ini so deployments can change values
+        host: process.env.DB_HOST || iniConfig.database?.host || 'localhost',
+        port: parseInt(process.env.DB_PORT || iniConfig.database?.port || '3306', 10),
+        username: process.env.DB_USER || iniConfig.database?.username || 'app',
+        password: required('DB_PASSWORD', iniConfig.database?.password),
+        database: process.env.DB_NAME || iniConfig.database?.database || 'app_dev',
     },
     server: {
-        port: parseInt(iniConfig.server?.port || process.env.PORT || '3002'),
-        sessionSecret: iniConfig.server?.sessionSecret || process.env.SESSION_SECRET || 'dev-secret',
+        port: parseInt(process.env.PORT || iniConfig.server?.port || '3000', 10),
+        // No hard-coded fallback: a default session secret would be shared by every deployment
+        sessionSecret: required('SESSION_SECRET', iniConfig.server?.sessionSecret),
     },
     // ... more configuration
 };
@@ -198,9 +208,11 @@ PORT=80
 ```
 
 **Precedence:**
-1. config.ini (highest priority)
-2. process.env variables
-3. Hard-coded defaults (lowest priority)
+1. process.env variables (highest priority, so deployments can override)
+2. config.ini
+3. Hard-coded defaults for non-secret values only (lowest priority)
+
+Secrets (passwords, session and JWT secrets) have no default: startup fails if they are missing.
 
 ---
 
@@ -271,5 +283,5 @@ const jwtSecret = config.tokens.jwt;
 ---
 
 **Related Files:**
-- [SKILL.md](SKILL.md)
+- [SKILL.md](../SKILL.md)
 - [testing-guide.md](testing-guide.md)

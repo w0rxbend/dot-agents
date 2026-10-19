@@ -1,12 +1,12 @@
 ---
 name: pixijs-scene-container
-description: "Use this skill when grouping, positioning, or transforming display objects in PixiJS v8. Covers Container constructor options (isRenderGroup, sortableChildren, boundsArea), addChild/removeChild/addChildAt/swapChildren/setChildIndex, position/scale/rotation/pivot/skew/alpha/tint, getBounds/getGlobalPosition/toLocal/toGlobal, zIndex sorting, cullable, onRender per-frame callback, destroy. Triggers on: Container, addChild, removeChild, addChildAt, swapChildren, sortableChildren, zIndex, position, scale, rotation, pivot, getBounds, toGlobal, toLocal, onRender, destroy, constructor options, ContainerOptions."
+description: "Use this skill when grouping, positioning, or transforming display objects in PixiJS v8. Covers Container constructor options (isRenderGroup, sortableChildren, boundsArea), addChild/removeChild/addChildAt/swapChildren/setChildIndex, position/scale/rotation/pivot/skew/alpha/tint, getBounds/getGlobalPosition/toLocal/toGlobal, zIndex sorting, cullable, onRender per-frame callback, destroy. Triggers on (in PixiJS code): Container, addChild, removeChild, addChildAt, swapChildren, sortableChildren, zIndex, container position/scale/rotation/pivot, getBounds, toGlobal, toLocal, onRender, container.destroy, ContainerOptions, RenderLayer, render groups, masks."
 license: MIT
 ---
 
 `Container` is the general-purpose node of the PixiJS v8 scene graph. It holds children and applies transforms, alpha, tint, and blend mode to its whole subtree. Every display object you make will either be a `Container` you're building a branch on, or a leaf (`Sprite`, `Graphics`, `Text`, `Mesh`) that you nest inside one.
 
-Assumes familiarity with `pixijs-scene-core-concepts`.
+Assumes the scene graph basics in [references/scene-core-concepts.md](references/scene-core-concepts.md) (leaves vs containers, constructor options, render groups, RenderLayer, masking, culling).
 
 ## Quick Start
 
@@ -30,7 +30,7 @@ group.scale.set(1.5);
 app.stage.addChild(group);
 ```
 
-**Related skills:** `pixijs-scene-core-concepts` (scene graph mental model, masking, layers, render groups), `pixijs-scene-sprite` / `pixijs-scene-graphics` / `pixijs-scene-text` / `pixijs-scene-mesh` (leaf objects that go inside containers), `pixijs-events` (`eventMode`, hit testing), `pixijs-math` (Matrix, toGlobal/toLocal detail), `pixijs-performance` (`cacheAsTexture`, culling, render groups).
+**Related skills:** `pixijs-scene-graphics` / `pixijs-scene-text` (leaf objects that go inside containers), `pixijs-events` (`eventMode`, hit testing), `pixijs-performance` (`cacheAsTexture`, culling, render groups). Scene graph mental model, masking, layers and render groups: [references/scene-core-concepts.md](references/scene-core-concepts.md).
 
 ## Core Patterns
 
@@ -54,11 +54,11 @@ const container = new Container({
 });
 ```
 
-All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) are also valid here — see `skills/pixijs-scene-core-concepts/references/constructor-options.md`.
+All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) are also valid here — see the constructor-options table in [references/scene-core-concepts.md](references/scene-core-concepts.md).
 
-The `Container` constructor uses `assignWithIgnore` to bulk-copy every field in the options object onto the instance except `children`, `parent`, and `effects`. Any public property of `Container` is a valid constructor option: `cullable`, `cullArea`, `mask`, `filterArea`, `eventMode`, `hitArea`, and so on. The options block above groups the most common ones; see the shared reference above for the full list.
+The `Container` constructor uses `assignWithIgnore` to bulk-copy every field in the options object onto the instance except `children`, `parent`, and `effects`. Any public property of `Container` is a valid constructor option: `cullable`, `cullArea`, `mask`, `filterArea`, `eventMode`, `hitArea`, and so on. The options block above groups the most common ones; see that reference for the full list.
 
-`isRenderGroup: true` promotes the container to its own render group so its transforms are applied on the GPU rather than recomputed per-child on the CPU. Use it on stable sub-trees (large static worlds, UI layers). Don't overuse; most scenes don't need explicit render groups and too many hurts performance. Profile before promoting. See `pixijs-scene-core-concepts/references/scene-management.md`.
+`isRenderGroup: true` promotes the container to its own render group so its transforms are applied on the GPU rather than recomputed per-child on the CPU. Use it on stable sub-trees (large static worlds, UI layers). Don't overuse; most scenes don't need explicit render groups and too many hurts performance. Profile before promoting. See [references/scene-core-concepts.md](references/scene-core-concepts.md#render-groups).
 
 `sortableChildren: true` causes children to be re-sorted by `zIndex` at the next render. See `zIndex` below.
 
@@ -153,7 +153,7 @@ world.addChild(ground, player, ui);
 
 When `sortableChildren` is `true`, the container re-sorts its children by `zIndex` before the next render. Changing any child's `zIndex` automatically re-marks the parent as needing sort. Sort only what you need to sort; leaving `sortableChildren` off is cheaper. If you want full manual control, call `container.sortChildren()` yourself after changing `zIndex` values.
 
-For render-order control that is decoupled from the hierarchy (children keep their logical parent for transforms but render at a different z), use `RenderLayer`. See `pixijs-scene-core-concepts/references/scene-management.md`.
+For render-order control that is decoupled from the hierarchy (children keep their logical parent for transforms but render at a different z), use `RenderLayer`. See [references/scene-core-concepts.md](references/scene-core-concepts.md#renderlayer-render-order-independent-of-the-hierarchy).
 
 ### Bounds and coordinate conversion
 

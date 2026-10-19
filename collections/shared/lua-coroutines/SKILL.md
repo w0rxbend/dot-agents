@@ -1,7 +1,7 @@
 ---
-name: Lua Coroutines
+name: lua-coroutines
 user-invocable: false
-description: Use when lua coroutines for cooperative multitasking including coroutine creation, yielding and resuming, passing values, generators, iterators, asynchronous patterns, state machines, and producer-consumer implementations.
+description: Lua coroutines for generators, iterators, producer-consumer pipelines, schedulers, async wrappers and state machines, with version differences across 5.1, LuaJIT and 5.4. Use when writing or debugging code that yields and resumes; use lua-c-integration for the C API and lua-tables-patterns for data structures.
 allowed-tools: []
 ---
 
@@ -22,6 +22,32 @@ This enables elegant implementations of generators, iterators, and state machine
 This skill covers coroutine basics, yielding and resuming with values, generators
 and iterators, producer-consumer patterns, asynchronous I/O simulation, state
 machines, error handling, and practical coroutine patterns.
+
+## Version differences
+
+Identify the runtime first (`print(_VERSION, jit and jit.version)`); Neovim,
+OpenResty and LÖVE run LuaJIT.
+
+| Behavior | Lua 5.1 | LuaJIT 2.x | Lua 5.2 / 5.3 / 5.4 |
+|----------|---------|------------|---------------------|
+| `coroutine.running()` in main thread | `nil` | `nil` (5.1 API) | main thread + `true` as second result |
+| `coroutine.isyieldable()` | absent | 2.1: available (2.0: absent) | 5.3+ |
+| Yield across `pcall`/`xpcall` | error ("attempt to yield across metamethod/C-call boundary") | allowed | allowed |
+| Yield from metamethods and `for` iterators | not allowed | allowed | allowed |
+| Yield from callbacks invoked by C library functions (e.g. `table.sort` comparator, `string.gsub` replacement function) | not allowed | not allowed | not allowed (those functions have no continuation) |
+| Yield through C functions | not possible | not possible | possible when the C function uses `lua_callk` / `lua_pcallk` / `lua_yieldk` continuations |
+| `coroutine.close(co)` | absent | absent | 5.4: closes a suspended/dead coroutine and runs pending `<close>` variables |
+| `table.unpack` | use global `unpack` | use global `unpack` | `table.unpack` |
+
+Portable "am I in a coroutine?" check:
+
+```lua
+local function in_coroutine()
+  local co, ismain = coroutine.running()
+  if ismain == nil then return co ~= nil end -- 5.1 / LuaJIT
+  return not ismain                            -- 5.2+
+end
+```
 
 ## Coroutine Fundamentals
 
@@ -90,9 +116,11 @@ print(f())  -- 10
 print(f())  -- 20
 print(f())  -- 30
 
--- Running coroutine
+-- Running coroutine (in_coroutine() from "Version differences"; a bare
+-- `if coroutine.running()` is always true on 5.2+ because the main thread
+-- is returned too)
 local function self_aware()
-  if coroutine.running() then
+  if in_coroutine() then
     print("Running in coroutine")
   else
     print("Running in main")
@@ -413,20 +441,12 @@ local function pipeline(...)
   return function(input)
     local current = input
     for _, stage in ipairs(stages) do
-      local co = coroutine.create(stage)
-      local results = {}
-
-      for value in current do
-        local success, result = coroutine.resume(co, value)
-        if success and result then
-          table.insert(results, result)
-        end
-      end
-
-      -- Convert results to generator
+      local source = current
+      -- Each stage is a lazy generator that pulls from the previous one;
+      -- the loop keeps the coroutine alive for every input value
       current = coroutine.wrap(function()
-        for _, v in ipairs(results) do
-          coroutine.yield(v)
+        for value in source do
+          coroutine.yield(stage(value))
         end
       end)
     end
@@ -435,13 +455,13 @@ local function pipeline(...)
   end
 end
 
--- Data processing pipeline
+-- Data processing pipeline (stages are plain transforms)
 local function double(n)
-  coroutine.yield(n * 2)
+  return n * 2
 end
 
 local function add_ten(n)
-  coroutine.yield(n + 10)
+  return n + 10
 end
 
 local process = pipeline(double, add_ten)
@@ -557,7 +577,8 @@ function Async.run(tasks)
     waiting = still_waiting
 
     if #waiting > 0 then
-      -- Sleep briefly to avoid busy waiting
+      -- Demo only: os.execute spawns a shell and is POSIX-only. In a real host
+      -- use its timer (vim.uv timers, ngx.sleep, socket.sleep, love.timer.sleep)
       os.execute("sleep 0.1")
     end
   end
@@ -606,6 +627,7 @@ end
 -- Promise-like pattern
 local Promise = {}
 Promise.__index = Promise
+Promise.pending = {} -- executors suspended mid-work
 
 function Promise.new(executor)
   local self = setmetatable({
@@ -624,11 +646,31 @@ function Promise.new(executor)
     end
   end
 
-  coroutine.resume(coroutine.create(function()
+  local co = coroutine.create(function()
     executor(resolve)
-  end))
+  end)
+  local ok, err = coroutine.resume(co)
+  if not ok then error(err, 0) end
+  if coroutine.status(co) ~= "dead" then
+    table.insert(Promise.pending, co)
+  end
 
   return self
+end
+
+-- Minimal event loop: resume suspended executors until all have finished
+function Promise.run_pending()
+  while #Promise.pending > 0 do
+    local queue = Promise.pending
+    Promise.pending = {}
+    for _, co in ipairs(queue) do
+      local ok, err = coroutine.resume(co)
+      if not ok then error(err, 0) end
+      if coroutine.status(co) ~= "dead" then
+        table.insert(Promise.pending, co)
+      end
+    end
+  end
 end
 
 function Promise:andThen(callback)
@@ -651,19 +693,28 @@ p:andThen(function(value)
   print("Resolved: " .. value)
 end)
 
+Promise.run_pending() -- resumes the executor: prints "Resolved: 42"
+
 -- Async/await pattern
 local function async(fn)
   return function(...)
     local args = {...}
     return coroutine.create(function()
-      fn(table.unpack(args))
+      return fn(table.unpack(args))
     end)
   end
 end
 
+-- Resume the inner task until it finishes; whenever it is waiting, suspend
+-- the caller too so the outer scheduler can run other work in between
 local function await(co)
-  local success, result = coroutine.resume(co)
-  return result
+  local ok, result = coroutine.resume(co)
+  while true do
+    if not ok then error(result, 0) end
+    if coroutine.status(co) == "dead" then return result end
+    coroutine.yield(result)
+    ok, result = coroutine.resume(co)
+  end
 end
 
 local fetch_user = async(function(id)
@@ -677,7 +728,14 @@ local main = async(function()
   print("Got user: " .. user.name)
 end)
 
-coroutine.resume(main())
+-- Drive the outer task (a real app resumes it from its event loop)
+local task = main()
+repeat
+  local ok, err = coroutine.resume(task)
+  if not ok then error(err, 0) end
+until coroutine.status(task) == "dead"
+-- Fetching user 1
+-- Got user: User 1
 ```
 
 Async patterns with coroutines provide sequential code style for asynchronous
@@ -731,6 +789,7 @@ local function connection_state_machine()
 end
 
 local conn = connection_state_machine()
+conn()                      -- prime: run to the first yield ("disconnected")
 print(conn("connect"))      -- "connecting"
 print(conn("connected"))    -- "connected"
 print(conn("send"))         -- "connected"
@@ -879,7 +938,9 @@ tracking structures.
 2. **Check coroutine.resume return values** to handle errors and detect
    completion
 
-3. **Avoid yielding across C boundaries** as it's not supported in standard Lua
+3. **Do not yield through C functions** unless they use continuations
+   (`lua_callk`/`lua_pcallk`/`lua_yieldk`, Lua 5.2+); in 5.1 even `pcall`
+   blocks a yield
 
 4. **Pass data through yield and resume** rather than using global or upvalue
    variables
@@ -892,7 +953,8 @@ tracking structures.
 
 8. **Avoid nested coroutine.resume** calls as they complicate control flow
 
-9. **Use coroutine.running** to check execution context and avoid invalid yields
+9. **Use `coroutine.isyieldable()` (5.3+) or the `in_coroutine()` shim** to
+   check execution context before yielding
 
 10. **Document yield points** clearly to help readers understand suspension
     points
@@ -903,9 +965,13 @@ tracking structures.
 
 2. **Not checking resume success** misses errors thrown inside coroutines
 
-3. **Creating new coroutines in loops** without cleanup causes memory leaks
+3. **Keeping references to abandoned suspended coroutines** keeps their whole
+   stack alive; drop the reference (and on 5.4 call `coroutine.close` so
+   `<close>` resources run)
 
-4. **Yielding across C call boundaries** fails in standard Lua (works in LuaJIT)
+4. **Yielding across a C call boundary** fails in Lua 5.1 everywhere (including
+   inside `pcall`) and in 5.2+ whenever the C function was not written with
+   `lua_callk`/`lua_pcallk`/`lua_yieldk` continuations
 
 5. **Assuming coroutines are threads** leads to race condition concerns that
    don't exist
@@ -942,10 +1008,19 @@ pipelines.
 Apply coroutine-based schedulers for managing multiple concurrent operations
 cooperatively.
 
+## Done when
+
+- The target runtime is named and the code avoids features it lacks
+  (`coroutine.close`, `isyieldable`, `table.unpack` on 5.1/LuaJIT).
+- Every `coroutine.resume` result is checked, and errors are re-raised or
+  logged with `debug.traceback(co, err)`.
+- No yield passes through a C function without continuations (sort
+  comparators, `gsub` callbacks, 5.1 `pcall`).
+
 ## Resources
 
 - [Programming in Lua - Coroutines](<https://www.lua.org/pil/9.html>)
 - [Lua Reference Manual - Coroutines](<https://www.lua.org/manual/5.4/manual.html#2.6>)
 - [Lua Users Wiki - Coroutines](<http://lua-users.org/wiki/CoroutinesTutorial>)
 - [Revisiting Coroutines (PDF)](<https://www.inf.puc-rio.br/~roberto/docs/MCC15-04.pdf>)
-- [LuaJIT Coroutines](<http://luajit.org/ext_ffi_semantics.html#callback>)
+- [LuaJIT extensions (coroutine and pcall behavior)](<https://luajit.org/extensions.html>)

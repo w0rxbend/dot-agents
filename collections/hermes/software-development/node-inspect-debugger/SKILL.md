@@ -1,6 +1,6 @@
 ---
 name: node-inspect-debugger
-description: "Debug Node.js via --inspect + Chrome DevTools Protocol CLI."
+description: "Debug Node.js via --inspect + Chrome DevTools Protocol CLI. Use when a Node.js bug needs breakpoints, stepping, variable inspection, or CPU/heap profiling from the terminal."
 version: 1.0.0
 author: Hermes Agent
 license: MIT
@@ -246,7 +246,10 @@ await client.Profiler.enable();
 await client.Profiler.start();
 await new Promise(r => setTimeout(r, 5000));
 const { profile } = await client.Profiler.stop();
-require('fs').writeFileSync('~/.hermes/cache/scratch/cpu.cpuprofile', JSON.stringify(profile));
+// Node does not expand '~' in paths; build the absolute path explicitly
+const out = require('path').join(require('os').homedir(), '.hermes/cache/scratch/cpu.cpuprofile');
+require('fs').mkdirSync(require('path').dirname(out), { recursive: true });
+require('fs').writeFileSync(out, JSON.stringify(profile));
 // Open ~/.hermes/cache/scratch/cpu.cpuprofile in Chrome DevTools → Performance tab
 ```
 
@@ -256,7 +259,9 @@ await client.HeapProfiler.enable();
 const chunks = [];
 client.HeapProfiler.addHeapSnapshotChunk(({ chunk }) => chunks.push(chunk));
 await client.HeapProfiler.takeHeapSnapshot({ reportProgress: false });
-require('fs').writeFileSync('~/.hermes/cache/scratch/heap.heapsnapshot', chunks.join(''));
+const heapOut = require('path').join(require('os').homedir(), '.hermes/cache/scratch/heap.heapsnapshot');
+require('fs').mkdirSync(require('path').dirname(heapOut), { recursive: true });
+require('fs').writeFileSync(heapOut, chunks.join(''));
 ```
 
 ## Common Pitfalls
@@ -265,12 +270,12 @@ require('fs').writeFileSync('~/.hermes/cache/scratch/heap.heapsnapshot', chunks.
 
 2. **`--inspect` vs `--inspect-brk`.** `--inspect` starts the inspector but doesn't pause; your script races past your first breakpoint if you attach too late. Use `--inspect-brk` when you need to set breakpoints before any code runs.
 
-3. **Port collisions.** Default is `9229`. If multiple Node processes are inspecting, pass `--inspect=0` (random port) and read the actual URL from `/json/list`:
+3. **Port collisions.** Default is `9229`. If multiple Node processes are inspecting, pass `--inspect=0` (random port) and read the actual URL from the process's stderr (`Debugger listening on ws://127.0.0.1:<port>/...`), then query that port:
    ```bash
-   curl -s http://127.0.0.1:9229/json/list   # lists all inspectable targets on the host
+   curl -s http://127.0.0.1:<port>/json/list   # lists the inspectable target(s) on that port
    ```
 
-4. **Child processes.** `--inspect` on a parent does NOT inspect its children. Use `NODE_OPTIONS='--inspect-brk' node parent.js` to propagate to every child; be aware they all need unique ports (Node auto-increments when `NODE_OPTIONS='--inspect'` is inherited).
+4. **Child processes.** `--inspect` on a parent does NOT inspect its children. `NODE_OPTIONS` propagates inspector flags to every child, but plain child processes do not get a new port: with `NODE_OPTIONS='--inspect'` each child tries 9229 and fails with "address already in use". Use `NODE_OPTIONS='--inspect=0' node parent.js` (or `--inspect-brk=0`) so each process picks a free port and prints its own `ws://` URL. (Only `cluster`/`child_process.fork` adjust the debug port for workers automatically.)
 
 5. **Background kills.** If you `Ctrl+C` out of `node inspect` while the target is paused, the target stays paused. Either `cont` first, or `kill` the target explicitly.
 

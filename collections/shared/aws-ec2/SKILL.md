@@ -1,7 +1,6 @@
 ---
 name: aws-ec2
-description: Manage EC2 instances, AMIs, and auto-scaling groups. Configure security
-  groups, key pairs, and instance types. Use when deploying compute resources on AWS.
+description: "Operate EC2 with the AWS CLI - launch templates, AMIs, instance types, security groups, IMDSv2, Auto Scaling groups, Spot and EBS volumes - and troubleshoot launch and connectivity failures. Use for hands-on EC2 changes; use deploying-on-aws to choose between EC2 and other compute."
 category: devops
 risk: critical
 source: https://github.com/BagelHole/DevOps-Security-Agent-Skills
@@ -10,8 +9,7 @@ source_type: community
 date_added: '2026-09-20'
 license: MIT
 license_source: https://github.com/BagelHole/DevOps-Security-Agent-Skills/blob/main/LICENSE
-compatibility: Requires the relevant OS/platform tooling and privileged access where
-  noted. Docs-only; helper scripts and templates not bundled.
+compatibility: Requires AWS CLI v2 with credentials for the target account; mutating commands need the corresponding IAM permissions.
 metadata:
   author: devops-skills
   version: '1.0'
@@ -34,7 +32,7 @@ Deploy and manage Amazon EC2 compute instances for production, staging, and deve
 
 - AWS CLI v2 installed and configured (`aws configure`)
 - IAM permissions: `ec2:*`, `autoscaling:*`, `elasticloadbalancing:*`, `iam:PassRole`
-- An existing VPC with subnets (see aws-vpc (`aws-vpc`))
+- An existing VPC with subnets (see `architecting-networks` for VPC and subnet design)
 - SSH key pair created (`aws ec2 create-key-pair --key-name my-key --query 'KeyMaterial' --output text > my-key.pem`)
 
 ## Instance Type Selection Guide
@@ -231,18 +229,16 @@ aws autoscaling put-scheduled-update-group-action \
 ## Spot Instances
 
 ```bash
-# Request Spot instances
-aws ec2 request-spot-instances \
-  --spot-price "0.05" \
-  --instance-count 3 \
-  --type "one-time" \
-  --launch-specification '{
-    "ImageId": "ami-0abcdef1234567890",
-    "InstanceType": "c5.xlarge",
-    "KeyName": "my-key",
-    "SecurityGroupIds": ["sg-12345678"],
-    "SubnetId": "subnet-12345678"
-  }'
+# Launch Spot instances (current recommended API: run-instances with market options).
+# Omit a max price: you pay the current Spot price, capped at On-Demand.
+aws ec2 run-instances \
+  --image-id ami-0abcdef1234567890 \
+  --instance-type c5.xlarge \
+  --count 3 \
+  --key-name my-key \
+  --security-group-ids sg-12345678 \
+  --subnet-id subnet-12345678 \
+  --instance-market-options '{"MarketType":"spot","SpotOptions":{"SpotInstanceType":"one-time","InstanceInterruptionBehavior":"terminate"}}'
 
 # Check current Spot prices
 aws ec2 describe-spot-price-history \
@@ -253,12 +249,14 @@ aws ec2 describe-spot-price-history \
   --query "SpotPriceHistory[].{Type:InstanceType,Price:SpotPrice,AZ:AvailabilityZone}" \
   --output table
 
-# Create a Spot Fleet request
+# Legacy: request-spot-instances and request-spot-fleet still work, but AWS recommends
+# run-instances (above), EC2 Fleet (create-fleet) or an Auto Scaling group with a
+# mixed instances policy for new workloads. Legacy Spot Fleet example, kept for
+# existing setups (no SpotPrice: setting one only adds interruption risk):
 aws ec2 request-spot-fleet \
   --spot-fleet-request-config '{
     "IamFleetRole": "arn:aws:iam::123456789012:role/aws-ec2-spot-fleet-role",
     "TargetCapacity": 10,
-    "SpotPrice": "0.10",
     "AllocationStrategy": "capacityOptimized",
     "LaunchSpecifications": [
       {"ImageId": "ami-xxx", "InstanceType": "c5.xlarge", "SubnetId": "subnet-aaa"},
@@ -288,9 +286,17 @@ aws ec2 copy-image \
   --region us-west-2 \
   --name "web-server-dr-copy"
 
-# Deregister old AMIs and delete associated snapshots
+# Deregister an old AMI and delete its snapshots - irreversible.
+# 1. Inspect the AMI and list its backing snapshots:
+aws ec2 describe-images --image-ids ami-old123 \
+  --query "Images[].{Name:Name,Created:CreationDate,Snaps:BlockDeviceMappings[].Ebs.SnapshotId}"
+# 2. Check nothing still launches from it (launch templates, ASGs, running instances):
+aws ec2 describe-instances --filters Name=image-id,Values=ami-old123 \
+  --query "Reservations[].Instances[].InstanceId"
+# 3. Show the output to the user and get explicit confirmation, then:
+aws ec2 deregister-image --image-id ami-old123 --dry-run   # permission check only
 aws ec2 deregister-image --image-id ami-old123
-aws ec2 delete-snapshot --snapshot-id snap-old123
+aws ec2 delete-snapshot --snapshot-id snap-old123   # only snapshots listed in step 1
 
 # Share AMI with another AWS account
 aws ec2 modify-image-attribute \
@@ -413,14 +419,14 @@ resource "aws_autoscaling_policy" "cpu" {
 
 ## Related Skills
 
-- aws-vpc (`aws-vpc`) - VPC networking, subnets, and security groups
-- aws-iam (`aws-iam`) - Instance profiles and roles
-- aws-cost-optimization (`aws-cost-optimization`) - Rightsizing and Spot strategies
-- terraform-aws (`terraform-aws`) - Infrastructure as Code deployment
-- cloudformation (`cloudformation`) - AWS-native IaC templates
+- `aws-iam` - instance profiles and roles
+- `architecting-networks` - VPC, subnet and security-group design
+- `deploying-on-aws` - choosing EC2 versus Fargate, Lambda or EKS
+- `security-hardening` - OS and instance hardening
+- `pulumi-components` - EC2 resources as code
 
-## Limitations
+## Safety
 
-- Infrastructure commands can disrupt services: confirm target host/scope and have backups/snapshots before mutating state.
-- Docs-only import: upstream scripts and templates not bundled.
+- Run `aws sts get-caller-identity` and confirm the account, region and profile before any change.
+- Use `describe`/`list`/`get` calls and `--dry-run` (EC2) first; snapshot or back up before deleting or modifying stateful resources.
 

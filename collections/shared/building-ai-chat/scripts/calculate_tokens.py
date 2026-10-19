@@ -2,7 +2,7 @@
 
 """
 Token calculation utilities for AI chat interfaces
-Estimates token usage for various AI models
+Estimates token usage (character-based approximation; not model-exact)
 """
 
 import json
@@ -12,37 +12,23 @@ from typing import Dict, List, Union, Tuple
 
 
 class TokenCalculator:
-    """Calculate token estimates for different AI models"""
+    """
+    Model-agnostic, character-based token estimate.
 
-    # Approximate tokens per character for different models
-    MODEL_RATIOS = {
-        'gpt-4': 0.25,          # ~4 chars per token
-        'gpt-4-turbo': 0.25,
-        'gpt-3.5-turbo': 0.27,  # ~3.7 chars per token
-        'claude-3-opus': 0.24,  # ~4.2 chars per token
-        'claude-3-sonnet': 0.24,
-        'claude-3-haiku': 0.24,
-        'default': 0.25
-    }
+    Real tokenizers differ by model and change between model generations, so
+    this class does not ship a model table. Pass the context window of the
+    model you use (from the provider's documentation) and, if you know it,
+    its average characters per token (about 4 for English text with most
+    current tokenizers). For exact counts use the provider's tokenizer or
+    token-counting API.
+    """
 
-    # Token limits for different models
-    MODEL_LIMITS = {
-        'gpt-4': 8192,
-        'gpt-4-turbo': 128000,
-        'gpt-4-32k': 32768,
-        'gpt-3.5-turbo': 4096,
-        'gpt-3.5-turbo-16k': 16384,
-        'claude-3-opus': 200000,
-        'claude-3-sonnet': 200000,
-        'claude-3-haiku': 200000,
-        'default': 4096
-    }
-
-    def __init__(self, model: str = 'default'):
-        """Initialize calculator for specific model"""
-        self.model = model
-        self.ratio = self.MODEL_RATIOS.get(model, self.MODEL_RATIOS['default'])
-        self.limit = self.MODEL_LIMITS.get(model, self.MODEL_LIMITS['default'])
+    def __init__(self, context_limit: int = 128_000, chars_per_token: float = 4.0):
+        """Initialize calculator for a model's context window"""
+        if context_limit <= 0 or chars_per_token <= 0:
+            raise ValueError("context_limit and chars_per_token must be positive")
+        self.limit = context_limit
+        self.ratio = 1.0 / chars_per_token
 
     def count_tokens(self, text: str) -> int:
         """
@@ -283,7 +269,10 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(description='Calculate tokens for AI chat messages')
-    parser.add_argument('--model', default='gpt-4', help='AI model name')
+    parser.add_argument('--context-limit', type=int, default=128_000,
+                        help="Model context window in tokens (check your provider's docs; default 128000)")
+    parser.add_argument('--chars-per-token', type=float, default=4.0,
+                        help='Average characters per token for your model (default 4.0)')
     parser.add_argument('--file', help='JSON file with messages')
     parser.add_argument('--text', help='Text to count tokens for')
     parser.add_argument('--optimize', action='store_true', help='Optimize context to fit')
@@ -291,7 +280,7 @@ def main():
 
     args = parser.parse_args()
 
-    calculator = TokenCalculator(args.model)
+    calculator = TokenCalculator(args.context_limit, args.chars_per_token)
 
     if args.text:
         # Count tokens in text
@@ -330,7 +319,7 @@ def main():
 
     else:
         # Interactive mode
-        print(f"Token Calculator - Model: {args.model} (Limit: {calculator.limit:,} tokens)")
+        print(f"Token Calculator (context limit: {calculator.limit:,} tokens, estimate only)")
         print("Enter text to count tokens (Ctrl+D to finish):")
 
         try:

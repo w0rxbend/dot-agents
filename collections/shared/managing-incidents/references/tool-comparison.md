@@ -102,6 +102,8 @@ Selecting the right incident management platform depends on team size, budget, e
 
 ### Opsgenie
 
+**Status: legacy.** Atlassian stopped selling Opsgenie in 2025 and is retiring it in favor of Jira Service Management and Compass; do not choose it for a new setup, and plan a migration if you already use it. The notes below are for teams still running it.
+
 **Overview:** Atlassian product, flexible routing, more affordable than PagerDuty.
 
 **Strengths:**
@@ -124,6 +126,7 @@ Selecting the right incident management platform depends on team size, budget, e
 - **Enterprise:** $29/user/month (advanced automation, SSO, audit logs)
 
 **When to Choose Opsgenie:**
+- Not for new setups (see status above); existing users should plan a move to Jira Service Management
 - Already using Atlassian products (Jira, Confluence)
 - Budget: $200-500/month
 - Need: Custom routing rules, flexible schedules, Jira integration

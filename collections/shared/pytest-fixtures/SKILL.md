@@ -1,495 +1,168 @@
 ---
 name: pytest-fixtures
 user-invocable: false
-description: Use when pytest fixtures, conftest files, parametrize decorators, and fixture scopes for comprehensive test setup.
+description: Design pytest fixtures, conftest.py layering, scopes, teardown, and parametrization. Use when writing or refactoring test setup, sharing state between tests, or diagnosing fixture ordering, scope-mismatch, or leaking-state failures.
 allowed-tools: [Read, Write, Edit, Bash, Glob, Grep]
 ---
 
 # pytest fixtures
 
-Master Pytest fixtures, conftest files, parametrize decorators, and fixture scopes for comprehensive test setup. This skill provides comprehensive coverage of essential concepts, patterns, and best practices for professional Pytest development.
+Fixtures are pytest's dependency-injection system: a test names what it needs as
+arguments, pytest builds it, and tears it down afterwards. Good fixture design keeps
+tests independent, fast, and readable. Before adding anything, read the existing
+`conftest.py` files and reuse what is there.
 
-## Overview
-
-Pytest is a powerful tool for python development, providing robust capabilities for maintaining code quality and ensuring reliable software delivery. This skill covers the fundamental through advanced aspects of working with Pytest.
-
-## Installation and Setup
-
-### Basic Installation
-
-Setting up Pytest requires proper installation and configuration in your development environment.
+## Inspect before changing
 
 ```bash
-# Installation command specific to Pytest
-# Follow official documentation for latest version
+pytest --fixtures -q path/to/tests          # every fixture visible from here, with docstrings
+pytest --fixtures-per-test path/to/test_x.py # which fixtures each test actually uses
+pytest --setup-show path/to/test_x.py::test_y  # setup/teardown order and scopes
 ```
 
-### Project Configuration
-
-Create appropriate configuration files and setup for your project structure:
-
-- Configuration file setup
-- Project structure organization
-- Team collaboration setup
-- CI/CD integration preparation
-
-## Core Concepts
-
-### Fundamental Principles
-
-Understanding the core principles of Pytest is essential for effective usage:
-
-1. **Architecture** - How Pytest is structured and operates
-2. **Configuration** - Setting up and customizing behavior
-3. **Integration** - Working with other tools and frameworks
-4. **Best Practices** - Industry-standard approaches
-
-### Key Features
-
-Pytest provides several key features that make it valuable:
-
-- Feature 1: Core functionality
-- Feature 2: Advanced capabilities  
-- Feature 3: Integration options
-- Feature 4: Performance optimization
-- Feature 5: Extensibility
-
-### Configuration Strategy
-
-Proper configuration ensures Pytest works optimally:
-
-- Environment-specific setup
-- Team standards enforcement
-- Performance tuning
-- Error handling configuration
-
-### Advanced Usage
-
-For complex scenarios, Pytest offers advanced capabilities:
-
-- Custom extensions
-- Advanced patterns
-- Performance optimization
-- Scalability considerations
-
-## Code Examples
-
-### Example 1: Basic Setup
+## Defining fixtures
 
 ```python
-// Basic Pytest setup
-// Demonstrates fundamental usage patterns
-// Shows proper initialization and configuration
+import pytest
 
-// Core setup code
-function basicSetup() {
-  // Initialize framework
-  // Configure basic options
-  // Return configured instance
-}
-
-// Usage example
-const instance = basicSetup();
+@pytest.fixture
+def user(db):                      # fixtures can depend on other fixtures
+    u = db.create_user(name="ada")
+    yield u                        # value handed to the test
+    db.delete_user(u.id)           # teardown runs even if the test fails
 ```
 
-### Example 2: Configuration
+- Prefer `yield` fixtures over `request.addfinalizer`; code after `yield` is teardown.
+  If setup raises before `yield`, the teardown does not run, so acquire one resource
+  per fixture rather than several in a row.
+- Return the thing the test needs, not a bag of unrelated objects.
+- Give fixtures noun names (`client`, `tmp_repo`), and a docstring when the name is
+  not self-explanatory; `--fixtures` shows it.
+
+## Scope
+
+| Scope | Created once per | Use for |
+| --- | --- | --- |
+| `function` (default) | test | anything mutable |
+| `class` | test class | rare; shared expensive setup for a grouped class |
+| `module` | test file | read-only expensive resources |
+| `package` | package directory | as module, across a package |
+| `session` | whole run | containers, compiled assets, DB engines |
+
+Rules:
+- A fixture may only depend on fixtures of the **same or wider** scope; otherwise
+  pytest raises `ScopeMismatch`. Fix by widening the dependency or narrowing the
+  dependent, not by caching in a global.
+- Wide-scope fixtures must be effectively immutable. A common pattern is a
+  session-scoped engine plus a function-scoped transaction that rolls back:
 
 ```python
-// Configuration example for Pytest
-// Shows how to properly configure
-// Includes common options and patterns
+@pytest.fixture(scope="session")
+def engine():
+    eng = create_engine(TEST_URL)
+    yield eng
+    eng.dispose()
 
-// Configuration object
-const config = {
-  option1: 'value1',
-  option2: 'value2',
-  advanced: {
-    setting1: true,
-    setting2: false
-  }
-};
-
-// Apply configuration
-function applyConfig(config) {
-  // Validation logic
-  // Application logic
-  // Return result
-}
+@pytest.fixture
+def session(engine):
+    conn = engine.connect()
+    tx = conn.begin()
+    yield Session(bind=conn)
+    tx.rollback()
+    conn.close()
 ```
 
-### Example 3: Advanced Pattern
+- Under `pytest-xdist`, "session" means per worker process. Use `tmp_path_factory`
+  plus a file lock if a resource must be built exactly once across workers.
+
+## conftest.py layering
+
+- A `conftest.py` applies to its directory and everything below it. Put fixtures at
+  the lowest directory that covers all users.
+- A fixture with the same name in a deeper `conftest.py` or test module overrides the
+  outer one, and can request the outer one by the same name to extend it.
+- Do not import from `conftest.py` in tests; pytest discovers it automatically.
+  Shared helper functions belong in a normal module (e.g. `tests/helpers.py`).
+- `pytest_plugins = [...]` is only honored in the rootdir `conftest.py`.
+
+## Factories instead of many near-identical fixtures
 
 ```python
-// Advanced usage pattern
-// Demonstrates sophisticated techniques
-// Shows best practices in action
-
-function advancedPattern() {
-  // Setup phase
-  // Execution phase
-  // Cleanup phase
-}
+@pytest.fixture
+def make_order(db):
+    created = []
+    def _make(**overrides):
+        order = db.create_order(**{"qty": 1, "sku": "A1", **overrides})
+        created.append(order)
+        return order
+    yield _make
+    for order in created:
+        db.delete_order(order.id)
 ```
 
-### Example 4: Integration
+Use a factory when tests need several instances or different variants of the same thing.
+
+## Parametrization
 
 ```python
-// Integration with other tools
-// Shows real-world usage
-// Demonstrates interoperability
-
-function integrationExample() {
-  // Setup integration
-  // Execute workflow
-  // Handle results
-}
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        pytest.param("1", 1, id="int"),
+        pytest.param(" 2 ", 2, id="whitespace"),
+        pytest.param("x", None, id="invalid", marks=pytest.mark.xfail(strict=True)),
+    ],
+)
+def test_parse(raw, expected):
+    assert parse(raw) == expected
 ```
 
-### Example 5: Error Handling
-
-```python
-// Proper error handling approach
-// Defensive programming patterns
-// Graceful degradation
-
-function withErrorHandling() {
-  try {
-    // Main logic
-  } catch (error) {
-    // Error recovery
-  } finally {
-    // Cleanup
-  }
-}
-```
-
-### Example 6: Performance Optimization
-
-```python
-// Performance-optimized implementation
-// Shows efficiency techniques
-// Demonstrates best practices
-
-function optimizedApproach() {
-  // Efficient implementation
-  // Resource management
-  // Performance monitoring
-}
-```
-
-### Example 7: Testing
-
-```python
-// Testing approach for Pytest
-// Unit test examples
-// Integration test patterns
-
-function testExample() {
-  // Test setup
-  // Execution
-  // Assertions
-  // Teardown
-}
-```
-
-### Example 8: Production Usage
-
-```python
-// Production-ready implementation
-// Includes monitoring and logging
-// Error recovery and resilience
-
-function productionExample() {
-  // Production configuration
-  // Monitoring setup
-  // Error handling
-  // Logging
-}
-```
-
-## Best Practices
-
-1. **Follow conventions** - Adhere to established naming and structural patterns for consistency
-2. **Configure appropriately** - Set up framework configuration that matches project requirements
-3. **Validate inputs** - Always validate and sanitize inputs before processing
-4. **Handle errors gracefully** - Implement comprehensive error handling and recovery
-5. **Document decisions** - Comment configuration choices and non-obvious implementations
-6. **Test thoroughly** - Write comprehensive tests for all functionality
-7. **Optimize performance** - Profile and optimize critical paths
-8. **Maintain security** - Follow security best practices and guidelines
-9. **Keep updated** - Regularly update framework and dependencies
-10. **Monitor production** - Implement logging and monitoring for production systems
-
-## Common Pitfalls
-
-1. **Incorrect configuration** - Misconfiguration leads to unexpected behavior and bugs
-2. **Missing error handling** - Not handling edge cases causes production issues
-3. **Poor performance** - Not optimizing leads to scalability problems
-4. **Inadequate testing** - Insufficient test coverage misses bugs
-5. **Security vulnerabilities** - Not following security best practices exposes risks
-6. **Tight coupling** - Poor architecture makes maintenance difficult
-7. **Ignoring warnings** - Dismissing framework warnings leads to future problems
-8. **Outdated dependencies** - Using old versions exposes security risks
-9. **No monitoring** - Lack of observability makes debugging difficult
-10. **Inconsistent standards** - Team inconsistency reduces code quality
-
-## Advanced Topics
-
-### Customization
-
-Pytest allows extensive customization for specific needs:
-
-- Custom plugins and extensions
-- Behavior modification
-- Integration adapters
-- Domain-specific adaptations
-
-### Performance Tuning
-
-Optimize Pytest performance for production:
-
-- Profiling and benchmarking
-- Resource optimization
-- Caching strategies
-- Parallel execution
-
-### CI/CD Integration
-
-Integrate Pytest into continuous integration pipelines:
-
-- Automated execution
-- Result reporting
-- Quality gates
-- Deployment integration
-
-### Troubleshooting
-
-Common issues and their solutions:
-
-- Configuration errors
-- Integration problems
-- Performance issues
-- Unexpected behavior
-
-## When to Use This Skill
-
-- Setting up Pytest in new projects
-- Configuring Pytest for specific requirements
-- Migrating to Pytest from alternatives
-- Optimizing Pytest performance
-- Implementing advanced patterns
-- Troubleshooting Pytest issues
-- Integrating Pytest with CI/CD
-- Training team members on Pytest
-- Establishing team standards
-- Maintaining existing Pytest implementations
-
-## Additional Resources
-
-### Documentation
-
-- Official Pytest documentation
-- Community guides and tutorials
-- API reference materials
-- Migration guides
-
-### Tools and Utilities
-
-- Development tools
-- Testing utilities
-- Monitoring solutions
-- Helper libraries
-
-### Community
-
-- Online forums and communities
-- Open source contributions
-- Best practice repositories
-- Example implementations
-
-## Conclusion
-
-Mastering Pytest requires understanding both fundamentals and advanced concepts. This skill provides the foundation for professional-grade usage, from initial setup through production deployment. Apply these principles consistently for best results.
-
-## Detailed Configuration Examples
-
-### Configuration Option 1
-
-Comprehensive configuration example demonstrating best practices and common patterns used in production environments.
-
-```bash
-# Detailed configuration setup
-# Includes all necessary options
-# Optimized for production use
-```
-
-### Configuration Option 2
-
-Alternative configuration approach for different use cases, showing flexibility and adaptability of the framework.
-
-```bash
-# Alternative configuration
-# Different optimization strategy
-# Suitable for specific scenarios
-```
-
-### Configuration Option 3
-
-Advanced configuration for complex environments with multiple requirements and constraints.
-
-```bash
-# Advanced configuration
-# Handles complex scenarios
-# Production-ready setup
-```
-
-## Advanced Usage Patterns
-
-### Pattern 1: Modular Organization
-
-Organize your setup in a modular way to improve maintainability and scalability across large projects.
-
-Implementation details:
-
-- Separate concerns appropriately
-- Use composition over inheritance
-- Follow single responsibility principle
-- Maintain clear interfaces
-
-### Pattern 2: Performance Optimization
-
-Optimize for performance in production environments with proven strategies and techniques.
-
-Key considerations:
-
-- Profile before optimizing
-- Focus on bottlenecks
-- Cache appropriately
-- Monitor in production
-
-### Pattern 3: Error Recovery
-
-Implement robust error recovery mechanisms to handle failures gracefully.
-
-Recovery strategies:
-
-- Graceful degradation
-- Retry with backoff
-- Circuit breaker pattern
-- Comprehensive logging
-
-### Pattern 4: Testing Strategy
-
-Comprehensive testing approach ensuring code quality and reliability.
-
-Testing layers:
-
-- Unit tests for components
-- Integration tests for workflows
-- End-to-end tests for user scenarios
-- Performance tests for scalability
-
-## Integration Strategies
-
-### Integration with CI/CD
-
-Seamless integration into continuous integration and deployment pipelines.
-
-Steps:
-
-1. Configure pipeline
-2. Set up automation
-3. Define quality gates
-4. Monitor execution
-
-### Integration with Development Tools
-
-Connect with popular development tools and IDEs for improved workflow.
-
-Tools:
-
-- IDE plugins and extensions
-- CLI tools and utilities
-- Build system integration
-- Version control hooks
-
-### Integration with Monitoring
-
-Implement monitoring and observability for production systems.
-
-Monitoring aspects:
-
-- Performance metrics
-- Error tracking
-- Usage analytics
-- Health checks
-
-## Team Practices
-
-### Establishing Standards
-
-Create and maintain consistent standards across the team.
-
-Standards to define:
-
-- Naming conventions
-- Code organization
-- Documentation requirements
-- Review processes
-
-### Onboarding Process
-
-Streamline onboarding for new team members.
-
-Onboarding steps:
-
-- Initial setup guide
-- Training materials
-- Practice exercises
-- Mentorship program
-
-### Code Review Guidelines
-
-Effective code review practices for quality assurance.
-
-Review checklist:
-
-- Correctness
-- Performance
-- Security
-- Maintainability
-
-## Troubleshooting Guide
-
-### Common Issue 1
-
-Detailed troubleshooting steps for frequently encountered problem.
-
-Resolution steps:
-
-1. Identify symptoms
-2. Check configuration
-3. Verify dependencies
-4. Test solution
-
-### Common Issue 2
-
-Another common issue with comprehensive resolution approach.
-
-Diagnostic steps:
-
-1. Reproduce issue
-2. Gather logs
-3. Analyze data
-4. Apply fix
-
-### Common Issue 3
-
-Third common scenario with clear resolution path.
-
-Investigation process:
-
-1. Understand context
-2. Review recent changes
-3. Test hypotheses
-4. Implement solution
+- Always give readable `id`s for non-trivial values; they appear in failure output and
+  `-k` selection.
+- Parametrized fixtures run every dependent test once per param:
+  `@pytest.fixture(params=["sqlite", "postgres"])` and read `request.param`.
+- `indirect=True` (or `indirect=["name"]`) routes a parametrize value through the
+  fixture of that name, so setup logic stays in the fixture.
+- Stacked `parametrize` decorators produce the cartesian product; check the count does
+  not explode.
+
+## Built-in fixtures worth knowing
+
+| Fixture | Purpose |
+| --- | --- |
+| `tmp_path` / `tmp_path_factory` | per-test / per-session `pathlib.Path` temp dirs |
+| `monkeypatch` | set/del attributes, env vars (`setenv`), dict items, `chdir`; auto-undone |
+| `capsys` / `capfd` | captured stdout/stderr (`readouterr()`) |
+| `caplog` | log records; `caplog.set_level(logging.INFO, logger="app")` |
+| `request` | fixture introspection: `param`, `node`, `config`, `getfixturevalue` |
+| `recwarn` | recorded warnings (prefer `pytest.warns` in the test body) |
+
+## autouse and usefixtures
+
+- `autouse=True` hides a dependency. Reserve it for truly global concerns (resetting a
+  singleton, blocking network) and keep it in the narrowest `conftest.py` possible.
+- `@pytest.mark.usefixtures("clean_cache")` is for fixtures whose value the test does
+  not need; it does not work on fixtures themselves.
+
+## Async fixtures
+
+Async fixtures need a plugin: `pytest-asyncio` (`@pytest_asyncio.fixture` in strict
+mode) or `anyio` (`@pytest.fixture` with the `anyio_backend` fixture). Follow whatever
+the project already uses; see `pytest-plugins`.
+
+## Diagnosing fixture problems
+
+| Symptom | Likely cause |
+| --- | --- |
+| Test passes alone, fails in the suite | shared mutable state in a wide-scope fixture, or missing teardown |
+| `ScopeMismatch` | wider-scoped fixture requests a narrower one |
+| `fixture 'x' not found` | `conftest.py` not on the path of the test, or fixture defined in a non-conftest module that is not imported/registered |
+| Teardown never runs | exception before `yield`, or resource acquired outside the fixture |
+| Order-dependent failures | reproduce with `pytest-randomly` and its printed seed (`--randomly-seed=<seed>`), narrow with `--lf`/`-x`, then `--setup-show` |
+
+## Done when
+
+- `pytest --setup-show` on an affected test shows the intended scopes and order.
+- The suite passes when run in random order or with `-n auto` if the project uses
+  xdist, not only in file order.
+- No fixture is duplicated across `conftest.py` files without an intentional override.

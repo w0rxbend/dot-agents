@@ -73,7 +73,7 @@ restore-keys: |
 # Node.js
 - uses: actions/setup-node@v4
   with:
-    node-version: 20
+    node-version: 24
     cache: 'npm'  # Automatically caches ~/.npm
 
 # Python
@@ -220,7 +220,7 @@ cache:
 
 ```dockerfile
 # Base stage - changes infrequently
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 WORKDIR /app
 
 # Dependencies stage - changes when package.json changes

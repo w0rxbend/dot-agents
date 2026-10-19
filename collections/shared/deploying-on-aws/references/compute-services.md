@@ -35,7 +35,7 @@ AWS Lambda runs code without provisioning servers. Pay only for compute time con
 - 10x faster startup vs. traditional Java
 
 **Lambda Response Streaming:**
-- Stream responses up to 20MB
+- Stream responses beyond the 6 MB buffered limit (check current Lambda quotas for the streaming maximum)
 - Progressive results for large payloads
 - Ideal for generative AI, video processing
 
@@ -254,7 +254,7 @@ Managed Kubernetes control plane. Full Kubernetes compatibility. Multi-cloud/hyb
 - Integrated with AWS IAM
 
 **Supported Versions:**
-- Kubernetes 1.25 to 1.28 (as of 2025)
+- Several recent Kubernetes minor versions under standard support (check the EKS version calendar; older versions incur extended-support fees)
 - Automatic minor version upgrades available
 
 ### Key Features (2025)

@@ -1,6 +1,6 @@
 ---
 name: python-debugpy
-description: "Debug Python: pdb REPL + debugpy remote (DAP)."
+description: "Debug Python: pdb REPL + debugpy remote (DAP). Use when a Python bug needs breakpoints, stepping or attaching a debugger to a running process."
 version: 1.0.0
 author: Hermes Agent
 license: MIT
@@ -201,9 +201,12 @@ Needs the PID and debugpy preinstalled in the target's environment:
 # debugpy injects itself into the process. Then attach a client as below.
 ```
 
-Some kernels/security configs block the ptrace-based injection (`/proc/sys/kernel/yama/ptrace_scope`). Fix with:
+Some kernels/security configs block the ptrace-based injection (`/proc/sys/kernel/yama/ptrace_scope`). Prefer restarting the target under debugpy (Pattern A/B) instead. Lowering `ptrace_scope` weakens a system-wide hardening control, so only do it after the user explicitly agrees, and restore it afterwards:
 ```bash
-echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+cat /proc/sys/kernel/yama/ptrace_scope              # note the current value (usually 1)
+echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope  # ONLY with user consent
+# ... attach and debug ...
+echo 1 | sudo tee /proc/sys/kernel/yama/ptrace_scope  # restore the value you noted
 ```
 
 ### Connecting a client from the terminal
@@ -334,11 +337,11 @@ Long-lived. Use `remote-pdb` at a handler, or `debugpy` with `--wait-for-client`
 
 4. **`debugpy.listen` blocks only if you also call `wait_for_client()`.** Without it, execution continues and your first breakpoint may fire before the client is attached.
 
-5. **Attach to PID fails on hardened kernels.** `ptrace_scope=1` (Ubuntu default) allows only same-user ptrace of child processes. Workaround: `echo 0 > /proc/sys/kernel/yama/ptrace_scope` (needs root) or launch under `debugpy` from the start.
+5. **Attach to PID fails on hardened kernels.** `ptrace_scope=1` (Ubuntu default) allows only same-user ptrace of child processes. Preferred workaround: launch under `debugpy` from the start. Lowering `ptrace_scope` needs root and the user's explicit consent, and must be restored afterwards (see Pattern C).
 
 6. **Threads.** `pdb` only debugs the current thread. For multithreaded code, use `debugpy` (thread-aware DAP) or set `threading.settrace()` per thread.
 
-7. **asyncio.** `pdb` works in coroutines but `await` inside pdb requires Python 3.13+ or `await` from `interact` mode on older versions. For 3.11/3.12, use `asyncio.run_coroutine_threadsafe` tricks or `!stmt`-based awaits via `asyncio.ensure_future`.
+7. **asyncio.** `pdb` works in coroutines, but typing `await` at the pdb prompt is only supported from Python 3.14. On older versions you cannot await directly at the prompt; schedule the coroutine instead (for example `!asyncio.ensure_future(coro())`) and inspect it after continuing, or use `python -m asyncio` for interactive awaiting.
 
 8. **`scripts/run_tests.sh` strips credentials and sets `HOME=<tmpdir>`.** If your bug depends on user config or real API keys, it won't reproduce under the wrapper. Debug with raw `pytest` first to repro, then re-confirm under the wrapper.
 

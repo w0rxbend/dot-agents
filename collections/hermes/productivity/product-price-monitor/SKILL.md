@@ -1,6 +1,6 @@
 ---
 name: product-price-monitor
-description: "Watch product, flight, or listing prices; alert on target."
+description: "Watch product, flight, or listing prices; alert on target. Use when the user asks Hermes to track a price over time and notify them when it crosses a target."
 version: 0.1.0
 author: Ben Barclay (benbarclay), Hermes Agent
 license: MIT

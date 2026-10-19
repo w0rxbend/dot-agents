@@ -4,12 +4,14 @@ Use this path after skill edits.
 
 ## Repository checks
 
-Run the checks required by the repository. In this project, skill changes normally require:
+Run the checks the repository defines (README, Makefile, CI workflow). Do not invent commands. In the dot-agents repository, skill changes normally require:
 
 ```bash
-npm run chain
-npm run catalog
+python3 scripts/catalog.py   # regenerate docs/catalog.md from catalog.json
+make check                   # validate snapshot checksums/metadata, test installer, verify rendered config
 ```
+
+A new or retired skill there also needs its `catalog.json` entry (id, source, license, path) added or removed so `./install.sh` renders it.
 
 Use stricter or specialized checks when the changed skill includes risky commands, external references, generated artifacts, or package/runtime behavior.
 

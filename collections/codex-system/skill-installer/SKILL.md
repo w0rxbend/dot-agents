@@ -54,5 +54,6 @@ All of these scripts use network, so when running in the sandbox, request escala
 - Curated listing is fetched from `https://github.com/openai/skills/tree/main/skills/.curated` via the GitHub API. If it is unavailable, explain the error and exit.
 - Private GitHub repos can be accessed via existing git credentials or optional `GITHUB_TOKEN`/`GH_TOKEN` for download.
 - Git fallback tries HTTPS first, then SSH.
-- The skills at https://github.com/openai/skills/tree/main/skills/.system are preinstalled, so no need to help users install those. If they ask, just explain this. If they insist, you can download and overwrite.
+- The skills at https://github.com/openai/skills/tree/main/skills/.system are preinstalled, so no need to help users install those. If they ask, just explain this. If they insist, explain that the installer aborts when the destination exists; replace a .system skill only after the user explicitly confirms, by moving the existing directory aside first (never delete it).
 - Installed annotations come from `$CODEX_HOME/skills`.
+- For skills from repos other than `openai/skills`, review the skill's files (SKILL.md and any scripts) before installing, using the `audit-skills` skill when it is available, and tell the user what it will run. Skills managed by a dotfiles/catalog installer (such as dot-agents) should be added through that installer instead.

@@ -56,8 +56,8 @@ class AzureOpenAIRAG:
         openai_endpoint: Optional[str] = None,
         search_endpoint: Optional[str] = None,
         search_index_name: str = "documents",
-        embedding_model: str = "text-embedding-ada-002",
-        chat_model: str = "gpt-4-turbo"
+        embedding_model: str = "embedding-deployment",
+        chat_model: str = "chat-deployment"
     ):
         """
         Initialize Azure OpenAI RAG client.
@@ -85,7 +85,7 @@ class AzureOpenAIRAG:
         self.openai_client = AzureOpenAI(
             azure_endpoint=openai_endpoint,
             azure_ad_token_provider=token_provider,
-            api_version="2024-02-15-preview"
+            api_version="2024-10-21"  # GA; check the API version lifecycle page for the latest
         )
 
         # Azure AI Search setup
@@ -110,7 +110,7 @@ class AzureOpenAIRAG:
             text: Text to embed
 
         Returns:
-            Embedding vector (1536 dimensions for ada-002)
+            Embedding vector (1536 dimensions for text-embedding-3-small)
         """
         response = self.openai_client.embeddings.create(
             model=self.embedding_model,
@@ -314,8 +314,8 @@ def main():
         openai_endpoint="https://myopenai.openai.azure.com",
         search_endpoint="https://myaisearch.search.windows.net",
         search_index_name="product-docs",
-        embedding_model="text-embedding-ada-002",
-        chat_model="gpt-4-turbo"
+        embedding_model="embedding-deployment",  # deployment of text-embedding-3-small
+        chat_model="chat-deployment"  # deployment of a current chat model
     )
 
     # Example questions

@@ -84,10 +84,10 @@ CMD ["python", "app.py"]
 // For explicit control:
 process.stdout.write('Processing...\n');
 
-// Ensure flush on exit
-process.on('exit', () => {
-    process.stdout.write('');  // Flush
-});
+// Don't call process.exit() right after writing: when stdout is a pipe it is
+// asynchronous on POSIX and pending writes can be lost. Set process.exitCode instead
+// and let the event loop drain.
+process.exitCode = 0;
 ```
 
 **Why unbuffered matters:**

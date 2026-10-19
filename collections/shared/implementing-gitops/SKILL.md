@@ -1,6 +1,6 @@
 ---
 name: implementing-gitops
-description: Implement GitOps continuous delivery for Kubernetes using ArgoCD or Flux. Use for automated deployments with Git as single source of truth, pull-based delivery, drift detection, multi-cluster management, and progressive rollouts.
+description: "Set up GitOps continuous delivery for Kubernetes with Argo CD or Flux - bootstrap, Git-as-source-of-truth, pull-based sync, environment promotion, drift detection, multi-cluster and progressive rollouts. Use when wiring declarative delivery to clusters; use operating-kubernetes for workload operations and building-ci-pipelines for the CI that builds images."
 ---
 
 # GitOps Workflows
@@ -181,7 +181,8 @@ syncPolicy:
 spec:
   interval: 10m    # Check every 10 minutes
   prune: true      # Remove resources not in Git
-  force: true      # Force apply on conflicts
+  # force: true    # Opt-in only: recreates resources on immutable-field
+                   # conflicts (downtime; data loss for some resources)
 ```
 
 **Manual Operations:**
@@ -298,7 +299,8 @@ Use the provided installation scripts for quick setup:
 export GITHUB_TOKEN=<token>
 export GITHUB_OWNER=<org>
 export GITHUB_REPO=fleet-infra
-./scripts/install-flux.sh
+# export GITHUB_PERSONAL=true   # only when the owner is a user account
+./scripts/install-flux.sh       # needs the flux CLI; asks before pushing to the repo
 
 # Check for drift
 ./scripts/check-drift.sh
@@ -333,10 +335,10 @@ Complete working examples provided in examples/ directory:
 
 ## Related Skills
 
-- **kubernetes-operations:** Kubernetes fundamentals and resource management
-- **infrastructure-as-code:** Provisioning clusters that GitOps deploys to
+- **operating-kubernetes:** Kubernetes fundamentals and resource management
+- **pulumi-stacks** / **deploying-on-aws**, **deploying-on-gcp**, **deploying-on-azure:** Provisioning clusters that GitOps deploys to
 - **building-ci-pipelines:** CI builds images, GitOps deploys them
-- **secret-management:** Vault/ESO integration with GitOps
+- **hashicorp-vault:** Vault/ESO integration with GitOps
 - **deploying-applications:** GitOps as the deployment mechanism
 
 ## Summary

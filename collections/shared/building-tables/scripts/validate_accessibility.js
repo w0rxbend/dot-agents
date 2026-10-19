@@ -394,13 +394,10 @@ class AccessibilityValidator {
     };
     this.validateScreenReaderSupport(mockComponent);
 
-    // Mock styles for demonstration
-    const mockStyles = {
-      textContrast: 4.5,
-      usesColorAlone: false,
-      focusIndicator: htmlString.includes('focus')
-    };
-    this.validateColorContrast(mockStyles);
+    // Colour contrast, focus visibility and keyboard handling cannot be judged
+    // from static markup; check them in a browser (axe DevTools, Lighthouse)
+    // and by keyboard testing.
+    this.addWarning('Not checked statically: colour contrast, visible focus, keyboard handlers - verify in a browser');
 
     this.generateReport();
   }
@@ -408,40 +405,25 @@ class AccessibilityValidator {
 
 // CLI interface
 if (require.main === module) {
-  const validator = new AccessibilityValidator();
-
-  // Sample HTML for testing
-  const sampleHTML = `
-    <table role="grid" aria-label="Employee data">
-      <caption>Employee Directory</caption>
-      <thead>
-        <tr>
-          <th scope="col" role="columnheader" aria-sort="ascending">Name</th>
-          <th scope="col" role="columnheader">Email</th>
-          <th scope="col" role="columnheader">Department</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr role="row">
-          <td role="gridcell" tabindex="0">John Doe</td>
-          <td role="gridcell" tabindex="-1">john@example.com</td>
-          <td role="gridcell" tabindex="-1">Engineering</td>
-        </tr>
-      </tbody>
-    </table>
-    <div role="status" aria-live="polite">3 results found</div>
-  `;
-
-  // Check if HTML file provided
+  const fs = require('fs');
   const args = process.argv.slice(2);
-  if (args.length > 0 && !args[0].startsWith('--')) {
-    const fs = require('fs');
-    const htmlContent = fs.readFileSync(args[0], 'utf8');
-    validator.validateHTML(htmlContent);
-  } else {
-    // Use sample HTML
-    validator.validateHTML(sampleHTML);
+  const files = args.filter(a => !a.startsWith('--'));
+
+  if (args.includes('--help') || args.includes('-h') || files.length === 0) {
+    console.log('Usage: node validate_accessibility.js <table.html> [--verbose]');
+    console.log('Static heuristics for table markup (caption, thead/tbody, th scope, ARIA grid roles, live regions).');
+    console.log('Not a WCAG audit: contrast, focus and keyboard behaviour must be checked in a browser.');
+    process.exit(files.length === 0 && !(args.includes('--help') || args.includes('-h')) ? 2 : 0);
   }
+
+  let failed = false;
+  for (const file of files) {
+    const validator = new AccessibilityValidator();
+    console.log(`File: ${file}`);
+    validator.validateHTML(fs.readFileSync(file, 'utf8'));
+    if (validator.errors.length > 0) failed = true;
+  }
+  process.exit(failed ? 1 : 0);
 }
 
 module.exports = AccessibilityValidator;

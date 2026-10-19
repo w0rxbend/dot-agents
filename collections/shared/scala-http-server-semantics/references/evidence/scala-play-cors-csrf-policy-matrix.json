@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "repository": "playframework/playframework",
+  "evidence": [
+    {
+      "id": "e-csrf-missing",
+      "kind": "review-comment",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/pull/8363#discussion_r322029941",
+      "occurred_at": "2019-09-08T21:24:18Z",
+      "excerpt": "Before this change it would return `false` in such a case (assuming the response will _not_ be cached)... I would not break and change this behaviour and leave it as it was - until someone complains about it.",
+      "interpretation": "mkurz rejected flipping the absent Cache-Control behavior as part of adding directives. The final implementation keeps fold(false); this is a compatibility decision, not a general assertion that absent headers prevent caches.",
+      "author": "mkurz",
+      "role_basis": "unknown",
+      "pull_number": 8363,
+      "cached_source": "/home/worxbend/.local/share/dot-agents/scala-history-2018-2024/corpus/playframework--playframework/pulls/8363-4c43a149dfc343dc1625.json"
+    },
+    {
+      "id": "e-csrf-regression-test",
+      "kind": "review-comment",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/pull/8363#discussion_r321166635",
+      "occurred_at": "2019-09-05T09:40:56Z",
+      "excerpt": "The token should **not** be added for cached responses!\r\nThere was a test in place actually to test this (\"not add a token to responses that set cache headers\") which was replaced by this wrong one...",
+      "interpretation": "mkurz caught an inverted security assertion rather than accepting new green tests. Final tests retain the public-cache negative case and add private/no-store cases.",
+      "author": "mkurz",
+      "role_basis": "unknown",
+      "pull_number": 8363,
+      "cached_source": "/home/worxbend/.local/share/dot-agents/scala-history-2018-2024/corpus/playframework--playframework/pulls/8363-4c43a149dfc343dc1625.json"
+    },
+    {
+      "id": "e-csrf-locale",
+      "kind": "review-comment",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/pull/8363#discussion_r182291963",
+      "occurred_at": "2018-04-18T02:17:18Z",
+      "excerpt": "`.toLowerCase(Locale.ROOT)` so this works on machines with different locale settings.",
+      "interpretation": "richdougherty required locale-independent directive normalization. The final source uses Locale.ROOT, comma splitting and trimming; this observation does not establish a full RFC cache-control parser.",
+      "author": "richdougherty",
+      "role_basis": "unknown",
+      "pull_number": 8363,
+      "cached_source": "/home/worxbend/.local/share/dot-agents/scala-history-2018-2024/corpus/playframework--playframework/pulls/8363-4c43a149dfc343dc1625.json"
+    },
+    {
+      "id": "e-cors-null",
+      "kind": "review-comment",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/pull/10146#discussion_r400447026",
+      "occurred_at": "2020-03-30T19:40:21Z",
+      "excerpt": "The existing behavior would stay the same for `allowedOrigins = null` (we don't want to break things for existing users), so the existing tests should pass, but we'd want to add new tests using `*` in the list of origins.",
+      "interpretation": "gmethvin distinguished the historical null configuration from an explicit wildcard list. The author corrected the helper after discussing credential-dependent origin reflection; historical permissive defaults are not current hardening recommendations.",
+      "author": "gmethvin",
+      "role_basis": "unknown",
+      "pull_number": 10146,
+      "cached_source": "/home/worxbend/.local/share/dot-agents/scala-history-2018-2024/corpus/playframework--playframework/pulls/10146-dda0953f41d16446203e.json"
+    },
+    {
+      "id": "e-cors-private",
+      "kind": "review-comment",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/pull/10146#discussion_r399911912",
+      "occurred_at": "2020-03-30T03:43:35Z",
+      "excerpt": "I also think we should make this `private[play]` since this is somewhat of an implementation detail. That way we can change the API easily if we need to later.",
+      "interpretation": "gmethvin limited the visibility of the new CORS decision helper. Final code is private[play], while the surrounding configuration API remains public.",
+      "author": "gmethvin",
+      "role_basis": "unknown",
+      "pull_number": 10146,
+      "cached_source": "/home/worxbend/.local/share/dot-agents/scala-history-2018-2024/corpus/playframework--playframework/pulls/10146-dda0953f41d16446203e.json"
+    },
+    {
+      "id": "e-cors-complexity",
+      "kind": "review-comment",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/pull/10146#discussion_r403435387",
+      "occurred_at": "2020-04-04T07:00:08Z",
+      "excerpt": "Even if we wanted to special case the uniform `*` case, it would be better done in a separate pull request. I think the benefit of adding the additional logic isn't worth it though.",
+      "interpretation": "gmethvin declined a Vary-header optimization in this change. This supports narrow review scope and explicit cache behavior, not a ban on optimizing headers with evidence.",
+      "author": "gmethvin",
+      "role_basis": "unknown",
+      "pull_number": 10146,
+      "cached_source": "/home/worxbend/.local/share/dot-agents/scala-history-2018-2024/corpus/playframework--playframework/pulls/10146-dda0953f41d16446203e.json"
+    },
+    {
+      "id": "e-csrf-source",
+      "kind": "code",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/blob/fa51a161b3948bfa53422a9b0dea6a6521f982f6/web/play-filters-helpers/src/main/scala/play/filters/csrf/CSRFActions.scala#L555-L555",
+      "occurred_at": "2019-09-09T11:20:32Z",
+      "excerpt": ".fold(false)(!_.exists(NoCacheDirectives.contains))",
+      "interpretation": "Source observation: missing Cache-Control retains false and explicit directive matching uses a private set. The old isCached method remains as a deprecated forwarding method after the more precise rename.",
+      "commit_sha": "fa51a161b3948bfa53422a9b0dea6a6521f982f6",
+      "path": "web/play-filters-helpers/src/main/scala/play/filters/csrf/CSRFActions.scala",
+      "cached_source": "evidence-cache/sources/8363/web__play-filters-helpers__src__main__scala__play__filters__csrf__CSRFActions.scala"
+    },
+    {
+      "id": "e-csrf-test",
+      "kind": "code",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/blob/fa51a161b3948bfa53422a9b0dea6a6521f982f6/web/play-filters-helpers/src/test/scala/play/filters/csrf/CSRFFilterSpec.scala#L49-L49",
+      "occurred_at": "2019-09-09T11:20:32Z",
+      "excerpt": "buildCsrfAddResponseHeaders(CACHE_CONTROL -> \"public, max-age=3600\")(_.get())(_.cookies must be empty)",
+      "interpretation": "Source observation: the retained negative assertion forbids adding the cookie to this shared-cache response. Neighboring tests cover absent headers, private, no-store, capitalization and spaces, with GET/non-GET distinctions.",
+      "commit_sha": "fa51a161b3948bfa53422a9b0dea6a6521f982f6",
+      "path": "web/play-filters-helpers/src/test/scala/play/filters/csrf/CSRFFilterSpec.scala",
+      "cached_source": "evidence-cache/sources/8363/web__play-filters-helpers__src__test__scala__play__filters__csrf__CSRFFilterSpec.scala"
+    },
+    {
+      "id": "e-cors-source",
+      "kind": "code",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/blob/43d1852a1cfe3ec2d827659b343cdaf5fb739223/web/play-filters-helpers/src/main/scala/play/filters/cors/CORSConfig.scala#L64-L64",
+      "occurred_at": "2020-04-08T04:21:31Z",
+      "excerpt": "case Origins.All if supportsCredentials => Some(origin)",
+      "interpretation": "Source observation: the private decision helper separates All with credentials, All without credentials, explicit matches, wildcard fallbacks, and rejection. It cannot be replaced by one allow-all boolean without changing semantics.",
+      "commit_sha": "43d1852a1cfe3ec2d827659b343cdaf5fb739223",
+      "path": "web/play-filters-helpers/src/main/scala/play/filters/cors/CORSConfig.scala",
+      "cached_source": "evidence-cache/sources/10146/web__play-filters-helpers__src__main__scala__play__filters__cors__CORSConfig.scala"
+    },
+    {
+      "id": "e-cors-test",
+      "kind": "code",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/blob/43d1852a1cfe3ec2d827659b343cdaf5fb739223/web/play-filters-helpers/src/test/scala/play/filters/cors/CORSCommonSpec.scala#L277-L277",
+      "occurred_at": "2020-04-08T04:21:31Z",
+      "excerpt": "header(ACCESS_CONTROL_ALLOW_ORIGIN, result) must beSome(\"*\")",
+      "interpretation": "Source observation: response-header assertions cover wildcard behavior; new tests also cover an explicit origin taking priority over wildcard. These are server-side assertions and do not constitute browser credential-enforcement testing.",
+      "commit_sha": "43d1852a1cfe3ec2d827659b343cdaf5fb739223",
+      "path": "web/play-filters-helpers/src/test/scala/play/filters/cors/CORSCommonSpec.scala",
+      "cached_source": "evidence-cache/sources/10146/web__play-filters-helpers__src__test__scala__play__filters__cors__CORSCommonSpec.scala"
+    },
+    {
+      "id": "e-build-2020",
+      "kind": "code",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/blob/37c10fab4938cd77d8bc939e9b115dc4058d8701/build.sbt#L301",
+      "occurred_at": "2020-12-30T11:00:44Z",
+      "excerpt": "lazy val PlayFiltersHelpersProject = PlayCrossBuiltProject(\"Filters-Helpers\", \"web/play-filters-helpers\")",
+      "interpretation": "Source observation: the 2020 build separates core, web filters, transport backends, testkit and dev tooling. The actual sbt project ID is Filters-Helpers, not the Scala val name; integration tests are in IntegrationTest, and scripted support is another test layer.",
+      "commit_sha": "37c10fab4938cd77d8bc939e9b115dc4058d8701",
+      "path": "build.sbt",
+      "cached_source": "/home/worxbend/.local/share/dot-agents/scala-history-2018-2024/corpus/playframework--playframework/snapshots/2020-a69cbc7118cc6a081101.json"
+    },
+    {
+      "id": "e-build-2022",
+      "kind": "code",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/blob/97df2e2ca7d8f4bad3e9549c35b63ffae12eb38b/build.sbt#L301",
+      "occurred_at": "2022-12-19T09:36:55Z",
+      "excerpt": ".configs(IntegrationTest)",
+      "interpretation": "Source observation: the 2022 integration project still uses IntegrationTest with non-publication and both Akka HTTP and Netty dependencies. A 2024 Test selector cannot simply be applied to this snapshot.",
+      "commit_sha": "97df2e2ca7d8f4bad3e9549c35b63ffae12eb38b",
+      "path": "build.sbt",
+      "cached_source": "/home/worxbend/.local/share/dot-agents/scala-history-2018-2024/corpus/playframework--playframework/snapshots/2022-64189fe18490b3729f27.json"
+    },
+    {
+      "id": "e-build-2024",
+      "kind": "code",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/blob/99a7ea6ba74971c89af64dbd7a1f075fe4d51d63/build.sbt#L320",
+      "occurred_at": "2024-12-24T13:39:08Z",
+      "excerpt": "lazy val PlayFiltersHelpersProject = PlayCrossBuiltProject(\"Play-Filters-Helpers\", \"web/play-filters-helpers\")",
+      "interpretation": "Source observation: by December 2024 the filter ID has the Play prefix; the integration project uses Test and Pekko HTTP replaces Akka HTTP in this tree. Run support is a non-cross-built Java boundary, and Play-Configuration is separated from Play core.",
+      "commit_sha": "99a7ea6ba74971c89af64dbd7a1f075fe4d51d63",
+      "path": "build.sbt",
+      "cached_source": "/home/worxbend/.local/share/dot-agents/scala-history-2018-2024/corpus/playframework--playframework/snapshots/2024-bb2140a7038d8e049103.json"
+    },
+    {
+      "id": "e-versions-2020",
+      "kind": "code",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/blob/37c10fab4938cd77d8bc939e9b115dc4058d8701/project/Dependencies.scala#L11-L11",
+      "occurred_at": "2020-12-30T11:00:44Z",
+      "excerpt": "val akkaHttpVersion     = \"10.1.13\"",
+      "interpretation": "Source observation: the December 2020 snapshot pins Akka HTTP 10.1.13 and defaults Akka to 2.6.10. These are snapshot defaults, not assertions about the January 2020 PR head or every Play 2.8 release.",
+      "commit_sha": "37c10fab4938cd77d8bc939e9b115dc4058d8701",
+      "path": "project/Dependencies.scala",
+      "cached_source": "evidence-cache/sources/2020/project__Dependencies.scala"
+    },
+    {
+      "id": "e-versions-2022",
+      "kind": "code",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/blob/97df2e2ca7d8f4bad3e9549c35b63ffae12eb38b/project/Dependencies.scala#L12-L12",
+      "occurred_at": "2022-12-19T09:36:55Z",
+      "excerpt": "val akkaHttpVersion     = sys.props.getOrElse(\"akka.http.version\", \"10.2.10\")",
+      "interpretation": "Source observation: the December 2022 snapshot defaults Akka HTTP to 10.2.10 and Akka to 2.6.20, with system-property overrides. This is a JVM Future/Akka Streams line rather than an effect-polymorphic migration.",
+      "commit_sha": "97df2e2ca7d8f4bad3e9549c35b63ffae12eb38b",
+      "path": "project/Dependencies.scala",
+      "cached_source": "evidence-cache/sources/2022/project__Dependencies.scala"
+    },
+    {
+      "id": "e-versions-2024",
+      "kind": "code",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/blob/99a7ea6ba74971c89af64dbd7a1f075fe4d51d63/project/Versions.scala#L7-L8",
+      "occurred_at": "2024-12-24T13:39:08Z",
+      "excerpt": "val scala213 = \"2.13.15\"\n  val scala3   = \"3.3.4\"",
+      "interpretation": "Source observation: the 2024 tree declares runtime-era Scala 2.13.15 and Scala 3.3.4 versions alongside Scala 2.12.20 for sbt-related work. Exact supported cross-build membership still depends on each project plugin.",
+      "commit_sha": "99a7ea6ba74971c89af64dbd7a1f075fe4d51d63",
+      "path": "project/Versions.scala",
+      "cached_source": "evidence-cache/sources/2024/project__Versions.scala"
+    },
+    {
+      "id": "e-pekko-2024",
+      "kind": "code",
+      "repository": "playframework/playframework",
+      "url": "https://github.com/playframework/playframework/blob/99a7ea6ba74971c89af64dbd7a1f075fe4d51d63/project/Dependencies.scala#L11-L11",
+      "occurred_at": "2024-12-24T13:39:08Z",
+      "excerpt": "val pekkoVersion: String = sys.props.getOrElse(\"pekko.version\", \"1.0.3\")",
+      "interpretation": "Source observation: the December 2024 tree defaults Pekko to 1.0.3 and Pekko HTTP to 1.0.1. Porting a historical Akka snippet requires resolving this namespace and dependency boundary, not a blind current-source substitution.",
+      "commit_sha": "99a7ea6ba74971c89af64dbd7a1f075fe4d51d63",
+      "path": "project/Dependencies.scala",
+      "cached_source": "evidence-cache/sources/2024/project__Dependencies.scala"
+    }
+  ],
+  "claims": [
+    {
+      "id": "c-filter-defaults",
+      "rule": "Before changing CORS or CSRF configuration matching, write a behavior matrix for missing values, explicit wildcards, specific origins, credentials and shared-cache directives, and retain legacy cases separately from intended behavior changes.",
+      "evidence_ids": [
+        "e-csrf-missing",
+        "e-csrf-regression-test",
+        "e-csrf-locale",
+        "e-csrf-source",
+        "e-csrf-test",
+        "e-cors-null",
+        "e-cors-source",
+        "e-cors-test"
+      ],
+      "applicability": "Historical 2018-2020 review guidance for Play web filters. Preserving historical defaults during a compatibility fix is different from recommending permissive defaults for new deployments. Current-version checks must confirm browser semantics and the application threat model.",
+      "counterexample": "An explicitly approved security migration may intentionally tighten an unsafe default. It should document the migration and expected breakage rather than disguise it as a behavior-preserving refactor."
+    },
+    {
+      "id": "c-filter-boundaries",
+      "rule": "Keep a filter decision helper at the visibility required by its callers and avoid combining a semantic repair with an unrelated cache-header optimization; identify which header values and missing-value cases remain unchanged.",
+      "evidence_ids": [
+        "e-cors-private",
+        "e-cors-complexity",
+        "e-cors-source",
+        "e-csrf-source"
+      ],
+      "applicability": "Observed scoped review in PR 10146 and source evidence of a deprecated forwarding method in PR 8363. This is more specific than a blanket preference for private code: public extensions and compatibility bridges must remain accessible.",
+      "counterexample": "An existing documented extension point used by applications cannot be narrowed solely because its implementation looks internal; usages and release policy govern that decision."
+    },
+    {
+      "id": "c-filter-test-discovery",
+      "rule": "Before validating a Play filter policy change, resolve the actual filter project ID, concrete CORS consumers and integration configuration; do not count a shared trait selector or an outdated project name as executed regression coverage.",
+      "evidence_ids": [
+        "e-build-2020",
+        "e-build-2022",
+        "e-build-2024",
+        "e-cors-test",
+        "e-csrf-test",
+        "e-versions-2020",
+        "e-versions-2022",
+        "e-versions-2024",
+        "e-pekko-2024"
+      ],
+      "applicability": "Inference from pinned builds and test sources: Filters-Helpers becomes Play-Filters-Helpers, IntegrationTest becomes Test, and CORSCommonSpec is a trait. Resolve inherited compiler defaults and property overrides without treating meta-build Scala as the runtime compiler.",
+      "counterexample": "A testOnly command that discovers zero concrete CORS tests does not validate origin policy even if sbt exits successfully; source inspection alone does not establish runtime or browser enforcement."
+    }
+  ]
+}

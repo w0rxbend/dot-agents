@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "repository": "com-lihaoyi/cask",
+  "evidence": [
+    {
+      "id": "cask-routing-build-2022",
+      "kind": "code",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/blob/d5fa6d47da5ea99d94887fafd555696ba07aa205/build.sc#L31-L33",
+      "occurred_at": "2022-09-04T09:39:11Z",
+      "excerpt": "val scala213 = \"2.13.8\"\nval scala212 = \"2.12.16\"\nval scala3 = \"3.1.3\"",
+      "interpretation": "Source observation: compiler coordinates for the selected post-repair validation snapshot. The same build declares crossed core and example modules, Undertow 2.2.18.Final, core uTest 0.8.0, and utility Castor 0.2.1. These are not present-day recommendations.",
+      "commit_sha": "d5fa6d47da5ea99d94887fafd555696ba07aa205",
+      "path": "build.sc"
+    },
+    {
+      "id": "cask-routing-mill-2022",
+      "kind": "documentation",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/blob/d5fa6d47da5ea99d94887fafd555696ba07aa205/.mill-version#L1",
+      "occurred_at": "2022-09-04T09:39:11Z",
+      "excerpt": "0.10.5",
+      "interpretation": "Source observation: the version file pins Mill 0.10.5. The separately inspected same-SHA launcher honors an environment override and downloads an executable on cache miss; discovery still requires execution permission.",
+      "commit_sha": "d5fa6d47da5ea99d94887fafd555696ba07aa205",
+      "path": ".mill-version"
+    },
+    {
+      "id": "cask-routing-ci-2022",
+      "kind": "documentation",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/blob/d5fa6d47da5ea99d94887fafd555696ba07aa205/.github/workflows/actions.yml#L14-L26",
+      "occurred_at": "2022-09-04T09:39:11Z",
+      "excerpt": "./mill -i --disable-ticker __.testLocal",
+      "interpretation": "Source observation: this historical CI declares the aggregate test command and a Temurin Java 8 matrix. This is configuration, not verified successful execution, and does not establish the current consumer runtime floor.",
+      "commit_sha": "d5fa6d47da5ea99d94887fafd555696ba07aa205",
+      "path": ".github/workflows/actions.yml"
+    },
+    {
+      "id": "cask-routing-minimal-build",
+      "kind": "code",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/blob/d5fa6d47da5ea99d94887fafd555696ba07aa205/example/minimalApplication/build.sc#L8-L13",
+      "occurred_at": "2022-09-04T09:39:11Z",
+      "excerpt": "object test extends Tests{\n    def testFramework = \"utest.runner.Framework\"",
+      "interpretation": "Source observation: the minimal-application AppModule contains a real test module inherited by the root cross module. It uses uTest 0.7.10 and requests 0.6.9, unlike the root core test versions.",
+      "commit_sha": "d5fa6d47da5ea99d94887fafd555696ba07aa205",
+      "path": "example/minimalApplication/build.sc"
+    },
+    {
+      "id": "cask-routing-variable-build",
+      "kind": "code",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/blob/d5fa6d47da5ea99d94887fafd555696ba07aa205/example/variableRoutes/build.sc#L8-L13",
+      "occurred_at": "2022-09-04T09:39:11Z",
+      "excerpt": "object test extends Tests{\n    def testFramework = \"utest.runner.Framework\"",
+      "interpretation": "Source observation: variableRoutes also supplies an inherited uTest module. Combined with the root Cross declaration this supports the proposed selector; no Mill resolution or Scala execution was performed here.",
+      "commit_sha": "d5fa6d47da5ea99d94887fafd555696ba07aa205",
+      "path": "example/variableRoutes/build.sc"
+    },
+    {
+      "id": "cask-routing-status-2022",
+      "kind": "code",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/blob/d5fa6d47da5ea99d94887fafd555696ba07aa205/example/minimalApplication/app/test/src/ExampleTests.scala#L26-L30",
+      "occurred_at": "2022-09-04T09:39:11Z",
+      "excerpt": "requests.get(s\"$host/doesnt-exist\", check = false).statusCode ==> 404",
+      "interpretation": "Source observation: the selected post-repair build retains the unknown-path 404 and known-path DELETE 405 assertions from PR 52. Its server fixture binds localhost:8081 and stops the server in finally; assertions were not executed in this research.",
+      "commit_sha": "d5fa6d47da5ea99d94887fafd555696ba07aa205",
+      "path": "example/minimalApplication/app/test/src/ExampleTests.scala"
+    },
+    {
+      "id": "cask-routing-shared-subpath-test",
+      "kind": "code",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/blob/d5fa6d47da5ea99d94887fafd555696ba07aa205/example/variableRoutes/app/test/src/ExampleTests.scala#L47-L51",
+      "occurred_at": "2022-09-04T09:39:11Z",
+      "excerpt": "requests.post(s\"$host/path/one/two/three\").text() ==>\n        \"POST Subpath List(one, two, three)\"",
+      "interpretation": "Source observation: alongside the GET assertion this checks both method-specific handlers on one shared subpath route. It is a narrow lookup oracle, not evidence that every cross-method wildcard/literal overlap accepted by validation is reachable.",
+      "commit_sha": "d5fa6d47da5ea99d94887fafd555696ba07aa205",
+      "path": "example/variableRoutes/app/test/src/ExampleTests.scala"
+    },
+    {
+      "id": "cask-routing-before",
+      "kind": "code",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/blob/d7f7d55a5b468f02c02298fe05b4401b4580153e/cask/src/cask/main/Main.scala#L158-L158",
+      "occurred_at": "2021-05-18T21:39:15Z",
+      "excerpt": "val methodMap = values.map(_._2).flatten.toMap",
+      "interpretation": "Source observation at the PR-52 head: map conversion happens while combining entries at one path, before trie validation, losing duplicate method keys. PR 70 later changes this order.",
+      "commit_sha": "d7f7d55a5b468f02c02298fe05b4401b4580153e",
+      "path": "cask/src/cask/main/Main.scala"
+    },
+    {
+      "id": "cask-routing-after",
+      "kind": "code",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/blob/d5fa6d47da5ea99d94887fafd555696ba07aa205/cask/src/cask/main/Main.scala#L162-L162",
+      "occurred_at": "2022-09-04T09:39:11Z",
+      "excerpt": "DispatchTrie.construct(0, dispatchInputs)(_.map(_._1)).map(_.toMap)",
+      "interpretation": "Source observation after PR 70: method entries stay in a sequence until group validation completes; only then does trie mapping construct method maps. This preserves duplicate evidence during validation.",
+      "commit_sha": "d5fa6d47da5ea99d94887fafd555696ba07aa205",
+      "path": "cask/src/cask/main/Main.scala"
+    },
+    {
+      "id": "cask-validation-groups",
+      "kind": "code",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/blob/e01c972ca3492c05f2329202bed7cc4ffeb42ad3/cask/src/cask/internal/DispatchTrie.scala#L21-L21",
+      "occurred_at": "2022-05-06T08:43:57Z",
+      "excerpt": "for(group <- inputs.flatMap(t => validationGroups(t._2)).distinct)",
+      "interpretation": "Source observation: ambiguity checks operate within each validation group, corresponding to HTTP methods in Main. Cross-method routes are not automatically duplicates; runtime lookup correctness still needs separate checks.",
+      "commit_sha": "e01c972ca3492c05f2329202bed7cc4ffeb42ad3",
+      "path": "cask/src/cask/internal/DispatchTrie.scala"
+    },
+    {
+      "id": "cask-routing-test",
+      "kind": "code",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/blob/d5fa6d47da5ea99d94887fafd555696ba07aa205/cask/test/src/test/cask/DispatchTrieTests.scala#L167-L167",
+      "occurred_at": "2022-09-04T09:39:11Z",
+      "excerpt": "\"More than one endpoint has the same path: 1 /hello/world, 1 /hello/world\"",
+      "interpretation": "Source observation: a duplicate-route negative fixture asserts the precise diagnostic, not merely any exception. Adjacent cases explicitly permit identical paths with different validation groups.",
+      "commit_sha": "d5fa6d47da5ea99d94887fafd555696ba07aa205",
+      "path": "cask/test/src/test/cask/DispatchTrieTests.scala"
+    },
+    {
+      "id": "cask-status-test",
+      "kind": "code",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/blob/d7f7d55a5b468f02c02298fe05b4401b4580153e/example/minimalApplication/app/test/src/ExampleTests.scala#L30-L30",
+      "occurred_at": "2021-05-18T21:39:15Z",
+      "excerpt": "requests.delete(s\"$host/do-thing\", check = false).statusCode ==> 405",
+      "interpretation": "Source observation: the integration fixture asserts method-not-allowed at a known path and separately asserts 404 for an unknown path. These assertions do not prove all HTTP conformance requirements.",
+      "commit_sha": "d7f7d55a5b468f02c02298fe05b4401b4580153e",
+      "path": "example/minimalApplication/app/test/src/ExampleTests.scala"
+    },
+    {
+      "id": "cask-status-lookup",
+      "kind": "code",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/blob/d7f7d55a5b468f02c02298fe05b4401b4580153e/cask/src/cask/main/Main.scala#L104-L108",
+      "occurred_at": "2021-05-18T21:39:15Z",
+      "excerpt": "dispatchTrie.lookup(Util.splitPath(exchange.getRequestPath).toList, Map()) match {\n        case None => Main.writeResponse(exchange, handleNotFound())\n        case Some((methodMap, routeBindings, remaining)) =>\n          methodMap.get(effectiveMethod) match {\n            case None => Main.writeResponse(exchange, handleMethodNotAllowed())",
+      "interpretation": "Source observation: missing path is resolved before missing method. Reversing that order can report 405 for a resource that does not exist.",
+      "commit_sha": "d7f7d55a5b468f02c02298fe05b4401b4580153e",
+      "path": "cask/src/cask/main/Main.scala"
+    },
+    {
+      "id": "cask-description-review",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/pull/52#issuecomment-968502972",
+      "occurred_at": "2021-11-15T03:22:30Z",
+      "excerpt": "@megri could you provide a proper PR description of what your change is doing and how it fixes the problem? That would make it much easier to review and merge",
+      "interpretation": "Reviewer request for a causal description in PR 52. The author responds by adding the commit explanation; the merge is disposition, not an additional design review.",
+      "author": "lihaoyi",
+      "role_basis": "unknown",
+      "pull_number": 52
+    },
+    {
+      "id": "cask-description-response",
+      "kind": "issue-comment",
+      "repository": "com-lihaoyi/cask",
+      "url": "https://github.com/com-lihaoyi/cask/pull/52#issuecomment-968666675",
+      "occurred_at": "2021-11-15T08:54:12Z",
+      "excerpt": "I updated the PR with the commit message of the final commit. There is some cleanup/unrelated commits in the PR as well. I can remove those if so desired.",
+      "interpretation": "This is megri's own response. The quoted request earlier in the same body belongs to lihaoyi and is deliberately excluded from this excerpt.",
+      "author": "megri",
+      "role_basis": "unknown",
+      "pull_number": 52
+    }
+  ],
+  "claims": [
+    {
+      "id": "claim-cask-route-validation",
+      "rule": "Inference: when combining per-method route tries, retain duplicate method entries until validation, validate ambiguity per method, and convert to maps only after validation.",
+      "evidence_ids": [
+        "cask-routing-before",
+        "cask-routing-after",
+        "cask-validation-groups",
+        "cask-routing-test"
+      ],
+      "applicability": "Applies to Cask dispatch construction refactors with the PR-52/PR-70 representation transition. Reproduce both duplicate rejection and legitimate cross-method sharing; do not infer every wildcard/subpath runtime case is correct.",
+      "counterexample": "GET and POST at the same path are not a duplicate pair. Conversely two GET endpoints at that path must not be silently collapsed by toMap before validation."
+    },
+    {
+      "id": "claim-cask-status-order",
+      "rule": "Inference: preserve path lookup before method selection so missing paths yield 404 and known paths with unsupported methods yield 405; verify both via HTTP integration fixtures.",
+      "evidence_ids": [
+        "cask-status-test",
+        "cask-status-lookup",
+        "cask-routing-before"
+      ],
+      "applicability": "Applies to the path-first dispatch behavior introduced by PR 52, not an assertion about authentication concealment policies or every HTTP specification requirement.",
+      "counterexample": "A service deliberately returning 404 to conceal protected resources requires its own policy review; do not overwrite that behavior solely from Cask default routing evidence."
+    },
+    {
+      "id": "claim-cask-routing-oracles",
+      "rule": "Inference: validate a route-trie representation change at both registration and dispatch boundaries: exercise duplicate registrations through Main preparation, assert diagnostic reasons, and independently assert method-specific HTTP reachability and status outcomes.",
+      "evidence_ids": [
+        "cask-routing-before",
+        "cask-routing-after",
+        "cask-routing-test",
+        "cask-routing-status-2022",
+        "cask-routing-shared-subpath-test",
+        "cask-routing-build-2022",
+        "cask-routing-mill-2022",
+        "cask-routing-ci-2022",
+        "cask-routing-minimal-build",
+        "cask-routing-variable-build"
+      ],
+      "applicability": "Source-derived validation procedure for the pinned 2022 Cask tree. Trie construction-only cross-group cases do not prove runtime lookup. Commands are discovered from source, not executed; launcher, dependencies, JDK and localhost:8081 access need separate authorization. Re-discover versions and selectors on other checkouts.",
+      "counterexample": "A test that constructs a mixed-method wildcard trie without asserting lookup cannot establish handler reachability; conversely a successful request at one path cannot establish rejection of duplicate independent registrations before maps discard them."
+    },
+    {
+      "id": "claim-cask-routing-explanation",
+      "rule": "When presenting a Cask routing fix, explain what changed, how the old representation causes the failure, and which regression assertion establishes the correction rather than supplying unexplained cleanup.",
+      "evidence_ids": [
+        "cask-description-review",
+        "cask-description-response",
+        "cask-routing-before",
+        "cask-routing-after"
+      ],
+      "applicability": "Lihaoyi explicitly requested a causal description in PR 52 and megri responded. Applying that request to the later duplicate-validation regression is synthesis, not a claim that PR 70 received detailed design review or that the original merge endorsed every invariant.",
+      "counterexample": "An approval or merge message cannot stand in for a design explanation. Do not manufacture reviewer endorsement for the algorithm or require unrelated source reorganizations simply to lengthen a small causal PR description."
+    }
+  ]
+}

@@ -68,15 +68,15 @@ open frontend.html
 # Test SSE endpoint directly
 curl -N http://localhost:8000/chat/stream?prompt=hello
 
-# Should see:
+# Should see (payloads are JSON-encoded so newlines in tokens are safe):
 # event: token
-# data: Hello
+# data: "Hello"
 #
 # event: token
-# data: !
+# data: "!"
 #
 # event: done
-# data: [DONE]
+# data: "[DONE]"
 ```
 
 ## Integration with ai-chat Skill

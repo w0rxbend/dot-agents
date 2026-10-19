@@ -4,7 +4,7 @@ High-performance REST API using Axum, SQLx, and PostgreSQL with compile-time gua
 
 ## Features
 
-- Axum web framework (140k req/s)
+- Axum web framework
 - SQLx compile-time SQL validation
 - Tower middleware (CORS, logging)
 - Type-safe extractors

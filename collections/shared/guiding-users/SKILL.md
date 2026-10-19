@@ -187,10 +187,7 @@ Respect `prefers-reduced-motion`:
 - Remove parallax and complex effects
 - Maintain functionality without motion
 
-To validate accessibility:
-```bash
-node scripts/validate_accessibility.js
-```
+To check accessibility, run an automated scan in the browser (for example `@axe-core/playwright` against the page with the tour open), then verify keyboard-only navigation, screen-reader announcements and reduced motion by hand — automated scanners do not cover those. Do not report the tour as accessible until both have been done.
 
 Reference `references/accessibility-patterns.md` for complete implementation.
 
@@ -198,9 +195,7 @@ Reference `references/accessibility-patterns.md` for complete implementation.
 
 ### Primary: react-joyride (Feature-Rich, Accessible)
 
-**Library:** `/gilbarbara/react-joyride`
-**Trust Score:** 9.6/10
-**Code Snippets:** 29+
+**Library:** `react-joyride` (github.com/gilbarbara/react-joyride)
 
 Best for comprehensive product tours:
 - WAI-ARIA compliant out of the box
@@ -244,7 +239,7 @@ Reference `references/library-comparison.md` for detailed analysis and selection
 
 ## Design Token Integration
 
-All onboarding components use the design-tokens skill for consistent theming:
+All onboarding components should use the project's design tokens for consistent theming (see the theming-components skill):
 
 **Token categories used:**
 - **Colors**: Tour spotlight, overlay, tooltip backgrounds, hotspot colors
@@ -255,7 +250,7 @@ All onboarding components use the design-tokens skill for consistent theming:
 - **Motion**: Transition durations, pulse animations
 
 Supports light, dark, high-contrast, and custom brand themes.
-Reference the design-tokens skill for complete theming documentation.
+Reference the theming-components skill for complete theming documentation.
 
 ## Measuring Success
 
@@ -279,10 +274,7 @@ Iterate based on data:
 - Add skip options for returning users
 - Personalize based on user type
 
-To analyze onboarding metrics:
-```bash
-python scripts/analyze_onboarding_metrics.py
-```
+To analyze onboarding metrics, compute per-step reach and drop-off from your analytics events (tour_started, step_viewed, tour_completed, tour_skipped) in your analytics tool or a short query over exported events.
 
 Reference `references/measuring-success.md` for complete analytics implementation.
 
@@ -338,10 +330,7 @@ Verify compliance:
 - Focus management correct
 - ARIA labels descriptive
 
-Run validation:
-```bash
-node scripts/validate_accessibility.js
-```
+Run an automated scan (e.g. `@axe-core/playwright`) with each tour step visible, and do the manual keyboard and screen-reader checks above; report which checks were actually run.
 
 ### Step 5: Monitor and Optimize
 
@@ -367,11 +356,6 @@ celebration-animation.tsx     # Completion feedback
 ```
 
 ## Resources
-
-### Scripts (Token-Free Execution)
-- `scripts/generate_tour_config.js` - Generate tour configurations from user flows
-- `scripts/analyze_onboarding_metrics.py` - Analyze completion and drop-off rates
-- `scripts/validate_accessibility.js` - Test keyboard and screen reader support
 
 ### References (Detailed Documentation)
 - `references/product-tours.md` - Tour patterns, step design, navigation

@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "repository": "typelevel/cats-effect",
+  "evidence": [
+    {
+      "id": "ce-scheduler-measure-path",
+      "kind": "issue-comment",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/pull/2514#issuecomment-962851599",
+      "occurred_at": "2021-11-08T06:33:09Z",
+      "excerpt": "The `WorkStealingBenchmark.alloc` and `WorkStealingBenchmark.scheduling` call `cede` every other operation. This _only_ exercises `reschedule`, not `schedule`.",
+      "interpretation": "Vasilmkd challenges the steady-state path represented by the benchmarks. Source inspection confirms repeated cede loops but also an initial start phase, so interpret only as the dominant loop path, not literally zero scheduling invocations.",
+      "author": "vasilmkd",
+      "role_basis": "Listed as a project developer in build.sbt at e16b1d38a376af72c5e986b8803d7685bcdb54da (2020-12-31), and observed giving substantive review in this thread; this does not establish lead-maintainer status.",
+      "pull_number": 2514,
+      "cache_path": "evidence-cache/pr-2514.txt"
+    },
+    {
+      "id": "ce-scheduler-retraction",
+      "kind": "issue-comment",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/pull/2514#issuecomment-962952490",
+      "occurred_at": "2021-11-08T09:14:06Z",
+      "excerpt": "I was wrong to suggest that this change removes the thread-affinity of fibers, because it doesn't touch `reschedule`.",
+      "interpretation": "Vasilmkd corrects an earlier overbroad objection. Distinguish initial parent-child placement from affinity after a fiber is running; do not quote the earlier claim as final consensus.",
+      "author": "vasilmkd",
+      "role_basis": "Listed as a project developer in build.sbt at e16b1d38a376af72c5e986b8803d7685bcdb54da (2020-12-31), and observed giving substantive review in this thread; this does not establish lead-maintainer status.",
+      "pull_number": 2514,
+      "cache_path": "evidence-cache/pr-2514.txt"
+    },
+    {
+      "id": "ce-scheduler-external",
+      "kind": "issue-comment",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/pull/2514#issuecomment-980841821",
+      "occurred_at": "2021-11-28T05:14:17Z",
+      "excerpt": "The problem is that the automatic shifting inside of `async` has a check to see if the callback is being fulfilled *from* a worker thread, which in this case, it is!",
+      "interpretation": "Djspiewak explains why an internal Queue is not a faithful external NIO workload. Later in the same comment he proposes Dispatcher completed from another pool and removes CPU work incorrectly labeled blocking.",
+      "author": "djspiewak",
+      "role_basis": "Listed as a project developer in build.sbt at e16b1d38a376af72c5e986b8803d7685bcdb54da (2020-12-31), and observed giving substantive review in this thread; this does not establish lead-maintainer status.",
+      "pull_number": 2514,
+      "cache_path": "evidence-cache/pr-2514.txt"
+    },
+    {
+      "id": "ce-scheduler-close",
+      "kind": "issue-comment",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/pull/2514#issuecomment-1066309829",
+      "occurred_at": "2022-03-14T03:44:50Z",
+      "excerpt": "While I think this was an absolutely fantastic line of investigation, we weren't able to really come up with a test which showed a meaningful improvement to come from the change.",
+      "interpretation": "The closure is about missing representative performance evidence, not rejection of all fairness improvements. Benchmark numbers in the author comments are historical reported results, not independently reproduced measurements.",
+      "author": "djspiewak",
+      "role_basis": "Listed as a project developer in build.sbt at e16b1d38a376af72c5e986b8803d7685bcdb54da (2020-12-31), and observed giving substantive review in this thread; this does not establish lead-maintainer status.",
+      "pull_number": 2514,
+      "cache_path": "evidence-cache/pr-2514.txt"
+    },
+    {
+      "id": "ce-copy-close",
+      "kind": "issue-comment",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/pull/3963#issuecomment-1913191239",
+      "occurred_at": "2024-01-27T15:45:56Z",
+      "excerpt": "If large byte arrays are the sweet spot then we might see some benefits in `ByteStack` in pathological scenarios, but we've previously shown how `ByteStack` isn't the performance bottleneck for anything so it doesn't seem worthwhile to me.",
+      "interpretation": "Djspiewak closes an intrinsic-motivated optimization for lack of bottleneck relevance. The source uses Array[Int] in ByteStack, not Array[Byte]; the discussion is not portable evidence of JVM/Native performance.",
+      "author": "djspiewak",
+      "role_basis": "Listed as a project developer in build.sbt at e16b1d38a376af72c5e986b8803d7685bcdb54da (2020-12-31), and observed giving substantive review in this thread; this does not establish lead-maintainer status.",
+      "pull_number": 3963,
+      "cache_path": "evidence-cache/pr-3963.txt"
+    },
+    {
+      "id": "ce-code-ci-native",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/f4bc66acdec20424b5b9ca04e988fda38367a8fd/project/CI.scala#L69-L78",
+      "occurred_at": "2024-12-31T10:23:28Z",
+      "excerpt": "  case object Native\n      extends CI(\n        command = \"ciNative\",\n        rootProject = \"rootNative\",\n        jsEnv = None,\n        testCommands = List(\"test\"),\n        mimaReport = true,\n        scaladoc = true,\n        suffixCommands = List(\"exampleNative/compile\")\n      )",
+      "interpretation": "Native is a separate CI command with tests, MiMa and scaladoc at this snapshot. JVM benchmark conclusions alone do not verify shared JVM/Native implementation changes.",
+      "commit_sha": "f4bc66acdec20424b5b9ca04e988fda38367a8fd",
+      "path": "project/CI.scala",
+      "cache_path": "evidence-cache/source/f4bc66acdec20424b5b9ca04e988fda38367a8fd/project/CI.scala"
+    },
+    {
+      "id": "ce-code-scheduler-branch",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292/core/jvm/src/main/scala/cats/effect/unsafe/WorkStealingThreadPool.scala#L421-L435",
+      "occurred_at": "2021-11-08T01:29:25Z",
+      "excerpt": "  private[effect] def scheduleFiber(fiber: IOFiber[_]): Unit = {\n    val pool = this\n    val thread = Thread.currentThread()\n\n    if (thread.isInstanceOf[WorkerThread]) {\n      val worker = thread.asInstanceOf[WorkerThread]\n      if (worker.isOwnedBy(pool) && !allWorkersBusy()) {\n        worker.schedule(fiber)\n      } else {\n        scheduleExternal(fiber)\n      }\n    } else {\n      scheduleExternal(fiber)\n    }\n  }",
+      "interpretation": "The changed scheduleFiber path routes local workers externally when allWorkersBusy holds. rescheduleFiber above is unchanged, making benchmark call-path distinction essential.",
+      "commit_sha": "118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292",
+      "path": "core/jvm/src/main/scala/cats/effect/unsafe/WorkStealingThreadPool.scala",
+      "cache_path": "evidence-cache/source/118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292/core/jvm/src/main/scala/cats/effect/unsafe/WorkStealingThreadPool.scala"
+    },
+    {
+      "id": "ce-code-scheduler-benchmark",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292/benchmarks/src/main/scala/cats/effect/benchmarks/WorkStealingBenchmark.scala#L52-L70",
+      "occurred_at": "2021-11-08T01:29:25Z",
+      "excerpt": "  def schedulingBenchmark(implicit runtime: IORuntime): Int = {\n    def fiber(i: Int): IO[Int] =\n      IO.cede.flatMap { _ =>\n        IO(i).flatMap { j =>\n          IO.cede.flatMap { _ =>\n            if (j > 10000)\n              IO.cede.flatMap(_ => IO.pure(j))\n            else\n              IO.cede.flatMap(_ => fiber(j + 1))\n          }\n        }\n      }\n\n    List\n      .range(0, size)\n      .traverse(fiber(_).start)\n      .flatMap(_.traverse(_.joinWithNever))\n      .map(_.sum)\n      .unsafeRunSync()",
+      "interpretation": "Repeated cede dominates the benchmark loop, but initial traverse(...start) exists. The reviewer diagnosis is useful as a hot-path warning, not a literal assertion that the entire benchmark never calls start.",
+      "commit_sha": "118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292",
+      "path": "benchmarks/src/main/scala/cats/effect/benchmarks/WorkStealingBenchmark.scala",
+      "cache_path": "evidence-cache/source/118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292/benchmarks/src/main/scala/cats/effect/benchmarks/WorkStealingBenchmark.scala"
+    },
+    {
+      "id": "ce-code-bytestack",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/e0d9ff3166e8207a14b43e41103b569fe76d928a/core/jvm-native/src/main/scala/cats/effect/ByteStack.scala#L43-L60",
+      "occurred_at": "2024-01-17T01:34:26Z",
+      "excerpt": "  final def create(initialMaxOps: Int): Array[Int] =\n    new Array[Int](1 + 1 + ((initialMaxOps - 1) >> 3)) // count-slot + 1 for each set of 8 ops\n\n  final def growIfNeeded(stack: Array[Int], count: Int): Array[Int] = {\n    if ((1 + ((count + 1) >> 3)) < stack.length) {\n      stack\n    } else {\n      Arrays.copyOf(stack, 2 * stack.length) // Count in stack(0) copied \"for free\"\n    }\n  }\n\n  final def push(stack: Array[Int], op: Byte): Array[Int] = {\n    val c = stack(0) // current count of elements\n    val use = growIfNeeded(stack, c) // alias so we add to the right place\n    val s = (c >> 3) + 1 // current slot in `use`\n    val shift = (c & 7) << 2 // BEGIN MAGIC\n    use(s) = (use(s) & ~(0xffffffff << shift)) | (op << shift) // END MAGIC\n    use(0) += 1 // write the new count",
+      "interpretation": "The unmerged optimization uses Arrays.copyOf for a packed Array[Int] stack. Any benchmark must model this element type, capacity growth and preserved count, not only large byte arrays or unrelated Object arrays.",
+      "commit_sha": "e0d9ff3166e8207a14b43e41103b569fe76d928a",
+      "path": "core/jvm-native/src/main/scala/cats/effect/ByteStack.scala",
+      "cache_path": "evidence-cache/source/e0d9ff3166e8207a14b43e41103b569fe76d928a/core/jvm-native/src/main/scala/cats/effect/ByteStack.scala"
+    },
+    {
+      "id": "ce-scheduler-progress-test",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292/tests/jvm/src/test/scala/cats/effect/unsafe/DrainBatchSpec.scala#L24-L47",
+      "occurred_at": "2021-11-08T01:29:25Z",
+      "excerpt": "  \"Batch draining\" should {\n    \"work correctly in the presence of concurrent stealers\" in real {\n      val iterations = 500000\n\n      def catsEffectRepeat[A](n: Int)(io: IO[A]): IO[A] =\n        if (n <= 1) io\n        else io.flatMap(_ => catsEffectRepeat(n - 1)(io))\n\n      def iterate(deferred: Deferred[IO, Unit], n: Int): IO[Any] =\n        for {\n          ref <- IO.ref(n)\n          queue <- Queue.bounded[IO, Unit](1)\n          effect = queue.offer(()).start >>\n            queue.take >>\n            ref.modify(n => (n - 1, if (n == 1) deferred.complete(()) else IO.unit)).flatten\n          _ <- catsEffectRepeat(iterations)(effect.start)\n        } yield ()\n\n      for {\n        deferred <- IO.deferred[Unit]\n        _ <- iterate(deferred, iterations).start\n        _ <- deferred.get\n        res <- IO(ok)\n      } yield res",
+      "interpretation": "Existing real-runtime regression starts concurrent queue work and waits for a completion counter to drain. It is a correctness/liveness probe, not a fairness or performance result.",
+      "commit_sha": "118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292",
+      "path": "tests/jvm/src/test/scala/cats/effect/unsafe/DrainBatchSpec.scala",
+      "cache_path": "evidence-cache/resume/source/118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292/tests/jvm/src/test/scala/cats/effect/unsafe/DrainBatchSpec.scala"
+    },
+    {
+      "id": "ce-scheduler-late-work-test",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292/tests/jvm/src/test/scala/cats/effect/unsafe/HelperThreadParkSpec.scala#L58-L71",
+      "occurred_at": "2021-11-08T01:29:25Z",
+      "excerpt": "      Resource.make(IO(smallRuntime()))(rt => IO(rt.shutdown())).use { rt =>\n        val io = for {\n          p <- IO(Promise[Unit]())\n          _ <- (IO.sleep(50.millis) *> IO(\n            rt.scheduler.sleep(100.millis, () => p.success(())))).start\n          _ <- IO(Await.result(p.future, Duration.Inf))\n        } yield ()\n\n        List\n          .fill(10)(io.start)\n          .sequence\n          .flatMap(_.traverse(_.joinWithNever))\n          .evalOn(rt.compute) >> IO(ok)\n      }",
+      "interpretation": "Existing real-runtime regression owns a small runtime, injects delayed work and joins started fibers before release. A historical class name does not establish which current scheduler mechanism is exercised.",
+      "commit_sha": "118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292",
+      "path": "tests/jvm/src/test/scala/cats/effect/unsafe/HelperThreadParkSpec.scala",
+      "cache_path": "evidence-cache/resume/source/118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292/tests/jvm/src/test/scala/cats/effect/unsafe/HelperThreadParkSpec.scala"
+    },
+    {
+      "id": "ce-scheduler-build-jmh",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292/build.sbt#L524-L535",
+      "occurred_at": "2021-11-08T01:29:25Z",
+      "excerpt": "/**\n * JMH benchmarks for IO and other things.\n */\nlazy val benchmarks = project\n  .in(file(\"benchmarks\"))\n  .dependsOn(core.jvm)\n  .settings(\n    name := \"cats-effect-benchmarks\",\n    javaOptions ++= Seq(\n      \"-Dcats.effect.tracing.mode=none\",\n      \"-Dcats.effect.tracing.exceptions.enhanced=false\"))\n  .enablePlugins(NoPublishPlugin, JmhPlugin)",
+      "interpretation": "The same SHA defines benchmarks depending on core.jvm and enables JmhPlugin. This grounds the proposed JMH selector without executing upstream build code.",
+      "commit_sha": "118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292",
+      "path": "build.sbt",
+      "cache_path": "evidence-cache/resume/source/118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292/build.sbt"
+    },
+    {
+      "id": "ce-scheduler-build-tests",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292/build.sbt#L461-L476",
+      "occurred_at": "2021-11-08T01:29:25Z",
+      "excerpt": "/**\n * Unit tests for the core project, utilizing the support provided by testkit.\n */\nlazy val tests = crossProject(JSPlatform, JVMPlatform)\n  .in(file(\"tests\"))\n  .dependsOn(laws % Test, kernelTestkit % Test, testkit % Test)\n  .enablePlugins(NoPublishPlugin)\n  .settings(\n    name := \"cats-effect-tests\",\n    libraryDependencies ++= Seq(\n      \"org.typelevel\" %%% \"discipline-specs2\" % DisciplineVersion % Test,\n      \"org.typelevel\" %%% \"cats-kernel-laws\" % CatsVersion % Test)\n  )\n  .jvmSettings(\n    Test / fork := true,\n    Test / javaOptions += s\"-Dsbt.classpath=${(Test / fullClasspath).value.map(_.data.getAbsolutePath).mkString(File.pathSeparator)}\")",
+      "interpretation": "The same SHA locates runtime regression tests in the tests cross-project. A core-only test command cannot establish these suites ran.",
+      "commit_sha": "118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292",
+      "path": "build.sbt",
+      "cache_path": "evidence-cache/resume/source/118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292/build.sbt"
+    },
+    {
+      "id": "ce-scheduler-build-versions",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292/build.sbt#L98-L104",
+      "occurred_at": "2021-11-08T01:29:25Z",
+      "excerpt": "val Scala213 = \"2.13.7\"\nval Scala3 = \"3.0.2\"\n\nThisBuild / crossScalaVersions := Seq(Scala3, \"2.12.15\", Scala213)\n\nThisBuild / githubWorkflowUseSbtThinClient := false\nThisBuild / githubWorkflowTargetBranches := Seq(\"series/3.*\")",
+      "interpretation": "The scheduler proposal source cross-builds Scala 3.0.2, 2.12.15 and 2.13.7. Compiler versions must be matched when reproducing its benchmark.",
+      "commit_sha": "118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292",
+      "path": "build.sbt",
+      "cache_path": "evidence-cache/resume/source/118f9af3e97b4387bcd9cc3b4dc8e4373e7d2292/build.sbt"
+    },
+    {
+      "id": "ce-copy-build-platform",
+      "kind": "code",
+      "repository": "typelevel/cats-effect",
+      "url": "https://github.com/typelevel/cats-effect/blob/e0d9ff3166e8207a14b43e41103b569fe76d928a/project/plugins.sbt#L5-L8",
+      "occurred_at": "2024-01-17T01:34:26Z",
+      "excerpt": "addSbtPlugin(\"org.scala-js\" % \"sbt-scalajs\" % \"1.13.1\")\naddSbtPlugin(\"org.portable-scala\" % \"sbt-scalajs-crossproject\" % \"1.3.1\")\naddSbtPlugin(\"org.scala-native\" % \"sbt-scala-native\" % \"0.4.13\")\naddSbtPlugin(\"org.portable-scala\" % \"sbt-scala-native-crossproject\" % \"1.3.1\")",
+      "interpretation": "The array-copy proposal pins Scala.js 1.13.1 and Native 0.4.13. JVM intrinsic speculation does not verify these platform implementations.",
+      "commit_sha": "e0d9ff3166e8207a14b43e41103b569fe76d928a",
+      "path": "project/plugins.sbt",
+      "cache_path": "evidence-cache/resume/source/e0d9ff3166e8207a14b43e41103b569fe76d928a/project/plugins.sbt"
+    }
+  ],
+  "claims": [
+    {
+      "id": "ce-claim-scheduler-evidence",
+      "rule": "For a scheduler optimization, trace the benchmark into schedule versus reschedule, record callback origin, and measure the intended fairness or throughput metric. Internal Queue traffic must not stand in for external IO without proving the same placement path.",
+      "evidence_ids": [
+        "ce-scheduler-measure-path",
+        "ce-scheduler-retraction",
+        "ce-scheduler-external",
+        "ce-scheduler-close",
+        "ce-code-scheduler-branch",
+        "ce-code-scheduler-benchmark",
+        "ce-scheduler-progress-test",
+        "ce-scheduler-late-work-test",
+        "ce-scheduler-build-jmh",
+        "ce-scheduler-build-tests",
+        "ce-scheduler-build-versions"
+      ],
+      "applicability": "Observed review practice in CE3 JVM WorkStealingThreadPool history; use fresh version-specific call-graph and profiling evidence before applying to another runtime. Report authored benchmark results separately from measurements actually reproduced.",
+      "counterexample": "A cede-heavy loop still has an initial start phase but is weak evidence about steady-state initial placement. An optimization that helps a synthetic internal priority pattern does not prove improved fairness for external NIO callbacks."
+    },
+    {
+      "id": "ce-claim-optimization-bottleneck",
+      "rule": "Require the actual element type, growth regime, platform and end-to-end bottleneck to match before treating a JVM intrinsic substitution as a runtime improvement; retain semantic and platform tests even if a microbenchmark is favorable.",
+      "evidence_ids": [
+        "ce-copy-close",
+        "ce-code-bytestack",
+        "ce-scheduler-close",
+        "ce-code-ci-native",
+        "ce-copy-build-platform"
+      ],
+      "applicability": "Inference from rejected 2021-2024 runtime optimizations. Arrays.copyOf may be suitable elsewhere; this history only rejects an unsupported benefit claim for these paths. No current benchmark or Native execution has been performed.",
+      "counterexample": "Large-byte-array SIMD results do not directly characterize ByteStack, whose packed representation is Array[Int], or establish that stack growth is limiting real IO throughput."
+    }
+  ]
+}

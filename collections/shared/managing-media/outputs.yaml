@@ -231,9 +231,9 @@ metadata:
         optional: true
 
     skills:
-      - "design-tokens" # For theming media components
-      - "forms" # For file input fields
-      - "feedback" # For upload progress and notifications
+      - "theming-components" # For theming media components
+      - "building-forms" # For file input fields
+      - "providing-feedback" # For upload progress and notifications
 
   file_types:
     generated:

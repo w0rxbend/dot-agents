@@ -1,7 +1,7 @@
 ---
 name: docs-examples
 description: Shared procedure for creating and documenting companion examples. Covers directory structure, file templates, example creation, compilation, linting, and embedding with SourceFile. Used by docs-data-type-ref, docs-module-ref, docs-how-to-guide, and docs-tutorial.
-allowed-tools: Read, Glob, Grep, Bash(sbt:*), Bash(scalafmt), Bash(git)
+allowed-tools: Read, Glob, Grep, Bash(sbt:*), Bash(scalafmt:*), Bash(git:*)
 ---
 
 ## Setup Example Sub-module
@@ -166,10 +166,11 @@ git add <examples-module>/src/main/scala/**/*.scala
 sbt fmtChanged
 ```
 
-If any files were reformatted, commit them immediately:
+If any files were reformatted and the user has agreed to commits, commit just those example files
+(never `git add -A`, which would sweep in unrelated work):
 
 ```bash
-git add -A
+git add <examples-module>/src/main/scala
 git commit -m "docs(<doc-id>): apply scalafmt to examples"
 ```
 

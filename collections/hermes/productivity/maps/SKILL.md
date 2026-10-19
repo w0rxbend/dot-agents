@@ -1,6 +1,6 @@
 ---
 name: maps
-description: "Geocode, POIs, routes, timezones via OpenStreetMap/OSRM."
+description: "Geocode, POIs, routes, timezones via OpenStreetMap/OSRM. Use when the user asks where something is, what is nearby, how to get somewhere, or a location's timezone."
 version: 1.2.0
 author: Mibayy
 license: MIT
@@ -15,7 +15,7 @@ metadata:
 
 # Maps Skill
 
-Location intelligence using free, open data sources. 8 commands, 44 POI
+Location intelligence using free, open data sources. 8 commands, 46 POI
 categories, zero dependencies (Python stdlib only), no API key required.
 
 Data sources: OpenStreetMap/Nominatim, Overpass API, OSRM, TimeAPI.io.
@@ -39,12 +39,14 @@ functionality is covered by the `nearby` command below, with the same
 
 Python 3.8+ (stdlib only — no pip installs needed).
 
-Script path: `~/.hermes/skills/maps/scripts/maps_client.py`
+Script path: `scripts/maps_client.py` inside this skill's directory (for a
+Hermes install that is usually `~/.hermes/skills/productivity/maps/scripts/maps_client.py`).
+Resolve the skill directory first rather than assuming a fixed location.
 
 ## Commands
 
 ```bash
-MAPS=~/.hermes/skills/maps/scripts/maps_client.py
+MAPS=<this-skill-dir>/scripts/maps_client.py   # e.g. ~/.hermes/skills/productivity/maps/scripts/maps_client.py
 ```
 
 ### search — Geocode a place name
@@ -187,9 +189,9 @@ current.
 ## Verification
 
 ```bash
-python ~/.hermes/skills/maps/scripts/maps_client.py search "Statue of Liberty"
+python "$MAPS" search "Statue of Liberty"
 # Should return lat ~40.689, lon ~-74.044
 
-python ~/.hermes/skills/maps/scripts/maps_client.py nearby --near "Times Square" --category restaurant --limit 3
+python "$MAPS" nearby --near "Times Square" --category restaurant --limit 3
 # Should return a list of restaurants within ~500m of Times Square
 ```

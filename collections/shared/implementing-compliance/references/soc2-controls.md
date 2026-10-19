@@ -8,8 +8,8 @@
   - [Common Criteria (CC) - All SOC 2 Reports](#common-criteria-cc-all-soc-2-reports)
   - [Additional Trust Services Criteria (Optional)](#additional-trust-services-criteria-optional)
 - [Evidence Collection for SOC 2](#evidence-collection-for-soc-2)
-  - [Monthly Testing Requirements (2025)](#monthly-testing-requirements-2025)
-  - [AI Governance Controls (2025)](#ai-governance-controls-2025)
+  - [Continuous Evidence Collection](#continuous-evidence-collection)
+  - [AI Governance Controls (Optional)](#ai-governance-controls-optional)
 - [SOC 2 Implementation Timeline](#soc-2-implementation-timeline)
 - [Common SOC 2 Audit Findings](#common-soc-2-audit-findings)
 - [Control Implementation Priority](#control-implementation-priority)
@@ -23,11 +23,7 @@ SOC 2 is an auditing procedure that ensures service providers securely manage da
 - **Type I:** Point-in-time assessment of control design
 - **Type II:** 6-12 month assessment of control effectiveness (required for enterprise sales)
 
-**2025 Updates:**
-- Monthly control testing (previously annual) for Type II
-- AI governance controls for ML systems handling customer data
-- 72-hour breach notification requirement
-- Enhanced third-party risk management
+**Note:** The Trust Services Criteria do not prescribe a testing frequency or a breach-notification deadline. Auditors test operating effectiveness across the observation period, and notification windows (often 72 hours) come from customer contracts and your own incident policy.
 
 ## Trust Services Criteria
 
@@ -148,7 +144,7 @@ SOC 2 is an auditing procedure that ensures service providers securely manage da
 **CC7.2** - Organization monitors system components and operation
 - Centralized logging and SIEM
 - Security information and event monitoring
-- Log retention (7 years minimum)
+- Log retention long enough to cover the audit period and your policy (SOC 2 sets no fixed minimum)
 
 **CC7.3** - Organization evaluates security events and responds
 - Incident response plan
@@ -229,9 +225,9 @@ Addresses collection, use, retention, disclosure, and disposal of personal infor
 
 ## Evidence Collection for SOC 2
 
-### Monthly Testing Requirements (2025)
+### Continuous Evidence Collection
 
-All controls must be tested monthly for Type II reports:
+Collect evidence continuously across the observation period (monthly internal checks are a common practice, not a TSC requirement):
 
 **Automated Evidence:**
 - Access logs (authentication, authorization)
@@ -249,11 +245,11 @@ All controls must be tested monthly for Type II reports:
 - Penetration test reports (annual)
 - Business continuity test results (annual)
 
-### AI Governance Controls (2025)
+### AI Governance Controls (Optional)
 
-New requirements for systems using AI/ML on customer data:
+The TSC have no AI-specific criteria; these are common practices auditors and customers increasingly ask about for systems using AI/ML on customer data:
 
-**Required Controls:**
+**Suggested Controls:**
 - AI model logging and monitoring
 - Algorithmic transparency documentation
 - Bias mitigation procedures
@@ -300,7 +296,7 @@ New requirements for systems using AI/ML on customer data:
    - **Remediation:** Automate access review reminders, track completion
 
 2. **Insufficient Logging:** Not logging all required events or inadequate retention
-   - **Remediation:** Implement comprehensive audit logging, 7-year retention
+   - **Remediation:** Implement comprehensive audit logging with a documented retention period
 
 3. **MFA Gaps:** MFA not enforced for all privileged access
    - **Remediation:** Implement MFA enforcement policies (IAM, conditional access)

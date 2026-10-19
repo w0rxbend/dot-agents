@@ -1,6 +1,6 @@
 ---
 name: frontend-design
-description: Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.
+description: Set the visual direction for a new or redesigned UI - subject-grounded aesthetic, palette, typography, layout and motion choices that do not read as templated defaults. Use when the request is about how an interface should look or feel (landing page, app shell, redesign) and no established design system dictates it; for implementing components, accessibility and state use frontend-ui-engineering.
 license: Complete terms in LICENSE.txt
 ---
 
@@ -52,7 +52,7 @@ Work in two passes. First, brainstorm a short design plan based on the client's 
 
 Then review that plan against the brief before building: if any part of it reads like the generic default you would produce for any similar page (work through a similar prompt to see if you arrive somewhere similar) rather than a choice made for this specific brief — revise that part, say what you changed and why. Only after you've confirmed the relative uniqueness of your design plan should you start to write the code, following the revised plan.
 
-When writing the code, be careful of structuring your CSS selector specificities. It's easy to generate CSS classes that cancel each other out (especially with a type-based selector like .section and an element-based selector like .cta). This can happen often with padding/margin between sections.
+When writing the code, be careful of structuring your CSS selector specificities. It's easy to generate CSS classes that cancel each other out (especially a section-level class like `.section` and a component-level class like `.cta` on the same element, or a descendant rule like `.section p` that outranks a single-class rule). This can happen often with padding/margin between sections.
 
 ## Restraint and self-critique
 

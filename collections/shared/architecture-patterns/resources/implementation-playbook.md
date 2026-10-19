@@ -450,14 +450,6 @@ class OrderRepository:
         order._events.clear()
 ```
 
-## Resources
-
-- **references/clean-architecture-guide.md**: Detailed layer breakdown
-- **references/hexagonal-architecture-guide.md**: Ports and adapters patterns
-- **references/ddd-tactical-patterns.md**: Entities, value objects, aggregates
-- **assets/clean-architecture-template/**: Complete project structure
-- **assets/ddd-examples/**: Domain modeling examples
-
 ## Best Practices
 
 1. **Dependency Rule**: Dependencies always point inward
