@@ -694,9 +694,10 @@ function ModelSelector({ preferredModel, availableModels, onModelChange }) {
   const [showUnavailable, setShowUnavailable] = useState(false);
 
   const allModels = [
-    { id: 'gpt-4', name: 'GPT-4', status: 'available', speed: 'slow', quality: 'best' },
-    { id: 'gpt-3.5', name: 'GPT-3.5', status: 'available', speed: 'fast', quality: 'good' },
-    { id: 'claude-3', name: 'Claude 3', status: 'unavailable', speed: 'medium', quality: 'best' },
+    // Illustrative entries - load real model IDs and status from your config/provider
+    { id: 'large-model', name: 'Large model', status: 'available', speed: 'slow', quality: 'best' },
+    { id: 'small-model', name: 'Small model', status: 'available', speed: 'fast', quality: 'good' },
+    { id: 'other-provider-model', name: 'Other provider', status: 'unavailable', speed: 'medium', quality: 'best' },
   ];
 
   const handleModelSelect = (modelId: string) => {

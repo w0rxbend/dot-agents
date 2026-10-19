@@ -322,17 +322,17 @@ metadata:
       - "Automated releases"
       - "Package publishing"
 
-    api-patterns:
+    implementing-api-patterns:
       - "API client CLIs"
       - "Authentication handling"
       - "Response formatting"
 
-    secret-management:
+    hashicorp-vault:
       - "Credential storage"
       - "Environment variables"
       - "Secrets manager integration"
 
-    implementing-logging:
+    observability-and-instrumentation:
       - "Structured logging"
       - "Log levels (--verbose, --quiet)"
       - "Log output formatting"

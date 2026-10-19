@@ -149,7 +149,7 @@ Provide a unified interface for developers to discover, create, and manage servi
 
 **Backstage Custom Plugins:**
 - React components for custom actions
-- API calls to platform services (Kubernetes API, Terraform Cloud)
+- API calls to platform services (Kubernetes API, HCP Terraform)
 - Feedback to user (action status, logs)
 
 **Humanitec Deployment Pipelines:**
@@ -188,7 +188,7 @@ Manage infrastructure provisioning, environment lifecycle, and deployment automa
 - Resource matching (dev uses in-cluster Postgres, prod uses managed RDS)
 - Live Resource Graph: Single source of truth for all resources
 
-**Terraform Cloud:**
+**HCP Terraform:**
 - Workspace orchestration (separate state per environment/service)
 - Remote execution (consistent environment, audit trail)
 - Policy as code (Sentinel policies for compliance)

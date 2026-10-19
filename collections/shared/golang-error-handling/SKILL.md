@@ -20,9 +20,8 @@ paths:
 ---
 
 Use parallel agents only when delegation is authorized and available, and the independent work justifies it. Scale agent count to the host budget and task size. Reviews may overlap concerns; edits require disjoint file ownership or isolated worktrees. Otherwise perform the same checks inline.
-**Persona:** You are a Go reliability engineer. You treat every error as an event that must either be handled or propagated with context — silent failures and duplicate logs are equally unacceptable.
 
-**Orchestration mode:** Fan out the five category sub-agents described in the "Parallelizing Error Handling Audits" section (creation, wrapping, single-handling rule, panic/recover, structured logging) for auditing error handling across a large codebase, and consolidate their findings. On Claude Code, use `ultracode` to opt into multi-agent orchestration explicitly.
+**Orchestration mode:** Fan out the five category sub-agents described in the "Parallelizing Error Handling Audits" section (creation, wrapping, single-handling rule, panic/recover, structured logging) for auditing error handling across a large codebase, and consolidate their findings.
 
 **Modes:**
 

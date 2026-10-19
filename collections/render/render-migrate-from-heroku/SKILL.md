@@ -157,7 +157,7 @@ render --version
 If not installed, offer to install it:
 
 - macOS: `brew install render`
-- Linux/macOS: `curl -fsSL https://raw.githubusercontent.com/render-oss/cli/main/bin/install.sh | sh`
+- Linux/macOS without Homebrew: download a pinned release zip and its `SHA256SUMS` from the [CLI releases page](https://github.com/render-oss/cli/releases/), verify the checksum, and put the `cli_v<version>` binary on `PATH` as `render` (see the render-cli skill). Ask the user before installing anything; do not pipe the install script from `curl` into `sh`.
 
 Once the CLI is available, run the validation command and show the output to the user:
 
@@ -302,7 +302,7 @@ If the migration fails at any point:
 - **Database migration failed**: Render Postgres can be deleted and recreated. Heroku database is read-only during dump (no data loss). If `maintenance_off` is called on Heroku, the original app is fully operational again.
 - **DNS already changed**: Revert CNAME to Heroku and disable maintenance mode on Heroku.
 
-Key principle: **Heroku stays fully functional until the user explicitly cuts over DNS.** The migration is additive until that final step.
+Key principle: **the migration is additive and Heroku keeps serving traffic until the Postgres data migration.** That step turns on Heroku maintenance mode to stop writes, so downtime starts there and lasts until DNS is cut over to Render (or until `maintenance_off` is run to roll back). Schedule that window with the user before Step 5c.
 
 ## Error Handling
 

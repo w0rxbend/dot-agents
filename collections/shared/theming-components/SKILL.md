@@ -1,6 +1,6 @@
 ---
 name: theming-components
-description: Provides design token system and theming framework for consistent, customizable UI styling across all components. Covers complete token taxonomy (color, typography, spacing, shadows, borders, motion, z-index), theme switching (CSS custom properties, theme providers), RTL/i18n support (CSS logical properties), and accessibility (WCAG contrast, high contrast themes, reduced motion). This is the foundational styling layer referenced by ALL component skills. Use when theming components, implementing light/dark mode, creating brand styles, customizing visual design, ensuring design consistency, or supporting RTL languages.
+description: Provides design token system and theming framework for consistent, customizable UI styling. Covers token taxonomy (color, typography, spacing, shadows, borders, motion, z-index), theme switching (CSS custom properties, theme providers), RTL/i18n via CSS logical properties, and accessibility tokens (WCAG contrast, high-contrast themes, reduced motion). Use when implementing design tokens, light/dark or brand themes, or RTL-ready styling; for design-system audits use design-system and for one-off page aesthetics use frontend-design.
 ---
 
 # Design Tokens & Theming System
@@ -269,7 +269,7 @@ Theme changes automatically update all components.
 ### WCAG 2.1 AA Compliance
 
 - **Normal text**: 4.5:1 contrast minimum
-- **Large text (18px+)**: 3:1 minimum
+- **Large text (≥ 24px, or ≥ 18.66px bold)**: 3:1 minimum
 - **UI components**: 3:1 minimum
 
 ### High-Contrast Theme
@@ -375,10 +375,9 @@ npm run build-tokens
 4. **Theme switching built-in** - Light, dark, high-contrast, custom brands
 5. **RTL support automatic** - CSS logical properties enable right-to-left languages
 6. **Accessibility first** - WCAG compliance, reduced motion, high contrast
-7. **Referenced by all skills** - Every component skill uses design tokens
+7. **Reusable by component code** - Components consume semantic and component tokens
 
 ---
 
 **Progressive disclosure:** This SKILL.md provides overview and quick start. Detailed documentation in `references/` directory.
 
-**Skill chaining architecture:** See `SKILL_CHAINING_ARCHITECTURE.md`

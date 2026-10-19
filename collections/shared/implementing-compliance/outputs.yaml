@@ -12,7 +12,7 @@ base_outputs:
   - path: "policies/access-control-policy.md"
     must_contain: ["MFA", "RBAC", "least privilege"]
   - path: "audit/audit-logging-config.yaml"
-    must_contain: ["retention", "7 years", "immutable"]
+    must_contain: ["retention", "immutable"]
 
 conditional_outputs:
   maturity:
@@ -26,7 +26,7 @@ conditional_outputs:
       - path: "policies/mfa/iam-mfa-policy.tf"
         must_contain: ["aws:MultiFactorAuthPresent", "Deny"]
       - path: "audit/cloudwatch-logs.tf"
-        must_contain: ["retention_in_days = 2555", "kms_key_id"]
+        must_contain: ["retention_in_days", "kms_key_id"]
       - path: "docs/incident-response-plan.md"
         must_contain: ["detection", "escalation", "notification timeline"]
 
@@ -264,13 +264,13 @@ scaffolding:
 
       ### PCI-DSS 4.0
       - **Audience:** Payment card data
-      - **Effective:** April 1, 2025 (mandatory)
+      - **Effective:** future-dated v4.0 requirements mandatory after March 31, 2025
       - **Key Changes:** Client-side security, 12-char passwords, enhanced MFA
       - **Requirements:** See `compliance/frameworks/pci-dss-requirements.md`
 
       ### GDPR
       - **Audience:** EU residents' personal data
-      - **Key Requirements:** 48-hour breach notification, data minimization, right to erasure
+      - **Key Requirements:** 72-hour breach notification to the supervisory authority (Art. 33), data minimization, right to erasure
       - **Documentation:** See `compliance/frameworks/gdpr-articles.md`
 
       ## Universal Control Implementation
@@ -286,7 +286,7 @@ scaffolding:
       - **Implementation:** `policies/mfa/`, `k8s/rbac/`
 
       ### Priority 3: Audit Logging
-      - **LOG-001:** Centralized audit logging, 7-year retention, immutable storage
+      - **LOG-001:** Centralized audit logging, retention per framework minimum, immutable storage
       - **Implementation:** `audit/`, `terraform/audit/`
 
       ### Priority 4: Monitoring
@@ -310,8 +310,8 @@ scaffolding:
 
       # Evaluate against OPA policies
       opa eval --data compliance/opa-policies/ \
-        --input tfplan.json \
-        'data.compliance.main.deny'
+        --input tfplan.json --fail-defined \
+        'data.compliance[_].deny[_]'
       ```
 
       ### CI/CD Integration
@@ -321,10 +321,10 @@ scaffolding:
       ```yaml
       # .github/workflows/compliance-check.yml
       - name: Checkov IaC Scan
-        run: checkov -d terraform/ --check SOC2 --check HIPAA --check PCI --check GDPR
+        run: checkov -d terraform/ -o json > reports/checkov.json  # --check takes check IDs, not framework names
 
       - name: OPA Policy Evaluation
-        run: opa eval --data compliance/opa-policies/ --input tfplan.json
+        run: opa eval --data compliance/opa-policies/ --input tfplan.json --fail-defined 'data.compliance[_].deny[_]'
       ```
 
       ### Static Analysis
@@ -362,10 +362,10 @@ scaffolding:
       ## Breach Notification
 
       **Timeline Requirements:**
-      - **HIPAA:** 60 days to HHS and affected individuals
-      - **GDPR:** 48 hours to supervisory authority
-      - **SOC 2:** 72 hours to affected customers
-      - **PCI-DSS:** Immediate notification to payment brands
+      - **HIPAA:** individuals without unreasonable delay, no later than 60 days; HHS within 60 days if 500+ affected
+      - **GDPR:** 72 hours to supervisory authority (Art. 33)
+      - **SOC 2:** per customer contracts and internal policy (no regulatory deadline)
+      - **PCI-DSS:** Immediate notification to the acquirer and payment brands
 
       **Procedure:** See `docs/incident-response-plan.md`
 
@@ -430,7 +430,7 @@ scaffolding:
       - Treating compliance as one-time project vs continuous process
       - Implementing per-framework vs unified controls
       - Manual evidence collection vs automation
-      - Insufficient log retention (<7 years)
+      - Log retention below framework minimums (e.g. under 12 months for PCI-DSS)
       - Missing MFA enforcement
       - Not encrypting backups/logs
       - Inadequate vendor due diligence
@@ -564,7 +564,7 @@ scaffolding:
 
         - id: "LOG-001"
           name: "Audit Logging"
-          description: "Centralized audit logging with 7-year retention in immutable storage"
+          description: "Centralized audit logging with retention per framework minimums in immutable storage"
           frameworks:
             - framework: "SOC2"
               control: "CC7.2"
@@ -577,7 +577,7 @@ scaffolding:
             - framework: "ISO27001"
               control: "A.12.4.1"
           implementation:
-            - "CloudWatch Logs (7-year retention)"
+            - "CloudWatch Logs (retention per policy, e.g. 2192 days)"
             - "S3 Object Lock (COMPLIANCE mode)"
             - "Application audit logging"
           evidence:
@@ -734,8 +734,8 @@ metadata:
       use: "Continuous compliance with ongoing monitoring and testing"
 
     - name: "Insufficient log retention"
-      avoid: "90-day or 1-year log retention"
-      use: "7-year retention to satisfy all frameworks"
+      avoid: "Retention below a framework minimum (e.g. 90 days when PCI-DSS requires 12 months)"
+      use: "Retention set per framework minimum (see the audit-logging skill), with personal data minimized for GDPR"
 
     - name: "Missing MFA enforcement"
       avoid: "MFA optional or only for admin accounts"
@@ -784,7 +784,7 @@ metadata:
     - "All S3 buckets encrypted with KMS (run Checkov)"
     - "All RDS instances encrypted at rest (run AWS Config rule)"
     - "MFA enforced for IAM users (check credential report)"
-    - "Audit logging enabled with 7-year retention (check CloudWatch/S3)"
+    - "Audit logging enabled with documented retention meeting framework minimums (check CloudWatch/S3)"
     - "OPA policies pass on Terraform plan (run opa eval)"
     - "Network security groups deny-by-default (run tfsec)"
     - "Kubernetes RBAC follows least privilege (review roles)"

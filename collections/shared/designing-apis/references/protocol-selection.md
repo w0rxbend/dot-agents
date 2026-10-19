@@ -227,3 +227,31 @@ START: What type of API do you need?
 - [ ] High throughput required
 - [ ] Guaranteed delivery needed
 - [ ] Decoupling services important
+
+## RPC-Style Options: tRPC and gRPC
+
+The tree above covers resource, query, push and event styles. Two RPC styles are common for internal or same-language consumers:
+
+```
+Who consumes the API?
+├── Third parties / many platforms ........ REST + OpenAPI
+├── Several frontends, nested data ........ GraphQL
+├── TypeScript client + server in one repo  tRPC (types shared, no spec to maintain)
+├── Internal services, latency-sensitive,
+│   polyglot, streaming ................... gRPC (Protobuf contract, HTTP/2)
+├── Browser push / bidirectional .......... WebSocket or SSE (+ AsyncAPI)
+└── Fire-and-forget, decoupled services ... Message broker (+ AsyncAPI)
+```
+
+| Factor | REST | GraphQL | tRPC | gRPC |
+|--------|------|---------|------|------|
+| Best for | Public APIs | Complex client data needs | TS monorepos | Internal service-to-service |
+| Contract | OpenAPI (optional) | SDL | TypeScript types | `.proto` (required) |
+| Type safety | Via codegen | Via codegen | Automatic (TS only) | Via codegen, many languages |
+| HTTP caching | Native | Hard | Limited | None |
+| Browser support | Native | Native | Native | Needs gRPC-Web/Connect |
+| Non-TS clients | Yes | Yes | No (effectively) | Yes |
+
+Selection questions: Who are the consumers and are they external? Is every client TypeScript? How nested are the data needs? Is HTTP caching important? Do you need streaming?
+
+Implementation (frameworks, server code) lives in the `implementing-api-patterns` skill.

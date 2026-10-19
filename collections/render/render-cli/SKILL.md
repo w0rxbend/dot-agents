@@ -9,7 +9,7 @@ description: >-
   render ssh, render psql, render blueprints validate, render skills,
   RENDER_API_KEY, non-interactive, CI/CD deploy.
 license: MIT
-compatibility: Render CLI v2.7.0+ (Homebrew, Linux/macOS, direct download)
+compatibility: Render CLI v2.7.0+ (workflows need v2.11.0+; Homebrew, Linux/macOS, direct download)
 metadata:
   author: Render
   version: "1.0.0"
@@ -35,7 +35,8 @@ The Render CLI manages services, databases, and deployments from the terminal. S
 | Method | Command |
 |--------|---------|
 | **Homebrew** | `brew update && brew install render` |
-| **Linux/macOS** | `curl -fsSL https://raw.githubusercontent.com/render-oss/cli/refs/heads/main/bin/install.sh \| sh` |
+| **Linux/macOS (pinned release)** | Download `cli_<version>_<os>_<arch>.zip` and `cli_<version>_SHA256SUMS` from [GitHub releases](https://github.com/render-oss/cli/releases/), check with `sha256sum --ignore-missing -c cli_<version>_SHA256SUMS`, unzip, and move `cli_v<version>` onto `PATH` as `render` (same steps as the CI example below) |
+| **Install script** | Only if the user asks for it: download [`bin/install.sh`](https://github.com/render-oss/cli/blob/main/bin/install.sh), let them read it, then run it with `sh install.sh`. Do not pipe it straight from `curl` into `sh`. |
 | **Direct download** | [GitHub releases](https://github.com/render-oss/cli/releases/) |
 | **Build from source** | `git clone git@github.com:render-oss/cli.git && cd cli && go build -o render` |
 
@@ -134,10 +135,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Render CLI
+        env:
+          RENDER_CLI_VERSION: 2.28.0  # pin; bump deliberately
         run: |
-          curl -L https://github.com/render-oss/cli/releases/download/v1.1.0/cli_1.1.0_linux_amd64.zip -o render.zip
-          unzip render.zip
-          sudo mv cli_v1.1.0 /usr/local/bin/render
+          base=https://github.com/render-oss/cli/releases/download/v${RENDER_CLI_VERSION}
+          curl -fsSLO "$base/cli_${RENDER_CLI_VERSION}_linux_amd64.zip"
+          curl -fsSLO "$base/cli_${RENDER_CLI_VERSION}_SHA256SUMS"
+          sha256sum --ignore-missing -c "cli_${RENDER_CLI_VERSION}_SHA256SUMS"
+          unzip -q "cli_${RENDER_CLI_VERSION}_linux_amd64.zip"
+          sudo mv "cli_v${RENDER_CLI_VERSION}" /usr/local/bin/render
       - name: Deploy
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}

@@ -1,7 +1,6 @@
 ---
 name: dependency-scanning
-description: Scan package dependencies for known vulnerabilities using Snyk, Dependabot,
-  and OWASP Dependency-Check.
+description: "Scan third-party dependencies for known vulnerabilities and generate SBOMs - Snyk, Dependabot, OWASP Dependency-Check, npm/pip/go audit tools, CycloneDX/Syft - and gate CI on the results. Use when adding or tuning software-composition analysis; use dependency-upgrade to carry out the upgrades."
 category: security
 risk: safe
 source: https://github.com/BagelHole/DevOps-Security-Agent-Skills
@@ -10,9 +9,7 @@ source_type: community
 date_added: '2026-09-20'
 license: MIT
 license_source: https://github.com/BagelHole/DevOps-Security-Agent-Skills/blob/main/LICENSE
-compatibility: Requires the relevant security tooling (scanners, vault CLIs) and an
-  authorized scope for any active assessment. Docs-only; helper scripts and templates
-  not bundled.
+compatibility: Requires the chosen scanner CLI (snyk, osv-scanner, dependency-check, govulncheck, syft) and access to the repository's lockfiles; Snyk needs an account token.
 metadata:
   author: devops-skills
   version: '1.0'
@@ -94,17 +91,22 @@ on:
 jobs:
   snyk:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write   # required by upload-sarif
     steps:
       - uses: actions/checkout@v4
 
       - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@<pinned-sha> # vX.Y.Z - never a branch ref
+        continue-on-error: true   # let the SARIF upload run even when findings fail the scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high
+          args: --severity-threshold=high --sarif-file-output=snyk.sarif
 
       - name: Upload results to GitHub
+        if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk.sarif
@@ -144,8 +146,7 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 10
-    reviewers:
-      - "security-team"
+    # Reviewer assignment: use a CODEOWNERS file (the `reviewers:` key is deprecated)
     labels:
       - "dependencies"
       - "security"
@@ -195,13 +196,15 @@ updates:
 ### Installation
 
 ```bash
-# Download
-wget https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.0/dependency-check-9.0.0-release.zip
-unzip dependency-check-9.0.0-release.zip
-
-# Or via Homebrew
+# Via Homebrew
 brew install dependency-check
+
+# Or download the latest release zip (and verify its .asc/.sha256) from
+# https://github.com/dependency-check/DependencyCheck/releases
 ```
+
+Current releases download NVD data through the NVD API; request a free key and pass it with
+`--nvdApiKey "$NVD_API_KEY"`, or updates are very slow and may fail.
 
 ### Usage
 
@@ -230,8 +233,8 @@ dependency-check --project "MyProject" \
 ### Suppression File
 
 ```xml
-<!-- suppression.xml -->
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- suppression.xml -->
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
   <suppress>
     <notes>False positive - not using vulnerable function</notes>
@@ -288,8 +291,8 @@ npm audit fix
 # Fix with breaking changes
 npm audit fix --force
 
-# Production only
-npm audit --production
+# Production only (npm 8+; older npm used --production)
+npm audit --omit=dev
 ```
 
 ### Python (pip-audit)
@@ -351,7 +354,7 @@ npx @cyclonedx/cyclonedx-npm --output-file sbom.json
 
 # Python
 pip install cyclonedx-bom
-cyclonedx-py -o sbom.json
+cyclonedx-py environment -o sbom.json   # or: requirements / poetry / pipenv subcommands (cyclonedx-bom 4+)
 
 # Go
 go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
@@ -361,8 +364,10 @@ cyclonedx-gomod mod -json > sbom.json
 ### Syft
 
 ```bash
-# Install
-curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh -o /tmp/install-syft.sh && sh /tmp/install-syft.sh && rm /tmp/install-syft.sh -s
+# Install via a package manager
+brew install syft
+# Or download a pinned release binary and verify it against the release checksums file:
+# https://github.com/anchore/syft/releases (vX.Y.Z, syft_X.Y.Z_checksums.txt)
 
 # Generate SBOM
 syft dir:/path/to/project -o cyclonedx-json > sbom.json
@@ -395,7 +400,7 @@ jobs:
         run: npm audit --audit-level=high
 
       - name: Snyk scan
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@<pinned-sha> # vX.Y.Z - never a branch ref
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
@@ -438,20 +443,16 @@ jobs:
 
 ## Related Skills
 
-- sast-scanning (`sast-scanning`) - Code vulnerabilities
-- container-scanning (`container-scanning`) - Container dependencies
-- github-actions (`github-actions`) - CI integration
+- `code-audit` - SAST review of first-party code
+- `dockerfile-optimise` - image scanning (rule `sec-scan-images`)
+- `github-actions-advanced` - wiring scanners into hardened workflows
+- `dependency-upgrade` - executing the major upgrades that scans call for
+- `security-and-hardening` - install-script policy and new-dependency review
 
-## Limitations
+## Done when
 
-- Apply guidance only within authorized scope; test destructive steps in non-production first.
-- Docs-only import: upstream scripts and templates not bundled.
+- A scanner runs on every pull request and on a schedule against the default branch, using the committed lockfile.
+- The build fails on new reachable critical/high findings; accepted findings are recorded in the tool's ignore file with a reason and expiry.
+- An SBOM is generated for each release artifact, and Dependabot or Renovate opens update PRs.
 
-### Example
-
-```bash
-# Read-only first: inventory before any active step.
-which <tool> && <tool> --help | head -n 20
-```
-
-> Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT); frontmatter, When to Use/Limitations, and safety boundaries added for upstream compliance. Docs-only import: helper scripts and templates not bundled.
+> Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT).

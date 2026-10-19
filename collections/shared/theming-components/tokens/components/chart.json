@@ -1,6 +1,6 @@
 {
   "$schema": "https://www.designtokens.org/tr/2025.10/",
-  "$description": "Chart component tokens - for data-viz skill (colorblind-safe palette)",
+  "$description": "Chart component tokens (colorblind-safe palette)",
   "chart": {
     "color": {
       "1": {

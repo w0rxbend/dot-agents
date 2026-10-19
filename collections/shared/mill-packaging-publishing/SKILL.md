@@ -1,6 +1,6 @@
 ---
 name: mill-packaging-publishing
-description: Build and verify Mill JVM jars, assemblies, native images, distributions, Docker images, and multimodule publishing metadata for Scala Java Kotlin projects.
+description: Build and verify Mill JVM jars, assemblies, native images, distributions, Docker images, and multimodule publishing metadata for Scala Java Kotlin projects. Use when packaging or publishing artifacts from a Mill build.
 license: MIT
 ---
 

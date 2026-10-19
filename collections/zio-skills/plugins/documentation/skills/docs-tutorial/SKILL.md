@@ -2,12 +2,22 @@
 name: docs-tutorial
 description: Write a tutorial for newcomers learning a topic in a ZIO library. Use when the user asks to write a tutorial or learning guide that teaches concepts step-by-step in a linear path. Tutorials are learning-oriented (for newcomers with no prior knowledge) unlike how-to guides which are task-oriented.
 argument-hint: "[tutorial title or topic description]"
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(sbt:*), Bash(sbt gh-query*), Bash(git:*), Task, Skill
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(sbt:*), Bash(sbt gh-query*), Bash(git:*), Task, Agent, Skill
 ---
 
 # Write a Tutorial
 
 Write a comprehensive, learning-oriented tutorial for newcomers to the ZIO library being documented.
+
+## Subagents Used by This Skill
+
+The `docs-*` agents this skill delegates to ([`docs-fixer`](references/agents/docs-fixer.md), [`docs-integrator`](references/agents/docs-integrator.md), [`docs-researcher`](references/agents/docs-researcher.md), [`docs-reviewer`](references/agents/docs-reviewer.md)) are not installed as Claude Code agents; each
+has a role brief in this skill's `references/agents/` directory. Wherever a step says to delegate to
+one of them with the `Task` tool, start a fresh general-purpose subagent (`subagent_type:
+"general-purpose"`) whose prompt is the full text of that brief followed by the task prompt shown. If
+you cannot start subagents, do the step yourself as a separate pass that follows the brief exactly —
+the separation rules still hold (a fix pass applies only the reviewer's verbatim findings, and a
+review pass grades the page as written).
 
 ## Tutorial Topic
 
@@ -46,7 +56,7 @@ conversation, so its only knowledge of what to research is what you tell it:
 ```
 Task(
   description: "Research <topic> for a tutorial",
-  subagent_type: "documentation:docs-researcher",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-researcher.md, then the text below
   prompt: "Research <topic> for a learning-oriented tutorial. Find: the ONE core concept or skill this
            tutorial teaches; prerequisite knowledge the learner must already have; for each core type,
            what it is and its role in learning this concept; the dependency/composition order (first
@@ -120,7 +130,7 @@ Based on your research answers, design the tutorial's section structure before w
 
 4. Putting It Together
    - The complete, runnable example combining all concepts
-   - mdoc:compile-only block
+   - An EMPTY `mdoc:embed:<path-to-the-complete-example-file>` block (see "Putting It Together" below), never inlined code
 
 5. Running the Examples
    - Git clone + sbt runMain per step (same format as how-to guides)
@@ -315,7 +325,7 @@ Follow the **"Running the Examples" section template** from the `docs-examples` 
 
 Two tutorial-specific details:
 - Clone and `cd` in one path straight into the examples module directory — `cd <repo>/<examples-module>`, not a separate `cd <repo>` followed by a separate `cd <examples-module>`.
-- Embed each concept's file, in order, the same way "Putting It Together" does: a collapsible `<details><summary>` wrapping `` scala mdoc:embed:<path>:show-line-numbers ``, a short sentence on how to run it, and its `sbt "<examples-module>/runMain ..."` command.
+- Embed each concept's file, in order, the same way "Putting It Together" does: a collapsible `<details><summary>` wrapping `` scala mdoc:embed:<path>:showLineNumbers ``, a short sentence on how to run it, and its `sbt "<examples-module>/runMain ..."` command.
 
 #### What You've Learned
 
@@ -411,7 +421,7 @@ covers both a full-page checklist/style review and a fact-check — say plainly 
 ```
 Task(
   description: "Fact-check <tutorial-id> tutorial",
-  subagent_type: "documentation:docs-reviewer",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-reviewer.md, then the text below
   prompt: "Fact-check this page against source (not a checklist/style review).
            Page: docs/guides/<tutorial-id>.md
            Subject: <topic>
@@ -426,7 +436,7 @@ the **`docs-fixer`** agent with the `Task` tool — correcting only the **tutori
 ```
 Task(
   description: "Apply fact-check fixes to <tutorial-id> tutorial",
-  subagent_type: "documentation:docs-fixer",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-fixer.md, then the text below
   prompt: "Page: docs/guides/<tutorial-id>.md
            Findings (apply each verbatim):
            <every drift from the fact-check reply, its exact statement included>"
@@ -447,7 +457,7 @@ Delegate to the **`docs-integrator`** agent with the `Task` tool:
 ```
 Task(
   description: "Integrate <tutorial-id> tutorial",
-  subagent_type: "documentation:docs-integrator",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-integrator.md, then the text below
   prompt: "Page: docs/guides/<tutorial-id>.md
            Category: Guides
            Cross-reference direction: add 'See also' links from related reference pages that already
@@ -471,7 +481,7 @@ tell it to give the exact corrected statement for every failing item, not just w
 ```
 Task(
   description: "Review <tutorial-id> tutorial",
-  subagent_type: "documentation:docs-reviewer",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-reviewer.md, then the text below
   prompt: "Full-page review (not a fact-check): evaluate docs/guides/<tutorial-id>.md against this
            checklist: <CHECKLIST.md's content>
            For every failing item, give the exact corrected statement to apply."
@@ -484,7 +494,7 @@ for each), to the **`docs-fixer`** agent with the `Task` tool:
 ```
 Task(
   description: "Apply review fixes to <tutorial-id> tutorial",
-  subagent_type: "documentation:docs-fixer",
+  subagent_type: "general-purpose",  // prompt = full text of references/agents/docs-fixer.md, then the text below
   prompt: "Page: docs/guides/<tutorial-id>.md
            Findings (apply each verbatim):
            <every failing item from the review reply, its exact statement included>"

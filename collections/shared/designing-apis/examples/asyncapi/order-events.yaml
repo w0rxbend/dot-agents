@@ -14,14 +14,14 @@ servers:
     description: Production Kafka cluster
 
 channels:
-  orders/created:
+  ordersCreated:
     address: orders.created
     description: Channel for order creation events
     messages:
       orderCreated:
         $ref: '#/components/messages/OrderCreated'
 
-  orders/fulfilled:
+  ordersFulfilled:
     address: orders.fulfilled
     description: Channel for order fulfillment events
     messages:
@@ -32,13 +32,13 @@ operations:
   publishOrderCreated:
     action: send
     channel:
-      $ref: '#/channels/orders~1created'
+      $ref: '#/channels/ordersCreated'
     summary: Publish order creation event
 
   subscribeOrderCreated:
     action: receive
     channel:
-      $ref: '#/channels/orders~1created'
+      $ref: '#/channels/ordersCreated'
     summary: Subscribe to order creation events
 
 components:

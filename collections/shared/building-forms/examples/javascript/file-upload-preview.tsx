@@ -158,6 +158,7 @@ export default function FileUploadForm() {
         >
           <input
             id="file-input"
+            aria-label="Upload images"
             type="file"
             accept="image/*"
             multiple

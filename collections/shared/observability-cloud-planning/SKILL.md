@@ -1,6 +1,6 @@
 ---
 name: observability-cloud-planning
-description: 'Build a cloud, SLO, and incident-readiness register after intake. Use when an SME needs monitoring scope, alert ownership, cost limits, or service planning.'
+description: 'Plan, for a small business without a dedicated ops team, which services to monitor, the few alerts worth waking someone for, their owners and runbooks, SLO targets and the monitoring/cloud budget, as a short recommendation or a CSV/SQL/JSON Schema/Notion register. Use for non-technical SME planning; to instrument code use observability-and-instrumentation, for incident process use managing-incidents.'
 category: engineering
 risk: safe
 source: self
@@ -24,8 +24,6 @@ failure, then builds it only when asked. The default output is a short recommend
 a service register. The register - CSV, SQL DDL, JSON Schema, Notion mapping - is produced
 on request, from one field list so the four cannot drift apart.
 
-Layer: Layer 8: Operate. Fits: Growth stage. Table code: n/a.
-
 **The rule this table exists to enforce:** an alert is a human cost, so `Alert Channel` and
 `Severity` decide whether a person is woken at 3am. Everything else in this table exists to
 make that decision possible: what the service does (`SLI Definition`), what good looks like
@@ -33,29 +31,28 @@ make that decision possible: what the service does (`SLI Definition`), what good
 and - the field most tables leave out - what happens when the alert fires (`Runbook URL`).
 An alert with no runbook converts a technical problem into a panicked one.
 
-**The second rule:** `Phase` is the field that keeps this affordable. A ten-service stack
-with four signals each, on a plan tier, ordered by what would hurt the business most. A
+**The second rule:** `Phase` is the field that keeps this affordable. Phase 1 holds only the
+few signals whose failure would hurt the business most; everything else waits for phase 2 or
+3, so a ten-service stack does not turn into forty alerts on day one. A
 business with no developer should be running a managed platform and three alerts, not a
 stack of collectors.
 
 ## When to Use This Skill
 
-- monitoring, observability, alerting, uptime, "we found out from a customer"
-- SLI, SLO, error rate, latency, p95, p99
-- "what should we watch", "how do we know the site is down"
-- incident response, on-call, runbook, postmortem
-- cloud cost, what is it costing, what should we turn off
-- "which service should we use", VPS, containers, serverless, managed hosting
-- incident readiness, status page, downtime prevention
+- A small business asks "what should we watch", "how do we know the site is down", or "we found out from a customer"
+- Choosing between managed hosting, a VPS, containers or serverless at SME scale, with cost in view
+- Deciding which few alerts should reach a person, who owns them, and what each costs
+- Writing down SLO targets and a monthly monitoring/cloud budget before buying tools
+- Producing a service/monitoring register (CSV, SQL DDL, JSON Schema, Notion mapping) on request
 
-Do not use it for: application code, infrastructure as code, or a deployment pipeline
-(`devops-pipeline-designer`, `ci-cd-pipeline-builder` in the engineering pack); a security
-architecture review (`security-and-privacy`); or a real incident, which is a live
-situation, not a plan.
+Do not use it for: writing instrumentation or application code (`observability-and-instrumentation`),
+deploying a monitoring stack (`implementing-observability`), CI/CD pipelines (`building-ci-pipelines`),
+security architecture (`architecting-security`), designing an incident-response process or postmortems
+(`managing-incidents`), or a live outage, which needs action now, not a plan.
 
 ## How It Works
 
-Follow the shared execution contract. The module-specific rules below define only domain fields, decisions, calculations, and safety constraints.
+Ask one question per message, never hold or invent real data, and build artifacts only when the user asks. The rules below define the domain fields, decisions and safety constraints.
 
 ### Step 1 - Identify intent
 
@@ -74,7 +71,7 @@ Ask only if this is the highest-value missing fact; otherwise proceed without an
 
 ### Step 2 - Ask only what is missing
 
-Treat ambiguous replies as unanswered and ask which explicit option the user means. Record unknown values as `Unknown`; `Unknown` is not zero. A record must not be `Done` when a required check fails.
+Treat ambiguous replies as unanswered and ask which explicit option the user means. Record unknown values as `Unknown` in text fields and leave numeric fields (`Monthly Cost Estimate`) blank/NULL; unknown is not zero. A record must not be `Done` when a required check fails.
 
 Skip anything already answered. Ask the rest one at a time, and stop as soon as the
 remaining answers would not change the plan.
@@ -148,26 +145,25 @@ Once the user asks for it, derive the fields from the confirmed context and emit
 requested artifacts. For machine-readable text, keep prose outside the data; for files,
 provide a usable link. Report material validation failures or limitations separately.
 
-**A selected Notion output is rendered by `notion-manual-import`, so route the
-Notion step there.** When the user selects Notion, hand that step to
-](https://github.com/sickn33/agentic-awesome-skills/blob/main/skills/notion-manual-import/SKILL.md): it holds the CSV, the property
-mapping, the import steps and the verification checklist, and it renders the Field
-Reference below instead of defining a table of its own. Do not restate the mapping
-here and do not improvise the import steps. Manual CSV and mapping outputs need no
-connection. For requested workspace changes, follow the shared contract: verify actual
-tool access and the target before writing. A user saying "connected" is not tool evidence.
-Never ask for a Notion password or token.
+**Notion output.** When the user selects Notion, deliver a CSV with the Field Reference
+columns plus a property-mapping table (column → Notion property type, from Select Options
+below) and short manual import steps: import the CSV, then change each property type per the
+mapping. Manual CSV and mapping outputs need no connection. Only write to a workspace through
+an MCP/tool connection you have actually verified, after confirming the target; a user saying
+"connected" is not tool evidence. Never ask for a Notion password or token.
 
 ```csv
 Service ID,Service Name,Purpose,Criticality,Owner,Environment,Monitored From,SLI Definition,SLO Target,Dashboard URL,Log Source,Alert Channel,Severity,Alert Threshold,Runbook URL,Escalation Path,Monthly Cost Estimate,Data Handled,Deployment Method,Dependencies,Phase,Review Date,Status,Notes
-,Example Booking Service,Takes customer bookings and confirms by email,High,Example Owner,Production,External region outside the hosting provider,Uptime of the public booking page,99.5% monthly,Not yet created,Application and web server logs,Email and SMS to on-call,Critical,3 consecutive failed checks or 5 minutes above target,Not yet created,On-call then business owner,Unknown,Payment card details,Managed platform,None,1,2026-10-27,Not started,Example row - replace every value before use.
+,Example Booking Service,Takes customer bookings and confirms by email,High,Example Owner,Production,External region outside the hosting provider,Uptime of the public booking page,99.5% monthly,Not yet created,Application and web server logs,Email and SMS to on-call,Critical,3 consecutive failed checks or 5 minutes above target,Not yet created,On-call then business owner,"",Payment card details,Managed platform,None,1 - core,2026-10-27,Not started,Example row - replace every value before use.
 ```
 
 ```sql
--- Engine assumption: PostgreSQL. For another engine use the engine's auto-increment
--- equivalent and keep the rest portable.
+-- Engine assumption: PostgreSQL 10+. For another engine use the engine's auto-increment
+-- equivalent and keep the rest portable. Import the CSV with a column list that omits
+-- service_id (the CSV leaves it blank) and treat blank cost as NULL (unknown), e.g.
+-- \copy obs_service (service_name, ..., notes) FROM 'plan.csv' CSV HEADER
 CREATE TABLE obs_service (
-  service_id BIGINT PRIMARY KEY,
+  service_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   service_name VARCHAR(100) NOT NULL,
   purpose TEXT NOT NULL,
   criticality VARCHAR(50) NOT NULL,
@@ -228,7 +224,7 @@ CREATE INDEX idx_obs_service_review ON obs_service (review_date);
       "Alert Threshold": { "type": "string" },
       "Runbook URL": { "type": "string" },
       "Escalation Path": { "type": "string" },
-      "Monthly Cost Estimate": { "type": "number" },
+      "Monthly Cost Estimate": { "type": ["number", "null"], "description": "null or omitted when unknown" },
       "Data Handled": { "type": "string" },
       "Deployment Method": { "type": "string" },
       "Dependencies": { "type": "string" },
@@ -277,7 +273,7 @@ CREATE INDEX idx_obs_service_review ON obs_service (review_date);
 | Alert Threshold | Text | Leave as Text. The condition that fires, written so it is unambiguous and testable |
 | Runbook URL | Text | Leave as Text. Blank is a finding, not a formatting gap. An alert with no runbook must not ship |
 | Escalation Path | Text | Leave as Text. Who is woken first, then who, then who gives up and calls the host |
-| Monthly Cost Estimate | Number | Convert to Number, two decimal places. An estimate against a ceiling, in the business's own currency |
+| Monthly Cost Estimate | Number | Convert to Number, two decimal places. Leave blank when unknown (never the word "Unknown"). An estimate against a ceiling, in the business's own currency |
 | Data Handled | Select (add options after import) | Convert to Select, add options: "None", "Personal data", "Payment card details", "Health data", "Credentials or secrets", "Business confidential", "Public only". Drives the log retention and access rules |
 | Deployment Method | Text | Leave as Text. How a change reaches this service, and by whom |
 | Dependencies | Text | Leave as Text. What this needs to work. "None" is a valid and worth recording answer |
@@ -295,7 +291,7 @@ column is worse than an obvious gap.
 
 | # | Field | Type | SQL | JSON Schema | Notion | CSV example |
 |---:|---|---|---|---|---|---|
-| 1 | Service ID | `id` | `BIGINT PRIMARY KEY` | `integer` | Text or Notion auto-ID | (blank) |
+| 1 | Service ID | `id` | `BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY` | `integer` | Text or Notion auto-ID | (blank) |
 | 2 | Service Name | `text` | `VARCHAR(100)` | `string` | Text | *(blank)* |
 | 3 | Purpose | `long_text` | `TEXT` | `string` | Text | *(blank)* |
 | 4 | Criticality | `select` | `VARCHAR(50)` | `string` | Select | High |
@@ -311,7 +307,7 @@ column is worse than an obvious gap.
 | 14 | Alert Threshold | `text` | `VARCHAR(255)` | `string` | Text | *(blank)* |
 | 15 | Runbook URL | `text` | `VARCHAR(255)` | `string` | Text | *(blank)* |
 | 16 | Escalation Path | `long_text` | `TEXT` | `string` | Text | *(blank)* |
-| 17 | Monthly Cost Estimate | `number` | `NUMERIC(10,2)` | `number` | Number | Unknown |
+| 17 | Monthly Cost Estimate | `number` | `NUMERIC(10,2)` | `number` (null when unknown) | Number | *(blank = unknown)* |
 | 18 | Data Handled | `select` | `VARCHAR(255)` | `string` | Select | Personal data |
 | 19 | Deployment Method | `text` | `VARCHAR(100)` | `string` | Text | *(blank)* |
 | 20 | Dependencies | `long_text` | `TEXT` | `string` | Text | None |
@@ -372,11 +368,10 @@ Not started | In progress | Blocked | Done | Cancelled
 
 - `Dependencies` names other rows in this table. A cycle here is a design smell, not an
   error, and it is worth finding deliberately.
-- `Log Source` and `Data Handled` point at the data and access rules in
-  `data-privacy-controls` (`me-ops-system-builder`). Confirm the join before making it
-  live; a third-party log destination is a data transfer.
-- `Runbook URL` points at `runbook-playbook` in the engineering pack. Blank there and blank
-  here is the same finding.
+- `Log Source` and `Data Handled` should match the business's own data-privacy and retention
+  rules. Confirm them before making the join live; a third-party log destination is a data transfer.
+- `Runbook URL` points at the runbook document for that alert. A blank runbook is a finding,
+  not a formality.
 
 ## Examples
 
@@ -478,7 +473,7 @@ what we should be paying for all this.
 - Compliance requirements around logging, retention and personal data are jurisdiction and
   sector specific, and are not modelled here.
 - Security monitoring, intrusion detection and access review are out of scope; use
-  `security-and-privacy`.
+  `architecting-security` or `security-hardening`.
 - It cannot judge whether a provider, region or architecture is right. It structures the
   question.
 

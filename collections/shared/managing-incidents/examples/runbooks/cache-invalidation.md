@@ -625,7 +625,10 @@ done
 def update_product(product_id, data):
     db.update(product_id, data)
     cache.delete(f"product:{product_id}")
-    cache.delete(f"product:{product_id}:*")  # Invalidate all related keys
+    # DEL does not expand globs: find related keys with SCAN, then UNLINK them
+    # (or use versioned keys and bump the version instead of deleting)
+    for key in cache.scan_iter(match=f"product:{product_id}:*", count=500):
+        cache.unlink(key)
 ```
 
 ---

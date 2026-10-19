@@ -6,7 +6,7 @@ argument-hint: "[--comprehensive]"
 
 # Update Command
 
-> If you see unfamiliar placeholders or need to check which tools are connected, see [CONNECTORS.md](../../CONNECTORS.md).
+> Uses whatever chat, email, calendar, knowledge base, and project tracker tools are connected (usually via MCP). Skip any source that is not available and note the gap.
 
 Keep your task list and memory current. Two modes:
 
@@ -15,16 +15,18 @@ Keep your task list and memory current. Two modes:
 
 ## Usage
 
-```bash
-/productivity:update
-/productivity:update --comprehensive
+Invoke the `update` skill, optionally with `--comprehensive`:
+
+```text
+update
+update --comprehensive
 ```
 
 ## Default Mode
 
 ### 1. Load Current State
 
-Read `TASKS.md` and `memory/` directory. If they don't exist, suggest `/productivity:start` first.
+Read `TASKS.md` and `memory/` directory. If they don't exist, suggest running the `start` skill first.
 
 ### 2. Sync Tasks from External Sources
 

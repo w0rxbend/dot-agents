@@ -1,7 +1,7 @@
 ---
 name: performance-optimization
-description: Optimizes application performance. Use when performance requirements exist, when you suspect performance regressions, or when Core Web Vitals or load times need improvement. Use when profiling reveals bottlenecks that need fixing.
-risk: critical
+description: Find and fix a measured bottleneck in a web app, API, query or algorithm (Core Web Vitals, bundle size, N+1, missing indexes, caching, memory leaks), proving it with before/after numbers. Use when something is slow or regressed; for load/stress testing, capacity planning and perf SLOs use performance-engineering.
+risk: safe
 source: https://github.com/addyosmani/agent-skills/tree/main/skills/performance-optimization
 source_repo: addyosmani/agent-skills
 source_type: community
@@ -51,13 +51,16 @@ Two complementary approaches — use both:
 - **Synthetic (Lighthouse, DevTools Performance tab):** Controlled conditions, reproducible. Best for CI regression detection and isolating specific issues.
 - **RUM (web-vitals library, CrUX):** Real user data in real conditions. Required to validate that a fix actually improved user experience.
 
-**Frontend:**
-```bash
-# Synthetic: Lighthouse in Chrome DevTools (or CI)
-# Chrome DevTools → Performance tab → Record
-# Chrome DevTools MCP → Performance trace
+**Frontend (synthetic):** Chrome DevTools → Performance tab → Record, or a Lighthouse run. For a scripted lab audit with scores and LCP/CLS/TBT in JSON:
 
-# RUM: Web Vitals library in code
+```bash
+python3 scripts/lighthouse_audit.py https://staging.example.com   # needs the lighthouse CLI + Chrome
+```
+
+Lab runs cannot measure INP; Total Blocking Time is the closest lab proxy.
+
+**Frontend (RUM):**
+```typescript
 import { onLCP, onINP, onCLS } from 'web-vitals';
 
 onLCP(console.log);
@@ -65,17 +68,14 @@ onINP(console.log);
 onCLS(console.log);
 ```
 
-**Backend:**
-```bash
-# Response time logging
-# Application Performance Monitoring (APM)
-# Database query logging with timing
-
-# Simple timing
+**Backend:** APM traces, database slow-query logs with timing, or a quick local timing:
+```typescript
 console.time('db-query');
-const result = await db.query(...);
+const result = await db.query(sql, params);
 console.timeEnd('db-query');
 ```
+
+Record the baseline numbers (p50/p95, sizes, query counts) before changing anything; you need them for Step 4.
 
 ### Where to Start Measuring
 
@@ -125,6 +125,34 @@ Common bottlenecks by category:
 | CPU spikes | Synchronous heavy computation, regex backtracking | CPU profiling |
 | High latency | Missing caching, redundant computation, network hops | Trace requests through the stack |
 
+**Choosing a profiling tool:**
+
+| Problem | Tool |
+|---|---|
+| Page load | Lighthouse, DevTools Network waterfall |
+| Bundle size | Bundle analyzer for your bundler (e.g. `rollup-plugin-visualizer`, `webpack-bundle-analyzer`, `source-map-explorer`) |
+| Main-thread work | DevTools Performance panel |
+| Memory | DevTools Memory panel (heap snapshots, allocation timeline) |
+| Node.js CPU | `node --cpu-prof app.js` (open the `.cpuprofile` in DevTools) or `node --inspect` + Performance panel |
+| SQL | `EXPLAIN ANALYZE` (PostgreSQL) / `EXPLAIN ANALYZE` or `EXPLAIN FORMAT=TREE` (MySQL 8) |
+
+**Reading a bundle analysis:**
+
+| Finding | Indicator | Action |
+|---|---|---|
+| Large dependency | Dominates the treemap | Lighter alternative, per-module import, or lazy load |
+| Duplicate code | Same package in several chunks or versions | Dedupe versions, shared chunk |
+| Unused code | Low DevTools Coverage | Remove or split |
+| Missing split | One large initial chunk with route code | Route-level code splitting |
+
+**Reading a DevTools Memory profile:**
+
+| Pattern | Meaning |
+|---|---|
+| Heap keeps growing across repeated identical actions | Likely leak; compare two snapshots |
+| Large retained size on one object | Follow its retainers to the reference keeping it alive |
+| Detached DOM nodes | Removed elements still referenced (listeners, caches, closures) |
+
 ### Step 3: Fix Common Anti-Patterns
 
 #### N+1 Queries (Backend)
@@ -140,6 +168,47 @@ for (const task of tasks) {
 const tasks = await db.tasks.findMany({
   include: { owner: true },
 });
+```
+
+#### Missing Index (verify with the query plan)
+
+```sql
+-- PostgreSQL: look at the plan and actual timings
+EXPLAIN ANALYZE SELECT id, name FROM users WHERE email = 'test@example.com';
+-- "Seq Scan on users ... rows=1 ... actual time=... " on a large table → missing index
+
+CREATE INDEX CONCURRENTLY idx_users_email ON users (email);  -- avoids long write locks
+
+EXPLAIN ANALYZE SELECT id, name FROM users WHERE email = 'test@example.com';
+-- expect "Index Scan using idx_users_email"
+```
+
+An index only helps predicates it can serve: `LIKE '%term%'` (leading wildcard) or `lower(email) = ...` will not use a plain btree index on `email`. A sequential scan on a tiny table is fine. Every index costs write time and storage, so add it for a measured query, then re-run the plan.
+
+#### Over-fetching Columns and Payloads
+
+```typescript
+// BAD: every column, every field serialized
+const users = await db.query('SELECT * FROM users');
+res.json(users);
+
+// GOOD: only what the caller renders
+const users = await db.query('SELECT id, name, email FROM users');
+res.json(users);
+```
+
+`SELECT *` also defeats index-only scans and silently grows responses when columns are added.
+
+#### Sequential Independent Awaits
+
+```typescript
+// BAD: 300ms + 200ms + 150ms
+const user = await getUser(id);
+const posts = await getPosts(id);
+const comments = await getComments(id);
+
+// GOOD: ~max(300, 200, 150)ms when the calls are independent
+const [user, posts, comments] = await Promise.all([getUser(id), getPosts(id), getComments(id)]);
 ```
 
 #### Unbounded Data Fetching
@@ -296,6 +365,65 @@ app.use('/static', express.static('public', {
 res.set('Cache-Control', 'public, max-age=300'); // 5 minutes
 ```
 
+Only cache responses that are safe to share: per-user data needs `private` (or no shared cache), and every cache needs an invalidation story.
+
+#### Algorithmic Complexity
+
+When a CPU profile points at your own code, check complexity before micro-tuning:
+
+```typescript
+// BAD: O(n²) nested scan
+function findDuplicates<T>(items: T[]): T[] {
+  const dupes: T[] = [];
+  for (let i = 0; i < items.length; i++)
+    for (let j = i + 1; j < items.length; j++)
+      if (items[i] === items[j]) dupes.push(items[i]);
+  return dupes;
+}
+
+// GOOD: O(n) with a Set
+function findDuplicates<T>(items: T[]): T[] {
+  const seen = new Set<T>();
+  const dupes = new Set<T>();
+  for (const item of items) {
+    if (seen.has(item)) dupes.add(item);
+    seen.add(item);
+  }
+  return [...dupes];
+}
+```
+
+Other common wins: replace repeated `array.find`/`includes` inside loops with a `Map`/`Set` lookup, hoist invariant work out of loops, and avoid catastrophic regex backtracking on untrusted input.
+
+#### Memory Leaks and Large Data
+
+```typescript
+// BAD: listener never removed → component and its closure stay alive
+useEffect(() => {
+  window.addEventListener('scroll', handleScroll);
+}, []);
+
+// GOOD: cleanup
+useEffect(() => {
+  window.addEventListener('scroll', handleScroll);
+  return () => window.removeEventListener('scroll', handleScroll);
+}, [handleScroll]);
+```
+
+```typescript
+// BAD: whole file in memory
+const data = await fs.promises.readFile('huge.log');
+
+// GOOD: stream it
+import { createReadStream } from 'node:fs';
+import { createInterface } from 'node:readline';
+for await (const line of createInterface({ input: createReadStream('huge.log') })) {
+  handle(line);
+}
+```
+
+Also look for unbounded caches/maps keyed by request data (add a size limit or TTL) and timers/intervals that are never cleared.
+
 ## Performance Budget
 
 Set budgets and enforce them:
@@ -306,23 +434,26 @@ CSS: < 50KB gzipped
 Images: < 200KB per image (above the fold)
 Fonts: < 100KB total
 API response time: < 200ms (p95)
-Time to Interactive: < 3.5s on 4G
+Total Blocking Time: < 200ms (lab) / INP < 200ms (field)
 Lighthouse Performance score: ≥ 90
 ```
 
 **Enforce in CI:**
 ```bash
-# Bundle size check
-npx bundlesize --config bundlesize.config.json
+# Bundle size check (size-limit reads the "size-limit" key in package.json),
+# or use your bundler's own budget (webpack performance.maxAssetSize, etc.)
+npx size-limit
 
 # Lighthouse CI
 npx lhci autorun
 ```
 
-## See Also
+Treat these numbers as starting points; derive real budgets from your baseline and user expectations.
 
-For detailed performance checklists, optimization commands, and anti-pattern reference, see the measurement and verification guidance above.
+## Related Skills
 
+- `performance-engineering`: load/stress/soak tests, backend profilers (py-spy, pprof, clinic.js), performance SLOs and CI perf gates.
+- `observability-and-instrumentation`: latency histograms and traces that keep regressions visible after the fix.
 
 ## Common Rationalizations
 
@@ -358,6 +489,5 @@ After any performance-related change:
 
 ## Limitations
 
-- Use this skill only when the task clearly matches its upstream source and local project context.
-- Verify commands, generated code, dependencies, credentials, and external service behavior before applying changes.
-- Do not treat examples as a substitute for environment-specific tests, security review, or user approval for destructive or costly actions.
+- Lab numbers (Lighthouse, local timing) can disagree with field data; confirm user-facing wins with RUM or production percentiles.
+- Index creation, cache changes and load against shared environments affect other users: get approval and use non-blocking variants (e.g. `CREATE INDEX CONCURRENTLY`) where the database supports them.

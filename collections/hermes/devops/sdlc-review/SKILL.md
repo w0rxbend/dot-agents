@@ -1,6 +1,6 @@
 ---
 name: sdlc-review
-description: Review Kanban handoffs and route verified outcomes.
+description: "Review Kanban handoffs and route verified outcomes. Use inside a Hermes Kanban workflow when a task handoff needs review before it moves on."
 version: 1.1.0
 author: Jakub Wolniewicz (@frizikk) + Hermes Agent
 license: MIT

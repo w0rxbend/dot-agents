@@ -10,7 +10,7 @@ Common issues when private connectivity fails or behaves unexpectedly on Render.
 
 ## Port conflicts and limits
 
-- **Reserved ports:** **10000**, **18012**, **18013**, **19099** — do not use these for your application’s primary listener.
+- **Reserved ports:** **18012**, **18013**, **19099** — do not use these for your application’s primary listener. (**10000** is not reserved: it is the usual default value of `PORT`, which web services should bind.)
 - **75-port maximum** per service; trim listeners or consolidate if you hit the cap.
 - **Multi-port Web Services:** Only the **`PORT`** port receives **public** HTTP; other open ports are **private-only**. Callers using the wrong port or expecting public routing on an extra port will fail or time out.
 

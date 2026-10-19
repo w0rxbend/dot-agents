@@ -1,439 +1,81 @@
 ---
 name: deploying-applications
-description: Deployment patterns from Kubernetes to serverless and edge functions. Use when deploying applications, setting up CI/CD, or managing infrastructure. Covers Kubernetes (Helm, ArgoCD), serverless (Vercel, Lambda), edge (Cloudflare Workers, Deno), IaC (Pulumi, OpenTofu, SST), and GitOps patterns.
+description: "Choose where and how to deploy an application - Kubernetes, managed containers, serverless, edge or PaaS - plus the IaC tool and rollout strategy, then route to the platform-specific skill. Use at the start of a deployment decision or migration; use deploying-on-aws/azure/gcp, operating-kubernetes or implementing-gitops for the implementation itself."
 ---
 
 # Deploying Applications
 
-Production deployment patterns from Kubernetes to serverless and edge functions. Bridges the gap from application assembly to production infrastructure.
-
-## Purpose
-
-This skill provides clear guidance for:
-- Selecting the right deployment strategy (Kubernetes, serverless, containers, edge)
-- Implementing Infrastructure as Code with Pulumi or OpenTofu
-- Setting up GitOps automation with ArgoCD or Flux
-- Choosing serverless databases (Neon, Turso, PlanetScale)
-- Deploying edge functions (Cloudflare Workers, Deno Deploy)
-
-## When to Use This Skill
-
-Use this skill when:
-- Deploying applications to production infrastructure
-- Setting up CI/CD pipelines and GitOps workflows
-- Choosing between Kubernetes, serverless, or edge deployment
-- Implementing Infrastructure as Code (Pulumi, OpenTofu, SST)
-- Migrating from manual deployment to automated infrastructure
-- Integrating with `assembling-components` for complete deployment flow
-
-## Deployment Strategy Decision Tree
-
-```
-WORKLOAD TYPE?
-
-├── COMPLEX MICROSERVICES (10+ services)
-│   └─ Kubernetes + ArgoCD/Flux (GitOps)
-│       ├─ Helm 4.0 for packaging
-│       ├─ Service mesh: Linkerd (5-10% overhead) or Istio (25-35%)
-│       └─ See references/kubernetes-patterns.md
-
-├── VARIABLE TRAFFIC / COST-SENSITIVE
-│   └─ Serverless
-│       ├─ Database: Neon/Turso (scale-to-zero)
-│       ├─ Compute: Vercel, AWS Lambda, Cloud Functions
-│       ├─ Edge: Cloudflare Workers (<5ms cold start)
-│       └─ See references/serverless-dbs.md and references/edge-functions.md
-
-├── CONSISTENT LOAD / PREDICTABLE TRAFFIC
-│   └─ Containers (ECS, Cloud Run, Fly.io)
-│       ├─ ECS Fargate: AWS-native, serverless containers
-│       ├─ Cloud Run: GCP, scale-to-zero containers
-│       └─ Fly.io: Global edge, multi-region
-
-├── GLOBAL LOW-LATENCY (<50ms)
-│   └─ Edge Functions + Edge Database
-│       ├─ Cloudflare Workers + D1 (SQLite)
-│       ├─ Deno Deploy + Turso (libSQL)
-│       └─ See references/edge-functions.md
-
-└── RAPID PROTOTYPING / STARTUP MVP
-    └─ Managed Platform as a Service
-        ├─ Vercel (Next.js, zero-config)
-        ├─ Railway (any framework)
-        └─ Render (auto-deploy from Git)
-
-IaC CHOICE?
-
-├─ TypeScript-first → Pulumi (Apache 2.0, multi-cloud)
-├─ HCL-based → OpenTofu (CNCF, Terraform-compatible)
-└─ Serverless TypeScript → SST v3 (built on Pulumi)
-```
-
-## Core Concepts
-
-### Infrastructure as Code (IaC)
-
-Define infrastructure using code instead of manual configuration.
-
-**Primary: Pulumi (TypeScript)**
-- Context7 ID: `/pulumi/docs` (Trust: 94.6/100, 9,525 snippets)
-- TypeScript-first (same language as React/Next.js)
-- Multi-cloud support (AWS, GCP, Azure, Cloudflare)
-- See references/pulumi-guide.md for patterns and examples
-
-**Alternative: OpenTofu (HCL)**
-- CNCF project, Terraform-compatible
-- MPL-2.0 license (open governance)
-- Drop-in Terraform replacement
-- See references/opentofu-guide.md for migration
-
-**Serverless: SST v3 (TypeScript)**
-- Built on Pulumi
-- Optimized for AWS Lambda, API Gateway
-- Live Lambda development
-
-### GitOps Deployment
-
-Declarative infrastructure with Git as source of truth.
-
-**ArgoCD** (Recommended for platform teams):
-- Rich web UI
-- Built-in RBAC and multi-tenancy
-- Self-healing deployments
-- See references/gitops-argocd.md
-
-**Flux** (Recommended for DevOps automation):
-- Kubernetes-native
-- CLI-focused
-- Simpler architecture
-- See references/gitops-argocd.md
-
-### Service Mesh
-
-Optional layer for microservices communication, security, and observability.
-
-**When to Use Service Mesh**:
-- Multi-team microservices (security boundaries)
-- Zero-trust networking (mTLS required)
-- Advanced traffic management (canary, blue-green)
-
-**When NOT to Use**:
-- Simple monolith or 2-3 services (overhead not justified)
-- Serverless architectures (incompatible)
-
-**Linkerd** (Performance-focused):
-- 5-10% overhead
-- Rust-based
-- Simple, opinionated
-
-**Istio** (Feature-rich):
-- 25-35% overhead
-- C++ (Envoy)
-- Advanced routing, observability
-
-See references/kubernetes-patterns.md for service mesh patterns.
-
-## Quick Start Workflows
-
-### Workflow 1: Deploy Next.js to Vercel (Zero-Config)
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Link project
-vercel link
-
-# Deploy to production
-vercel --prod
-```
-
-See examples/nextjs-vercel/ for complete example.
-
-### Workflow 2: Deploy to Kubernetes with ArgoCD
-
-1. Create Helm chart
-2. Push chart to Git repository
-3. Create ArgoCD Application
-4. ArgoCD syncs automatically
-
-See examples/k8s-argocd/ for complete GitOps setup.
-
-### Workflow 3: Deploy Serverless with Pulumi
-
-```typescript
-import * as pulumi from "@pulumi/pulumi";
-import * as aws from "@pulumi/aws";
-
-// Create Lambda function
-const lambda = new aws.lambda.Function("api", {
-    runtime: "nodejs20.x",
-    handler: "index.handler",
-    role: role.arn,
-    code: new pulumi.asset.FileArchive("./dist"),
-});
-
-export const apiUrl = lambda.invokeArn;
-```
-
-See examples/pulumi-aws/ and references/pulumi-guide.md for patterns.
-
-### Workflow 4: Deploy Edge Function to Cloudflare Workers
-
-```typescript
-import { Hono } from 'hono'
-
-const app = new Hono()
-
-app.get('/api/hello', (c) => {
-  return c.json({ message: 'Hello from edge!' })
-})
-
-export default app
-```
-
-Deploy with Wrangler:
-```bash
-wrangler deploy
-```
-
-See examples/cloudflare-workers-hono/ and references/edge-functions.md.
-
-## Integration with assembling-components
-
-After building an application with `assembling-components`, this skill provides deployment patterns:
-
-**Frontend (Next.js/Vite) → Deployment**:
-1. Review deployment decision tree
-2. Choose platform: Vercel (Next.js), Cloudflare Pages (static), or custom (Pulumi)
-3. Set up environment variables
-4. Deploy using chosen method
-
-**Backend (FastAPI/Axum) → Deployment**:
-1. Containerize application (Dockerfile)
-2. Choose platform: ECS Fargate, Cloud Run, or Kubernetes
-3. Set up IaC (Pulumi or OpenTofu)
-4. Deploy with GitOps (ArgoCD/Flux) or CI/CD
-
-See references/pulumi-guide.md for integration examples.
-
-## Reference Files
-
-### Kubernetes Deployment
-- **references/kubernetes-patterns.md** - Helm 4.0, service mesh, autoscaling
-- **references/gitops-argocd.md** - ArgoCD/Flux GitOps workflows
-
-### Serverless & Edge
-- **references/serverless-dbs.md** - Neon, Turso, PlanetScale (scale-to-zero)
-- **references/edge-functions.md** - Cloudflare Workers, Deno Deploy (<5ms cold starts)
-
-### Infrastructure as Code
-- **references/pulumi-guide.md** - Pulumi TypeScript patterns, component model
-- **references/opentofu-guide.md** - OpenTofu/Terraform migration
-
-## Utility Scripts
-
-Scripts in `scripts/` are executed without loading into context (token-free).
-
-**Generate Kubernetes Manifests**:
-```bash
-python scripts/generate_k8s_manifests.py --app-name my-app --replicas 3
-```
-
-**Validate Deployment Configuration**:
-```bash
-python scripts/validate_deployment.py --config deployment.yaml
-```
-
-See script files for full usage documentation.
-
-## Examples
-
-Complete, runnable examples in `examples/`:
-
-- **pulumi-aws/** - ECS Fargate deployment with Pulumi
-- **k8s-argocd/** - Kubernetes + ArgoCD GitOps
-- **sst-serverless/** - SST v3 serverless TypeScript
-
-Each example includes:
-- README.md with setup instructions
-- Complete source code
-- Environment variable configuration
-- Deployment commands
-
-## Library Recommendations
-
-### Infrastructure as Code (2025)
-
-**Primary: Pulumi**
-- Context7: `/pulumi/docs` (Trust: 94.6, 9,525 snippets)
-- TypeScript-first, multi-cloud
-- Apache 2.0 license
-
-**Alternative: OpenTofu**
-- CNCF project, MPL-2.0
-- Terraform-compatible
-- HCL syntax
-
-**Serverless: SST v3**
-- Built on Pulumi
-- AWS Lambda optimized
-- TypeScript-native
-
-### Serverless Databases
-
-**Neon PostgreSQL**:
-- Database branching (like Git)
-- Scale-to-zero compute
-- Full PostgreSQL compatibility
-
-**Turso SQLite**:
-- Edge deployment (200+ locations)
-- Sub-millisecond reads
-- libSQL (SQLite fork)
-
-**PlanetScale MySQL**:
-- Non-blocking schema changes
-- Vitess-powered
-- Per-row pricing
-
-See references/serverless-dbs.md for comparison and integration.
-
-### Edge Functions
-
-**Cloudflare Workers**:
-- <5ms cold starts (V8 isolates)
-- 200+ edge locations
-- 128MB memory per request
-
-**Deno Deploy**:
-- TypeScript-native
-- Web Standard APIs
-- Global edge (<50ms)
-
-**Hono Framework**:
-- Runs on all edge runtimes
-- 14KB bundle size
-- TypeScript-first
-
-See references/edge-functions.md for patterns.
-
-## Best Practices
-
-### Security
-- Use secrets management (AWS Secrets Manager, Vault)
-- Enable mTLS for service-to-service communication
-- Implement least-privilege IAM roles
-- Scan container images for vulnerabilities
-
-### Cost Optimization
-- Use serverless databases for variable traffic (scale-to-zero)
-- Enable horizontal pod autoscaling (HPA) in Kubernetes
-- Right-size compute resources (CPU/memory)
-- Use spot instances for non-critical workloads
-
-### Performance
-- Deploy close to users (edge functions for global apps)
-- Use CDN for static assets (CloudFront, Cloudflare)
-- Implement caching strategies (Redis, CloudFront)
-- Monitor cold start times for serverless
-
-### Reliability
-- Implement health checks (Kubernetes liveness/readiness probes)
-- Set up auto-scaling (HPA, Lambda concurrency)
-- Use multi-region deployments for critical services
-- Implement circuit breakers and retries
-
-## Troubleshooting
-
-### Deployment Failures
-
-**Kubernetes pod fails to start**:
-1. Check pod logs: `kubectl logs <pod-name>`
-2. Describe pod: `kubectl describe pod <pod-name>`
-3. Verify resource limits and requests
-4. Check image pull errors (imagePullSecrets)
-
-**Serverless cold starts too slow**:
-1. Reduce bundle size (tree-shaking, code splitting)
-2. Use provisioned concurrency (AWS Lambda)
-3. Consider edge functions (Cloudflare Workers)
-4. Optimize initialization code
-
-**GitOps sync errors (ArgoCD/Flux)**:
-1. Verify Git repository access
-2. Check manifest validity (`kubectl apply --dry-run`)
-3. Review sync policies (prune, selfHeal)
-4. Check ArgoCD/Flux logs
-
-### Performance Issues
-
-**High service mesh overhead**:
-1. Consider switching to Linkerd (5-10% vs Istio 25-35%)
-2. Disable unnecessary features
-3. Evaluate if service mesh is needed
-
-**Database connection pool exhaustion**:
-1. Increase connection pool size
-2. Use serverless databases (Neon scale-to-zero)
-3. Implement connection pooling (PgBouncer)
-
-See references/ files for detailed troubleshooting guides.
-
-## Migration Patterns
-
-### From Manual to IaC
-
-1. Inventory existing infrastructure
-2. Start with non-critical environments (dev, staging)
-3. Use Pulumi/OpenTofu to codify infrastructure
-4. Test in staging before production
-5. Gradual migration (one service at a time)
-
-### From Terraform to OpenTofu
-
-```bash
-# Install OpenTofu
-brew install opentofu
-
-# Migrate state
-terraform state pull > terraform.tfstate.backup
-tofu init -migrate-state
-tofu plan
-tofu apply
-```
-
-See references/opentofu-guide.md for complete migration.
-
-### From EC2 to Containers
-
-1. Containerize application (create Dockerfile)
-2. Test locally (Docker Compose)
-3. Deploy to staging (ECS/Cloud Run/Kubernetes)
-4. Monitor performance and costs
-5. Cutover production traffic (blue-green deployment)
-
-### From Containers to Serverless
-
-1. Identify stateless services
-2. Refactor to serverless-friendly patterns
-3. Use serverless databases (Neon/Turso)
-4. Deploy to Lambda/Cloud Functions
-5. Monitor cold starts and costs
-
-## Next Steps
-
-After deploying applications:
-- Set up observability (metrics, logs, traces)
-- Implement CI/CD pipelines (GitHub Actions, GitLab CI)
-- Configure auto-scaling and resource limits
-- Set up disaster recovery and backups
-- Document runbooks for incident response
-
-## Additional Resources
-
-- Pulumi documentation: https://www.pulumi.com/docs/
-- OpenTofu documentation: https://opentofu.org/docs/
-- ArgoCD documentation: https://argo-cd.readthedocs.io/
-- Cloudflare Workers docs: https://developers.cloudflare.com/workers/
-- Neon documentation: https://neon.tech/docs/
+Pick the deployment target, IaC tool and rollout strategy for a workload, record the decision, then hand off to the skill that implements it.
+
+## 1. Gather the inputs
+
+Answer these before choosing; ask when they are unknown.
+
+| Question | Why it matters |
+|---|---|
+| Number of services, and is there a team to run a cluster? | Kubernetes pays off with many services and platform staff, rarely before |
+| Traffic shape: steady, spiky, near zero at night? | Spiky or idle favors scale-to-zero (serverless, Cloud Run) |
+| Latency target and user geography | Global sub-50ms reads favor edge runtimes and replicated data |
+| Long-running work, WebSockets, background workers? | Rules out short-timeout function platforms |
+| State: which database, and where must data live? | Data residency and connection limits constrain compute placement |
+| Existing cloud account, compliance scope, budget | Usually decides the provider before any technical argument |
+| Who operates it at 03:00? | Managed platforms trade control for less on-call load |
+
+## 2. Choose the target
+
+| Workload | Default target | Implement with |
+|---|---|---|
+| Many services, platform team, need for custom networking/operators | Kubernetes (EKS/GKE/AKS) with GitOps | `operating-kubernetes`, `implementing-gitops`, `kubernetes-hardening` |
+| A few containerized services, steady load | Managed containers (ECS Fargate, Cloud Run, Azure Container Apps) | `deploying-on-aws`, `deploying-on-gcp`, `deploying-on-azure` |
+| Spiky or low traffic, stateless request/response | Functions (Lambda, Cloud Run functions, Azure Functions) | the cloud skill for that provider |
+| Global low-latency reads, light compute | Edge runtimes (Cloudflare Workers, Deno Deploy) | [references/edge-functions.md](references/edge-functions.md) |
+| Frontend or full-stack framework app (Next.js etc.), small team | PaaS (Vercel, Netlify, Render, Railway, Fly.io) | the platform's docs; Render has its own skills collection |
+| Single host, small internal tool | Docker Compose on a VM | `docker-compose-production` |
+
+Prefer the simplest target that meets the requirements; move up to Kubernetes when concrete needs (many services, custom scheduling, operators, multi-tenant platform) appear.
+
+## 3. Choose the IaC tool
+
+| Situation | Tool |
+|---|---|
+| Team writes TypeScript/Python/Go and wants real languages | Pulumi (`pulumi-components`, `pulumi-stacks`, [references/pulumi-guide.md](references/pulumi-guide.md)) |
+| HCL ecosystem, existing Terraform modules | OpenTofu or Terraform ([references/opentofu-guide.md](references/opentofu-guide.md)) |
+| AWS-only, CloudFormation-native shops | AWS CDK / CloudFormation (`deploying-on-aws`) |
+| Azure-only | Bicep (`deploying-on-azure`) |
+| Kubernetes application manifests | Helm or Kustomize, delivered by Argo CD/Flux (`implementing-gitops`) |
+
+Keep application deploys (image version changes) separate from infrastructure changes; they have different cadence and blast radius.
+
+## 4. Choose the rollout strategy
+
+| Strategy | Use when | Needs |
+|---|---|---|
+| Rolling | Default for stateless services | Health checks; backward-compatible changes |
+| Blue-green | Instant rollback required | Double capacity during switch; shared DB must work with both versions |
+| Canary | Risky changes, large traffic | Traffic splitting and metrics-based promotion (Argo Rollouts, Flagger, ALB weights) |
+| Recreate | Singleton or schema-incompatible versions | Accepted downtime window |
+| Feature flags | Decouple deploy from release | Flag service and cleanup discipline (`shipping-and-launch`) |
+
+Details and manifests: [references/deployment-strategies.md](references/deployment-strategies.md). Database schema changes use expand-and-contract so old and new versions run side by side.
+
+## 5. Record and hand off
+
+Write a short decision record (target, IaC tool, rollout strategy, rejected options and why) with `documentation-and-adrs`, then continue with the implementation skill from the tables above. CI that builds and tests the artifact belongs to `building-ci-pipelines`; the pre-launch checklist to `shipping-and-launch`.
+
+## Reference material in this skill
+
+- [references/kubernetes-patterns.md](references/kubernetes-patterns.md) - Helm packaging, service mesh trade-offs, autoscaling
+- [references/gitops-argocd.md](references/gitops-argocd.md) - Argo CD and Flux workflows
+- [references/serverless-dbs.md](references/serverless-dbs.md) - scale-to-zero databases (Neon, Turso and similar) for serverless/edge compute
+- [references/edge-functions.md](references/edge-functions.md) - Cloudflare Workers, Deno Deploy, Hono
+- [references/pulumi-guide.md](references/pulumi-guide.md), [references/opentofu-guide.md](references/opentofu-guide.md) - IaC patterns and Terraform-to-OpenTofu migration
+- [examples/pulumi-aws/](examples/pulumi-aws/) - ECS Fargate service with Pulumi
+- [examples/k8s-argocd/](examples/k8s-argocd/) - Kubernetes base manifests with an Argo CD application
+- `scripts/generate_k8s_manifests.py --app-name my-app --image <registry>/<image>@sha256:<digest> --enable-hpa` - starter Deployment/Service/HPA manifests (review before use; pass a pinned image, the default is a placeholder)
+- `scripts/validate_deployment.py --config deployment.yaml [--strict]` - check a manifest for missing probes, limits and similar issues
+
+## Done when
+
+- The target, IaC tool and rollout strategy are chosen with the inputs from step 1 written down.
+- Rejected alternatives and the conditions that would change the decision are recorded.
+- The next skill (cloud, Kubernetes, GitOps or Compose) and the owner for operating the result are named.

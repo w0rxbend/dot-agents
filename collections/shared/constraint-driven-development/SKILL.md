@@ -24,7 +24,7 @@ Apply this skill when:
 - An agent is producing volume nobody is reading line by line
 - CI has checks but nobody can say which ones block a merge and which ones are decoration
 - Coverage, performance, or accessibility numbers get argued about per-PR instead of decided once
-- You're about to run `/build auto` or any autonomous loop, and the only thing standing between it and main is a test suite the agent also wrote
+- You're about to start an autonomous agent loop, and the only thing standing between it and main is a test suite the agent also wrote
 
 **When NOT to use:**
 
@@ -35,7 +35,7 @@ Apply this skill when:
 
 ## Loading Constraints
 
-The interview needs a live user. **Don't run it in non-interactive contexts** (CI, `/loop`, autonomous runs). If constraints are missing and you're in one of those, apply the Floor below, note that you did, and flag the rest for a human.
+The interview needs a live user. **Don't run it in non-interactive contexts** (CI, scheduled or looping agent runs, other autonomous runs). If constraints are missing and you're in one of those, apply the Floor below, note that you did, and flag the rest for a human.
 
 ## The Process
 
@@ -113,7 +113,7 @@ Last reviewed: 2026-08-08 by @addy
 |-----------|------|-----------|---------|
 | Types | Zero type errors | `tsc --noEmit` | every edit |
 | Lint | Zero errors from our config | `biome check` | every edit |
-| Secrets | No secrets in source | `gitleaks detect --redact` | every edit |
+| Secrets | No secrets in source | `gitleaks dir --redact .` (gitleaks ≥ 8.19; older: `gitleaks detect --redact`) | every edit |
 | Coverage | Changed lines ≥ 80% covered | `vitest run --coverage` + git diff | task end, CI |
 | Security: code | No high findings | `semgrep scan --config p/default` | CI |
 | Security: deps | Nothing at high or above | `osv-scanner scan source -r .` | CI |
@@ -151,7 +151,7 @@ Picking a dimension means installing something. Don't leave the user with a numb
 | Coverage (JS) | your test runner | already there | `vitest run --coverage` (or `jest --coverage`) | coverage of changed lines |
 | Coverage (Python) | pytest-cov | `pip install pytest-cov` | `pytest --cov --cov-report=lcov` | same |
 | Security: code | Semgrep | `pipx install semgrep` | `semgrep scan --config p/default --config p/owasp-top-ten` | any high finding |
-| Security: secrets | gitleaks | `brew install gitleaks` | `gitleaks detect --redact --no-banner` | any finding |
+| Security: secrets | gitleaks | `brew install gitleaks` | `gitleaks dir --redact --no-banner .` (≥ 8.19; `gitleaks git` scans history) | any finding |
 | Security: dependencies | osv-scanner | `brew install osv-scanner` | `osv-scanner scan source -r .` | high or above |
 | Performance: page | Lighthouse | `npm i -D lighthouse` | `lighthouse $URL --output=json --quiet` | LCP, CLS, performance score |
 | Performance: bundle | size-limit | `npm i -D size-limit` | `size-limit --json` | per-entry byte budget |
@@ -172,7 +172,7 @@ Add each one to the project's own script so it's reproducible without an agent:
 ```json
 {
   "scripts": {
-    "check:fast": "tsc --noEmit && eslint . && gitleaks detect --redact --no-banner",
+    "check:fast": "tsc --noEmit && eslint . && gitleaks dir --redact --no-banner .",
     "check:task": "npm run check:fast && vitest run --coverage",
     "check:full": "npm run check:task && semgrep scan --config p/default && osv-scanner scan source -r ."
   }
@@ -187,12 +187,12 @@ The commands now live in two places — the `Checked by` column in `CONSTRAINTS.
 
 The single biggest mistake is running everything everywhere. A check that stalls the agent gets switched off, and a gate people switched off is worse than no gate, because the bar still looks like it exists.
 
-| Phase | Command | What runs | Budget |
-|-------|---------|-----------|--------|
-| BUILD | `/build` | Types, lint, secrets, the floor | under 5s, changed file only |
-| VERIFY | `/test` | Related tests, coverage on changed lines | under 90s |
-| REVIEW | `/review` | Everything, plus the guards below | minutes |
-| SHIP | `/ship` | Direction checks, no regressions | CI |
+| Phase | Where it runs | What runs | Budget |
+|-------|---------------|-----------|--------|
+| BUILD | After each edit (editor/agent hook or the build script) | Types, lint, secrets, the floor | under 5s, changed file only |
+| VERIFY | The project's test command | Related tests, coverage on changed lines | under 90s |
+| REVIEW | Before opening or merging a PR | Everything, plus the guards below | minutes |
+| SHIP | CI on the merge target | Direction checks, no regressions | CI |
 
 Two rules that keep this tolerable:
 

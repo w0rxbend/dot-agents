@@ -10,7 +10,7 @@ Demonstrates:
 """
 
 from fastapi import FastAPI, Form, File, UploadFile, HTTPException
-from pydantic import BaseModel, EmailStr, validator, Field
+from pydantic import BaseModel, EmailStr, Field, ValidationInfo, field_validator
 from typing import Optional, List
 import re
 
@@ -24,7 +24,9 @@ class ContactForm(BaseModel):
     message: str = Field(..., min_length=20, max_length=2000)
     newsletter: bool = Field(default=False)
 
-    @validator('name')
+    @field_validator('name')
+
+    @classmethod
     def validate_name(cls, v):
         if not re.match(r"^[a-zA-ZÀ-ÿ\s'-]+$", v):
             raise ValueError('Name can only contain letters, spaces, hyphens, and apostrophes')
@@ -40,7 +42,9 @@ class UserRegistration(BaseModel):
     age: int = Field(..., ge=13, le=120)
     terms: bool = Field(..., description="Must accept terms")
 
-    @validator('username')
+    @field_validator('username')
+
+    @classmethod
     def validate_username(cls, v):
         if not re.match(r'^[a-zA-Z0-9_-]+$', v):
             raise ValueError('Username can only contain letters, numbers, underscores, and hyphens')
@@ -52,7 +56,9 @@ class UserRegistration(BaseModel):
 
         return v
 
-    @validator('password')
+    @field_validator('password')
+
+    @classmethod
     def validate_password(cls, v):
         if not re.search(r'[A-Z]', v):
             raise ValueError('Password must contain at least one uppercase letter')
@@ -65,13 +71,18 @@ class UserRegistration(BaseModel):
 
         return v
 
-    @validator('confirm_password')
-    def passwords_match(cls, v, values):
-        if 'password' in values and v != values['password']:
+    @field_validator('confirm_password')
+
+    @classmethod
+    def passwords_match(cls, v, info: ValidationInfo):
+        # info.data holds fields validated earlier (declared above this one)
+        if 'password' in info.data and v != info.data['password']:
             raise ValueError('Passwords do not match')
         return v
 
-    @validator('terms')
+    @field_validator('terms')
+
+    @classmethod
     def terms_accepted(cls, v):
         if not v:
             raise ValueError('You must accept the terms and conditions')
@@ -94,7 +105,7 @@ async def submit_contact_form(form: ContactForm):
         return {
             "success": True,
             "message": "Thank you for contacting us!",
-            "data": form.dict()
+            "data": form.model_dump()
         }
 
     except Exception as e:
@@ -197,4 +208,3 @@ async def check_email_availability(email: str):
     return {"available": available}
 
 # Run with: uvicorn fastapi_forms:app --reload
-```

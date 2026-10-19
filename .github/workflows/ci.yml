@@ -32,16 +32,19 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python }}
-      - name: Validate catalog and test installer
-        run: make check
+      # Runs first so the pinned, checksum-verified dotbot-go binary is in
+      # ~/.local/bin before the installer tests look for it.
       - name: Install and check the full collection in a temporary home
         shell: bash
         run: |
           skill_test_home=$(mktemp -d)
-          ./install.sh --home "$skill_test_home" --agents all
-          ./install.sh --home "$skill_test_home" --agents all --check
-          ./install.sh --home "$skill_test_home" --agents all
-          ./uninstall.sh --home "$skill_test_home" --agents all
+          ./install.sh install --home "$skill_test_home" --agents all
+          ./install.sh check --home "$skill_test_home" --agents all
+          ./install.sh install --home "$skill_test_home" --agents all
+          ./install.sh uninstall --home "$skill_test_home" --agents all
+          test -z "$(find "$skill_test_home" -type l)"
+      - name: Validate catalog and test installer
+        run: make check
       - name: Ensure checks did not modify the checkout
         run: test -z "$(git status --porcelain)"
 
@@ -68,9 +71,9 @@ jobs:
         shell: bash
         run: |
           skill_test_home=$(mktemp -d)
-          ./install.sh --home "$skill_test_home" --agents all
+          ./install.sh install --home "$skill_test_home" --agents all
           python3 scripts/install_vss.py --home "$skill_test_home"
-          ./install.sh --home "$skill_test_home" --agents all --include-local
-          ./install.sh --home "$skill_test_home" --agents all --include-local --check
+          ./install.sh install --home "$skill_test_home" --agents all --include-local
+          ./install.sh check --home "$skill_test_home" --agents all --include-local
       - name: Ensure checks did not modify the checkout
         run: test -z "$(git status --porcelain)"

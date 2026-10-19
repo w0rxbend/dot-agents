@@ -3,15 +3,16 @@ name: code-review
 allowed-tools:
   - Read
   - Grep
-  - Bash
   - "Bash(gh issue view:*)"
   - "Bash(gh search:*)"
   - "Bash(gh issue list:*)"
-  - "Bash(gh pr comment:*)"
   - "Bash(gh pr diff:*)"
   - "Bash(gh pr view:*)"
   - "Bash(gh pr list:*)"
-description: "Review a pull request or specified diff for actionable regressions, repository policy, and correctness. Return evidence-based findings in chat; post a GitHub review or comment only when requested."
+  - "Bash(git diff:*)"
+  - "Bash(git log:*)"
+  - "Bash(git show:*)"
+description: "Run a review of a specific pull request or diff end to end (via gh or git): establish scope, trace concrete failure paths, and report only evidence-backed, high-confidence defects ordered by severity. Read-only; posts a GitHub review only when asked. For the rubric and approval standard, see code-review-and-quality."
 
 ---
 
@@ -38,3 +39,30 @@ For additional review dimensions, read the relevant section of [references/revie
 ## Report
 
 Lead with actionable findings, ordered by severity. Include the triggering condition, practical impact, and precise file/line reference. Omit unsupported style preferences and pre-existing unrelated issues. If no actionable defect is found, say so and summarize reviewed scope and material validation limits. Publish that result only if the user requested publication; otherwise return it in chat.
+
+Severity scale:
+
+| Severity | Meaning |
+|---|---|
+| **Critical** | Blocks merge: security hole, data loss or corruption, broken build, or a demonstrated crash or wrong result on a realistic path. |
+| **Major** | Should be fixed before merge: a regression or contract break under specific but plausible conditions, a missing error path, or a test that cannot catch the change it claims to cover. |
+| **Minor** | Real but low-impact defect, or a policy deviation the repository's guidance explicitly requires fixing. |
+
+Report only what you can tie to code. Mark findings you reasoned about but did not reproduce as unverified. Drop pure style preferences.
+
+Findings template:
+
+```markdown
+## Review: <PR/diff identifier> @ <head SHA>
+
+Scope: <paths/modules reviewed>; not reviewed: <anything skipped>.
+Checks run: <tests/CI consulted or executed, with result>.
+
+### Findings
+1. **Critical**: <title> (`path/to/file.ext:LINE`)
+   Trigger: <input or condition>. Impact: <what goes wrong>. Fix: <smallest remedy>.
+2. **Major**: ...
+
+### Verdict
+<No actionable defects found | Changes requested (N critical, M major)>
+```

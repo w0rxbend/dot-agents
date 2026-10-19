@@ -73,7 +73,7 @@ Every doc comment MUST start with the function/method name followed by a verb ph
 
 ### Full Comment Template
 
-Use this structure for exported functions and complex internal functions. Omit sections that don't apply (e.g., no Parameters section for zero-arg functions). Focus on the "why" — don't restate what the code already makes obvious:
+Standard Go style is plain prose, as in the standard library; prefer that. Use this sectioned structure only when the repository already documents functions this way, and omit sections that don't apply (e.g., no Parameters section for zero-arg functions). Prefer `ExampleXxx` test functions over long inline examples. Focus on the "why" — don't restate what the code already makes obvious:
 
 ```go
 // FuncName summarizes what this function does in one sentence.

@@ -27,15 +27,16 @@ services:
           name: postgres
           property: connectionString
       - key: REDIS_URL
-        fromDatabase:
+        fromService:
           name: redis
+          type: keyvalue
           property: connectionString
 
   # Celery worker for background tasks
   - type: worker
     name: celery-worker
     runtime: python
-    plan: free
+    plan: starter  # free instances are web/static/Postgres/Key Value only
     region: oregon
     branch: main
     autoDeploy: true
@@ -51,15 +52,16 @@ services:
           name: postgres
           property: connectionString
       - key: REDIS_URL
-        fromDatabase:
+        fromService:
           name: redis
+          type: keyvalue
           property: connectionString
 
   # Celery beat for periodic tasks (optional)
   - type: worker
     name: celery-beat
     runtime: python
-    plan: free
+    plan: starter  # free instances are web/static/Postgres/Key Value only
     region: oregon
     branch: main
     autoDeploy: true
@@ -69,9 +71,17 @@ services:
       - key: DJANGO_SETTINGS_MODULE
         value: config.settings.production
       - key: REDIS_URL
-        fromDatabase:
+        fromService:
           name: redis
+          type: keyvalue
           property: connectionString
+
+  # Key Value (Redis-compatible) for Celery and caching
+  - type: keyvalue
+    name: redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []  # Internal access only
 
 databases:
   # PostgreSQL database
@@ -82,8 +92,3 @@ databases:
     postgresMajorVersion: "15"
     ipAllowList: []  # Internal access only
 
-  # Redis for Celery and caching
-  - name: redis
-    plan: free
-    maxmemoryPolicy: allkeys-lru
-    ipAllowList: []  # Internal access only

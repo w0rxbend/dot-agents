@@ -1,8 +1,10 @@
 ---
 name: streaming-integrations
-description: Implement or debug OBS WebSocket v5 clients, Twitch OAuth/EventSub delivery, and event-driven OBS browser-source overlays, preserving session correlation and render-resource lifetimes.
+description: Implement or debug OBS WebSocket v5 clients, Twitch OAuth/EventSub delivery, and event-driven OBS browser-source overlays, preserving session correlation and render-resource lifetimes. Use when working on OBS control, Twitch event ingestion or stream overlay code.
 license: MIT
 ---
+
+# Streaming integrations
 
 Work from the checked-out protocol implementation, dependency lockfiles, and tests. In this portfolio OBS control clients, Twitch ingestion, the backend-to-overlay WebSocket, and browser rendering are separate boundaries. Identify which boundary fails before changing another one. Preserve the repository's language, effect system, UI stack, and public contract.
 

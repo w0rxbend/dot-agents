@@ -24,7 +24,10 @@ Tables combine arrays and hash maps into a single versatile data structure with
 ```lua
 -- Empty table creation
 local t1 = {}
-local t2 = table.create(100)  -- Pre-allocate (LuaJIT)
+-- Pre-allocation is runtime-specific: LuaJIT has `local new = require("table.new")`
+-- then `new(100, 0)`; PUC Lua 5.1-5.4 have no Lua-level preallocation API
+-- (C code can use lua_createtable). Lua 5.5 adds table.create(nseq, nrec).
+local t2 = {}
 
 -- Array-style tables (consecutive integers from 1)
 local array = {10, 20, 30, 40, 50}
@@ -1006,7 +1009,8 @@ rather than using them universally.
 1. **Use local variables** for tables to improve performance and avoid global
    namespace pollution
 
-2. **Pre-allocate tables** when size is known to reduce reallocation overhead
+2. **Pre-allocate tables** only where the runtime supports it (LuaJIT
+   `table.new`, C `lua_createtable`) and profiling shows reallocation matters
 
 3. **Prefer ipairs for arrays** and pairs for dictionaries to match iteration
    semantics
@@ -1016,7 +1020,8 @@ rather than using them universally.
 5. **Avoid holes in arrays** (nil values) as they break length operator and
    iteration
 
-6. **Cache table.insert and table.remove** in tight loops for better performance
+6. **Prefer `t[#t + 1] = v`** (or a local count) over `table.insert` in hot
+   loops; measure before micro-optimizing
 
 7. **Use rawget and rawset** to bypass metamethods when building metatables
 

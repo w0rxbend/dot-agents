@@ -8,7 +8,7 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [Competitors, News, Market-Research, Monitoring]
-    related_skills: [blogwatcher, rss-feeds, reddit-reading]
+    related_skills: [grounded-citations]
 ---
 
 # Competitor News Monitor
@@ -23,7 +23,7 @@ Track a declared company set and report only material, new developments with pri
 - "Track funding, partnerships, executive moves, and incidents."
 - A cron tick fires for an existing competitor watch (steps 3-6).
 
-Don't use for: one-off company research (use `web_search`/`web_extract` directly) or plain feed reading (`blogwatcher`).
+Don't use for: one-off company research (use `web_search`/`web_extract` directly) or plain feed reading (use a feed-reader skill if one is installed).
 
 ## Procedure — Setup (foreground, once)
 
@@ -42,7 +42,7 @@ For each company include, where available:
 5. reputable trade and financial press
 6. job postings as weak supporting evidence
 
-Use `rss-feeds` (optional) or `blogwatcher` (optional, stateful) for feeds, `reddit-reading` for community discussion, and `web_search`/`web_extract` for pages. Write the watch contract (watchlist, categories, materiality threshold, last cutoff) to a state file under `~/.hermes/competitor-watches/<watch-slug>.json`, then create the job:
+Use `web_search`/`web_extract` for pages and feeds. The optional hub skills `rss-feeds` (`hermes skills install official/research/rss-feeds`) and `reddit-reading` (`hermes skills install official/social-media/reddit-reading`) add feed reading and community discussion; if they are not installed, fetch the feed URL with `web_extract` and skip community sources rather than failing the tick. Write the watch contract (watchlist, categories, materiality threshold, last cutoff) to a state file under `~/.hermes/competitor-watches/<watch-slug>.json`, then create the job:
 
 ```
 cronjob(action="create",

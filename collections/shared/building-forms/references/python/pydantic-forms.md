@@ -80,14 +80,16 @@ except ValidationError as e:
     print(e.errors())
     # [
     #   {
+    #     'type': 'value_error',
     #     'loc': ('email',),
-    #     'msg': 'value is not a valid email address',
-    #     'type': 'value_error.email'
+    #     'msg': 'value is not a valid email address: An email address must have an @-sign.',
+    #     ...
     #   },
     #   {
+    #     'type': 'int_parsing',
     #     'loc': ('age',),
-    #     'msg': 'value is not a valid integer',
-    #     'type': 'type_error.integer'
+    #     'msg': 'Input should be a valid integer, unable to parse string as an integer',
+    #     ...
     #   }
     # ]
 ```
@@ -605,7 +607,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             ctx = error.get('ctx', {})
             min_length = ctx.get('min_length', 0)
             message = f"Must be at least {min_length} characters long"
-        elif error['type'] == 'value_error.email':
+        elif error['type'] == 'value_error' and error['loc'][-1] == 'email':
             message = "Please enter a valid email address"
 
         errors[field] = message
@@ -734,7 +736,7 @@ class DateRangeForm(BaseModel):
 ### Environment Configuration
 
 ```python
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict  # pip install pydantic-settings
 from typing import Optional
 
 class Settings(BaseSettings):
@@ -756,9 +758,7 @@ class Settings(BaseSettings):
     smtp_user: str
     smtp_password: str
 
-    class Config:
-        env_file = ".env"  # Load from .env file
-        env_file_encoding = 'utf-8'
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")  # also load .env
 
 # Usage
 settings = Settings()  # Loads from environment variables or .env
@@ -851,5 +851,5 @@ print(settings.database_url)
 ## Next Steps
 
 - WTForms for Flask/Django → `wtforms.md`
-- See working examples → `examples/`
+- See working examples → `../../examples/python/`
 - Validation concepts → `../validation-concepts.md`

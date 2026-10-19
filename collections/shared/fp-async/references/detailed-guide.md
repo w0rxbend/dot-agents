@@ -1,7 +1,5 @@
 # Practical Async Patterns with fp-ts - Detailed Guide
 
-> This file contains the detailed procedure and reference material extracted from `SKILL.md` for focused loading. The root skill defines activation, examples, safety constraints, and limitations.
-
 ## 1. Wrapping Promises Safely
 
 ### The Problem: Try/Catch Everywhere
@@ -144,25 +142,25 @@ async function processOrder(orderId: string) {
 }
 ```
 
-### The Solution: Clean Pipelines with chain
+### The Solution: Clean Pipelines with flatMap
 
 ```typescript
 // AFTER: Flat, readable pipeline
 const processOrder = (orderId: string) =>
   pipe(
     fetchOrder(orderId),
-    TE.chain(order => fetchUser(order.userId)),
-    TE.chain(user =>
+    TE.flatMap(order => fetchUser(order.userId)),
+    TE.flatMap(user =>
       pipe(
         checkInventory(order.items),
-        TE.chain(inventory => chargePayment(user, order.total))
+        TE.flatMap(inventory => chargePayment(user, order.total))
       )
     ),
-    TE.chain(payment => createShipment(order, user, payment))
+    TE.flatMap(payment => createShipment(order, user, payment))
   )
 ```
 
-### chain vs map
+### flatMap vs map
 
 Use `map` when your transformation is synchronous and can't fail:
 
@@ -173,12 +171,12 @@ pipe(
 )
 ```
 
-Use `chain` (or `flatMap`) when your transformation is async or can fail:
+Use `flatMap` when your transformation is async or can fail (`chain` is the legacy alias you will see in pre-2.14 code):
 
 ```typescript
 pipe(
   fetchUser(userId),
-  TE.chain(user => fetchOrders(user.id))  // Returns another TaskEither
+  TE.flatMap(user => fetchOrders(user.id))  // Returns another TaskEither
 )
 ```
 
@@ -191,10 +189,10 @@ When you need values from multiple steps:
 const processOrderManual = (orderId: string) =>
   pipe(
     fetchOrder(orderId),
-    TE.chain(order =>
+    TE.flatMap(order =>
       pipe(
         fetchUser(order.userId),
-        TE.chain(user =>
+        TE.flatMap(user =>
           pipe(
             chargePayment(user, order.total),
             TE.map(payment => ({ order, user, payment }))
@@ -244,8 +242,8 @@ const processOrder = (orderId: string) =>
 const getUserWithOrg = (userId: string) =>
   pipe(
     fetchUser(userId),                              // First: get user
-    TE.chain(user => fetchTeam(user.teamId)),      // Then: get their team
-    TE.chain(team => fetchOrganization(team.orgId)) // Finally: get org
+    TE.flatMap(user => fetchTeam(user.teamId)),      // Then: get their team
+    TE.flatMap(team => fetchOrganization(team.orgId)) // Finally: get org
   )
 ```
 
@@ -314,8 +312,8 @@ const fetchUsersWithLimit = (userIds: string[]) => {
 
   return pipe(
     batches,
-    // Process batches sequentially
-    TE.traverseArray(batch =>
+    // Process batches sequentially (traverseSeqArray; traverseArray would start every batch at once)
+    TE.traverseSeqArray(batch =>
       // But within each batch, run in parallel
       pipe(batch, TE.traverseArray(fetchUser))
     ),
@@ -338,7 +336,7 @@ const createUserAndProfile = (userData: UserData) =>
 const createUserAndProfile = (userData: UserData) =>
   pipe(
     createUser(userData),
-    TE.chain(user =>
+    TE.flatMap(user =>
       pipe(
         createProfile(user.id, userData.profile),
         TE.map(profile => ({ user, profile }))
@@ -447,7 +445,7 @@ const retry = <E, A>(
           ? TE.left(error)
           : pipe(
               TE.fromTask(wait(delay)),
-              TE.chain(() => attempt(remaining - 1, delay * 2))
+              TE.flatMap(() => attempt(remaining - 1, delay * 2))
             )
       )
     )
@@ -483,7 +481,7 @@ const getUserWithDefault = (userId: string) =>
 ---
 
 
-## 6. Handling Results
+## 5. Handling Results
 
 ### Pattern Matching with fold/match
 
@@ -552,7 +550,7 @@ app.get('/users/:id', async (req, res) => {
 ---
 
 
-## 7. Common Patterns Reference
+## 6. Common Patterns Reference
 
 ### Quick Transformations
 
@@ -598,10 +596,10 @@ pipe(
   TE.tapError(error => TE.fromIO(() => console.error(`Failed: ${error.message}`)))
 )
 
-// chainFirst is like tap but for operations that return TaskEither
+// tap also accepts effects that can fail; the original value is kept
 pipe(
   createUser(userData),
-  TE.chainFirst(user => sendWelcomeEmail(user.email))
+  TE.tap(user => sendWelcomeEmail(user.email))
 ) // Returns the created user, not the email result
 ```
 
@@ -635,7 +633,7 @@ const fromBoolean = TE.fromPredicate(
 | Create failure | `TE.left(error)` |
 | Transform value | `TE.map(fn)` |
 | Transform error | `TE.mapLeft(fn)` |
-| Chain async ops | `TE.chain(fn)` or `TE.flatMap(fn)` |
+| Chain async ops | `TE.flatMap(fn)` |
 | Run in parallel | `sequenceT(TE.ApplyPar)(te1, te2, te3)` |
 | Array in parallel | `TE.traverseArray(fn)(items)` |
 | Recover from error | `TE.orElse(fn)` |
@@ -696,7 +694,7 @@ const processOrder = (orderId: string) =>
     TE.Do,
     TE.bind('order', () => fetchOrder(orderId)),
     TE.bind('user', ({ order }) => fetchUser(order.userId)),
-    TE.chain(({ user, order }) => chargePayment(user, order.total))
+    TE.flatMap(({ user, order }) => chargePayment(user, order.total))
   )
 ```
 

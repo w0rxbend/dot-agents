@@ -1,6 +1,6 @@
 ---
 name: deploying-on-aws
-description: Selecting and implementing AWS services and architectural patterns. Use when designing AWS cloud architectures, choosing compute/storage/database services, implementing serverless or container patterns, or applying AWS Well-Architected Framework principles.
+description: "Select AWS services and reference architectures - compute (Lambda, Fargate, EKS, EC2), data, storage, networking, serverless and container patterns, Well-Architected trade-offs. Use when designing or migrating a workload on AWS; use aws-ec2/aws-iam/aws-rds/aws-s3 for hands-on operation of those services."
 ---
 
 # AWS Patterns
@@ -75,7 +75,7 @@ For detailed service comparisons including cost examples, performance characteri
 | Document Storage | JSON/BSON | DynamoDB | Flexibility vs. MongoDB compat |
 | Caching | In-Memory | ElastiCache Redis | Speed + durability |
 | Analytics (OLAP) | Columnar | Redshift/Athena | Dedicated vs. serverless |
-| Time-Series | Timestamped | Timestream | Purpose-built |
+| Time-Series | Timestamped | Timestream for InfluxDB | Purpose-built (Timestream for LiveAnalytics is closed to new customers) |
 
 **Query Complexity Guide:**
 
@@ -147,7 +147,7 @@ Client → API Gateway (HTTP API) → Lambda → DynamoDB
 - DynamoDB on-demand billing (for variable traffic)
 - CloudWatch Logs for debugging
 
-See `examples/cdk/serverless-api/` and `examples/terraform/serverless-api/` for complete implementations.
+A minimal CloudFormation version is in `examples/cloudformation/lambda-api.yaml`.
 
 ### Pattern 2: Event-Driven Processing (EventBridge + Lambda + SQS)
 
@@ -166,7 +166,7 @@ S3 Upload → EventBridge Rule → Lambda (process) → DynamoDB (metadata)
 
 **Key Features (2025):**
 - **EventBridge Pipes:** Simplified source → filter → enrichment → target
-- **Lambda Response Streaming:** Stream responses up to 20MB
+- **Lambda Response Streaming:** Stream responses beyond the 6 MB buffered limit (check current Lambda quotas for the streaming maximum)
 - **Step Functions Distributed Map:** Process millions of items in parallel
 
 See `references/serverless-patterns.md` for additional patterns including Step Functions orchestration, API Gateway WebSockets, and Lambda SnapStart configuration.
@@ -193,7 +193,7 @@ ALB → ECS Service (Fargate tasks) → RDS Aurora
 - ECS Cluster with Fargate launch type
 - Task definitions (CPU, memory, container image)
 - Auto-scaling based on CPU/memory or custom metrics
-- Service Connect for built-in service mesh (2025 feature)
+- Service Connect for built-in service mesh
 
 **Cost Model (2 vCPU, 4GB RAM, 24/7):**
 - Fargate: ~$70/month
@@ -337,7 +337,7 @@ For WAF rules, GuardDuty configuration, and network security patterns, see `refe
 - Storage optimization (S3 Intelligent-Tiering, lifecycle policies)
 - Cost monitoring (Cost Explorer, Budgets, Trusted Advisor)
 
-**6. Sustainability (Added 2024)**
+**6. Sustainability (added 2021)**
 - Use Graviton processors (60% less energy, 25% better performance)
 - Optimize workload placement (renewable energy regions)
 - Storage efficiency (delete unused data, compression)
@@ -353,13 +353,11 @@ For detailed pillar implementation guides, architectural review checklists, and 
 - **Languages:** TypeScript, Python, Java, C#, Go
 - **Best For:** AWS-native workloads, type-safe infrastructure
 - **Key Benefit:** High-level constructs, synthesizes to CloudFormation
-- **Example:** `examples/cdk/serverless-api/`
 
 **Terraform:**
 - **Language:** HCL (HashiCorp Configuration Language)
 - **Best For:** Multi-cloud environments
 - **Key Benefit:** Largest ecosystem, mature state management
-- **Example:** `examples/terraform/serverless-api/`
 
 **CloudFormation:**
 - **Language:** YAML or JSON
@@ -457,8 +455,6 @@ CloudFront (CDN)
       → S3 (file storage)
 ```
 
-**Complete CDK implementation:** `examples/cdk/three-tier-app/`
-**Complete Terraform implementation:** `examples/terraform/three-tier-app/`
 
 ### Containerized Microservices
 
@@ -471,7 +467,7 @@ Route 53 (DNS)
         → ElastiCache Redis (cache)
 ```
 
-**Complete implementation:** `examples/cdk/ecs-fargate/`
+See `references/container-patterns.md` for ECS Fargate service details.
 
 ### Event-Driven Data Pipeline
 
@@ -484,29 +480,30 @@ S3 Upload
           → Athena (query)
 ```
 
-**Complete implementation:** `examples/cdk/event-driven/`
+See `references/serverless-patterns.md` for EventBridge and Firehose patterns.
 
 ## Integration with Other Skills
 
 ### Related Skills
 
-- **infrastructure-as-code** - Multi-cloud IaC concepts, CDK and Terraform patterns
-- **kubernetes-operations** - EKS cluster operations, kubectl, Helm charts
-- **building-ci-pipelines** - CodePipeline, CodeBuild, GitHub Actions → AWS
-- **secret-management** - Secrets Manager rotation, Parameter Store hierarchies
-- **observability** - CloudWatch advanced queries, X-Ray distributed tracing
-- **security-hardening** - IAM policy best practices, security automation
-- **disaster-recovery** - Multi-region strategies, backup automation
+- **aws-ec2 / aws-iam / aws-rds / aws-s3** - hands-on operation of those services
+- **pulumi-components / pulumi-stacks** - IaC in TypeScript/Python with per-environment stacks
+- **operating-kubernetes** - EKS workload operations, kubectl, Helm
+- **building-ci-pipelines** - GitHub Actions or CodePipeline to AWS with OIDC
+- **hashicorp-vault** - secrets beyond Secrets Manager / Parameter Store
+- **implementing-observability** - CloudWatch, X-Ray and OpenTelemetry backends
+- **security-hardening** - account and workload hardening
+- **architecting-networks** - VPC design
 
 ### Cross-Skill Patterns
 
-**EKS + kubernetes-operations:**
+**EKS + operating-kubernetes:**
 - Use this skill for EKS cluster provisioning (CDK/Terraform)
-- Use kubernetes-operations for kubectl, Helm, application deployment
+- Use operating-kubernetes for kubectl, Helm, application deployment
 
 **Secrets Management:**
-- Use this skill for Secrets Manager/Parameter Store setup
-- Use secret-management skill for rotation policies, access patterns
+- Use this skill for Secrets Manager/Parameter Store setup and rotation
+- Use hashicorp-vault when a cloud-agnostic secrets store is required
 
 **CI/CD Integration:**
 - Use this skill for CodePipeline infrastructure
@@ -527,22 +524,15 @@ S3 Upload
 
 ### Working Examples
 
-- **CDK Examples:** `examples/cdk/` - TypeScript implementations
-- **Terraform Examples:** `examples/terraform/` - HCL implementations
-- **CloudFormation Examples:** `examples/cloudformation/` - YAML templates
+- **CloudFormation Example:** `examples/cloudformation/lambda-api.yaml` - Lambda behind an HTTP API
 
-### Utility Scripts
 
-- **Cost Estimation:** `scripts/cost-estimate.sh` (illustrative helper; not shipped) - Estimate infrastructure costs
-- **Resource Audit:** `scripts/resource-audit.sh` (illustrative helper; not shipped) - Audit AWS resources
-- **Security Check:** `scripts/security-check.sh` (illustrative helper; not shipped) - Basic security validation
-
-## AWS Service Updates (2025)
+## Notable AWS Features (verify current status before relying on them)
 
 **Recent Innovations to Consider:**
 
 - **Lambda SnapStart:** Near-instant cold starts for Java functions
-- **Lambda Response Streaming:** Stream responses up to 20MB
+- **Lambda Response Streaming:** Stream responses beyond the 6 MB buffered limit (check current Lambda quotas for the streaming maximum)
 - **EventBridge Pipes:** Simplified event processing (source → filter → enrichment → target)
 - **S3 Express One Zone:** 10x faster S3, single-digit millisecond latency
 - **ECS Service Connect:** Built-in service mesh for ECS
@@ -590,6 +580,3 @@ S3 Upload
 5. Improve security posture (enable GuardDuty, implement least privilege)
 6. Automate with IaC (reverse-engineer to Terraform or CDK)
 
-## Helper availability
-
-The helper names marked **not shipped** describe possible project automation. Do not run those commands as installed tooling. Use the bundled helpers that exist, or implement and verify the missing behavior in the task workspace when it is actually needed.

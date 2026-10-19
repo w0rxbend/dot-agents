@@ -4,7 +4,7 @@ Production-ready REST API using Go and Gin framework with PostgreSQL.
 
 ## Features
 
-- Gin web framework (100k+ req/s)
+- Gin web framework
 - GORM or sqlc for database
 - JWT authentication
 - Middleware (CORS, logging, rate limiting)

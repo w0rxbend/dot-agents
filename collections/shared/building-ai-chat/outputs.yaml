@@ -9,11 +9,11 @@ base_outputs:
     reason: "Core chat UI components directory"
 
   - path: "components/ChatContainer.tsx"
-    must_contain: ["useChat", "messages", "input", "handleSubmit"]
+    must_contain: ["useChat", "messages", "sendMessage", "status"]
     reason: "Main chat interface container with streaming support"
 
   - path: "components/MessageList.tsx"
-    must_contain: ["message.role", "message.content", "Streamdown"]
+    must_contain: ["message.role", "message.parts", "Streamdown"]
     reason: "Message display with streaming markdown rendering"
 
   - path: "components/InputArea.tsx"
@@ -25,7 +25,7 @@ base_outputs:
     reason: "Utility functions for chat operations and streaming"
 
   - path: "package.json"
-    must_contain: ["ai", "@ai-sdk/react", "@vercel/streamdown"]
+    must_contain: ["ai", "@ai-sdk/react", "streamdown"]
     reason: "Required AI chat dependencies"
 
 # Conditional outputs based on configuration
@@ -33,15 +33,15 @@ conditional_outputs:
   maturity:
     starter:
       - path: "components/BasicChat.tsx"
-        must_contain: ["useChat", "messages.map", "handleSubmit", "isLoading"]
+        must_contain: ["useChat", "messages.map", "sendMessage", "status"]
         reason: "Minimal ChatGPT-style interface (under 100 lines)"
 
       - path: "components/Message.tsx"
-        must_contain: ["message.role", "Streamdown", "message.content"]
+        must_contain: ["message.role", "Streamdown", "message.parts"]
         reason: "Basic message bubble with streaming support"
 
       - path: "app/api/chat/route.ts"
-        must_contain: ["streamText", "openai", "messages"]
+        must_contain: ["streamText", "convertToModelMessages", "toUIMessageStreamResponse"]
         reason: "Server-side streaming endpoint"
 
       - path: "styles/chat.css"
@@ -272,7 +272,7 @@ metadata:
 
   common_patterns:
     - "Vercel AI SDK (useChat hook for streaming)"
-    - "@vercel/streamdown (incomplete markdown rendering)"
+    - "streamdown (incomplete markdown rendering)"
     - "Server-Sent Events (SSE) for real-time streaming"
     - "Auto-scroll with user activity detection"
     - "DOMPurify for XSS protection on AI outputs"
@@ -346,13 +346,13 @@ metadata:
     │   ├── error-messages.json     # User-friendly error messages
     │   └── themes.json             # Light, dark, high-contrast themes
     ├── references/                 # Documentation
-    │   ├── streaming-ux.md         # Streaming patterns and auto-scroll
+    │   ├── streaming-patterns.md   # Streaming patterns and auto-scroll
     │   ├── context-management.md   # Token limits and strategies
-    │   ├── multi-modal.md          # Image, file, voice handling
+    │   ├── multimodal-input.md     # Image, file, voice handling
     │   ├── feedback-loops.md       # RLHF patterns
     │   ├── error-handling.md       # AI-specific error scenarios
     │   ├── tool-usage.md           # Function calling visualization
-    │   ├── accessibility.md        # Screen reader and keyboard support
+    │   ├── accessibility-chat.md   # Screen reader and keyboard support
     │   ├── library-guide.md        # Detailed library documentation
     │   └── performance-optimization.md  # Streaming performance
     ├── tests/                      # Unit tests
@@ -366,14 +366,14 @@ metadata:
 
   tools_required:
     - name: "Vercel AI SDK"
-      version: "^3.0.0"
-      purpose: "Streaming AI chat with useChat hook"
+      version: ">=5.0.0"
+      purpose: "Streaming AI chat with useChat hook (AI SDK 5+ API: sendMessage, status, message.parts)"
       install: "npm install ai @ai-sdk/react @ai-sdk/openai"
 
-    - name: "@vercel/streamdown"
-      version: "^1.0.0"
+    - name: "streamdown"
+      version: ">=1.0.0"
       purpose: "Render incomplete markdown during streaming"
-      install: "npm install @vercel/streamdown"
+      install: "npm install streamdown"
 
     - name: "react-syntax-highlighter"
       version: "^15.0.0"
@@ -396,9 +396,9 @@ metadata:
       install: "npm install tiktoken"
 
   validation_checks:
-    - "useChat hook from ai/react imported and used"
-    - "@vercel/streamdown used for AI message rendering"
-    - "DOMPurify sanitizes AI-generated content"
+    - "useChat hook from @ai-sdk/react imported and used"
+    - "streamdown used for AI message rendering"
+    - "Any markdown converted to an HTML string is sanitized (DOMPurify on the rendered HTML) before insertion"
     - "Auto-scroll respects user scrolling (not always scrolling)"
     - "Stop button visible during streaming"
     - "Regenerate/continue controls visible after completion"

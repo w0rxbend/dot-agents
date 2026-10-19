@@ -13,25 +13,34 @@ Guide to generating and installing shell completions for bash, zsh, fish, and Po
 
 ### Generating Completions
 
-Typer supports automatic completion generation via environment variables:
+Every Typer app gets two options automatically:
+
+```bash
+myapp --install-completion   # install for the current shell
+myapp --show-completion      # print the script for the current shell
+```
+
+To write the script to a file yourself, use Typer's environment variable. Typer expects `source_<shell>` (Click's `bash_source` style is rejected with "Shell source not supported"):
 
 ```bash
 # Bash
-_MYAPP_COMPLETE=bash_source myapp > ~/.myapp-complete.bash
+_MYAPP_COMPLETE=source_bash myapp > ~/.myapp-complete.bash
 
 # Zsh
-_MYAPP_COMPLETE=zsh_source myapp > ~/.myapp-complete.zsh
+_MYAPP_COMPLETE=source_zsh myapp > ~/.myapp-complete.zsh
 
 # Fish
-_MYAPP_COMPLETE=fish_source myapp > ~/.config/fish/completions/myapp.fish
+_MYAPP_COMPLETE=source_fish myapp > ~/.config/fish/completions/myapp.fish
 
 # PowerShell
-_MYAPP_COMPLETE=powershell_source myapp > ~/.myapp-complete.ps1
+_MYAPP_COMPLETE=source_powershell myapp > ~/.myapp-complete.ps1
 ```
+
+The variable name is `_<PROG_NAME>_COMPLETE` with the program name upper-cased and dashes replaced by underscores.
 
 ### Implementation
 
-No special code required - Typer handles completion automatically via Click.
+No special code required - Typer adds completion support automatically. Pass `add_completion=False` to `typer.Typer()` to hide the options.
 
 ### Installation
 
@@ -62,14 +71,15 @@ Add-Content $PROFILE ". ~/.myapp-complete.ps1"
 
 ### Generating Completions
 
-Add completion command to your CLI:
+Cobra (v1.2+) adds a `completion` subcommand to the root command automatically, with `bash`, `zsh`, `fish` and `powershell` subcommands. No code is needed:
 
 ```go
 package main
 
 import (
-    "github.com/spf13/cobra"
     "os"
+
+    "github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
@@ -77,30 +87,12 @@ var rootCmd = &cobra.Command{
     Short: "My application",
 }
 
-var completionCmd = &cobra.Command{
-    Use:   "completion [bash|zsh|fish|powershell]",
-    Short: "Generate shell completion scripts",
-    Args:  cobra.ExactArgs(1),
-    Run: func(cmd *cobra.Command, args []string) {
-        switch args[0] {
-        case "bash":
-            rootCmd.GenBashCompletion(os.Stdout)
-        case "zsh":
-            rootCmd.GenZshCompletion(os.Stdout)
-        case "fish":
-            rootCmd.GenFishCompletion(os.Stdout, true)
-        case "powershell":
-            rootCmd.GenPowerShellCompletionWithDesc(os.Stdout)
-        }
-    },
-}
-
-func init() {
-    rootCmd.AddCommand(completionCmd)
-}
-
 func main() {
-    rootCmd.Execute()
+    // Optional: rootCmd.CompletionOptions.DisableDefaultCmd = true to hide it,
+    // or HiddenDefaultCmd = true to keep it but hide it from help.
+    if err := rootCmd.Execute(); err != nil {
+        os.Exit(1)
+    }
 }
 ```
 

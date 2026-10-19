@@ -137,7 +137,7 @@ jobs:
       - name: Build artifact
         run: make build
       - name: Generate attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@<pinned-sha> # current major
         with:
           subject-path: 'dist/myapp'
 ```
@@ -395,7 +395,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@<pinned-sha> # vX.Y.Z - never a branch ref
         with:
           scan-type: 'fs'
           severity: 'CRITICAL,HIGH'

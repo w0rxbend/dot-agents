@@ -55,7 +55,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsSL -o /usr/local/bin/tool https://example.com/bin/tool-v1.2.3 && \
-    echo "a]b3c4d5e6f7... /usr/local/bin/tool" | sha256sum -c - && \
+    echo "<published-sha256>  /usr/local/bin/tool" | sha256sum -c - && \
     chmod +x /usr/local/bin/tool
 ```
 

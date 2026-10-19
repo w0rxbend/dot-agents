@@ -19,7 +19,7 @@ Installation:
 
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 from typing import Optional, Literal
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from enum import Enum
 import re
 
@@ -192,7 +192,7 @@ class DateValidation(BaseModel):
 date_form = DateValidation(
     date_of_birth=date(1990, 1, 1),
     start_date=date.today(),
-    end_date=date(2025, 12, 31)
+    end_date=date.today() + timedelta(days=30)
 )
 print("Dates are valid")
 
@@ -284,10 +284,11 @@ class Address(BaseModel):
     zip_code: str = Field(..., pattern=r'^\d{5}$')
     country: str = Field(default='US')
 
-    @field_validator('state')
+    # mode='before' runs ahead of the pattern check, so 'ca' becomes 'CA' first
+    @field_validator('state', mode='before')
     @classmethod
-    def state_uppercase(cls, v: str) -> str:
-        return v.upper()
+    def state_uppercase(cls, v):
+        return v.upper() if isinstance(v, str) else v
 
 
 class UserWithAddress(BaseModel):

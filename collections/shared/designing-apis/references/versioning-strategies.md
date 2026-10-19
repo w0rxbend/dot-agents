@@ -379,7 +379,7 @@ Month 6: Sunset (remove old version)
 GET /api/v1/users
 
 200 OK
-Deprecation: true
+Deprecation: @1735689599
 Sunset: Sat, 31 Dec 2025 23:59:59 GMT
 Link: </api/v2/users>; rel="successor-version"
 ```
@@ -388,7 +388,7 @@ Link: </api/v2/users>; rel="successor-version"
 ```javascript
 // v1 routes middleware
 app.use('/api/v1', (req, res, next) => {
-  res.setHeader('Deprecation', 'true');
+  res.setHeader('Deprecation', '@1735689599'); // RFC 9745: @<unix seconds of deprecation date>
   res.setHeader('Sunset', 'Sat, 31 Dec 2025 23:59:59 GMT');
   res.setHeader('Link', '</api/v2' + req.path + '>; rel="successor-version"');
   next();

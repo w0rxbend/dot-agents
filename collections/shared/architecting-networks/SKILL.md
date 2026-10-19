@@ -1,6 +1,6 @@
 ---
 name: architecting-networks
-description: Design cloud network architectures with VPC patterns, subnet strategies, zero trust principles, and hybrid connectivity. Use when planning VPC topology, implementing multi-cloud networking, or establishing secure network segmentation for cloud workloads.
+description: "Design cloud network architecture - VPC/VNet topology, subnet and CIDR strategy, segmentation and zero-trust microsegmentation, hybrid and multi-cloud connectivity. Use when planning network layout for cloud workloads; use docker-compose-networking for single-host Docker networks and operating-kubernetes for in-cluster networking."
 ---
 
 # Network Architecture
@@ -400,7 +400,7 @@ Use pattern selection framework above to choose:
 
 ### Step 5: Implement with IaC
 
-Use `infrastructure-as-code` skill to implement with Terraform/Pulumi
+Implement with IaC (Terraform/OpenTofu, or Pulumi via the `pulumi-components` and `pulumi-stacks` skills)
 
 ### Step 6: Enable Observability
 
@@ -452,25 +452,18 @@ Use `infrastructure-as-code` skill to implement with Terraform/Pulumi
 - `references/cost-optimization.md` - Egress reduction, NAT strategies
 
 **Code Examples:**
-- `examples/aws/` - AWS VPC patterns (flat, hub-spoke, peering, VPN, Direct Connect)
-- `examples/gcp/` - GCP VPC patterns (custom VPC, Shared VPC, Cloud Interconnect)
-- `examples/azure/` - Azure VNet patterns (hub-spoke, peering, ExpressRoute)
-- `examples/multi-cloud/` - Cross-cloud connectivity examples
+- `examples/aws/` - AWS VPC patterns (flat, hub-spoke, peering, VPN, Direct Connect). GCP and Azure equivalents are described in `references/multi-cloud-networking.md`.
 
 **Utility Scripts:**
 - `scripts/cidr-calculator.py` - Calculate CIDR blocks and plan IP addressing
-- `scripts/cost-estimator.sh` (illustrative helper; not shipped) - Estimate network infrastructure costs
-- `scripts/validate-sg-rules.py` (illustrative helper; not shipped) - Validate security group rule configurations
-- `scripts/flow-log-analyzer.py` (illustrative helper; not shipped) - Analyze VPC flow logs for security and cost
 
 ## Integration with Other Skills
 
-**Use `infrastructure-as-code` skill to:**
-- Implement network architectures with Terraform/Pulumi
+**Use `pulumi-components` / `pulumi-stacks` to:**
+- Implement network architectures as reusable, per-environment IaC
 - Version control network configurations
-- Automate network provisioning
 
-**Use `kubernetes-operations` skill to:**
+**Use `operating-kubernetes` skill to:**
 - Configure Kubernetes networking (CNI) on top of VPC design
 - Implement pod networking and service meshes
 
@@ -479,16 +472,8 @@ Use `infrastructure-as-code` skill to implement with Terraform/Pulumi
 - Configure network-level DDoS protection
 - Set up intrusion detection systems
 
-**Use `observability` skill to:**
+**Use `implementing-observability` skill to:**
 - Implement comprehensive network monitoring
 - Set up distributed tracing across network boundaries
 - Configure performance dashboards
 
-**Use `disaster-recovery` skill to:**
-- Design multi-region failover networking
-- Implement cross-region backup connectivity
-- Plan network recovery procedures
-
-## Helper availability
-
-The helper names marked **not shipped** describe possible project automation. Do not run those commands as installed tooling. Use the bundled helpers that exist, or implement and verify the missing behavior in the task workspace when it is actually needed.

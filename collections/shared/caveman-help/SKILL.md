@@ -18,7 +18,7 @@ Display this reference card when invoked. One-shot — do NOT change mode, write
 | **megacave** | `/megacave` (alias `/caveman wenyan`) | Classical Chinese 文言文. Far fewer characters, technical terms verbatim. |
 
 Mode stick until changed or session end.
-`/caveman status` reports current mode without changing it. Claude Code and the standalone OpenCode plugin read stored state; other hosts use conversation context and report `unknown` if no mode is known.
+`/caveman status` reports current mode without changing it. Stored mode state exists only when the upstream Caveman hooks or OpenCode plugin are installed; dot-agents installs the skills alone, so without them the mode comes from conversation context and is reported as `unknown` if no mode is known.
 
 ## Skills
 
@@ -26,7 +26,7 @@ Mode stick until changed or session end.
 |-------|---------|-----------|
 | **caveman-commit** | `/caveman-commit` | Terse commit messages. Conventional Commits. ≤50 char subject. |
 | **caveman-review** | `/caveman-review` | One-line PR comments: `L42: bug: user null. Add guard.` |
-| **caveman-compress** | `/caveman-compress <file>` | Compress .md files to caveman prose. Saves ~46% input tokens. |
+| **caveman-compress** | `/caveman-compress <file>` | Compress .md files to caveman prose. Saving depends on the file; measure it, do not assume a figure. |
 | **caveman-help** | `/caveman-help` | This card. |
 
 ## Deactivate
@@ -39,7 +39,7 @@ Keep user's language by default — reply in the language user writes, never swi
 
 ## Configure Default Mode
 
-Default mode = `caveman`. Change it:
+Default mode = `caveman`. The settings below are read by the upstream Caveman hooks and installer (https://github.com/JuliusBrussee/caveman); with the skills alone they have no effect. Change it:
 
 **Environment variable** (highest priority):
 ```bash

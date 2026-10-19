@@ -19,7 +19,7 @@ paths:
   - "**/*.go"
 ---
 
-**Orchestration mode:** Fan out the sub-agents described in the "Parallelizing Code Style Reviews" section, each covering an independent style concern, when reviewing code style across a large codebase, and merge their findings. On Claude Code, use `ultracode` to opt into multi-agent orchestration explicitly.
+**Orchestration mode:** Fan out the sub-agents described in the "Parallelizing Code Style Reviews" section, each covering an independent style concern, when reviewing code style across a large codebase, and merge their findings.
 
 > **Community default.** A company skill that explicitly supersedes `samber/cc-skills-golang@golang-code-style` skill takes precedence.
 
@@ -33,7 +33,7 @@ When ignoring a rule, add a comment to the code.
 
 ## Line Length & Breaking
 
-No rigid line limit, but lines beyond ~120 characters MUST be broken. Break at **semantic boundaries**, not arbitrary column counts. Function calls with 4+ arguments MUST use one argument per line — even when the prompt asks for single-line code:
+No rigid line limit, but lines beyond ~120 characters MUST be broken. Break at **semantic boundaries**, not arbitrary column counts. Function calls with 4+ arguments SHOULD use one argument per line when they would otherwise be long, and when the repository already formats them this way. If the user explicitly asks for single-line code, follow the request:
 
 ```go
 // Good — each argument on its own line, closing paren separate
@@ -63,11 +63,12 @@ var buf bytes.Buffer       // zero value is ready to use
 
 ### Slice & Map Initialization
 
-Slices and maps MUST be initialized explicitly, never nil. Nil maps panic on write; nil slices serialize to `null` in JSON (vs `[]` for empty slices), surprising API consumers.
+Initialize a map before writing to it — nil maps panic on write. For slices, a nil slice (`var s []T`) is the idiomatic zero value and works with `len`, `append` and `range` (Go Code Review Comments prefers it). Initialize slices explicitly (`[]T{}` or `make`) where the difference is observable: values that are JSON-encoded (nil encodes as `null`, empty as `[]`), APIs whose callers distinguish nil from empty, or when the repository already does so.
 
 ```go
-users := []User{}                       // always initialized
-m := map[string]int{}                   // always initialized
+var users []User                        // nil slice: fine for internal use
+users := []User{}                       // empty, encodes as [] in JSON
+m := map[string]int{}                   // maps must be initialized before writes
 users := make([]User, 0, len(ids))      // preallocate when capacity is known
 m := make(map[string]int, len(items))   // preallocate when size is known
 ```

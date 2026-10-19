@@ -882,11 +882,10 @@ export default function RegistrationForm() {
 
 ## Common Patterns
 
-**Login Form:** See `examples/basic-form.tsx`
-**Multi-Step Wizard:** See `examples/multi-step-wizard.tsx`
-**Inline Validation:** See `examples/inline-validation.tsx`
-**Dynamic Field Arrays:** See `examples/field-arrays.tsx`
-**Conditional Fields:** See `examples/conditional-fields.tsx`
+**Login Form:** See `../../examples/basic-form.tsx`
+**Multi-Step Wizard (includes `useFieldArray`):** See `../../examples/multi-step-wizard.tsx`
+**Inline Validation:** See `../../examples/inline-validation.tsx`
+**Conditional Fields:** See `../../examples/conditional-form.tsx`
 
 ---
 
@@ -912,6 +911,6 @@ export default function RegistrationForm() {
 ## Next Steps
 
 - Schema validation with Zod → `zod-validation.md`
-- Working examples → `examples/`
+- Working examples → `../../examples/`
 - Accessibility patterns → `../accessibility-forms.md`
 - UX best practices → `../ux-patterns.md`

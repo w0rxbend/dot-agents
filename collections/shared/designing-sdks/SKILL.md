@@ -1,6 +1,6 @@
 ---
 name: designing-sdks
-description: Design production-ready SDKs with retry logic, error handling, pagination, and multi-language support. Use when building client libraries for APIs or creating developer-facing SDK interfaces.
+description: "Design client libraries (SDKs) for an API: client/resource layout, auth handling, retries with backoff and jitter, typed error hierarchies, auto-pagination iterators, streaming, idempotency keys and versioning across TypeScript, Python and Go. Use when building or reviewing an API client library; use designing-apis for the server-side contract."
 ---
 
 # SDK Design
@@ -279,28 +279,38 @@ See `references/pagination.md` for cursor vs. offset pagination and Go channel p
 
 ```typescript
 async *stream(path: string, body?: any): AsyncGenerator<any> {
-  const response = await fetch(url, {
-    headers: { 'Accept': 'text/event-stream' },
+  const response = await fetch(`${this.baseUrl}${path}`, {
+    method: 'POST', // fetch rejects a body on GET/HEAD
+    headers: { 'Accept': 'text/event-stream', 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   })
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
   const reader = response.body!.getReader()
   const decoder = new TextDecoder()
+  let buffer = ''
 
   while (true) {
     const { done, value } = await reader.read()
     if (done) break
 
-    const chunk = decoder.decode(value)
-    for (const line of chunk.split('\n')) {
-      if (line.startsWith('data: ')) {
-        const data = line.slice(6)
+    // stream: true keeps multi-byte characters split across chunks intact
+    buffer += decoder.decode(value, { stream: true })
+    const lines = buffer.split('\n')
+    buffer = lines.pop()! // last element may be an incomplete line; keep it for the next read
+
+    for (const raw of lines) {
+      const line = raw.replace(/\r$/, '')
+      if (line.startsWith('data:')) {
+        const data = line.slice(5).trimStart()
         if (data === '[DONE]') return
         yield JSON.parse(data)
       }
     }
   }
 }
+// This handles single-line `data:` events; for multi-line data, `event:`/`id:` fields
+// and retries, use a spec-compliant parser such as eventsource-parser.
 
 // Usage
 for await (const chunk of client.posts.stream({ prompt: 'Write a story' })) {
@@ -310,7 +320,7 @@ for await (const chunk of client.posts.stream({ prompt: 'Write a story' })) {
 
 ## Idempotency Keys
 
-Prevent duplicate operations during retries:
+Prevent duplicate operations during retries. Generate the key **once per logical call, before the retry loop**, and reuse it on every retry attempt; a fresh key per attempt defeats server-side deduplication.
 
 ```typescript
 import { randomUUID } from 'crypto'
@@ -476,7 +486,7 @@ Avoid these mistakes:
 
 ## Integration with Other Skills
 
-- **api-design-principles**: API design complements SDK design (error codes → error classes)
+- **designing-apis**: The API contract the SDK wraps (error codes → error classes, pagination, idempotency)
 - **building-clis**: CLIs wrap SDKs for command-line access
 - **testing-strategies**: Test SDKs with mocked HTTP, retry scenarios
 

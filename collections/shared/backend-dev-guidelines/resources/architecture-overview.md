@@ -124,15 +124,16 @@ Complete guide to the layered architecture pattern used in backend microservices
 **Critical:** Middleware executes in registration order
 
 ```typescript
-app.use(Sentry.Handlers.requestHandler());  // 1. Sentry tracing (FIRST)
+// 1. Sentry: `import './instrument'` as the FIRST import of server.ts (@sentry/node v8+);
+//    there is no request-handler middleware any more.
 app.use(express.json());                     // 2. Body parsing
 app.use(express.urlencoded({ extended: true })); // 3. URL encoding
 app.use(cookieParser());                     // 4. Cookie parsing
 app.use(SSOMiddleware.initialize());         // 5. Auth initialization
 // ... routes registered here
 app.use(auditMiddleware);                    // 6. Audit (if global)
-app.use(errorBoundary);                      // 7. Error handler (LAST)
-app.use(Sentry.Handlers.errorHandler());     // 8. Sentry errors (LAST)
+Sentry.setupExpressErrorHandler(app);        // 7. Sentry errors (after routes, before own handler)
+app.use(errorBoundary);                      // 8. Error handler (LAST)
 ```
 
 **Rule:** Error handlers must be registered AFTER routes!
@@ -446,6 +447,6 @@ async findByEmail(email: string): Promise<User | null> {
 ---
 
 **Related Files:**
-- [SKILL.md](SKILL.md) - Main guide
+- [SKILL.md](../SKILL.md) - Main guide
 - [routing-and-controllers.md](routing-and-controllers.md) - Routes and controllers details
 - [services-and-repositories.md](services-and-repositories.md) - Service and repository patterns

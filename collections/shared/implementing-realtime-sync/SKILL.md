@@ -70,21 +70,27 @@ Stream LLM tokens progressively to frontend (ai-chat integration).
 
 **Python (FastAPI):**
 ```python
+import json
 from sse_starlette.sse import EventSourceResponse
 
-@app.post("/chat/stream")
+# GET, because the browser EventSource API can only send GET requests.
+# For a POST body (long prompts, chat history), stream with fetch() and a
+# ReadableStream reader instead of EventSource.
+@app.get("/chat/stream")
 async def stream_chat(prompt: str):
     async def generate():
-        async for chunk in llm_stream:
-            yield {"event": "token", "data": chunk.content}
-        yield {"event": "done", "data": "[DONE]"}
+        async for chunk in llm_stream(prompt):
+            # JSON-encode: a raw newline inside a token would end the SSE event early
+            yield {"event": "token", "data": json.dumps(chunk.content)}
+        yield {"event": "done", "data": json.dumps("[DONE]")}
     return EventSourceResponse(generate())
 ```
 
 **Frontend:**
 ```typescript
-const es = new EventSource('/chat/stream')
-es.addEventListener('token', (e) => appendToken(e.data))
+const es = new EventSource(`/chat/stream?prompt=${encodeURIComponent(prompt)}`)
+es.addEventListener('token', (e) => appendToken(JSON.parse(e.data)))
+es.addEventListener('done', () => es.close())
 ```
 
 Reference `references/sse.md` for full implementations, reconnection, and event ID resumption.
@@ -104,10 +110,17 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            for conn in connections:
-                await conn.send_text(data)
+            # Iterate over a snapshot: other handlers add/remove connections
+            # while we await, and a dead peer must not kill this handler
+            for conn in list(connections):
+                try:
+                    await conn.send_text(data)
+                except Exception:
+                    connections.discard(conn)
     except WebSocketDisconnect:
-        connections.remove(websocket)
+        pass
+    finally:
+        connections.discard(websocket)
 ```
 
 Reference `references/websockets.md` for multi-language examples, authentication, heartbeats, and scaling.
@@ -216,7 +229,7 @@ Reference `references/offline-sync.md` for conflict resolution and sync strategi
 
 ## Reconnection Strategies
 
-**SSE:** Browser's EventSource handles reconnection automatically with exponential backoff.
+**SSE:** Browser's EventSource reconnects automatically after a fixed delay (set by the server's `retry:` field; any backoff beyond that is browser-specific), resending `Last-Event-ID`.
 **WebSocket:** Implement manual exponential backoff with jitter to prevent thundering herd.
 
 Reference `references/sse.md` and `references/websockets.md` for complete implementation patterns.
@@ -241,8 +254,9 @@ Reference `references/websockets.md` for complete Redis scaling implementation.
 **SSE for LLM Streaming (ai-chat):**
 ```typescript
 useEffect(() => {
-  const es = new EventSource(`/api/chat/stream?prompt=${prompt}`)
-  es.addEventListener('token', (e) => setContent(prev => prev + e.data))
+  const es = new EventSource(`/api/chat/stream?prompt=${encodeURIComponent(prompt)}`)
+  es.addEventListener('token', (e) => setContent(prev => prev + JSON.parse(e.data)))
+  es.addEventListener('done', () => es.close())
   return () => es.close()
 }, [prompt])
 ```
@@ -281,9 +295,9 @@ For detailed implementation patterns, consult:
 
 Working implementations available in:
 
-- `examples/llm-streaming-sse/` - FastAPI SSE for LLM streaming (RUNNABLE)
-- `examples/chat-websocket/` - Python FastAPI + TypeScript chat
-- `examples/collaborative-yjs/` - Yjs collaborative editor
+- `examples/llm-streaming-sse/` - FastAPI SSE for LLM streaming (runnable; mock mode without API keys)
+
+For WebSocket chat and Yjs collaborative editing, see the code in `references/websockets.md` and `references/crdts.md`.
 
 ## Testing Tools
 

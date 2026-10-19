@@ -2,11 +2,27 @@
 name: caveman-evidence-review
 description: >
   Read-only review of Caveman Cloud evidence: cost, Cave Score, workflows,
-  traces, latency, errors, routing, savings. Use when asked what Caveman found
-  or where LLM spend goes.
+  traces, latency, errors, routing, savings. Use only when the user asks about
+  Caveman or Caveman Cloud data and the caveman CLI or Caveman Cloud MCP is
+  available. For vendor-neutral LLM spend analysis use agent-observability.
 ---
 
 # Review Caveman evidence
+
+## Prerequisite: the Caveman CLI or the Caveman Cloud MCP server
+
+This skill drives the third-party Caveman Cloud service (https://github.com/JuliusBrussee/caveman). dot-agents
+vendors only this instruction file; it does not install the `caveman` CLI, the
+Caveman Cloud MCP server, or an account. Check before doing anything else:
+
+- `command -v caveman` prints a path and `caveman cloud whoami` succeeds, or
+- the Caveman Cloud MCP tools (`caveman_context`, `caveman_report`, ...) appear
+  in your tool list.
+
+If the check fails, stop without reading project data or editing files, and tell
+the user: "This skill needs the Caveman CLI or the Caveman Cloud MCP server, which is not available here. Install and log
+in to Caveman first (https://github.com/JuliusBrussee/caveman), or use agent-observability for vendor-neutral LLM cost tracking." Never emulate `caveman` commands or invent
+their output.
 
 Act as a read-only operator. Build conclusions from current Caveman data, not
 from repository guesses. Never start, approve, cancel, or roll back an

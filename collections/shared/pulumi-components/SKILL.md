@@ -1,7 +1,7 @@
 ---
 name: pulumi-components
 user-invocable: false
-description: Use when building reusable infrastructure components with Pulumi for modular, composable cloud resources.
+description: "Build reusable Pulumi ComponentResources - typed inputs/outputs, child-resource parenting, resource options, packaging and testing of modular cloud infrastructure. Use when authoring shareable Pulumi abstractions; use pulumi-stacks for per-environment configuration."
 allowed-tools: [Bash, Read]
 ---
 
@@ -205,10 +205,11 @@ export class VpcNetwork extends pulumi.ComponentResource {
 
         // Create NAT Gateways if enabled
         if (args.enableNatGateway !== false) {
-            this.natGateways = [];
+            const natGateways: aws.ec2.NatGateway[] = [];
+            this.natGateways = natGateways;
             this.publicSubnets.forEach((subnet, i) => {
                 const eip = new aws.ec2.Eip(`${name}-nat-eip-${i}`, {
-                    vpc: true,
+                    domain: "vpc", // `vpc: true` is deprecated
                     tags: {
                         Name: `${name}-nat-eip-${i}`,
                         ...args.tags,
@@ -223,7 +224,7 @@ export class VpcNetwork extends pulumi.ComponentResource {
                         ...args.tags,
                     },
                 }, defaultOpts);
-                this.natGateways.push(natGw);
+                natGateways.push(natGw);
             });
         }
 
@@ -287,6 +288,11 @@ export interface DatabaseArgs {
     multiAz?: boolean;
     allowedSecurityGroupIds?: pulumi.Input<string>[];
     allowedCidrBlocks?: string[];
+    /** Skip the final snapshot on delete. Defaults to false (take a snapshot). */
+    skipFinalSnapshot?: boolean;
+    /** Encrypt storage at rest. Defaults to true. */
+    storageEncrypted?: boolean;
+    kmsKeyId?: pulumi.Input<string>;
 }
 
 export class Database extends pulumi.ComponentResource {
@@ -365,7 +371,11 @@ export class Database extends pulumi.ComponentResource {
             vpcSecurityGroupIds: [this.securityGroup.id],
             backupRetentionPeriod: args.backupRetentionPeriod || 7,
             multiAz: args.multiAz || false,
-            skipFinalSnapshot: true,
+            storageEncrypted: args.storageEncrypted ?? true,
+            kmsKeyId: args.kmsKeyId,
+            // Safe default: keep a final snapshot unless the caller opts out (e.g. dev stacks).
+            skipFinalSnapshot: args.skipFinalSnapshot ?? false,
+            finalSnapshotIdentifier: args.skipFinalSnapshot ? undefined : `${name}-final`,
             tags: {
                 Name: `${name}-instance`,
             },
@@ -520,10 +530,14 @@ export class ContainerApp extends pulumi.ComponentResource {
         }));
 
         // Create task definition
+        // Resolve the region as an Output: a Promise inside JSON.stringify would serialise to {}.
+        // pulumi-aws v7+: `.region`; v6 and older: `.name`.
+        const region = aws.getRegionOutput({}, defaultOpts).region;
         const containerDef = pulumi.all([
             pulumi.output(args.containerImage),
             pulumi.output(args.containerPort),
-        ]).apply(([image, port]) => JSON.stringify([{
+            region,
+        ]).apply(([image, port, regionName]) => JSON.stringify([{
             name: `${name}-container`,
             image: image,
             cpu: args.cpu || 256,
@@ -539,7 +553,7 @@ export class ContainerApp extends pulumi.ComponentResource {
                 logDriver: "awslogs",
                 options: {
                     "awslogs-group": `/ecs/${name}`,
-                    "awslogs-region": aws.getRegion().then(r => r.name),
+                    "awslogs-region": regionName,
                     "awslogs-stream-prefix": "ecs",
                 },
             },
@@ -645,20 +659,18 @@ export class StaticWebsite extends pulumi.ComponentResource {
 
         const defaultOpts = { parent: this };
 
-        // Create S3 bucket
+        // Create S3 bucket. Website and encryption settings are separate resources:
+        // the inline `website` / `serverSideEncryptionConfiguration` args are deprecated.
+        // (S3 encrypts new objects with SSE-S3 by default.)
         this.bucket = new aws.s3.Bucket(`${name}-bucket`, {
             bucket: args.domainName || undefined,
-            website: {
-                indexDocument: args.indexDocument || "index.html",
-                errorDocument: args.errorDocument || "error.html",
-            },
             tags: {
                 Name: `${name}-bucket`,
             },
         }, defaultOpts);
 
         // Block public access settings
-        new aws.s3.BucketPublicAccessBlock(`${name}-public-access-block`, {
+        const publicAccessBlock = new aws.s3.BucketPublicAccessBlock(`${name}-public-access-block`, {
             bucket: this.bucket.id,
             blockPublicAcls: args.enableCdn !== false,
             blockPublicPolicy: args.enableCdn !== false,
@@ -667,39 +679,22 @@ export class StaticWebsite extends pulumi.ComponentResource {
         }, defaultOpts);
 
         if (args.enableCdn !== false) {
-            // Create CloudFront OAI
-            const oai = new aws.cloudfront.OriginAccessIdentity(`${name}-oai`, {
-                comment: `OAI for ${name}`,
+            // Origin Access Control (OAC) replaces the legacy Origin Access Identity (OAI)
+            const oac = new aws.cloudfront.OriginAccessControl(`${name}-oac`, {
+                description: `OAC for ${name}`,
+                originAccessControlOriginType: "s3",
+                signingBehavior: "always",
+                signingProtocol: "sigv4",
             }, defaultOpts);
 
-            // Bucket policy for CloudFront
-            this.bucketPolicy = new aws.s3.BucketPolicy(`${name}-bucket-policy`, {
-                bucket: this.bucket.id,
-                policy: pulumi.all([this.bucket.arn, oai.iamArn]).apply(([bucketArn, oaiArn]) =>
-                    JSON.stringify({
-                        Version: "2012-10-17",
-                        Statement: [{
-                            Effect: "Allow",
-                            Principal: {
-                                AWS: oaiArn,
-                            },
-                            Action: "s3:GetObject",
-                            Resource: `${bucketArn}/*`,
-                        }],
-                    })
-                ),
-            }, defaultOpts);
-
-            // Create CloudFront distribution
+            // Create CloudFront distribution (private bucket, REST origin, no S3 website hosting)
             this.distribution = new aws.cloudfront.Distribution(`${name}-cdn`, {
                 enabled: true,
                 defaultRootObject: args.indexDocument || "index.html",
                 origins: [{
                     originId: "s3Origin",
                     domainName: this.bucket.bucketRegionalDomainName,
-                    s3OriginConfig: {
-                        originAccessIdentity: oai.cloudfrontAccessIdentityPath,
-                    },
+                    originAccessControlId: oac.id,
                 }],
                 defaultCacheBehavior: {
                     targetOriginId: "s3Origin",
@@ -740,9 +735,33 @@ export class StaticWebsite extends pulumi.ComponentResource {
                 },
             }, defaultOpts);
 
+            // Bucket policy: only this distribution may read objects
+            this.bucketPolicy = new aws.s3.BucketPolicy(`${name}-bucket-policy`, {
+                bucket: this.bucket.id,
+                policy: pulumi.all([this.bucket.arn, this.distribution.arn]).apply(([bucketArn, distArn]) =>
+                    JSON.stringify({
+                        Version: "2012-10-17",
+                        Statement: [{
+                            Effect: "Allow",
+                            Principal: { Service: "cloudfront.amazonaws.com" },
+                            Action: "s3:GetObject",
+                            Resource: `${bucketArn}/*`,
+                            Condition: { StringEquals: { "AWS:SourceArn": distArn } },
+                        }],
+                    })
+                ),
+            }, defaultOpts);
+
             this.websiteUrl = this.distribution.domainName.apply(d => `https://${d}`);
         } else {
-            // Public bucket policy
+            // S3 website hosting (HTTP only) via the standalone resource
+            const website = new aws.s3.BucketWebsiteConfiguration(`${name}-website`, {
+                bucket: this.bucket.id,
+                indexDocument: { suffix: args.indexDocument || "index.html" },
+                errorDocument: { key: args.errorDocument || "error.html" },
+            }, defaultOpts);
+
+            // Public bucket policy (must wait for the public access block to be relaxed)
             this.bucketPolicy = new aws.s3.BucketPolicy(`${name}-bucket-policy`, {
                 bucket: this.bucket.id,
                 policy: this.bucket.arn.apply(bucketArn =>
@@ -756,9 +775,9 @@ export class StaticWebsite extends pulumi.ComponentResource {
                         }],
                     })
                 ),
-            }, defaultOpts);
+            }, { ...defaultOpts, dependsOn: [publicAccessBlock] });
 
-            this.websiteUrl = this.bucket.websiteEndpoint.apply(e => `http://${e}`);
+            this.websiteUrl = website.websiteEndpoint.apply(e => `http://${e}`);
         }
 
         this.registerOutputs({
@@ -798,7 +817,7 @@ export interface K8sAppArgs {
 }
 
 export class K8sApp extends pulumi.ComponentResource {
-    public readonly namespace: k8s.core.v1.Namespace;
+    public readonly namespace?: k8s.core.v1.Namespace;
     public readonly deployment: k8s.apps.v1.Deployment;
     public readonly service: k8s.core.v1.Service;
     public readonly ingress?: k8s.networking.v1.Ingress;
@@ -809,7 +828,6 @@ export class K8sApp extends pulumi.ComponentResource {
         super("custom:k8s:K8sApp", name, {}, opts);
 
         const defaultOpts = { parent: this };
-        const ns = args.namespace || "default";
 
         // Create namespace if specified
         if (args.namespace && args.namespace !== "default") {
@@ -819,6 +837,12 @@ export class K8sApp extends pulumi.ComponentResource {
                 },
             }, defaultOpts);
         }
+
+        // Use the Namespace *output* (not the plain string) so every child depends on the
+        // Namespace and is created after it.
+        const ns: pulumi.Input<string> = this.namespace
+            ? this.namespace.metadata.name
+            : "default";
 
         // Create ConfigMap for environment variables
         if (args.environment && Object.keys(args.environment).length > 0) {
@@ -851,7 +875,7 @@ export class K8sApp extends pulumi.ComponentResource {
                     name: key,
                     valueFrom: {
                         configMapKeyRef: {
-                            name: `${name}-config`,
+                            name: this.configMap!.metadata.name,
                             key: key,
                         },
                     },
@@ -865,7 +889,7 @@ export class K8sApp extends pulumi.ComponentResource {
                     name: key,
                     valueFrom: {
                         secretKeyRef: {
-                            name: `${name}-secret`,
+                            name: this.secret!.metadata.name,
                             key: key,
                         },
                     },
@@ -955,11 +979,12 @@ export class K8sApp extends pulumi.ComponentResource {
                     name: `${name}-ingress`,
                     namespace: ns,
                     annotations: {
-                        "kubernetes.io/ingress.class": "nginx",
                         "cert-manager.io/cluster-issuer": "letsencrypt-prod",
                     },
                 },
                 spec: {
+                    // replaces the deprecated kubernetes.io/ingress.class annotation
+                    ingressClassName: "nginx",
                     tls: [{
                         hosts: [args.ingressHost],
                         secretName: `${name}-tls`,
@@ -972,7 +997,7 @@ export class K8sApp extends pulumi.ComponentResource {
                                 pathType: "Prefix",
                                 backend: {
                                     service: {
-                                        name: `${name}-service`,
+                                        name: this.service.metadata.name,
                                         port: {
                                             number: 80,
                                         },
@@ -1013,6 +1038,8 @@ export interface LambdaFunctionArgs {
     };
     policies?: pulumi.Input<string>[];
     layers?: pulumi.Input<string>[];
+    /** Physical function name; also determines the log group name. Defaults to `name`. */
+    functionName?: string;
 }
 
 export class LambdaFunction extends pulumi.ComponentResource {
@@ -1060,9 +1087,14 @@ export class LambdaFunction extends pulumi.ComponentResource {
             });
         }
 
-        // Create CloudWatch log group
+        // Lambda writes to /aws/lambda/<function name>. The function gets an explicit
+        // physical name so this managed log group is the one it actually uses.
+        // (Pass a stack-unique name if several stacks share an account/region.)
+        const functionName = args.functionName ?? name;
+
+        // Create CloudWatch log group before the function, so Lambda does not auto-create it
         this.logGroup = new aws.cloudwatch.LogGroup(`${name}-logs`, {
-            name: `/aws/lambda/${name}`,
+            name: `/aws/lambda/${functionName}`,
             retentionInDays: 14,
             tags: {
                 Name: `${name}-logs`,
@@ -1071,6 +1103,7 @@ export class LambdaFunction extends pulumi.ComponentResource {
 
         // Create Lambda function
         this.function = new aws.lambda.Function(`${name}-function`, {
+            name: functionName,
             runtime: args.runtime,
             handler: args.handler,
             code: args.code,
@@ -1085,7 +1118,7 @@ export class LambdaFunction extends pulumi.ComponentResource {
             tags: {
                 Name: `${name}-function`,
             },
-        }, defaultOpts);
+        }, { ...defaultOpts, dependsOn: [this.logGroup] });
 
         this.arn = this.function.arn;
 
@@ -1096,6 +1129,42 @@ export class LambdaFunction extends pulumi.ComponentResource {
     }
 }
 ```
+
+## Testing Components with Mocks
+
+Unit-test a component without touching the cloud by mocking the engine with `pulumi.runtime.setMocks`. Mocks must be installed **before** the module that defines the component is imported.
+
+```typescript
+// webserver.test.ts (mocha/jest/vitest; run with your test runner)
+import * as pulumi from "@pulumi/pulumi";
+import * as assert from "assert";
+
+pulumi.runtime.setMocks({
+    newResource: (args: pulumi.runtime.MockResourceArgs) => ({
+        id: `${args.name}-id`,
+        state: { ...args.inputs, publicIp: "203.0.113.10" },
+    }),
+    call: (args: pulumi.runtime.MockCallArgs) => args.inputs,
+}, "project", "stack", false);
+
+describe("WebServer", () => {
+    it("opens only 80 and 443", async () => {
+        const { WebServer } = await import("./webserver");
+        const ws = new WebServer("test", { subnetId: "subnet-1", vpcId: "vpc-1", ami: "ami-1" });
+        const ports = await new Promise<number[]>((resolve) =>
+            ws.securityGroup.ingress.apply((rules) => resolve(rules.map((r) => r.fromPort))));
+        assert.deepStrictEqual(ports.sort(), [443, 80].sort());
+    });
+});
+```
+
+Done when: each component has tests asserting its security-relevant inputs (ports, encryption, public access) and `pulumi preview` on a sample stack shows the expected child resources under the component.
+
+## Packaging and Sharing Components
+
+- **Same language, in-repo**: export components from a local module (`components/index.ts`) and import them across stacks.
+- **Same language, across repos**: publish as a normal package (npm, PyPI, Go module) with `@pulumi/pulumi` and the provider packages as `peerDependencies`, so consumers control provider versions. Keep the component type token (`custom:web:StaticWebsite`) stable; renaming it changes URNs and forces replacement unless you add `aliases`.
+- **Any language**: package the component as a Pulumi plugin/provider so programs in other languages can use it. The mechanism has changed across Pulumi versions (multi-language component providers, then `pulumi package add` for source-based components in recent releases); follow the current [Packages docs](https://www.pulumi.com/docs/iac/using-pulumi/extending-pulumi/) for your CLI version.
 
 ## When to Use This Skill
 
@@ -1114,7 +1183,7 @@ Use the `pulumi-components` skill when you need to:
 
 ## Best Practices
 
-1. **Use Parent Relationships**: Always set `{ parent: this }` when creating child resources to maintain proper resource hierarchy
+1. **Use Parent Relationships**: Always set `{ parent: this }` on child resources so they nest under the component in the URN/tree and inherit its provider and options
 2. **Register Outputs**: Call `registerOutputs()` at the end of constructor to expose component properties
 3. **Type Safety**: Use TypeScript interfaces for component arguments with clear types
 4. **Input Types**: Use `pulumi.Input<T>` for arguments that can be outputs from other resources
@@ -1123,7 +1192,7 @@ Use the `pulumi-components` skill when you need to:
 7. **Documentation**: Add JSDoc comments explaining component purpose and usage
 8. **Composition Over Inheritance**: Favor creating components that compose other components
 9. **Single Responsibility**: Each component should encapsulate a single logical infrastructure unit
-10. **Explicit Dependencies**: Don't rely on implicit dependencies; make them explicit in code
+10. **Dependencies via Outputs**: Pass resource outputs (e.g. `ns.metadata.name`, `bucket.id`) into dependent resources so Pulumi infers the ordering; add `dependsOn` only when there is an ordering requirement with no data flow
 11. **Resource Groups**: Use tags consistently across all resources in a component
 12. **Error Handling**: Validate inputs in the constructor before creating resources
 13. **Immutability**: Avoid modifying component state after construction
@@ -1132,7 +1201,7 @@ Use the `pulumi-components` skill when you need to:
 
 ## Common Pitfalls
 
-1. **Missing Parent**: Forgetting to set `parent: this` breaks resource hierarchy and prevents proper deletion
+1. **Missing Parent**: Forgetting `parent: this` leaves children at stack root, so they do not inherit the component's provider/options and adding a parent later changes their URNs (needs `aliases` to avoid replacement)
 2. **Not Registering Outputs**: Forgetting `registerOutputs()` prevents output tracking
 3. **Incorrect Type URN**: Using wrong format for component type (should be `category:subcategory:Name`)
 4. **Circular Dependencies**: Creating circular references between components
@@ -1144,7 +1213,7 @@ Use the `pulumi-components` skill when you need to:
 10. **Poor Abstraction Level**: Creating components at wrong abstraction level (too high or too low)
 11. **Missing Validation**: Not validating required arguments before resource creation
 12. **State Mutations**: Mutating component state after construction
-13. **Implicit Dependencies**: Relying on Pulumi to figure out dependencies instead of being explicit
+13. **Hidden Dependencies**: Passing plain strings (a namespace name, a bucket name) instead of the producing resource's output, so Pulumi sees no dependency and may create resources in the wrong order
 14. **Missing Error Messages**: Not providing helpful error messages for invalid configurations
 15. **Tight Coupling**: Creating components that are too tightly coupled to specific implementations
 

@@ -1,7 +1,7 @@
 ---
-name: Scala Type System
+name: scala-type-system
 user-invocable: false
-description: Use when scala's advanced type system including generics, variance, type bounds, implicit conversions, type classes, higher-kinded types, path-dependent types, and abstract type members for building type-safe, flexible APIs.
+description: Model Scala 2 and Scala 3 types - variance, bounds, type classes with implicits vs given/using/extension, opaque types, union/intersection types, higher-kinded and path-dependent types. Use when designing typed Scala APIs or migrating implicits to Scala 3; not for effect-system specifics.
 allowed-tools: []
 ---
 
@@ -17,10 +17,11 @@ Read only the relevant section of [references/language-patterns.md](references/l
 - Generics and Type Parameters
 - Variance Annotations
 - Type Bounds
-- Implicit Conversions and Parameters
+- Implicit Conversions and Parameters (Scala 2 vs Scala 3 mapping, anti-patterns)
 - Type Classes
 - Higher-Kinded Types
 - Path-Dependent Types and Abstract Type Members
+- Scala 3 Type Features
 - Best Practices
 - Common Pitfalls
 - When to Use This Skill

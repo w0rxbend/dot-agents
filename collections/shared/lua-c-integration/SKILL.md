@@ -1,7 +1,7 @@
 ---
-name: Lua C Integration
+name: lua-c-integration
 user-invocable: false
-description: Use when lua C API for extending Lua with native code including stack operations, calling C from Lua, calling Lua from C, creating C modules, userdata types, metatables in C, and performance optimization techniques.
+description: Lua C API for writing C modules and embedding Lua - the stack, luaL_Reg modules, userdata with metatables, pcall from C, and API differences between Lua 5.1/LuaJIT and 5.2-5.4. Use when writing or reviewing C code that talks to a lua_State; use LuaJIT FFI instead when the host is LuaJIT and you only need to call a C library.
 allowed-tools: []
 ---
 
@@ -22,6 +22,40 @@ safe, efficient C integration.
 This skill covers the Lua stack, calling C from Lua, calling Lua from C,
 creating C modules, userdata and metatables, error handling, memory management,
 and performance optimization patterns.
+
+## Target version first
+
+Examples below use the Lua 5.2-5.4 API (`luaL_newlib`, `luaL_setfuncs`,
+`lua_len`, `luaL_len`, `lua_callk`). Lua 5.1 and LuaJIT (which also backs
+Neovim, OpenResty and LÖVE) expose the 5.1 C API, where several of these do
+not exist. Check `LUA_VERSION_NUM` (501, 502, 503, 504) at compile time and
+build against the headers of the interpreter that will load the module -
+a module compiled against 5.4 headers will not load into LuaJIT.
+
+| Need | Lua 5.1 / LuaJIT | Lua 5.2-5.4 |
+|------|------------------|-------------|
+| Create module table | `lua_newtable` + `luaL_register(L, NULL, funcs)` (or `luaL_register(L, "name", funcs)`, which also sets a global) | `luaL_newlib(L, funcs)` |
+| Register into existing table, with upvalues | `luaL_register` (no upvalues) / loop with `lua_pushcclosure` | `luaL_setfuncs(L, funcs, nup)` |
+| Raw length | `lua_objlen(L, idx)` | `lua_rawlen(L, idx)`; `lua_len`/`luaL_len` honor `__len` |
+| Globals table | `LUA_GLOBALSINDEX` pseudo-index | `lua_pushglobaltable(L)` / `LUA_RIDX_GLOBALS` |
+| Integers | `lua_Integer` is `ptrdiff_t`; numbers are doubles | 5.3+: real 64-bit integer subtype, `lua_isinteger` |
+| Set userdata metatable by name | `luaL_getmetatable` + `lua_setmetatable` | `luaL_setmetatable(L, name)`; `luaL_testudata` for non-erroring checks |
+| Userdata user values | `lua_setfenv`/`lua_getfenv` | 5.2-5.3: one user value; 5.4: `lua_newuserdatauv(L, size, nuv)` |
+| Yield across C | not possible | `lua_yieldk`, `lua_callk`, `lua_pcallk` with a continuation function |
+
+A small compatibility block covers most modules:
+
+```c
+#if LUA_VERSION_NUM == 501
+#  define luaL_newlib(L, l) (lua_newtable(L), luaL_register(L, NULL, l))
+#  define lua_rawlen lua_objlen
+#endif
+```
+
+For anything larger use the maintained `lua-compat-5.3` headers instead of
+growing your own shims. On LuaJIT, prefer the FFI (`ffi.cdef` + `ffi.load`)
+for plain C library bindings: it is JIT-compiled, while classic `lua_CFunction`
+calls are not.
 
 ## Lua Stack Fundamentals
 
@@ -85,7 +119,8 @@ void stack_patterns(lua_State *L) {
     lua_pushvalue(L, 1);              // Duplicate element at index 1
 
     // Rotate elements
-    lua_rotate(L, 1, 2);              // Rotate 2 elements starting from index 1
+    lua_rotate(L, 1, 2);              // Rotate everything from index 1 to the top
+                                      // by 2 positions toward the top
 
     // Check stack space
     if (!lua_checkstack(L, 100)) {
@@ -382,6 +417,7 @@ void call_with_multiple(lua_State *L) {
     // Call with 2 arguments, 2 returns
     if (lua_pcall(L, 2, 2, 0) != LUA_OK) {
         fprintf(stderr, "Error: %s\n", lua_tostring(L, -1));
+        lua_pop(L, 1);  // Remove error message
         return;
     }
 
@@ -435,11 +471,12 @@ void access_lua_table(lua_State *L) {
     // Iterate table
     lua_pushnil(L);  // First key
     while (lua_next(L, -2) != 0) {
-        // Key at -2, value at -1
-        const char *key = lua_tostring(L, -2);
-        const char *value = lua_tostring(L, -1);
+        // Key at -2, value at -1. Never lua_tostring the key in place: it
+        // converts number keys to strings and breaks lua_next. Convert copies.
+        const char *key = luaL_tolstring(L, -2, NULL);   // pushes a string copy
+        const char *value = luaL_tolstring(L, -2, NULL); // value is now at -2
         printf("%s = %s\n", key, value);
-        lua_pop(L, 1);  // Remove value, keep key for next
+        lua_pop(L, 3);  // Remove both copies and the value, keep key for next
     }
 
     lua_pop(L, 1);  // Remove table
@@ -479,6 +516,7 @@ C modules package related functions and constants for use in Lua programs.
 #include <lua.h>
 #include <lauxlib.h>
 #include <math.h>
+#include <string.h>
 
 // Module functions
 static int vector_new(lua_State *L) {
@@ -638,7 +676,9 @@ metatables.
 ```c
 #include <lua.h>
 #include <lauxlib.h>
+#include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 // C structure
 typedef struct {
@@ -801,7 +841,9 @@ metatables.
 
 6. **Handle errors with luaL_error** rather than returning error codes
 
-7. **Avoid lua_tostring for numbers** as it modifies the stack; use lua_tonumber
+7. **Do not call lua_tostring on a key during lua_next traversal**: it converts
+   a number in place to a string and corrupts the iteration; copy the key with
+   `lua_pushvalue` first
 
 8. **Use lua_absindex** when stack positions change during operations
 
@@ -816,13 +858,15 @@ metatables.
 
 2. **Not checking function return types** leads to type mismatches and errors
 
-3. **Using lua_tostring without checking** modifies stack for non-strings
+3. **Using lua_tostring without checking** returns NULL for non-convertible
+   values and converts numbers in place
 
 4. **Calling lua_error directly** instead of luaL_error loses error context
 
 5. **Accessing invalid stack indices** causes undefined behavior and crashes
 
-6. **Not setting metatables on userdata** makes garbage collection unreliable
+6. **Not setting a `__gc` metamethod on userdata that owns C resources** leaks
+   those resources: Lua frees the block but never calls your cleanup
 
 7. **Mixing absolute and relative indices** causes confusion and bugs
 
@@ -849,10 +893,20 @@ Create C extensions for computationally intensive algorithms unsuitable for Lua.
 
 Implement low-level system operations or hardware interfaces through C bindings.
 
+## Done when
+
+- The module builds against the headers of the interpreter that loads it
+  (`LUA_VERSION_NUM` checked; 5.1/LuaJIT shims in place if needed).
+- Every C function leaves the stack balanced (assert `lua_gettop` in debug
+  builds) and validates arguments with `luaL_check*`.
+- Userdata that owns C resources has `__gc` (and `__close` on 5.4) and is
+  type-checked with `luaL_checkudata`.
+- Loaded and exercised from Lua under the real host, ideally under ASan.
+
 ## Resources
 
 - [Programming in Lua - The C API](<https://www.lua.org/pil/24.html>)
 - [Lua Reference Manual - C API](<https://www.lua.org/manual/5.4/manual.html#4>)
 - [Lua Users Wiki - Binding Code To Lua](<http://lua-users.org/wiki/BindingCodeToLua>)
-- [LuaJIT FFI Library](<http://luajit.org/ext_ffi.html>)
-- [Lua C API Tutorial](<https://www.lua.org/pil/contents.html#24>)
+- [LuaJIT FFI Library](<https://luajit.org/ext_ffi.html>)
+- [lua-compat-5.3](<https://github.com/lunarmodules/lua-compat-5.3>)

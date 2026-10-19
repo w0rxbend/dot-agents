@@ -1,10 +1,26 @@
 ---
 name: caveman-discover
 description: >
-  Find and label every LLM workflow in the repository so Caveman Cloud groups
-  spend by workflow instead of one bucket. Use for "discover workflows" or
-  breaking LLM spend down by workflow.
+  Label a repository's Caveman-gateway LLM callsites with workflow headers so
+  Caveman Cloud groups spend by workflow instead of one bucket. Use only when
+  the repo is already wired through the Caveman gateway and the user asks to
+  discover or label Caveman workflows.
 ---
+
+## Prerequisite: a repository already wired through the Caveman gateway
+
+This skill drives the third-party Caveman Cloud service (https://github.com/JuliusBrussee/caveman). dot-agents
+vendors only this instruction file; it does not install the `caveman` CLI, the
+Caveman Cloud MCP server, or an account. Check before doing anything else:
+
+- the repository already routes LLM traffic through Caveman: search it for
+  `x-cave-api-key`, `CAVE_GATEWAY_URL` or `caveman wrap` (for example
+  `git grep -nE 'x-cave-api-key|CAVE_GATEWAY_URL|caveman wrap'`).
+
+If the check fails, stop without reading project data or editing files, and tell
+the user: "This skill needs a repository already wired through the Caveman gateway, which is not available here. Install and log
+in to Caveman first (https://github.com/JuliusBrussee/caveman), then wire the repository with the caveman-setup skill." Never emulate `caveman` commands or invent
+their output.
 
 You are labeling this repository's LLM workflows for Caveman Cloud. A
 *workflow* is a job the code performs — "answer a support ticket", "build the
@@ -111,5 +127,4 @@ Marked review: <slugs whose purpose was inferred from filenames, or "none">
 ```
 
 If you found no LLM entry points at all: say exactly that, and point at the
-setup skill (`<docs origin>/docs/agent-setup.md`) instead of manufacturing a
-table.
+caveman-setup skill instead of manufacturing a table.

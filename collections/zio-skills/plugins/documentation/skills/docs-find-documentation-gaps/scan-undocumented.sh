@@ -10,8 +10,9 @@ Scans a ZIO library project for documentation gaps. Compares public Scala
 types found in main source roots against existing pages under docs/, and
 prints a Markdown report to stdout listing types that appear undocumented.
 
-The report can be redirected to docs/undocumented-report.md (the scanner
-excludes its own output file from the corpus, so re-runs are idempotent).
+The report can be redirected to target/undocumented-report.md (kept out of
+docs/ so it is never published; the scanner also excludes any file named
+undocumented-report from the corpus, so re-runs are idempotent).
 
 Arguments:
   [project-root]   Project root to scan. Defaults to the current git
@@ -30,7 +31,7 @@ Exit codes:
 Examples:
   scan-undocumented.sh                                   # scan current project
   scan-undocumented.sh /home/me/zio-blocks               # scan a specific repo
-  scan-undocumented.sh > docs/undocumented-report.md     # save report
+  scan-undocumented.sh > target/undocumented-report.md   # save report
 EOF
 }
 

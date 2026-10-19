@@ -1,6 +1,6 @@
 ---
 name: managing-incidents
-description: Guide incident response from detection to post-mortem using SRE principles, severity classification, on-call management, blameless culture, and communication protocols. Use when setting up incident processes, designing escalation policies, or conducting post-mortems.
+description: Design a team's incident-management process - severity levels, incident roles, on-call rotations and escalation, communication templates, runbooks, blameless postmortems and incident metrics (MTTA/MTTR). Use when setting up or improving that process or writing a postmortem after resolution; for running a live incident use claude-engineering--incident-response, and to root-cause the failure itself use debugging-and-error-recovery.
 ---
 
 # Incident Management
@@ -112,7 +112,7 @@ For detailed role responsibilities, see `references/incident-roles.md`.
 - Rotation length: 1 week per rotation
 - Handoff ceremony: 30-minute call to discuss active issues
 - Compensation: On-call stipend + time off after major incidents
-- Tooling: PagerDuty, Opsgenie, or incident.io
+- Tooling: PagerDuty, incident.io, or Jira Service Management (Opsgenie is being retired)
 - Limits: Max 2-3 pages per night; escalate if exceeded
 
 ## Incident Response Workflow
@@ -257,10 +257,9 @@ For detailed facilitation guide and template, see `references/blameless-postmort
 - Cost: $19-41/user/month
 - When: Team size 10+, budget $500+/month
 
-**Opsgenie:**
-- Best for: Atlassian ecosystem users, flexible routing
-- Cost: $9-29/user/month
-- When: Using Atlassian products, budget $200-500/month
+**Opsgenie (legacy):**
+- Atlassian stopped selling Opsgenie in 2025 and is retiring it in favor of Jira Service Management and Compass; do not choose it for a new setup, and plan a migration if you already use it.
+- Atlassian shops: use Jira Service Management (or Compass) on-call and alerting instead
 
 **incident.io:**
 - Best for: Modern teams, AI-powered response, Slack-native
@@ -314,8 +313,8 @@ Is production completely down or critical data at risk?
 ├─ YES → SEV0
 └─ NO  → Is major functionality degraded?
           ├─ YES → Is there a workaround?
-          │        ├─ YES → SEV1
-          │        └─ NO  → SEV0
+          │        ├─ YES → SEV2
+          │        └─ NO  → SEV1
           └─ NO  → Are customers impacted?
                    ├─ YES → SEV2
                    └─ NO  → SEV3
@@ -377,15 +376,11 @@ For detailed escalation guidance, see `references/escalation-matrix.md`.
 
 ## Integration with Other Skills
 
-**Observability:** Monitoring alerts trigger incidents → Use incident-management for response
-
-**Disaster Recovery:** DR provides recovery procedures → Incident-management provides operational response
-
-**Security Incident Response:** Similar process with added compliance/forensics
-
-**Infrastructure-as-Code:** IaC enables fast recovery via automated rebuild
-
-**Performance Engineering:** Performance incidents trigger response → Performance team investigates post-mitigation
+- `observability-and-instrumentation`: symptom-based alerts and runbooks that open incidents.
+- `debugging-and-error-recovery`: root-causing the failure once impact is mitigated.
+- `error-debugging-error-trace`: error-tracker alert routing and ownership.
+- `performance-engineering`: capacity and load findings that feed incident prevention.
+- Security incidents follow the same structure plus evidence preservation and legal/compliance notification; see `architecting-security`.
 
 ## Examples and Templates
 

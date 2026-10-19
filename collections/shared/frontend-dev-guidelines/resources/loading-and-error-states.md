@@ -231,27 +231,26 @@ export const MyComponent: React.FC = () => {
 - `showWarning(message)` - Orange warning message
 - `showInfo(message)` - Blue info message
 
-### TanStack Query Error Callbacks
+### TanStack Query Errors
+
+TanStack Query v5 has no `onError` option on `useQuery`/`useSuspenseQuery`. `useSuspenseQuery` throws to the nearest error boundary, so render the error there (see Error Boundaries below). For a global notification on every failed query, use `new QueryCache({ onError })` when creating the `QueryClient`. Mutations still accept `onError`:
 
 ```typescript
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useMuiSnackbar } from '@/hooks/useMuiSnackbar';
 
-export const MyComponent: React.FC = () => {
+export const SaveButton: React.FC = () => {
     const { showError } = useMuiSnackbar();
 
-    const { data } = useSuspenseQuery({
-        queryKey: ['data'],
-        queryFn: () => api.getData(),
-
-        // Handle errors
+    const saveMutation = useMutation({
+        mutationFn: () => api.save(),
         onError: (error) => {
-            showError('Failed to load data');
-            console.error('Query error:', error);
+            showError('Failed to save');
+            console.error('Mutation error:', error);
         },
     });
 
-    return <Content data={data} />;
+    return <Button onClick={() => saveMutation.mutate()}>Save</Button>;
 };
 ```
 
@@ -368,12 +367,10 @@ export const EntityEditor: React.FC<{ id: number }> = ({ id }) => {
     const queryClient = useQueryClient();
     const { showSuccess, showError } = useMuiSnackbar();
 
+    // Load errors are thrown to the surrounding ErrorBoundary (no onError on queries in v5)
     const { data } = useSuspenseQuery({
         queryKey: ['entity', id],
         queryFn: () => myFeatureApi.getEntity(id),
-        onError: () => {
-            showError('Failed to load entity');
-        },
     });
 
     const updateMutation = useMutation({
@@ -493,7 +490,7 @@ export const MyComponent: React.FC = () => {
 **Error Handling:**
 - ✅ **ALWAYS**: useMuiSnackbar for user feedback
 - ❌ **NEVER**: react-toastify
-- ✅ Use onError callbacks in queries/mutations
+- ✅ Use `onError` on mutations; for queries use error boundaries or a `QueryCache` `onError`
 - ✅ Error boundaries for component-level errors
 
 **See Also:**

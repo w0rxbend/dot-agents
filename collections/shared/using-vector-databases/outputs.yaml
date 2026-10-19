@@ -249,7 +249,7 @@ metadata:
       rationale: "Balanced approach respecting document structure"
 
   integration_points:
-    - skill: "api-patterns"
+    - skill: "implementing-api-patterns"
       integration: "Expose semantic search via REST/GraphQL endpoints"
 
     - skill: "ai-chat"

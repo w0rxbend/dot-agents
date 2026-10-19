@@ -111,7 +111,7 @@ func HasPrefix(a, b string) bool    // which is the prefix?
 
 ## Booleans
 
-Boolean variables and fields MUST read naturally as true/false questions. Use prefixes like `is`, `has`, `can`, `allow`, `should`. This applies to **both variables and struct fields**.
+Boolean variables and fields should read naturally as true/false questions. This skill's house style uses prefixes like `is`, `has`, `can`, `allow`, `should` on **both variables and struct fields**; this is not an official Go rule (the stdlib often uses bare names such as `Closed`), so follow the existing codebase when it differs.
 
 ```go
 // Good — struct fields use is/has prefix

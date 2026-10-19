@@ -1,6 +1,6 @@
 ---
 name: pixijs-events
-description: "Use this skill when handling pointer, mouse, touch, or wheel input in PixiJS v8. Covers eventMode (none, passive, auto, static, dynamic), FederatedEvent types, propagation and capture phase, hitArea, interactiveChildren, cursor and cursorStyles, global move events for drag, eventFeatures config. Triggers on: eventMode, FederatedPointerEvent, pointerdown, click, tap, globalpointermove, drag, hitArea, cursor, stopPropagation, persistentDeviceId, contextmenu, rightclick."
+description: "Use this skill when handling pointer, mouse, touch, or wheel input in PixiJS v8. Covers eventMode (none, passive, auto, static, dynamic), FederatedEvent types, propagation and capture phase, hitArea, interactiveChildren, cursor and cursorStyles, global move events for drag, eventFeatures config. Triggers on (in PixiJS code): eventMode, FederatedPointerEvent, pointerdown, click or tap on display objects, globalpointermove, dragging display objects, hitArea, cursorStyles, stopPropagation, persistentDeviceId, contextmenu, rightclick."
 license: MIT
 ---
 
@@ -33,7 +33,7 @@ button.on("globalpointermove", (event) => {
 });
 ```
 
-**Related skills:** `pixijs-accessibility` (screen reader + keyboard), `pixijs-scene-dom-container` (HTML overlays), `pixijs-performance` (event-heavy scenes).
+**Related skills:** `pixijs-performance` (event-heavy scenes). Screen reader and keyboard support (`import 'pixi.js/accessibility'`) and HTML overlays (`DOMContainer`) are not covered by these skills; see the [accessibility guide](https://pixijs.com/8.x/guides/components/accessibility) and the [DOMContainer API](https://pixijs.download/release/docs/scene.DOMContainer.html.md).
 
 ## Core Patterns
 

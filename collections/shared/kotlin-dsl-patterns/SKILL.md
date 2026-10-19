@@ -1,7 +1,7 @@
 ---
-name: Kotlin DSL Patterns
+name: kotlin-dsl-patterns
 user-invocable: false
-description: Use when domain-specific language design in Kotlin using type-safe builders, infix functions, operator overloading, lambdas with receivers, and patterns for creating expressive, readable DSLs for configuration and domain modeling.
+description: Design type-safe Kotlin DSLs with lambdas with receiver, builders, @DslMarker scope control, infix functions and operator overloading, and apply the same patterns in Gradle Kotlin DSL build scripts and convention plugins. Use when building a configuration/domain DSL or structuring Kotlin build logic.
 allowed-tools: []
 ---
 
@@ -332,21 +332,22 @@ infix fun String.shouldEqual(expected: String) {
 
 "hello" shouldEqual "hello"
 
-// Time duration DSL with infix
-class Duration(val milliseconds: Long) {
-    operator fun plus(other: Duration) =
-        Duration(milliseconds + other.milliseconds)
-
-    override fun toString() = "${milliseconds}ms"
+// Time durations: the stdlib already provides a unit DSL through extension
+// properties (import kotlin.time.Duration.Companion.seconds / .minutes):
+//   val timeout = 5.seconds
+//   val interval = 2.minutes + 30.seconds
+// For your own unit types, follow the same shape and never reuse stdlib names
+// such as Unit or Duration (a top-level `object Unit` breaks every `() -> Unit`).
+@JvmInline
+value class Millis(val value: Long) {
+    operator fun plus(other: Millis) = Millis(value + other.value)
+    override fun toString() = "${value}ms"
 }
 
-infix fun Int.seconds(unit: Unit) = Duration(this * 1000L)
-infix fun Int.minutes(unit: Unit) = Duration(this * 60 * 1000L)
+val Int.ms get() = Millis(toLong())
+val Int.secs get() = Millis(this * 1000L)
 
-object Unit
-
-val timeout = 5 seconds Unit
-val interval = 2 minutes Unit
+val backoff = 2.secs + 500.ms // 2500ms
 
 // Query DSL with infix
 class Condition(val field: String, val operator: String, val value: Any)
@@ -459,17 +460,17 @@ class Table(val name: String) {
 class Column(val name: String) {
     var type: String = "VARCHAR"
     var nullable: Boolean = true
-
-    fun column(name: String, init: Column.() -> Unit) {
-        // Accidentally accessible from outer scope
-    }
+    // No column() here: Column has no nested columns
 }
 
+fun table(name: String, init: Table.() -> Unit) = Table(name).apply(init)
+
 // Without @DslMarker, this compiles but is wrong
-fun problematicDSL() = Table("users") {
+fun problematicDSL() = table("users") {
     column("id") {
         type = "INT"
-        // This accidentally calls outer Table.column, not inner
+        // Column has no column(), so this silently resolves to the OUTER
+        // Table.column and adds "nested" as a sibling of "id"
         column("nested") {
             type = "TEXT"
         }
@@ -497,8 +498,10 @@ class SafeColumn(val name: String) {
     var nullable: Boolean = true
 }
 
+fun safeTable(name: String, init: SafeTable.() -> Unit) = SafeTable(name).apply(init)
+
 // Now this won't compile - @DslMarker prevents implicit outer receivers
-fun safeDSL() = SafeTable("users") {
+fun safeDSL() = safeTable("users") {
     column("id") {
         type = "INT"
         // column("nested") { } // Compilation error!
@@ -536,15 +539,18 @@ class SafeTestContext {
     fun assertEquals(expected: Any, actual: Any) {}
 }
 
+fun safeHtml(init: SafeHTML.() -> Unit) = SafeHTML().apply(init)
+fun safeTestSuite(init: SafeTestSuite.() -> Unit) = SafeTestSuite().apply(init)
+
 // Multiple DSL markers prevent mixing
 fun mixedDSLs() {
-    SafeHTML {
+    safeHtml {
         body {
             // Cannot access test DSL here
         }
     }
 
-    SafeTestSuite {
+    safeTestSuite {
         test("example") {
             // Cannot access HTML DSL here
         }
@@ -560,21 +566,33 @@ making DSLs safer and more maintainable.
 Gradle's Kotlin DSL demonstrates real-world DSL patterns for build
 configuration, dependency management, and task definition.
 
+Keep plugin and library versions where the project already keeps them
+(usually `gradle/libs.versions.toml`); do not copy version numbers from
+examples. Check the Kotlin and Gradle versions in the repo before using newer
+DSL APIs.
+
 ```kotlin
-// Build script DSL patterns
+// build.gradle.kts - versions come from the version catalog
 plugins {
-    kotlin("jvm") version "1.9.0"
-    id("application")
+    alias(libs.plugins.kotlin.jvm)
+    application
 }
 
 repositories {
     mavenCentral()
-    google()
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+    implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.junit.jupiter)
+}
+
+kotlin {
+    jvmToolchain(21)                       // JDK used to compile and test
+    compilerOptions {                      // replaces kotlinOptions {} (an error in recent Kotlin 2.x)
+        freeCompilerArgs.add("-Xjsr305=strict")
+        // jvmTarget.set(JvmTarget.JVM_17) // only if bytecode target must differ from the toolchain
+    }
 }
 
 // Custom task with DSL
@@ -640,39 +658,36 @@ configure<MyPluginExtension> {
     enabled.set(true)
 }
 
-// Type-safe accessors
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    jvmTarget = "17"
-    freeCompilerArgs = listOf("-Xjsr305=strict")
+// Per-task compiler options (Kotlin 2.x): configure through compilerOptions,
+// not the deprecated kotlinOptions block
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions.allWarningsAsErrors.set(true)
 }
 
-// Multiplatform DSL
+// Multiplatform DSL (separate build using the multiplatform plugin)
 kotlin {
-    jvm {
-        withJava()
-    }
-
-    js(IR) {
+    jvm()
+    js {
         browser()
         nodejs()
     }
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
-            }
+        commonMain.dependencies {
+            implementation(libs.kotlinx.coroutines.core)
         }
-
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
     }
 }
 ```
+
+Migration notes for older scripts: `kotlinOptions { jvmTarget = "17" }` becomes
+`compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }` or simply
+`jvmToolchain(17)`; `val commonMain by getting { dependencies { } }` becomes
+`commonMain.dependencies { }`; `js(IR)` is just `js()` now that IR is the only
+JS backend.
 
 Gradle Kotlin DSL combines multiple DSL patterns to create expressive,
 type-safe build configuration with excellent IDE support.
@@ -737,21 +752,36 @@ fun Route.userRoutes() {
     }
 }
 
-// Type-safe routing DSL
-inline fun <reified T : Any> Route.typedGet(
+// Typed query-parameter DSL. Ktor 3 route handlers receive RoutingContext
+// (Ktor 2 used PipelineContext<Unit, ApplicationCall>). A GET has no body, so
+// read query parameters rather than call.receive<T>(). For fully type-safe
+// routes, consider the Ktor Resources plugin.
+inline fun <T> Route.typedGet(
     path: String,
-    crossinline handler: suspend PipelineContext<Unit, ApplicationCall>.(T) -> Unit
+    crossinline parse: (Parameters) -> T,
+    crossinline handler: suspend RoutingContext.(T) -> Unit
 ) {
     get(path) {
-        val params = call.receive<T>()
-        handler(params)
+        val query = try {
+            parse(call.request.queryParameters)
+        } catch (e: IllegalArgumentException) {
+            return@get call.respond(HttpStatusCode.BadRequest, e.message ?: "invalid query")
+        }
+        handler(query)
     }
 }
 
-data class UserQuery(val name: String, val minAge: Int)
+data class UserQuery(val name: String, val minAge: Int) {
+    companion object {
+        fun from(p: Parameters) = UserQuery(
+            name = requireNotNull(p["name"]) { "name is required" },
+            minAge = p["minAge"]?.toIntOrNull() ?: 0
+        )
+    }
+}
 
 fun Route.typedRoutes() {
-    typedGet<UserQuery>("/search") { query ->
+    typedGet("/search", UserQuery::from) { query ->
         call.respondText("Searching for ${query.name}, age >= ${query.minAge}")
     }
 }

@@ -1,7 +1,7 @@
 <!-- Prerequisites:
-  The skills CLI (listed in the frontmatter install block) can be used to copy skills locally:
-    npx skills add https://github.com/samber/cc-skills-golang --agent github-copilot --skill '*' -y --copy
-    ln -s .agents .copilot
+  Vendor the Go skills into the repository from a pinned, reviewed commit
+  (see "Vendoring the review skills" in the golang-continuous-integration skill),
+  then commit them.
   Then copy this file to .github/copilot-instructions.md
 -->
 
