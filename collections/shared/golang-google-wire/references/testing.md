@@ -1,7 +1,5 @@
 # Testing — google/wire
 
-Wire generates plain Go constructor calls, so tests work directly on the constructor layer — no container API to learn.
-
 ## Table of Contents
 
 - [Unit Tests: Plain Constructor Injection](#unit-tests-plain-constructor-injection)
@@ -9,11 +7,10 @@ Wire generates plain Go constructor calls, so tests work directly on the constru
 - [Passing Mocks as Injector Arguments](#passing-mocks-as-injector-arguments)
 - [CI: Detecting Stale `wire_gen.go`](#ci-detecting-stale-wire_gengo)
 - [Testing Interface Bindings](#testing-interface-bindings)
-- [Table-Driven Tests Without Wire](#table-driven-tests-without-wire)
 
 ## Unit Tests: Plain Constructor Injection
 
-The generated code has no wire dependency. Test constructors directly:
+Generated code has no wire dependency. Test constructors directly:
 
 ```go
 func TestUserService_GetUser(t *testing.T) {
@@ -27,11 +24,11 @@ func TestUserService_GetUser(t *testing.T) {
 }
 ```
 
-Pass mocks directly as constructor arguments. No wire, no container, no file to generate. This is the idiomatic approach for unit tests.
+Pass mocks directly as constructor arguments. No wire, no container, no file to generate. Idiomatic approach for unit tests.
 
 ## Test Injectors: Swapping Providers
 
-For integration or component tests where you want the full wired graph but with selected dependencies replaced, create a test-only injector in a `_test.go` file.
+For integration or component tests needing full wired graph with selected dependencies replaced, create test-only injector in `_test.go` file.
 
 ```go
 // app_test.go
@@ -76,13 +73,13 @@ func TestApp_GetUser(t *testing.T) {
 }
 ```
 
-Run `wire ./...` to generate `wire_gen.go` — the test injector is included because the `_test.go` file is compiled as part of the package during `go test`.
+Run `wire ./...` to generate `wire_gen.go`. Test injector is included because `_test.go` file compiles as part of package during `go test`.
 
-**Key pattern from upstream best practices:** Prefer creating a test-only provider set over passing mocks as injector arguments (though both work). The set approach keeps the test injector composable.
+**Key pattern from upstream best practices:** Prefer test-only provider set over passing mocks as injector arguments (both work). Set approach keeps test injector composable.
 
 ## Passing Mocks as Injector Arguments
 
-An alternative to a test set: pass the mock directly as an injector parameter. Wire treats it as a pre-built provider.
+Alternative to test set: pass mock directly as injector parameter. Wire treats it as pre-built provider.
 
 ```go
 //go:build wireinject
@@ -102,11 +99,11 @@ func TestApp(t *testing.T) {
 }
 ```
 
-Use this form when you only need to replace one or two dependencies and a full `TestSet` is overkill.
+Use when replacing only one or two dependencies and full `TestSet` is overkill.
 
 ## CI: Detecting Stale `wire_gen.go`
 
-If `wire_gen.go` is not regenerated after a provider change, CI builds pass but the graph is wrong. Enforce freshness in CI:
+If `wire_gen.go` is not regenerated after provider change, CI builds pass but graph is wrong. Enforce freshness in CI:
 
 ```bash
 # Option 1: re-run wire and check for diffs
@@ -128,11 +125,11 @@ git diff --exit-code -- '**/wire_gen.go'
 wire check ./...
 ```
 
-`wire check` exits non-zero if the graph is inconsistent but does **not** update `wire_gen.go`. Use it for a fast graph-validity check without modifying files.
+`wire check` exits non-zero if graph is inconsistent but does **not** update `wire_gen.go`. Use for fast graph-validity check without modifying files.
 
 ## Testing Interface Bindings
 
-`wire.Bind` can be used in test sets to bind a fake to the same interface:
+Use `wire.Bind` in test sets to bind fake to same interface:
 
 ```go
 // Fake implements the same interface as the real provider
@@ -150,33 +147,4 @@ var TestSet = wire.NewSet(
 )
 ```
 
-This keeps the test injector narrow — only the Mailer is faked; the rest of the graph is real.
-
-## Table-Driven Tests Without Wire
-
-Wire is an initialization tool. Once the object graph is built, table-driven tests on individual services need no wire involvement:
-
-```go
-func TestUserService(t *testing.T) {
-    cases := []struct {
-        name  string
-        id    int64
-        users map[int64]*User
-        want  string
-        err   bool
-    }{
-        {"found", 1, map[int64]*User{1: &User{Name: "Alice"}}, "Alice", false},
-        {"not found", 99, nil, "", true},
-    }
-    for _, tc := range cases {
-        t.Run(tc.name, func(t *testing.T) {
-            svc := service.NewUserService(&MockUserStore{users: tc.users}, nil)
-            u, err := svc.GetUser(context.Background(), tc.id)
-            if tc.err { require.Error(t, err); return }
-            assert.Equal(t, tc.want, u.Name)
-        })
-    }
-}
-```
-
-Wire has no role here — the injector was only needed to build the object graph in `main` (or in an integration test). Unit tests construct dependencies directly.
+Keeps test injector narrow: only Mailer is faked; rest of graph is real.

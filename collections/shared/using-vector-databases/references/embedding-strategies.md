@@ -3,7 +3,6 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [Embedding Model Comparison (2025)](#embedding-model-comparison-2025)
   - [Quality Benchmark: MTEB (Massive Text Embedding Benchmark)](#quality-benchmark-mteb-massive-text-embedding-benchmark)
 - [Managed Embedding APIs](#managed-embedding-apis)
@@ -20,7 +19,6 @@
   - [API Rate Limiting](#api-rate-limiting)
   - [Caching by Content Hash](#caching-by-content-hash)
 - [Embedding for Different Content Types](#embedding-for-different-content-types)
-  - [Text Documents](#text-documents)
   - [Code](#code)
   - [Queries (Search)](#queries-search)
 - [Cost Optimization Strategies](#cost-optimization-strategies)
@@ -36,15 +34,9 @@
   - [3. Separate Query and Document Embeddings (if supported)](#3-separate-query-and-document-embeddings-if-supported)
 - [Additional Resources](#additional-resources)
 
-## Overview
-
-Embedding models convert text, images, audio, or code into dense vector representations that capture semantic meaning. Choosing the right embedding model balances quality, cost, latency, and deployment requirements.
-
 ## Embedding Model Comparison (2025)
 
 ### Quality Benchmark: MTEB (Massive Text Embedding Benchmark)
-
-Higher scores indicate better semantic understanding across diverse tasks.
 
 | Provider | Model | Dimensions | MTEB Score | Cost ($/1M tokens) | Best For |
 |----------|-------|------------|------------|-------------------|----------|
@@ -57,7 +49,7 @@ Higher scores indicate better semantic understanding across diverse tasks.
 | **BAAI** | bge-m3 | 1024 | 63.5 | Free (self-hosted) | Multilingual, open |
 | **jina** | jina-embeddings-v2 | 768 | 60.4 | Free (self-hosted) | Long docs (8K context) |
 
-**Voyage AI Advantage:** 9.74% better performance than OpenAI on MTEB, making it the quality leader.
+**Voyage AI Advantage:** 9.74% better than OpenAI on MTEB; quality leader.
 
 ## Managed Embedding APIs
 
@@ -80,10 +72,9 @@ vectors = [emb.embedding for emb in embeddings.embeddings]
 ```
 
 **When to use:**
-- Best quality matters more than cost
-- High-stakes search applications
-- Enterprise RAG systems requiring maximum accuracy
-- Budget allows ~$0.12/1M tokens
+- Quality matters more than cost
+- High-stakes search
+- Enterprise RAG needing maximum accuracy
 
 ### OpenAI (Enterprise Standard)
 
@@ -114,9 +105,8 @@ response = client.embeddings.create(
 
 **When to use:**
 - Enterprise reliability required
-- Integration simplicity valued
+- Simple integration valued
 - Dimension reduction needed (3072d → 1024d)
-- Cost: $0.13/1M tokens acceptable
 
 ### OpenAI text-embedding-3-small (Cost-Optimized)
 
@@ -152,9 +142,8 @@ vectors = response.embeddings
 
 **When to use:**
 - Global applications (100+ languages)
-- Non-English content dominant
+- Mostly non-English content
 - Need input type optimization (document vs. query)
-- Cost: ~$0.10/1M tokens
 
 ### Google text-embedding-004
 
@@ -170,10 +159,9 @@ vectors = embeddings.get_embeddings(["Document text"])
 ```
 
 **When to use:**
-- Already using GCP ecosystem
+- Already on GCP ecosystem
 - Vertex AI integration required
-- Cost: ~$0.025/1M tokens
-- 768 dimensions sufficient
+- 768 dimensions enough
 
 ## Self-Hosted (Open Source) Models
 
@@ -182,8 +170,12 @@ vectors = embeddings.get_embeddings(["Document text"])
 ```python
 from sentence_transformers import SentenceTransformer
 
-# Load model
-model = SentenceTransformer('nomic-ai/nomic-embed-text-v1.5', trust_remote_code=True)
+# Load model. trust_remote_code runs Python from the model repo: review it, pin that commit.
+model = SentenceTransformer(
+    'nomic-ai/nomic-embed-text-v1.5',
+    trust_remote_code=True,
+    revision='<reviewed-commit-sha>',
+)
 
 # Generate embeddings
 embeddings = model.encode([
@@ -196,8 +188,6 @@ embeddings = model.encode([
 - **Dimensions:** 768
 - **License:** Apache 2.0
 - **Context length:** 8192 tokens
-- **Quality:** Competitive with commercial models
-- **Cost:** Free (infrastructure only)
 
 **When to use:**
 - Privacy-critical applications
@@ -249,11 +239,10 @@ embeddings = model.encode([
 - **Dimensions:** 768
 - **License:** Apache 2.0
 - **Context length:** 8192 tokens (2x most models)
-- **Best for:** Technical documentation, long articles
 
 **When to use:**
-- Documents exceed 512 tokens regularly
-- Technical documentation embedding
+- Documents often exceed 512 tokens
+- Embedding technical documentation
 - Self-hosting preferred
 - Long-form content
 
@@ -329,15 +318,6 @@ def get_embedding_cached(text):
 
 ## Embedding for Different Content Types
 
-### Text Documents
-
-```python
-# Standard text embedding
-def embed_document(text, model="text-embedding-3-large"):
-    response = client.embeddings.create(input=[text], model=model)
-    return response.data[0].embedding
-```
-
 ### Code
 
 ```python
@@ -390,14 +370,7 @@ query_embedding = cohere_client.embed(
 
 ### 1. Dimension Reduction (Maturity Shortening)
 
-```python
-# OpenAI: Reduce from 3072d to 1024d
-response = client.embeddings.create(
-    input=["text"],
-    model="text-embedding-3-large",
-    dimensions=1024  # 3x fewer dimensions = lower storage/compute
-)
-```
+OpenAI `text-embedding-3-large` with `dimensions=1024` (3072d → 1024d; code in OpenAI section above).
 
 **Savings:**
 - Storage: 3x reduction
@@ -422,13 +395,7 @@ supplementary_embeddings = openai_client.embeddings.create(
 
 ### 3. Self-Host for High Volume
 
-```python
-# One-time setup cost, zero per-request cost
-model = SentenceTransformer('nomic-ai/nomic-embed-text-v1.5')
-
-# Free embeddings after infrastructure cost
-embeddings = model.encode(millions_of_documents)
-```
+One-time setup cost, zero per-request cost (e.g. `nomic-ai/nomic-embed-text-v1.5` via `SentenceTransformer`, above).
 
 **Break-even analysis:**
 - API cost: $0.12/1M tokens
@@ -511,21 +478,7 @@ def preprocess_text(text):
 ```
 
 ### 3. Separate Query and Document Embeddings (if supported)
-```python
-# Document embedding
-doc_emb = voyage_client.embed(
-    texts=[document],
-    model="voyage-3",
-    input_type="document"
-)
-
-# Query embedding
-query_emb = voyage_client.embed(
-    texts=[query],
-    model="voyage-3",
-    input_type="query"
-)
-```
+Embed documents with `input_type="document"` and queries with `input_type="query"` (Voyage; Cohere: `search_document`/`search_query`). See Queries (Search) above.
 
 ## Additional Resources
 

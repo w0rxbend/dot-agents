@@ -7,8 +7,6 @@ version: "1.0"
 
 # Backend Development Patterns
 
-Backend architecture patterns and best practices for scalable server-side applications.
-
 ## API Design Patterns
 
 ### RESTful API Structure
@@ -178,13 +176,19 @@ CREATE OR REPLACE FUNCTION create_market_with_position(
 RETURNS jsonb
 LANGUAGE plpgsql
 AS $$
+DECLARE
+  new_market_id uuid;
 BEGIN
   -- The function body runs in one transaction: if any statement raises,
   -- both inserts are rolled back and the error reaches the caller.
-  INSERT INTO markets
-    SELECT * FROM jsonb_populate_record(NULL::markets, market_data);
-  INSERT INTO positions
-    SELECT * FROM jsonb_populate_record(NULL::positions, position_data);
+  -- List columns explicitly and take the owner from auth.uid(). Never
+  -- jsonb_populate_record the caller's JSON: it could set id, creator_id or status.
+  INSERT INTO markets (name, description, creator_id)
+    VALUES (market_data->>'name', market_data->>'description', auth.uid())
+    RETURNING id INTO new_market_id;
+  INSERT INTO positions (market_id, user_id, outcome, amount)
+    VALUES (new_market_id, auth.uid(), position_data->>'outcome',
+            (position_data->>'amount')::numeric);
   RETURN jsonb_build_object('success', true);
   -- Do not add `EXCEPTION WHEN OTHERS THEN RETURN ...` here: swallowing the
   -- error makes the RPC succeed, so the caller would treat a failed write as success.
@@ -226,28 +230,6 @@ class CachedMarketRepository implements MarketRepository {
   async invalidateCache(id: string): Promise<void> {
     await this.redis.del(`market:${id}`)
   }
-}
-```
-
-### Cache-Aside Pattern
-
-```typescript
-async function getMarketWithCache(id: string): Promise<Market> {
-  const cacheKey = `market:${id}`
-
-  // Try cache
-  const cached = await redis.get(cacheKey)
-  if (cached) return JSON.parse(cached)
-
-  // Cache miss - fetch from DB
-  const market = await db.markets.findUnique({ where: { id } })
-
-  if (!market) throw new Error('Market not found')
-
-  // Update cache
-  await redis.setex(cacheKey, 300, JSON.stringify(market))
-
-  return market
 }
 ```
 
@@ -348,7 +330,8 @@ interface JWTPayload {
 
 export function verifyToken(token: string): JWTPayload {
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload
+    // Pin the algorithm; add issuer/audience if your tokens carry them
+    const payload = jwt.verify(token, process.env.JWT_SECRET!, { algorithms: ['HS256'] }) as JWTPayload
     return payload
   } catch (error) {
     throw new ApiError(401, 'Invalid token')
@@ -424,7 +407,7 @@ export const DELETE = requirePermission('delete', async (request, user) => {
 
 ### Simple In-Memory Rate Limiter
 
-> Single-process sketch only. State lives in one server's memory, so limits reset on restart and are not shared across instances or serverless invocations, and the map grows with every new key. In production use a shared store (Redis, your API gateway or edge provider's limiter).
+> Single-process sketch only. State lives in one server's memory. Limits reset on restart and are not shared across instances or serverless invocations. Map grows with every new key. In production, use shared store (Redis, your API gateway or edge provider's limiter).
 
 ```typescript
 class RateLimiter {
@@ -477,7 +460,7 @@ export async function GET(request: Request) {
 
 ### Simple Queue Pattern
 
-> In-memory sketch only: queued jobs are lost on restart or deploy, are not shared across instances, and serverless platforms may freeze the process after the response is sent. For real background work use a durable queue (BullMQ, SQS, Cloud Tasks, a database-backed job table).
+> In-memory sketch only. Queued jobs are lost on restart or deploy and are not shared across instances. Serverless platforms may freeze process after response is sent. For real background work, use durable queue (BullMQ, SQS, Cloud Tasks, a database-backed job table).
 
 ```typescript
 class JobQueue<T> {
@@ -593,5 +576,3 @@ export async function GET(request: Request) {
   }
 }
 ```
-
-**Remember**: Backend patterns enable scalable, maintainable server-side applications. Choose patterns that fit your complexity level.

@@ -2,9 +2,9 @@
 
 ## Using context values correctly
 
-Context values carry request-scoped metadata that crosses API boundaries — not function parameters, configuration, or optional arguments. Good candidates: trace IDs, span IDs, request IDs, authenticated user info, correlation IDs.
+Context values carry request-scoped metadata crossing API boundaries, not function parameters, configuration or optional arguments. Good candidates: trace IDs, span IDs, request IDs, authenticated user info, correlation IDs.
 
-Always use an unexported type as the key to prevent collisions between packages:
+Always use unexported key type to prevent collisions between packages:
 
 ```go
 // ✓ Good — unexported key type prevents collisions
@@ -43,7 +43,7 @@ ctx = context.WithValue(ctx, "trace_id", traceID) // another package could use t
 
 ## Trace propagation between services
 
-In a microservices architecture, `context.Context` is the vehicle for trace propagation. When Service A calls Service B, the trace_id and span_id travel through context values and are injected into outgoing HTTP headers (typically via OpenTelemetry). This creates a connected trace across the entire request path.
+In microservices, `context.Context` carries trace propagation. When Service A calls Service B, trace_id and span_id travel in context values, then into outgoing HTTP headers (typically via OpenTelemetry).
 
 ```go
 // Middleware injects trace_id from incoming request headers into context
@@ -75,4 +75,4 @@ func (c *HTTPClient) Do(ctx context.Context, method, url string, body io.Reader)
 }
 ```
 
-With OpenTelemetry, this propagation is handled automatically through the `otel` SDK and `propagation.TraceContext`, but the mechanism is the same: context carries the trace state, and it must be propagated through every layer.
+OpenTelemetry automates this via `otel` SDK and `propagation.TraceContext`. Same mechanism: context carries trace state and must pass through every layer.

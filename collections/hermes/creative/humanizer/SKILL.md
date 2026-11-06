@@ -15,57 +15,50 @@ metadata:
 
 # Humanizer: Remove AI Writing Patterns
 
-Identify and remove signs of AI-generated text to make writing sound natural and human. Based on Wikipedia's "Signs of AI writing" guide (maintained by WikiProject AI Cleanup), derived from observations of thousands of AI-generated text instances.
-
-**Key insight:** LLMs use statistical algorithms to guess what should come next. The result tends toward the most statistically likely completion, which is how the telltale patterns below get baked in.
-
 ## When to use this skill
 
-Load this skill whenever the user asks to:
-- "humanize", "de-AI", "de-slop", or "un-ChatGPT" a piece of text
-- rewrite something so it doesn't sound like it was written by an LLM
+Load when user asks to:
+- "humanize", "de-AI", "de-slop", or "un-ChatGPT" text
+- rewrite something so it doesn't sound written by an LLM
 - edit a draft (blog post, essay, PR description, docs, memo, email, tweet, resume bullet) to sound more natural
 - match their voice in writing they're producing
 - review text for AI tells before publishing
 
-Do not apply it unprompted. When the user asks you to humanize your own draft, use only the pattern-removal sections on technical artifacts (PR descriptions, docs, release notes, commit messages); the PERSONALITY AND SOUL advice (opinions, first person, "some mess") is for essays, posts and personal writing, not for technical or factual documents.
+Do not apply unprompted. When user asks you to humanize your own draft of a technical artifact (PR descriptions, docs, release notes, commit messages), use only the pattern-removal sections. PERSONALITY AND SOUL advice (opinions, first person, "some mess") is for essays, posts and personal writing, not technical or factual documents.
 
 ## How to use it in Hermes
 
-The text usually arrives one of three ways:
-1. **Inline.** The user pastes the text into the message. Work on it in place and reply with the rewrite.
-2. **File.** The user points at a file. Use `read_file` to load it, then `patch` or `write_file` to apply edits. For a markdown doc in a repo, a targeted `patch` per section is cleaner than rewriting the whole file.
-3. **Voice calibration sample.** The user provides a sample of their own writing (inline or by file path) and asks you to match it. Read the sample first, then rewrite. See the Voice Calibration section below.
+Text usually arrives one of three ways:
+1. **Inline.** User pastes text into message. Work on it in place, reply with rewrite.
+2. **File.** User points at a file. Load it with `read_file`, then apply edits with `patch` or `write_file`. For markdown doc in a repo, prefer a targeted `patch` per section over rewriting whole file.
+3. **Voice calibration sample.** User gives a sample of their own writing (inline or by file path) and asks you to match it. See Voice Calibration below.
 
-Always show the rewrite to the user. For file edits, show a diff or the changed section instead of silently overwriting.
+Always show user the rewrite. For file edits, show a diff or changed section. Do not overwrite silently.
 
 ## Your task
 
-When given text to humanize:
+Given text to humanize:
 
-1. **Identify AI patterns.** Scan for the 34 patterns listed below.
-2. **Rewrite problematic sections.** Replace AI-isms with natural alternatives.
-3. **Preserve meaning.** Keep the core message intact.
-4. **Maintain voice.** Match the intended tone (formal, casual, technical, and so on). If a voice sample was provided, match it specifically.
-5. **Add soul.** Removing bad patterns is only half the job; the rewrite also needs real personality. See PERSONALITY AND SOUL below.
-6. **Do a final anti-AI pass.** Ask yourself: "What makes the below so obviously AI generated?" Answer briefly with any remaining tells, then revise one more time.
+1. **Preserve meaning.** Keep core message intact.
+2. **Maintain voice.** Match intended tone (formal, casual, technical, and so on).
+3. **Add soul.** Removing bad patterns is only half the job; rewrite also needs real personality. See PERSONALITY AND SOUL below.
 
 
 ## Voice Calibration (optional)
 
-If the user provides a writing sample (their own previous writing), analyze it before rewriting:
+If user provides a writing sample (their own previous writing), analyze it before rewriting:
 
-1. **Read the sample first.** Note:
+1. **Read sample first.** Note:
    - Sentence length patterns (short and punchy? Long and flowing? Mixed?)
    - Word choice level (casual? academic? somewhere between?)
    - How they start paragraphs (jump right in? Set context first?)
    - Punctuation habits (lots of dashes? Parenthetical asides? Semicolons?)
-   - Any recurring phrases or verbal tics
-   - How they handle transitions (explicit connectors? Just start the next point?)
+   - Recurring phrases or verbal tics
+   - How they handle transitions (explicit connectors? Just start next point?)
 
-2. **Match their voice in the rewrite.** Removing AI patterns is only half of it; swap in patterns from the sample as well. If they write short sentences, do not produce long ones. If they use "stuff" and "things," do not upgrade to "elements" and "components."
+2. **Match their voice in the rewrite.** Removing AI patterns is only half of it; also swap in patterns from the sample. If they write short sentences, do not produce long ones. If they use "stuff" and "things," do not upgrade to "elements" and "components."
 
-3. **When no sample is provided,** fall back to the default behavior (natural, varied, opinionated voice from the PERSONALITY AND SOUL section below).
+3. **When no sample is provided,** fall back to default behavior (natural, varied, opinionated voice from PERSONALITY AND SOUL below).
 
 ### How to provide a sample
 - Inline: "Humanize this text. Here's a sample of my writing for voice matching: [sample]"
@@ -74,13 +67,11 @@ If the user provides a writing sample (their own previous writing), analyze it b
 
 ## PERSONALITY AND SOUL
 
-Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as obvious as slop. Good writing has a human behind it.
-
-Apply this section only to genres that carry a personal voice (essays, blog posts, social posts, personal emails) or when the user asks for it. For technical docs, PR descriptions, reports and other factual writing, keep the neutral register and stop at removing the patterns below.
+Apply this section only to genres with a personal voice (essays, blog posts, social posts, personal emails) or on user request. For technical docs, PR descriptions, reports and other factual writing, keep neutral register and stop at removing the patterns below.
 
 ### Signs of soulless writing (even if technically "clean"):
-- Every sentence is the same length and structure
-- No opinions, just neutral reporting
+- Every sentence same length and structure
+- No opinions, only neutral reporting
 - No acknowledgment of uncertainty or mixed feelings
 - No first-person perspective when appropriate
 - No humor, no edge, no personality
@@ -88,9 +79,9 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 ### How to add voice:
 
-**Have opinions.** Report the facts, then react to them. "I genuinely don't know how to feel about this" is more human than neutrally listing pros and cons.
+**Have opinions.** Report facts, then react. "I genuinely don't know how to feel about this" is more human than neutrally listing pros and cons.
 
-**Vary your rhythm.** Mix shorter sentences with longer ones that take their time getting where they're going. Keep short sentences complete; strings of dramatic fragments are their own tell (pattern 31).
+**Vary your rhythm.** Mix short sentences with longer, unhurried ones. Keep short sentences complete; strings of dramatic fragments are their own tell (pattern 31).
 
 **Acknowledge complexity.** Real humans have mixed feelings. "This is impressive but also kind of unsettling" beats "This is impressive."
 
@@ -113,7 +104,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 **Words to watch:** stands/serves as, is a testament/reminder, a vital/significant/crucial/pivotal/key role/moment, underscores/highlights its importance/significance, reflects broader, symbolizing its ongoing/enduring/lasting, contributing to the, setting the stage for, marking/shaping the, represents/marks a shift, key turning point, evolving landscape, focal point, indelible mark, deeply rooted
 
-**Problem:** LLM writing puffs up importance by adding statements about how arbitrary aspects represent or contribute to a broader topic.
+**Problem:** LLM writing inflates importance with claims that arbitrary details represent or contribute to a broader topic.
 
 **Before:**
 > The Statistical Institute of Catalonia was officially established in 1989, marking a pivotal moment in the evolution of regional statistics in Spain. This initiative was part of a broader movement across Spain to decentralize administrative functions and enhance regional governance.
@@ -126,7 +117,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 **Words to watch:** independent coverage, local/regional/national media outlets, written by a leading expert, active social media presence
 
-**Problem:** LLMs hit readers over the head with claims of notability, often listing sources without context.
+**Problem:** LLMs hammer readers with notability claims, often listing sources without context.
 
 **Before:**
 > Her views have been cited in The New York Times, BBC, Financial Times, and The Hindu. She maintains an active social media presence with over 500,000 followers.
@@ -139,7 +130,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 **Words to watch:** highlighting/underscoring/emphasizing..., ensuring..., reflecting/symbolizing..., contributing to..., cultivating/fostering..., encompassing..., showcasing...
 
-**Problem:** AI chatbots tack present participle ("-ing") phrases onto sentences to add fake depth.
+**Problem:** AI chatbots tack present participle ("-ing") phrases onto sentences for fake depth.
 
 **Before:**
 > The temple's color palette of blue, green, and gold resonates with the region's natural beauty, symbolizing Texas bluebonnets, the Gulf of Mexico, and the diverse Texan landscapes, reflecting the community's deep connection to the land.
@@ -152,7 +143,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 **Words to watch:** boasts a, vibrant, rich (figurative), profound, enhancing its, showcasing, exemplifies, commitment to, natural beauty, nestled, in the heart of, groundbreaking (figurative), renowned, breathtaking, must-visit, stunning
 
-**Problem:** LLMs have serious problems keeping a neutral tone, especially for "cultural heritage" topics.
+**Problem:** LLMs struggle to keep a neutral tone, especially on "cultural heritage" topics.
 
 **Before:**
 > Nestled within the breathtaking region of Gonder in Ethiopia, Alamata Raya Kobo stands as a vibrant town with a rich cultural heritage and stunning natural beauty.
@@ -195,7 +186,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 **Marketing and blog clichés (same tell, different register):** at the end of the day, when it comes to, in a world where, moving forward, circle back, deep dive, game-changer, double down, take a step back, on the same page, make no mistake, it turns out, let me be clear, navigate (for challenges), lean into, unpack (before analysis), straightforward (to describe anything)
 
-**Problem:** These words appear far more frequently in post-2023 text. They often co-occur.
+**Problem:** These words are far more frequent in post-2023 text. They often co-occur.
 
 **Before:**
 > Additionally, a distinctive feature of Somali cuisine is the incorporation of camel meat. An enduring testament to Italian colonial influence is the widespread adoption of pasta in the local culinary landscape, showcasing how these dishes have integrated into the traditional diet.
@@ -219,7 +210,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 ### 9. Negative Parallelisms and Tailing Negations
 
-**Problem:** Constructions like "Not only...but..." or "It's not just about..., it's..." are overused. So are clipped tailing-negation fragments such as "no guessing" or "no wasted motion" tacked onto the end of a sentence instead of written as a real clause.
+**Problem:** "Not only...but..." and "It's not just about..., it's..." constructions are overused. So are clipped tailing-negation fragments like "no guessing" or "no wasted motion", tacked onto sentence end instead of written as a real clause.
 
 **Before:**
 > It's not just about the beat riding under the vocals; it's part of the aggression and atmosphere. It's not merely a song, it's a statement.
@@ -247,7 +238,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 ### 11. Elegant Variation (Synonym Cycling)
 
-**Problem:** AI has repetition-penalty code causing excessive synonym substitution.
+**Problem:** AI repetition-penalty code causes excessive synonym substitution.
 
 **Before:**
 > The protagonist faces many challenges. The main character must overcome obstacles. The central figure eventually triumphs. The hero returns home.
@@ -269,7 +260,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 ### 13. Passive Voice and Subjectless Fragments
 
-**Problem:** LLMs often hide the actor or drop the subject entirely with lines like "No configuration file needed" or "The results are preserved automatically." Rewrite these when active voice makes the sentence clearer and more direct.
+**Problem:** LLMs often hide the actor or drop the subject entirely, with lines like "No configuration file needed" or "The results are preserved automatically." Rewrite when active voice is clearer and more direct.
 
 **Before:**
 > No configuration file needed. The results are preserved automatically.
@@ -282,7 +273,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 ### 14. Em Dash Overuse
 
-**Problem:** LLMs use em dashes (—) more than humans, mimicking "punchy" sales writing. In practice, most of these can be rewritten more cleanly with commas, periods, or parentheses.
+**Problem:** LLMs use em dashes (—) more than humans, mimicking "punchy" sales writing. Most can be rewritten more cleanly with commas, periods, or parentheses.
 
 **Before:**
 > The term is primarily promoted by Dutch institutions—not by the people themselves. You don't say "Netherlands, Europe" as an address—yet this mislabeling continues—even in official documents.
@@ -293,7 +284,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 ### 15. Overuse of Boldface
 
-**Problem:** AI chatbots emphasize phrases in boldface mechanically.
+**Problem:** AI chatbots bold phrases mechanically.
 
 **Before:**
 > It blends **OKRs (Objectives and Key Results)**, **KPIs (Key Performance Indicators)**, and visual strategy tools such as the **Business Model Canvas (BMC)** and **Balanced Scorecard (BSC)**.
@@ -304,7 +295,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 ### 16. Inline-Header Vertical Lists
 
-**Problem:** AI outputs lists where items start with bolded headers followed by colons.
+**Problem:** AI outputs lists whose items start with bolded headers followed by colons.
 
 **Before:**
 > - **User Experience:** The user experience has been significantly improved with a new interface.
@@ -356,7 +347,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 **Words to watch:** I hope this helps, Of course!, Certainly!, You're absolutely right!, Would you like..., let me know, here is a...
 
-**Problem:** Text meant as chatbot correspondence gets pasted as content.
+**Problem:** Chatbot correspondence gets pasted as content.
 
 **Before:**
 > Here is an overview of the French Revolution. I hope this helps! Let me know if you'd like me to expand on any section.
@@ -428,7 +419,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 **Words to watch:** third-party, cross-functional, client-facing, data-driven, decision-making, well-known, high-quality, real-time, long-term, end-to-end
 
-**Problem:** AI hyphenates common word pairs with perfect consistency. Humans rarely hyphenate these uniformly, and when they do, it's inconsistent. Less common or technical compound modifiers are fine to hyphenate.
+**Problem:** AI hyphenates common word pairs with perfect consistency. Humans rarely hyphenate these uniformly; when they do, it's inconsistent. Less common or technical compound modifiers are fine to hyphenate.
 
 **Before:**
 > The cross-functional team delivered a high-quality, data-driven report on our client-facing tools. Their decision-making process was well-known for being thorough and detail-oriented.
@@ -441,7 +432,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 **Phrases to watch:** The real question is, at its core, in reality, what really matters, fundamentally, the deeper issue, the heart of the matter
 
-**Problem:** LLMs use these phrases to pretend they are cutting through noise to some deeper truth, when the sentence that follows usually just restates an ordinary point with extra ceremony.
+**Problem:** LLMs use these phrases to pretend they cut through noise to a deeper truth. The next sentence usually restates an ordinary point with extra ceremony.
 
 **Before:**
 > The real question is whether teams can adapt. At its core, what really matters is organizational readiness.
@@ -454,7 +445,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 **Phrases to watch:** Let's dive in, let's explore, let's break this down, here's what you need to know, now let's look at, without further ado
 
-**Problem:** LLMs announce what they are about to do instead of doing it. This meta-commentary slows the writing down and gives it a tutorial-script feel.
+**Problem:** LLMs announce what they will do instead of doing it. Meta-commentary slows writing and feels like a tutorial script.
 
 **Before:**
 > Let's dive into how caching works in Next.js. Here's what you need to know.
@@ -465,9 +456,9 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 ### 29. Fragmented Headers
 
-**Signs to watch:** A heading followed by a one-line paragraph that simply restates the heading before the real content begins.
+**Signs to watch:** A heading followed by a one-line paragraph that restates the heading before the real content begins.
 
-**Problem:** LLMs often add a generic sentence after a heading as a rhetorical warm-up. It usually adds nothing and makes the prose feel padded.
+**Problem:** LLMs often add a generic sentence after a heading as rhetorical warm-up. Usually adds nothing; pads the prose.
 
 **Before:**
 > ## Performance
@@ -486,9 +477,9 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 ### 30. Forced Metaphors and Figurative Overwriting
 
-**Signs to watch:** original but strained metaphors, mixed metaphors, figurative substitutions where a plain word is clearer, a metaphor that gets explained right after it is used
+**Signs to watch:** original but strained metaphors, mixed metaphors, figurative substitutions where a plain word is clearer, a metaphor explained right after it is used
 
-**Problem:** Beyond the stock figurative words flagged in patterns 4 and 7, LLMs invent decorative metaphors that add imagery without adding meaning, then often explain them. Plain description is usually clearer and more honest. If the metaphor does not earn its place, cut it and say the literal thing.
+**Problem:** Beyond stock figurative words flagged in patterns 4 and 7, LLMs invent decorative metaphors that add imagery without meaning, then often explain them. Plain description is usually clearer and more honest. If a metaphor does not earn its place, cut it and say the literal thing.
 
 **Before:**
 > The codebase is a garden we must tend, pruning dead branches and planting seeds of innovation so the whole ecosystem can flourish. In other words, delete unused code and add features.
@@ -501,7 +492,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 **Signs to watch:** two- or three-word subjectless sentences used for drama, staccato "X. And Y. And Z." runs, a short quotable line ending every paragraph or section, cutesy appositive fragments ("the catalog, honestly priced")
 
-**Problem:** LLMs chop sentences into fragments for false emphasis and end sections with a quotable "mic-drop" line. It reads like ad copy or a motivational poster. If a line sounds like it belongs on a poster, cut it or fold it back into a real sentence with a subject. This is distinct from pattern 13 (which is about grammatical passive voice); here the tell is rhythm and showmanship, not a hidden actor.
+**Problem:** LLMs chop sentences into fragments for false emphasis and end sections with a quotable "mic-drop" line. Reads like ad copy or a motivational poster. If a line belongs on a poster, cut it or fold it back into a real sentence with a subject. Distinct from pattern 13 (grammatical passive voice): here the tell is rhythm and showmanship, not a hidden actor.
 
 **Before:**
 > The catalog, honestly priced. Pay for what it does. Not promises. It just works. Every time.
@@ -514,7 +505,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 **Signs to watch:** "What if...?", "The question is...", "Ever wondered...?", a question immediately followed by its own answer, "Think about it."
 
-**Problem:** LLMs pose a question only to answer it a beat later. The question adds no information and stalls the sentence. State the point directly.
+**Problem:** LLMs pose a question only to answer it a beat later. Question adds no information and stalls the sentence. State the point directly.
 
 **Before:**
 > What makes an API good? It comes down to predictability. Think about it: developers want to know exactly what they will get back.
@@ -527,7 +518,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 **Words to watch:** So..., Look,, habitual sentence-initial And/But, "I think"/"I believe" when stating a fact, adverb openers (Interestingly, Importantly, Notably, Crucially, Essentially, Ultimately)
 
-**Problem:** LLMs lean on a small set of openers. Adverb openers tell the reader how to feel instead of earning it, and "So" or "Look" fake conversational warmth. Drop the opener and start with the substance.
+**Problem:** LLMs lean on a small set of openers. Adverb openers tell reader how to feel instead of earning it. "So" or "Look" fake conversational warmth. Drop the opener and start with substance.
 
 **Before:**
 > So, the results were mixed. Interestingly, adoption went up. Importantly, churn went up too. I think that means the feature still needs work.
@@ -540,7 +531,7 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 **Signs to watch:** And that's okay., And that's fine., There's nothing wrong with that., no shame in..., you're not alone, it's completely normal
 
-**Problem:** LLMs tack on reassurance the reader never asked for. It softens the writing and assumes the reader needs comforting. Trust the reader: make the point and stop.
+**Problem:** LLMs tack on reassurance reader never asked for. Softens writing and assumes reader needs comforting. Trust reader: make the point and stop.
 
 **Before:**
 > You might not have a testing setup yet. And that's okay. Plenty of teams start without one, and there's nothing wrong with that.
@@ -552,21 +543,21 @@ Apply this section only to genres that carry a personal voice (essays, blog post
 
 ## Process
 
-1. Read the input text carefully (use `read_file` if it's a file).
-2. Identify all instances of the patterns above.
+1. Read input text carefully (use `read_file` if it's a file).
+2. Find all instances of the 34 patterns above.
 3. Rewrite each problematic section.
-4. Ensure the revised text:
+4. Ensure revised text:
    - Sounds natural when read aloud
    - Varies sentence structure naturally
    - Uses specific details over vague claims
-   - Maintains appropriate tone for context
+   - Fits tone to context
    - Uses simple constructions (is/are/has) where appropriate
-5. Present a draft humanized version.
+5. Present draft humanized version.
 6. Prompt yourself: "What makes the below so obviously AI generated?"
-7. Answer briefly with the remaining tells (if any).
+7. Briefly answer with remaining tells (if any).
 8. Prompt yourself: "Now make it not obviously AI generated."
-9. Present the final version (revised after the audit).
-10. If the text came from a file, apply the edit with `patch` (targeted) or `write_file` (full rewrite) and show the user what changed.
+9. Present final version (revised after the audit).
+10. If text came from a file, apply the edit with `patch` (targeted) or `write_file` (full rewrite) and show user what changed.
 
 ## Output Format
 
@@ -574,7 +565,7 @@ Provide:
 1. Draft rewrite
 2. "What makes the below so obviously AI generated?" (brief bullets)
 3. Final rewrite
-4. A brief summary of changes made (optional, if helpful)
+4. Brief summary of changes (optional, if helpful)
 
 
 ## Full Example
@@ -642,8 +633,8 @@ Provide:
 
 ## Attribution
 
-This skill is ported from [blader/humanizer](https://github.com/blader/humanizer) (MIT licensed), which is itself based on [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), maintained by WikiProject AI Cleanup. The patterns documented there come from observations of thousands of instances of AI-generated text on Wikipedia.
+Ported from [blader/humanizer](https://github.com/blader/humanizer) (MIT licensed), itself based on [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), maintained by WikiProject AI Cleanup. Patterns documented there come from thousands of observed AI-generated texts on Wikipedia.
 
-Original author: Siqi Chen ([@blader](https://github.com/blader)). Original repo: https://github.com/blader/humanizer (version 2.5.1). Ported to Hermes Agent with Hermes-native tool references (`read_file`, `patch`, `write_file`) and guidance for when to load the skill. The original 29 patterns come from the source, and the before/after examples (including the full worked example) are kept as demonstrations. Patterns 30-34 and the "marketing and blog clichés" list added to pattern 7 are Hermes additions and are not part of the upstream source. The skill's own instructional prose has also been lightly edited to follow its own guidance (for example, removing em dashes and negative parallelism from the narration) so the skill models the writing it asks for. Original MIT license preserved in the `LICENSE` file alongside this `SKILL.md`.
+Original author: Siqi Chen ([@blader](https://github.com/blader)). Original repo: https://github.com/blader/humanizer (version 2.5.1). Patterns 30-34 and the "marketing and blog clichés" list added to pattern 7 are Hermes additions, not part of the upstream source. Original MIT license preserved in the `LICENSE` file alongside this `SKILL.md`.
 
 Key insight from Wikipedia: "LLMs use statistical algorithms to guess what should come next. The result tends toward the most statistically likely result that applies to the widest variety of cases."

@@ -1,6 +1,6 @@
 # Kubernetes Deployment Patterns
 
-Advanced Kubernetes patterns including Helm 4.0, service mesh, and autoscaling.
+Advanced Kubernetes patterns: Helm 4.0, service mesh, autoscaling.
 
 ## Table of Contents
 
@@ -11,7 +11,7 @@ Advanced Kubernetes patterns including Helm 4.0, service mesh, and autoscaling.
 
 ## Helm 4.0 Chart Structure
 
-Helm 4.0 (November 2025 release) introduces architectural changes.
+Helm 4.0 (November 2025 release) brings architectural changes.
 
 ### Basic Chart Structure
 
@@ -56,7 +56,7 @@ replicaCount: 3
 image:
   repository: my-app
   pullPolicy: IfNotPresent
-  tag: "latest"
+  tag: "1.0.0"  # pin version or digest; never latest
 
 service:
   type: ClusterIP
@@ -166,13 +166,8 @@ helm status my-app
 
 ### Linkerd (Performance-Focused)
 
-**Performance Characteristics**:
-- 5-10% latency overhead
-- Rust-based control plane
-- Minimal resource usage
-
 **When to Use**:
-- Performance is critical
+- Performance critical
 - Simple, opinionated configuration
 - Lightweight footprint required
 
@@ -188,9 +183,9 @@ less linkerd-install.sh && sh linkerd-install.sh
 # Check pre-requisites
 linkerd check --pre
 
-# Install control plane
+# Install control plane (disable heartbeat CronJob that reports usage to Linkerd)
 linkerd install --crds | kubectl apply -f -
-linkerd install | kubectl apply -f -
+linkerd install --set disableHeartBeat=true | kubectl apply -f -
 
 # Verify installation
 linkerd check
@@ -214,15 +209,10 @@ linkerd edges deployment
 
 ### Istio (Feature-Rich)
 
-**Performance Characteristics**:
-- 25-35% latency overhead
-- Envoy-based (C++)
-- Higher resource usage
-
 **When to Use**:
 - Advanced traffic management (canary, A/B testing)
 - Rich observability (Kiali, Grafana)
-- Complex routing requirements
+- Complex routing needs
 
 **Installation**:
 
@@ -291,32 +281,9 @@ spec:
 
 ### Horizontal Pod Autoscaler (HPA)
 
-Scale pod count based on metrics.
+Scales pod count by metrics.
 
-**CPU-Based HPA**:
-
-```yaml
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: my-app-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: my-app
-  minReplicas: 3
-  maxReplicas: 10
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-```
-
-**Memory-Based HPA**:
+**CPU + Memory HPA**:
 
 ```yaml
 apiVersion: autoscaling/v2
@@ -347,7 +314,7 @@ spec:
 
 **Custom Metrics (RPS)**:
 
-Requires Prometheus adapter.
+Needs Prometheus adapter.
 
 ```yaml
 apiVersion: autoscaling/v2
@@ -373,7 +340,7 @@ spec:
 
 ### Vertical Pod Autoscaler (VPA)
 
-Automatically adjust CPU/memory requests.
+Adjusts CPU/memory requests automatically.
 
 ```yaml
 apiVersion: autoscaling.k8s.io/v1
@@ -400,7 +367,7 @@ spec:
 
 ### Cluster Autoscaler
 
-Automatically add/remove nodes based on resource needs.
+Adds/removes nodes by resource needs.
 
 **AWS EKS Example**:
 
@@ -430,7 +397,7 @@ spec:
 
 ### Network Policies
 
-Restrict pod-to-pod communication.
+Restrict pod-to-pod traffic.
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -477,7 +444,7 @@ metadata:
 
 ### Secrets Management
 
-Use external secrets operator with AWS Secrets Manager, Vault, or GCP Secret Manager.
+Use external secrets operator with AWS Secrets Manager, Vault or GCP Secret Manager.
 
 ```yaml
 apiVersion: external-secrets.io/v1beta1
@@ -515,7 +482,7 @@ spec:
 
 ### RBAC Policies
 
-Principle of least privilege.
+Least privilege.
 
 ```yaml
 apiVersion: rbac.authorization.k8s.io/v1

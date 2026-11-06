@@ -1,6 +1,6 @@
 # Structured Logging with `slog`
 
-→ See `samber/cc-skills-golang@golang-error-handling` skill for the single handling rule.
+→ See `samber/cc-skills-golang@golang-error-handling` skill for single handling rule.
 
 ## Table of Contents
 
@@ -15,8 +15,6 @@
 - [Common Logging Mistakes](#common-logging-mistakes)
 
 ## Why Structured Logging
-
-Structured logs emit key-value pairs instead of freeform strings. Log management systems (Datadog, Grafana Loki, CloudWatch) can index, filter, and aggregate structured fields — something impossible with `log.Printf` output.
 
 ```go
 // ✗ Bad — freeform string, impossible to filter by user_id
@@ -55,20 +53,17 @@ slog.Warn("rate limit approaching", "current_usage", 0.92, "limit", 1000)
 slog.Error("payment failed", "order_id", orderID, "error", err)
 ```
 
-**Rule of thumb**: if you're unsure between Warn and Error, ask "did the operation succeed?" If yes (even with degradation), use Warn. If no, use Error.
+**Rule of thumb**: torn between Warn and Error? Ask "did the operation succeed?" Yes (even degraded): Warn. No: Error.
 
 ## Cost of Logging
 
-Logging is not free. Each log line costs CPU (serialization), I/O (disk/network), and money (log ingestion/storage in your aggregation platform). The cost scales with volume, which is directly controlled by log level.
-
-- **Debug level in production** can generate millions of log lines per minute in a busy service, overwhelming your log pipeline and inflating costs by 10-100x
-- **Info level** is the typical production default — it provides enough visibility without excessive volume
-- Debug level SHOULD be disabled in production — use `slog.LevelInfo` in production and `slog.LevelDebug` only in development or when actively debugging a specific issue
-- For high-throughput services, consider [samber/slog-sampling](https://github.com/samber/slog-sampling) to sample verbose logs (e.g., emit 1 in 100 Debug logs) rather than dropping them entirely
+- **Debug level in production** can emit millions of lines per minute in busy service, overwhelming log pipeline and inflating costs 10-100x
+- Debug level SHOULD be disabled in production. Use `slog.LevelInfo` there, `slog.LevelDebug` only in development or while debugging specific issue
+- High-throughput services: sample verbose logs with [samber/slog-sampling](https://github.com/samber/slog-sampling) (e.g., emit 1 in 100 Debug logs) instead of dropping them entirely
 
 ## Logging with Context
 
-MUST use the `*Context` variants to correlate logs with the current trace. When an OpenTelemetry bridge is configured, trace_id and span_id are automatically injected into log records.
+MUST use `*Context` variants to correlate logs with current trace. With OpenTelemetry bridge configured, trace_id and span_id get injected into log records automatically.
 
 ```go
 // ✗ Bad — no trace correlation
@@ -80,7 +75,7 @@ slog.ErrorContext(ctx, "query failed", "error", err)
 
 ## Adding Request-Scoped Attributes
 
-Use `slog.With()` to create a child logger that includes attributes on every log line. Middleware can inject request-scoped fields so all downstream logs carry the same context.
+`slog.With()` creates child logger that adds attributes to every line. Middleware injects request-scoped fields so all downstream logs share same context.
 
 ```go
 func LoggingMiddleware(next http.Handler) http.Handler {
@@ -99,17 +94,12 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 
 ## Log Sinks and the `slog` Ecosystem
 
-`slog` supports pluggable handlers. The Go community provides handlers for most log backends:
-
-**Standard library:**
-
-- `slog.JSONHandler` — JSON to stdout/stderr
-- `slog.TextHandler` — human-readable key=value
+`slog` supports pluggable handlers. Go community covers most log backends:
 
 **Log record handling:**
 
 - [samber/slog-multi](https://github.com/samber/slog-multi) — fan-out to multiple handlers, routing, failover
-- [samber/slog-sampling](https://github.com/samber/slog-sampling) — sample high-volume logs to reduce cost
+- [samber/slog-sampling](https://github.com/samber/slog-sampling) — sample high-volume logs to cut cost
 - [samber/slog-formatter](https://github.com/samber/slog-formatter) — format/transform log attributes
 
 **HTTP middleware:**
@@ -123,22 +113,22 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 **Third-party log sinks** (see [go.dev/wiki/Resources-for-slog](https://go.dev/wiki/Resources-for-slog)):
 
 - [lmittmann/tint](https://github.com/lmittmann/tint) — colorized terminal output
-- [samber/slog-datadog](https://github.com/samber/slog-datadog) — send logs to Datadog
-- [samber/slog-sentry](https://github.com/samber/slog-sentry) — send errors to Sentry
-- [samber/slog-loki](https://github.com/samber/slog-loki) — send logs to Grafana Loki
-- [samber/slog-nats](https://github.com/samber/slog-nats) — send logs to NATS
-- [samber/slog-syslog](https://github.com/samber/slog-syslog) — send logs to syslog
-- [samber/slog-fluentd](https://github.com/samber/slog-fluentd) — send logs to Fluentd
+- [samber/slog-datadog](https://github.com/samber/slog-datadog) — logs to Datadog
+- [samber/slog-sentry](https://github.com/samber/slog-sentry) — errors to Sentry
+- [samber/slog-loki](https://github.com/samber/slog-loki) — logs to Grafana Loki
+- [samber/slog-nats](https://github.com/samber/slog-nats) — logs to NATS
+- [samber/slog-syslog](https://github.com/samber/slog-syslog) — logs to syslog
+- [samber/slog-fluentd](https://github.com/samber/slog-fluentd) — logs to Fluentd
 - [samber/slog-logrus](https://github.com/samber/slog-logrus) — bridge to Logrus
 - [samber/slog-zap](https://github.com/samber/slog-zap) — bridge to Zap
 - [samber/slog-zerolog](https://github.com/samber/slog-zerolog) — bridge to Zerolog
-- [samber/slog-slack](https://github.com/samber/slog-slack) — send critical logs to Slack
+- [samber/slog-slack](https://github.com/samber/slog-slack) — critical logs to Slack
 
 ## Migrating from zap / logrus / zerolog
 
-`log/slog` is the standard library logger since Go 1.21. If the project uses `zap`, `logrus`, or `zerolog`, migrate to `slog` — it has a stable API, broad ecosystem support, and eliminates an unnecessary dependency.
+`log/slog` is standard library logger since Go 1.21. If project uses `zap`, `logrus` or `zerolog`, migrate to `slog`: stable API, broad ecosystem support, one unnecessary dependency gone.
 
-**Step 1: Bridge** — route `slog` output through the existing logger so you can migrate call sites incrementally without changing log output:
+**Step 1: Bridge** — route `slog` output through existing logger, so call sites migrate incrementally with unchanged log output:
 
 ```go
 // Example: bridge slog → zap (same pattern for logrus/zerolog)
@@ -149,8 +139,6 @@ slog.SetDefault(slog.New(
     slogzap.Option{Level: slog.LevelInfo, Logger: zapLogger}.NewZapHandler(),
 ))
 ```
-
-Available bridges: [samber/slog-zap](https://github.com/samber/slog-zap), [samber/slog-logrus](https://github.com/samber/slog-logrus), [samber/slog-zerolog](https://github.com/samber/slog-zerolog)
 
 **Step 2: Replace call sites** — change all logger calls to `slog`:
 
@@ -171,7 +159,7 @@ slog.Info("order created", "order_id", id)
 slog.Info("order created", "order_id", id)
 ```
 
-**Step 3: Remove the bridge** — once all call sites are migrated, replace the bridge handler with a native `slog` handler and remove the old logger dependency:
+**Step 3: Remove the bridge** — after all call sites migrate, swap bridge for native `slog` handler and drop old logger dependency:
 
 ```go
 slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{

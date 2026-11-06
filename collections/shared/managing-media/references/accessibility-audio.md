@@ -1,7 +1,5 @@
 # Audio Accessibility
 
-Transcripts, visual indicators, and keyboard controls for accessible audio content.
-
 ## Transcript (Required)
 
 ```tsx
@@ -72,9 +70,8 @@ useEffect(() => {
 
 1. **Transcript required** - Text alternative (WCAG Level A)
 2. **Visual feedback** - For deaf/hard-of-hearing users
-3. **Keyboard controls** - Space, arrows
-4. **No autoplay** - User-initiated only
-5. **Volume control** - Accessible to keyboard
+3. **No autoplay** - User-initiated only
+4. **Volume control** - Keyboard-accessible
 
 ## Resources
 

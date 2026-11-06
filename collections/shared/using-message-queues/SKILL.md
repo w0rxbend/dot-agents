@@ -5,8 +5,6 @@ description: Async communication patterns using message brokers and task queues.
 
 # Message Queues
 
-Implement asynchronous communication patterns for event-driven architectures, background job processing, and service decoupling.
-
 ## When to Use This Skill
 
 Use message queues when:
@@ -19,11 +17,10 @@ Use message queues when:
 
 ## Broker Selection Decision Tree
 
-Choose message broker based on primary need:
+Choose by primary need:
 
 ### Event Streaming / Log Aggregation
 **→ Apache Kafka**
-- Throughput: 500K-1M msg/s
 - Replay events (event sourcing)
 - Exactly-once semantics
 - Long-term retention
@@ -47,7 +44,7 @@ Choose message broker based on primary need:
 **→ NATS**
 - Built-in request-reply
 - Sub-millisecond latency
-- Cloud-native, simple operations
+- Cloud-native, simple to operate
 - Use: Microservices RPC, IoT command/control
 
 ### Complex Message Routing
@@ -61,7 +58,6 @@ Choose message broker based on primary need:
 **→ Redis Streams**
 - No new infrastructure
 - Simple consumer groups
-- Moderate throughput (100K+ msg/s)
 - Use: Notification queues, simple job queues
 
 ## Performance Comparison
@@ -76,7 +72,7 @@ Choose message broker based on primary need:
 ## Quick Start Examples
 
 ### Kafka Producer/Consumer (Python)
-See `examples/kafka-python/` for working code.
+Working code: `examples/kafka-python/`.
 
 ```python
 from confluent_kafka import Producer, Consumer
@@ -101,7 +97,7 @@ while True:
 ```
 
 ### Celery Background Jobs (Python)
-See `examples/celery-image-processing/` for full implementation.
+Full implementation: `examples/celery-image-processing/`.
 
 ```python
 from celery import Celery
@@ -118,7 +114,7 @@ def process_image(self, image_url: str):
 ```
 
 ### BullMQ Job Processing (TypeScript)
-See `examples/bullmq-webhook-processor/` for full implementation.
+Full implementation: `examples/bullmq-webhook-processor/`.
 
 ```typescript
 import { Queue, Worker } from 'bullmq'
@@ -135,15 +131,17 @@ await queue.add('send-webhook', {
 
 // Process jobs
 const worker = new Worker('webhooks', async job => {
+  // SSRF: allow-list job.data.url (https only; reject private/link-local/metadata IPs)
   await fetch(job.data.url, {
     method: 'POST',
+    redirect: 'error',
     body: JSON.stringify(job.data.payload)
   })
 }, { connection: { host: 'localhost', port: 6379 } })
 ```
 
 ### Temporal Workflow Orchestration
-See `examples/temporal-order-saga/` for saga pattern implementation.
+Saga pattern implementation: `examples/temporal-order-saga/`.
 
 ```python
 from temporalio import workflow, activity
@@ -200,7 +198,7 @@ Examples:
 ```
 
 ### Dead Letter Queue Pattern
-Route failed messages to dead letter queue (DLQ) after max retries:
+After max retries, route failed messages to dead letter queue (DLQ):
 
 ```python
 @app.task(bind=True, max_retries=3)
@@ -214,8 +212,8 @@ def process_order(self, order_id: str):
 ```
 
 ### Idempotency (Effectively-Once Processing)
-Claim the key atomically *before* doing the work. A `get` followed later by `setex`
-is check-then-act: two concurrent duplicates both pass the check and both charge.
+Claim key atomically *before* doing work. `get` followed later by `setex` is check-then-act:
+two concurrent duplicates both pass check and both charge.
 ```python
 import json
 
@@ -238,8 +236,8 @@ async def process_payment(
     redis_client.set(key, json.dumps(result), ex=86400)
     return {"status": "processed", "result": result}
 ```
-For money movement, also enforce uniqueness in the database or at the payment
-provider (its own idempotency key); Redis alone can lose the claim on failover.
+For money movement, also enforce uniqueness in database or at payment provider (its own
+idempotency key). Redis alone can lose claim on failover.
 
 ## Frontend Integration
 
@@ -292,21 +290,19 @@ export function JobStatus({ jobId }: { jobId: string }) {
 
 ## Detailed Guides
 
-For comprehensive documentation, see reference files:
-
 ### Broker-Specific Guides
-- **Kafka**: See `references/kafka.md` for partitioning, consumer groups, exactly-once semantics
-- **RabbitMQ**: See `references/rabbitmq.md` for exchanges, bindings, routing patterns
-- **NATS**: See `references/nats.md` for JetStream, request-reply patterns
-- **Redis Streams**: See `references/redis-streams.md` for consumer groups, acknowledgments
+- **Kafka**: `references/kafka.md` for partitioning, consumer groups, exactly-once semantics
+- **RabbitMQ**: `references/rabbitmq.md` for exchanges, bindings, routing patterns
+- **NATS**: `references/nats.md` for JetStream, request-reply patterns
+- **Redis Streams**: `references/redis-streams.md` for consumer groups, acknowledgments
 
 ### Task Queue Guides
-- **Celery**: See `references/celery.md` for periodic tasks, canvas (workflows), monitoring
-- **BullMQ**: See `references/bullmq.md` for job prioritization, flows, Bull Board monitoring
-- **Temporal**: See `references/temporal-workflows.md` for saga patterns, signals, queries
+- **Celery**: `references/celery.md` for periodic tasks, canvas (workflows), monitoring
+- **BullMQ**: `references/bullmq.md` for job prioritization, flows, Bull Board monitoring
+- **Temporal**: `references/temporal-workflows.md` for saga patterns, signals, queries
 
 ### Pattern Guides
-- **Event Patterns**: See `references/event-patterns.md` for event sourcing, CQRS, outbox pattern
+- **Event Patterns**: `references/event-patterns.md` for event sourcing, CQRS, outbox pattern
 
 ## Common Anti-Patterns to Avoid
 
@@ -377,7 +373,6 @@ response = await nats.request("user.profile", user_id.encode())
 ## Library Recommendations
 
 - **confluent-kafka (Python):** production Kafka client built on librdkafka
-- **Temporal:** workflow orchestration for durable execution
 
 ### Installation
 
@@ -404,8 +399,6 @@ go get go.temporal.io/sdk
 ```
 
 ## Utilities
-
-Use scripts for setup automation:
 
 - **Kafka setup**: Run `python scripts/kafka_producer_consumer.py` for test utilities
 - **Schema validation**: Run `python scripts/validate_message_schema.py` to validate event schemas

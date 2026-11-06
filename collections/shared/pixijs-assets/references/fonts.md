@@ -1,6 +1,6 @@
 # Fonts
 
-PixiJS loads two kinds of fonts through `Assets`: web fonts (TTF/OTF/WOFF/WOFF2) via `loadWebFont`, and bitmap fonts (FNT/XML) via `loadBitmapFont`. Use web fonts for `Text` and `HTMLText`; use bitmap fonts for `BitmapText` when you need GPU-friendly rendering without runtime text layout.
+PixiJS loads two font kinds via `Assets`: web fonts (TTF/OTF/WOFF/WOFF2) via `loadWebFont`, bitmap fonts (FNT/XML) via `loadBitmapFont`. Web fonts serve `Text` and `HTMLText`. Bitmap fonts serve `BitmapText`, for GPU-friendly rendering without runtime text layout.
 
 ## Web fonts
 
@@ -15,7 +15,7 @@ const text = new Text({
 });
 ```
 
-Once the font is loaded, reference it by its derived family name in any `TextStyle`. PixiJS registers the font with the browser's `FontFaceSet`, so DOM elements and Canvas can use it too.
+After load, use derived family name in any `TextStyle`. PixiJS registers font with browser `FontFaceSet`, so DOM elements and Canvas can use it too.
 
 ### Family name derivation
 
@@ -26,7 +26,7 @@ Once the font is loaded, reference it by its derived family name in any `TextSty
 // fonts/my-custom-font.otf → 'My Custom Font'
 ```
 
-By default, the family name is the filename without extension, with dashes and underscores replaced by spaces and title-cased. Override it with `data.family`.
+Default family: filename without extension, dashes and underscores become spaces, title-cased. Override with `data.family`.
 
 ### Load options via `data`
 
@@ -46,18 +46,18 @@ await Assets.load({
 });
 ```
 
-Fields on `data` map directly to FontFace descriptors:
+`data` fields map directly to FontFace descriptors:
 
-| Option            | Purpose                                                                                                                                |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `family`          | Override the derived font family name                                                                                                  |
-| `weights`         | Array of weights to register. One `FontFace` per weight, all sharing the same URL. Valid values: `'normal'`, `'bold'`, `'100'`–`'900'` |
-| `style`           | `'normal'`, `'italic'`, `'oblique'`                                                                                                    |
-| `display`         | CSS `font-display` (`'auto'`, `'block'`, `'swap'`, `'fallback'`, `'optional'`)                                                         |
-| `unicodeRange`    | Restrict which codepoints the font covers                                                                                              |
-| `stretch`         | `'normal'`, `'condensed'`, `'expanded'`, etc.                                                                                          |
-| `variant`         | CSS font-variant value                                                                                                                 |
-| `featureSettings` | OpenType feature settings like `'"liga" 1, "dlig" 1'`                                                                                  |
+| Option            | Purpose |
+| ----------------- | ------- |
+| `family`          | Override derived family name |
+| `weights`         | Weights to register. One `FontFace` per weight, all on same URL. Valid values: `'normal'`, `'bold'`, `'100'`–`'900'` |
+| `style`           | `'normal'`, `'italic'`, `'oblique'` |
+| `display`         | CSS `font-display` (`'auto'`, `'block'`, `'swap'`, `'fallback'`, `'optional'`) |
+| `unicodeRange`    | Restrict covered codepoints |
+| `stretch`         | `'normal'`, `'condensed'`, `'expanded'`, etc. |
+| `variant`         | CSS font-variant value |
+| `featureSettings` | OpenType feature settings like `'"liga" 1, "dlig" 1'` |
 
 ### Loading multiple weights
 
@@ -71,11 +71,11 @@ await Assets.load({
 });
 ```
 
-A single URL registers as multiple weights. Use when your font file contains a variable font or when your platform lets one file satisfy multiple weights.
+One URL registers several weights. Use for variable fonts, or when your platform lets one file satisfy several weights.
 
 ### Supported extensions
 
-`.ttf`, `.otf`, `.woff`, `.woff2`. WOFF2 is the smallest and universally supported in current browsers. Prefer it unless you're targeting very old environments.
+`.ttf`, `.otf`, `.woff`, `.woff2`. WOFF2 is smallest and supported in all current browsers. Prefer it unless targeting very old environments.
 
 ## Bitmap fonts
 
@@ -92,8 +92,6 @@ const text = new BitmapText({
 });
 ```
 
-The side-effect import registers the `CanvasBitmapTextPipe` and `BitmapTextPipe` rendering pipes. `Assets.load('font.fnt')` works without it and returns a `BitmapFont`, but rendering a `BitmapText` fails at render time without the import.
-
 ### Supported formats
 
 | Extension | Format             |
@@ -101,7 +99,7 @@ The side-effect import registers the `CanvasBitmapTextPipe` and `BitmapTextPipe`
 | `.fnt`    | BMFont text or XML |
 | `.xml`    | BMFont XML         |
 
-The parser sniffs the content to pick between text and XML automatically.
+Parser sniffs content to choose text or XML.
 
 ### Texture page loading
 
@@ -110,11 +108,11 @@ The parser sniffs the content to pick between text and XML automatically.
 await Assets.load("fonts/my-font.fnt");
 ```
 
-Bitmap fonts reference page images by filename in the `.fnt` data. The parser resolves these relative to the `.fnt` URL and loads them automatically. Any search params on the `.fnt` URL (e.g. cache busting) propagate to the page texture URLs.
+`.fnt` data names page images by filename. Parser resolves them relative to `.fnt` URL and loads them. Search params on `.fnt` URL (e.g. cache busting) carry over to page texture URLs.
 
 ### Signed Distance Field (SDF) fonts
 
-The parser detects distance field metadata in the `.fnt` file and enables `linear` scale mode plus disables mipmaps automatically. No extra configuration needed from the caller. SDF fonts stay crisp at any size, so you can render a single bitmap font at many different sizes.
+Parser detects distance field metadata in `.fnt`, then enables `linear` scale mode and disables mipmaps. Caller configures nothing. SDF fonts stay crisp at any size, so one bitmap font serves many sizes.
 
 ### Accessing the BitmapFont instance
 
@@ -126,11 +124,11 @@ console.log(font.chars);
 console.log(font.fontFamily);
 ```
 
-The cached asset is a `BitmapFont` instance. `Assets.get('arial')` and `Assets.get('arial-bitmap')` both return it, and `Assets.get('Arial-bitmap')` works if `fontFamily` matches.
+Cached asset is `BitmapFont`. `Assets.get('arial')` and `Assets.get('arial-bitmap')` both return it; `Assets.get('Arial-bitmap')` works if `fontFamily` matches.
 
 ## Forcing the font parser
 
-If your font URL lacks an extension, force the loader:
+If font URL lacks extension, force loader:
 
 ```ts
 await Assets.load({
@@ -145,7 +143,7 @@ await Assets.load({
 });
 ```
 
-See the main `SKILL.md` section on "Forcing a parser with `parser`" for the full list of parser IDs.
+See main `SKILL.md` section "Forcing a parser with `parser`" for all parser IDs.
 
 ## Common Mistakes
 
@@ -170,7 +168,7 @@ const text = new BitmapText({ text: "Hi", style: { fontFamily: "Arial" } });
 app.stage.addChild(text);
 ```
 
-`Assets.load('arial.fnt')` succeeds in the default bundle and returns a `BitmapFont`, but `'pixi.js/text-bitmap'` registers the `CanvasBitmapTextPipe` and `BitmapTextPipe`. Without it, `BitmapText` renders nothing or errors at render time.
+`Assets.load('arial.fnt')` succeeds in default bundle and returns `BitmapFont`, but `'pixi.js/text-bitmap'` registers `CanvasBitmapTextPipe` and `BitmapTextPipe`. Without it, `BitmapText` renders nothing or errors at render time.
 
 
 ### [HIGH] Using Text before the font is loaded
@@ -189,12 +187,12 @@ await Assets.load("fonts/hero.woff2");
 const text = new Text({ text: "Hi", style: { fontFamily: "Hero" } });
 ```
 
-The browser falls back to a system font if the named family isn't registered yet, then the `Text` is cached at that fallback style. Reloading the font doesn't repaint existing Text objects.
+If family isn't registered yet, browser falls back to system font and `Text` caches that fallback style. Reloading font doesn't repaint existing Text objects.
 
 
 ### [MEDIUM] Family name mismatch
 
-If you don't pass `data.family`, the family name is derived from the filename. `my_hero_font.woff` becomes `'My Hero Font'`; use exactly that string in your `TextStyle.fontFamily`, or set `data.family` to an explicit value.
+Without `data.family`, family derives from filename: `my_hero_font.woff` becomes `'My Hero Font'`. Use exactly that in `TextStyle.fontFamily`, or set `data.family` explicitly.
 
 
 ## API Reference

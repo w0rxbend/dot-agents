@@ -12,19 +12,19 @@
 
 ## Choose the Right Level of Architecture
 
-Architecture complexity MUST match project scope — don't over-architect small projects. When starting a new project, ask the developer what architecture they prefer:
+Architecture complexity MUST match project scope — don't over-architect small projects. On new project, ask developer's preferred architecture:
 
 | Project Size | Recommended Approach |
 | --- | --- |
 | Script / small CLI (<500 lines) | Flat `main.go` + a few files, no layers |
 | Medium service (500-5K lines) | Simple layered: `handler/`, `service/`, `repository/` |
-| Large service / monolith (5K+ lines) | Clean architecture, hexagonal, or DDD — ask the team |
+| Large service / monolith (5K+ lines) | Clean architecture, hexagonal, or DDD — ask team |
 
-A 100-line CLI does not need a domain layer, ports and adapters, or dependency injection frameworks. Start simple and refactor when complexity demands it.
+Start simple; refactor when complexity demands.
 
 ## Keep Domain Pure
 
-Domain logic MUST remain pure — no framework or infrastructure dependencies. The domain layer contains business logic and types:
+Domain logic MUST stay pure — no framework or infrastructure dependencies. Domain layer holds business logic and types:
 
 ```go
 // domain/order.go — pure business logic, no imports from infrastructure
@@ -45,11 +45,11 @@ func (o *Order) AddItem(item Item) error {
 }
 ```
 
-Infrastructure concerns (database queries, HTTP clients, message queues) live in separate packages that depend on the domain — never the reverse.
+Infrastructure concerns (database queries, HTTP clients, message queues) live in separate packages depending on domain — never the reverse.
 
 ## Fail Fast — Validate at Boundaries
 
-Input MUST be validated at system boundaries (HTTP handlers, CLI argument parsing, message consumers). Once data enters your domain layer, trust it:
+Input MUST be validated at system boundaries (HTTP handlers, CLI argument parsing, message consumers). Once data enters domain layer, trust it:
 
 ```go
 // Handler layer — validate here
@@ -74,11 +74,11 @@ func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-Don't re-validate the same data at every layer — it clutters the code and violates DRY.
+Don't re-validate same data at every layer — clutters code, violates DRY.
 
 ## Make Illegal States Unrepresentable
 
-Use Go's type system to prevent invalid states from being expressible in code:
+Use Go's type system so invalid states cannot be expressed:
 
 ```go
 // Bad — status is a raw string, anything goes
@@ -120,7 +120,7 @@ func NewEmail(raw string) (Email, error) {
 
 ## Detailed Architecture Guides
 
-For projects that warrant a formal architecture (typically 5K+ lines), see the dedicated guides:
+For projects warranting formal architecture (typically 5K+ lines), see dedicated guides:
 
 - [Domain-Driven Design (DDD)](./ddd.md) — aggregates, value objects, bounded contexts
 - [Clean Architecture](./clean-architecture.md) — use cases, dependency rule, layered adapters
@@ -132,7 +132,7 @@ For projects that warrant a formal architecture (typically 5K+ lines), see the d
 
 ## Explicit Over Implicit
 
-Go favors explicitness. Code should express its intent clearly without requiring the reader to know hidden conventions:
+Go favors explicitness. Code should state intent without requiring reader to know hidden conventions:
 
 ```go
 // Bad — implicit behavior hidden in struct tags and reflection

@@ -1,7 +1,5 @@
 # Task Patterns
 
-Common workflow patterns for both Python and TypeScript.
-
 ## Contents
 
 - Fan-out / fan-in
@@ -12,7 +10,7 @@ Common workflow patterns for both Python and TypeScript.
 
 ## Fan-Out / Fan-In
 
-Process a batch of items in parallel using subtasks, then aggregate results.
+Process batch of items in parallel with subtasks, then aggregate results.
 
 **Python:**
 ```python
@@ -64,7 +62,7 @@ task(
 
 ## ETL Pipeline
 
-Extract, transform, load pattern with chained subtasks.
+Extract, transform, load with chained subtasks.
 
 **Python:**
 ```python
@@ -123,7 +121,7 @@ task(
 
 ## Retry-Heavy Tasks
 
-Tasks with aggressive retry for unreliable external APIs.
+Aggressive retry for unreliable external APIs.
 
 **Python:**
 ```python
@@ -165,7 +163,7 @@ task(
 
 ## Error Handling in Tasks
 
-Tasks that raise exceptions are retried automatically according to their retry config. Use this intentionally. For common execution issues and fixes, see [troubleshooting.md](troubleshooting.md).
+Raised exceptions trigger automatic retry per task's retry config. Use intentionally. Common execution issues and fixes: see [troubleshooting.md](troubleshooting.md).
 
 **Python:**
 ```python
@@ -198,11 +196,11 @@ task(
 
 ## Integration Patterns
 
-Patterns for triggering workflow tasks from outside a workflow context.
+Trigger workflow tasks from outside workflow context.
 
 ## Cron-Triggered Workflows
 
-Render Workflows do not have built-in scheduling. Use a Render cron job to trigger tasks on a schedule.
+Render Workflows have no built-in scheduling. Use Render cron job to trigger tasks on schedule.
 
 **Python cron job (synchronous)** (`cron_trigger.py`):
 ```python
@@ -245,11 +243,11 @@ async function main() {
 main();
 ```
 
-Set up the cron job in the Render Dashboard or via MCP with the desired schedule.
+Set up cron job with desired schedule in Render Dashboard or via MCP.
 
 ## Cross-Workflow Calls
 
-A task in one workflow can trigger tasks in a **different** workflow using the SDK client (not subtask syntax):
+Task in one workflow can trigger tasks in **different** workflow via SDK client (not subtask syntax):
 
 **Python:**
 ```python
@@ -282,4 +280,4 @@ task(
 );
 ```
 
-> **Note:** Cross-workflow calls are not tracked as subtask relationships in the Dashboard.
+> **Note:** Dashboard does not track cross-workflow calls as subtask relationships.

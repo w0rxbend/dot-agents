@@ -2,22 +2,22 @@
 
 ## Inputs
 
-Installed Grafana version, datasource UID, metric names/labels, viewer role and the operational question.
+Installed Grafana version, datasource UID, metric names/labels, viewer role, operational question.
 
 ## Procedure
 
-1. Inspect real series and their units before drafting panels. Choose a service filter and time window; keep numerator and denominator populations identical.
-2. Build one representative panel in the target Grafana version and export its supported schema. Keep secrets out of exported JSON and use stable datasource references.
-3. Validate normal traffic, no traffic, missing data and a known incident. Check variables, units, thresholds and query cost, then import into a staging folder and inspect the rendered result.
+1. Inspect real series and units before drafting panels. Choose service filter and time window. Keep numerator and denominator populations identical.
+2. Build one representative panel in target Grafana version. Export its supported schema. Keep secrets out of exported JSON. Use stable datasource references.
+3. Validate normal traffic, no traffic, missing data, known incident. Check variables, units, thresholds, query cost. Then import into staging folder and inspect rendered result.
 
 ## Worked example
 
-For an API error panel, compare a known 5-error/100-request sample with the displayed 5%. An empty source must show no data, not healthy zero.
+API error panel: compare known 5-error/100-request sample with displayed 5%. Empty source must show no data, not healthy zero.
 
 ## Verification and handoff
 
-Report the actual files or configuration changed, checks performed, observed results and any untested environment. Keep the original inputs and evidence sufficient to reproduce the conclusion.
+Report actual files or configuration changed, checks performed, observed results, any untested environment. Keep original inputs and enough evidence to reproduce conclusion.
 
 ## Limitations
 
-Legacy graph and embedded-alert JSON is not universally importable. Generate schema from the installed version and configure alert rules through its supported interface.
+Legacy graph and embedded-alert JSON is not universally importable. Configure alert rules through installed version's supported interface.

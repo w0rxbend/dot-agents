@@ -1,11 +1,9 @@
 # GitHub Issues Management
 
-Create, search, triage, and manage GitHub issues. Each section shows `gh` first, then the `curl` fallback.
-
 ## Prerequisites
 
 - Authenticated with GitHub (see `references/auth.md` in this skill)
-- Inside a git repo with a GitHub remote, or specify the repo explicitly
+- Inside git repo with GitHub remote, or specify repo explicitly
 
 ### Setup
 
@@ -18,7 +16,7 @@ else
     if _hermes_env="${HERMES_HOME:-$HOME/.hermes}/.env"; [ -f "$_hermes_env" ] && grep -q "^GITHUB_TOKEN=" "$_hermes_env"; then
       GITHUB_TOKEN=$(grep "^GITHUB_TOKEN=" "$_hermes_env" | head -1 | cut -d= -f2 | tr -d '\n\r')
     elif grep -q "github.com" ~/.git-credentials 2>/dev/null; then
-      GITHUB_TOKEN=$(uv run python "$GH_SKILL_DIR/scripts/git-credential-token.py")
+      GITHUB_TOKEN=$(python3 -I "$GH_SKILL_DIR/scripts/git-credential-token.py")
     fi
   fi
 fi
@@ -50,7 +48,7 @@ gh issue view 42
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   "https://api.github.com/repos/$OWNER/$REPO/issues?state=open&per_page=20" \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 for i in json.load(sys.stdin):
     if 'pull_request' not in i:  # GitHub API returns PRs in /issues too
@@ -61,7 +59,7 @@ for i in json.load(sys.stdin):
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   "https://api.github.com/repos/$OWNER/$REPO/issues?state=open&labels=bug&per_page=20" \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 for i in json.load(sys.stdin):
     if 'pull_request' not in i:
@@ -71,7 +69,7 @@ for i in json.load(sys.stdin):
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$OWNER/$REPO/issues/42 \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 i = json.load(sys.stdin)
 labels = ', '.join(l['name'] for l in i['labels'])
@@ -85,7 +83,7 @@ print(f\"\n{i['body']}\")"
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   "https://api.github.com/search/issues?q=authentication+error+repo:$OWNER/$REPO" \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 for i in json.load(sys.stdin)['items']:
     print(f\"#{i['number']}  {i['state']:6}  {i['title']}\")"
@@ -193,7 +191,7 @@ curl -s -X DELETE \
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$OWNER/$REPO/labels \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 for l in json.load(sys.stdin):
     print(f\"  {l['name']:30}  {l.get('description', '')}\")"
@@ -262,7 +260,7 @@ curl -s -X PATCH \
 
 ### Linking Issues to PRs
 
-Issues are automatically closed when a PR merges with the right keywords in the body:
+Issues close automatically when PR with right keywords in body merges:
 
 ```
 Closes #42
@@ -270,7 +268,7 @@ Fixes #42
 Resolves #42
 ```
 
-To create a branch from an issue:
+Create branch from issue:
 
 **With gh:**
 
@@ -299,24 +297,24 @@ gh issue list --label "needs-triage" --state open
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   "https://api.github.com/repos/$OWNER/$REPO/issues?labels=needs-triage&state=open" \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 for i in json.load(sys.stdin):
     if 'pull_request' not in i:
         print(f\"#{i['number']}  {i['title']}\")"
 ```
 
-2. **Read and categorize** each issue (view details, understand the bug/feature)
+2. **Read and categorize** each issue (view details, understand bug/feature)
 
 3. **Apply labels and priority** (see Managing Issues above)
 
-4. **Assign** if the owner is clear
+4. **Assign** if owner is clear
 
 5. **Comment with triage notes** if needed
 
 ## 5. Bulk Operations
 
-For batch operations, combine API calls with shell scripting:
+List matches first (number + title); show user list and count; close only after confirmation.
 
 **With gh:**
 
@@ -333,7 +331,7 @@ gh issue list --label "wontfix" --json number --jq '.[].number' | \
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   "https://api.github.com/repos/$OWNER/$REPO/issues?labels=wontfix&state=open" \
-  | python -c "import sys,json; [print(i['number']) for i in json.load(sys.stdin)]" \
+  | python3 -I -c "import sys,json; [print(i['number']) for i in json.load(sys.stdin)]" \
   | while read num; do
     curl -s -X PATCH \
       -H "Authorization: token $GITHUB_TOKEN" \
@@ -342,16 +340,3 @@ curl -s \
     echo "Closed #$num"
   done
 ```
-
-## Quick Reference Table
-
-| Action | gh | curl endpoint |
-|--------|-----|--------------|
-| List issues | `gh issue list` | `GET /repos/{o}/{r}/issues` |
-| View issue | `gh issue view N` | `GET /repos/{o}/{r}/issues/N` |
-| Create issue | `gh issue create ...` | `POST /repos/{o}/{r}/issues` |
-| Add labels | `gh issue edit N --add-label ...` | `POST /repos/{o}/{r}/issues/N/labels` |
-| Assign | `gh issue edit N --add-assignee ...` | `POST /repos/{o}/{r}/issues/N/assignees` |
-| Comment | `gh issue comment N --body ...` | `POST /repos/{o}/{r}/issues/N/comments` |
-| Close | `gh issue close N` | `PATCH /repos/{o}/{r}/issues/N` |
-| Search | `gh issue list --search "..."` | `GET /search/issues?q=...` |

@@ -35,7 +35,7 @@ High-throughput data ingestion pipeline for IoT sensor networks.
                        │ Batch write
                        ▼
 ┌─────────────────────────────────────────────────────────┐
-│                  InfluxDB 3.x                            │
+│                  InfluxDB 2.x                            │
 │  - Retention: 90 days raw data                           │
 │  - Continuous queries for hourly/daily rollups           │
 └─────────────────────────────────────────────────────────┘
@@ -48,24 +48,26 @@ High-throughput data ingestion pipeline for IoT sensor networks.
 ```bash
 docker run -d \
   --name mosquitto \
-  -p 1883:1883 \
-  -p 9001:9001 \
-  eclipse-mosquitto:latest
+  -p 127.0.0.1:1883:1883 \
+  -p 127.0.0.1:9001:9001 \
+  eclipse-mosquitto:2.0.20
 ```
 
-### 2. Start InfluxDB 3.x
+### 2. Start InfluxDB 2.x
 
 ```bash
+# INFLUX_ADMIN_PASSWORD: generated, e.g. openssl rand -base64 24
 docker run -d \
   --name influxdb \
-  -p 8086:8086 \
-  -e INFLUXDB_INIT_MODE=setup \
-  -e INFLUXDB_INIT_USERNAME=admin \
-  -e INFLUXDB_INIT_PASSWORD=adminpassword \
-  -e INFLUXDB_INIT_ORG=myorg \
-  -e INFLUXDB_INIT_BUCKET=iot-sensors \
-  -e INFLUXDB_INIT_RETENTION=90d \
-  influxdb:3.0-alpine
+  -p 127.0.0.1:8086:8086 \
+  -e INFLUXD_REPORTING_DISABLED=true \
+  -e DOCKER_INFLUXDB_INIT_MODE=setup \
+  -e DOCKER_INFLUXDB_INIT_USERNAME=admin \
+  -e DOCKER_INFLUXDB_INIT_PASSWORD="$INFLUX_ADMIN_PASSWORD" \
+  -e DOCKER_INFLUXDB_INIT_ORG=myorg \
+  -e DOCKER_INFLUXDB_INIT_BUCKET=iot-sensors \
+  -e DOCKER_INFLUXDB_INIT_RETENTION=90d \
+  influxdb:2.7-alpine
 ```
 
 ### 3. Get InfluxDB API Token

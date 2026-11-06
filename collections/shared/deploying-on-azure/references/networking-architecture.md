@@ -1,20 +1,6 @@
 # Azure Networking Architecture Reference
 
-Comprehensive guide to Azure networking patterns and architectures.
-
-## Table of Contents
-
-1. [Hub-and-Spoke Topology](#hub-and-spoke-topology)
-2. [Private Endpoints](#private-endpoints)
-3. [Network Security Groups](#network-security-groups)
-4. [Load Balancing](#load-balancing)
-5. [DNS Configuration](#dns-configuration)
-
----
-
 ## Hub-and-Spoke Topology
-
-Centralized network architecture with shared services in hub and workloads in spokes.
 
 ### Hub VNet Components
 
@@ -40,11 +26,11 @@ Centralized network architecture with shared services in hub and workloads in sp
 
 ## Private Endpoints
 
-Network interface that connects privately and securely to a service powered by Azure Private Link.
+Network interface connecting privately and securely to a service powered by Azure Private Link.
 
 ### Supported Services
 
-100+ Azure services support Private Endpoints including:
+100+ Azure services support Private Endpoints, including:
 - Storage (Blob, Files, Queue, Table)
 - Databases (SQL, Cosmos DB, PostgreSQL, MySQL)
 - Azure OpenAI, Cognitive Services
@@ -59,19 +45,17 @@ Required for automatic DNS resolution of privatelink FQDNs.
 
 ## Network Security Groups
 
-Stateful firewall rules for subnet and NIC level filtering.
+Stateful firewall rules for subnet- and NIC-level filtering.
 
 ### Rule Priority
 
-- Lower numbers = higher priority
+- Lower number means higher priority
 - Default rules (65000-65500) allow VNet traffic, deny internet
 - Custom rules (100-4096) take precedence
 
 ---
 
 ## Load Balancing
-
-Distribute network traffic across multiple backends for high availability and scalability.
 
 ### Service Comparison
 
@@ -88,8 +72,8 @@ Distribute network traffic across multiple backends for high availability and sc
 
 ### Azure Private DNS Zones
 
-Link private DNS zones to VNets for automatic resolution of Private Endpoints.
+Link private DNS zones to VNets so Private Endpoints resolve automatically.
 
 ### DNS Forwarding
 
-Conditional forwarders for hybrid DNS resolution (on-premises ↔ Azure).
+Conditional forwarders for hybrid DNS resolution, both ways between on-premises and Azure.

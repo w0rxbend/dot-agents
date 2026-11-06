@@ -1,8 +1,5 @@
 # Style Dictionary Setup Guide
 
-**Transform W3C design tokens to multiple platform formats**
-
-
 ## Table of Contents
 
 - [What is Style Dictionary?](#what-is-style-dictionary)
@@ -29,7 +26,7 @@
 
 ## What is Style Dictionary?
 
-Style Dictionary transforms design tokens from JSON to platform-specific formats:
+Style Dictionary transforms design tokens from JSON into platform-specific formats:
 
 ```
 JSON Tokens → Style Dictionary → CSS Variables
@@ -38,8 +35,6 @@ JSON Tokens → Style Dictionary → CSS Variables
                                → Android XML
                                → JavaScript
 ```
-
-**Industry standard** - Used by Amazon, Adobe, Salesforce, IBM
 
 ---
 
@@ -250,15 +245,14 @@ public class DesignTokens {
 }
 ```
 
-**Why this matters:**
+**Why it matters:**
 - Changing `--color-blue-500` updates `--color-primary` automatically
-- Enables dynamic theming
 
 ---
 
 ## Multi-Theme Build
 
-**Build separate CSS files for each theme:**
+**Build one CSS file per theme:**
 
 ```javascript
 // config.js

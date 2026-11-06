@@ -1,7 +1,5 @@
 # Output Formatting Guide
 
-Guide to formatting CLI output for both human and machine consumption.
-
 ## Table of Contents
 
 - [Output Modes](#output-modes)
@@ -16,19 +14,19 @@ Guide to formatting CLI output for both human and machine consumption.
 
 **stdout (Standard Output):**
 - Use for data and results
-- Pipe-friendly (can be piped to other commands)
+- Pipe-friendly (pipes into other commands)
 - Example: `myapp list | jq '.'`
 
 **stderr (Standard Error):**
-- Use for errors, warnings, and log messages
+- Use for errors, warnings, log messages
 - Not captured by pipes (unless explicitly redirected)
-- Example: Progress bars, debug messages
+- Example: progress bars, debug messages
 
 **Exit Codes:**
 - `0`: Success
 - `1`: General error
 - `2`: Usage error (invalid arguments)
-- Custom codes: Document in help text
+- Custom codes: document in help text
 
 ## Human-Readable Output
 
@@ -260,7 +258,7 @@ spinner.finish_with_message("Done!");
 
 **Best Practices:**
 - Write errors to stderr
-- Provide actionable suggestions
+- Give actionable suggestions
 - Include error codes for scripting
 - Use colors for visibility (if TTY)
 
@@ -296,38 +294,16 @@ eprintln!("Error: {}", message);
 std::process::exit(1);
 ```
 
-### Warnings
-
-**Python:**
-```python
-console.print("[yellow]Warning:[/yellow] Using default configuration", file=sys.stderr)
-```
-
-**Go:**
-```go
-fmt.Fprintf(os.Stderr, "Warning: %s\n", message)
-```
-
-**Rust:**
-```rust
-eprintln!("Warning: {}", message);
-```
-
 ## Best Practices Summary
 
 **Output Design:**
 - Default to human-readable (tables, colors)
 - Provide `--output` flag for JSON/YAML
-- Write data to stdout, logs to stderr
 - Disable colors when not a TTY
 
 **Progress Indicators:**
 - Use progress bars for operations >2 seconds
 - Use spinners for indeterminate operations
-- Write to stderr (keeps stdout clean)
 
 **Error Handling:**
-- Clear error messages with suggestions
-- Use exit codes: 0 = success, 1 = error, 2 = usage
-- Log errors to stderr
 - Provide `--verbose` for debugging

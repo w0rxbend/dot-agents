@@ -1,6 +1,6 @@
 # HTTP Handler Testing
 
-Use `httptest` package for testing HTTP handlers without starting a server.
+Use `httptest` package to test HTTP handlers without starting server.
 
 ## Basic Handler Test
 

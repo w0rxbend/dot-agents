@@ -40,7 +40,8 @@ def main() -> int:
     parser.add_argument("--author")
     parser.add_argument("--subject")
     parser.add_argument("--keywords")
-    parser.add_argument("--password", help="Password if the input is encrypted")
+    parser.add_argument("--password", default=os.environ.get("PDF_PASSWORD"),
+                        help="Password if the input is encrypted (default: $PDF_PASSWORD)")
     args = parser.parse_args()
 
     try:

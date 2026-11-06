@@ -7,7 +7,7 @@ tags: sec, ssh, git, private-repo
 
 ## Use SSH Mounts for Private Repository Access
 
-Cloning private repositories during a Docker build typically requires SSH key access. Copying SSH keys into the image and deleting them later does not remove them from the layer where they were written -- Docker images are append-only, and every layer is independently extractable. BuildKit SSH mounts forward the host's SSH agent into a single `RUN` instruction without ever writing key material to any layer.
+Cloning private repositories during build usually needs SSH key. Copying key in and deleting it later leaves it in original layer: images are append-only, every layer independently extractable. BuildKit SSH mounts forward host SSH agent into one `RUN` instruction, never writing key material to any layer.
 
 **Incorrect (SSH key copied into image layer):**
 
@@ -31,8 +31,6 @@ COPY . .
 
 CMD ["node", "server.js"]
 ```
-
-(The `COPY id_rsa /root/.ssh/id_rsa` instruction writes the private key into a layer. Running `docker save` and extracting the layer tarball reveals the key in full, regardless of the subsequent `rm`. Anyone who pulls this image can recover the SSH private key.)
 
 **Correct (SSH agent forwarded via mount):**
 
@@ -67,7 +65,9 @@ ssh-add ~/.ssh/id_ed25519
 docker build --ssh default -t myapp .
 ```
 
-(BuildKit forwards the host SSH agent into the `RUN` instruction via a Unix socket. The private key never exists as a file inside the build container. After the instruction completes, the socket is removed and no SSH material persists in any layer.)
+(BuildKit forwards host SSH agent into `RUN` via Unix socket; private key never exists as file in build container. Afterward socket is removed.)
+
+(`ssh-keyscan` trusts whichever host answers at build time. Stricter: check fingerprints once against GitHub's published list, commit that `known_hosts`, and replace keyscan with `--mount=type=bind,source=known_hosts,target=/etc/ssh/ssh_known_hosts`.)
 
 **Correct (multi-stage build isolating the clone):**
 
@@ -75,8 +75,10 @@ docker build --ssh default -t myapp .
 # syntax=docker/dockerfile:1
 
 # -- Clone stage: fetches private dependencies --
-FROM alpine/git:latest AS source
+# Official, version-pinned image: this stage gets the SSH agent (add digest, see base-pin-versions)
+FROM alpine:3.24 AS source
 
+RUN apk add --no-cache git openssh-client
 RUN --mount=type=ssh \
     mkdir -p /root/.ssh && \
     ssh-keyscan github.com >> /root/.ssh/known_hosts && \
@@ -106,18 +108,18 @@ EXPOSE 3000
 CMD ["node", "dist/server.js"]
 ```
 
-(The SSH mount is confined to the `source` stage. The final runtime image contains only the compiled output -- no Git history, no `.ssh` directory, and no reference to the SSH agent.)
+(SSH mount confined to `source` stage. Final image holds only compiled output: no Git history, no `.ssh` directory, no SSH agent reference.)
 
 ### CI/CD Integration
 
-Most CI platforms provide an SSH agent that can be forwarded to Docker builds:
+Most CI platforms provide SSH agent forwardable to Docker builds:
 
 ```bash
 # GitHub Actions example
 docker build --ssh default=$SSH_AUTH_SOCK -t myapp .
 ```
 
-If using Docker Compose with BuildKit:
+With Docker Compose and BuildKit:
 
 ```yaml
 services:

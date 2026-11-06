@@ -1,8 +1,5 @@
 # Session Persistence Strategies
 
-Comprehensive guide to managing sessions in load-balanced environments.
-
-
 ## Table of Contents
 
 - [Sticky Sessions (Avoid When Possible)](#sticky-sessions-avoid-when-possible)
@@ -11,10 +8,8 @@ Comprehensive guide to managing sessions in load-balanced environments.
   - [Drawbacks](#drawbacks)
 - [Shared Session Store (Recommended)](#shared-session-store-recommended)
   - [Redis Session Store](#redis-session-store)
-  - [Benefits](#benefits)
 - [Client-Side Tokens (Best for APIs)](#client-side-tokens-best-for-apis)
   - [JWT (JSON Web Tokens)](#jwt-json-web-tokens)
-  - [Benefits](#benefits)
 - [Session Replication](#session-replication)
 - [Migration Strategy](#migration-strategy)
 - [Summary](#summary)
@@ -23,7 +18,7 @@ Comprehensive guide to managing sessions in load-balanced environments.
 
 ### Cookie-Based Stickiness
 
-Load balancer sets cookie to track server affinity.
+Load balancer sets cookie tracking server affinity.
 
 **NGINX Plus:**
 ```nginx
@@ -55,7 +50,7 @@ resource "aws_lb_target_group" "app" {
 
 ### IP Hash Stickiness
 
-Hash client IP to select backend server.
+Hash client IP to select backend.
 
 **NGINX:**
 ```nginx
@@ -80,11 +75,11 @@ backend web_servers
 - Uneven load distribution
 - Session lost on server failure
 - Complicates horizontal scaling
-- Reduces load balancing effectiveness
+- Weakens load balancing
 
 ## Shared Session Store (Recommended)
 
-Stateless application servers with centralized session storage.
+Stateless application servers, centralized session storage. No sticky sessions needed, true load balancing, server failures don't lose sessions, horizontal scaling trivial.
 
 ### Redis Session Store
 
@@ -101,7 +96,7 @@ const redisClient = createClient({
 
 app.use(session({
   store: new RedisStore({ client: redisClient }),
-  secret: 'session-secret',
+  secret: process.env.SESSION_SECRET,  // long random value, never in source
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -122,15 +117,9 @@ app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_REDIS'] = Redis(host='redis.example.com', port=6379)
 ```
 
-### Benefits
-
-- No sticky sessions needed
-- True load balancing
-- Server failures don't lose sessions
-- Horizontal scaling trivial
-- Consistent user experience
-
 ## Client-Side Tokens (Best for APIs)
+
+Fully stateless servers, no session storage needed.
 
 ### JWT (JSON Web Tokens)
 
@@ -148,7 +137,7 @@ function login(user) {
 }
 ```
 
-**Client sends token with requests:**
+**Client sends token per request:**
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 ```
@@ -168,16 +157,9 @@ function authenticate(req, res, next) {
 }
 ```
 
-### Benefits
-
-- Fully stateless servers
-- Perfect load balancing
-- No session storage needed
-- Horizontal scaling effortless
-
 ## Session Replication
 
-For applications that must use server-side sessions, replicate across instances.
+Applications that must use server-side sessions: replicate across instances.
 
 **Memcached replication:**
 - Use consistent hashing
@@ -186,12 +168,12 @@ For applications that must use server-side sessions, replicate across instances.
 
 **Database-backed sessions:**
 - Store sessions in shared database
-- Less performant than Redis
+- Slower than Redis
 - Simpler for small deployments
 
 ## Migration Strategy
 
-Moving from sticky sessions to stateless:
+Sticky sessions to stateless:
 
 1. **Add shared session store** (Redis)
 2. **Configure dual-write** (local + Redis)
@@ -202,4 +184,4 @@ Moving from sticky sessions to stateless:
 
 ## Summary
 
-Prefer stateless architecture with client-side tokens (JWT) for APIs. Use shared session store (Redis) for web applications. Avoid sticky sessions unless absolutely necessary. When using sticky sessions, implement session replication for high availability.
+APIs: prefer stateless client-side tokens (JWT). Web applications: use shared session store (Redis). Avoid sticky sessions unless absolutely necessary. If using sticky sessions, add session replication for high availability.

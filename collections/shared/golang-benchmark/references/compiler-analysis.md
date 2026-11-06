@@ -1,8 +1,8 @@
 # Compiler Analysis Reference
 
-The Go compiler provides diagnostic flags that reveal optimization decisions — escape analysis, inlining, SSA intermediate representation, and generated assembly. These are essential for understanding **why** a function allocates or **why** the compiler won't inline it.
+Go compiler diagnostic flags show **why** a function allocates or **why** compiler won't inline it.
 
-Use compiler diagnostics when pprof shows a hot function and you need to understand the compiler's decisions about that function. These tools are free (no runtime overhead) — they analyze at compile time.
+Use when pprof shows a hot function and you need compiler's view of it. No runtime overhead: analysis is compile-time.
 
 ## Table of Contents
 
@@ -24,7 +24,7 @@ Use compiler diagnostics when pprof shows a hot function and you need to underst
 
 ## Escape Analysis
 
-Escape analysis determines whether a variable can live on the stack (cheap — freed when the function returns) or must be allocated on the heap (expensive — requires GC). "Moved to heap" means the compiler decided the variable might outlive the function.
+Escape analysis decides stack (cheap, freed on return) or heap (expensive, needs GC) for each variable. "Moved to heap" means variable might outlive function.
 
 ### Commands
 
@@ -62,26 +62,26 @@ go build -gcflags="-m" ./pkg/parser 2>&1 | grep "does not escape"
 ./pkg/parser/parse.go:42:13:     from return &result (return) at ./pkg/parser/parse.go:42:6
 ```
 
-The `-m -m` (verbose) output shows the **escape chain** — why the compiler decided the variable escapes. In this example: `result` has its address taken (`&result`), and that pointer is returned, so `result` must survive beyond the function — it escapes to heap.
+`-m -m` (verbose) shows **escape chain**, the reason for escape. Here `&result` takes `result`'s address and that pointer is returned, so `result` outlives function and escapes to heap.
 
 ### Common escape causes
 
 | Cause | Example | Why it escapes |
 | --- | --- | --- |
-| **Returning a pointer to a local** | `return &result` | The local must outlive the function call — caller holds a reference |
-| **Interface boxing** | `var x any = myStruct` | Concrete type stored in `interface{}` allocates a copy on the heap |
-| **Closure capturing a local** | `go func() { use(localVar) }()` | The goroutine may run after the enclosing function returns |
-| **Slice append beyond capacity** | `s = append(s, item)` when len == cap | Triggers a new backing array allocation on the heap |
-| **Passing pointer to unanalyzable function** | `json.Marshal(&data)` | Compiler can't prove the pointer won't be retained across package boundary |
-| **Storing in a struct field that escapes** | `obj.Field = &local` | If `obj` is heap-allocated, anything it points to must also be on the heap |
-| **fmt.Sprintf and friends** | `fmt.Sprintf("%d", n)` | Arguments are boxed into `any` (interface boxing) + result string is heap-allocated |
-| **Sending pointer on channel** | `ch <- &data` | Channel receiver may be a different goroutine with a different lifetime |
+| **Returning pointer to local** | `return &result` | Local outlives call; caller holds reference |
+| **Interface boxing** | `var x any = myStruct` | Concrete type stored in `interface{}` allocates heap copy |
+| **Closure capturing local** | `go func() { use(localVar) }()` | Goroutine may run after enclosing function returns |
+| **Slice append beyond capacity** | `s = append(s, item)` when len == cap | Allocates new backing array on heap |
+| **Passing pointer to unanalyzable function** | `json.Marshal(&data)` | Compiler can't prove pointer isn't retained across package boundary |
+| **Storing in struct field that escapes** | `obj.Field = &local` | If `obj` is heap-allocated, its pointees must be too |
+| **fmt.Sprintf and friends** | `fmt.Sprintf("%d", n)` | Arguments boxed into `any` (interface boxing) + result string heap-allocated |
+| **Sending pointer on channel** | `ch <- &data` | Receiver may be different goroutine with different lifetime |
 
-**Not all escapes are problems.** Only investigate escapes in functions that pprof identifies as allocation-heavy. A function called once at startup can escape freely.
+**Not all escapes are problems.** Investigate only in functions pprof flags as allocation-heavy. Function called once at startup can escape freely.
 
 ## Inlining Decisions
 
-Inlining replaces a function call with the function body at the call site. This eliminates call overhead and enables further optimizations (escape analysis improves, dead code elimination, constant folding). Functions that aren't inlined in hot paths may benefit from simplification.
+Inlining replaces call with function body at call site. Removes call overhead, enables more optimizations (better escape analysis, dead code elimination, constant folding). Non-inlined hot-path functions may benefit from simplification.
 
 ### Commands
 
@@ -116,25 +116,24 @@ go build -gcflags="-m" ./pkg/handler 2>&1 | grep -E "(inline|escape|moved to hea
 ./pkg/handler/handler.go:42:19: inlining call to validateInput
 ```
 
-The inline cost budget is approximately 80–82 AST nodes (as of Go 1.22+; has increased in later releases). Functions with higher cost (more AST nodes, complex control flow) are not inlined. Check the actual threshold with `-gcflags="-m -m"`.
+Inline cost budget is approximately 80–82 AST nodes (as of Go 1.22+; increased in later releases). Costlier functions (more AST nodes, complex control flow) are not inlined. Check actual threshold with `-gcflags="-m -m"`.
 
 ### Common inlining blockers
 
 | Blocker | Why it prevents inlining | Mitigation |
 | --- | --- | --- |
-| **Function too complex** | Body cost exceeds budget (80) | Split into smaller functions; extract the cold path |
+| **Function too complex** | Body cost exceeds budget (80) | Split into smaller functions; extract cold path |
 | **`defer` statement** | Adds cleanup code that complicates inlining | Remove `defer` from tiny hot functions; call cleanup directly |
-| **`recover()` call** | Forces stack frame preservation | Move `recover()` to a wrapper function |
-| **`go` statement** | Goroutine launch has implicit complexity | Extract goroutine body into a separate function |
+| **`recover()` call** | Forces stack frame preservation | Move `recover()` to wrapper function |
+| **`go` statement** | Goroutine launch has implicit complexity | Extract goroutine body into separate function |
 | **Type switch / interface method call** | Dynamic dispatch can't be resolved at compile time | Use concrete types in hot paths |
 | **`select` statement** | Complex runtime interaction | Simplify channel patterns in hot functions |
-| **Large function body** | Many statements add up in cost | Break into smaller functions — the hot inner function may inline |
 
-**Value receivers vs pointer receivers:** Receiver choice can affect copying, aliasing, escape analysis, and inlining, but pointer receiver methods can inline too and value receivers do not guarantee inlining. Check real compiler decisions with `-gcflags="-m -m"`.
+**Value receivers vs pointer receivers:** Receiver choice can affect copying, aliasing, escape analysis, inlining. Pointer receiver methods can inline too. Value receivers do not guarantee inlining. Check real decisions with `-gcflags="-m -m"`.
 
 ## SSA Dump
 
-The SSA (Static Single Assignment) dump shows the compiler's intermediate representation after each optimization pass — dead code elimination, bounds check removal, constant folding, register allocation. Use this when you need to understand exactly what the compiler generates.
+SSA (Static Single Assignment) dump shows compiler's intermediate representation after each optimization pass (dead code elimination, bounds check removal, constant folding, register allocation).
 
 ### Commands
 
@@ -156,7 +155,7 @@ GOSSAFUNC=Parse GOSSADIR=/tmp/ssa go build ./pkg/parser
 
 ### Reading ssa.html
 
-The HTML file shows the function's code at each compiler pass:
+HTML shows function code at each compiler pass:
 
 1. **Source** — original Go code
 2. **AST** — abstract syntax tree
@@ -166,18 +165,18 @@ The HTML file shows the function's code at each compiler pass:
 6. **Regalloc** — after register allocation
 7. **Genssa** — final generated code
 
-Click on a value in any pass to highlight it across all passes — see how the compiler transforms it. Red values were eliminated (dead code). Green values are new (introduced by a pass).
+Click a value in any pass to highlight it across passes and trace its transformation. Red values were eliminated (dead code); green values are new (introduced by a pass).
 
 **What to look for:**
 
-- **Bounds checks remaining** — `IsInBounds` or `IsSliceInBounds` operations that weren't eliminated. Adding explicit bounds checks or using `_ = s[n-1]` hints can help
-- **Dead code not eliminated** — values computed but never used (should be eliminated; if not, check for side effects)
-- **Constant folding** — computations on constants should be resolved at compile time
-- **Register spills** — values moved to stack because not enough registers; indicates heavy register pressure
+- **Bounds checks remaining** — uneliminated `IsInBounds` or `IsSliceInBounds` operations. Explicit bounds checks or `_ = s[n-1]` hints can help
+- **Dead code not eliminated** — values computed, never used (should be eliminated; if not, check side effects)
+- **Constant folding** — constant computations should resolve at compile time
+- **Register spills** — values moved to stack for lack of registers; indicates heavy register pressure
 
 ## Assembly Output
 
-View the actual machine code the compiler generates. Use for verifying SIMD instructions, bounds checks, register allocation, and micro-optimization decisions.
+Actual machine code from compiler. Use to verify SIMD instructions, bounds checks, register allocation, micro-optimization decisions.
 
 ### Commands
 
@@ -228,12 +227,12 @@ GOARCH=arm64 go build -gcflags="-S" ./pkg/parser 2>&1 | head -200
 
 **What to look for:**
 
-- `CALL runtime.makeslice` or `CALL runtime.newobject` — heap allocations in the hot path
+- `CALL runtime.makeslice` or `CALL runtime.newobject` — heap allocations in hot path
 - `CALL runtime.growslice` — slice capacity exceeded, triggering copy
 - `PCDATA` / `FUNCDATA` — GC metadata (ignore for performance analysis)
-- Bounds check sequences: `CMPQ` + `JCC` before array/slice access — can sometimes be eliminated
+- Bounds check sequences: `CMPQ` + `JCC` before array/slice access — sometimes removable
 - SIMD instructions: `VMOVDQU`, `VPSHUFB`, `VPADDB`, etc. — verify auto-vectorization or manual SIMD
-- `CALL runtime.morestack_noctxt` — stack growth (normal, but frequent calls indicate deep recursion)
+- `CALL runtime.morestack_noctxt` — stack growth (normal; frequent calls indicate deep recursion)
 
 ### Comparing assembly before/after optimization
 

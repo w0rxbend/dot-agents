@@ -1,6 +1,6 @@
 # SVG Loading
 
-PixiJS loads `.svg` files in one of two modes: rasterized to a texture (fast, fixed resolution) or parsed into a `GraphicsContext` (scalable vector, reusable across `Graphics` instances). Choose texture mode for backgrounds and decorative elements at a fixed size; choose Graphics mode for icons, UI elements, or anything that needs to scale or be modified at runtime.
+PixiJS loads `.svg` two ways: rasterized to texture (fast, fixed resolution) or parsed into `GraphicsContext` (scalable vector, reusable across `Graphics` instances).
 
 ## Quick Start
 
@@ -15,18 +15,13 @@ const svgContext = await Assets.load({
 const graphic = new Graphics(svgContext);
 ```
 
-By default, SVG files rasterize to a texture at their native size. Pass `parseAsGraphicsContext: true` in the `data` field to parse as vector geometry instead.
+Default: rasterize to texture at native size. Pass `parseAsGraphicsContext: true` in `data` to parse as vector geometry instead.
 
 ## Core Patterns
 
 ### Texture mode (default)
 
-```ts
-const icon = await Assets.load("close.svg");
-const button = new Sprite(icon);
-```
-
-The SVG is rasterized to a bitmap via the browser's native SVG-to-image pipeline, then uploaded as a `Texture`. Rendering is batched just like a regular sprite. Scaling up beyond the rasterized resolution pixelates; the rasterization happens once.
+Browser's native SVG-to-image pipeline rasterizes it to bitmap, then it uploads as `Texture`. Batches like regular sprite. Rasterization happens once; scaling beyond that resolution pixelates.
 
 ### Graphics mode
 
@@ -43,7 +38,7 @@ const large = new Graphics(context);
 large.scale.set(3);
 ```
 
-The SVG is parsed into a `GraphicsContext` (a compiled list of fill/stroke instructions). Both `Graphics` instances share the same context; cheap, and both stay crisp at any scale.
+Parses into `GraphicsContext` (compiled list of fill/stroke instructions). Both `Graphics` instances share one context: cheap, and both stay crisp at any scale.
 
 ### Resolution for sharper texture mode
 
@@ -54,7 +49,7 @@ const icon = await Assets.load({
 });
 ```
 
-For texture mode, you can pass `resolution` in `data` to rasterize at a higher density. Pairs with `autoGenerateMipmaps` for smooth downscaling. Doesn't apply in Graphics mode.
+In texture mode, `resolution` in `data` rasterizes at higher density. Pair with `autoGenerateMipmaps` for smooth downscaling. Doesn't apply in Graphics mode.
 
 ### Global default
 
@@ -64,20 +59,20 @@ import { loadSvg } from "pixi.js";
 loadSvg.config.parseAsGraphicsContext = true;
 ```
 
-Flip the default mode globally. Any subsequent `Assets.load('*.svg')` call parses as Graphics unless overridden in the asset's `data` options.
+Flips default mode globally. Later `Assets.load('*.svg')` calls parse as Graphics unless asset's `data` options override.
 
 ### What Graphics mode parses
 
-Graphics mode reads `<path>` (including `fill-rule="evenodd"` holes), `<rect>`, `<circle>`, `<ellipse>`, `<line>`, `<polygon>`, `<polyline>`, and `<g>`. Styling comes from the `fill`, `stroke`, `stroke-width`, `fill-opacity`, `stroke-opacity`, and `opacity` attributes or inline `style="..."`. Fills and strokes can reference `<linearGradient>` and `<radialGradient>` definitions through `url(#id)`; `gradientUnits` and percentage coordinates are honored. Not supported: `transform` attributes, `<style>` blocks, `stroke-dasharray`/`stroke-linecap`/`stroke-linejoin`, `gradientTransform`, `spreadMethod`, `stop-opacity`, `<text>`, `<image>`, `<use>`, `<clipPath>`, `<mask>`, `<pattern>`, and filters. Unsupported elements are skipped with a console warning. Texture mode has none of these limits because the browser rasterizes the file.
+Graphics mode reads `<path>` (including `fill-rule="evenodd"` holes), `<rect>`, `<circle>`, `<ellipse>`, `<line>`, `<polygon>`, `<polyline>`, and `<g>`. Styling comes from `fill`, `stroke`, `stroke-width`, `fill-opacity`, `stroke-opacity`, and `opacity` attributes or inline `style="..."`. Fills and strokes can reference `<linearGradient>` and `<radialGradient>` definitions through `url(#id)`; `gradientUnits` and percentage coordinates are honored. Not supported: `transform` attributes, `<style>` blocks, `stroke-dasharray`/`stroke-linecap`/`stroke-linejoin`, `gradientTransform`, `spreadMethod`, `stop-opacity`, `<text>`, `<image>`, `<use>`, `<clipPath>`, `<mask>`, `<pattern>`, and filters. Unsupported elements are skipped with console warning. Texture mode has none of these limits; browser rasterizes the file.
 
 ### When to use which mode
 
-| Mode                                      | Best for                                          | Cost                                                           |
-| ----------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------- |
-| Texture (default)                         | Icons at a known size, backgrounds, complex SVGs  | One-time rasterization; fast per-frame; pixelates when scaled  |
+| Mode                                      | Best for | Cost |
+| ----------------------------------------- | -------- | ---- |
+| Texture (default)                         | Icons at known size, backgrounds, complex SVGs | One-time rasterization; fast per-frame; pixelates when scaled |
 | Graphics (`parseAsGraphicsContext: true`) | Scalable icons, UI elements, runtime modification | Higher initial parse cost; crisp at any scale; shared contexts |
 
-If you need the same SVG at multiple sizes, Graphics mode is usually faster because you parse once and scale cheaply. If you have one fixed-size SVG, texture mode is simpler and batches with other sprites.
+Same SVG at several sizes: Graphics mode usually faster (parse once, scale cheaply). One fixed-size SVG: texture mode is simpler and batches with other sprites.
 
 ## Common Mistakes
 
@@ -111,17 +106,17 @@ const icon = await Assets.load({
 });
 ```
 
-Texture mode is frozen at rasterization time. Use Graphics mode or high `resolution` when the final size isn't known upfront.
+Texture mode freezes at rasterization. Use Graphics mode or high `resolution` when final size isn't known upfront.
 
 
 ### [MEDIUM] External references in SVG files
 
-SVGs that reference external images via `<image href="...">` may fail to load if the reference is cross-origin without CORS headers. Inline the image data as base64 or serve everything from the same origin.
+SVGs referencing external images via `<image href="...">` may fail to load if reference is cross-origin without CORS headers. Inline image data as base64 or serve everything from same origin.
 
 
 ### [MEDIUM] CSS in `<style>` elements
 
-Graphics mode does not read `<style>` blocks or class selectors at all; only presentation attributes and inline `style="..."` are parsed, so class-styled shapes render with the default black fill. Move the styling inline, or use texture mode for full CSS fidelity.
+Graphics mode does not read `<style>` blocks or class selectors at all. Only presentation attributes and inline `style="..."` are parsed, so class-styled shapes get default black fill. Move styling inline, or use texture mode for full CSS fidelity.
 
 
 ## API Reference

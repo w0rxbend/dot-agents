@@ -19,7 +19,7 @@
 
 ## Overview
 
-Encryption requirements across compliance frameworks:
+Encryption requirements across frameworks:
 - **Algorithm:** AES-256 for data at rest, TLS 1.3 for data in transit
 - **Key Management:** Centralized KMS with automatic rotation
 - **Scope:** All sensitive data (PHI, PII, cardholder data, confidential information)
@@ -554,6 +554,7 @@ server {
 
 ```python
 # api/database/connection.py
+import os
 import psycopg2
 from typing import Dict
 
@@ -568,7 +569,7 @@ class DatabaseConnection:
             "port": 5432,
             "database": "app_db",
             "user": "app_user",
-            "password": "secure_password",
+            "password": os.environ["DB_PASSWORD"],  # env/secrets manager, never in source
             # Enforce TLS 1.2+
             "sslmode": "verify-full",
             "sslrootcert": "/etc/ssl/certs/ca-bundle.crt",
@@ -599,6 +600,7 @@ class DatabaseConnection:
 
 ```python
 # api/database/mysql_connection.py
+import os
 import mysql.connector
 from mysql.connector import Error
 
@@ -612,7 +614,7 @@ class MySQLConnection:
             conn = mysql.connector.connect(
                 host="db.example.com",
                 user="app_user",
-                password="secure_password",
+                password=os.environ["DB_PASSWORD"],  # env/secrets manager, never in source
                 database="app_db",
                 # Enforce TLS
                 ssl_ca="/etc/ssl/certs/ca-bundle.crt",
@@ -826,5 +828,3 @@ deny[msg] {
   )
 }
 ```
-
-This comprehensive encryption implementation satisfies all major compliance framework requirements while following security best practices.

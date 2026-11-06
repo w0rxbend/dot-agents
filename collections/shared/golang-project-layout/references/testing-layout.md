@@ -14,18 +14,18 @@
 
 ## File Naming Conventions
 
-Go uses suffix-based naming for test-related files:
+Go names test-related files by suffix:
 
 | Suffix | Purpose | Build Tag |
 | --- | --- | --- |
-| `_test.go` | Tests | Not included in normal builds |
-| `_bench_test.go` | Benchmarks | Not included in normal builds |
-| `_example_test.go` | Examples that verify output | Not included in normal builds |
-| No suffix | Regular code | Included in all builds |
+| `_test.go` | Tests | Not in normal builds |
+| `_bench_test.go` | Benchmarks | Not in normal builds |
+| `_example_test.go` | Examples that verify output | Not in normal builds |
+| No suffix | Regular code | In all builds |
 
 ## Where to Place Tests
 
-**Co-locate tests with the code they test:**
+**Co-locate tests with code they test:**
 
 ```
 internal/
@@ -48,13 +48,11 @@ pkg/
 
 **Key principles:**
 
-- Tests live in the **same package** as the code (e.g., `package handler`)
-- Test files are in the **same directory** as the code they test
-- Use `_test.go` suffix for all test files
+- Tests live in **same package** as code (e.g., `package handler`)
 
 ## Test Package Options
 
-When writing tests, you have two options for the package declaration:
+Two options for test package declaration:
 
 **Option 1: Same package (white-box testing)**
 
@@ -84,18 +82,16 @@ func TestHandler(t *testing.T) {
 
 **When to use each:**
 
-- Use **same package** for unit tests that need to test internals
-- Use **`_test` suffix** for integration/behavioral tests
+- **Same package**: unit tests that need internals
+- **`_test` suffix**: integration/behavioral tests
 
 ## Benchmarks
 
-Benchmarks use the `_bench_test.go` suffix and contain functions with the `Benchmark` prefix.
+Benchmarks use `_bench_test.go` suffix and contain functions with `Benchmark` prefix.
 
 ## Examples
 
-Examples serve two purposes: documentation and verification.
-
-**In libraries** - use `*_example_test.go` files:
+**In libraries**: use `*_example_test.go` files:
 
 ```
 pkg/
@@ -125,8 +121,8 @@ func ExampleLogger_Info() {
 **Key points:**
 
 - Example functions must start with `Example`
-- The `// Output:` comment verifies the output
-- Examples are runnable tests: `go test` will fail if output doesn't match
+- `// Output:` comment verifies output
+- Examples are runnable tests: `go test` fails if output doesn't match
 - `godoc` displays examples as documentation
 - File name format: `{package}_example_test.go` (e.g., `logger_example_test.go`)
 
@@ -140,7 +136,7 @@ examples/
 
 ## Test Utilities
 
-When you have shared test helpers, use a dedicated package:
+Put shared test helpers in dedicated package:
 
 ```
 test/
@@ -149,7 +145,7 @@ test/
     └── fixtures.go
 ```
 
-Or use the `internal/testutil` pattern:
+Or use `internal/testutil` pattern:
 
 ```
 internal/
@@ -160,7 +156,7 @@ internal/
 
 ## Test Fixtures
 
-Fixtures are test data files used across multiple tests. Use one of these patterns:
+Fixtures: test data files shared across tests. Pick one pattern:
 
 **Option 1: Local testdata directory** (package-specific fixtures)
 
@@ -200,10 +196,10 @@ internal/
 
 **Important notes:**
 
-- Go ignores the `testdata` directory when building regular packages
+- Go ignores `testdata` when building regular packages
 - Use `testdata/` for package-specific test data
 - Use `test/fixtures/` for cross-package shared fixtures
-- Don't put `.go` files in `testdata/` - they will be ignored
+- Don't put `.go` files in `testdata/`; they get ignored
 
 ## Running Tests
 

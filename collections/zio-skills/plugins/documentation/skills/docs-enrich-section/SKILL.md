@@ -5,52 +5,44 @@ description: Use when a section of ZIO-ecosystem library documentation (Docusaur
 
 # Enrich a Documentation Section with Motivation and Use-Cases
 
-## Overview
-
-A thin section answers *what* but not *why*. Readers landing on such a section cannot judge when
-to use the API or how it fits into the larger picture. This skill turns a thin section into one
-that answers: what does this return, why does it exist, when is it the right choice, and what does
-a realistic use look like.
-
 ## Signals That a Section Needs Enriching
 
-- Shows only a signature + a trivial example (toy type, no realistic scenario)
-- No mention of alternatives or when *not* to use this API
-- A reader could not decide between this and the nearest related operation from the section alone
-- Opening sentence restates the method name without adding context
+- Only signature + trivial example (toy type, no realistic scenario)
+- No alternatives, no word on when *not* to use API
+- From section alone, reader cannot choose between this and nearest related operation
+- Opening sentence restates method name, adds no context
 
 ## Source Research (Do This First)
 
-Before writing a word of prose, read the implementation:
+Read implementation before writing any prose:
 
-1. **Read the source** — understand what the method actually does, not just its signature
-2. **Find the contrast** — locate the nearest alternative (e.g. `rebind` vs `toSchema`) and
-   understand the exact difference in return type, requirements, and guarantees
-3. **Find real usage** — search the docs and example files for existing uses of this API to
-   anchor your realistic example
+1. **Read the source** — what method does, not only its signature
+2. **Find the contrast** — nearest alternative (e.g. `rebind` vs `toSchema`): exact difference in
+   return type, requirements, guarantees
+3. **Find real usage** — search docs and example files for existing uses of this API; anchor
+   realistic example on them
 4. **Identify the gap** — ask: "In what situation would a reader need this but *not* the
    alternative?" That gap is the motivation.
 
 ## The Five-Part Expansion Pattern
 
-Replace the thin section with these five parts, in order:
+Replace thin section with these five parts, in order:
 
 ### 1. Opening sentence
-State what the method returns and the one-line rule for when to use it. Lead with the return type
-and the key constraint that distinguishes it from alternatives.
+State what method returns and one-line rule for when to use it. Lead with return type and key
+constraint that sets it apart from alternatives.
 
 > `DynamicSchema#toSchema` returns a `Schema[DynamicValue]` — it stays fully in the dynamic world
 > and requires no bindings. Use it when you have received a `DynamicSchema` over the wire and need
 > a codec-compatible schema that enforces structural conformance without binding any Scala types.
 
 ### 2. Motivation paragraph
-Explain the gap the method fills. Name the scenario where the alternative fails or is
-impractical. Name the concrete contexts (middleware, gateways, converters, validators) where
-this method is the right tool.
+Explain gap method fills. Name scenario where alternative fails or is impractical. Name concrete
+contexts (middleware, gateways, converters, validators) where method is right tool.
 
 ### 3. Contrast sentence or table
-State explicitly: "Use X when … Use Y instead when …". One sentence is enough if the distinction
-is clear; a two-row table if the dimensions are multiple.
+State explicitly: "Use X when … Use Y instead when …". Clear distinction: one sentence. Multiple
+dimensions: two-row table.
 
 | Situation | Right choice |
 |---|---|
@@ -58,51 +50,45 @@ is clear; a two-row table if the dimensions are multiple.
 | Have a `BindingResolver`; need a fully operational `Schema[A]` | `rebind[A]` |
 
 ### 4. Signature block
-Keep the existing signature block unchanged. Precede it with a bridging sentence ending in `:`.
+Keep existing signature block unchanged. Precede with bridging sentence ending in `:`.
 
 ### 5. Realistic example
-Replace any toy example (single-field type, no context) with a scenario that could exist in a
-real application. The scenario should exercise the method's distinguishing behavior — the part
-that makes it different from the alternative.
+Replace any toy example (single-field type, no context) with plausible real-application scenario.
+Scenario must exercise what sets method apart from alternative.
 
-Checklist for the example:
-- [ ] Models a plausible real scenario (gateway, registry, pipeline, validator)
+Example checklist:
+- [ ] Models plausible real scenario (gateway, registry, pipeline, validator)
 - [ ] Uses `mdoc:compile-only`
 - [ ] Imports everything it needs
 - [ ] No hardcoded output comments (`// None`, `// "hello"`, etc.)
-- [ ] Preceded by a prose sentence ending in `:`
 
 ### Cross-references
 
-Where the enriched API composes with a sibling type or a related section, link to it. A reader who
-now understands *why* this API exists often needs to know what it hands off to next.
+Link to sibling types or related sections the enriched API composes with.
 
 ### When a part is intentionally omitted
 
-Some sections have no natural "naive approach" — the API has no precursor a reader would reach for
-first. Say so in the section itself, briefly, so a future reader does not read the omission as an
-oversight.
+Some sections have no natural "naive approach": API has no precursor readers reach for first. Say
+so briefly in section itself, so future reader does not mistake omission for oversight.
 
 ## Avoid Bloat
 
-Longer is not automatically better. A section that doubled in length earns that only if every added
-paragraph carries information the reader needs — not filler, not a restatement, not content that
-belongs in a different section type (a Construction example does not belong inside an enriched
-Advanced Usage subsection), and nothing already said elsewhere on the same page.
+Doubled length is earned only if every added paragraph carries information reader needs. No
+filler, no restatement, nothing already said elsewhere on same page. No content from different
+section type (Construction example does not belong inside enriched Advanced Usage subsection).
 
 ## Common Mistakes
 
 | Mistake | Fix |
 |---|---|
-| Motivation paragraph is abstract ("useful in many cases") | Name one concrete scenario. Abstract motivation helps nobody. |
-| Contrast buried at the end | Put it before the signature block, after motivation |
-| Example uses the same toy type as before | Create a new type that reflects the motivated use-case |
-| Prose sentence before code does not end with `:` | Every sentence immediately before a code fence must end with `:` |
-| Added output comments to show what expressions return | Delete them — mdoc evaluates and renders output automatically |
+| Motivation paragraph is abstract ("useful in many cases") | Name one concrete scenario |
+| Example reuses old toy type | New type reflecting motivated use-case |
+| Sentence before code does not end with `:` | Every sentence right before code fence must end with `:` |
+| Output comments added to show what expressions return | Delete. mdoc evaluates and renders output automatically |
 
 ## Verification
 
-After enriching the section, run the mdoc compilation check to ensure all code examples are syntactically correct and type-check:
+After enriching, run mdoc compilation check. All code examples must be syntactically correct and type-check:
 
 ```bash
 # Single file:
@@ -112,14 +98,12 @@ sbt "docs/mdoc --in <path/to/file.md> --out website/<path/to/file.md>"
 sbt "docs/mdoc --in docs/reference/file1.md --out out/file1.md --in docs/reference/file2.md --out out/file2.md"
 ```
 
-> **Never use bare `sbt docs/mdoc`** without `--in` — it recompiles all documentation (~90 seconds).
+> **Never use bare `sbt docs/mdoc`** without `--in`: recompiles all documentation (~90 seconds).
 
-**Success criterion:** The output contains **zero `[error]` lines**. Warnings are acceptable.
+**Success criterion:** Output has **zero `[error]` lines**. Warnings acceptable.
 
-**If mdoc reports errors:** Fix them immediately before marking the enrichment as complete. Do not commit or claim the work is done until all errors are resolved.
-
----
+**If mdoc reports errors:** Fix immediately, before marking enrichment complete. Do not commit or claim done until all errors resolved.
 
 ## Final Verification
 
-Walk through every item in the sibling **[`CHECKLIST.md`](CHECKLIST.md)** before committing. It covers diagnosis, the five-part expansion pattern, content quality, technical accuracy, mandatory compliance gates, bloat avoidance, and commit hygiene.
+Before committing, walk every item in sibling **[`CHECKLIST.md`](CHECKLIST.md)**, including its mandatory compliance gates.

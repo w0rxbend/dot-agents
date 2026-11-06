@@ -1,10 +1,10 @@
 # Tooling Modernization
 
-Beyond the Go language itself, suggest updating all non-functional developer tools that improve code quality or security for free. These are low-risk, high-value improvements: CI actions/plugins, linters (e.g. golangci-lint), SAST tools (e.g. gosec, Snyk, Semgrep), vulnerability scanners (e.g. govulncheck, Trivy), Docker base images, test coverage reporters, dependency management bots (e.g. Renovate, Dependabot), etc.
+Beyond Go itself, suggest updating all non-functional developer tools that improve quality or security for free. Low-risk, high-value: CI actions/plugins, linters (e.g. golangci-lint), SAST tools (e.g. gosec, Snyk, Semgrep), vulnerability scanners (e.g. govulncheck, Trivy), Docker base images, test coverage reporters, dependency management bots (e.g. Renovate, Dependabot), etc.
 
 ## Update to the latest Go version
 
-Compare the project's `go` directive in `go.mod` against the latest stable release and suggest updating it and the `toolchain` directive if present. Each Go release brings performance improvements, security fixes, and new features.
+Compare `go` directive in `go.mod` against latest stable release. Suggest updating it, plus `toolchain` directive if present.
 
 ```bash
 # Check current version
@@ -19,13 +19,13 @@ go get toolchain@latest
 
 ## golangci-lint v2 _(golangci-lint v2.0.0+, March 2025)_
 
-Upgrade to golangci-lint v2. **Migration**: Run `golangci-lint migrate` to convert v1 config to v2. See the `samber/cc-skills-golang@golang-lint` skill for the recommended configuration.
+Upgrade to golangci-lint v2. **Migration**: `golangci-lint migrate` converts v1 config to v2. Recommended configuration: `samber/cc-skills-golang@golang-lint` skill.
 
 ## govulncheck _(works best with Go 1.22+)_
 
-`govulncheck` scans Go code for known vulnerabilities using the Go vulnerability database at `vuln.go.dev`. It analyzes call graphs to report only **reachable** vulnerabilities.
+`govulncheck` scans Go code for known vulnerabilities via Go vulnerability database at `vuln.go.dev`. Call-graph analysis reports only **reachable** vulnerabilities.
 
-**Note**: The vulnerability database tracks Go standard library issues starting from Go 1.18. Third-party module vulnerabilities are tracked regardless of Go version. For best results (better call graph analysis), use Go 1.22+.
+**Note**: Database tracks Go standard library issues from Go 1.18 on. Third-party module vulnerabilities tracked regardless of Go version. Use Go 1.22+ for best results (better call graph analysis).
 
 ```bash
 # Pin in the module (Go 1.24+)
@@ -40,7 +40,7 @@ go tool govulncheck -mode=binary ./myapp
 
 ## Profile-Guided Optimization (PGO) _(Go 1.21+)_
 
-PGO is generally available since Go 1.21, providing 2-14% performance improvements:
+PGO generally available since Go 1.21; 2-14% performance gains:
 
 ```bash
 # 1. Build and run with CPU profiling
@@ -51,11 +51,11 @@ go test -cpuprofile=default.pgo -bench=. ./...
 go build ./...
 ```
 
-Go 1.22+ expanded PGO to devirtualize more interface calls. Go 1.23+ reduced PGO build time overhead to single digits.
+Go 1.22+ PGO devirtualizes more interface calls. Go 1.23+ cut PGO build time overhead to single digits.
 
 ## `go fix` and `go doc` changes _(Go 1.27+)_
 
-`go fix` now applies more of the `modernize` fixer suite automatically. Coverage shifted between Go 1.26 and 1.27:
+`go fix` now applies more of `modernize` fixer suite automatically. Coverage changes from Go 1.26 to 1.27:
 
 - **Added**: `atomictypes`, `embedlit`, `slicesbackward`, `unsafefuncs`
 - **Removed**: `fmtappendf` (superseded by other fixers)
@@ -66,21 +66,21 @@ go fix ./...          # applies the enabled safe transformations
 go tool fix help      # check exact fixer coverage for the installed toolchain
 ```
 
-`go doc` accepts `package@version` to look up a specific module version without changing `go.mod`, and `-ex` lists executable examples:
+`go doc` accepts `package@version` to look up specific module version without changing `go.mod`; `-ex` lists executable examples:
 
 ```bash
 go doc golang.org/x/tools/cmd/stringer@v0.30.0
 go doc -ex net/http.Client
 ```
 
-`go mod tidy` for modules with `go 1.27` or newer auto-merges duplicate `require` blocks and enforces a two-block layout (direct dependencies, then indirect), preserving existing comments.
+`go mod tidy` (modules with `go 1.27` or newer) auto-merges duplicate `require` blocks and enforces two-block layout (direct dependencies, then indirect), keeping existing comments.
 
-`go test -json` output gained an optional `OutputType` field (`"error"`, `"error-continue"`, `"frame"`) for consumers that need to distinguish test-output kinds programmatically.
+`go test -json` output gained optional `OutputType` field (`"error"`, `"error-continue"`, `"frame"`) so consumers can tell test-output kinds apart programmatically.
 
-`go tool trace -http` now binds to localhost by default; pass `-http=0.0.0.0:6060` explicitly to expose the trace viewer beyond the local machine (relevant when tracing inside a container or remote dev environment).
+`go tool trace -http` now binds to localhost by default. Pass `-http=0.0.0.0:6060` explicitly to expose trace viewer beyond local machine (e.g. tracing inside container or remote dev environment).
 
 ## AI-Driven Code Review in CI
 
-Add an AI agent as a PR reviewer alongside traditional static analysis. When configured with this skill plugin, the agent loads the relevant Go skills — `golang-security` for security review, `golang-concurrency` for concurrency issues, `golang-error-handling` for error handling, and so on — giving it the same expertise as a senior Go reviewer. This catches architectural drift, logic bugs, missing context in errors, and subtle concurrency hazards that linters cannot detect.
+Add AI agent as PR reviewer next to static analysis. With this skill plugin, agent loads relevant Go skills (`golang-security` for security, `golang-concurrency` for concurrency, `golang-error-handling` for error handling, etc.).
 
-See the `samber/cc-skills-golang@golang-continuous-integration` skill for ready-to-use GitHub Actions assets for both Claude Code and GitHub Copilot.
+Ready-to-use GitHub Actions assets for Claude Code and GitHub Copilot: `samber/cc-skills-golang@golang-continuous-integration` skill.

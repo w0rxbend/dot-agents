@@ -7,14 +7,8 @@ compatibility: opencode,claude-code,copilot
 
 # ZIO Coding Reference
 
-Follow these rules when generating ZIO code.
-
 ## Core Concepts
 
-- **ZIO[R, E, A]**: Immutable effect description. `R` = environment (contravariant), `E` = error (covariant), `A` = success (covariant). Effects are descriptions, not running computations.
-- **Fibers**: Lightweight virtual threads managed by ZIO runtime. Millions can run concurrently. Fork starts one, join awaits it.
-- **ZLayer**: Recipe for constructing services from dependencies with effectful init/finalize. Automates dependency graph wiring.
-- **Scope**: Resource lifetime manager. Finalizers run on success, failure, or interruption.
 - **Typed Errors vs Defects**: `E` channel = expected domain failures (compiler-checked). Defects = unexpected bugs captured in `Cause`, not in `E`.
 
 > Deep dive: references/core-concepts.md
@@ -25,14 +19,14 @@ Follow these rules when generating ZIO code.
 > Deep dive: references/error-handling-deep-dive.md
 
 - Model domain errors as sealed trait ADTs: `sealed trait UserError; case class NotFound(id: UUID) extends UserError`
-- Use `ZIO.fail(NotFound(id))` not `ZIO.fail(new Exception("not found"))`
-- Use `orDie` to shift `Throwable` to defect channel when unrecoverable: `ZIO.attempt(expr).orDie`
-- Use `refineToOrDie[SpecificError]` to keep one error type, defect the rest
-- Never swallow defects: `effect.tapDefect(c => ZIO.logErrorCause("Unexpected", c))` not `effect.catchAllDefect(_ => ZIO.unit)`
-- Use `mapError` to unify error hierarchies across layers
-- Use `catchAll` for recovery, `foldZIO` for transforming both paths
+- Use `ZIO.fail(NotFound(id))`, not `ZIO.fail(new Exception("not found"))`
+- `orDie` shifts unrecoverable `Throwable` to defect channel: `ZIO.attempt(expr).orDie`
+- `refineToOrDie[SpecificError]` keeps one error type, defects the rest
+- Never swallow defects: `effect.tapDefect(c => ZIO.logErrorCause("Unexpected", c))`, not `effect.catchAllDefect(_ => ZIO.unit)`
+- `mapError` unifies error hierarchies across layers
+- `catchAll` for recovery, `foldZIO` to transform both paths
 - Low-level: broad errors (`IOException`). High-level: refined domain ADTs or defects.
-- Use `Either` only when errors are unrelated and you want to avoid widening `E` to `Any`
+- Use `Either` only when errors are unrelated, to avoid widening `E` to `Any`
 
 ### Composition
 - For-comprehensions for sequential composition:
@@ -46,24 +40,12 @@ Follow these rules when generating ZIO code.
 
 ### Dependencies (Service Pattern)
 - Trait defines interface (methods return `IO[E, A]` with `R = Any`)
-- Case class implements trait, receives dependencies via constructor
+- Case class implements trait, gets dependencies via constructor
 - Companion object provides `ZLayer`
-```scala
-trait Salutation { def get: UIO[String] } // another domain service
-trait Greeter { def sayHello(name: String): UIO[String] }
-
-case class GreeterLive(salutation: Salutation) extends Greeter {
-  def sayHello(name: String): UIO[String] = salutation.get.map(s => s"$s, $name!")
-}
-
-object Greeter {
-  val layer: URLayer[Salutation, Greeter] = ZLayer.derive[GreeterLive]
-}
-```
 
 ### Resources
-- Always use `ZIO.acquireRelease` or `ZIO.acquireReleaseWith`, never `ensuring` for resource cleanup
-- Use `ZIO.scoped` for narrowest possible resource lifetime:
+- Always use `ZIO.acquireRelease` or `ZIO.acquireReleaseWith` for resource cleanup, never `ensuring`
+- `ZIO.scoped` for narrowest possible resource lifetime:
   ```scala
   ZIO.scoped { ZIO.acquireRelease(open)(r => ZIO.succeed(r.close())).flatMap(use) }
   ```
@@ -73,10 +55,9 @@ object Greeter {
 
 - Prefer `foreachPar`, `zipPar`, `race` over manual `fork`/`join`
 - Always `join` or `interrupt` any manually forked fiber
-- Use `ZIO.attemptBlocking` or `ZIO.attemptBlockingIO` for blocking I/O, never `ZIO.attempt`
-- Use `ZIO.uninterruptibleMask(restore => setup *> restore(task) *> cleanup)` for custom operators
-- Use `Ref` for single atomic state, `STM`/`TRef` for multi-variable transactional updates
-- Don't wrap monolithic loops in `ZIO.succeed` — runtime can't interrupt inside them
+- Blocking I/O: `ZIO.attemptBlocking` or `ZIO.attemptBlockingIO`, never `ZIO.attempt`
+- Custom operators: `ZIO.uninterruptibleMask(restore => setup *> restore(task) *> cleanup)`
+- Don't wrap monolithic loops in `ZIO.succeed`: runtime can't interrupt inside them
 
 ## Anti-Patterns (Never Do These)
 > Deep dive: references/anti-patterns.md
@@ -85,11 +66,6 @@ object Greeter {
 |---|---|
 | `Task[A]` for business logic | `IO[DomainError, A]` with sealed trait ADT |
 | `val f = api(); ZIO.fromFuture(_ => f)` | `ZIO.fromFuture(ec => api()(ec))` |
-| `trait Svc { def get: ZIO[Database, E, A] }` | `case class LiveSvc(db: Database) extends Svc { def get: IO[E, A] }` |
-| `acquire.flatMap(r => use(r).ensuring(release(r)))` | `ZIO.acquireReleaseWith(acquire)(release)(use)` |
-| `ZIO.attempt(blockingIOCall())` | `ZIO.attemptBlockingIO(blockingIOCall())` |
-| `effect.catchAllDefect(_ => ZIO.unit)` | `effect.tapDefect(c => ZIO.logErrorCause("err", c))` |
-| `effect.fork *> ZIO.unit` | `effect.fork.flatMap(_.join)` or use structured concurrency |
 | `ZIO.succeed(while(true) { ... })` | Recursive ZIO effect or `.forever` |
 | `object Svc { def method(a: A): ZIO[Svc, E, B] = ZIO.serviceWithZIO(_.method(a)) }` | Call `ZIO.serviceWithZIO[Svc](_.method(a))` directly at call sites |
 

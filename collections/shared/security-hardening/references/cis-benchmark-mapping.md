@@ -1,7 +1,5 @@
 # CIS Benchmark Mapping Reference
 
-Mapping of CIS (Center for Internet Security) Benchmarks to hardening actions across all infrastructure layers.
-
 ## Table of Contents
 
 1. [CIS Controls v8 Overview](#cis-controls-v8-overview)
@@ -14,8 +12,6 @@ Mapping of CIS (Center for Internet Security) Benchmarks to hardening actions ac
 ---
 
 ## CIS Controls v8 Overview
-
-The 18 CIS Controls provide a prioritized framework for cybersecurity:
 
 | Control | Name | Hardening Impact |
 |---------|------|------------------|
@@ -67,10 +63,10 @@ The 18 CIS Controls provide a prioritized framework for cybersecurity:
 
 | CIS ID | Requirement | Hardening Action |
 |--------|-------------|------------------|
-| 3.1.1 | Disable IP forwarding (not on container/Kubernetes hosts, routers or VPN gateways; document the exception there) | `net.ipv4.ip_forward = 0` |
+| 3.1.1 | Disable IP forwarding (not on container/Kubernetes hosts, routers or VPN gateways; document exception there) | `net.ipv4.ip_forward = 0` |
 | 3.1.2 | Disable send packet redirects | `net.ipv4.conf.all.send_redirects = 0` |
 | 3.2.1-3.2.9 | Network parameter hardening | sysctl settings (see linux-hardening.md) |
-| 3.3.1 | Ensure firewall is active | Configure iptables/firewalld/nftables |
+| 3.3.1 | Ensure firewall active | Configure iptables/firewalld/nftables |
 
 ### Logging and Auditing (Section 4)
 
@@ -153,7 +149,7 @@ The 18 CIS Controls provide a prioritized framework for cybersecurity:
 | 5.7 | Do not mount sensitive directories | Avoid `-v /:/host` |
 | 5.10 | Set memory limit | `--memory="256m"` |
 | 5.11 | Set CPU priority | `--cpu-shares=512` |
-| 5.12 | Mount root filesystem as read-only | `--read-only` |
+| 5.12 | Mount root filesystem read-only | `--read-only` |
 | 5.15 | Do not share host network namespace | Avoid `--net=host` |
 | 5.25 | Restrict container from acquiring privileges | `--security-opt=no-new-privileges` |
 
@@ -228,11 +224,6 @@ The 18 CIS Controls provide a prioritized framework for cybersecurity:
 - 4.x: Monitoring (CloudWatch, GuardDuty)
 - 5.x: Networking (Security Groups, NACLs)
 
-**Automated scanning:**
-```bash
-prowler aws --compliance cis_2.0_aws
-```
-
 ### GCP CIS Benchmark
 
 **Key sections:**
@@ -272,16 +263,11 @@ scout azure
 ### Docker Bench Security
 
 ```bash
-# Run Docker CIS benchmark
-docker run --rm -it \
-  --net host \
-  --pid host \
-  --userns host \
-  --cap-add audit_control \
-  -v /var/lib:/var/lib:ro \
-  -v /var/run/docker.sock:/var/run/docker.sock:ro \
-  -v /etc:/etc:ro \
-  docker/docker-bench-security
+# Run Docker CIS benchmark from a reviewed release tag. Hub image docker/docker-bench-security
+# is stale (2019) and gets host net/pid + Docker socket (root on host): never pull it.
+git clone --depth 1 --branch v1.6.1 https://github.com/docker/docker-bench-security
+cd docker-bench-security && less docker-bench-security.sh   # review before running as root
+sudo sh docker-bench-security.sh
 
 # Output includes:
 # [PASS] 1.1.1 - Ensure a separate partition for containers

@@ -11,7 +11,7 @@
 
 ## The Single Handling Rule
 
-An error MUST be handled exactly once: either log it or return it, never both. Doing both causes duplicate log entries and makes debugging harder.
+Error MUST be handled exactly once: log or return, never both. Doing both causes duplicate log entries, harder debugging.
 
 ```go
 // ✗ Bad — logs AND returns (duplicate noise)
@@ -51,7 +51,7 @@ func handleOrder(w http.ResponseWriter, r *http.Request) {
 
 ### When to panic
 
-Panic MUST only be used for truly unrecoverable states — programmer errors, impossible conditions, or corrupt invariants. NEVER use panic for expected failures like network timeouts or missing files.
+Panic MUST only be for unrecoverable states: programmer errors, impossible conditions, corrupt invariants. NEVER panic for expected failures (network timeouts, missing files).
 
 ```go
 // ✓ Acceptable — programmer error in initialization
@@ -75,7 +75,7 @@ func GetUser(id string) *User {
 
 ### Recovering from panics
 
-Use `recover` in deferred functions at goroutine boundaries (HTTP handlers, worker goroutines) to prevent one panic from crashing the entire process.
+Use `recover` in deferred functions at goroutine boundaries (HTTP handlers, worker goroutines) so one panic cannot crash whole process.
 
 ```go
 func safeHandler(next http.Handler) http.Handler {
@@ -94,17 +94,16 @@ func safeHandler(next http.Handler) http.Handler {
 }
 ```
 
-For structured panic recovery with `samber/oops`, see the `samber/cc-skills-golang@golang-samber-oops` skill.
+Structured panic recovery with `samber/oops`: see `samber/cc-skills-golang@golang-samber-oops` skill.
 
 ## Why Use `samber/oops`
 
-- **Stack traces** — you see `"connection refused"` but need to know where it originated
-- **Structured context** — user ID, tenant ID, or request metadata attached to the error
+- **Stack traces** — you see `"connection refused"` but need its origin
+- **Structured context** — user ID, tenant ID or request metadata on error
 - **Error codes** — machine-readable identifiers for monitoring dashboards
-- **Public/private separation** — safe message to show end users
-- ...
+- **Public/private separation** — safe message for end users
 
-`samber/oops` is a **drop-in replacement** that fills these gaps. Every `oops` error implements the standard `error` interface, works with `errors.Is`/`errors.As`, and adds structured attributes:
+`samber/oops` is **drop-in replacement** filling these gaps. Every `oops` error implements standard `error` interface, works with `errors.Is`/`errors.As`, adds structured attributes:
 
 ```go
 // ✗ Before — standard errors, no context
@@ -131,8 +130,8 @@ func (s *OrderService) CreateOrder(ctx context.Context, req CreateOrderReq) erro
 }
 ```
 
-When this error is logged, you get the stack trace, user ID, order ID, domain, error code, and the full error chain — all structured and machine-parseable.
+Logged, this error carries stack trace, user ID, order ID, domain, error code, full error chain — all structured and machine-parseable.
 
 ## Logging Errors with `slog`
 
-→ See `samber/cc-skills-golang@golang-observability` skill for comprehensive structured logging guidance, including `slog` setup, log levels, log handlers, HTTP middleware, and cost considerations.
+→ See `samber/cc-skills-golang@golang-observability` skill for structured logging: `slog` setup, log levels, log handlers, HTTP middleware, cost considerations.

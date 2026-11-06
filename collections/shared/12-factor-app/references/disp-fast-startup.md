@@ -7,7 +7,7 @@ tags: disp, startup, performance, scaling
 
 ## Minimize Startup Time to Enable Rapid Scaling and Recovery
 
-Processes should start in seconds, not minutes. Fast startup enables rapid scaling in response to traffic spikes and quick recovery from process crashes. Slow startup creates vulnerability windows and delays deployments.
+Start processes in seconds, not minutes.
 
 **Incorrect (slow startup):**
 
@@ -109,11 +109,5 @@ spec:
     # Traffic routes only after readiness passes
     # Fast startup = fast traffic routing
 ```
-
-**Benefits:**
-- Autoscaler adds capacity within seconds of traffic spike
-- Crashed processes replaced immediately
-- Rolling deployments complete faster
-- Better resource utilization
 
 Reference: [The Twelve-Factor App - Disposability](https://12factor.net/disposability)

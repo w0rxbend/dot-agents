@@ -4,12 +4,12 @@ description: Build, test, format or diagnose Crystal shards and small benchmark 
 license: MIT
 ---
 
-Start from the actual shard manifest, entrypoint, specs, CI and selected compiler. Record `crystal --version`, `shards --version`, executable paths and target architecture when diagnosing the environment. Historical metadata, a workstation snap, and CI are separate evidence; do not silently upgrade one to match another.
+Start from actual shard manifest, entrypoint, specs, CI and selected compiler. Diagnosing environment: record `crystal --version`, `shards --version`, executable paths and target architecture. Historical metadata, workstation snap and CI are separate evidence; do not silently upgrade one to match another.
 
-Read [references/project-scopes.md](references/project-scopes.md) for the portfolio's playground, editor extension and bootstrap boundaries. Read [references/commands-and-specs.md](references/commands-and-specs.md) for dependency/build/test selection. Preserve an existing application or library layout rather than recreating it with `crystal init`.
+Read [references/project-scopes.md](references/project-scopes.md) for portfolio's playground, editor extension and bootstrap boundaries. Read [references/commands-and-specs.md](references/commands-and-specs.md) for dependency/build/test selection. Keep existing application or library layout; do not recreate it with `crystal init`.
 
-Trace what a source file does at top level before requiring it from a spec or running it. A benchmark entrypoint can execute lengthy measurements merely by being imported. Make reusable behavior independently requireable when that is needed; keep benchmark drivers and test initialization separate.
+Before requiring source file from spec or running it, trace its top-level behavior. Importing benchmark entrypoint alone can execute lengthy measurements. Make reusable behavior independently requireable when needed; keep benchmark drivers and test initialization separate.
 
-Choose a check that establishes the requested behavior: formatting checks source style, specs establish assertions, compilation establishes selected target compatibility, and a benchmark measures its configured workload. A placeholder spec or commented CI command is not evidence of meaningful coverage. Report the layer actually tested and missing tools separately.
+Pick check proving requested behavior: formatting proves source style, specs prove assertions, compilation proves selected target compatibility, benchmark measures its configured workload. Placeholder spec or commented CI command does not prove meaningful coverage. Report layer actually tested and missing tools separately.
 
-For native or deployment work preserve supported system libraries, ABI and target platform. A successful local build does not establish portable static linking or another platform's runtime behavior. Changes to Crystal setup should follow the existing workstation installer workflow; a language-source edit does not require running a host bootstrap or installing a second global compiler.
+For native or deployment work, preserve supported system libraries, ABI and target platform. Local build success does not prove portable static linking or another platform's runtime behavior. Change Crystal setup through existing workstation installer workflow. Language-source edit needs no host bootstrap run or second global compiler install.

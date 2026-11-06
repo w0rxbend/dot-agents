@@ -2,7 +2,7 @@
 
 ## Test Functions
 
-Test functions follow `Test` + the name of what is being tested. Use underscores for subcases.
+Test functions: `Test` + name of what is tested. Underscores for subcases.
 
 ```go
 func TestParseToken(t *testing.T) { ... }
@@ -12,7 +12,7 @@ func TestParseToken_InvalidInput(t *testing.T) { ... }  // subcase
 
 ## Table-Driven Tests
 
-Table-driven test case names SHOULD be **fully lowercase, descriptive phrases** — including acronyms. Use `input` for inputs and `expected` for expected outputs to make the data flow clear:
+Table-driven case names SHOULD be **fully lowercase, descriptive phrases**, acronyms included. Use `input` for inputs and `expected` for expected outputs so data flow is clear:
 
 ```go
 tests := []struct {
@@ -34,4 +34,4 @@ tests := []struct {
 
 ## Test Helpers
 
-Test helper functions that panic on failure conventionally use the `must` prefix: `mustLoadFixture()`, `mustParseURL()`.
+Test helpers that panic on failure conventionally use `must` prefix: `mustLoadFixture()`, `mustParseURL()`.

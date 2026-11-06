@@ -1,7 +1,5 @@
 # MongoDB Complete Guide
 
-Comprehensive MongoDB reference covering collections, queries, indexes, aggregation framework, and Atlas features.
-
 ## Table of Contents
 
 - [Setup and Connection](#setup-and-connection)
@@ -13,8 +11,6 @@ Comprehensive MongoDB reference covering collections, queries, indexes, aggregat
 - [Transactions](#transactions)
 - [Atlas Features](#atlas-features)
 - [Performance Tuning](#performance-tuning)
-
----
 
 ## Setup and Connection
 
@@ -28,12 +24,13 @@ mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/myapp?retryWrites
 ### Python (Motor - Async)
 
 ```python
+import os
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.server_api import ServerApi
 
-# Connect to Atlas
+# Connect to Atlas (URI holds credentials: read from env, never hardcode)
 client = AsyncIOMotorClient(
-    "mongodb+srv://user:pass@cluster0.xxxxx.mongodb.net/",
+    os.environ["MONGODB_URI"],
     server_api=ServerApi('1'),
     maxPoolSize=50,
     minPoolSize=10
@@ -83,8 +80,6 @@ client = AsyncIOMotorClient(
 async def get_user(email: str):
     return await client.myapp.users.find_one({"email": email})
 ```
-
----
 
 ## Collections and Documents
 
@@ -139,8 +134,6 @@ db.createCollection("users", {
   validationAction: "warn"      // warn or error
 })
 ```
-
----
 
 ## CRUD Operations
 
@@ -233,8 +226,6 @@ result = await db.users.update_one(
     {"$set": {"deleted": True, "deletedAt": datetime.utcnow()}}
 )
 ```
-
----
 
 ## Query Operators
 
@@ -333,8 +324,6 @@ db.users.find({"email": {"$regex": "^admin"}})
 db.users.find({"name": {"$regex": "doe"}})
 ```
 
----
-
 ## Indexes
 
 ### Index Types
@@ -424,8 +413,6 @@ print(f"Keys examined: {explain['executionStats']['totalKeysExamined']}")
 print(f"Stage: {explain['executionStats']['executionStages']['stage']}")
 # Stage should be "IXSCAN" (index scan), not "COLLSCAN" (collection scan)
 ```
-
----
 
 ## Aggregation Framework
 
@@ -587,8 +574,6 @@ db.products.aggregate([
 ])
 ```
 
----
-
 ## Transactions
 
 ### Multi-Document ACID Transactions
@@ -630,8 +615,6 @@ async def transfer_funds(from_user_id, to_user_id, amount):
 - Use retryable writes for single operations
 - Avoid long-running queries in transactions
 - Use `writeConcern: "majority"` for consistency
-
----
 
 ## Atlas Features
 
@@ -720,8 +703,6 @@ exports = async function(changeEvent) {
 }
 ```
 
----
-
 ## Performance Tuning
 
 ### Query Optimization
@@ -775,12 +756,10 @@ result = await db.users.with_options(
 
 ### Atlas Performance Advisor
 
-- Automatically suggests indexes for slow queries
-- Identifies unused indexes
+- Suggests indexes for slow queries automatically
+- Flags unused indexes
 - Analyzes query patterns
-- Available in Atlas UI
-
----
+- In Atlas UI
 
 ## Common Patterns
 
@@ -836,8 +815,6 @@ users = await db.users.find({"deleted": {"$ne": True}}).to_list(length=100)
 }
 ```
 
----
-
 ## TypeScript Type Safety
 
 ```typescript
@@ -868,8 +845,6 @@ await users.insertOne({
 })
 ```
 
----
-
 ## Monitoring and Debugging
 
 ### Connection Pool Monitoring
@@ -897,6 +872,4 @@ db.setProfilingLevel(1, { slowms: 100 })
 db.system.profile.find().sort({ ts: -1 }).limit(10)
 ```
 
----
-
-This comprehensive guide covers MongoDB from basics to advanced patterns. For aggregation cookbook, see `aggregation-patterns.md`.
+Aggregation cookbook: `aggregation-patterns.md`.

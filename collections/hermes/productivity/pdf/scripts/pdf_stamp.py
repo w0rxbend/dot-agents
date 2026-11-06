@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import os
 import sys
 
 
@@ -97,7 +98,8 @@ def main() -> int:
     parser.add_argument("--height", type=float, help="Image height in points")
     parser.add_argument("--under", action="store_true",
                         help="Place the stamp under existing content instead of over it")
-    parser.add_argument("--password", help="Password if the input is encrypted")
+    parser.add_argument("--password", default=os.environ.get("PDF_PASSWORD"),
+                        help="Password if the input is encrypted (default: $PDF_PASSWORD)")
     args = parser.parse_args()
 
     try:

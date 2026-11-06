@@ -1,12 +1,10 @@
 # Direct Creation (MCP) Details
 
-Use this reference for MCP direct-creation examples and follow-on configuration.
-
 ## Direct Creation Workflow
 
 ### Step 1: Analyze Codebase
 
-Use [codebase-analysis.md](codebase-analysis.md) to determine runtime, build/start commands, env vars, and datastores.
+Use [codebase-analysis.md](codebase-analysis.md) to find runtime, build/start commands, env vars, datastores.
 
 ### Step 2: Create Resources via MCP
 
@@ -50,7 +48,7 @@ create_cron_job(
   schedule: "0 0 * * *",  # Daily at midnight (cron syntax)
   buildCommand: "npm ci",
   startCommand: "node scripts/cleanup.js",
-  plan: "free"
+  plan: "starter"  # no free cron plan; confirm paid plan with user first
 )
 ```
 
@@ -82,17 +80,18 @@ update_environment_variables(
   serviceId: "<service-id-from-creation>",
   envVars: [
     {"key": "DATABASE_URL", "value": "<connection-string>"},
-    {"key": "JWT_SECRET", "value": "<secret-value>"},
-    {"key": "API_KEY", "value": "<api-key>"}
+    {"key": "LOG_LEVEL", "value": "info"}
   ]
 )
 ```
 
-**Note:** For database connection strings, get the internal URL from the database details in Dashboard or via `get_postgres(postgresId: "<id>")`.
+**Note:** For database connection strings, get internal URL from database details in Dashboard or via `get_postgres(postgresId: "<id>")`; don't echo it back.
+
+**Secrets** (`JWT_SECRET`, `API_KEY`, etc.): user sets them in Dashboard. Never ask user to paste secret values into chat.
 
 ### Step 4: Verify Deployment
 
-Services with `autoDeploy: "yes"` (default) will deploy automatically when created.
+Services with `autoDeploy: "yes"` (default) deploy automatically on creation.
 
 **Check deployment status:**
 ```

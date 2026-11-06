@@ -129,15 +129,15 @@ reclaimPolicy: Retain
 ### StorageClass Parameters
 
 **volumeBindingMode:**
-- **WaitForFirstConsumer:** Delay binding until pod scheduled (topology-aware)
-- **Immediate:** Bind immediately (may cause zone mismatch)
+- **WaitForFirstConsumer:** Bind only after pod scheduled (topology-aware)
+- **Immediate:** Bind at once (can cause zone mismatch)
 
 **reclaimPolicy:**
-- **Delete:** Delete volume when PVC deleted
-- **Retain:** Keep volume (manual cleanup required)
+- **Delete:** Volume deleted with PVC
+- **Retain:** Volume kept (manual cleanup required)
 
 **allowVolumeExpansion:**
-- **true:** Allow PVC resize
+- **true:** PVC resize allowed
 - **false:** Fixed size
 
 ## PersistentVolumes and PersistentVolumeClaims
@@ -187,20 +187,20 @@ spec:
 ### Access Modes
 
 **ReadWriteOnce (RWO):**
-- Single node read-write
+- Read-write from single node
 - Most common (block storage)
 - AWS EBS, GCP PD, Azure Disk
 
 **ReadOnlyMany (ROX):**
-- Multiple nodes read-only
-- Use for shared static content
+- Read-only from many nodes
+- For shared static content
 
 **ReadWriteMany (RWX):**
-- Multiple nodes read-write
-- Requires network storage (NFS, EFS, Azure Files)
+- Read-write from many nodes
+- Needs network storage (NFS, EFS, Azure Files)
 
 **ReadWriteOncePod (RWOP):**
-- Single pod read-write (Kubernetes 1.29+)
+- Read-write from single pod (Kubernetes 1.29+)
 - Stricter than RWO
 
 ### Volume Expansion
@@ -270,7 +270,7 @@ helm install aws-ebs-csi-driver aws-ebs-csi-driver/aws-ebs-csi-driver \
   --set enableVolumeSnapshot=true
 ```
 
-**IAM Policy:**
+**IAM Policy:** prefer AWS managed `AmazonEBSCSIDriverPolicy` via IRSA/Pod Identity (limits delete to driver-tagged volumes). Minimal sketch below allows deleting any volume in account:
 ```json
 {
   "Version": "2012-10-17",
@@ -415,7 +415,7 @@ spec:
           serviceAccountName: snapshot-creator
           containers:
           - name: kubectl
-            image: bitnami/kubectl:latest
+            image: bitnami/kubectl@sha256:<reviewed-digest>  # any kubectl image with /bin/sh; pin, never :latest (runs with snapshot RBAC)
             command:
             - /bin/sh
             - -c
@@ -502,9 +502,9 @@ spec:
 
 ### Persistent Identity
 
-StatefulSet pods have stable:
+StatefulSet pods get stable:
 - **Network identity:** `postgres-0`, `postgres-1`, `postgres-2`
-- **Storage:** Each pod's PVC persists across restarts
+- **Storage:** Each pod's PVC survives restarts
 - **Ordering:** Pods created/deleted in order (0→1→2)
 
 ## Storage Decision Framework
@@ -517,23 +517,6 @@ StatefulSet pods have stable:
 | General DB/apps | Medium | 3,000-16,000 | 125-1000 MB/s | gp3 | pd-balanced | StandardSSD_LRS |
 | Logs, backups | Low | < 500 | 40-90 MB/s | st1 | pd-standard | Standard_LRS |
 | Shared files | Medium | N/A | 100+ MB/s | EFS | Filestore | Azure Files |
-
-### Access Mode Selection
-
-**Single-pod write:**
-- Use ReadWriteOnce (RWO)
-- Block storage (EBS, PD, Azure Disk)
-- Most databases
-
-**Multiple-pod write:**
-- Use ReadWriteMany (RWX)
-- Network storage (EFS, Filestore, Azure Files)
-- Shared file systems
-
-**Multiple-pod read-only:**
-- Use ReadOnlyMany (ROX)
-- Pre-populated static content
-- ML model storage
 
 ### Cost Optimization
 
@@ -616,11 +599,11 @@ kubectl describe pod <pod-name>
 
 **Fix:**
 ```bash
-# Force detach (AWS)
-aws ec2 detach-volume --volume-id vol-xxx --force
-
 # Delete pod to trigger reattach
 kubectl delete pod <pod-name>
+
+# Last resort (AWS): only after old instance confirmed stopped/unreachable and user approves; can corrupt filesystem
+aws ec2 detach-volume --volume-id vol-xxx --force
 ```
 
 ### Volume Expansion Failures
@@ -659,8 +642,5 @@ kubectl rollout restart deployment <name>
 **Best Practices:**
 1. Use CSI drivers (not legacy in-tree provisioners)
 2. Enable volume snapshots for stateful workloads
-3. Set appropriate reclaim policies (Retain for production)
+3. Set reclaim policies deliberately (Retain for production)
 4. Use WaitForFirstConsumer for topology awareness
-5. Monitor storage usage and right-size PVCs
-6. Automate backup/restore procedures
-7. Test volume expansion before production

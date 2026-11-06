@@ -5,45 +5,43 @@ description: Set up Claude Code hooks to block dangerous git commands (push, res
 
 # Setup Git Guardrails
 
-Sets up a PreToolUse hook that intercepts and blocks dangerous git commands before Claude executes them.
-
 ## What Gets Blocked
 
 - `git push` (any flags, including `--force`)
 - `git reset --hard`
-- `git clean` with any force flag (`-f`, `-df`, `-xfd`, `--force`), unless it is a dry run (`-n`)
+- `git clean` with any force flag (`-f`, `-df`, `-xfd`, `--force`), unless dry run (`-n`)
 - `git branch -D` / `git branch --delete --force`
 - `git checkout .` / `git checkout -- .` / `git checkout --force`
 - `git restore .` (except `git restore --staged .`, which only unstages)
 
-The script tokenizes the command instead of substring-matching it: it splits on `;`, `&&`, `|`, newlines and subshells, skips `VAR=x`, `env`, `sudo`, `xargs` and similar prefixes, looks inside `bash -c` / `sh -c` / `eval` strings and `$(...)`, and ignores git global options such as `-C <dir>`. Quoted arguments such as commit messages are not treated as commands, so `git commit -m "don't git push"` is allowed.
+Script tokenizes command instead of substring-matching. Splits on `;`, `&&`, `|`, newlines and subshells. Skips `VAR=x`, `env`, `sudo`, `xargs` and similar prefixes. Looks inside `bash -c` / `sh -c` / `eval` strings and `$(...)`. Ignores git global options such as `-C <dir>`. Quoted arguments like commit messages are not commands, so `git commit -m "don't git push"` is allowed.
 
-When blocked, Claude sees a message telling it that it does not have authority to run the command.
+When blocked, Claude gets message saying it does not have authority to run command.
 
-This is a best-effort guard, not a sandbox: git aliases, scripts or Makefiles that call git internally, and deliberate obfuscation are not detected. For a harder stop, also add `permissions.deny` rules (for example `"Bash(git push:*)"`) to the same settings file.
+Best-effort guard, not sandbox. Not detected: git aliases, scripts or Makefiles calling git internally, deliberate obfuscation. Harder stop: also add `permissions.deny` rules (for example `"Bash(git push:*)"`) to same settings file.
 
-**Prerequisite:** the hook needs `jq`. It fails closed: if `jq` is missing or the hook input cannot be parsed, it blocks every Bash command. Check `command -v jq` before installing and install jq first if it is absent.
+**Prerequisite:** hook needs `jq`. Fails closed: if `jq` is missing or hook input cannot be parsed, it blocks every Bash command. Check `command -v jq` before installing. Install jq first if absent.
 
 ## Steps
 
 ### 1. Ask scope
 
-Ask the user: install for **this project only** (`.claude/settings.json`) or **all projects** (`~/.claude/settings.json`)?
+Ask user: install for **this project only** (`.claude/settings.json`) or **all projects** (`~/.claude/settings.json`)?
 
 ### 2. Copy the hook script
 
-The bundled script is at: [scripts/block-dangerous-git.sh](scripts/block-dangerous-git.sh)
+Bundled script: [scripts/block-dangerous-git.sh](scripts/block-dangerous-git.sh)
 
-Copy it to the target location based on scope:
+Copy to target location by scope:
 
 - **Project**: `.claude/hooks/block-dangerous-git.sh`
 - **Global**: `~/.claude/hooks/block-dangerous-git.sh`
 
-Make it executable with `chmod +x`.
+Make executable with `chmod +x`.
 
 ### 3. Add hook to settings
 
-Add to the appropriate settings file:
+Add to matching settings file:
 
 **Project** (`.claude/settings.json`):
 
@@ -85,23 +83,24 @@ Add to the appropriate settings file:
 }
 ```
 
-If the settings file already exists, merge the hook into the existing `hooks.PreToolUse` array. Don't overwrite other settings.
+If settings file exists, merge hook into existing `hooks.PreToolUse` array. Do not overwrite other settings.
 
 ### 4. Ask about customization
 
-Ask if user wants to add or remove any blocked commands. Edit the `case $sub in` rules in `check_git` in the copied script accordingly.
+Ask if user wants to add or remove blocked commands. Edit `case $sub in` rules in `check_git` in copied script to match.
 
 ### 5. Verify
 
-Run a quick test:
+Run quick test:
 
 ```bash
 echo '{"tool_input":{"command":"git push origin main"}}' | <path-to-script>
 ```
 
-Should exit with code 2 and print a BLOCKED message to stderr. Also check a bypass and a false-positive case:
+Expect exit code 2 and BLOCKED message on stderr. Also check bypass and false-positive cases:
 
 ```bash
 echo '{"tool_input":{"command":"git -C . push"}}' | <path-to-script>                 # exit 2
+echo '{"tool_input":{"command":"sudo -u bob git push"}}' | <path-to-script>          # exit 2
 echo '{"tool_input":{"command":"git commit -m \"avoid git push\""}}' | <path-to-script>  # exit 0
 ```

@@ -8,86 +8,82 @@ color: silver
 ## Agent Workflow
 
 **Phase 1 — Planning only, no edits yet**
-Scan the document and identify every Scala code block missing an mdoc modifier
-(skip pseudocode / type-signature-only blocks). For each block found:
+Scan document for every Scala code block missing mdoc modifier
+(skip pseudocode / type-signature-only blocks). Per block:
 
-1. Create a parent task: "Fix mdoc modifier – <section>:<line>"
+1. Create parent task: "Fix mdoc modifier – <section>:<line>"
 2. Under it, create two child tasks:
   - "1. Choose and apply modifier"
   - "2. Run `sbt \"docs/mdoc --in <file>.md --out website/<file>.md\"` and confirm zero errors"
 
-Do not touch any source file until the full task tree is created and you have
+Do not touch any source file until full task tree exists and you have
 listed it for confirmation.
 
 **Phase 2 — Execution, one leaf task at a time**
-Work through the tree top-to-bottom. For each parent task:
+Work tree top-to-bottom. Per parent task:
 - Mark parent `in_progress`
 - Mark child 1 `in_progress` → apply modifier → mark child 1 `completed`
 - Mark child 2 `in_progress` → run `sbt "docs/mdoc --in <file> --out website/<file>"` → confirm exit 0 → mark child 2 `completed`
 - Mark parent `completed`
-  Only then move to the next parent task.
+  Only then move to next parent task.
 
 **Phase 3 — Mechanical validation**
-After all tasks are `completed`, run (`<this-skill-dir>` is this skill's own directory, where this file lives):
+Once all tasks are `completed`, run (`<this-skill-dir>` is this skill's own directory):
 
 ```
 bash <this-skill-dir>/check-mdoc-conventions.sh <file.md>
 ```
 
-Verify exit code is 0. If not, re-open the relevant tasks and fix.
+Verify exit code 0. If not, re-open relevant tasks and fix.
 
 ## Modifiers & Rules
 
-Each modifier has a specific role. Choose based on whether you need scope sharing and whether output should render:
+Pick by scope sharing and whether output renders:
 
-- **`mdoc:compile-only`** — Renders source code only; its own definitions do not carry over to later blocks, but definitions and imports from earlier `mdoc:silent`/`mdoc:invisible` blocks in the same file are visible inside it (observed in scalacv, whose guides share one import block). In a Mill project the local check is the repository's mdoc task (`./mill docs.mdocCheck` in scalacv) rather than `sbt "docs/mdoc"`.
-  This is the **default** for self-contained examples where you want to show the structure but not
-  the evaluated output. Each block compiles alone; subsequent blocks cannot reference definitions
-  from a `compile-only` block.
+- **`mdoc:compile-only`** — Renders source only. Own definitions do not carry to later blocks. Definitions and imports from earlier `mdoc:silent`/`mdoc:invisible` blocks in same file are visible inside it (observed in scalacv, whose guides share one import block). In Mill project, local check is repository's mdoc task (`./mill docs.mdocCheck` in scalacv), not `sbt "docs/mdoc"`.
+  **Default** for self-contained examples: shows structure, not evaluated output.
 
-- **`mdoc:silent`** — Renders nothing (hidden), scope shared with subsequent blocks.
-  Use to define types, values, or imports that later blocks will reference. Scope persists until
-  you use `silent:reset`. You **cannot** redefine the same name in a later block — use
+- **`mdoc:silent`** — Renders nothing (hidden), scope shared with later blocks.
+  Define types, values or imports that later blocks reference. Scope persists until
+  `silent:reset`. **Cannot** redefine same name in later block — use
   `mdoc:silent:nest` for that.
 
 - **`mdoc:silent:nest`** — Renders nothing, scope shared, code wrapped in anonymous `object`.
-  Like `silent`, but allows you to **shadow/redefine names** from earlier blocks (e.g., redefining
-  `Person` with different fields in a later section). Use when `silent` would fail due to name collision.
+  Like `silent`, but can **shadow/redefine names** from earlier blocks (e.g., redefining
+  `Person` with different fields in later section). Use when `silent` fails on name collision.
 
-- **`mdoc:silent:reset`** — Renders nothing, clears all prior scope.
-  Wipes the entire accumulated scope and starts fresh. Use when switching to a completely different
-  context (new domain, new imports) mid-document and `silent:nest` wouldn't suffice.
+- **`mdoc:silent:reset`** — Renders nothing, wipes all accumulated scope, starts fresh.
+  Use when switching to wholly different context (new domain, new imports) mid-document
+  and `silent:nest` won't suffice.
 
-- **`mdoc`** (no qualifier) — Renders source + evaluated output, scope shared with subsequent blocks.
-  Shows both the code and its REPL-style result (as if you'd written `// Right(42L)` by hand, but
-  evaluated). Can build on definitions from prior `silent`/`silent:nest` blocks, or run standalone
-  for self-contained examples that just need to show their output.
+- **`mdoc`** (no qualifier) — Renders source + evaluated output, scope shared with later blocks.
+  REPL-style result, like hand-written `// Right(42L)` but evaluated. Builds on prior
+  `silent`/`silent:nest` definitions, or runs standalone for self-contained examples that need output.
 
-- **`mdoc:invisible`** — Invisible code block, scope shared with subsequent blocks.
-  Signals "hidden imports only" — rare in practice. Prefer including imports directly in a
-  `mdoc:silent` setup block (so they're visible in scope) or inside a `compile-only` block
-  (for self-contained examples). Use `invisible` only when you need imports shared across blocks
-  but must **not** appear anywhere in the rendered output.
+- **`mdoc:invisible`** — Invisible code block, scope shared with later blocks.
+  Signals "hidden imports only" — rare. Prefer imports in `mdoc:silent` setup block
+  (visible in scope) or inside `compile-only` block (self-contained examples).
+  Use `invisible` only when shared imports must **not** appear anywhere in rendered output.
 
-- **`mdoc:embed:<path>`** — Custom modifier: replaces the block (leave its body empty) with the file
-  at `<path>` (repo-root relative) rendered as a titled code fence. Append `:showLineNumbers` for line
-  numbers (this is the spelling the docs-* skills use; if the build rejects it, check the modifier name
-  your `zio-sbt-source` version accepts and use that consistently). Use for a tutorial's "Putting It Together" final block, pointing at the companion example
-  file that is the single source of truth for that complete example — never paste the same code inline
-  when a companion file already carries it. Requires the docs subproject to depend on
-  `"dev.zio" %% "zio-sbt-source"` — add it if missing.
+- **`mdoc:embed:<path>`** — Custom modifier: replaces block (leave body empty) with file
+  at `<path>` (repo-root relative) as titled code fence. Append `:showLineNumbers` for line
+  numbers (docs-* skills' spelling; if build rejects it, check which name
+  your `zio-sbt-source` version accepts, use that consistently). Use for tutorial's "Putting It Together" final block, pointing at companion example
+  file, single source of truth for that complete example. Never paste same code inline
+  when companion file carries it. Needs docs subproject to depend on
+  `"dev.zio" %% "zio-sbt-source"` — add if missing.
 
-- **No mdoc** (plain `` ```scala ``) — Renders source code only, not compiled.
-  Use for pseudocode, ASCII diagrams, type signatures for illustration, or non-Scala syntax (e.g., sbt configuration).
+- **No mdoc** (plain `` ```scala ``) — Renders source only, not compiled.
+  For pseudocode, ASCII diagrams, illustrative type signatures, non-Scala syntax (e.g., sbt configuration).
 
-- **Public API only.** An mdoc block compiles in the default package, exactly like user code —
-  reference only PUBLIC symbols. A `private`/`private[pkg]`/`protected` type or member won't compile in
-  a snippet, so never demonstrate a closed extension point: ✅ implement the public
+- **Public API only.** mdoc block compiles in default package, like user code —
+  reference only PUBLIC symbols. `private`/`private[pkg]`/`protected` type or member won't compile in
+  snippet, so never demonstrate closed extension point: ✅ implement public
   `LogRecordProcessor` ❌ implement `LogFormatter` whose required parameter type is
-  `private[telemetry]`. Verify visibility against the real source before drafting; if the only path
-  needs a package-private symbol, pick a public alternative or drop the example.
+  `private[telemetry]`. Check visibility in real source before drafting. If only path
+  needs package-private symbol, pick public alternative or drop example.
 
-- -**Never hardcode expression output in comments**: Let mdoc render output automatically, don't add comments like `// None` or `// "hello"`. Use bare `mdoc` to show all vals; only use `mdoc:silent` when output is verbose boilerplate.
+- -**Never hardcode expression output in comments**: Let mdoc render output; no comments like `// None` or `// "hello"`. Use bare `mdoc` to show all vals; use `mdoc:silent` only when output is verbose boilerplate.
 
 **Bad vs. Good:**
 - ❌ `val x = 42 // 42`  
@@ -95,7 +91,7 @@ Each modifier has a specific role. Choose based on whether you need scope sharin
 
 ## Choosing the Right Modifier
 
-Use this decision tree to pick the right modifier:
+Decision tree:
 
 ```
 Is this real executable Scala code?
@@ -120,8 +116,6 @@ Is this real executable Scala code?
          │
          └─ NO → Use mdoc:silent (regular setup)
 ```
-
-**After any mdoc:silent block**, if you later need a completely different context (new domain, new imports), use `mdoc:silent:reset` to clear all state.
 
 ## Common Patterns
 
@@ -149,18 +143,16 @@ def columnName(optic: zio.blocks.schema.Optic[?, ?]): String = {
 }
 ```
 
-Now with `columnName` in scope, we can call it and see the result:
+With `columnName` in scope, call it and see result:
 
 ```scala mdoc
 columnName(Product.price)
 columnName(Product.name)
 ```
 
-This pair shows the two-block pattern: `silent` for setup (which doesn't render), then `mdoc` for expressions where the output is meaningful to show.
-
 ### Pattern 2: Redefining with Nesting
 
-When you need to redefine a name (e.g., `Person`), use `nest` modifier:
+To redefine a name (e.g., `Person`), use `nest` modifier:
 
 ```
 Block A: mdoc
@@ -187,11 +179,11 @@ case class User(name: String, age: Int)
 val user = User("Alice", 30)
 ```
 
-Each `compile-only` block stands alone. The next example in the document doesn't have access to `user`.
+Each `compile-only` block stands alone. Next example in document has no access to `user`.
 
 ### Pattern 4: Setup + Show Output
 
-Only use this pattern when the first block defines multiple larger setup code (e.g., multiple case classes, imports) that later blocks will reference and the later block should be evaluated to show output.
+Use only when first block holds larger setup (e.g., multiple case classes, imports) that later blocks reference, and later block is evaluated to show output:
 
 ```scala mdoc:silent
 def add(a: Int, b: Int): Int = a + b
@@ -203,7 +195,7 @@ Now call it and show the result:
 add(2, 3)
 ```
 
-If the setup is just a single line or two, it's often cleaner to combine it with the output block:
+If setup is only a line or two, combining it with output block is often cleaner:
 
 ```scala mdoc
 def add(a: Int, b: Int): Int = a + b
@@ -220,9 +212,9 @@ add(2, 3)
 
 ### Pattern 6: Multi-Example Documentation Suite
 
-When a document contains many independent, self-contained examples (e.g., each type in a library having 4–6 usage examples), **every** example's first code block must use `mdoc:silent:reset` to prevent variable name collisions across examples.
+When document holds many independent, self-contained examples (e.g., 4–6 usage examples per library type), **every** example's first code block must use `mdoc:silent:reset` to prevent variable name collisions across examples.
 
-Without reset, variables like `val file`, `val config`, or `val user` defined in Example 1 conflict with identically-named vars in Example 2—producing "Conflicting definitions" errors even when the examples are conceptually separate.
+Without reset, `val file`, `val config` or `val user` from Example 1 collide with same-named vars in Example 2, giving "Conflicting definitions" errors even for conceptually separate examples.
 
 ```scala mdoc:silent:reset
 import zio.blocks.codegen.ir._
@@ -239,7 +231,7 @@ val file = ScalaFile(
 ScalaEmitter.emit(file, EmitterConfig())
 ```
 
-The next example resets again:
+Next example resets again:
 
 ```scala mdoc:silent:reset
 val order = CaseClass("Order", List(Field("id", TypeRef.Long)))
@@ -253,84 +245,79 @@ val file = ScalaFile(
 ScalaEmitter.emit(file, EmitterConfig())
 ```
 
-**Rule:** In multi-example documents, `:reset` is not "sparingly used"—it is used **once per independent example**. The "use sparingly" advice in the Tips section applies to *within* a single example (where `:nest` is usually better).
-
 ## When to Use `:reset`
 
-- Switching to a **completely different domain** (Product → JSON → User)
-- Starting a **new tutorial section** with independent examples
-- **Isolating independent examples in a multi-example document** — when each `###` section is a fresh, self-contained example that reuses common variable names like `file`, `config`, or `user`
-- Avoid if: just defining a new helper function (doesn't need reset)
+- Switching to **wholly different domain** (Product → JSON → User)
+- Starting **new tutorial section** with independent examples
+- **Isolating independent examples in multi-example document** — each `###` section is fresh, self-contained example reusing common names like `file`, `config` or `user`
+- Avoid if: only defining new helper function (no reset needed)
 
 ## Tips
 
-- **Never manually write `// result` comments** — use `mdoc` to show real output
-- **Test locally with `sbt "docs/mdoc --in <file> --out website/<file>"`** before committing mdoc blocks (never unscoped)
-- **Group related setup blocks** — define all prerequisites in one `silent` block if possible
-- **Use `:reset` at the right scope** — once per independent example in multi-example documents; prefer `:nest` for minor redefinitions *within* a single example
+- **Group related setup blocks** — all prerequisites in one `silent` block if possible
+- **Use `:reset` at right scope** — once per independent example in multi-example documents; prefer `:nest` for minor redefinitions *within* single example
 
 ## Mechanical Validation
 
-Before submitting changes, run the mdoc-conventions checker against the file. It flags any plain ```` ```scala ```` block that should carry an mdoc modifier:
+Before submitting, run mdoc-conventions checker on file. Flags any plain ```` ```scala ```` block that should carry mdoc modifier:
 
 ```
 bash <this-skill-dir>/check-mdoc-conventions.sh <file.md>
 ```
 
-Run with `--help` for full usage. **Exit codes:**
+`--help` gives full usage. **Exit codes:**
 
-| Code | Meaning                                                          |
-|------|------------------------------------------------------------------|
-| `0`  | No violations — every executable Scala block has an mdoc modifier. |
-| `1`  | One or more code blocks are missing mdoc modifiers.              |
-| `2`  | Invocation error (missing/extra arguments, file not found).      |
+| Code | Meaning                                                         |
+|------|-----------------------------------------------------------------|
+| `0`  | No violations — every executable Scala block has mdoc modifier. |
+| `1`  | One or more code blocks missing mdoc modifiers.                 |
+| `2`  | Invocation error (missing/extra arguments, file not found).     |
 
 ## Docs Classpath
 
-mdoc compiles against the docs project's `.dependsOn(...)`. If the documented module is missing there,
-add it to `build.sbt` (match sibling style, e.g. `<module>.jvm`) and reload — never downgrade real code
-to plain ```` ```scala ```` over a missing dependency, and never leave a runnable example uncompiled to
-work around a build gap.
+mdoc compiles against docs project's `.dependsOn(...)`. If documented module is missing there,
+add it to `build.sbt` (match sibling style, e.g. `<module>.jvm`) and reload. Never downgrade real code
+to plain ```` ```scala ```` over missing dependency. Never leave runnable example uncompiled to
+dodge build gap.
 
-**A build's gap is fixed in the build, never in the page.** `key not found: VERSION` means the docs
-project defines no `mdocVariables`, so add `mdocVariables += "VERSION" -> version.value` there and
-re-run: ✅ `mdocVariables += "VERSION" -> version.value"` in `build.sbt` ❌ writing `% "0.1.0"` into the
-page (it reads as fixed, and it breaks writing-style rule 25's `@VERSION@` placeholder).
+**Fix build gaps in build, never in page.** `key not found: VERSION` means docs
+project defines no `mdocVariables`. Add `mdocVariables += "VERSION" -> version.value` there and
+re-run: ✅ `mdocVariables += "VERSION" -> version.value"` in `build.sbt` ❌ writing `% "0.1.0"` into
+page (reads as fixed, breaks writing-style rule 25's `@VERSION@` placeholder).
 
 ## Verifying the Full Compile
 
-The mechanical checker above only catches a missing modifier — it cannot catch a real compile error.
-Always follow it with an actual mdoc compile, scoped to the file you touched, never the whole docs set
-(unscoped `sbt docs/mdoc` recompiles every doc — minutes of sbt for a one-file change):
+Checker above catches only missing modifiers, not real compile errors.
+Always follow with real mdoc compile scoped to touched file, never whole docs set
+(unscoped `sbt docs/mdoc` recompiles every doc — minutes of sbt for one-file change):
 
 ```bash
 sbt "docs/mdoc --in <file> --out website/<file>"
 ```
 
-`mdoc` is an sbt task, not a shell binary: quote the whole `docs/mdoc …` as one argument (never bare
-`mdoc`, never unquoted). One `--in`/`--out` pair per file; `--out` is the same path prefixed with
-`website/`, e.g. `docs/reference/x.md` → `website/docs/reference/x.md`. If the failure output only
-shows a stack trace with "stack trace is suppressed; run 'last <scope>'", run that `sbt "last <scope>"`
-command to get the real error.
+`mdoc` is sbt task, not shell binary: quote whole `docs/mdoc …` as one argument (never bare
+`mdoc`, never unquoted). One `--in`/`--out` pair per file; `--out` is same path prefixed with
+`website/`, e.g. `docs/reference/x.md` → `website/docs/reference/x.md`. If failure output shows only
+stack trace with "stack trace is suppressed; run 'last <scope>'", run that `sbt "last <scope>"`
+command for real error.
 
 ## Troubleshooting
 
-If mdoc produces more than 3 compilation errors, the blocks are likely not properly isolated. Check for missing `:reset` or `:nest` modifiers, or name collisions between blocks. If the issue persists, strip all mdoc modifiers from the reported lines, confirm the errors are gone, then re-apply the correct modifiers one by one using the decision tree — running `sbt "docs/mdoc --in <path> --out website/<path>"` after each change to verify before continuing.
+If mdoc produces more than 3 compilation errors, blocks likely aren't isolated. Check for missing `:reset` or `:nest` modifiers, or name collisions between blocks. If issue persists, strip all mdoc modifiers from reported lines and confirm errors vanish. Then re-apply correct modifiers one by one via decision tree, running `sbt "docs/mdoc --in <path> --out website/<path>"` after each change before continuing.
 
-Common mistakes when writing mdoc blocks? See **`references/troubleshooting.md`** for solutions to.
+Common mdoc mistakes and fixes: **`references/troubleshooting.md`**.
 
 ---
 
 ## Tabbed Scala 2 / Scala 3 Examples
 
-When a section shows syntax that differs between Scala 2 and Scala 3, use Docusaurus tabs
-instead of sequential prose blocks. This lets readers pick their version once and have all
-tab groups on the page sync together.
+When section shows syntax that differs between Scala 2 and Scala 3, use Docusaurus tabs,
+not sequential prose blocks.
 
 ### Required MDX imports
 
-Add these two lines at the top of any `.md` file that uses tabs (right after the closing
-`---` of the frontmatter, before any prose):
+Add these two lines at top of any `.md` file using tabs (right after frontmatter's closing
+`---`, before prose):
 
 ```mdx
 import Tabs from '@theme/Tabs';
@@ -360,23 +347,21 @@ import TabItem from '@theme/TabItem';
 
 ### Rules
 
-- Always use `groupId="scala-version"` — this syncs all tab groups on the page when the
-  reader picks a version.
-- Always use `defaultValue="scala2"` — Scala 2 is shown first by default.
-- Blank lines inside `<TabItem>` are required for mdoc to process fenced code blocks
-  correctly.
-- `mdoc:compile-only` is the correct modifier for code inside tabs (same as everywhere
-  else).
+- Always use `groupId="scala-version"` — syncs all tab groups on page when
+  reader picks version.
+- Always use `defaultValue="scala2"` — Scala 2 shown first by default.
+- Blank lines inside `<TabItem>` are required for mdoc to process fenced code blocks.
+- `mdoc:compile-only` is modifier for code inside tabs (same as elsewhere).
 - mdoc passes JSX components through unchanged — only fenced `scala mdoc:*` blocks are
   rewritten.
-- Do **not** use tabs for examples that are identical in both versions — only use them
-  when the syntax genuinely differs.
+- Do **not** use tabs for examples identical in both versions — only
+  when syntax genuinely differs.
 
 ---
 
 ## Docusaurus Admonitions
 
-Use Docusaurus admonition syntax for callouts: (Titles are optional)
+Callouts use Docusaurus admonition syntax (titles optional):
 
 ```
 :::note[Title of the note]
@@ -400,5 +385,5 @@ Serious risk of data loss, incorrect behavior, or security issue.
 :::
 ```
 
-Use admonitions **sparingly** — at most 3–4 in a typical document. They should highlight genuinely
-important information, not decorate every section.
+Use admonitions **sparingly** — at most 3–4 per typical document. Reserve them for genuinely
+important information, not decoration of every section.

@@ -25,7 +25,7 @@ def get_resolution(preset="landscape", custom=None):
 
 ### Multi-Density Grids
 
-Pre-initialize multiple grid sizes. Switch per section for visual variety. Grid dimensions auto-compute from resolution:
+Pre-initialize several grid sizes; switch per section for variety. Dimensions auto-compute from resolution:
 
 **Landscape (1920x1080):**
 
@@ -58,20 +58,20 @@ Pre-initialize multiple grid sizes. Switch per section for visual variety. Grid 
 | lg | 20 | 90x45 | Readable text |
 
 **Key differences in portrait mode:**
-- Fewer columns (90 at `lg` vs 160) — lines must be shorter or wrap
-- Many more rows (80 at `lg` vs 45) — vertical stacking is natural
-- Aspect ratio correction flips: `asp = cw / ch` still works but the visual emphasis is vertical
-- Radial effects appear as tall ellipses unless corrected
-- Vertical effects (rain, embers, fire columns) are naturally enhanced
+- Fewer columns (90 at `lg` vs 160): shorten or wrap lines
+- Many more rows (80 at `lg` vs 45): vertical stacking natural
+- Aspect ratio correction flips: `asp = cw / ch` still works, visual emphasis vertical
+- Radial effects become tall ellipses unless corrected
+- Vertical effects (rain, embers, fire columns) naturally enhanced
 - Horizontal effects (spectrum bars, waveforms) need rotation or compression
 
-**Grid sizing for text in portrait**: Use `lg` (20px) for 2-3 word lines. Max comfortable line length is ~25-30 chars. For longer quotes, break aggressively into many short lines stacked vertically — portrait has vertical space to spare. `xl` (24px) works for single words or very short phrases.
+**Grid sizing for text in portrait**: `lg` (20px) for 2-3 word lines. Max comfortable line ~25-30 chars. Break longer quotes into many short stacked lines. `xl` (24px) for single words or very short phrases.
 
 Grid dimensions: `cols = VW // cell_width`, `rows = VH // cell_height`.
 
 ### Font Selection
 
-Don't hardcode a single font. Choose fonts to match the project's mood. Monospace fonts are required for grid alignment but vary widely in personality:
+Don't hardcode one font. Match project mood. Grid alignment needs monospace fonts, but personalities vary widely:
 
 | Font | Personality | Platform |
 |------|-------------|----------|
@@ -85,7 +85,7 @@ Don't hardcode a single font. Choose fonts to match the project's mood. Monospac
 | IBM Plex Mono | Corporate, authoritative | Install |
 | Source Code Pro | Adobe, balanced | Install |
 
-**Font detection at init**: probe available fonts and fall back gracefully:
+**Font detection at init**: probe fonts, fall back gracefully:
 
 ```python
 import platform
@@ -128,7 +128,7 @@ def _get_font_prefs():
 FONT_PREFS = _get_font_prefs()
 ```
 
-**Multi-font rendering**: use different fonts for different layers (e.g., monospace for background, a bolder variant for overlay text). Each GridLayer owns its own font:
+**Multi-font rendering**: different font per layer (e.g., monospace background, bolder overlay text). Each GridLayer owns its font:
 
 ```python
 grid_bg = GridLayer(find_font(FONT_PREFS), 16)       # background
@@ -137,7 +137,7 @@ grid_text = GridLayer(find_font(BOLD_PREFS), 20)      # readable text
 
 ### Collecting All Characters
 
-Before initializing grids, gather all characters that need bitmap pre-rasterization:
+Before grid init, gather all characters needing bitmap pre-rasterization:
 
 ```python
 all_chars = set()
@@ -153,7 +153,7 @@ all_chars.discard(" ")  # space is never rendered
 
 ### GridLayer Initialization
 
-Each grid pre-computes coordinate arrays for vectorized effect math. The grid automatically adapts to any resolution (landscape, portrait, square):
+Each grid pre-computes coordinate arrays for vectorized effect math. Auto-adapts to any resolution (landscape, portrait, square):
 
 ```python
 class GridLayer:
@@ -206,7 +206,7 @@ class GridLayer:
 
 ### Character Render Loop
 
-The bottleneck. Composites pre-rasterized bitmaps onto pixel canvas:
+Bottleneck. Composites pre-rasterized bitmaps onto pixel canvas:
 
 ```python
 def render(self, chars, colors, canvas=None):
@@ -227,11 +227,11 @@ def render(self, chars, colors, canvas=None):
     return canvas
 ```
 
-Use `np.maximum` for additive blending (brighter chars overwrite dimmer ones, never darken).
+Use `np.maximum` for additive blending: brighter chars overwrite dimmer, never darken.
 
 ### Multi-Layer Rendering
 
-Render multiple grids onto the same canvas for depth:
+Render several grids onto one canvas for depth:
 
 ```python
 canvas = np.zeros((VH, VW, 3), dtype=np.uint8)
@@ -246,16 +246,14 @@ canvas = grid_sm.render(detail_chars, detail_colors, canvas)  # detail overlay
 
 ### Design Principles
 
-Character palettes are the primary visual texture of ASCII video. They control not just brightness mapping but the entire visual feel. Design palettes intentionally:
-
-- **Visual weight**: characters sorted by the amount of ink/pixels they fill. Space is always index 0.
-- **Coherence**: characters within a palette should belong to the same visual family.
-- **Density curve**: the brightness-to-character mapping is nonlinear. Dense palettes (many chars) give smoother gradients; sparse palettes (5-8 chars) give posterized/graphic looks.
-- **Rendering compatibility**: every character in the palette must exist in the font. Test at init and remove missing glyphs.
+- **Visual weight**: sort characters by ink/pixels filled. Space always index 0.
+- **Coherence**: one visual family per palette.
+- **Density curve**: brightness-to-character mapping is nonlinear. Dense palettes (many chars) give smoother gradients; sparse (5-8 chars) give posterized/graphic looks.
+- **Rendering compatibility**: every character must exist in the font. Test at init, drop missing glyphs.
 
 ### Palette Library
 
-Organized by visual family. Mix and match per project -- don't default to PAL_DEFAULT for everything.
+Mix per project. Don't default to PAL_DEFAULT for everything.
 
 #### Density / Brightness Palettes
 ```python
@@ -312,12 +310,12 @@ PAL_MACHINE  = " _\u2500\u2502\u250c\u2510\u253c\u2261\u25a0\u2588\u2593\u2592\u
 
 ### Creating Custom Palettes
 
-When designing for a project, build palettes from the content's theme:
+Build palettes from project theme:
 
 1. **Choose a visual family** (dots, blocks, symbols, script)
-2. **Sort by visual weight** -- render each char at target font size, count lit pixels, sort ascending
-3. **Test at target grid size** -- some chars collapse to blobs at small sizes
-4. **Validate in font** -- remove chars the font can't render:
+2. **Sort by visual weight** -- render each char at target size, count lit pixels, sort ascending
+3. **Test at target grid size** -- some chars collapse to blobs when small
+4. **Validate in font** -- drop chars font can't render:
 
 ```python
 def validate_palette(pal, font):
@@ -347,7 +345,7 @@ def val2char(v, mask, pal=PAL_DEFAULT):
     return out
 ```
 
-**Nonlinear mapping** for different visual curves:
+**Nonlinear mapping** for other visual curves:
 
 ```python
 def val2char_gamma(v, mask, pal, gamma=1.0):
@@ -369,7 +367,7 @@ def val2char_step(v, mask, pal, thresholds):
 
 ### HSV->RGB (Vectorized)
 
-All color computation in HSV for intuitive control, converted at render time:
+All color math in HSV for intuitive control; convert at render time:
 
 ```python
 def hsv2rgb(h, s, v):
@@ -384,7 +382,7 @@ def hsv2rgb(h, s, v):
 
 ### Color Mapping Strategies
 
-Don't default to a single strategy. Choose based on the visual intent:
+Don't default to one strategy. Pick by visual intent:
 
 | Strategy | Hue source | Effect | Good for |
 |----------|------------|--------|----------|
@@ -395,7 +393,7 @@ Don't default to a single strategy. Choose based on the visual intent:
 | Time-cycled | `t * rate` | Slow color rotation | Ambient, chill |
 | Source-sampled | Video frame pixel colors | Preserve original color | Video-to-ASCII |
 | Palette-indexed | Discrete color lookup | Flat graphic style | Retro, pixel art |
-| Temperature | Blend between warm/cool | Emotional tone | Mood-driven scenes |
+| Temperature | Blend warm/cool | Emotional tone | Mood-driven scenes |
 | Complementary | `hue` and `hue + 0.5` | High contrast | Bold, dramatic |
 | Triadic | `hue`, `hue + 0.33`, `hue + 0.66` | Vibrant, balanced | Psychedelic |
 | Analogous | `hue +/- 0.08` | Harmonious, subtle | Elegant, cohesive |
@@ -403,7 +401,7 @@ Don't default to a single strategy. Choose based on the visual intent:
 
 ### Color Palettes (Discrete RGB)
 
-For non-HSV workflows -- direct RGB color sets for graphic/retro looks:
+Direct RGB sets for non-HSV workflows, graphic/retro looks:
 
 ```python
 # Named color palettes -- use for flat/graphic styles or per-character coloring
@@ -433,7 +431,7 @@ def rgb_palette_map(val, mask, palette):
 
 ### OKLAB Color Space (Perceptually Uniform)
 
-HSV hue is perceptually non-uniform: green occupies far more visual range than blue. OKLAB / OKLCH provide perceptually even color steps — hue increments of 0.1 look equally different regardless of starting hue. Use OKLAB for:
+HSV hue is perceptually non-uniform: green spans far more visual range than blue. OKLAB / OKLCH give perceptually even steps: hue increments of 0.1 look equally different from any starting hue. Use OKLAB for:
 - Gradient interpolation (no unwanted intermediate hues)
 - Color harmony generation (perceptually balanced palettes)
 - Smooth color transitions over time
@@ -509,7 +507,7 @@ def oklch_to_oklab(L, C, H):
 
 ### Gradient Interpolation (OKLAB vs HSV)
 
-Interpolating colors through OKLAB avoids the hue detours that HSV produces:
+OKLAB interpolation avoids HSV hue detours:
 
 ```python
 def lerp_oklab(color_a, color_b, t_array):
@@ -558,7 +556,7 @@ def lerp_oklch(color_a, color_b, t_array, short_path=True):
 
 ### Color Harmony Generation
 
-Auto-generate harmonious palettes from a seed color:
+Auto-generate harmonious palettes from seed color:
 
 ```python
 def harmony_complementary(seed_rgb):
@@ -610,7 +608,7 @@ def _oklch_to_srgb_tuple(L, C, H):
 
 ### OKLAB Hue Fields
 
-Drop-in replacements for `hf_*` generators that produce perceptually uniform hue variation:
+Drop-in `hf_*` replacements with perceptually uniform hue variation:
 
 ```python
 def hf_oklch_angle(offset=0.0, chroma=0.12, lightness=0.7):
@@ -661,7 +659,7 @@ def stamp(ch, co, text, row, col, color=(255,255,255)):
 
 ## Section System
 
-Map time ranges to effect functions + shader configs + grid sizes:
+Map time ranges to effect functions, shader configs, grid sizes:
 
 ```python
 SECTIONS = [
@@ -685,7 +683,7 @@ def get_section(t):
 
 ## Parallel Encoding
 
-Split frames across N workers. Each pipes raw RGB to its own ffmpeg subprocess:
+Split frames across N workers, each piping raw RGB to its own ffmpeg subprocess:
 
 ```python
 def render_batch(batch_id, frame_start, frame_end, features, seg_path):
@@ -715,7 +713,7 @@ def render_batch(batch_id, frame_start, frame_end, features, seg_path):
     stderr_fh.close()
 ```
 
-Concatenate segments + mux audio:
+Concatenate segments, mux audio:
 
 ```python
 # Write concat file
@@ -732,7 +730,7 @@ subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_path,
 
 ### v2 Protocol (Current)
 
-Every scene function: `(r, f, t, S) -> canvas_uint8` — where `r` = Renderer, `f` = features dict, `t` = time float, `S` = persistent state dict
+Scene function signature: `(r, f, t, S) -> canvas_uint8`. `r` = Renderer, `f` = features dict, `t` = time float, `S` = persistent state dict.
 
 ```python
 def fx_example(r, f, t, S):
@@ -748,13 +746,13 @@ def fx_example(r, f, t, S):
     return result
 ```
 
-See `references/scenes.md` for the full scene protocol, the Renderer class, `_render_vf()` helper, and complete scene examples.
+See `references/scenes.md`: full scene protocol, Renderer class, `_render_vf()` helper, complete scene examples.
 
-See `references/composition.md` for blend modes, tone mapping, feedback buffers, and multi-grid composition.
+See `references/composition.md`: blend modes, tone mapping, feedback buffers, multi-grid composition.
 
 ### v1 Protocol (Legacy)
 
-Simple scenes that use a single grid can still return `(chars, colors)` and let the caller handle rendering, but the v2 canvas protocol is preferred for all new code.
+Single-grid scenes may still return `(chars, colors)` and let caller render. Prefer v2 canvas protocol for all new code.
 
 ```python
 def fx_simple(r, f, t, S):
@@ -769,7 +767,7 @@ def fx_simple(r, f, t, S):
 
 ### Persistent State
 
-Effects that need state across frames (particles, rain columns) use the `S` dict parameter (which is `r.S` — same object, but passed explicitly for clarity):
+Effects needing cross-frame state (particles, rain columns) use `S` dict, same object as `r.S`, passed explicitly for clarity:
 
 ```python
 def fx_with_state(r, f, t, S):
@@ -779,7 +777,7 @@ def fx_with_state(r, f, t, S):
     # ...
 ```
 
-State persists across frames within a single scene/clip. Each worker process (and each scene) gets its own independent state.
+State persists across frames within one scene/clip. Each worker process (and each scene) has its own independent state.
 
 ### Helper Functions
 

@@ -1,6 +1,6 @@
 # Animated GIFs
 
-PixiJS loads animated GIFs through `Assets.load()` and returns a `GifSource` containing all decoded frames. Pass the source to `GifSprite` for playback, looping, and frame control. GIF support is opt-in via the `'pixi.js/gif'` side-effect import.
+`Assets.load()` loads animated GIFs and returns `GifSource` with all decoded frames. Pass it to `GifSprite` for playback, looping, frame control. Opt-in via `'pixi.js/gif'` side-effect import.
 
 ## Quick Start
 
@@ -12,8 +12,6 @@ const source = await Assets.load("explosion.gif");
 const gif = new GifSprite(source);
 app.stage.addChild(gif);
 ```
-
-Without `'pixi.js/gif'`, the `.gif` loader parser isn't registered and `Assets.load()` won't know what to do with the file.
 
 ## Core Patterns
 
@@ -31,16 +29,16 @@ const source = await Assets.load({
 });
 ```
 
-`data` accepts `GifBufferOptions`, which extends `CanvasSourceOptions`:
+`data` takes `GifBufferOptions` (extends `CanvasSourceOptions`):
 
-| Option                | Default    | Purpose                                                          |
-| --------------------- | ---------- | ---------------------------------------------------------------- |
-| `fps`                 | `30`       | Fallback frame rate when the GIF has no per-frame delay metadata |
-| `scaleMode`           | `'linear'` | `'nearest'` for pixel art, `'linear'` for smooth scaling         |
-| `resolution`          | `1`        | Render resolution of the decoded frames                          |
-| `autoGenerateMipmaps` | `false`    | Generate mipmaps for downscaling                                 |
+| Option                | Default    | Purpose |
+| --------------------- | ---------- | ------- |
+| `fps`                 | `30`       | Fallback frame rate when GIF has no per-frame delay metadata |
+| `scaleMode`           | `'linear'` | `'nearest'` for pixel art, `'linear'` for smooth scaling |
+| `resolution`          | `1`        | Render resolution of decoded frames |
+| `autoGenerateMipmaps` | `false`    | Generate mipmaps for downscaling |
 
-Any other `CanvasSourceOptions` field works here too.
+Other `CanvasSourceOptions` fields work too.
 
 ### GifSprite options
 
@@ -58,7 +56,7 @@ const gif = new GifSprite({
 });
 ```
 
-Construction options control playback behavior; they're independent of the load-time `data` options.
+Constructor options control playback, independent of load-time `data`.
 
 ### Loading from a data URI
 
@@ -68,7 +66,7 @@ const source = await Assets.load(
 );
 ```
 
-The parser matches both `.gif` file extensions and `data:image/gif` URIs. No extra configuration needed.
+Parser matches `.gif` extensions and `data:image/gif` URIs. No extra configuration.
 
 ### Playback control
 
@@ -97,7 +95,7 @@ a.animationSpeed = 1;
 b.animationSpeed = 0.25;
 ```
 
-Multiple `GifSprite` instances can share the same `GifSource`; each gets independent playback state. The underlying textures are shared, so this is cheap.
+Several `GifSprite` instances can share one `GifSource`, each with own playback state. Textures are shared, so cheap.
 
 ### Cleanup
 
@@ -111,7 +109,7 @@ Prefer `Assets.unload` unless you know no other sprite shares the same `GifSourc
 
 ## Forcing the GIF parser
 
-If your GIF URL lacks an extension, force the parser:
+If GIF URL lacks extension, force parser:
 
 ```ts
 const source = await Assets.load({
@@ -121,7 +119,7 @@ const source = await Assets.load({
 });
 ```
 
-See the main `SKILL.md` section on "Forcing a parser with `parser`" for the full list of parser IDs.
+See main `SKILL.md` section "Forcing a parser with `parser`" for all parser IDs.
 
 ## Common Mistakes
 
@@ -142,12 +140,12 @@ import { Assets } from "pixi.js";
 await Assets.load("explosion.gif");
 ```
 
-Without `'pixi.js/gif'`, the loader parser isn't registered. The call fails or returns undefined.
+Without `'pixi.js/gif'`, parser isn't registered. Call fails or returns undefined.
 
 
 ### [MEDIUM] Using GIF when a spritesheet would be cheaper
 
-GIF decoding creates one texture per frame. For a 30-frame animation that's 30 separate uploads. A spritesheet packs all frames into a single atlas texture, which batches better and uses less GPU memory. Prefer spritesheets for performance-critical game animations; use GIFs for convenience and one-off effects.
+GIF decoding makes one texture per frame: 30 frames, 30 separate uploads. Spritesheet packs all frames into one atlas texture; batches better, uses less GPU memory. Prefer spritesheets for performance-critical game animations; GIFs for convenience and one-off effects.
 
 
 ### [MEDIUM] destroy(true) when other sprites share the source
@@ -160,7 +158,7 @@ const b = new GifSprite(source);
 a.destroy(true); // WRONG: also destroys source, breaking sprite b
 ```
 
-Pass `true` to `destroy` only if you know nothing else references the `GifSource`. Otherwise call plain `destroy()` and `Assets.unload()` when the source is no longer needed.
+Pass `true` to `destroy` only if nothing else references the `GifSource`. Otherwise call plain `destroy()`, then `Assets.unload()` once source is no longer needed.
 
 
 ## API Reference

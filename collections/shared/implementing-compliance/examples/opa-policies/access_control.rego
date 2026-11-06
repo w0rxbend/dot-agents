@@ -25,19 +25,23 @@ deny contains msg if {
 	resource := input.resource_changes[_]
 	resource.type == "aws_iam_policy"
 	policy := json.unmarshal(resource.change.after.policy)
-	statement := policy.Statement[_]
+	statement := array_or_string_to_array(policy.Statement)[_]
 	statement.Effect == "Allow"
-	statement.Resource == "*"
+	has_broad_resource(statement)
 	not is_allowed_wildcard_action(statement)
 
-	actions := array_or_string_to_array(statement.Action)
+	actions := object.get(statement, "Action", {"NotAction": object.get(statement, "NotAction", null)})
 	msg := sprintf(
 		"HIGH [ACCESS-001]: IAM policy '%s' grants overly broad permissions\n  Resource: '*'\n  Actions: %v\n  Frameworks: SOC2-CC6.2, PCI-DSS-Req7.1\n  Action: Use specific resource ARNs or allowed wildcard actions",
 		[resource.address, actions],
 	)
 }
 
-# Allow specific read-only wildcard actions
+has_broad_resource(statement) if "*" in array_or_string_to_array(statement.Resource)
+
+has_broad_resource(statement) if statement.NotResource
+
+# Exempt only when EVERY action is read-only (NotAction never qualifies)
 is_allowed_wildcard_action(statement) if {
 	actions := array_or_string_to_array(statement.Action)
 	allowed_prefixes := [
@@ -50,11 +54,15 @@ is_allowed_wildcard_action(statement) if {
 		"iam:Get",
 		"iam:List",
 	]
-	action := actions[_]
-	startswith(action, allowed_prefixes[_])
+	every action in actions {
+		some prefix in allowed_prefixes
+		startswith(action, prefix)
+	}
 }
 
-# Helper to convert string or array to array
+# Helper to convert string, object or array to array
+array_or_string_to_array(value) := [value] if is_object(value)
+
 array_or_string_to_array(value) := result if {
 	is_array(value)
 	result := value
@@ -130,53 +138,66 @@ has_mfa_enforcement_policy(user_address) if {
 # Security Group Rules - Ingress Restrictions
 # ============================================================================
 
-# Deny security groups open to the internet on non-standard ports
-deny contains msg if {
+# Ingress rules: standalone rules, inline ingress blocks, VPC ingress rules
+ingress_rules contains {"address": resource.address, "rule": rule} if {
 	resource := input.resource_changes[_]
 	resource.type == "aws_security_group_rule"
-	resource.change.after.type == "ingress"
-	is_open_to_internet(resource)
-	not is_allowed_public_port(resource.change.after.from_port)
+	rule := resource.change.after
+	rule.type == "ingress"
+}
+
+ingress_rules contains {"address": resource.address, "rule": rule} if {
+	resource := input.resource_changes[_]
+	resource.type == "aws_security_group"
+	rule := resource.change.after.ingress[_]
+}
+
+ingress_rules contains {"address": resource.address, "rule": rule} if {
+	resource := input.resource_changes[_]
+	resource.type == "aws_vpc_security_group_ingress_rule"
+	rule := resource.change.after
+}
+
+# Deny security groups open to the internet on non-standard ports
+deny contains msg if {
+	some entry in ingress_rules
+	rule := entry.rule
+	is_open_to_internet(rule)
+	not is_allowed_public_port(rule)
 
 	msg := sprintf(
-		"HIGH [NET-001]: Security group rule '%s' allows ingress from 0.0.0.0/0 on port %d\n  Frameworks: PCI-DSS-Req1.3, SOC2-CC6.6\n  Action: Restrict source to specific IP ranges or use approved ports only (80, 443)",
-		[resource.address, resource.change.after.from_port],
+		"HIGH [NET-001]: Security group rule '%s' allows ingress from the internet on ports %v-%v\n  Frameworks: PCI-DSS-Req1.3, SOC2-CC6.6\n  Action: Restrict source to specific IP ranges or use approved ports only (80, 443)",
+		[entry.address, rule.from_port, rule.to_port],
 	)
 }
 
-is_open_to_internet(resource) if {
-	cidr_blocks := resource.change.after.cidr_blocks
-	cidr_blocks[_] == "0.0.0.0/0"
+is_open_to_internet(rule) if rule.cidr_blocks[_] == "0.0.0.0/0"
+
+is_open_to_internet(rule) if rule.ipv6_cidr_blocks[_] == "::/0"
+
+is_open_to_internet(rule) if rule.cidr_ipv4 == "0.0.0.0/0"
+
+is_open_to_internet(rule) if rule.cidr_ipv6 == "::/0"
+
+# Whole range must be one approved port (443-3389 is not "443")
+is_allowed_public_port(rule) if {
+	rule.from_port == rule.to_port
+	rule.from_port in {80, 443}
 }
 
-is_open_to_internet(resource) if {
-	ipv6_cidr_blocks := resource.change.after.ipv6_cidr_blocks
-	ipv6_cidr_blocks[_] == "::/0"
-}
-
-is_allowed_public_port(port) if {
-	allowed_ports := [80, 443]
-	port == allowed_ports[_]
-}
-
-# Deny SSH (22) and RDP (3389) open to internet
+# Deny SSH (22) and RDP (3389) open to internet, anywhere in the port range
 deny contains msg if {
-	resource := input.resource_changes[_]
-	resource.type == "aws_security_group_rule"
-	resource.change.after.type == "ingress"
-	is_open_to_internet(resource)
-	port := resource.change.after.from_port
-	is_management_port(port)
+	some entry in ingress_rules
+	rule := entry.rule
+	is_open_to_internet(rule)
+	some port in [22, 3389]
+	rule.from_port <= port
+	port <= rule.to_port
 
 	msg := sprintf(
 		"CRITICAL [NET-001]: Security group rule '%s' exposes management port %d to the internet\n  Frameworks: PCI-DSS-Req1.3, HIPAA-164.312(a)(2)(ii)\n  Action: Restrict SSH/RDP access to VPN or bastion host IP ranges",
-		[resource.address, port],
+		[entry.address, port],
 	)
-}
-
-is_management_port(port) if {
-	management_ports := [22, 3389]
-	port == management_ports[_]
 }
 
 # ============================================================================

@@ -5,12 +5,12 @@ argument-hint: "What will the next session be used for?"
 disable-model-invocation: true
 ---
 
-Write a handoff document summarising the current conversation so a fresh agent can continue the work. Save to the temporary directory of the user's OS (`$TMPDIR`, else `/tmp`; `%TEMP%` on Windows) - not the current workspace.
+Summarise current conversation into handoff document so fresh agent can continue work. Save to user's OS temp directory (`$TMPDIR`, else `/tmp`; `%TEMP%` on Windows), not current workspace. Create file with `mktemp` (unique name, mode 0600), never fixed name in shared `/tmp`.
 
-Include a "suggested skills" section in the document, naming which skills the next agent should call the Skill tool for.
+Include "suggested skills" section naming skills next agent should invoke with Skill tool.
 
-Do not duplicate content already captured in other artifacts (specs, plans, ADRs, issues, commits, diffs). Reference them by path or URL instead.
+Do not duplicate content already in other artifacts (specs, plans, ADRs, issues, commits, diffs). Reference them by path or URL.
 
-Redact any sensitive information, such as API keys, passwords, or personally identifiable information.
+Redact sensitive information such as API keys, passwords, personally identifiable information.
 
-If the user passed arguments, treat them as a description of what the next session will focus on and tailor the doc accordingly.
+If user passed arguments, treat them as next session's focus and tailor doc to it.

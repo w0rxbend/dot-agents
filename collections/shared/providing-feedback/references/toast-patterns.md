@@ -3,7 +3,6 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [Positioning Strategies](#positioning-strategies)
   - [Bottom-Right (Recommended)](#bottom-right-recommended)
   - [Top-Center](#top-center)
@@ -36,10 +35,6 @@
   - [Keyboard Interactions](#keyboard-interactions)
 - [Best Practices](#best-practices)
 
-## Overview
-
-Toasts (also called snackbars) are temporary notifications that appear at the edge of the screen to provide feedback without interrupting the user's workflow.
-
 ## Positioning Strategies
 
 ### Bottom-Right (Recommended)
@@ -61,7 +56,7 @@ Toasts (also called snackbars) are temporary notifications that appear at the ed
 **Advantages:**
 - Doesn't cover navigation or header
 - Natural reading flow
-- Easy stacking behavior
+- Easy stacking
 - Mobile-friendly (thumb reach)
 
 ### Top-Center
@@ -76,7 +71,7 @@ Toasts (also called snackbars) are temporary notifications that appear at the ed
 ```
 
 **Use when:**
-- Need high visibility
+- High visibility needed
 - Critical information
 - Single toast at a time
 
@@ -91,7 +86,7 @@ Toasts (also called snackbars) are temporary notifications that appear at the ed
 ```
 
 **Use when:**
-- Consistency with existing patterns
+- Matching existing patterns
 - Right-to-left languages (mirror to top-left)
 
 ## Stacking Behavior
@@ -526,13 +521,12 @@ class AccessibleToast {
 
 ## Best Practices
 
-1. **Consistent positioning**: Pick one position and stick with it
-2. **Clear hierarchy**: Use color and icons to indicate type
-3. **Readable duration**: Ensure enough time to read
-4. **Action clarity**: Make action buttons obvious
-5. **Dismissible errors**: Always allow manual dismissal for errors
-6. **Mobile testing**: Test swipe gestures and touch targets
-7. **Accessibility**: Test with screen readers
-8. **Performance**: Limit concurrent toasts to prevent overflow
-9. **Context**: Keep messages concise and actionable
-10. **Feedback timing**: Show immediately after user action
+1. **Consistent positioning**: Pick one position, keep it
+2. **Clear hierarchy**: Color and icons show type
+3. **Action clarity**: Obvious action buttons
+4. **Dismissible errors**: Always allow manual dismissal for errors
+5. **Mobile testing**: Test swipe gestures and touch targets
+6. **Accessibility**: Test with screen readers
+7. **Performance**: Limit concurrent toasts to prevent overflow
+8. **Context**: Concise, actionable messages
+9. **Feedback timing**: Show immediately after user action

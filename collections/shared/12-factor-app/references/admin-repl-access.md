@@ -7,9 +7,9 @@ tags: admin, repl, debugging, inspection
 
 ## Provide REPL Access for Debugging and Data Inspection
 
-One-off admin processes include REPL (Read-Eval-Print Loop) sessions for interactive debugging and data inspection. The REPL runs against a release, giving developers access to the app's models and configuration in production.
+REPL (Read-Eval-Print Loop) sessions are one-off admin processes for interactive debugging and data inspection. REPL runs against a release: developers get app models and config in production.
 
-**Incorrect (ad-hoc REPL without proper environment):**
+**Incorrect (ad-hoc REPL, wrong environment):**
 
 ```bash
 # SSH to production server and run Python directly
@@ -22,7 +22,7 @@ python
 # No audit trail of what commands were run
 ```
 
-**Correct (REPL from the release environment):**
+**Correct (REPL from release):**
 
 ```bash
 # Django shell via kubectl - uses release's code and config
@@ -46,7 +46,7 @@ kubectl exec -it deployment/web -- python
 ...     print(user.email)
 ```
 
-**Ruby REPL access:**
+**Ruby REPL:**
 
 ```bash
 # Rails console
@@ -56,7 +56,7 @@ kubectl exec -it deployment/web -- bundle exec rails console
 kubectl exec -it deployment/web -- bundle exec irb -r ./config/environment
 ```
 
-**Node.js REPL access:**
+**Node.js REPL:**
 
 ```bash
 # Node with app context
@@ -95,7 +95,7 @@ python manage.py cancel_order --order-id=12345
 heroku run python manage.py shell
 # Runs in isolated dyno with production config
 # Changes to filesystem don't affect running app
-# Safe sandbox for investigation
+# DB writes still hit production
 ```
 
 **Read-only replica for safety:**
@@ -105,7 +105,7 @@ heroku run python manage.py shell
 # settings.py
 DATABASES = {
     'default': os.environ['DATABASE_URL'],
-    'readonly': os.environ.get('DATABASE_READONLY_URL', os.environ['DATABASE_URL']),
+    'readonly': os.environ['DATABASE_READONLY_URL'],  # replica or read-only role; never fall back to primary
 }
 
 # In REPL
@@ -115,11 +115,5 @@ DATABASES = {
 ...     print(cursor.fetchone())
 # No risk of accidental writes
 ```
-
-**Benefits:**
-- Debug production issues with real data
-- Inspect state without deploying logging
-- Run one-off queries safely
-- Test hypotheses interactively
 
 Reference: [The Twelve-Factor App - Admin processes](https://12factor.net/admin-processes)

@@ -19,29 +19,27 @@
 
 Functional programming (FP) treats computation as evaluation of mathematical functions. Core principles:
 
-- **Immutability** — data doesn't change after creation; transformations produce new values
-- **Pure functions** — same input always produces same output, no side effects
+- **Immutability** — data does not change after creation. Transformations produce new values.
+- **Pure functions** — same input always gives same output, no side effects
 - **Composition** — build complex behavior by chaining simple functions
 - **Types as documentation** — types express constraints and invariants
 
-Go isn't a pure FP language, but Go 1.18+ generics make FP patterns practical. samber/mo brings the most battle-tested FP abstractions — monads — to Go.
+Go is not a pure FP language, but Go 1.18+ generics make FP patterns practical.
 
 ## What is a Monad?
 
-A monad is a design pattern (not a class or interface) that:
+Monad: design pattern (not class or interface) that:
 
-1. **Wraps a value** in a context (Option wraps "maybe absent", Result wraps "maybe failed")
-2. **Chains operations** that transform the wrapped value without unwrapping it
-3. **Handles the context automatically** — if an Option is None, Map/FlatMap skip the transformation; if a Result is Err, subsequent Maps short-circuit
-
-Think of it as a **container with a policy**: "I hold a value, and I know what to do when operations succeed or fail."
+1. **Wraps a value** in context (Option wraps "maybe absent", Result wraps "maybe failed")
+2. **Chains operations** that transform wrapped value without unwrapping it
+3. **Handles the context automatically**: if Option is None, Map/FlatMap skip transformation. If Result is Err, subsequent Maps short-circuit.
 
 ### The Railway Metaphor
 
-Imagine two parallel railway tracks:
+Two parallel railway tracks:
 
 - **Happy track** (top): data flows through transformations successfully
-- **Error track** (bottom): once something goes wrong, the train switches to the error track and skips remaining transformations
+- **Error track** (bottom): once something goes wrong, train switches to error track and skips remaining transformations
 
 ```
 Input → [Transform A] → [Transform B] → [Transform C] → Output
@@ -49,13 +47,13 @@ Input → [Transform A] → [Transform B] → [Transform C] → Output
        Error track ────────────────────────────────────→ Error
 ```
 
-This is exactly how Result.Map and Result.FlatMap work — errors propagate automatically without explicit if/else checks.
+Result.Map and Result.FlatMap work exactly this way: errors propagate automatically without explicit if/else checks.
 
 ## Why Monads Are Valuable in Go
 
 ### 1. Compile-Time Nil Safety (Option)
 
-Go's type system doesn't distinguish "this pointer could be nil" from "this pointer is always valid". Option[T] makes this explicit:
+Go's type system does not distinguish "this pointer could be nil" from "this pointer is always valid". Option[T] makes this explicit:
 
 ```go
 // Without mo — caller must remember to check nil
@@ -65,11 +63,11 @@ func FindUser(id string) *User { ... }  // might return nil
 func FindUser(id string) mo.Option[User] { ... }  // caller must handle None
 ```
 
-The type signature is the documentation. No nil pointer panics at runtime — the compiler forces you to handle absence.
+Type signature is documentation. No nil pointer panics at runtime: compiler forces you to handle absence.
 
 ### 2. Railway-Oriented Error Handling (Result)
 
-Go's idiomatic error handling requires checking errors at every step:
+Idiomatic Go checks errors at every step:
 
 ```go
 // Without mo — repetitive error checking
@@ -81,7 +79,7 @@ validated, err := validate(config)
 if err != nil { return err }
 ```
 
-With Result and `mo.Do`, errors short-circuit through the chain:
+With Result and `mo.Do`, errors short-circuit through chain:
 
 ```go
 // With mo — errors propagate automatically via Do notation
@@ -93,13 +91,13 @@ result := mo.Do(func() Config {
 })
 ```
 
-Same logic, less boilerplate. The error path is handled by the monad — any `MustGet()` failure short-circuits to `Err`.
+Monad handles error path: any `MustGet()` failure short-circuits to `Err`.
 
-**Note:** Direct `.Map`/`.FlatMap` methods cannot change the type parameter (Go methods cannot introduce new generic types). For type-changing pipelines, use sub-package `result.Pipe` functions or `mo.Do` notation as shown above.
+**Note:** direct `.Map`/`.FlatMap` methods cannot change type parameter (Go methods cannot introduce new generic types). For type-changing pipelines, use sub-package `result.Pipe` functions or `mo.Do` notation as shown above.
 
 ### 3. Composable Pipelines
 
-Monads compose naturally. You can build complex data transformations from simple, testable pieces:
+Monads compose naturally. Build complex data transformations from simple, testable pieces:
 
 ```go
 import "github.com/samber/mo/option"
@@ -115,7 +113,7 @@ result := option.Pipe3(
 )
 ```
 
-Each step is a pure function. The pipeline handles None propagation. Each step is independently testable.
+Each step: pure function, independently testable. Pipeline handles None propagation.
 
 ## The Three Core Monads
 
@@ -130,9 +128,9 @@ Each step is a pure function. The pipeline handles None propagation. Each step i
 | Safe access   | `if u != nil { ... }` | `opt.OrElse(defaultUser)` |
 | Transform     | manual nil check      | `opt.Map(transform)`      |
 
-Use Option when: a value might legitimately be absent (nullable DB columns, optional config, cache lookups).
+Use Option when: value might legitimately be absent (nullable DB columns, optional config, cache lookups).
 
-Don't use Option when: a zero value is meaningful (empty string is valid, 0 is a valid count).
+Don't use Option when: zero value is meaningful (empty string is valid, 0 is valid count).
 
 ### Result — Represents Fallibility
 
@@ -145,9 +143,9 @@ Don't use Option when: a zero value is meaningful (empty string is valid, 0 is a
 | Chain ops | `if err != nil` at each step | `.Map(...)` / `.FlatMap(...)` |
 | Default   | manual fallback              | `.OrElse(default)`            |
 
-Use Result when: you're chaining multiple fallible operations and want errors to propagate automatically.
+Use Result when: chaining multiple fallible operations and wanting errors to propagate automatically.
 
-Don't use Result when: you need to inspect or modify the error at each step (standard Go error handling is more explicit).
+Don't use Result when: you need to inspect or modify error at each step (standard Go error handling is more explicit).
 
 ### Either — Represents Alternatives
 
@@ -165,14 +163,14 @@ Use Either when: both outcomes are valid, neither is an "error". If one side is 
 
 **Use mo when:**
 
-- You're building data transformation pipelines with multiple steps
-- You need type-safe nullable values (especially in JSON/DB models)
+- Building data transformation pipelines with multiple steps
+- Needing type-safe nullable values (especially in JSON/DB models)
 - Error handling chains become repetitive
-- You want to make impossible states unrepresentable in the type system
+- Making impossible states unrepresentable in type system
 
 **Stick with plain Go when:**
 
 - Simple one-step operations where `if err != nil` is clear enough
 - Performance-critical hot paths (monads add thin allocation overhead)
-- Your team isn't familiar with FP concepts (readability > cleverness)
-- The operation has complex error recovery at each step (explicit handling is clearer)
+- Team not familiar with FP concepts (readability over cleverness)
+- Operation has complex error recovery at each step (explicit handling is clearer)

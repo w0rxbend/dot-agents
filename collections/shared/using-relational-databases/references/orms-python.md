@@ -23,15 +23,12 @@
   - [Aerich (Tortoise ORM)](#aerich-tortoise-orm)
 - [Best Practices](#best-practices)
   - [Use Connection Pooling](#use-connection-pooling)
-  - [Use Transactions for Multi-Statement Operations](#use-transactions-for-multi-statement-operations)
   - [Use Parameterized Queries (Prevent SQL Injection)](#use-parameterized-queries-prevent-sql-injection)
   - [Batch Operations for Performance](#batch-operations-for-performance)
   - [Index Frequently Queried Columns](#index-frequently-queried-columns)
 - [Resources](#resources)
 
 ## Overview
-
-Python database libraries span from high-level ORMs to low-level drivers, each with different trade-offs.
 
 | Library | Type | Async | Type Safety | Best For |
 |---------|------|-------|-------------|----------|
@@ -43,13 +40,11 @@ Python database libraries span from high-level ORMs to low-level drivers, each w
 
 ## SQLAlchemy 2.0 (Recommended for Most Projects)
 
-**Docs:** https://docs.sqlalchemy.org/en/20/
-
 ### Core Concepts
 
 SQLAlchemy 2.0 has two layers:
-1. **Core**: Low-level SQL expression language (query builder)
-2. **ORM**: High-level object-relational mapping
+1. **Core**: low-level SQL expression language (query builder)
+2. **ORM**: high-level object-relational mapping
 
 **Installation:**
 ```bash
@@ -173,7 +168,7 @@ async def get_user(user_id: int, session: AsyncSession = Depends(get_session)):
 
 ### Core (Query Builder)
 
-Use Core for complex queries, better performance, or when ORM overhead unnecessary.
+Use Core for complex queries, better performance, or when ORM overhead is unnecessary.
 
 ```python
 from sqlalchemy import Table, Column, Integer, String, MetaData, select, insert
@@ -285,16 +280,9 @@ def list_users(skip: int = 0, limit: int = 100, session: Session = Depends(get_s
     return users
 ```
 
-**Why SQLModel?**
-- Pydantic validation built-in
-- Single model class for DB and API
-- Type hints throughout
-- FastAPI integration seamless
-- Built on SQLAlchemy (can drop to SQLAlchemy for complex queries)
-
 ## asyncpg (High Performance)
 
-Direct PostgreSQL driver with best performance.
+Direct PostgreSQL driver, best performance.
 
 **Installation:**
 ```bash
@@ -336,12 +324,6 @@ async def main():
 
     await pool.close()
 ```
-
-**When to Use asyncpg:**
-- Maximum performance needed
-- Willing to write raw SQL
-- PostgreSQL-specific features
-- Microservices with simple queries
 
 ## Tortoise ORM (Async-First)
 
@@ -407,10 +389,10 @@ register_tortoise(
 
 ### Choose SQLAlchemy 2.0 When:
 - Need maximum flexibility (ORM + Core)
-- Working with complex schemas
-- Require advanced features (polymorphic inheritance, hybrid properties)
+- Complex schemas
+- Need advanced features (polymorphic inheritance, hybrid properties)
 - Want to switch between sync/async
-- Team experienced with SQLAlchemy
+- Team knows SQLAlchemy
 
 ### Choose SQLModel When:
 - Using FastAPI
@@ -420,15 +402,15 @@ register_tortoise(
 - Can drop to SQLAlchemy for complex queries
 
 ### Choose Tortoise ORM When:
-- Async-first application
+- Async-first app
 - Like Django ORM syntax
 - Need Pydantic models from ORM
-- Simpler learning curve than SQLAlchemy
+- Want simpler learning curve than SQLAlchemy
 
 ### Choose asyncpg When:
 - Maximum performance critical
 - Simple queries, minimal ORM needed
-- PostgreSQL-only application
+- PostgreSQL-only app
 - Microservices architecture
 
 ## Migration Tools
@@ -508,25 +490,6 @@ pool = await asyncpg.create_pool(
     max_queries=50000,  # Recycle connection after 50k queries
     max_inactive_connection_lifetime=300  # Recycle after 5 min idle
 )
-```
-
-### Use Transactions for Multi-Statement Operations
-```python
-# SQLAlchemy
-with Session(engine) as session:
-    try:
-        session.begin()
-        session.add(user)
-        session.add(post)
-        session.commit()
-    except Exception:
-        session.rollback()
-        raise
-
-# asyncpg
-async with conn.transaction():
-    await conn.execute(...)
-    await conn.execute(...)
 ```
 
 ### Use Parameterized Queries (Prevent SQL Injection)

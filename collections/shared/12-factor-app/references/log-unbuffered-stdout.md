@@ -7,7 +7,7 @@ tags: log, unbuffered, stdout, realtime
 
 ## Write Logs Unbuffered to Stdout for Real-Time Streaming
 
-Each running process writes its event stream unbuffered to stdout. This ensures logs are visible immediately for real-time debugging and aren't lost if the process crashes before flushing buffers.
+Each running process writes its event stream unbuffered to stdout.
 
 **Incorrect (buffered output):**
 
@@ -105,11 +105,5 @@ kubectl logs -f deployment/web
 # Fluentd/Logstash receives events immediately
 # Alerting can trigger in real-time
 ```
-
-**Benefits:**
-- `docker logs -f` and `kubectl logs -f` show real-time output
-- No log loss on crash
-- Real-time alerting possible
-- Debugging live issues is straightforward
 
 Reference: [The Twelve-Factor App - Logs](https://12factor.net/logs)

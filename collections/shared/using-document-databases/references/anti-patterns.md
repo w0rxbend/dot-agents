@@ -1,8 +1,5 @@
 # MongoDB Anti-Patterns
 
-Common mistakes and how to avoid them.
-
-
 ## Table of Contents
 
 - [1. Unbounded Arrays](#1-unbounded-arrays)
@@ -33,7 +30,7 @@ Common mistakes and how to avoid them.
 }
 ```
 
-✅ **Solution:** Use separate collection with reference
+✅ **Solution:** Separate collection with reference
 
 ```javascript
 // User document (bounded)
@@ -46,7 +43,7 @@ Common mistakes and how to avoid them.
 db.events.find({ userId: 123 }).sort({ timestamp: -1 }).limit(100)
 ```
 
-**Rule:** Arrays with potential for >100 elements should be separate collections.
+**Rule:** Array that may grow past 100 elements goes in separate collection.
 
 ## 2. Over-Embedding
 
@@ -115,7 +112,7 @@ db.orders.find({ status: "pending" })  // IXSCAN
 }
 ```
 
-✅ **Solution:** Use GridFS or external storage
+✅ **Solution:** GridFS or external storage
 
 ```javascript
 // Reference S3/GridFS
@@ -265,7 +262,7 @@ try {
 }
 ```
 
-✅ **Solution:** Use proper types
+✅ **Solution:** Proper types
 
 ```javascript
 {
@@ -278,24 +275,13 @@ try {
 ## Summary of Best Practices
 
 ✅ **DO:**
-- Reference for one-to-many (>100 related docs)
-- Index all query filters
 - Use cursor-based pagination
-- Implement soft deletes for important data
-- Denormalize display fields
-- Use proper data types
-- Handle errors explicitly
-- Limit array sizes (<100 elements)
+- Soft-delete important data
 - Use aggregation for complex queries
 - Monitor slow queries
 
 ❌ **DON'T:**
-- Embed unbounded arrays
-- Do client-side joins (N+1 queries)
-- Skip indexing query fields
-- Store large binary data in documents
 - Use offset pagination for large datasets
-- Store strings when you need dates/numbers
 - Ignore 16MB document limit
 - Over-normalize (too many $lookups)
 - Create 10+ indexes per collection

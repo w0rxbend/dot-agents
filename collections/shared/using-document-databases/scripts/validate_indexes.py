@@ -11,6 +11,7 @@ Usage:
 """
 
 import argparse
+import os
 import sys
 from typing import Dict, List, Any
 from pymongo import MongoClient
@@ -214,8 +215,8 @@ class IndexValidator:
 
 def main():
     parser = argparse.ArgumentParser(description='MongoDB Index Validator')
-    parser.add_argument('--uri', default='mongodb://localhost:27017/',
-                        help='MongoDB connection URI')
+    parser.add_argument('--uri', default=os.environ.get('MONGODB_URI', 'mongodb://localhost:27017/'),
+                        help='MongoDB URI (default: $MONGODB_URI; keep credentials there, not in argv)')
     parser.add_argument('--db', required=True,
                         help='Database name')
     parser.add_argument('--collection',

@@ -13,7 +13,7 @@
 
 ### Default Deny Pattern
 
-Implement zero-trust networking with default-deny policies:
+Zero-trust networking via default-deny policies:
 
 ```yaml
 # Step 1: Deny all ingress and egress
@@ -302,7 +302,7 @@ spec:
 
 ```bash
 # Test connectivity from pod
-kubectl run test --rm -it --image=busybox -- wget -O- http://backend:8080
+kubectl run test --rm -it --image=busybox:1.37.0 -- wget -O- http://backend:8080
 
 # If connection refused:
 # 1. Check NetworkPolicy exists
@@ -315,7 +315,7 @@ kubectl describe networkpolicy backend-allow-frontend -n production
 kubectl get pods -n production --show-labels
 
 # 4. Test DNS resolution
-kubectl run test --rm -it --image=busybox -- nslookup backend
+kubectl run test --rm -it --image=busybox:1.37.0 -- nslookup backend
 
 # 5. Check CNI plugin supports NetworkPolicies
 kubectl get nodes -o wide
@@ -328,7 +328,7 @@ kubectl get nodes -o wide
 
 **ClusterIP (Default):**
 - Internal cluster access only
-- Use for internal microservices
+- For internal microservices
 
 ```yaml
 apiVersion: v1
@@ -346,8 +346,8 @@ spec:
 ```
 
 **NodePort:**
-- Expose on each node's IP at static port
-- Use for testing or edge cases
+- Exposes on each node's IP at static port
+- For testing or edge cases
 
 ```yaml
 apiVersion: v1
@@ -366,8 +366,8 @@ spec:
 ```
 
 **LoadBalancer:**
-- Provision cloud load balancer
-- Use for external HTTP/gRPC services
+- Provisions cloud load balancer
+- For external HTTP/gRPC services
 
 ```yaml
 apiVersion: v1
@@ -388,7 +388,7 @@ spec:
 
 **ExternalName:**
 - DNS CNAME to external service
-- Use for migrating to Kubernetes
+- For migrating to Kubernetes
 
 ```yaml
 apiVersion: v1
@@ -402,7 +402,7 @@ spec:
 
 ### Headless Services
 
-For StatefulSets requiring stable network IDs:
+For StatefulSets needing stable network IDs:
 
 ```yaml
 apiVersion: v1
@@ -443,7 +443,7 @@ spec:
 
 ### Service Topology
 
-Route traffic to same zone/node for cost savings:
+Keep traffic in same zone/node to save cost:
 
 ```yaml
 apiVersion: v1
@@ -877,10 +877,8 @@ spec:
 | Zero-trust security | NetworkPolicies + mTLS |
 
 **Best Practices:**
-1. Always implement NetworkPolicies (start with default-deny)
-2. Use Gateway API for new applications
+1. Always apply NetworkPolicies (start with default-deny)
+2. Use Gateway API for new apps
 3. Enable TLS for external traffic (cert-manager)
-4. Consider service mesh for advanced routing and mTLS
-5. Test NetworkPolicies thoroughly before production
-6. Monitor DNS resolution latency
-7. Use headless services for StatefulSets
+4. Test NetworkPolicies before production
+5. Monitor DNS resolution latency

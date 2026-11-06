@@ -1,26 +1,14 @@
 # Pydantic Forms: Python Validation with FastAPI
 
-**Pydantic is a data validation library that uses Python type hints to validate data at runtime. It's the recommended validation solution for modern Python projects, especially with FastAPI.**
+**Pydantic: data validation library using Python type hints to validate data at runtime. Recommended validation for modern Python projects, especially with FastAPI.**
 
-## Why Pydantic?
-
-**Python Integration:**
-- **Type hints** - Leverages Python's type system
-- **Runtime validation** - Validates data at runtime
-- **Automatic documentation** - FastAPI generates OpenAPI/Swagger docs
-- **Data conversion** - Automatic type coercion
-
-**Developer Experience:**
-- **Clear error messages** - Detailed validation errors
-- **IDE support** - Autocomplete and type checking
-- **Composable** - Build complex models from simple ones
-- **JSON Schema** - Automatic JSON schema generation
+Automatic type coercion and JSON Schema generation; FastAPI generates OpenAPI/Swagger docs from models.
 
 **When to Use:**
-- ✅ FastAPI applications (primary use case)
+- ✅ FastAPI apps (primary use case)
 - ✅ API request/response validation
 - ✅ Configuration management
-- ✅ Data pipelines and ETL
+- ✅ Data pipelines, ETL
 - ✅ Any Python project needing validation
 
 ---
@@ -151,15 +139,7 @@ class User(BaseModel):
     )
 ```
 
-**Field Parameters:**
-- `...` - Required field (Ellipsis)
-- `default=value` - Default value
-- `default_factory=func` - Default from function (e.g., `list`, `dict`)
-- `min_length`, `max_length` - String/list length
-- `ge`, `le` - Greater/less than or equal (inclusive)
-- `gt`, `lt` - Greater/less than (exclusive)
-- `pattern` - Regex pattern for strings
-- `description` - Field description (API docs)
+`default_factory=func`: default from function (e.g. `list`, `dict`, `datetime.now`). `description`: field description in API docs.
 
 ---
 
@@ -473,38 +453,6 @@ class Article(BaseModel):
 
 ---
 
-### Optional and Default Values
-
-```python
-from pydantic import BaseModel, Field
-from typing import Optional
-from datetime import datetime
-
-class UserProfile(BaseModel):
-    # Required field
-    username: str
-
-    # Optional (can be None)
-    bio: Optional[str] = None
-
-    # Optional with Field constraints
-    website: Optional[str] = Field(default=None, max_length=200)
-
-    # Default value
-    is_active: bool = True
-
-    # Default from function
-    created_at: datetime = Field(default_factory=datetime.now)
-
-    # Default empty list
-    tags: list[str] = Field(default_factory=list)
-
-    # Default empty dict
-    settings: dict = Field(default_factory=dict)
-```
-
----
-
 ## Async Validation
 
 ### Username Availability Check
@@ -678,30 +626,6 @@ class PhoneForm(BaseModel):
 
 ---
 
-### Password Validation
-
-```python
-from pydantic import BaseModel, Field, field_validator
-
-class PasswordForm(BaseModel):
-    password: str = Field(..., min_length=8, max_length=100)
-
-    @field_validator('password')
-    @classmethod
-    def validate_password_strength(cls, v: str) -> str:
-        if not any(char.islower() for char in v):
-            raise ValueError('Password must contain lowercase letter')
-        if not any(char.isupper() for char in v):
-            raise ValueError('Password must contain uppercase letter')
-        if not any(char.isdigit() for char in v):
-            raise ValueError('Password must contain number')
-        if not any(char in '!@#$%^&*(),.?":{}|<>' for char in v):
-            raise ValueError('Password must contain special character')
-        return v
-```
-
----
-
 ### Date Validation
 
 ```python
@@ -736,17 +660,18 @@ class DateRangeForm(BaseModel):
 ### Environment Configuration
 
 ```python
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict  # pip install pydantic-settings
 from typing import Optional
 
 class Settings(BaseSettings):
     # Database
-    database_url: str
+    database_url: SecretStr  # URL often embeds credentials
     database_pool_size: int = 10
 
     # API Keys
-    api_key: str
-    secret_key: str
+    api_key: SecretStr  # SecretStr masks repr/logs as '**********'
+    secret_key: SecretStr
 
     # Optional settings
     debug: bool = False
@@ -756,84 +681,21 @@ class Settings(BaseSettings):
     smtp_host: str
     smtp_port: int = 587
     smtp_user: str
-    smtp_password: str
+    smtp_password: SecretStr
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")  # also load .env
 
 # Usage
 settings = Settings()  # Loads from environment variables or .env
-print(settings.database_url)
+print(settings.database_pool_size)  # never print/log secrets
+db_url = settings.database_url.get_secret_value()  # unwrap only where used
 ```
-
----
-
-## Best Practices
-
-1. **Use EmailStr for emails**
-   ```python
-   from pydantic import EmailStr
-   email: EmailStr  # ✅ Validates email format
-   ```
-
-2. **Use Field for constraints and documentation**
-   ```python
-   username: str = Field(..., min_length=3, max_length=20, description="Username")
-   ```
-
-3. **Use field_validator for complex validation**
-   ```python
-   @field_validator('password')
-   @classmethod
-   def validate_password(cls, v: str) -> str:
-       # Custom validation logic
-       return v
-   ```
-
-4. **Use model_validator for cross-field validation**
-   ```python
-   @model_validator(mode='after')
-   def validate_passwords_match(self) -> 'PasswordModel':
-       if self.password != self.confirm_password:
-           raise ValueError('Passwords do not match')
-       return self
-   ```
-
-5. **Use enums for choices**
-   ```python
-   from enum import Enum
-   class Role(str, Enum):
-       USER = "user"
-       ADMIN = "admin"
-   ```
-
-6. **Nested models for complex data**
-   ```python
-   class Address(BaseModel):
-       street: str
-       city: str
-
-   class User(BaseModel):
-       name: str
-       address: Address  # Nested model
-   ```
-
-7. **Custom error messages**
-   ```python
-   username: str = Field(..., min_length=3, max_length=20)
-
-   @field_validator('username')
-   @classmethod
-   def validate_username(cls, v: str) -> str:
-       if not v.isalnum():
-           raise ValueError('Username must be alphanumeric (letters and numbers only)')
-       return v
-   ```
 
 ---
 
 ## Resources
 
-**Official Documentation:**
+**Official Docs:**
 - Pydantic: https://docs.pydantic.dev/
 - FastAPI: https://fastapi.tiangolo.com/
 
@@ -851,5 +713,5 @@ print(settings.database_url)
 ## Next Steps
 
 - WTForms for Flask/Django → `wtforms.md`
-- See working examples → `../../examples/python/`
+- Working examples → `../../examples/python/`
 - Validation concepts → `../validation-concepts.md`

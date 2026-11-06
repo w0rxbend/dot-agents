@@ -1,7 +1,5 @@
 # Pattern Selection Guidelines
 
-> Decision trees for choosing architectural patterns.
-
 ## Main Decision Tree
 
 ```
@@ -54,8 +52,8 @@ START: What's your MAIN concern?
 ## The 3 Questions (Before ANY Pattern)
 
 1. **Problem Solved**: What SPECIFIC problem does this pattern solve?
-2. **Simpler Alternative**: Is there a simpler solution?
-3. **Deferred Complexity**: Can we add this LATER when needed?
+2. **Simpler Alternative**: Any simpler solution?
+3. **Deferred Complexity**: Can it be added LATER, when needed?
 
 ## Red Flags (Anti-patterns)
 
@@ -64,5 +62,5 @@ START: What's your MAIN concern?
 | Microservices | Premature splitting | Start monolith, extract later |
 | Clean/Hexagonal | Over-abstraction | Concrete first, interfaces later |
 | Event Sourcing | Over-engineering | Append-only audit log |
-| CQRS | Unnecessary complexity | Single model |
+| CQRS | Unneeded complexity | Single model |
 | Repository | YAGNI for simple CRUD | ORM direct access |

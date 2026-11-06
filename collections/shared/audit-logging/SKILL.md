@@ -18,15 +18,13 @@ metadata:
 
 # Audit Logging
 
-Implement comprehensive audit logging for compliance, security monitoring, and forensic analysis across infrastructure and applications.
-
 ## When to Use
 
-- Setting up centralized logging for compliance frameworks (SOC 2, HIPAA, PCI DSS)
-- Implementing security event monitoring and alerting
-- Building audit trails for regulatory requirements
-- Configuring log retention and tamper-proof storage
-- Integrating application logs with SIEM platforms
+- Centralized logging for compliance frameworks (SOC 2, HIPAA, PCI DSS)
+- Security event monitoring and alerting
+- Audit trails for regulatory requirements
+- Log retention and tamper-proof storage
+- Feeding application logs to SIEM platforms
 
 ## Log Categories
 
@@ -371,9 +369,9 @@ retention_requirements:
 
 ## Log Integrity Verification Script
 
-Only hash files that are closed: rotated logs (`*.log.1`, `*.log-20260101`, `*.gz`). Active `*.log` files change on
-every write and would raise a false tamper alert on every run. Keep a copy of the hash file off-host (or in the
-SIEM) - an attacker who can edit the logs can also edit a hash file stored next to them.
+Hash only closed files: rotated logs (`*.log.1`, `*.log-20260101`, `*.gz`). Active `*.log` files change on every
+write and would raise false tamper alerts every run. Keep copy of hash file off-host (or in SIEM). Attacker who can
+edit logs can also edit hash file stored next to them.
 
 ```bash
 #!/usr/bin/env bash
@@ -433,7 +431,7 @@ case "${1:-verify}" in
 esac
 ```
 
-Run `update` from the logrotate `postrotate` hook (or right after rotation), and `verify` on a timer.
+Run `update` from logrotate `postrotate` hook (or right after rotation). Run `verify` on a timer.
 
 ## SIEM Integration Checklist
 
@@ -474,20 +472,18 @@ siem_integration:
 
 ## Best Practices
 
-- Use structured logging (JSON) with consistent field names across all services
-- Ship logs to a centralized platform with write-once storage for tamper protection
-- Implement hash chaining or digital signatures for log integrity verification
-- Define and enforce retention policies per compliance framework requirements
-- Set up real-time alerting for high-severity security events
-- Separate audit logs from application debug logs to reduce noise
+- Structured logging (JSON), consistent field names across all services
+- Ship logs to central platform with write-once storage for tamper protection
+- Hash chaining or digital signatures for log integrity verification
+- Real-time alerts for high-severity security events
+- Separate audit logs from application debug logs to cut noise
 - Never log sensitive data (passwords, tokens, PII) in audit entries
-- Monitor the logging pipeline itself to detect gaps in coverage
-- Regularly test log restoration from archives to verify recoverability
-- Rotate and compress logs to manage storage while meeting retention windows
+- Regularly test restoring logs from archives
+- Rotate and compress logs to save storage while still meeting retention windows
 
 ## Limitations
 
-- Guidance and checklists only; not legal advice and not a substitute for a qualified auditor.
+- Guidance and checklists only. Not legal advice, not a substitute for qualified auditor.
 - Docs-only import: upstream templates and scripts not bundled.
 
 ### Example
@@ -496,4 +492,4 @@ siem_integration:
 Map this skill's control checklist to our current evidence and list gaps.
 ```
 
-> Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT); frontmatter, When to Use/Limitations, and safety boundaries added for upstream compliance. Docs-only import: helper scripts and templates not bundled.
+> Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT); frontmatter, When to Use/Limitations and safety boundaries added for upstream compliance.

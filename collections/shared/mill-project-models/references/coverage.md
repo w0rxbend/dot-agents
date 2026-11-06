@@ -1,14 +1,14 @@
 # Mill documentation coverage and routing
 
-Research date: 2026-10-04. Stable tested baseline: **1.1.10**. Unversioned documentation: **1.3.0-M1**. All three Scala project models are supported on the tested stable baseline. Match each real project's APIs and version before adapting another page.
+Research date: 2026-10-04. Stable tested baseline: **1.1.10**. Unversioned documentation: **1.3.0-M1**. Match each real project's APIs and version before adapting another page.
 
-The pack contains 14 focused skills with detailed task-specific references. It emphasizes JVM multimodule projects and monorepos; the platform pages are researched guidance, not a claim of executed Android/Native/Spark/Python/JS validation.
+Pack: 14 focused skills with detailed task-specific references, emphasizing JVM multimodule projects and monorepos. Platform pages are researched guidance, not claim of executed Android/Native/Spark/Python/JS validation.
 
 | Skill | Main responsibility |
 | --- | --- |
-| [mill-project-models](../../mill-project-models/SKILL.md) | Three project models, decisions, comparisons, and source routing |
-| [mill-cli-and-ide](../../mill-cli-and-ide/SKILL.md) | Launcher, CLI flags/queries/headers, IDE/BSP, and migration |
-| [mill-jvm-modules](../../mill-jvm-modules/SKILL.md) | Scala + Java + Kotlin graph, interop, and module configuration |
+| [mill-project-models](../../mill-project-models/SKILL.md) | Three project models, decisions, comparisons, source routing |
+| [mill-cli-and-ide](../../mill-cli-and-ide/SKILL.md) | Launcher, CLI flags/queries/headers, IDE/BSP, migration |
+| [mill-jvm-modules](../../mill-jvm-modules/SKILL.md) | Scala + Java + Kotlin graph, interop, module configuration |
 | [mill-dependencies-and-toolchains](../../mill-dependencies-and-toolchains/SKILL.md) | Dependency scopes, BOMs, versions, compiler/JVM policy |
 | [mill-build-logic](../../mill-build-logic/SKILL.md) | Tasks, code generation, resources, output ownership |
 | [mill-monorepo](../../mill-monorepo/SKILL.md) | Multimodule architecture, conventions, multifile builds, selective CI |
@@ -25,27 +25,27 @@ The pack contains 14 focused skills with detailed task-specific references. It e
 
 | Documentation area | Guidance and decisions |
 | --- | --- |
-| Declarative / single-file / programmable Scala | mill-project-models explains when each fits, transitions, and stable runnable assets |
-| Java / Scala / Kotlin builds and module configuration | mill-jvm-modules covers source layout, interop, tests, compilers, and a tested three-language DAG |
-| Dependencies and JVM versions | mill-dependencies-and-toolchains covers scope, BOMs, cross artifacts, private repos, and runtime/target separation |
-| Testing and linting Scala (plus Java/Kotlin) | mill-testing and mill-linting cover framework discovery, suite grouping, fix/check modes, and quality gates |
-| Packaging/publishing Scala (plus Java/Kotlin) | mill-packaging-publishing covers runtime artifacts, POMs, coordinates, signing, staging, and release scope |
-| Build/web/Native/Spark examples | mill-project-models ecosystem reference and mill-scala-platforms cover real-project patterns and platform constraints |
-| Why Mill / Maven / Gradle / performance comparisons | mill-project-models and mill-performance explain benefits, tradeoffs, and benchmark limits |
-| CLI / installation / IDE / flags / built-ins / query / header | mill-cli-and-ide covers version pins, commands, BSP, selectors, and header scopes |
-| Migration / automated import | mill-cli-and-ide migration reference covers scaffold generation, limits, and behavioral parity |
-| Tasks / modules / out / cross / bundled libraries | mill-build-logic, mill-monorepo, and mill-performance explain graph, ownership, reuse, and diagnostics |
-| Large monorepos / selective / multifile / multilanguage / precompiled | mill-monorepo and mill-polyglot cover ownership, baselines, package discovery, typed edges, and experimental status |
-| Import libraries / contrib / third-party / dynamic JVM / plugins / meta-build | mill-plugins covers mechanism selection, version compatibility, isolated workers, and real fixture testing |
+| Declarative / single-file / programmable Scala | mill-project-models: when each fits, transitions, stable runnable assets |
+| Java / Scala / Kotlin builds and module configuration | mill-jvm-modules: source layout, interop, tests, compilers, tested three-language DAG |
+| Dependencies and JVM versions | mill-dependencies-and-toolchains: scope, BOMs, cross artifacts, private repos, runtime/target separation |
+| Testing and linting Scala (plus Java/Kotlin) | mill-testing and mill-linting: framework discovery, suite grouping, fix/check modes, quality gates |
+| Packaging/publishing Scala (plus Java/Kotlin) | mill-packaging-publishing: runtime artifacts, POMs, coordinates, signing, staging, release scope |
+| Build/web/Native/Spark examples | mill-project-models ecosystem reference and mill-scala-platforms: real-project patterns, platform constraints |
+| Why Mill / Maven / Gradle / performance comparisons | mill-project-models and mill-performance: benefits, tradeoffs, benchmark limits |
+| CLI / installation / IDE / flags / built-ins / query / header | mill-cli-and-ide: version pins, commands, BSP, selectors, header scopes |
+| Migration / automated import | mill-cli-and-ide migration reference: scaffold generation, limits, behavioral parity |
+| Tasks / modules / out / cross / bundled libraries | mill-build-logic, mill-monorepo, and mill-performance: graph, ownership, reuse, diagnostics |
+| Large monorepos / selective / multifile / multilanguage / precompiled | mill-monorepo and mill-polyglot: ownership, baselines, package discovery, typed edges, experimental status |
+| Import libraries / contrib / third-party / dynamic JVM / plugins / meta-build | mill-plugins: mechanism selection, version compatibility, isolated workers, real fixture testing |
 | TypeScript and Python extension examples | mill-plugins distinguishes instructional implementations from built-in integrations |
-| Android / Python / JavaScript / Groovy experimental support | mill-polyglot covers config, dependencies, tests, linting, packaging, SDK/IDE, and release constraints |
-| Evaluation / caching / parallelism / processes / sandbox / design / why Scala | mill-performance explains each phase, failure evidence, and practical limits |
-| API / changelog / talks and blog posts | mill-plugins and mill-project-models explain version lookup and historical-versus-current evidence |
-| VirtusLab Scala Stack | mill-vss preserves direct-style/Ox/Tapir guidance while choosing Mill as this user's default |
+| Android / Python / JavaScript / Groovy experimental support | mill-polyglot: config, dependencies, tests, linting, packaging, SDK/IDE, release constraints |
+| Evaluation / caching / parallelism / processes / sandbox / design / why Scala | mill-performance: each phase, failure evidence, practical limits |
+| API / changelog / talks and blog posts | mill-plugins and mill-project-models: version lookup, historical-versus-current evidence |
+| VirtusLab Scala Stack | mill-vss keeps direct-style/Ox/Tapir guidance while choosing Mill as this user's default |
 
 ## Official source map
 
-The research fetched 132 primary-source pages/files, including stable-version checks. Redirect/alternate-root duplicates are omitted below. Each source has a primary skill; related skills link it where useful. The repository research manifest records URL, retrieval hash, and document title without copying the manual.
+Research fetched 132 primary-source pages/files, stable-version checks included. Redirect/alternate-root duplicates omitted below. Each source has a primary skill; related skills link it where useful. Repository research manifest records URL, retrieval hash, document title, without copying the manual.
 
 | Source | Primary skill |
 | --- | --- |

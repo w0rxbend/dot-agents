@@ -16,7 +16,7 @@
 
 ## Composing Transformations
 
-Chain lo functions to build multi-step pipelines. Each function returns a new collection that feeds into the next.
+Chain lo functions into multi-step pipelines. Each returns new collection feeding into next.
 
 ```go
 // Pipeline: extract active user emails grouped by role
@@ -35,7 +35,7 @@ emailsByRole := lo.GroupBy(
 )
 ```
 
-For long chains, break into named intermediate variables for readability:
+Long chains: use named intermediate variables for readability:
 
 ```go
 active := lo.Filter(users, func(u User, _ int) bool {
@@ -49,21 +49,19 @@ unique := lo.Uniq(names)
 
 ## lo + stdlib Interop
 
-Prefer stdlib when it covers the operation — `lo` adds value for functional transforms the stdlib doesn't provide.
-
 | Operation | stdlib (prefer) | lo (use when stdlib lacks) |
 | --- | --- | --- |
 | Contains | `slices.Contains(s, v)` | `lo.ContainsBy(s, fn)` — predicate-based |
 | Sort | `slices.SortFunc(s, cmp)` | — (lo doesn't provide sort) |
 | Keys | `maps.Keys(m)` | `lo.UniqKeys(m)` — deduplicated keys |
-| Clone | `slices.Clone(s)` | `lo.Map(s, fn)` — when you need transform during clone |
+| Clone | `slices.Clone(s)` | `lo.Map(s, fn)` — when transform needed during clone |
 | Min/Max | `slices.Min(s)` | `lo.MinBy(s, fn)` — by extractor function |
 
-**Rule of thumb:** If `slices.*` or `maps.*` does what you need, use it. Reach for `lo` when you need predicates, transforms, grouping, or error variants.
+**Rule of thumb:** If `slices.*` or `maps.*` does the job, use it. Reach for `lo` when predicates, transforms, grouping or error variants needed.
 
 ## lo + samber/mo Integration
 
-`samber/mo` provides monadic types (Option, Result, Either). They compose naturally with lo:
+`samber/mo` provides monadic types (Option, Result, Either). Compose naturally with lo:
 
 ```go
 // Filter users with valid optional emails
@@ -122,7 +120,7 @@ for name := range pipeline {
 
 ### When to switch from lo to lom
 
-**Trigger:** `go tool pprof -alloc_objects` shows `lo.Filter` or `lo.Map` as top allocators in a hot path.
+**Trigger:** `go tool pprof -alloc_objects` shows `lo.Filter` or `lo.Map` as top allocators in hot path.
 
 ```go
 // Before — allocates new slice every call
@@ -167,7 +165,7 @@ assert.Equal(t, 3, counts["success"])
 
 ## Slice-to-Map Conversion
 
-Common pattern: convert a slice into a lookup map.
+Common pattern: convert slice into lookup map.
 
 ```go
 // By ID

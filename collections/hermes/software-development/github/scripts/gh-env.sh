@@ -17,6 +17,9 @@
 # Locate sibling helpers relative to this file (works wherever the skill is installed).
 _gh_scripts_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 
+# gh sends usage telemetry by default; opt out unless user explicitly set it.
+export GH_TELEMETRY="${GH_TELEMETRY:-false}"
+
 GH_AUTH_METHOD="none"
 GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 GH_USER=""
@@ -32,7 +35,8 @@ elif _hermes_env="${HERMES_HOME:-$HOME/.hermes}/.env"; [ -f "$_hermes_env" ] && 
         GH_AUTH_METHOD="curl"
     fi
 elif [ -f "$HOME/.git-credentials" ]; then
-    GITHUB_TOKEN=$(uv run python3 "$_gh_scripts_dir/git-credential-token.py")
+    # Isolated python3, not `uv run`: uv would sync/build the cwd project (untrusted repo code).
+    GITHUB_TOKEN=$(python3 -I "$_gh_scripts_dir/git-credential-token.py")
     if [ -n "$GITHUB_TOKEN" ]; then
         GH_AUTH_METHOD="curl"
     fi
@@ -40,9 +44,10 @@ fi
 
 # Resolve username for curl method
 if [ "$GH_AUTH_METHOD" = "curl" ] && [ -z "$GH_USER" ]; then
-    GH_USER=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+    # Header via stdin keeps the token out of curl's argv (ps, /proc).
+    GH_USER=$(printf 'Authorization: token %s\n' "$GITHUB_TOKEN" | curl -s -H @- \
         https://api.github.com/user 2>/dev/null \
-        | python3 -c "import sys,json; print(json.load(sys.stdin).get('login',''))" 2>/dev/null)
+        | python3 -I -c "import sys,json; print(json.load(sys.stdin).get('login',''))" 2>/dev/null)
 fi
 
 # --- Repo detection (if inside a git repo with a GitHub remote) ---

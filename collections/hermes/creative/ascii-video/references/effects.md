@@ -1,25 +1,24 @@
 # Effect Catalog
 
-Effect building blocks that produce visual patterns. In v2, these are used **inside scene functions** that return a pixel canvas directly. The building blocks below operate on grid coordinate arrays and produce `(chars, colors)` or value/hue fields that the scene function renders to canvas via `_render_vf()`.
+Building blocks for visual patterns. In v2, use them **inside scene functions** that return pixel canvas directly. They take grid coordinate arrays and produce `(chars, colors)` or value/hue fields. Scene function renders these to canvas via `_render_vf()`.
 
 > **See also:** architecture.md · composition.md · scenes.md · shaders.md · troubleshooting.md
 
 ## Design Philosophy
 
-Effects are the creative core. Don't copy these verbatim for every project -- use them as **building blocks** and **combine, modify, and invent** new ones. Every project should feel distinct.
+Don't copy these verbatim for every project. Use them as **building blocks**: **combine, modify, and invent** new ones.
 
 Key principles:
-- **Layer multiple effects** rather than using a single monolithic function
-- **Parameterize everything** -- hue, speed, density, amplitude should all be arguments
-- **React to features** -- audio/video features should modulate at least 2-3 parameters per effect
-- **Vary per section** -- never use the same effect config for the entire video
-- **Invent project-specific effects** -- the catalog below is a starting vocabulary, not a fixed set
+- **Layer multiple effects** instead of one monolithic function
+- **Parameterize everything**: hue, speed, density, amplitude all as arguments
+- **React to features**: audio/video features modulate at least 2-3 parameters per effect
+- **Vary per section**: never use same effect config for entire video
 
 ---
 
 ## Background Fills
 
-Every effect should start with a background. Never leave flat black.
+Start every effect with background. Never leave flat black.
 
 ### Animated Sine Field (General Purpose)
 ```python
@@ -103,14 +102,14 @@ def bg_cellular(g, f, t, n_centers=12, hue=0.5, bri=0.6, pal=PAL_BLOCKS):
 
 ---
 
-> **Note:** The v1 `eff_rings`, `eff_rays`, `eff_spiral`, `eff_glow`, `eff_tunnel`, `eff_vortex`, `eff_freq_waves`, `eff_interference`, `eff_aurora`, and `eff_ripple` functions are superseded by the `vf_*` value field generators below (used via `_render_vf()`). The `vf_*` versions integrate with the multi-grid composition pipeline and are preferred for all new scenes.
+> **Note:** `vf_*` value field generators below (used via `_render_vf()`) supersede v1 `eff_rings`, `eff_rays`, `eff_spiral`, `eff_glow`, `eff_tunnel`, `eff_vortex`, `eff_freq_waves`, `eff_interference`, `eff_aurora`, and `eff_ripple` functions. `vf_*` versions integrate with multi-grid composition pipeline. Prefer them for all new scenes.
 
 ---
 
 ## Particle Systems
 
 ### General Pattern
-All particle systems use persistent state via the `S` dict parameter:
+All particle systems keep persistent state in `S` dict parameter:
 ```python
 # S is the persistent state dict (same as r.S, passed explicitly)
 if "px" not in S:
@@ -210,7 +209,7 @@ def emit_orbit(S, n=20, radius=15, speed=1.0, char_set=PART_DOT):
 
 ### Flocking / Boids
 
-Emergent swarm behavior from three simple rules: separation, alignment, cohesion.
+Emergent swarm behavior from three rules: separation, alignment, cohesion.
 
 ```python
 def update_boids(S, g, f, n_boids=200, perception=8.0, max_speed=2.0,
@@ -328,7 +327,7 @@ def update_boids(S, g, f, n_boids=200, perception=8.0, max_speed=2.0,
 
 ### Flow Field Particles
 
-Particles that follow the gradient of a value field. Any `vf_*` function becomes a "river" that carries particles:
+Particles follow gradient of value field. Any `vf_*` function becomes a "river" carrying particles:
 
 ```python
 def update_flow_particles(S, g, f, flow_field, n=500, speed=1.0,
@@ -683,7 +682,7 @@ def eff_shake(ch, co, f, x_amp=6, y_amp=3):
 
 ## Composable Effect System
 
-The real creative power comes from **composition**. There are three levels:
+Three levels:
 
 ### Level 1: Character-Level Layering
 
@@ -724,7 +723,7 @@ result = pbs.composite()
 
 ### Level 3: Temporal Feedback
 
-Feed previous frame back into current frame for recursive effects:
+Feed previous frame into current frame for recursive effects:
 
 ```python
 fb = FeedbackBuffer()
@@ -736,7 +735,7 @@ for each frame:
 
 ### Effect Nodes — Uniform Interface
 
-In the v2 protocol, effect nodes are used **inside** scene functions. The scene function itself returns a canvas. Effect nodes produce intermediate `(chars, colors)` that are rendered to canvas via the grid's `.render()` method or `_render_vf()`.
+In v2 protocol, use effect nodes **inside** scene functions. Effect nodes produce intermediate `(chars, colors)`, rendered to canvas via grid's `.render()` method or `_render_vf()`.
 
 ```python
 class EffectNode:
@@ -758,7 +757,7 @@ class ConditionalEffect(EffectNode):
 
 ### Value Field Generators (Atomic Building Blocks)
 
-These produce float32 arrays `(rows, cols)` in range [0,1]. They are the raw visual patterns. All have signature `(g, f, t, S, **params) -> float32 array`.
+Produce float32 arrays `(rows, cols)` in range [0,1]: raw visual patterns. All have signature `(g, f, t, S, **params) -> float32 array`.
 
 #### Trigonometric Fields (sine/cosine-based)
 
@@ -868,7 +867,7 @@ def vf_noise_static(g, f, t, S, density=0.4):
 
 #### Noise-Based Fields (organic, non-periodic)
 
-These produce qualitatively different textures from sine-based fields — organic, non-repeating, without visible axis alignment. They're the foundation of high-end generative art.
+Textures unlike sine-based fields: organic, non-repeating, without visible axis alignment.
 
 ```python
 def _hash2d(ix, iy):
@@ -1021,7 +1020,7 @@ def vf_voronoi(g, f, t, S, n_cells=20, speed=0.3, edge_width=1.5,
 
 #### Simulation-Based Fields (emergent, evolving)
 
-These use persistent state `S` to evolve patterns frame-by-frame. They produce complexity that can't be achieved with stateless math.
+Use persistent state `S` to evolve patterns frame-by-frame.
 
 ```python
 def vf_reaction_diffusion(g, f, t, S, feed=0.055, kill=0.062,
@@ -1230,9 +1229,9 @@ def vf_strange_attractor(g, f, t, S, attractor="clifford",
 
 #### SDF-Based Fields (geometric precision)
 
-Signed Distance Fields produce mathematically precise shapes. Unlike sine fields (organic, blurry), SDFs give hard geometric boundaries with controllable edge softness. Combined with domain warping, they create "melting geometry" effects.
+Signed Distance Fields give mathematically precise shapes. Unlike sine fields (organic, blurry), SDFs have hard geometric boundaries with controllable edge softness. With domain warping, they create "melting geometry" effects.
 
-All SDF primitives return a **signed distance** (negative inside, positive outside). Convert to a value field with `sdf_render()`.
+All SDF primitives return **signed distance** (negative inside, positive outside). Convert to value field with `sdf_render()`.
 
 ```python
 def sdf_render(dist, edge_width=1.5, invert=False):
@@ -1370,7 +1369,7 @@ def vf_sdf(g, f, t, S, sdf_fn=sdf_circle, edge_width=1.5, glow=False,
 
 ### Hue Field Generators (Color Mapping)
 
-These produce float32 hue arrays [0,1]. Independently combinable with any value field. Each is a factory returning a closure with signature `(g, f, t, S) -> float32 array`. Can also be a plain float for fixed hue.
+Produce float32 hue arrays [0,1]. Combine independently with any value field. Each is a factory returning a closure with signature `(g, f, t, S) -> float32 array`. Plain float also works as fixed hue.
 
 ```python
 def hf_fixed(hue):
@@ -1434,7 +1433,7 @@ def hf_plasma(speed=0.3):
 
 ## Coordinate Transforms
 
-UV-space transforms applied **before** effect evaluation. Any `vf_*` function can be rotated, zoomed, tiled, or distorted by transforming the grid coordinates it sees.
+UV-space transforms applied **before** effect evaluation. Rotate, zoom, tile, or distort any `vf_*` function by transforming grid coordinates it sees.
 
 ### Transform Helpers
 
@@ -1533,7 +1532,7 @@ def uv_mobius(g, a=1.0, b=0.0, c=0.0, d=1.0):
 
 ### Using Transforms with Value Fields
 
-Transforms modify what coordinates a value field sees. Wrap the transform around the `vf_*` call:
+Transforms change which coordinates a value field sees. Wrap transform around `vf_*` call:
 
 ```python
 # Rotate a plasma field 45 degrees
@@ -1582,7 +1581,7 @@ def make_tgrid(g, new_cc, new_rr):
 
 ## Temporal Coherence
 
-Tools for smooth, intentional parameter evolution over time. Replaces the default pattern of either static parameters or raw audio reactivity.
+Smooth, intentional parameter evolution over time, instead of default static parameters or raw audio reactivity.
 
 ### Easing Functions
 
@@ -1678,7 +1677,7 @@ def keyframe_array(t, points, ease_fn=ease_in_out_cubic):
 
 ### Value Field Morphing
 
-Smooth transition between two different value fields:
+Smooth transition between two value fields:
 
 ```python
 def vf_morph(g, f, t, S, vf_a, vf_b, t_start, t_end,
@@ -1735,7 +1734,7 @@ def vf_sequence(g, f, t, S, fields, durations, crossfade=1.0,
 
 ### Temporal Noise
 
-3D noise sampled at `(x, y, t)` — patterns evolve smoothly in time without per-frame discontinuities:
+3D noise sampled at `(x, y, t)`. Patterns evolve smoothly in time without per-frame discontinuities:
 
 ```python
 def vf_temporal_noise(g, f, t, S, freq=0.06, t_freq=0.3, octaves=4,
@@ -1769,7 +1768,7 @@ def vf_temporal_noise(g, f, t, S, freq=0.06, t_freq=0.3, octaves=4,
 
 ### Combining Value Fields
 
-The combinatorial explosion comes from mixing value fields with math:
+Combinatorial explosion comes from mixing value fields with math:
 
 ```python
 # Multiplication = intersection (only shows where both have brightness)
@@ -1789,8 +1788,6 @@ combined = np.maximum(vf_spiral(g,f,t,S), vf_aurora(g,f,t,S))
 ```
 
 ### Full Scene Example (v2 — Canvas Return)
-
-A v2 scene function composes effects internally and returns a pixel canvas:
 
 ```python
 def scene_complex(r, f, t, S):
@@ -1825,24 +1822,22 @@ def scene_complex(r, f, t, S):
 # pipe.stdin.write(canvas.tobytes())
 ```
 
-Vary the **value field combo**, **hue field**, **palette**, **blend modes**, **feedback config**, and **shader chain** per section for maximum visual variety. With 12 value fields × 8 hue fields × 14 palettes × 20 blend modes × 7 feedback transforms × 38 shaders, the combinations are effectively infinite.
+Vary **value field combo**, **hue field**, **palette**, **blend modes**, **feedback config**, and **shader chain** per section for maximum visual variety. 12 value fields × 8 hue fields × 14 palettes × 20 blend modes × 7 feedback transforms × 38 shaders give effectively infinite combinations.
 
 ---
 
 ## Combining Effects — Creative Guide
 
-The catalog above is vocabulary. Here's how to compose it into something that looks intentional.
-
 ### Layering for Depth
-Every scene should have at least two layers at different grid densities:
-- **Background** (sm or xs): dense, dim texture that prevents flat black. fBM, smooth noise, or domain warp at low brightness (bri=0.15-0.25).
-- **Content** (md): the main visual — rings, voronoi, spirals, tunnel. Full brightness.
-- **Accent** (lg or xl): sparse highlights — particles, text stencil, glow pulse. Screen-blended on top.
+Give every scene at least two layers at different grid densities:
+- **Background** (sm or xs): dense, dim texture preventing flat black. fBM, smooth noise, or domain warp at low brightness (bri=0.15-0.25).
+- **Content** (md): main visual: rings, voronoi, spirals, tunnel. Full brightness.
+- **Accent** (lg or xl): sparse highlights: particles, text stencil, glow pulse. Screen-blended on top.
 
 ### Interesting Effect Pairs
 | Pair | Blend | Why it works |
 |------|-------|-------------|
-| fBM + voronoi edges | `screen` | Organic fills the cells, edges add structure |
+| fBM + voronoi edges | `screen` | Organic fills cells, edges add structure |
 | Domain warp + plasma | `difference` | Psychedelic organic interference |
 | Tunnel + vortex | `screen` | Depth perspective + rotational energy |
 | Spiral + interference | `exclusion` | Moire patterns from different spatial frequencies |
@@ -1850,16 +1845,16 @@ Every scene should have at least two layers at different grid densities:
 | SDF geometry + domain warp | `screen` | Clean shapes floating in organic texture |
 
 ### Effects as Masks
-Any value field can be used as a mask for another effect via `mask_from_vf()`:
+Any value field can mask another effect via `mask_from_vf()`:
 - Voronoi cells masking fire (fire visible only inside cells)
-- fBM masking a solid color layer (organic color clouds)
-- SDF shapes masking a reaction-diffusion field
+- fBM masking solid color layer (organic color clouds)
+- SDF shapes masking reaction-diffusion field
 - Animated iris/wipe revealing one effect over another
 
 ### Inventing New Effects
-For every project, create at least one effect that isn't in the catalog:
+For every project, create at least one effect not in catalog:
 - **Combine two vf_* functions** with math: `np.clip(vf_fbm(...) * vf_rings(...), 0, 1)`
 - **Apply coordinate transforms** before evaluation: `vf_plasma(twisted_grid, ...)`
 - **Use one field to modulate another's parameters**: `vf_spiral(..., tightness=2 + vf_fbm(...) * 5)`
-- **Stack time offsets**: render the same field at `t` and `t - 0.5`, difference-blend for motion trails
-- **Mirror a value field** through an SDF boundary for kaleidoscopic geometry
+- **Stack time offsets**: render same field at `t` and `t - 0.5`, difference-blend for motion trails
+- **Mirror a value field** through SDF boundary for kaleidoscopic geometry

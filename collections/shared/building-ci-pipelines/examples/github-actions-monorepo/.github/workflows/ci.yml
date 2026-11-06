@@ -7,6 +7,7 @@ on:
 
 env:
   NODE_VERSION: '24'
+  TURBO_TELEMETRY_DISABLED: '1'  # opt out of Turborepo's default telemetry
 
 permissions:
   contents: read
@@ -154,6 +155,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - run: npm ci  # lockfile turbo; without it npx fetches latest turbo next to VERCEL_TOKEN
+
       - uses: actions/download-artifact@v4
         with:
           name: build-artifacts
@@ -177,6 +180,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+
+      - run: npm ci  # lockfile turbo; without it npx fetches latest turbo next to VERCEL_TOKEN
 
       - uses: actions/download-artifact@v4
         with:

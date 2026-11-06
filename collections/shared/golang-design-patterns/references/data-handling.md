@@ -2,8 +2,6 @@
 
 ## Iterators for Large Data (Go 1.23+)
 
-Process large datasets without allocating everything into memory:
-
 ```go
 // Bad — loads all rows into memory
 func AllUsers(db *sql.DB) ([]User, error) {
@@ -37,7 +35,7 @@ func AllUsers(db *sql.DB) iter.Seq2[User, error] {
 
 ## Streaming Large Transfers
 
-When transferring large data between services (e.g., 1M rows from DB, 1M rows in HTTP response), use streaming patterns with iterators or `github.com/samber/ro` to prevent OOM:
+For large transfers between services (e.g., 1M rows from DB, 1M rows in HTTP response), stream with iterators or `github.com/samber/ro` to prevent OOM:
 
 ```go
 // Stream JSON array to HTTP response — constant memory

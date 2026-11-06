@@ -17,24 +17,22 @@ metadata:
 
 # AWS RDS
 
-Deploy and manage Amazon RDS relational databases with production-grade backups, replication, monitoring, and security.
-
 ## When to Use This Skill
 
-- Provisioning a managed PostgreSQL, MySQL, MariaDB, Oracle, or SQL Server database
-- Setting up Multi-AZ deployments for high availability
-- Creating read replicas for horizontal read scaling
-- Configuring automated backups, snapshots, and point-in-time recovery
-- Tuning database parameters for performance
-- Migrating from self-managed databases to RDS
-- Monitoring database performance and setting up alarms
+- Provisioning managed PostgreSQL, MySQL, MariaDB, Oracle or SQL Server DB
+- Multi-AZ deployments for high availability
+- Read replicas for horizontal read scaling
+- Automated backups, snapshots, point-in-time recovery
+- Tuning DB parameters for performance
+- Migrating self-managed databases to RDS
+- Monitoring DB performance, setting alarms
 
 ## Prerequisites
 
-- AWS CLI v2 installed and configured
-- IAM permissions: `rds:*`, `ec2:DescribeSecurityGroups`, `ec2:DescribeSubnets`, `kms:*`, `cloudwatch:*`
-- A VPC with at least two subnets in different AZs (for subnet group)
-- Security group allowing database port access from application subnets only
+- AWS CLI v2 installed and configured; `jq` and `psql` for the secret example
+- IAM permissions, scoped to target resources (least privilege): `rds:*` on target RDS resource ARNs (db, snapshot, subgrp, pg), `ec2:DescribeSecurityGroups`, `ec2:DescribeSubnets`, `kms:CreateGrant` and `kms:DescribeKey` on the RDS keys, `iam:PassRole` on the monitoring role, `cloudwatch:PutMetricAlarm`, `cloudwatch:GetMetricStatistics`, `secretsmanager:GetSecretValue` on the master secret
+- VPC with at least two subnets in different AZs (for subnet group)
+- Security group allowing DB port access from application subnets only
 
 ## Create a DB Subnet Group
 
@@ -102,21 +100,23 @@ aws rds describe-db-instances \
 
 ```bash
 # When using --manage-master-user-password, RDS stores the password in Secrets Manager
-aws rds describe-db-instances \
+SECRET_ARN=$(aws rds describe-db-instances \
   --db-instance-identifier production-api-db \
   --query "DBInstances[0].MasterUserSecret.SecretArn" \
-  --output text
+  --output text)
 
-# Retrieve the secret value
-aws secretsmanager get-secret-value \
-  --secret-id arn:aws:secretsmanager:us-east-1:123456789012:secret:rds-db-secret-abc123 \
-  --query SecretString --output text
+# Pass secret straight to psql; never print it
+PGPASSWORD="$(aws secretsmanager get-secret-value --secret-id "$SECRET_ARN" \
+  --query SecretString --output text | jq -r .password)" \
+  psql "host=production-api-db.xxxx.us-east-1.rds.amazonaws.com port=5432 user=appadmin \
+  dbname=appdb sslmode=verify-full sslrootcert=global-bundle.pem"
 ```
+
+Prefer IAM auth (below) for routine access; keep master secret for admin tasks.
 
 ## IAM Database Authentication
 
-Supported for MySQL, MariaDB and PostgreSQL engines. Tokens are valid for 15 minutes and
-the connection must use TLS.
+Supported for MySQL, MariaDB and PostgreSQL. Tokens valid 15 minutes. Connection must use TLS.
 
 ```bash
 # Enable on an existing instance
@@ -137,7 +137,7 @@ PGPASSWORD="$TOKEN" psql "host=production-api-db.xxxx.us-east-1.rds.amazonaws.co
   port=5432 user=app_user dbname=app sslmode=verify-full sslrootcert=global-bundle.pem"
 ```
 
-The caller needs `rds-db:connect` on
+Caller needs `rds-db:connect` on
 `arn:aws:rds-db:<region>:<account>:dbuser:<DbiResourceId>/app_user` (see `aws-iam`).
 
 ## Parameter Groups
@@ -391,26 +391,27 @@ resource "aws_db_instance" "read_replica" {
 
 | Problem | Cause | Fix |
 |---|---|---|
-| Cannot connect to RDS | Security group blocks traffic | Verify SG allows app subnet CIDR on DB port |
+| Cannot connect to RDS | SG blocks traffic | Verify SG allows app subnet CIDR on DB port |
 | Storage full | Auto-scaling not enabled or limit reached | Set `--max-allocated-storage`; increase manually |
-| High replication lag | Write-heavy workload or replica undersized | Upgrade replica instance class; reduce write volume |
-| Parameter change not applied | Requires reboot for static params | Reboot with `--force-failover` during maintenance window |
-| Snapshot restore slow | Large database size | Use larger instance class for restore; consider PITR |
-| Performance Insights empty | Not enabled or instance type unsupported | Enable PI; check instance class supports it |
+| High replication lag | Write-heavy workload or undersized replica | Upgrade replica instance class; cut write volume |
+| Parameter change not applied | Static params need reboot | Reboot with `--force-failover` in maintenance window |
+| Snapshot restore slow | Large DB | Restore to larger instance class; consider PITR |
+| Performance Insights empty | PI not enabled or instance type unsupported | Enable PI; check instance class supports it |
 | Multi-AZ failover happened | Hardware or AZ failure | Check RDS events; review failover logs |
-| Connection count maxed out | Application connection leak | Implement connection pooling (PgBouncer/RDS Proxy) |
-| Master password unknown | Using managed secret | Retrieve from Secrets Manager ARN in instance details |
+| Connection count maxed out | App connection leak | Add connection pooling (PgBouncer/RDS Proxy) |
+| Master password unknown | Managed secret in use | Retrieve from Secrets Manager ARN in instance details |
 
 ## Related Skills
 
 - `aws-iam` - RDS IAM authentication
-- `aws-s3` - exporting snapshots to S3
-- `architecting-networks` - subnet groups and security groups
+- `aws-s3` - snapshot export to S3
+- `architecting-networks` - subnet and security groups
 - `deploying-on-aws` - choosing RDS versus Aurora or DynamoDB
 - `database-design` - schema, indexing and migration planning
 
 ## Safety
 
-- Run `aws sts get-caller-identity` and confirm the account, region and profile before any change.
-- Use `describe-*` calls first (RDS has no `--dry-run`); take a manual snapshot before deleting or modifying a database, and confirm identifiers with the user before any delete.
-
+- Before any change, run `aws sts get-caller-identity`; confirm account, region and profile.
+- Use `describe-*` calls first (RDS has no `--dry-run`). Take manual snapshot before deleting or modifying a DB.
+- Show exact command and target identifier; get explicit user confirmation before any mutating call (`create-*`, `modify-*`, `reboot-*`, `restore-*`, `copy-*`, `promote-read-replica`, `delete-*`, `put-metric-alarm`). Flag irreversible ones (`promote-read-replica`, `delete-*`) and immediate-impact flags (`--apply-immediately`, `--force-failover`).
+- Never print secret values or auth tokens to terminal, logs or chat.

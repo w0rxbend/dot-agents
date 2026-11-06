@@ -83,7 +83,7 @@ MathTex(r"\begin{vmatrix} a & b \\ c & d \end{vmatrix}")
 MathTex(r"\begin{matrix} x_1 \\ x_2 \\ x_3 \end{matrix}")
 ```
 
-For matrices you need to animate element-by-element or color individual entries, use the `IntegerMatrix`, `DecimalMatrix`, or `MobjectMatrix` mobjects instead — see `mobjects.md`.
+To animate matrices element-by-element or color individual entries, use `IntegerMatrix`, `DecimalMatrix`, or `MobjectMatrix` mobjects instead. See `mobjects.md`.
 
 ## Cases and Piecewise Functions
 
@@ -132,7 +132,7 @@ class DerivationScene(Scene):
 
 ## substrings_to_isolate for Complex Equations
 
-For dense equations where manually splitting into parts is impractical, use `substrings_to_isolate` to tell Manim which substrings to track as individual elements:
+For dense equations where manual splitting is impractical, use `substrings_to_isolate`. It tells Manim which substrings to track as individual elements:
 
 ```python
 # Without isolation — the whole expression is one blob
@@ -150,11 +150,11 @@ lagrangian.set_color_by_tex(r"\psi", BLUE)
 lagrangian.set_color_by_tex(r"F_{\mu\nu}", YELLOW)
 ```
 
-Essential for `TransformMatchingTex` on complex equations — without isolation, matching fails on dense expressions.
+Essential for `TransformMatchingTex` on complex equations. Without isolation, matching fails on dense expressions.
 
 ## Multi-Line Complex Equations
 
-For equations with multiple related lines, pass each line as a separate argument:
+For equations with multiple related lines, pass each line as separate argument:
 
 ```python
 maxwell = MathTex(
@@ -168,21 +168,6 @@ self.wait(1)
 self.play(Write(maxwell[1]))
 ```
 
-## TransformMatchingTex with key_map
-
-Map specific substrings between source and target equations during transformation:
-
-```python
-eq1 = MathTex(r"A^2 + B^2 = C^2")
-eq2 = MathTex(r"A^2 = C^2 - B^2")
-
-self.play(TransformMatchingTex(
-    eq1, eq2,
-    key_map={"+": "-"},   # map "+" in source to "-" in target
-    path_arc=PI / 2,      # arc the pieces into position
-))
-```
-
 ## set_color_by_tex — Color by Substring
 
 ```python
@@ -194,7 +179,7 @@ eq.set_color_by_tex("c", GREEN)
 
 ## TransformMatchingTex with matched_keys
 
-When matching substrings are ambiguous, specify which to align explicitly:
+When matching substrings are ambiguous, specify which to align explicitly. `key_map` maps specific substrings between source and target:
 
 ```python
 kw = dict(font_size=72, t2c={"A": BLUE, "B": TEAL, "C": GREEN})
@@ -213,4 +198,4 @@ self.play(TransformMatchingTex(
 ))
 ```
 
-Without `matched_keys`, the animation matches the longest common substrings, which can produce unexpected results on complex equations (e.g., "^2 = C^2" matching across terms).
+Without `matched_keys`, animation matches longest common substrings. Can give unexpected results on complex equations (e.g., "^2 = C^2" matching across terms).

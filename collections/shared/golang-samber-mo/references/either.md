@@ -1,6 +1,6 @@
 # Either[L, R] API Reference
 
-A discriminated union representing a value of one of two possible types. By convention, Left is the "alternative" path and Right is the "primary" path, but neither implies success or failure.
+Discriminated union: value of one of two possible types. By convention Left is "alternative" path and Right is "primary" path. Neither implies success or failure.
 
 ## Table of Contents
 
@@ -22,17 +22,17 @@ A discriminated union representing a value of one of two possible types. By conv
 
 ## Constructors
 
-| Function                  | Description                 |
-| ------------------------- | --------------------------- |
-| `mo.Left[L, R](value L)`  | Creates a left-side Either  |
-| `mo.Right[L, R](value R)` | Creates a right-side Either |
+| Function                  | Description               |
+| ------------------------- | ------------------------- |
+| `mo.Left[L, R](value L)`  | Creates left-side Either  |
+| `mo.Right[L, R](value R)` | Creates right-side Either |
 
 ## Type Checking
 
-| Method      | Returns | Description                            |
-| ----------- | ------- | -------------------------------------- |
-| `IsLeft()`  | `bool`  | True if the value is on the left side  |
-| `IsRight()` | `bool`  | True if the value is on the right side |
+| Method      | Returns | Description                 |
+| ----------- | ------- | --------------------------- |
+| `IsLeft()`  | `bool`  | True if value on left side  |
+| `IsRight()` | `bool`  | True if value on right side |
 
 ## Value Extraction
 
@@ -46,7 +46,7 @@ A discriminated union representing a value of one of two possible types. By conv
 | `RightOrElse(fallback R)` | `R` | Right value or fallback |
 | `LeftOrEmpty()` | `L` | Left value or zero value |
 | `RightOrEmpty()` | `R` | Right value or zero value |
-| `Unpack()` | `(L, R)` | Both values (one will be zero value) |
+| `Unpack()` | `(L, R)` | Both values (one is zero value) |
 
 ## Transformations
 
@@ -59,7 +59,7 @@ swapped := e.Swap()  // Either[int, string] — Right("hello")
 
 ### MapLeft / MapRight — transform one side
 
-The callback receives the value and must return a new `Either[L, R]`:
+Callback receives value and must return new `Either[L, R]`:
 
 ```go
 e := mo.Left[string, int]("hello")
@@ -75,7 +75,7 @@ doubled := e2.MapRight(func(v int) mo.Either[string, int] {
 // Right(84)
 ```
 
-**Go limitation:** Like Option.Map and Result.Map, direct Either methods cannot change the type parameters. Use sub-package `either.MapLeft`/`either.MapRight` for type-changing transforms — see [Pipelines Reference](./pipelines.md).
+**Go limitation:** like Option.Map and Result.Map, direct Either methods cannot change type parameters. Use sub-package `either.MapLeft`/`either.MapRight` for type-changing transforms. See [Pipelines Reference](./pipelines.md).
 
 ### Match — pattern matching
 
@@ -110,7 +110,7 @@ e.ForEach(
 | Use case      | Cached vs fresh, A vs B | Operation that may fail |
 | JSON          | Not supported           | JSON-RPC format         |
 
-`Result[T]` is equivalent to `Either[error, T]` — use `result.ToEither()` to convert.
+`Result[T]` is equivalent to `Either[error, T]`. Convert with `result.ToEither()`.
 
 ## Either3[T1, T2, T3] — Three-Type Union
 
@@ -148,7 +148,7 @@ e.Match(
 
 ### Transformations
 
-MapArg callbacks receive the value and return a new Either3:
+MapArg callbacks receive value and return new Either3:
 
 ```go
 e.MapArg1(func(s string) mo.Either3[string, int, bool] {
@@ -161,9 +161,9 @@ e.MapArg2(func(i int) mo.Either3[string, int, bool] {
 
 ## Either4 and Either5
 
-Follow the exact same pattern as Either3 with 4 and 5 type parameters respectively:
+Same pattern as Either3, with 4 and 5 type parameters respectively:
 
 - **Either4[T1, T2, T3, T4]**: `NewEither4Arg1` through `NewEither4Arg4`, `IsArg1`-`IsArg4`, `MapArg1`-`MapArg4`
 - **Either5[T1, T2, T3, T4, T5]**: `NewEither5Arg1` through `NewEither5Arg5`, `IsArg1`-`IsArg5`, `MapArg1`-`MapArg5`
 
-Use Either3+ when you need a type-safe union of multiple types — for example, an API that returns different response shapes depending on the request type.
+Use Either3+ for type-safe union of multiple types. Example: API returning different response shapes depending on request type.

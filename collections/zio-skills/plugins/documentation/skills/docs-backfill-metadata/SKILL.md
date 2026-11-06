@@ -9,62 +9,54 @@ argument-hint: "<path/to/page.md>"
 allowed-tools: Read, Edit
 ---
 
-You fill in two missing frontmatter fields on one documentation page, and you change nothing else.
-
-The page already exists and was written by somebody else — possibly years before this repo did. It is
-not yours to improve. Its prose, its headings, its code blocks and its existing frontmatter are all
-out of bounds; you are here because Docusaurus has no `description` and no `keywords` to index it
-with, and you can read the page well enough to supply them.
+Fill two missing frontmatter fields on one documentation page. Change nothing else: page's prose,
+headings, code blocks and existing frontmatter are out of bounds.
 
 ## What you do
 
-1. **Establish the page.** The request names it, as a repo-relative path. Your shell starts in the
-   checkout, so read it there.
-2. **Read the whole page before writing anything.** A description is a claim about what the page
-   teaches, and keywords are terms it actually uses — neither is decidable from the title, the first
-   paragraph, or the filename. A page whose later sections you skipped gets indexed for the half you
-   read.
-3. **Check what is actually missing.** Only a field with no value is yours to write. A populated
-   `description` stays as it is even when you would have phrased it better, and so does a
-   `keywords` list of two entries — a value someone chose is not an empty field.
-4. **Write only those fields**, following [`references/rules.md`](references/rules.md), editing the
-   frontmatter block in place.
-5. **File the receipt** as your final reply: what you filled, and what you left alone.
+1. **Establish the page.** Request names it as repo-relative path; read it in checkout, where shell
+   starts.
+2. **Read the whole page before writing anything.** Description claims what page teaches; keywords
+   are terms it uses. Title, first paragraph or filename cannot decide either.
+3. **Check what is actually missing.** Write only fields with no value. Populated `description`
+   stays, even if you would phrase it better. Two-entry `keywords` list stays too: chosen value is
+   not empty.
+4. **Write only those fields**, per [`references/rules.md`](references/rules.md), editing frontmatter
+   block in place.
+5. **File the receipt** as final reply: what you filled, what you left alone.
 
-Three shapes are a stop rather than an edit:
+Three shapes mean stop, not edit:
 
-- **No frontmatter block at all.** Creating one means deciding this page's `id` and `title`, which is
-  not your call and may not even be a Docusaurus doc page. Report it and stop.
-- **No `title`.** Same reason. A page missing its title has a bigger problem than its metadata.
-- **Both fields already populated.** Nothing to do. Say so plainly; a run that finds nothing to fill
-  is a correct run.
+- **No frontmatter block at all.** Creating one means choosing page's `id` and `title`: not your
+  call; page may not be a Docusaurus doc page. Report and stop.
+- **No `title`.** Same reason.
+- **Both fields already populated.** Nothing to do. Say so plainly; run that finds nothing to fill
+  is correct run.
 
 ## When the request names no page
 
-Ask, and stop. Do not walk the docs tree looking for something with missing metadata and fill that.
+Ask, and stop. Do not walk docs tree hunting a page with missing metadata to fill.
 
-A page path is not a thing to infer: guessing means editing a file nobody asked about, and this run
-edits a file in place, so a wrong guess is damage rather than wasted effort.
+Do not infer page path. Guess means editing an unrequested file in place: damage, not wasted effort.
 
 - ✅ "Which page? The request names none." ❌ picking `docs/reference/lens.md` because it lacks a description
 
 ## What you are not
 
-You are not the page's author. You do not fix its prose, its headings, its links or its code — not a
-typo, not a broken sentence, not a fence missing its language. The body must come out of this run
-byte-for-byte as it went in.
+Not page's author. Do not fix prose, headings, links or code: not a typo, not a broken sentence, not
+a fence missing its language. Body must come out of run byte-for-byte as it went in.
 
-You are not the reviewer. If the page has a real problem, name it in the receipt and leave it there.
+Not reviewer. Real problem on page: name it in receipt, leave it.
 
-You do not translate or restate the `title`. Whatever it says, it keeps saying.
+Do not translate or restate `title`; it stays as is.
 
 - ✅ `left  title  "Overview" is vague, but it is not mine to rename` ❌ rewriting it to "Lens Overview"
 
 ## Reporting
 
-The receipt is the run's whole output, so it has to stand alone: a reader who sees only your reply
-should know what the file now contains that it did not before. Quote the `description` you wrote and
-list the `keywords`, so the reply can be judged without opening the file.
+Receipt is run's whole output; must stand alone: reader of reply alone should know what file now
+contains that it did not before. Quote written `description` and list `keywords`, so reply is
+judgeable without opening file.
 
-Say plainly when you filled nothing, and why — already populated, no frontmatter, no title. Those are
-results, not failures.
+Filled nothing? Say so plainly, with reason: already populated, no frontmatter, no title. Results,
+not failures.

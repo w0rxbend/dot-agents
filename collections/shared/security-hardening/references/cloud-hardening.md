@@ -1,7 +1,5 @@
 # Cloud Hardening Reference
 
-Comprehensive guide to hardening AWS, GCP, and Azure cloud configurations using least privilege, encryption, and CSPM tools.
-
 ## Table of Contents
 
 1. [AWS Hardening](#aws-hardening)
@@ -15,8 +13,6 @@ Comprehensive guide to hardening AWS, GCP, and Azure cloud configurations using 
 ## AWS Hardening
 
 ### IAM Hardening
-
-**Principle: Least Privilege with MFA**
 
 ```hcl
 # terraform/aws/iam-hardening.tf
@@ -106,9 +102,9 @@ resource "aws_iam_role_policy_attachment" "app_attach" {
 **IAM Best Practices:**
 - Enable MFA for all human users
 - Use roles instead of access keys
-- Rotate access keys regularly (90 days)
+- Rotate access keys every 90 days
 - Use SCPs (Service Control Policies) for organization-wide controls
-- Enable CloudTrail for IAM action logging
+- Enable CloudTrail to log IAM actions
 
 ### S3 Bucket Hardening
 
@@ -803,7 +799,7 @@ resource "azurerm_network_security_rule" "allow_app" {
 **2. Encryption Everywhere:**
 - At rest: KMS/CMEK for all storage
 - In transit: TLS 1.2+ for all connections
-- Key rotation: Automated, regular
+- Key rotation: automated, regular
 
 **3. Centralized Logging:**
 - CloudTrail (AWS), Cloud Logging (GCP), Azure Monitor

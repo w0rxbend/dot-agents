@@ -1,25 +1,6 @@
 # Scala Functional Patterns
 
-## Introduction
-
-Scala uniquely blends object-oriented and functional programming paradigms,
-enabling developers to leverage the best of both worlds. Functional programming
-in Scala emphasizes immutability, pure functions, and composability, leading to
-more predictable and maintainable code.
-
-Core functional patterns in Scala include higher-order functions, immutable data
-structures, pattern matching, algebraic data types (ADTs), monadic composition,
-for-comprehensions, and type classes. These patterns enable elegant solutions to
-complex problems while maintaining type safety.
-
-This skill covers immutability principles, higher-order functions, pattern
-matching, ADTs with sealed traits, Option and Either monads, for-comprehensions,
-function composition, and functional error handling.
-
 ## Immutability and Pure Functions
-
-Immutable data structures and pure functions form the foundation of functional
-programming, ensuring predictable behavior and thread safety.
 
 ```scala
 // Immutable case classes
@@ -108,13 +89,7 @@ val person = PersonBuilder()
   .build
 ```
 
-Immutability eliminates entire classes of bugs related to shared mutable state
-and enables safe concurrent programming.
-
 ## Higher-Order Functions
-
-Higher-order functions accept functions as parameters or return functions,
-enabling powerful abstraction and code reuse.
 
 ```scala
 // Functions as parameters
@@ -208,13 +183,7 @@ val (result, time) = timed {
 println(s"Result: $result, Time: ${time}ms")
 ```
 
-Higher-order functions enable powerful abstraction, allowing you to capture
-common patterns and eliminate code duplication.
-
 ## Pattern Matching
-
-Pattern matching provides elegant syntax for conditional logic and data
-extraction, far more powerful than traditional switch statements.
 
 ```scala
 // Basic pattern matching
@@ -311,13 +280,7 @@ val result = for {
 } yield s"$num: $word"
 ```
 
-Pattern matching makes code more readable and exhaustive, with the compiler
-ensuring all cases are covered for sealed types.
-
 ## Algebraic Data Types (ADTs)
-
-ADTs model data with sealed traits and case classes, enabling exhaustive pattern
-matching and type-safe domain modeling.
 
 ```scala
 // Simple ADT for results
@@ -418,12 +381,9 @@ def transition(state: ConnectionState, event: String): ConnectionState =
   }
 ```
 
-ADTs provide exhaustive pattern matching guarantees and make illegal states
-unrepresentable at compile time.
-
-**Scala 3 equivalents.** The examples above are Scala 2 syntax and still
-compile in Scala 3. New Scala 3 code usually expresses the same ADTs as enums,
-and may use the optional braceless syntax if the project's formatter allows it:
+**Scala 3 equivalents.** Examples above are Scala 2 syntax and still compile in
+Scala 3. New Scala 3 code usually writes these ADTs as enums, with optional
+braceless syntax if project's formatter allows it:
 
 ```scala
 enum Result[+T]:
@@ -455,16 +415,12 @@ def evaluate(expr: Expr): Either[String, Double] = expr match
     yield q
 ```
 
-Enum cases are referenced through the enum (`Expr.Num`) unless imported
-(`import Expr.*`). Their `apply` returns the enum type (`Expr`), not the case
-type, which helps inference. Keep sealed traits when cases need their own
-methods or extend several hierarchies, or when the code must cross-build with
-Scala 2.
+Reference enum cases through enum (`Expr.Num`) unless imported
+(`import Expr.*`). Their `apply` returns enum type (`Expr`), not case type,
+which aids inference. Keep sealed traits when cases need own methods or extend
+several hierarchies, or when code must cross-build with Scala 2.
 
 ## Option and Either Monads
-
-Option and Either provide functional error handling without exceptions, enabling
-composable error handling.
 
 ```scala
 // Option for nullable values
@@ -569,13 +525,7 @@ def tryToEither[T](tried: Try[T]): Either[Throwable, T] =
   tried.toEither
 ```
 
-Option and Either eliminate null pointer exceptions and make error handling
-explicit in function signatures.
-
 ## For-Comprehensions
-
-For-comprehensions provide syntactic sugar for monadic operations, making
-sequential computations more readable.
 
 ```scala
 // Basic for-comprehension
@@ -661,13 +611,7 @@ val withFor = for {
 // Both produce the same result
 ```
 
-For-comprehensions make monadic composition readable and eliminate callback
-nesting in asynchronous code.
-
 ## Function Composition and Combinators
-
-Function composition creates complex functions from simpler ones, promoting
-reusability and modularity.
 
 ```scala
 // Basic composition
@@ -747,104 +691,68 @@ val numbers = List("1", "2", "3")
 println(traverse(numbers)(s => s.toIntOption))  // Some(List(1, 2, 3))
 ```
 
-Function composition enables building complex operations from simple, testable
-components.
-
 ## Best Practices
 
-1. **Prefer immutable data structures** to eliminate entire classes of bugs
-   related to shared mutable state
+1. **Prefer immutable data structures** to avoid shared-mutable-state bugs
 
 2. **Use sealed ADTs** (Scala 3 `enum`, or sealed traits/case classes in
-   Scala 2) to get exhaustive pattern matching
+   Scala 2) for exhaustive pattern matching
 
-3. **Leverage for-comprehensions** for monadic composition instead of nested
-   flatMap calls
+3. **Use for-comprehensions** instead of nested flatMap calls
 
-4. **Make side effects explicit** by separating pure computation from IO
-   operations
+4. **Make side effects explicit**: keep pure computation apart from IO
 
-5. **Use Option instead of null** to make nullable values explicit in type
-   signatures
+5. **Use Option instead of null** so type signatures show nullable values
 
-6. **Prefer Either for error handling** over exceptions to make error cases
-   explicit
+6. **Prefer Either over exceptions** to make error cases explicit
 
-7. **Compose functions** rather than writing large monolithic functions for
-   better reusability
+7. **Compose small functions** instead of writing large monolithic ones
 
-8. **Use tail recursion** with @tailrec annotation for recursive functions to
-   prevent stack overflow
+8. **Use tail recursion** with @tailrec to prevent stack overflow
 
-9. **Leverage type inference** but provide explicit types for public APIs and
-   complex expressions
+9. **Use type inference**, but annotate public APIs and complex expressions
 
-10. **Apply partial application** and currying to create specialized functions
-    from general ones
+10. **Use partial application** and currying to specialize general functions
 
 ## Common Pitfalls
 
-1. **Mixing mutable and immutable collections** leads to unexpected modifications
-   and bugs
+1. **Mixing mutable and immutable collections** causes unexpected modifications
 
-2. **Overusing var instead of val** defeats immutability benefits and makes code
-   harder to reason about
+2. **Overusing var instead of val** defeats immutability and hinders reasoning
 
-3. **Not handling None cases** in Option results in runtime failures despite
+3. **Not handling None cases** causes runtime failures despite type safety
+
+4. **Catching all exceptions** instead of using Try, Either or Option loses
    type safety
 
-4. **Catching all exceptions** instead of using Try, Either, or Option loses
-   type safety benefits
-
-5. **Creating non-tail-recursive functions** for large inputs causes stack
-   overflow errors
-
-6. **Not making ADTs sealed** allows adding cases elsewhere, breaking pattern
-   match exhaustiveness
-
-7. **Nesting flatMap calls** instead of for-comprehensions reduces readability
-   significantly
-
-8. **Using null instead of Option** defeats the purpose of functional error
-   handling
-
-9. **Creating impure functions** without documenting side effects makes code
-   unpredictable
-
-10. **Over-abstracting with higher-kinded types** prematurely adds complexity
-    without clear benefits
+5. **Over-abstracting with higher-kinded types** prematurely adds complexity
+   without clear benefit
 
 ## When to Use This Skill
 
-Apply functional patterns throughout Scala development to leverage the language's
-strengths and build maintainable systems.
+Use immutability and pure functions in business logic for predictability and
+testability.
 
-Use immutability and pure functions when building business logic to ensure
-predictability and testability.
+Use pattern matching and ADTs for domain entities with distinct states or
+variants.
 
-Leverage pattern matching and ADTs when modeling domain entities with distinct
-states or variants.
+Use Option and Either in APIs and service layers to make error cases explicit.
 
-Apply Option and Either for error handling in APIs and service layers to make
-error cases explicit.
+Use for-comprehensions to compose several monadic operations.
 
-Use for-comprehensions when composing multiple monadic operations for improved
-readability.
-
-Employ function composition when building data transformation pipelines or
-reusable utility functions.
+Use function composition for data pipelines or reusable utilities.
 
 ## Scala Version and Effect-System Notes
 
 - Scala 3: `enum` for ADTs, `extension` methods instead of implicit classes,
   `given`/`using` instead of implicit values/parameters, `derives` for type
-  class derivation, and optional braceless syntax. See the `scala-type-system`
-  skill for the implicit-to-given mapping.
-- Scala 2.13: `Either` is right-biased (`map`/`flatMap` without `.right`), and
-  the `-Xsource:3` flag eases cross-building.
-- Effects: plain `Either`/`Option`/`Try` covers pure logic. For I/O, follow the
-  stack the project already uses (ZIO, Cats Effect, or direct style with Ox);
-  do not introduce a second effect system to apply a pattern.
+  class derivation, optional braceless syntax. See `scala-type-system` skill
+  for implicit-to-given mapping.
+- Scala 2.13: `Either` is right-biased (`map`/`flatMap` without `.right`).
+  `-Xsource:3` flag eases cross-building.
+- Effects: plain `Either`/`Option`/`Try` covers pure logic. For I/O, follow
+  project's existing stack (ZIO, Cats Effect, or direct style with Ox). Do not
+  add a second effect system to apply a pattern.
 
 ## Resources
 

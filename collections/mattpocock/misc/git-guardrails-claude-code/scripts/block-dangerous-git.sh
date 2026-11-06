@@ -2,8 +2,9 @@
 # PreToolUse hook for the Bash tool: blocks destructive git commands.
 #
 # Reads the hook JSON on stdin, splits the command into shell segments
-# (; && || | & newlines, subshells, $(...) and backticks), skips wrappers
-# such as env/sudo/xargs/time and VAR=value prefixes, looks inside
+# (; && || | & newlines, subshells, $(...) and backticks), skips VAR=value
+# prefixes and keywords (if/then/do...), checks every word after wrappers
+# such as env/sudo/xargs/find (their options may take values), looks inside
 # `bash -c` / `sh -c` / `eval` strings, strips git global options such as
 # `-C <dir>`, then matches the git subcommand and its flags.
 # Text inside quoted arguments (for example a commit message) is not treated
@@ -14,7 +15,8 @@
 # `permissions.deny` rules in Claude Code settings.
 #
 # Exit 0 = allow, exit 2 = block (stderr is shown to Claude).
-# Fails closed: if jq is missing or the input cannot be parsed, it blocks.
+# Fails closed: if jq is missing, the input cannot be parsed, or shells nest
+# too deep to inspect, it blocks.
 
 if ! command -v jq >/dev/null 2>&1; then
   echo "BLOCKED: git guardrail hook needs jq to inspect commands, and jq is not installed. Install jq (or remove this hook) to run shell commands." >&2
@@ -27,6 +29,10 @@ if ! COMMAND=$(printf '%s' "$INPUT" | jq -er '.tool_input.command // ""' 2>/dev/
   exit 2
 fi
 
+# Parse bytes, not characters: shell metacharacters are ASCII, and per-char
+# substrings in a UTF-8 locale are ~5x slower on long commands.
+LC_ALL=C
+
 block() {
   echo "BLOCKED: '$COMMAND' runs '$1', which the user has blocked. You do not have authority to run it; ask the user to run it themselves if it is needed." >&2
   exit 2
@@ -34,6 +40,7 @@ block() {
 
 # Split $1 into TOKS; segment boundaries become the token $SEP.
 SEP=$'\x01'
+VARRE='^\$\{[A-Za-z0-9_]+\}'
 tokenize() {
   local s=$1 i=0 n=${#1} c state=none tok="" have=0
   TOKS=()
@@ -59,12 +66,16 @@ tokenize() {
           ' ' | $'\t' | '<' | '>')
             [ "$have" = 1 ] && TOKS+=("$tok"); tok=""; have=0 ;;
           ';' | '&' | '|' | '(' | ')' | '`' | '{' | '}' | $'\n')
+            # The find/xargs placeholder {} is a plain word.
+            if [ "${s:i:2}" = '{}' ]; then tok+='{}'; have=1; i=$((i + 1)); else
             [ "$have" = 1 ] && TOKS+=("$tok"); tok=""; have=0
-            TOKS+=("$SEP") ;;
+            TOKS+=("$SEP"); fi ;;
           '$')
             if [ "${s:i+1:1}" = "(" ]; then
               [ "$have" = 1 ] && TOKS+=("$tok"); tok=""; have=0
               TOKS+=("$SEP"); i=$((i + 1))
+            elif [[ ${s:i:66} =~ $VARRE ]]; then # ${name} is a plain word
+              tok+=${BASH_REMATCH[0]}; have=1; i=$((i + ${#BASH_REMATCH[0]} - 1))
             else tok+=$c; have=1; fi ;;
           *) tok+=$c; have=1 ;;
         esac ;;
@@ -135,46 +146,57 @@ check_git() {
   return 0
 }
 
-# Check one segment: $@ = its tokens.
-check_segment() {
-  local t base
-  # Skip VAR=value prefixes and command wrappers with their options.
-  while [ $# -gt 0 ]; do
-    t=$1
-    case $t in
-      [A-Za-z_]*=*) shift ;;
-      '!' | sudo | doas | env | command | exec | nohup | time | nice | xargs | builtin) shift
-        while [ $# -gt 0 ]; do
-          case $1 in -*|[A-Za-z_]*=*) shift ;; *) break ;; esac
-        done ;;
-      timeout) shift
-        while [ $# -gt 0 ]; do case $1 in -*) shift ;; *) break ;; esac; done
-        [ $# -gt 0 ] && shift ;;
-      *) break ;;
-    esac
-  done
-  [ $# -eq 0 ] && return 0
-  base=${1##*/}
-  case $base in
+# Check a command starting at word $1.
+check_words() {
+  local a
+  case ${1##*/} in
     git) shift; check_git "$@" ;;
     bash | sh | zsh | dash | ksh)
+      # Options before -c may take values (-o pipefail), so find the -c cluster
+      # and check every word after it.
       shift
       while [ $# -gt 0 ]; do
         case $1 in
-          -*c*) shift; [ $# -gt 0 ] && check_command "$1"; return 0 ;;
-          -*) shift ;;
-          *) return 0 ;;
+          --*) ;;
+          -*c*) shift; for a in "$@"; do check_command "$a"; done; return 0 ;;
         esac
+        shift
       done ;;
     eval) shift; check_command "$*" ;;
   esac
   return 0
 }
 
+# Check one segment: $@ = its tokens.
+check_segment() {
+  local scan=0
+  # Skip VAR=value prefixes and shell keywords. Wrapper options may take values
+  # (nice -n 5, sudo -u bob, timeout -s KILL 5), so after a wrapper check every
+  # later word.
+  while [ $# -gt 0 ]; do
+    case $1 in [A-Za-z_]*=*) shift; continue ;; esac
+    case ${1##*/} in
+      '!' | sudo | doas | env | command | exec | nohup | time | nice | xargs | builtin | timeout | find) scan=1; shift ;;
+      if | then | elif | else | while | until | do) shift ;;
+      *) break ;;
+    esac
+  done
+  while [ $# -gt 0 ]; do
+    check_words "$@"
+    [ "$scan" = 1 ] || return 0
+    case $1 in
+      -S?* | -[!-]*S?* | --split-string=*) check_command "${1#*[S=]}" ;;
+      -S | -[!-]*S | --split-string) [ $# -gt 1 ] && check_command "$2" ;;
+    esac
+    shift
+  done
+  return 0
+}
+
 # Check a full command string (recursive for nested shells).
 check_command() {
   local depth=${DEPTH:-0}
-  [ "$depth" -gt 5 ] && return 0
+  [ "$depth" -gt 5 ] && block "more than 5 nested shells (too deep to inspect)"
   DEPTH=$((depth + 1))
   tokenize "$1"
   local toks=(${TOKS[@]+"${TOKS[@]}"}) seg=() t
@@ -192,5 +214,6 @@ check_command() {
 }
 
 [ -z "$COMMAND" ] && exit 0
+DEPTH=0
 check_command "$COMMAND"
 exit 0

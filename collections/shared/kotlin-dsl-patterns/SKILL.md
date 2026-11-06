@@ -7,29 +7,13 @@ allowed-tools: []
 
 # Kotlin DSL Patterns
 
-## Introduction
-
-Kotlin's language features enable creation of expressive domain-specific
-languages (DSLs) that feel like natural extensions of the language itself. DSLs
-improve code readability, reduce boilerplate, and provide type-safe APIs for
-configuration, builders, and domain modeling.
-
-Key features supporting DSL design include lambdas with receivers, extension
-functions, infix notation, operator overloading, and scope control. These
-features combine to create fluent, intuitive APIs that express domain concepts
-clearly without sacrificing type safety or IDE support.
-
-This skill covers type-safe builders, lambda receivers, infix functions,
-operator overloading, and practical patterns for designing maintainable DSLs in
-Android, testing, and configuration contexts.
-
 ## Type-Safe Builders
 
-Type-safe builders use lambdas with receivers to create hierarchical structures
-with compile-time validation and IDE support.
+Lambdas with receivers build hierarchical structures with compile-time
+validation and IDE support.
 
 ```kotlin
-// HTML DSL example
+// HTML DSL example (text emitted unescaped; escape it, or use kotlinx.html, for untrusted input)
 class HTML {
     private val elements = mutableListOf<Element>()
 
@@ -191,13 +175,9 @@ val config = server {
 }
 ```
 
-Type-safe builders provide IDE autocompletion and compile-time validation while
-creating readable, hierarchical structures.
-
 ## Lambdas with Receivers
 
-Lambdas with receivers enable DSL functions to access receiver properties and
-methods directly, creating implicit context for cleaner APIs.
+DSL functions access receiver properties and methods directly.
 
 ```kotlin
 // Lambda with receiver basics
@@ -217,6 +197,7 @@ val result = buildString {
 class Query {
     private val conditions = mutableListOf<String>()
 
+    // condition is trusted SQL from code only; bind user values (see QueryBuilder)
     fun where(condition: String) {
         conditions.add(condition)
     }
@@ -314,13 +295,7 @@ fun processConfig(config: ServerConfig) {
 }
 ```
 
-Lambdas with receivers enable accessing receiver members without explicit
-qualifiers, creating natural, context-aware DSL syntax.
-
 ## Infix Functions and Operators
-
-Infix functions and operator overloading enable natural mathematical and logical
-expressions in DSLs, improving readability for domain concepts.
 
 ```kotlin
 // Infix functions for fluent API
@@ -367,14 +342,13 @@ class QueryBuilder {
         return listOf(this, other)
     }
 
-    fun build(): String {
-        return "WHERE ${conditions.joinToString(" AND ") {
-            "${it.field} ${it.operator} ${it.value}"
-        }}"
-    }
+    // Values become bound parameters, never SQL text; fields must be code constants
+    fun build(): Pair<String, List<Any>> =
+        "WHERE " + conditions.joinToString(" AND ") { "${it.field} ${it.operator} ?" } to
+            conditions.map { it.value }
 }
 
-fun queryBuilder(init: QueryBuilder.() -> Unit): String {
+fun queryBuilder(init: QueryBuilder.() -> Unit): Pair<String, List<Any>> {
     val builder = QueryBuilder()
     builder.init()
     return builder.build()
@@ -383,7 +357,7 @@ fun queryBuilder(init: QueryBuilder.() -> Unit): String {
 val query1 = queryBuilder {
     where("age" gt 18)
     where("status" eq "active")
-}
+} // ("WHERE age > ? AND status = ?", [18, active]): pass params to the driver
 
 // Operator overloading for DSL
 data class Vector(val x: Double, val y: Double) {
@@ -437,13 +411,10 @@ config1["timeout"] = 5000
 val timeout1 = config1["timeout"]
 ```
 
-Infix functions remove parentheses and dots for binary operations, while
-operator overloading enables natural mathematical notation in DSLs.
-
 ## Scope Control with @DslMarker
 
-DslMarker annotations prevent implicit receivers from outer scopes, improving
-DSL safety by catching accidental nesting errors at compile time.
+DslMarker blocks implicit receivers from outer scopes, so accidental nesting
+fails at compile time.
 
 ```kotlin
 // Problem: implicit receivers without @DslMarker
@@ -558,18 +529,11 @@ fun mixedDSLs() {
 }
 ```
 
-DslMarker prevents confusing implicit receiver access across DSL boundaries,
-making DSLs safer and more maintainable.
-
 ## Gradle Kotlin DSL Patterns
 
-Gradle's Kotlin DSL demonstrates real-world DSL patterns for build
-configuration, dependency management, and task definition.
-
-Keep plugin and library versions where the project already keeps them
-(usually `gradle/libs.versions.toml`); do not copy version numbers from
-examples. Check the Kotlin and Gradle versions in the repo before using newer
-DSL APIs.
+Keep plugin and library versions where project keeps them (usually
+`gradle/libs.versions.toml`). Do not copy version numbers from examples. Check
+repo Kotlin and Gradle versions before using newer DSL APIs.
 
 ```kotlin
 // build.gradle.kts - versions come from the version catalog
@@ -683,19 +647,13 @@ kotlin {
 }
 ```
 
-Migration notes for older scripts: `kotlinOptions { jvmTarget = "17" }` becomes
-`compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }` or simply
-`jvmToolchain(17)`; `val commonMain by getting { dependencies { } }` becomes
-`commonMain.dependencies { }`; `js(IR)` is just `js()` now that IR is the only
-JS backend.
-
-Gradle Kotlin DSL combines multiple DSL patterns to create expressive,
-type-safe build configuration with excellent IDE support.
+Migrating older scripts: `kotlinOptions { jvmTarget = "17" }` becomes
+`compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }` or `jvmToolchain(17)`.
+`val commonMain by getting { dependencies { } }` becomes
+`commonMain.dependencies { }`. `js(IR)` is now `js()`: IR is the only JS
+backend.
 
 ## Ktor DSL for Web Applications
-
-Ktor demonstrates DSL patterns for routing, serialization, and server
-configuration in web applications.
 
 ```kotlin
 // Ktor application DSL
@@ -787,89 +745,65 @@ fun Route.typedRoutes() {
 }
 ```
 
-Ktor's DSL provides readable, declarative server configuration while maintaining
-type safety and composability.
-
 ## Best Practices
 
-1. **Use @DslMarker to prevent scope confusion** by restricting implicit
-   receivers and catching incorrect nesting at compile time
+1. **Use @DslMarker to prevent scope confusion**: restricts implicit receivers,
+   catches wrong nesting at compile time
 
-2. **Keep DSL scope focused** on a single domain to maintain clarity and prevent
-   mixing unrelated concepts in one DSL
+2. **Keep DSL scope focused** on one domain; no unrelated concepts
 
-3. **Provide sensible defaults** in DSL builders to reduce boilerplate while
-   allowing customization when needed
+3. **Provide sensible defaults** in builders: less boilerplate, still
+   customizable
 
-4. **Leverage lambdas with receivers** for context-aware DSL syntax that enables
-   direct member access without qualifiers
+4. **Use infix functions sparingly**: only natural binary operations
+   (comparisons, logical operators, domain relationships)
 
-5. **Use infix functions sparingly** only for natural binary operations like
-   comparisons, logical operators, or domain relationships
-
-6. **Document DSL usage with examples** to show intended patterns and prevent
+5. **Document DSL usage with examples**: show intended patterns, prevent
    misuse of flexible DSL APIs
 
-7. **Validate DSL structures** at build time rather than runtime to catch errors
-   early with clear compilation errors
+6. **Validate DSL structures** at build time, not runtime: early, clear
+   compilation errors
 
-8. **Make DSLs immutable when possible** to prevent unexpected modifications and
-   enable safer concurrent usage
+7. **Make DSLs immutable when possible**: no unexpected modifications, safer
+   concurrent use
 
-9. **Provide both DSL and non-DSL APIs** to give users choice between
-   expressiveness and explicitness
+8. **Provide both DSL and non-DSL APIs**: users choose expressiveness or
+   explicitness
 
-10. **Test DSL usage patterns** extensively to ensure intuitive behavior and
-    catch edge cases in complex nesting scenarios
+9. **Test DSL usage patterns** extensively: intuitive behavior, edge cases in
+   complex nesting
 
 ## Common Pitfalls
 
-1. **Overusing infix functions** for inappropriate operations makes code harder
-   to read and understand without clear conventions
+1. **Creating deeply nested DSLs** without clear structure: hard to navigate
+   and reason about
 
-2. **Creating overly complex DSLs** that try to do too much leads to confusing
-   APIs that are hard to learn and maintain
+2. **Overloading too many operators**: intent hidden, code cryptic
 
-3. **Forgetting @DslMarker annotation** allows implicit receivers from outer
-   scopes, causing subtle bugs in nested DSL structures
+3. **Mixing DSL and imperative code** inconsistently: unclear which style goes
+   where
 
-4. **Not validating DSL structures** allows invalid configurations to pass
-   compilation and fail at runtime
+4. **Not providing clear DSL boundaries**: unclear where DSL context starts and
+   ends
 
-5. **Using mutable DSL builders without protection** enables unsafe concurrent
-   modifications and unexpected behavior
-
-6. **Creating deeply nested DSLs** without clear structure becomes difficult to
-   navigate and reason about
-
-7. **Overloading too many operators** obscures intent and makes code cryptic
-   rather than expressive
-
-8. **Mixing DSL and imperative code** inconsistently creates confusion about
-   which style to use where
-
-9. **Not providing clear DSL boundaries** makes it unclear when DSL context
-   starts and ends in code
-
-10. **Ignoring IDE support implications** creates DSLs that don't work well with
-    autocompletion or refactoring tools
+5. **Ignoring IDE support implications**: DSLs work poorly with autocompletion
+   or refactoring tools
 
 ## When to Use This Skill
 
-Use Kotlin DSL patterns when building libraries, frameworks, or configuration
-systems that benefit from readable, type-safe domain-specific syntax.
+Use for libraries, frameworks or configuration systems that gain from readable,
+type-safe domain syntax.
 
-Apply type-safe builders for hierarchical structures like HTML generation, UI
-layouts, or nested configuration trees where structure matters.
+Type-safe builders: hierarchical structures (HTML generation, UI layouts,
+nested configuration trees).
 
-Employ infix functions and operators for domain concepts that have natural
-binary operations like comparisons, measurements, or logical relationships.
+Infix functions and operators: natural binary operations (comparisons,
+measurements, logical relationships).
 
-Leverage lambdas with receivers for test frameworks, build scripts, or any API
-where context-specific operations improve readability.
+Lambdas with receivers: test frameworks, build scripts, any API where
+context-specific operations aid readability.
 
-Use @DslMarker when building complex nested DSLs to prevent scope confusion and
-catch errors at compile time rather than runtime.
+@DslMarker: complex nested DSLs.
 
 ## Resources
 

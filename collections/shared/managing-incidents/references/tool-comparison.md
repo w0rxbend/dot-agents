@@ -3,7 +3,6 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [Platform Comparison Matrix](#platform-comparison-matrix)
 - [Detailed Platform Reviews](#detailed-platform-reviews)
   - [PagerDuty](#pagerduty)
@@ -34,12 +33,6 @@
   - [Atlassian-Centric Stack](#atlassian-centric-stack)
 - [Further Reading](#further-reading)
 
-## Overview
-
-Selecting the right incident management platform depends on team size, budget, existing tooling, and organizational needs. This guide compares leading platforms and provides decision frameworks.
-
----
-
 ## Platform Comparison Matrix
 
 | Feature | PagerDuty | Opsgenie | incident.io | Splunk On-Call |
@@ -64,22 +57,20 @@ Selecting the right incident management platform depends on team size, budget, e
 
 ### PagerDuty
 
-**Overview:** Market leader, most mature platform, extensive integrations.
-
 **Strengths:**
-- **700+ Integrations:** Datadog, Prometheus, AWS CloudWatch, New Relic, Splunk, and more
+- **700+ Integrations:** Datadog, Prometheus, AWS CloudWatch, New Relic, Splunk, more
 - **AIOps:** Intelligent event grouping, noise reduction, anomaly detection
-- **Mature Platform:** Battle-tested by Fortune 500 companies
+- **Mature Platform:** Market leader, battle-tested by Fortune 500 companies
 - **Terraform Provider:** Infrastructure-as-code support (Context7: 976 code snippets)
-- **Comprehensive API:** Full automation capabilities (Context7: 208 code snippets, Benchmark 35.2)
+- **Comprehensive API:** Full automation (Context7: 208 code snippets, Benchmark 35.2)
 - **Advanced Escalation:** Complex multi-team escalation policies
 - **Analytics:** Detailed incident metrics and reporting
 - **Incident Response:** Runbook automation, status updates, stakeholder management
 
 **Weaknesses:**
-- **Cost:** Most expensive option ($19-41/user/month)
-- **Complexity:** Feature-rich but steep learning curve (can overwhelm small teams)
-- **Vendor Lock-In:** Deep integrations make migration difficult
+- **Cost:** Most expensive ($19-41/user/month)
+- **Complexity:** Feature-rich, steep learning curve (can overwhelm small teams)
+- **Vendor Lock-In:** Deep integrations make migration hard
 
 **Pricing Tiers:**
 - **Starter:** $19/user/month (basic on-call, simple escalation)
@@ -91,7 +82,7 @@ Selecting the right incident management platform depends on team size, budget, e
 - Budget: $500+/month
 - Need: Complex multi-team escalations, extensive third-party integrations
 - Infrastructure: Multi-cloud, microservices, complex dependencies
-- Existing stack: Already using Datadog, AWS, New Relic
+- Existing stack: Already on Datadog, AWS, New Relic
 
 **Resources:**
 - Context7: `/pagerduty/terraform-provider-pagerduty` (High reputation, 976 snippets)
@@ -102,21 +93,19 @@ Selecting the right incident management platform depends on team size, budget, e
 
 ### Opsgenie
 
-**Status: legacy.** Atlassian stopped selling Opsgenie in 2025 and is retiring it in favor of Jira Service Management and Compass; do not choose it for a new setup, and plan a migration if you already use it. The notes below are for teams still running it.
-
-**Overview:** Atlassian product, flexible routing, more affordable than PagerDuty.
+**Status: legacy.** Atlassian stopped selling Opsgenie in 2025 and is retiring it in favor of Jira Service Management and Compass. Do not choose it for new setup. Already using it: plan migration. Notes below are for teams still running it.
 
 **Strengths:**
 - **Atlassian Integration:** Seamless with Jira, Confluence, Bitbucket, Trello
 - **Flexible Routing:** Advanced on-call scheduling, custom routing rules
-- **Cost:** More affordable than PagerDuty ($9-29/user/month)
+- **Cost:** Cheaper than PagerDuty ($9-29/user/month)
 - **Mobile App:** Excellent iOS/Android experience with push notifications
 - **Automation:** Strong workflow automation (create Jira tickets, run scripts)
 - **Heartbeat Monitoring:** Built-in uptime monitoring
 - **Stakeholder Notifications:** Custom alert policies for non-technical stakeholders
 
 **Weaknesses:**
-- **Fewer Integrations:** Less extensive than PagerDuty (200+ vs 700+)
+- **Fewer Integrations:** Fewer than PagerDuty (200+ vs 700+)
 - **AIOps:** Less mature than PagerDuty's AI features
 - **Terraform Support:** Good but less mature than PagerDuty
 
@@ -126,12 +115,12 @@ Selecting the right incident management platform depends on team size, budget, e
 - **Enterprise:** $29/user/month (advanced automation, SSO, audit logs)
 
 **When to Choose Opsgenie:**
-- Not for new setups (see status above); existing users should plan a move to Jira Service Management
+- Not for new setups (see status above); existing users should plan move to Jira Service Management
 - Already using Atlassian products (Jira, Confluence)
 - Budget: $200-500/month
 - Need: Custom routing rules, flexible schedules, Jira integration
 - Team size: 5-50 engineers
-- Workflow: Heavy Jira usage for incident tracking
+- Workflow: Heavy Jira use for incident tracking
 
 **Resources:**
 - Documentation: https://docs.opsgenie.com/
@@ -141,16 +130,14 @@ Selecting the right incident management platform depends on team size, budget, e
 
 ### incident.io
 
-**Overview:** Modern platform, AI-powered response, Slack-native workflow.
-
 **Strengths:**
 - **AI-Powered:** Autonomous investigation, pattern detection, faster resolution
 - **Slack-Native:** Deep Slack integration, incident channels, slash commands
 - **Modern UX:** Clean, intuitive interface (easy onboarding)
 - **Full-Stack:** On-call, incident management, post-mortems in one platform
 - **Fast Setup:** 10-minute setup, minimal configuration
-- **Post-Mortem Integration:** Automated post-mortem generation from incident data
-- **Status Page:** Built-in status page functionality
+- **Post-Mortem Integration:** Generates post-mortems from incident data
+- **Status Page:** Built-in status page
 
 **Weaknesses:**
 - **Newer Platform:** Less proven than PagerDuty/Opsgenie (founded ~2020)
@@ -159,7 +146,7 @@ Selecting the right incident management platform depends on team size, budget, e
 - **Pricing Transparency:** Must contact sales for pricing
 
 **Pricing:**
-- Contact sales for pricing (typically competitive with Opsgenie)
+- Contact sales (typically competitive with Opsgenie)
 
 **When to Choose incident.io:**
 - Team size: 5-50 engineers
@@ -175,8 +162,6 @@ Selecting the right incident management platform depends on team size, budget, e
 ---
 
 ### Splunk On-Call (formerly VictorOps)
-
-**Overview:** Splunk product, best for existing Splunk observability users.
 
 **Strengths:**
 - **Splunk Ecosystem:** Native integration with Splunk Observability Cloud
@@ -197,7 +182,7 @@ Selecting the right incident management platform depends on team size, budget, e
 **When to Choose Splunk On-Call:**
 - Already using Splunk for monitoring/logging
 - Need: Unified Splunk platform
-- Budget: Enterprise (Splunk licensing already acquired)
+- Budget: Enterprise (Splunk license already held)
 - Infrastructure: Heavy investment in Splunk ecosystem
 
 **Resources:**
@@ -211,12 +196,12 @@ Selecting the right incident management platform depends on team size, budget, e
 
 **Small Teams (5-10 Engineers):**
 - **Recommended:** Opsgenie Free or incident.io
-- **Why:** Affordable, easy setup, sufficient features for small scale
+- **Why:** Affordable, easy setup, enough features for small scale
 - **Alternative:** PagerDuty Starter if extensive integrations needed
 
 **Medium Teams (10-50 Engineers):**
 - **Recommended:** Opsgenie Standard or incident.io
-- **Why:** Balance of features, cost, and scalability
+- **Why:** Balances features, cost and scalability
 - **Alternative:** PagerDuty Professional if complex escalations needed
 
 **Large Teams (50-500 Engineers):**
@@ -238,7 +223,7 @@ Selecting the right incident management platform depends on team size, budget, e
 - **DIY:** Custom solution with Slack + Twilio + scripts
 
 **Budget: $200-500/month:**
-- **Opsgenie Standard:** 10-20 users with full features
+- **Opsgenie Standard:** 10-20 users, full features
 - **incident.io:** Modern platform with AI features
 
 **Budget: $500-2000/month:**
@@ -327,12 +312,11 @@ Selecting the right incident management platform depends on team size, budget, e
 **Best For:** Budget-conscious teams, modern design
 
 **Strengths:**
-- Affordable: $19-99/month
 - Modern UI: Clean, customizable design
 - Fast: Lightweight, instant page loads
 - Unlimited Subscribers: No subscriber limits
 - Easy Setup: 5-minute deployment
-- API: Automation for status updates
+- API: Automates status updates
 
 **Cost:** $19-99/month (unlimited subscribers)
 
@@ -418,7 +402,7 @@ def pagerduty_webhook(data: dict):
     )
 ```
 
-See `examples/integrations/pagerduty-slack.py` for complete implementation.
+Full implementation: `examples/integrations/pagerduty-slack.py`.
 
 ---
 
@@ -435,7 +419,7 @@ def on_alert_created(alert):
     )
 ```
 
-See `examples/integrations/statuspage-auto-update.py` for complete implementation.
+Full implementation: `examples/integrations/statuspage-auto-update.py`.
 
 ---
 
@@ -446,7 +430,7 @@ See `examples/integrations/statuspage-auto-update.py` for complete implementatio
 **From PagerDuty to Opsgenie:**
 - Export: PagerDuty schedules, escalation policies (API or manual)
 - Import: Create in Opsgenie via Terraform or API
-- Integrations: Reconfigure monitoring tools to new endpoints
+- Integrations: Point monitoring tools at new endpoints
 - Testing: Run parallel for 1-2 weeks before cutover
 
 **From Legacy System to Modern Platform:**
@@ -466,7 +450,7 @@ See `examples/integrations/statuspage-auto-update.py` for complete implementatio
 **Features:**
 - Alert routing and grouping
 - Silence management
-- Integration with chat (Slack, PagerDuty)
+- Chat integration (Slack, PagerDuty)
 
 **Limitations:**
 - No on-call scheduling (add PagerDuty or Opsgenie)

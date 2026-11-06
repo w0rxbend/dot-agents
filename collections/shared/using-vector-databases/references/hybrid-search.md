@@ -21,9 +21,7 @@
 
 ## Overview
 
-Hybrid search combines vector similarity search (semantic understanding) with traditional keyword search (exact matching) to achieve superior retrieval quality. This approach addresses the limitations of each method when used in isolation.
-
-**Key benefit:** Retrieval quality improvement of 15-30% over vector-only search in production RAG systems.
+**Key benefit:** 15-30% better retrieval quality than vector-only search in production RAG systems.
 
 ## Why Hybrid Search
 
@@ -48,21 +46,18 @@ Hybrid search combines vector similarity search (semantic understanding) with tr
 
 **Weaknesses:**
 - Misses synonyms and paraphrases
-- No understanding of semantic meaning
+- No semantic understanding
 - Sensitive to typos and variations
 
 ### Hybrid Advantage
 
-Combining both methods provides:
+Combining both gives:
 - **Recall:** Vector search finds conceptually similar content
-- **Precision:** Keyword search ensures important terms are present
-- **Robustness:** Complementary strengths cover each method's weaknesses
+- **Precision:** Keyword search ensures key terms are present
 
 ## Core Concepts
 
 ### Vector Search (Semantic)
-
-Uses embedding models to convert text into high-dimensional vectors, then computes similarity using distance metrics.
 
 **Distance metrics:**
 - **Cosine similarity:** Most common, works with normalized embeddings
@@ -75,8 +70,6 @@ similarity = (A · B) / (||A|| × ||B||)
 ```
 
 ### Keyword Search (BM25)
-
-BM25 (Best Matching 25) is a probabilistic ranking function for keyword matching.
 
 **Formula:**
 ```
@@ -91,21 +84,15 @@ Where:
 - `b`: Length normalization (typical: 0.75)
 - `IDF(qi)`: Inverse document frequency
 
-**Key parameters:**
-- `k1 = 1.2`: Controls term frequency saturation
-- `b = 0.75`: Controls document length penalty
-
 ### Fusion Strategies
 
-Three primary approaches to combine vector and keyword results:
+Three main ways to combine vector and keyword results:
 
 1. **Reciprocal Rank Fusion (RRF)** - Rank-based merging
 2. **Weighted Scoring** - Linear combination of normalized scores
 3. **Re-ranking** - Two-stage retrieval with cross-encoder
 
 ## Reciprocal Rank Fusion (RRF)
-
-RRF combines ranked lists without requiring normalized scores, making it robust and implementation-agnostic.
 
 ### Algorithm
 
@@ -154,17 +141,15 @@ Final Ranking: B, A, D, C
 **Disadvantages:**
 - Ignores absolute score magnitudes
 - Treats all rank positions equally within the formula
-- May not fully leverage high-confidence matches
+- May not fully use high-confidence matches
 
 ### Tuning the k Parameter
 
-- **k = 60**: Default, balanced approach
-- **k = 10-30**: Emphasizes top-ranked results more strongly
-- **k = 100-200**: More gradual rank decay, considers more results
+- **k = 60**: Default, balanced
+- **k = 10-30**: Weights top-ranked results more strongly
+- **k = 100-200**: Gentler rank decay, counts more results
 
 ## Weighted Scoring Approaches
-
-Linear combination of normalized vector and keyword scores.
 
 ### Normalization Methods
 
@@ -185,7 +170,7 @@ normalized_score = (score - mean_score) / std_dev
 hybrid_score = (alpha × vector_score) + ((1 - alpha) × keyword_score)
 ```
 
-Where `alpha` ∈ [0, 1] controls the balance.
+`alpha` ∈ [0, 1] sets the balance.
 
 **Recommended alpha values:**
 - `alpha = 0.7`: Semantic-heavy (general Q&A, conversational)
@@ -194,7 +179,7 @@ Where `alpha` ∈ [0, 1] controls the balance.
 
 ### Adaptive Weighting
 
-Adjust alpha based on query characteristics:
+Adjust alpha by query characteristics:
 
 ```python
 def calculate_alpha(query: str) -> float:
@@ -243,7 +228,7 @@ Top 20 docs   Top 20 docs
 
 ### Qdrant
 
-Qdrant provides built-in hybrid search with fusion support.
+Qdrant has built-in hybrid search with fusion support.
 
 #### Basic Hybrid Search
 
@@ -334,7 +319,7 @@ results = client.query_points(
 
 ### Pinecone
 
-Pinecone supports hybrid search through sparse-dense vectors.
+Pinecone does hybrid search through sparse-dense vectors.
 
 #### Setup with Sparse Embeddings
 
@@ -412,7 +397,7 @@ def hybrid_search(query: str, alpha: float = 0.5):
 
 ### Weaviate
 
-Weaviate provides native hybrid search with automatic score normalization.
+Weaviate has native hybrid search with automatic score normalization.
 
 #### Basic Hybrid Query
 
@@ -481,7 +466,7 @@ results_relative = collection.query.hybrid(
 
 ### pgvector
 
-PostgreSQL with pgvector requires manual implementation of hybrid search.
+PostgreSQL with pgvector needs hybrid search implemented by hand.
 
 #### Schema Setup
 
@@ -699,7 +684,7 @@ def hybrid_search_weighted(
 
 ### Two-Stage Retrieval with Re-ranking
 
-Combine hybrid search with cross-encoder re-ranking for maximum quality.
+Add cross-encoder re-ranking after hybrid search for maximum quality.
 
 ```python
 from sentence_transformers import CrossEncoder
@@ -722,7 +707,7 @@ reranked = sorted(
 
 ### Query Expansion
 
-Expand queries before hybrid search to improve recall.
+Expand queries before hybrid search to raise recall.
 
 ```python
 from openai import OpenAI
@@ -772,7 +757,7 @@ def multi_query_hybrid_search(query: str):
 
 ### Metadata-Filtered Hybrid Search
 
-Apply metadata filters before hybrid search to constrain the search space.
+Apply metadata filters before hybrid search to narrow search space.
 
 ```python
 # Qdrant example
@@ -844,7 +829,7 @@ results = client.query_points(
 
 ### Caching
 
-Implement semantic caching for repeated queries:
+Add semantic caching for repeated queries:
 
 ```python
 from functools import lru_cache
@@ -870,7 +855,7 @@ results = cached_hybrid_search(qhash, user_query, alpha=0.5)
 
 ### Batch Processing
 
-Process multiple queries in parallel:
+Run multiple queries in parallel:
 
 ```python
 import asyncio
@@ -896,8 +881,8 @@ async def batch_hybrid_search(queries: list[str], alpha: float = 0.5):
 ### Metrics
 
 **Retrieval Quality:**
-- **Precision@k:** Proportion of relevant results in top k
-- **Recall@k:** Proportion of all relevant results found in top k
+- **Precision@k:** Share of top k results that are relevant
+- **Recall@k:** Share of all relevant results found in top k
 - **MRR (Mean Reciprocal Rank):** Average inverse rank of first relevant result
 - **NDCG (Normalized Discounted Cumulative Gain):** Ranking quality metric
 
@@ -977,6 +962,7 @@ results = evaluate_variants(test_queries, ground_truth_data, variants)
 ### RAGAS Integration
 
 ```python
+# ragas sends usage telemetry by default: export RAGAS_DO_NOT_TRACK=true first
 from ragas import evaluate
 from ragas.metrics import context_precision, context_recall
 
@@ -1024,20 +1010,14 @@ for alpha in [0.3, 0.5, 0.7]:
 | BM25 only | 0.65 | 0.75 | 5ms |
 | **Hybrid (RRF)** | **0.84** | **0.91** | 15ms |
 
-**Conclusion:** Hybrid provides 12-point recall improvement at minimal latency cost.
-
 ---
 
 ## Summary
 
-Hybrid search combines the semantic understanding of vector search with the precision of keyword matching, providing 15-30% improvement in retrieval quality for RAG applications.
-
 **Key takeaways:**
 - Use RRF for simplicity and robustness across platforms
-- Use weighted scoring when fine-tuning search behavior
-- Start with alpha=0.5 (balanced), adjust based on query characteristics
-- Implement two-stage retrieval (hybrid + re-ranking) for maximum quality
-- Evaluate with real queries and ground truth data
+- Use weighted scoring to fine-tune search behavior
+- Start with alpha=0.5 (balanced), adjust by query characteristics
 
 **Platform recommendations:**
 - Qdrant: Built-in RRF, best metadata filtering

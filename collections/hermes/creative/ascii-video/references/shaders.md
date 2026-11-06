@@ -1,16 +1,14 @@
 # Shader Pipeline & Composable Effects
 
-Post-processing effects applied to the pixel canvas (`numpy uint8 array, shape (H,W,3)`) after character rendering and before encoding. Also covers **pixel-level blend modes**, **feedback buffers**, and the **ShaderChain** compositor.
+Post-processing effects on pixel canvas (`numpy uint8 array, shape (H,W,3)`), applied after character rendering, before encoding. Also covers **pixel-level blend modes**, **feedback buffers**, **ShaderChain** compositor.
 
 > **See also:** composition.md (blend modes, tonemap) · effects.md · scenes.md · architecture.md · optimization.md · troubleshooting.md
 >
-> **Blend modes:** For the 20 pixel blend modes and `blend_canvas()`, see `composition.md`. All blending uses `blend_canvas(base, top, mode, opacity)`.
+> **Blend modes:** 20 pixel blend modes and `blend_canvas()` live in `composition.md`.
 
 ## Design Philosophy
 
-The shader pipeline turns raw ASCII renders into cinematic output. The system is designed for **composability** — every shader, blend mode, and feedback transform is an independent building block. Combining them creates infinite visual variety from a small set of primitives.
-
-Choose shaders that reinforce the mood:
+Pick shaders that reinforce mood:
 - **Retro terminal**: CRT + scanlines + grain + green/amber tint
 - **Clean modern**: light bloom + subtle vignette only
 - **Glitch art**: heavy chromatic aberration + glitch bands + color wobble + pixel sort
@@ -25,7 +23,7 @@ Choose shaders that reinforce the mood:
 
 ## Pixel-Level Blend Modes
 
-All operate on float32 [0,1] canvases for precision. Use `blend_canvas(base, top, mode, opacity)` which handles uint8 <-> float conversion.
+All operate on float32 [0,1] canvases for precision. Use `blend_canvas(base, top, mode, opacity)`; it handles uint8 <-> float conversion.
 
 ### Available Modes
 
@@ -74,10 +72,10 @@ result = blend_canvas(result, layer_c, "multiply", 0.3)
 
 ### Creative Combinations
 
-- **Feedback + difference** = psychedelic color evolution (each frame XORs with the previous)
+- **Feedback + difference** = psychedelic color evolution (each frame XORs with previous)
 - **Screen + screen** = additive glow stacking
-- **Multiply** on two different effects = only shows where both have brightness (intersection)
-- **Exclusion** between two layers = creates complementary patterns where they differ
+- **Multiply** on two different effects = shows only where both have brightness (intersection)
+- **Exclusion** between two layers = complementary patterns where layers differ
 - **Color dodge/burn** = extreme contrast enhancement at overlap zones
 - **Hard mix** = reduces everything to pure black/white/color at intersections
 
@@ -85,7 +83,7 @@ result = blend_canvas(result, layer_c, "multiply", 0.3)
 
 ## Feedback Buffer
 
-Recursive temporal effect: frame N-1 feeds back into frame N with decay and optional spatial transform. Creates trails, echoes, smearing, zoom tunnels, rotation feedback, rainbow trails.
+Recursive temporal effect: frame N-1 feeds into frame N with decay and optional spatial transform. Gives trails, echoes, smearing, zoom tunnels, rotation feedback, rainbow trails.
 
 ```python
 class FeedbackBuffer:
@@ -142,7 +140,7 @@ fb_cfg = {"decay": 0.5, "blend": "add", "opacity": 0.2,
 
 ## ShaderChain
 
-Composable shader pipeline. Build chains of named shaders with parameters. Order matters — shaders are applied sequentially to the canvas.
+Composable shader pipeline. Chain named shaders with parameters. Order matters: shaders apply sequentially to canvas.
 
 ```python
 class ShaderChain:
@@ -173,7 +171,7 @@ class ShaderChain:
 
 ### `_apply_shader_step()` — Full Dispatch Function
 
-Routes shader names to implementations. Some shaders have **audio-reactive scaling** — the dispatch function reads `f["bdecay"]` and `f["rms"]` to modulate parameters on the beat.
+Routes shader names to implementations. Some shaders have **audio-reactive scaling**: dispatch reads `f["bdecay"]` and `f["rms"]` to modulate parameters on beat.
 
 ```python
 def _apply_shader_step(canvas, name, kwargs, f, t):
@@ -293,16 +291,16 @@ def _apply_shader_step(canvas, name, kwargs, f, t):
 
 ### Audio-Reactive Shaders
 
-Three shaders scale their parameters based on audio features:
+Three shaders scale their parameters by audio features:
 
 | Shader | Reactive To | Effect |
 |--------|------------|--------|
 | `chromatic` | `bdecay` | `amt * (0.4 + bdecay * 0.8)` — aberration kicks on beats |
 | `color_wobble` | `rms` | `amt * (0.5 + rms * 0.8)` — wobble intensity follows energy |
 | `grain` | `rms` | `amt * (0.5 + rms * 0.8)` — grain rougher in loud sections |
-| `glitch_bands` | `bdecay`, `sub` | Number of bands and displacement scale with beat energy |
+| `glitch_bands` | `bdecay`, `sub` | Band count and displacement scale with beat energy |
 
-To make any shader beat-reactive, scale its parameter in the dispatch: `base_val * (low + bd * range)`.
+To make any shader beat-reactive, scale its parameter in dispatch: `base_val * (low + bd * range)`.
 
 ---
 
@@ -390,11 +388,11 @@ To make any shader beat-reactive, scale its parameter in the dispatch: `base_val
 
 ## Shader Implementations
 
-Every shader function takes a canvas (`uint8 H,W,3`) and returns a canvas of the same shape. The naming convention is `sh_<name>`. Geometry shaders that build coordinate remap tables should **cache** them since the table only depends on resolution + parameters, not on frame content.
+Every shader function takes canvas (`uint8 H,W,3`) and returns canvas of same shape. Naming convention: `sh_<name>`. Geometry shaders that build coordinate remap tables should **cache** them. Table depends only on resolution + parameters, not on frame content.
 
 ### Helpers
 
-Shaders that manipulate hue/saturation need vectorized HSV conversion:
+Hue/saturation shaders need vectorized HSV conversion:
 
 ```python
 def rgb2hsv(r, g, b):
@@ -441,7 +439,6 @@ def mkc(R, G, B, rows, cols):
 ### Geometry Shaders
 
 #### CRT Barrel Distortion
-Cache the coordinate remap — it never changes per frame:
 ```python
 _crt_cache = {}
 def sh_crt(c, strength=0.05):
@@ -542,7 +539,7 @@ def sh_mirror_diag(c):
     return c
 ```
 
-> **Note:** Mirror shaders mutate in-place. The dispatch function passes `canvas.copy()` to avoid corrupting the original.
+> **Note:** Mirror shaders mutate in-place. Dispatch passes `canvas.copy()` to avoid corrupting original.
 
 ---
 
@@ -815,7 +812,7 @@ def sh_halftone(c, dot_size=6):
     return out
 ```
 
-> **Performance note:** Halftone is slow due to Python loops. Acceptable for small resolutions or single test frames. For production, consider a vectorized version using precomputed distance masks.
+> **Performance note:** Halftone is slow due to Python loops. Fine for small resolutions or single test frames. For production, consider vectorized version using precomputed distance masks.
 
 ---
 
@@ -836,7 +833,7 @@ def sh_vignette(c, s=0.22):
 
 #### Reverse Vignette
 
-Inverted vignette: darkens the **center** and leaves edges bright. Useful when text is centered over busy backgrounds — creates a natural dark zone for readability without a hard-edged box.
+Inverted vignette: darkens **center**, leaves edges bright. Use when text sits centered over busy backgrounds. Gives natural dark zone for readability without hard-edged box.
 
 Combine with `apply_text_backdrop()` (see composition.md) for per-frame glyph-aware darkening.
 
@@ -996,7 +993,7 @@ TINT_SUNSET    = (1.3, 0.85, 0.7)    # orange dusk
 
 ## Transitions
 
-> **Note:** These operate on character-level `(chars, colors)` arrays (v1 interface). In v2, transitions between scenes are typically handled by hard cuts at beat boundaries (see `scenes.md`), or by rendering both scenes to canvases and using `blend_canvas()` with a time-varying opacity. The character-level transitions below are still useful for within-scene effects.
+> **Note:** These operate on character-level `(chars, colors)` arrays (v1 interface). In v2, scene transitions are typically hard cuts at beat boundaries (see `scenes.md`). Alternative: render both scenes to canvases, then use `blend_canvas()` with time-varying opacity. Character-level transitions below still work for within-scene effects.
 
 ### Crossfade
 ```python
@@ -1065,7 +1062,7 @@ cmd = ["ffmpeg", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24",
 
 ### PNG Sequence
 
-For frame-accurate editing, compositing in external tools (After Effects, Nuke), or lossless archival:
+For frame-accurate editing, compositing in external tools (After Effects, Nuke) or lossless archival:
 
 ```python
 import os
@@ -1135,7 +1132,7 @@ ffmpeg -y -f rawvideo -pix_fmt rgba -s {W}x{H} -r {fps} -i pipe:0 \
     frame_%06d.png
 ```
 
-**Key constraint**: shaders that operate on `(H,W,3)` arrays need adaptation for RGBA. Either apply shaders to the RGB channels only and preserve alpha, or write RGBA-aware versions:
+**Key constraint**: shaders on `(H,W,3)` arrays need adaptation for RGBA. Either apply shaders to RGB channels only and preserve alpha, or write RGBA-aware versions:
 
 ```python
 def apply_shader_rgba(canvas_rgba, shader_fn, **kwargs):
@@ -1150,7 +1147,7 @@ def apply_shader_rgba(canvas_rgba, shader_fn, **kwargs):
 
 ## Real-Time Terminal Rendering
 
-Live ASCII display in the terminal using ANSI escape codes. Useful for previewing scenes during development, live performances, and interactive parameter tuning.
+Live ASCII display in terminal via ANSI escape codes. Use for previewing scenes during development, live performances, interactive parameter tuning.
 
 ### ANSI Color Escape Codes
 
@@ -1199,7 +1196,7 @@ def frame_to_ansi(chars, colors):
 
 ### Optimized: Delta Updates
 
-Only redraw characters that changed since the last frame. Eliminates redundant terminal writes for static regions:
+Redraw only characters changed since last frame:
 
 ```python
 def frame_to_ansi_delta(chars, colors, prev_chars, prev_colors):
@@ -1367,7 +1364,7 @@ def render_curses(scene_fn, r, fps=24):
 |-----------|-------|-------|
 | Max practical grid | ~200x60 | Depends on terminal size |
 | Color support | 24-bit (modern), 256 (fallback), 16 (minimal) | Check `$COLORTERM` for truecolor |
-| Frame rate ceiling | ~30 fps | Terminal I/O is the bottleneck |
+| Frame rate ceiling | ~30 fps | Terminal I/O is bottleneck |
 | Delta updates | 2-5x faster | Only worth it when <30% of cells change per frame |
 | SSH latency | Kills performance | Local terminals only for real-time |
 

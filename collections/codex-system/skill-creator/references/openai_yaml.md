@@ -1,6 +1,6 @@
 # openai.yaml fields (full example + descriptions)
 
-`agents/openai.yaml` is an extended, product-specific config intended for the machine/harness to read, not the agent. Other product-specific config can also live in the `agents/` folder.
+`agents/openai.yaml` is extended, product-specific config read by machine/harness, not agent. Other product-specific config can also live in `agents/`.
 
 ## Full example
 
@@ -31,19 +31,19 @@ Top-level constraints:
 
 - Quote all string values.
 - Keep keys unquoted.
-- For `interface.default_prompt`: generate a helpful, short (typically 1 sentence) example starting prompt based on the skill. It must explicitly mention the skill as `$skill-name` (e.g., "Use $skill-name-here to draft a concise weekly status update.").
+- For `interface.default_prompt`: generate short, helpful (typically 1 sentence) example starting prompt from skill. It must explicitly mention skill as `$skill-name` (e.g., "Use $skill-name-here to draft a concise weekly status update.").
 
 - `interface.display_name`: Human-facing title shown in UI skill lists and chips.
-- `interface.short_description`: Human-facing short UI blurb (25–64 chars) for quick scanning.
-- `interface.icon_small`: Path to a small icon asset (relative to skill dir). Default to `./assets/` and place icons in the skill's `assets/` folder.
-- `interface.icon_large`: Path to a larger logo asset (relative to skill dir). Default to `./assets/` and place icons in the skill's `assets/` folder.
-- `interface.brand_color`: Hex color used for UI accents (e.g., badges).
-- `interface.default_prompt`: Default prompt snippet inserted when invoking the skill.
-- `dependencies.tools[].type`: Dependency category. Only `mcp` is supported for now.
-- `dependencies.tools[].value`: Identifier of the tool or dependency.
-- `dependencies.tools[].description`: Human-readable explanation of the dependency.
+- `interface.short_description`: Short human-facing UI blurb (25–64 chars) for quick scanning.
+- `interface.icon_small`: Small icon asset path (relative to skill dir). Default to `./assets/`; put icons in skill's `assets/` folder.
+- `interface.icon_large`: Larger logo asset path (relative to skill dir). Default to `./assets/`; put icons in skill's `assets/` folder.
+- `interface.brand_color`: Hex color for UI accents (e.g., badges).
+- `interface.default_prompt`: Default prompt snippet inserted when invoking skill.
+- `dependencies.tools[].type`: Dependency category. Only `mcp` supported for now.
+- `dependencies.tools[].value`: Tool or dependency identifier.
+- `dependencies.tools[].description`: Human-readable dependency explanation.
 - `dependencies.tools[].transport`: Connection type when `type` is `mcp`.
 - `dependencies.tools[].url`: MCP server URL when `type` is `mcp`.
-- `policy.allow_implicit_invocation`: When false, the skill is not injected into
-  the model context by default, but can still be invoked explicitly via `$skill`.
+- `policy.allow_implicit_invocation`: When false, skill is not injected into
+  model context by default but can still be invoked explicitly via `$skill`.
   Defaults to true.

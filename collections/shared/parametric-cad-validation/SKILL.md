@@ -6,8 +6,8 @@ license: MIT
 
 # Parametric CAD validation
 
-Find the actual subproject before changing geometry. The portfolio contains separate subprojects (for example Tigerbee, Tigerbee 7inch, Tigerbeetle V2 and ChitinFPV; list the repository root for the current set), each with its own models, commands and artifact conventions; similar component names do not establish identical parameters or interfaces. Read its pyproject, lockfile, preset definitions, validation report and CI. Preserve the Python model as the source of truth where FCStd is an interchange artifact.
+Find target subproject before changing geometry. Each subproject (for example Tigerbee, Tigerbee 7inch, Tigerbeetle V2 and ChitinFPV; list repository root for current set) has own models, commands and artifact conventions. Similar component names do not mean identical parameters or interfaces. Read subproject's pyproject, lockfile, preset definitions, validation report and CI. Keep Python model as source of truth where FCStd is interchange artifact.
 
-Read [geometry-gates.md](references/geometry-gates.md) for dimensional, topology and assembly changes. Read [native-export.md](references/native-export.md) for STEP/STL/FCStd output, separate FreeCAD runtimes and save/reopen evidence. Load both when a geometry edit changes exported parts.
+Read [geometry-gates.md](references/geometry-gates.md) for dimensional, topology and assembly changes. Read [native-export.md](references/native-export.md) for STEP/STL/FCStd output, separate FreeCAD runtimes and save/reopen evidence. Load both when geometry edit changes exported parts.
 
-Validate the changed part and shared interfaces, then the relevant presets and assembly gates. Keep units and tolerances explicit. Report measured geometry, missing equipment dimensions and native integration coverage separately. A generated file or attractive viewport does not establish a valid solid, geometric fit, or a reopened native document.
+Validate changed part and shared interfaces, then relevant presets and assembly gates. Keep units and tolerances explicit. Report separately: measured geometry, missing equipment dimensions, native integration coverage. Generated file or nice viewport does not prove valid solid, geometric fit, or reopened native document.

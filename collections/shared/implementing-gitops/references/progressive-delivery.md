@@ -1,7 +1,5 @@
 # Progressive Delivery Patterns
 
-Advanced deployment strategies for gradual rollouts with automated validation and rollback.
-
 ## Table of Contents
 
 1. [Deployment Strategies](#deployment-strategies)
@@ -23,23 +21,29 @@ Advanced deployment strategies for gradual rollouts with automated validation an
 
 ### When to Use
 
-- **Canary:** Gradual rollout with real traffic, metric-based validation
-- **Blue-Green:** Zero-downtime with instant rollback capability
-- **Rolling:** Standard Kubernetes default, simple progressive rollout
-- **A/B Testing:** Feature testing with specific user segments
+- **Canary:** Production deployments; gradual rollout on real traffic, metric-based validation
+- **Blue-Green:** When instant rollback is critical
+- **Rolling:** Kubernetes default; non-critical services with simple requirements
+- **A/B Testing:** Feature validation on specific user segments
 
 ## Argo Rollouts
 
 ### Installation
 
 ```bash
+# Download assets of a pinned release (not releases/latest), review, then apply
+ROLLOUTS_VERSION=v1.10.2
+BIN=kubectl-argo-rollouts-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64
+# GH_TELEMETRY=false: gh sends usage telemetry by default
+GH_TELEMETRY=false gh release download "$ROLLOUTS_VERSION" -R argoproj/argo-rollouts \
+  -p install.yaml -p argo-rollouts-checksums.txt -p "$BIN"
 kubectl create namespace argo-rollouts
-kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
+kubectl apply -n argo-rollouts -f install.yaml
 
-# Install kubectl plugin
-curl -LO https://github.com/argoproj/argo-rollouts/releases/latest/download/kubectl-argo-rollouts-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64
-chmod +x ./kubectl-argo-rollouts-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64
-sudo mv ./kubectl-argo-rollouts-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64 /usr/local/bin/kubectl-argo-rollouts
+# Install kubectl plugin (or: brew install argoproj/tap/kubectl-argo-rollouts);
+# verify the binary against the release checksums before installing
+sha256sum --ignore-missing -c argo-rollouts-checksums.txt &&
+  chmod +x "./$BIN" && sudo mv "./$BIN" /usr/local/bin/kubectl-argo-rollouts
 ```
 
 ### Basic Canary Rollout
@@ -336,17 +340,14 @@ kubectl argo rollouts restart myapp
 # Add Flagger Helm repository
 helm repo add flagger https://flagger.app
 
-# Install Flagger with Prometheus
-helm upgrade -i flagger flagger/flagger \
+# Install Flagger with Prometheus (pinned chart version)
+helm upgrade -i flagger flagger/flagger --version 1.45.0 \
   --namespace flux-system \
   --set prometheus.install=true \
   --set meshProvider=kubernetes
-
-# Install Flagger Grafana dashboards
-helm upgrade -i flagger-grafana flagger/grafana \
-  --namespace flux-system \
-  --set url=http://prometheus.flux-system:9090
 ```
+
+Dashboards: skip the `flagger/grafana` chart (old Grafana, usage reporting to Grafana Labs on, anonymous Admin when no password set). Import `charts/grafana/dashboards/*.json` from fluxcd/flagger at the pinned release into your own Grafana, run with `GF_ANALYTICS_REPORTING_ENABLED=false` and `GF_ANALYTICS_CHECK_FOR_UPDATES=false`.
 
 ### Canary with Flagger
 
@@ -565,31 +566,23 @@ spec:
 
 ## Best Practices
 
-### Strategy Selection
-
-- **Canary:** Use for production deployments with real traffic validation
-- **Blue-Green:** Use when instant rollback is critical
-- **Rolling:** Use for non-critical services with simple requirements
-- **A/B Testing:** Use for feature validation with specific user segments
-
 ### Metrics Selection
 
 - Monitor success rate (errors per request)
 - Track latency percentiles (P50, P95, P99)
-- Measure resource utilization (CPU, memory)
+- Measure resource usage (CPU, memory)
 - Watch custom business metrics
 
 ### Rollout Configuration
 
-- Start with small traffic percentages (5-10%)
+- Start with small traffic weights (5-10%)
 - Use multiple analysis steps
-- Set appropriate failure thresholds
-- Configure reasonable timeouts
+- Set failure thresholds
+- Set reasonable timeouts
 - Enable automatic rollback
 
 ### Testing
 
 - Test rollout strategies in staging first
-- Validate analysis templates with historical data
+- Validate analysis templates against historical data
 - Simulate failures to verify rollback
-- Monitor resource usage during rollouts

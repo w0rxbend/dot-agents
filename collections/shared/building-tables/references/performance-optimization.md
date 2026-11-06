@@ -1,6 +1,5 @@
 # Table Performance Optimization
 
-
 ## Table of Contents
 
 - [Performance Tier Overview](#performance-tier-overview)
@@ -29,14 +28,14 @@
 
 ### Tier 1: Client-Side Operations (<1,000 rows)
 
-All data loaded and processed in the browser.
+All data loaded and processed in browser.
 
 **Optimization Techniques:**
-- Use `React.memo()` to prevent unnecessary re-renders
+- `React.memo()` to skip unneeded re-renders
 - Memoize filtered/sorted data with `useMemo()`
 - Debounce search inputs (300ms typical)
-- Virtualize if approaching 1,000 rows
-- Use CSS for hover/selection states (not JS)
+- Virtualize when nearing 1,000 rows
+- CSS for hover/selection states (not JS)
 
 **Example optimization:**
 ```javascript
@@ -63,10 +62,10 @@ const MemoizedTable = React.memo(({ data, columns }) => {
 
 ### Tier 2: Server-Side Operations (1,000-10,000 rows)
 
-Backend handles data operations, frontend displays pages.
+Backend runs data operations, frontend shows pages.
 
 **Optimization Techniques:**
-- Database indexing on sort/filter columns
+- Database indexes on sort/filter columns
 - Query result caching (Redis, memory cache)
 - Cursor-based pagination for stable results
 - Compress API responses (gzip)
@@ -118,10 +117,10 @@ const { data } = useQuery(
 Render only visible rows, recycle DOM nodes.
 
 **Core Concepts:**
-- **Viewport**: Visible area of the table
+- **Viewport**: Visible table area
 - **Buffer**: Extra rows above/below viewport
 - **Window**: Total rows in DOM (viewport + buffer)
-- **Overscan**: Number of buffer rows (typically 3-5)
+- **Overscan**: Buffer row count (typically 3-5)
 
 **Implementation with TanStack Virtual:**
 ```javascript
@@ -162,7 +161,7 @@ function VirtualTable({ data }) {
 ```
 
 **Advanced Optimizations:**
-- Fixed row heights for better performance
+- Fixed row heights (faster)
 - Dynamic row heights with measurement
 - Horizontal virtualization for many columns
 - Sticky headers/columns with virtualization
@@ -175,7 +174,7 @@ function VirtualTable({ data }) {
 
 ### Tier 4: Extreme Scale (100,000+ rows)
 
-Combination of techniques for massive datasets.
+Combine techniques for massive datasets.
 
 **Advanced Techniques:**
 
@@ -474,17 +473,17 @@ const activeRows = useMemo(
 
 ## Performance Checklist
 
-- [ ] Implement virtual scrolling for >1,000 rows
+- [ ] Add virtual scrolling for >1,000 rows
 - [ ] Add database indexes for sort/filter columns
 - [ ] Enable API response compression
-- [ ] Implement request caching strategy
+- [ ] Add request caching strategy
 - [ ] Use React.memo for row components
 - [ ] Memoize expensive computations
 - [ ] Debounce user inputs
 - [ ] Profile with React DevTools
 - [ ] Test on slower devices
 - [ ] Monitor bundle size impact
-- [ ] Implement progressive loading
+- [ ] Add progressive loading
 - [ ] Add loading states
 - [ ] Handle error states gracefully
 - [ ] Test with realistic data volumes

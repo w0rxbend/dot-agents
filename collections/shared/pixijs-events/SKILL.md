@@ -4,7 +4,7 @@ description: "Use this skill when handling pointer, mouse, touch, or wheel input
 license: MIT
 ---
 
-PixiJS's federated event system mirrors DOM events on the scene graph. Set `container.eventMode = 'static'` to opt an object in, then listen with `.on()`, `addEventListener()`, or `onEventName` property handlers. Move events fire only over the listening object; use `globalpointermove` for drag.
+Federated event system mirrors DOM events on scene graph. Opt object in with `container.eventMode = 'static'`, then listen with `.on()`, `addEventListener()` or `onEventName` property handlers. Move events fire only over listening object; use `globalpointermove` for drag.
 
 ## Quick Start
 
@@ -33,7 +33,7 @@ button.on("globalpointermove", (event) => {
 });
 ```
 
-**Related skills:** `pixijs-performance` (event-heavy scenes). Screen reader and keyboard support (`import 'pixi.js/accessibility'`) and HTML overlays (`DOMContainer`) are not covered by these skills; see the [accessibility guide](https://pixijs.com/8.x/guides/components/accessibility) and the [DOMContainer API](https://pixijs.download/release/docs/scene.DOMContainer.html.md).
+**Related skills:** `pixijs-performance` (event-heavy scenes). These skills do not cover screen reader and keyboard support (`import 'pixi.js/accessibility'`) or HTML overlays (`DOMContainer`). See [accessibility guide](https://pixijs.com/8.x/guides/components/accessibility) and [DOMContainer API](https://pixijs.download/release/docs/scene.DOMContainer.html.md).
 
 ## Core Patterns
 
@@ -61,9 +61,9 @@ sprite.eventMode = "static";
 sprite.eventMode = "dynamic";
 ```
 
-Use `'static'` for buttons, UI elements, and drag targets. Use `'dynamic'` only for objects that move under a stationary cursor and need continuous hover updates.
+Use `'static'` for buttons, UI elements, drag targets. Use `'dynamic'` only for objects that move under stationary cursor and need continuous hover updates.
 
-Use `isInteractive()` to check whether an object can receive events:
+Check whether object can receive events with `isInteractive()`:
 
 ```ts
 sprite.eventMode = "static";
@@ -77,11 +77,11 @@ sprite.isInteractive(); // false
 
 Pointer events (recommended for cross-device compatibility): `pointerdown`, `pointerup`, `pointerupoutside`, `pointermove`, `pointerover`, `pointerout`, `pointerenter`, `pointerleave`, `pointertap`, `pointercancel`.
 
-Mouse events: `mousedown`, `mouseup`, `mouseupoutside`, `mousemove`, `mouseover`, `mouseout`, `mouseenter`, `mouseleave`, `click`, `rightdown`, `rightup`, `rightupoutside`, `rightclick`, `contextmenu`, `wheel`. PixiJS doesn't block the browser's context menu; call `event.preventDefault()` in a `contextmenu` listener to keep it closed. Canceling `rightdown`, `rightup`, or `rightclick` doesn't keep it closed. On macOS, ctrl + click also fires `contextmenu`, and the browser can report it as a left click.
+Mouse events: `mousedown`, `mouseup`, `mouseupoutside`, `mousemove`, `mouseover`, `mouseout`, `mouseenter`, `mouseleave`, `click`, `rightdown`, `rightup`, `rightupoutside`, `rightclick`, `contextmenu`, `wheel`. PixiJS doesn't block browser context menu. Call `event.preventDefault()` in `contextmenu` listener to keep it closed. Canceling `rightdown`, `rightup` or `rightclick` doesn't keep it closed. On macOS, ctrl + click also fires `contextmenu`; browser can report it as left click.
 
-Touch events: `touchstart`, `touchend`, `touchendoutside`, `touchmove`, `touchcancel`, `tap`. Each touch carries `altKey`, `ctrlKey`, `metaKey`, and `shiftKey` copied from the native `TouchEvent`, so modifier keys work the same as with mouse or pointer events.
+Touch events: `touchstart`, `touchend`, `touchendoutside`, `touchmove`, `touchcancel`, `tap`. Each touch carries `altKey`, `ctrlKey`, `metaKey`, `shiftKey` copied from native `TouchEvent`, so modifier keys work as with mouse or pointer events.
 
-Global move events: `globalpointermove`, `globalmousemove`, `globaltouchmove`. These fire on every pointer movement regardless of whether the pointer is over the listening object.
+Global move events: `globalpointermove`, `globalmousemove`, `globaltouchmove`. Fire on every pointer move, even when pointer is not over listening object.
 
 Container lifecycle events (no `eventMode` required): `added`, `removed`, `destroyed`, `childAdded`, `childRemoved`, `visibleChanged`.
 
@@ -138,7 +138,7 @@ parent.on("pointerdown", () => {
 
 ### Capture phase events
 
-All events support capture phase by appending `capture` to the event name (e.g., `pointerdowncapture`, `clickcapture`). Capture listeners fire during the capturing phase, before the event reaches its target.
+All events support capture phase: append `capture` to event name (e.g., `pointerdowncapture`, `clickcapture`). Capture listeners fire before event reaches its target.
 
 ```ts
 container.addEventListener(
@@ -152,14 +152,14 @@ container.addEventListener(
 
 ### Hit testing
 
-When a pointer event fires, PixiJS walks the display tree to find the top-most interactive element under the pointer. The traversal follows these rules:
+On pointer event, PixiJS walks display tree to find top-most interactive element under pointer. Traversal rules:
 
-- `eventMode = 'none'` on a container skips that element and its entire subtree.
-- `interactiveChildren = false` on a container skips its children (the container itself can still be tested).
-- A `hitArea` overrides bounds-based testing; only the shape is checked.
-- Objects that are not visible, not renderable, or not measurable are skipped.
+- `eventMode = 'none'` on container skips that element and its entire subtree.
+- `interactiveChildren = false` on container skips its children (container itself can still be tested).
+- `hitArea` overrides bounds-based testing; only the shape is checked.
+- Objects not visible, not renderable or not measurable are skipped.
 
-Set a custom `hitArea` to override bounds-based testing. This also speeds up hit tests on large or complex objects by reducing the geometry checked:
+Custom `hitArea` also speeds hit tests on large or complex objects (less geometry to check):
 
 ```ts
 import { Sprite, Rectangle, Circle, Polygon } from "pixi.js";
@@ -184,43 +184,9 @@ sprite.hitArea = {
 };
 ```
 
-### Global move events and drag
-
-```ts
-import { Sprite, FederatedPointerEvent } from "pixi.js";
-
-const sprite = new Sprite();
-sprite.eventMode = "static";
-sprite.cursor = "grab";
-
-let dragging = false;
-
-sprite.on("pointerdown", (event: FederatedPointerEvent) => {
-  dragging = true;
-  sprite.cursor = "grabbing";
-});
-
-// globalpointermove fires even when pointer leaves the object
-sprite.on("globalpointermove", (event: FederatedPointerEvent) => {
-  if (dragging) {
-    sprite.position.set(event.global.x, event.global.y);
-  }
-});
-
-sprite.on("pointerup", () => {
-  dragging = false;
-  sprite.cursor = "grab";
-});
-
-sprite.on("pointerupoutside", () => {
-  dragging = false;
-  sprite.cursor = "grab";
-});
-```
-
 ### Cursor styles
 
-Basic usage sets the `cursor` property per-object. For reusable cursors, register named styles on the event system:
+Set `cursor` per object. For reusable cursors, register named styles on event system:
 
 ```ts
 app.renderer.events.cursorStyles.default = "url('bunny.png'), auto";
@@ -230,11 +196,11 @@ sprite.eventMode = "static";
 sprite.cursor = "hover"; // uses the registered 'hover' style
 ```
 
-Cursor styles can be strings (CSS cursor values), objects (applied as CSS styles), or functions (called with the mode string).
+Cursor styles can be strings (CSS cursor values), objects (applied as CSS styles) or functions (called with mode string).
 
 ### Event properties
 
-`FederatedPointerEvent` carries rich input data; the more useful fields are:
+Useful `FederatedPointerEvent` fields:
 
 ```ts
 sprite.on("pointerdown", (event: FederatedPointerEvent) => {
@@ -263,7 +229,7 @@ sprite.on("pointerdown", (event: FederatedPointerEvent) => {
 });
 ```
 
-`FederatedWheelEvent` adds `deltaX`, `deltaY`, `deltaZ`, and `deltaMode`. Wheel events fire on the same hit-tested object as pointer events.
+`FederatedWheelEvent` adds `deltaX`, `deltaY`, `deltaZ`, `deltaMode`. Wheel events fire on same hit-tested object as pointer events.
 
 ### Event features
 
@@ -285,10 +251,8 @@ app.renderer.events.features.globalMove = false;
 
 ### Performance tips
 
-- Set `eventMode = 'none'` on non-interactive subtrees to skip hit testing entirely.
-- Set `interactiveChildren = false` on containers where only the container itself needs interaction.
-- Use `hitArea` on large or complex objects to replace bounds-based hit testing with a cheap shape check.
-- Prefer `'static'` for stationary elements; reserve `'dynamic'` for objects that move or animate under a stationary pointer.
+- `eventMode = 'none'` on non-interactive subtrees to skip hit testing entirely.
+- `interactiveChildren = false` on containers where only container itself needs interaction.
 - Disable unused event features via `eventFeatures` (e.g., `globalMove: false`) to cut per-frame work.
 
 ## Common Mistakes
@@ -314,7 +278,7 @@ sprite.on("pointerdown", () => {
 });
 ```
 
-The default `eventMode` is `'passive'`, which means the object itself receives no events. You must explicitly set `eventMode` to `'static'` or `'dynamic'` before any listener will fire.
+Default `eventMode` is `'passive'`: object itself receives no events. Must explicitly set `eventMode` to `'static'` or `'dynamic'` before any listener fires.
 
 
 ### [HIGH] buttonMode removed; use cursor
@@ -333,7 +297,7 @@ sprite.eventMode = "static";
 sprite.cursor = "pointer";
 ```
 
-`buttonMode` was removed in v8. Use `cursor = 'pointer'` to show a hand cursor on hover. `interactive = true` still works as an alias for `eventMode = 'static'`, but `eventMode` is preferred.
+`buttonMode` removed in v8. Use `cursor = 'pointer'` for hand cursor on hover. `interactive = true` still works as alias for `eventMode = 'static'`, but prefer `eventMode`.
 
 
 ### [HIGH] Move events only fire over the object in v8
@@ -358,12 +322,12 @@ sprite.on("globalpointermove", (event) => {
 });
 ```
 
-In v8, `pointermove`, `mousemove`, and `touchmove` only fire when the pointer is over the display object. In v7 they fired on any canvas move. For drag operations or global tracking, use `globalpointermove`, `globalmousemove`, or `globaltouchmove`.
+In v8, `pointermove`, `mousemove`, `touchmove` only fire when pointer is over display object. In v7 they fired on any canvas move. For drag or global tracking, use `globalpointermove`, `globalmousemove` or `globaltouchmove`.
 
 
 ### [MEDIUM] Cursor does not inherit from parent
 
-Setting `cursor` on a parent container has no effect on its children. Only the direct hit target's `cursor` value is applied.
+`cursor` on parent container has no effect on its children. Only direct hit target's `cursor` value applies.
 
 ```ts
 // This does NOT make children show a pointer cursor
@@ -374,7 +338,7 @@ child.eventMode = "static";
 child.cursor = "pointer";
 ```
 
-If you want a uniform cursor for all children, set `cursor` on each interactive child individually, or set `hitArea` on the parent and make children non-interactive.
+For uniform cursor on all children, set `cursor` on each interactive child individually, or set `hitArea` on parent and make children non-interactive.
 
 
 ## API Reference

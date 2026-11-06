@@ -1,9 +1,5 @@
 # Performance Optimization
 
-Patterns for optimizing React component performance, preventing unnecessary re-renders, and avoiding memory leaks.
-
----
-
 ## Memoization Patterns
 
 ### useMemo for Expensive Computations
@@ -79,7 +75,7 @@ export const Parent: React.FC = () => {
 
 **When to use useCallback:**
 - Functions passed as props to children
-- Functions used as dependencies in useEffect
+- Functions used as useEffect dependencies
 - Functions passed to memoized components
 - Event handlers in lists
 
@@ -112,14 +108,14 @@ export const ExpensiveComponent = React.memo<ExpensiveComponentProps>(
 
 **When to use React.memo:**
 - Component renders frequently
-- Component has expensive rendering
+- Rendering is expensive
 - Props don't change often
-- Component is a list item
+- Component is list item
 - DataGrid cells/renderers
 
 **When NOT to use React.memo:**
 - Props change frequently anyway
-- Rendering is already fast
+- Rendering already fast
 - Premature optimization
 
 ---
@@ -157,9 +153,9 @@ export const SearchComponent: React.FC = () => {
 ```
 
 **Optimal Debounce Timing:**
-- **300-500ms**: Search/filtering
-- **1000ms**: Auto-save
-- **100-200ms**: Real-time validation
+- **300-500ms**: search/filtering
+- **1000ms**: auto-save
+- **100-200ms**: real-time validation
 
 ---
 
@@ -236,7 +232,7 @@ useEffect(() => {
 }, []);
 ```
 
-**Note**: With TanStack Query, this is handled automatically.
+**Note**: TanStack Query handles this automatically.
 
 ---
 
@@ -385,20 +381,9 @@ const handleExportExcel = async () => {
 };
 ```
 
+**Also:** code splitting with React.lazy.
+
 ---
-
-## Summary
-
-**Performance Checklist:**
-- ✅ `useMemo` for expensive computations (filter, sort, map)
-- ✅ `useCallback` for functions passed to children
-- ✅ `React.memo` for expensive components
-- ✅ Debounce search/filter (300-500ms)
-- ✅ Cleanup timeouts/intervals in useEffect
-- ✅ Watch specific form fields (not all)
-- ✅ Stable keys in lists
-- ✅ Lazy load heavy libraries
-- ✅ Code splitting with React.lazy
 
 **See Also:**
 - [component-patterns.md](component-patterns.md) - Lazy loading

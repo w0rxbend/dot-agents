@@ -4,44 +4,20 @@ description: "Use this skill when running per-frame logic or controlling the Pix
 license: MIT
 ---
 
-`app.ticker` runs registered callbacks every frame and drives `app.render()` at `UPDATE_PRIORITY.LOW`. Each callback receives the Ticker instance; read `deltaTime` as a frame-rate-independent multiplier (≈1.0 at 60fps) or `deltaMS` for real-time calculations.
+`app.ticker` runs registered callbacks every frame and drives `app.render()` at `UPDATE_PRIORITY.LOW`.
 
-## Quick Start
-
-```ts
-app.ticker.add((ticker) => {
-  sprite.rotation += 0.01 * ticker.deltaTime;
-  sprite.x += (200 / 1000) * ticker.deltaMS;
-});
-
-app.ticker.add(
-  (ticker) => {
-    updatePhysics(ticker.deltaMS);
-  },
-  undefined,
-  UPDATE_PRIORITY.HIGH,
-);
-
-app.ticker.maxFPS = 30;
-app.ticker.speed = 0.5;
-
-sprite.onRender = () => {
-  sprite.scale.x = Math.sin(performance.now() / 500);
-};
-```
-
-**Related skills:** `pixijs-application` (Application setup and sharedTicker option), `pixijs-performance` (frame rate optimization). For v7 ticker signature changes see the [v8 migration guide](https://pixijs.com/8.x/guides/migrations/v8).
+**Related skills:** `pixijs-application` (Application setup, sharedTicker option), `pixijs-performance` (frame rate optimization). For v7 ticker signature changes see [v8 migration guide](https://pixijs.com/8.x/guides/migrations/v8).
 
 ## Core Patterns
 
 ### Time units
 
-The Ticker exposes three timing values, each for different use cases:
+Ticker exposes three timing values:
 
 | Property    | Type                          | Scaled by speed? | Capped by minFPS? | Use case                                     |
 | ----------- | ----------------------------- | ---------------- | ----------------- | -------------------------------------------- |
-| `deltaTime` | dimensionless (~1.0 at 60fps) | yes              | yes               | Frame-rate-independent animation multipliers |
-| `deltaMS`   | milliseconds                  | yes              | yes               | Time-based calculations (pixels/sec)         |
+| `deltaTime` | dimensionless (~1.0 at 60fps) | yes              | yes               | Frame-rate-independent multipliers           |
+| `deltaMS`   | milliseconds                  | yes              | yes               | Time-based math (pixels/sec)                 |
 | `elapsedMS` | milliseconds                  | no               | no                | Raw measurement, profiling                   |
 
 ```ts
@@ -62,7 +38,7 @@ app.ticker.add((ticker) => {
 });
 ```
 
-**Tension note:** `deltaTime` is not milliseconds. It is `deltaMS * Ticker.targetFPMS` where targetFPMS is 0.06 (i.e. 1/16.67). At exactly 60fps, deltaTime is 1.0. At 30fps, deltaTime is 2.0. This catches people who treat it as a time value.
+**Tension note:** `deltaTime` is not milliseconds. It equals `deltaMS * Ticker.targetFPMS`, where targetFPMS is 0.06 (1/16.67). At exactly 60fps, deltaTime is 1.0. At 30fps, 2.0.
 
 ### Priority ordering and context binding
 
@@ -118,7 +94,7 @@ ticker.minFPS = 10; // Cap deltaTime so it never exceeds 10fps worth
 // If minFPS > maxFPS, maxFPS is raised to match
 ```
 
-`maxFPS` skips update calls to enforce a ceiling. `minFPS` caps deltaTime/deltaMS so large frame drops don't produce enormous deltas (default minFPS is 10).
+`minFPS` caps deltaTime/deltaMS so large frame drops don't produce huge deltas (default minFPS is 10).
 
 ### Per-object onRender hook
 
@@ -137,7 +113,7 @@ sprite.onRender = (renderer) => {
 };
 ```
 
-`onRender` is called during scene graph traversal, before GPU rendering. It is an alternative to a global ticker callback when logic is tied to a specific display object.
+`onRender` runs during scene graph traversal, before GPU rendering. Use instead of global ticker callback when logic is tied to one display object.
 
 ### Ticker.shared, Ticker.system, and new Ticker
 
@@ -168,7 +144,7 @@ custom.stop();
 custom.destroy();
 ```
 
-`Application` creates its own Ticker by default. Set `sharedTicker: true` in `app.init()` to use `Ticker.shared` instead. `Ticker.shared` and `Ticker.system` are both `_protected` and will not actually be destroyed if you call `destroy()` on them. Read `ticker.FPS` for the measured frame rate and `ticker.count` for the current listener count.
+`Application` creates own Ticker by default. Set `sharedTicker: true` in `app.init()` to use `Ticker.shared` instead. `Ticker.shared` and `Ticker.system` are both `_protected`: calling `destroy()` on them does not destroy them. Read `ticker.FPS` for measured frame rate, `ticker.count` for current listener count.
 
 ### App lifecycle and manual rendering
 
@@ -191,7 +167,7 @@ function animate() {
 animate();
 ```
 
-`app.start()` and `app.stop()` are added by the `TickerPlugin` and map to `ticker.start()` / `ticker.stop()`. Use `autoStart: false` plus your own frame driver when you need to pause on tab blur, run a fixed-timestep loop, or render offscreen.
+`TickerPlugin` adds `app.start()` and `app.stop()`, mapping to `ticker.start()` / `ticker.stop()`. Use `autoStart: false` plus own frame driver to pause on tab blur, run fixed-timestep loop, or render offscreen.
 
 ### Speed scaling
 
@@ -227,7 +203,7 @@ app.ticker.add((ticker) => {
 });
 ```
 
-v8 passes the Ticker instance as the callback argument, not a delta number. The v7 pattern `(dt) => ...` compiles but `dt` is the entire Ticker object, so arithmetic on it produces `NaN`.
+v8 passes Ticker instance as callback argument, not delta number. v7 pattern `(dt) => ...` compiles, but `dt` is whole Ticker object. Arithmetic on it produces `NaN`.
 
 
 ### [HIGH] Using updateTransform for per-frame logic
@@ -257,7 +233,7 @@ class MySprite extends Sprite {
 }
 ```
 
-`updateTransform` was removed in v8. Use the `onRender` callback for per-object per-frame logic.
+`updateTransform` removed in v8. Use `onRender` callback for per-object per-frame logic.
 
 
 ### [MEDIUM] Treating deltaTime as milliseconds
@@ -282,7 +258,7 @@ app.ticker.add((ticker) => {
 });
 ```
 
-`deltaTime` is a dimensionless scalar (~1.0 at 60fps), not milliseconds. Use `deltaMS` for real time calculations. Use `deltaTime` as a simple multiplier when you want "per frame at 60fps" behavior.
+Use `deltaMS` for real-time calculations. Use `deltaTime` as simple multiplier when you want "per frame at 60fps" behavior.
 
 
 ## API Reference

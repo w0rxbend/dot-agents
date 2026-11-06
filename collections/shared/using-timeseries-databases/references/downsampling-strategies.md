@@ -1,8 +1,5 @@
 # Downsampling Strategies for Time-Series Visualization
 
-Reduce millions of data points to hundreds for smooth chart rendering while preserving visual fidelity.
-
-
 ## Table of Contents
 
 - [The Problem](#the-problem)
@@ -31,22 +28,20 @@ Reduce millions of data points to hundreds for smooth chart rendering while pres
 
 ## The Problem
 
-Web browsers struggle to render large datasets:
-- 1M points in a LineChart: 2-5 second render time, sluggish interactions
+Browsers struggle to render large datasets:
+- 1M points in LineChart: 2-5 second render time, sluggish interactions
 - Network overhead: 10MB JSON response vs. 100KB downsampled
-- User perception: Chart looks the same with 1,000 points vs. 1M points
-
-**Solution**: Downsample server-side before sending to frontend.
+- User perception: 1,000 points look same as 1M points
 
 ## LTTB Algorithm
 
-**Largest-Triangle-Three-Buckets** is the gold standard for time-series downsampling.
+**Largest-Triangle-Three-Buckets**: gold standard for time-series downsampling.
 
 ### How LTTB Works
 
 1. Divide time range into N buckets (N = target point count)
-2. For each bucket, select the point that forms the largest triangle with neighboring buckets
-3. This preserves peaks, valleys, and overall shape
+2. Per bucket, pick point forming largest triangle with neighboring buckets
+3. Preserves peaks, valleys and overall shape
 
 ### Visual Comparison
 
@@ -62,13 +57,13 @@ Random sampling (100 points):    Average per bucket (100 points):
 ─╯   ╲  ╰─  (misses peaks)       ─╯      ─  (smooths too much)
 ```
 
-LTTB preserves visual features better than random sampling or averaging.
+LTTB keeps visual features better than random sampling or averaging.
 
 ## Implementation
 
 ### TimescaleDB (Native)
 
-TimescaleDB Toolkit provides built-in LTTB function:
+TimescaleDB Toolkit has built-in LTTB function:
 
 ```sql
 -- Install toolkit
@@ -295,7 +290,7 @@ console.log(`Original: ${data.length} points, Downsampled: ${downsampled.length}
 
 ### 1. Average Per Bucket
 
-Simplest approach: divide into N buckets, average each bucket.
+Simplest: split into N buckets, average each.
 
 ```python
 def avg_downsample(data: List[Tuple[float, float]], threshold: int) -> List[Tuple[float, float]]:
@@ -319,7 +314,7 @@ def avg_downsample(data: List[Tuple[float, float]], threshold: int) -> List[Tupl
 
 ### 2. Min-Max Per Bucket
 
-Keep min and max values per bucket (good for candlestick charts).
+Keep min and max per bucket (good for candlestick charts).
 
 ```python
 def minmax_downsample(data: List[Tuple[float, float]], threshold: int) -> List[Tuple[float, float]]:
@@ -349,7 +344,7 @@ def minmax_downsample(data: List[Tuple[float, float]], threshold: int) -> List[T
 
 ### 3. Reservoir Sampling (Random)
 
-Randomly sample N points with uniform probability.
+Sample N points at random with uniform probability.
 
 ```python
 import random
@@ -373,7 +368,7 @@ def reservoir_sample(data: List[Tuple[float, float]], threshold: int) -> List[Tu
 
 ## Adaptive Downsampling
 
-Adjust target points based on time range.
+Adjust target points by time range.
 
 ```python
 def adaptive_threshold(time_range_seconds: int, chart_width_pixels: int = 800) -> int:
@@ -419,14 +414,19 @@ const response = await fetch(
 const data = await response.json();
 
 // Backend (Python)
+METRICS = {"cpu_usage", "memory_usage"}  # allowlist: identifiers can't be bound
+RANGES = {"1h": "1 hour", "1d": "1 day", "7d": "7 days"}
+
 @app.get("/api/metrics")
 async def get_metrics(start: str, metric: str, points: int = 800):
+    if metric not in METRICS or start not in RANGES:
+        raise HTTPException(400, "unknown metric or range")
     # Parse start to get time range
     time_range_seconds = parse_duration(start)
 
-    # Query raw data
-    query = f"SELECT time, {metric} FROM metrics WHERE time > NOW() - INTERVAL '{start}'"
-    data = execute_query(query)
+    # Query raw data; never f-string request input into SQL
+    query = f"SELECT time, {metric} FROM metrics WHERE time > NOW() - %s::interval"
+    data = execute_query(query, (RANGES[start],))
 
     # Downsample if needed
     if len(data) > points:
@@ -475,7 +475,7 @@ async def get_metrics(start: str, metric: str):
 | 100K points  | 1,000     | 150ms       | 200ms           | 500ms                  |
 | 1M points    | 1,000     | 1.5s        | 2s              | 5s                     |
 
-**Recommendation**: Pre-aggregate with continuous aggregates for > 100K points, then apply LTTB.
+**Recommendation**: For > 100K points, pre-aggregate with continuous aggregates, then apply LTTB.
 
 ### Memory Usage
 
@@ -487,21 +487,17 @@ async def get_metrics(start: str, metric: str):
 
 ## Best Practices
 
-1. **Target Points**: Use 500-1000 points for most charts (1 point per pixel max)
-2. **Time Range Strategy**: Short ranges (< 1h) use raw data, long ranges use rollups + LTTB
-3. **Server-Side Downsampling**: Never send 100K+ points to frontend
-4. **Caching**: Cache downsampled results for 30-60 seconds
-5. **Adaptive Thresholds**: Adjust points based on time range and chart width
-6. **LTTB over Averaging**: LTTB preserves visual fidelity better than averaging
-7. **Pre-aggregation**: Use continuous aggregates for long time ranges
-8. **API Design**: Let client specify target points for flexibility
-9. **Progressive Loading**: Load low-resolution first, then stream high-resolution
-10. **Monitoring**: Track downsampling time and cache hit rates
+1. **Target Points**: 500-1000 points for most charts (1 point per pixel max)
+2. **Server-Side Downsampling**: Never send 100K+ points to frontend
+3. **Caching**: Cache downsampled results for 30-60 seconds
+4. **API Design**: Let client specify target points
+5. **Progressive Loading**: Load low-resolution first, then stream high-resolution
+6. **Monitoring**: Track downsampling time and cache hit rates
 
 ## Example: Complete FastAPI Integration
 
 ```python
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from typing import List, Tuple
 import psycopg2
 
@@ -512,12 +508,13 @@ def lttb(data: List[Tuple], threshold: int) -> List[Tuple]:
     pass
 
 def get_db_connection():
-    return psycopg2.connect(
+    return psycopg2.connect(  # password from PGPASSWORD or ~/.pgpass
         host="localhost",
         database="postgres",
         user="postgres",
-        password="password"
     )
+
+METRICS = {"cpu_usage", "memory_usage", "disk_usage"}  # allowlisted columns
 
 @app.get("/api/metrics/{metric}")
 async def get_metric(
@@ -533,6 +530,8 @@ async def get_metric(
         "30d": ("30 days", "metrics_daily", "bucket")
     }
 
+    if metric not in METRICS:  # path param goes into SQL as identifier
+        raise HTTPException(404, "unknown metric")
     interval, table, time_col = time_ranges.get(start, ("1 hour", "metrics", "time"))
 
     # Query database

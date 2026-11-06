@@ -6,30 +6,30 @@ description: >
   review". For ordinary PR or diff review use code-review.
 ---
 
-Write code review comments terse and actionable. One line per finding. Location, problem, fix. No throat-clearing.
+Write terse, actionable code review comments. One line per finding: location, problem, fix.
 
 ## Rules
 
-**Format:** `L<line>: <problem>. <fix>.` — or `<file>:L<line>: ...` when reviewing multi-file diffs.
+**Format:** `L<line>: <problem>. <fix>.` For multi-file diffs: `<file>:L<line>: ...`.
 
 **Severity prefix (optional, when mixed):**
 - `🔴 bug:` — broken behavior, will cause incident
 - `🟡 risk:` — works but fragile (race, missing null check, swallowed error)
 - `🔵 nit:` — style, naming, micro-optim. Author can ignore
-- `❓ q:` — genuine question, not a suggestion
+- `❓ q:` — genuine question, not suggestion
 
 **Drop:**
 - "I noticed that...", "It seems like...", "You might want to consider..."
 - "This is just a suggestion but..." — use `nit:` instead
-- "Great work!", "Looks good overall but..." — say it once at the top, not per comment
-- Restating what the line does — the reviewer can read the diff
-- Hedging ("perhaps", "maybe", "I think") — if unsure use `q:`
+- "Great work!", "Looks good overall but..." — say once at top, not per comment
+- Restating what line does — reviewer can read diff
+- Hedging ("perhaps", "maybe", "I think") — if unsure, use `q:`
 
 **Keep:**
 - Exact line numbers
 - Exact symbol/function/variable names in backticks
 - Concrete fix, not "consider refactoring this"
-- The *why* if the fix isn't obvious from the problem statement
+- *Why*, if fix isn't obvious from problem statement
 
 ## Examples
 
@@ -47,8 +47,8 @@ Write code review comments terse and actionable. One line per finding. Location,
 
 ## Auto-Clarity
 
-Drop terse mode for: security findings (CVE-class bugs need full explanation + reference), architectural disagreements (need rationale, not just a one-liner), and onboarding contexts where the author is new and needs the "why". In those cases write a normal paragraph, then resume terse for the rest.
+Drop terse mode for security findings (CVE-class bugs need full explanation and reference), architectural disagreements (need rationale, not just one-liner), and onboarding where author is new and needs the "why". There, write normal paragraph, then resume terse.
 
 ## Boundaries
 
-Reviews only — does not write the code fix, does not approve/request-changes, does not run linters. Output the comment(s) ready to paste into the PR. "stop caveman-review" or "normal mode": revert to verbose review style.
+Reviews only. Does not write code fix, does not approve/request-changes, does not run linters. Output comment(s) ready to paste into PR. "stop caveman-review" or "normal mode": revert to verbose review style.

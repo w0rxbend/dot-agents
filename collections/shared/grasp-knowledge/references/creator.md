@@ -2,11 +2,11 @@
 
 ## Definition
 
-Assign class B the responsibility to create instances of class A if one of these is true:
+Assign class B responsibility to create instances of class A if any of these holds:
 1. B contains or compositely aggregates A
 2. B records A
 3. B closely uses A
-4. B has the initializing data for A
+4. B has initializing data for A
 
 ## When to Apply
 
@@ -28,7 +28,7 @@ Assign class B the responsibility to create instances of class A if one of these
 
 - Container creates contained objects
 - Factories for complex creation
-- Aggregates create their entities
+- Aggregates create own entities
 
 ## Patterns
 

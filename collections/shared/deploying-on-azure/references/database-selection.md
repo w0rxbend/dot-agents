@@ -1,20 +1,6 @@
 # Azure Database Selection Reference
 
-Comprehensive guide to selecting and configuring Azure database services.
-
-## Table of Contents
-
-1. [Azure SQL Database](#azure-sql-database)
-2. [Cosmos DB](#cosmos-db)
-3. [PostgreSQL Flexible Server](#postgresql-flexible-server)
-4. [MySQL Flexible Server](#mysql-flexible-server)
-5. [Azure Cache for Redis](#azure-cache-for-redis)
-
----
-
 ## Azure SQL Database
-
-Managed relational database service with elastic scalability and built-in high availability.
 
 ### Service Tiers
 
@@ -29,7 +15,7 @@ Managed relational database service with elastic scalability and built-in high a
 
 ## Cosmos DB
 
-Globally distributed, multi-model NoSQL database with multiple consistency models and APIs.
+Globally distributed, multi-model NoSQL database. Multiple consistency models and APIs.
 
 ### API Selection
 
@@ -45,8 +31,6 @@ Globally distributed, multi-model NoSQL database with multiple consistency model
 
 ## PostgreSQL Flexible Server
 
-Azure-managed PostgreSQL with flexible configuration options.
-
 **Advantages:**
 - Zone-redundant HA
 - Flexible maintenance windows
@@ -56,8 +40,6 @@ Azure-managed PostgreSQL with flexible configuration options.
 ---
 
 ## MySQL Flexible Server
-
-Azure-managed MySQL with enterprise features.
 
 **Advantages:**
 - Zone-redundant HA
@@ -69,7 +51,7 @@ Azure-managed MySQL with enterprise features.
 
 ## Azure Cache for Redis
 
-In-memory cache for session state, caching, and real-time analytics.
+In-memory cache for session state, caching and real-time analytics.
 
 ### Tiers
 

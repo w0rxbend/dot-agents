@@ -5,56 +5,48 @@ description: House conventions for React + TypeScript apps built on MUI v7, TanS
 
 # Frontend Development Guidelines
 
-## Purpose
-
-Comprehensive guide for modern React development, emphasizing Suspense-based data fetching, lazy loading, proper file organization, and performance optimization.
-
 ## When to Use This Skill
 
-Use in a repository whose `package.json` includes `@mui/material` (v7), `@tanstack/react-router` and `@tanstack/react-query`, or when the user chooses this stack. Otherwise follow the repository's existing conventions and use frontend-ui-engineering. Within that stack:
+Use in repository whose `package.json` includes `@mui/material` (v7), `@tanstack/react-router` and `@tanstack/react-query`, or when user chooses this stack. Otherwise follow repository's existing conventions and use frontend-ui-engineering. Within that stack:
 
-- Creating new components or pages
-- Building new features
+- New components or pages
+- New features
 - Fetching data with TanStack Query
-- Setting up routing with TanStack Router
-- Styling components with MUI v7
+- Routing with TanStack Router
+- Styling with MUI v7
 - Performance optimization
 - Organizing frontend code
 - TypeScript best practices
-
----
 
 ## Quick Start
 
 ### New Component Checklist
 
-Creating a component? Follow this checklist:
+Per new component:
 
-- [ ] Use `React.FC<Props>` pattern with TypeScript
-- [ ] Lazy load if heavy component: `React.lazy(() => import())`
+- [ ] `React.FC<Props>` pattern with TypeScript
+- [ ] Lazy load heavy components: `React.lazy(() => import())`
 - [ ] Wrap in `<SuspenseLoader>` for loading states
-- [ ] Use `useSuspenseQuery` for data fetching
+- [ ] `useSuspenseQuery` for data fetching
 - [ ] Import aliases: `@/`, `~types`, `~components`, `~features`
-- [ ] Styles: Inline if <100 lines, separate file if >100 lines
-- [ ] Use `useCallback` for event handlers passed to children
+- [ ] Styles: inline if <100 lines, separate file if >100 lines
+- [ ] `useCallback` for event handlers passed to children
 - [ ] Default export at bottom
 - [ ] No early returns with loading spinners
-- [ ] Use `useMuiSnackbar` for user notifications
+- [ ] `useMuiSnackbar` for user notifications
 
 ### New Feature Checklist
 
-Creating a feature? Set up this structure:
+Per new feature, set up:
 
-- [ ] Create `features/{feature-name}/` directory
-- [ ] Create subdirectories: `api/`, `components/`, `hooks/`, `helpers/`, `types/`
-- [ ] Create API service file: `api/{feature}Api.ts`
-- [ ] Set up TypeScript types in `types/`
-- [ ] Create route in `routes/{feature-name}/index.tsx`
+- [ ] `features/{feature-name}/` directory
+- [ ] Subdirectories: `api/`, `components/`, `hooks/`, `helpers/`, `types/`
+- [ ] API service file: `api/{feature}Api.ts`
+- [ ] TypeScript types in `types/`
+- [ ] Route in `routes/{feature-name}/index.tsx`
 - [ ] Lazy load feature components
-- [ ] Use Suspense boundaries
+- [ ] Suspense boundaries
 - [ ] Export public API from feature `index.ts`
-
----
 
 ## Import Aliases Quick Reference
 
@@ -65,9 +57,7 @@ Creating a feature? Set up this structure:
 | `~components` | `src/components` | `import { SuspenseLoader } from '~components/SuspenseLoader'` |
 | `~features` | `src/features` | `import { authApi } from '~features/auth'` |
 
-These aliases illustrate one Vite setup. Inspect this repository's `vite.config.*` and `tsconfig*.json` before using them; Next.js and other frameworks may use different mappings.
-
----
+Aliases show one Vite setup. Check this repository's `vite.config.*` and `tsconfig*.json` before using them. Next.js and other frameworks may use different mappings.
 
 ## Common Imports Cheatsheet
 
@@ -97,45 +87,33 @@ import { useMuiSnackbar } from '@/hooks/useMuiSnackbar';
 import type { Post } from '~types/post';
 ```
 
----
-
 ## Topic Guides
 
 ### 🎨 Component Patterns
 
-**Modern React components use:**
-- `React.FC<Props>` for type safety
-- `React.lazy()` for code splitting
-- `SuspenseLoader` for loading states
-- Named const + default export pattern
-
 **Key Concepts:**
+- Named const + default export pattern
 - Lazy load heavy components (DataGrid, charts, editors)
 - Always wrap lazy components in Suspense
-- Use SuspenseLoader component (with fade animation)
+- SuspenseLoader component (fade animation)
 - Component structure: Props → Hooks → Handlers → Render → Export
 
 **[📖 Complete Guide: resources/component-patterns.md](resources/component-patterns.md)**
 
----
-
 ### 📊 Data Fetching
 
-**PRIMARY PATTERN: useSuspenseQuery**
+**PRIMARY PATTERN: useSuspenseQuery** (new code)
 - Use with Suspense boundaries
-- Optional: seed a detail query from an already-loaded list query (`initialData`/`getQueryData`) when your app has one
+- Optional: seed detail query from already-loaded list query (`initialData`/`getQueryData`) when app has one
 - Replaces `isLoading` checks
-- Type-safe with generics
 
 **API Service Layer:**
-- Create `features/{feature}/api/{feature}Api.ts`
+- File: `features/{feature}/api/{feature}Api.ts`
 - Use `apiClient` axios instance
 - Centralized methods per feature
-- Route paths follow your `apiClient` base URL and proxy setup (the resources show one project's convention as an example)
+- Route paths follow your `apiClient` base URL and proxy setup (resources show one project's convention as example)
 
 **[📖 Complete Guide: resources/data-fetching.md](resources/data-fetching.md)**
-
----
 
 ### 📁 File Organization
 
@@ -143,20 +121,7 @@ import type { Post } from '~types/post';
 - `features/`: Domain-specific (posts, comments, auth)
 - `components/`: Truly reusable (SuspenseLoader, CustomAppBar)
 
-**Feature Subdirectories:**
-```
-features/
-  my-feature/
-    api/          # API service layer
-    components/   # Feature components
-    hooks/        # Custom hooks
-    helpers/      # Utility functions
-    types/        # TypeScript types
-```
-
 **[📖 Complete Guide: resources/file-organization.md](resources/file-organization.md)**
-
----
 
 ### 🎨 Styling
 
@@ -165,7 +130,7 @@ features/
 - >100 lines: Separate `.styles.ts` file
 
 **Primary Method:**
-- Use `sx` prop for MUI components
+- `sx` prop for MUI components
 - Type-safe with `SxProps<Theme>`
 - Theme access: `(theme) => theme.palette.primary.main`
 
@@ -177,14 +142,11 @@ features/
 
 **[📖 Complete Guide: resources/styling-guide.md](resources/styling-guide.md)**
 
----
-
 ### 🛣️ Routing
 
 **TanStack Router - Folder-Based:**
 - Directory: `routes/my-route/index.tsx`
-- Lazy load components
-- Use `createFileRoute`
+- Lazy load route components; use `createFileRoute`
 - Breadcrumb data in loader
 
 **Example:**
@@ -202,8 +164,6 @@ export const Route = createFileRoute('/my-route/')({
 
 **[📖 Complete Guide: resources/routing-guide.md](resources/routing-guide.md)**
 
----
-
 ### ⏳ Loading & Error States
 
 **CRITICAL RULE: No Early Returns**
@@ -220,17 +180,13 @@ if (isLoading) {
 </SuspenseLoader>
 ```
 
-**Why:** Prevents Cumulative Layout Shift (CLS), better UX
-
 **Error Handling:**
-- Use `useMuiSnackbar` for user feedback
+- `useMuiSnackbar` for user feedback
 - NEVER `react-toastify`
-- Query errors: error boundaries (`useSuspenseQuery` throws), or a global `QueryCache({ onError })`; TanStack Query v5 removed `onError` from queries
+- Query errors: error boundaries (`useSuspenseQuery` throws) or global `QueryCache({ onError })`. TanStack Query v5 removed `onError` from queries.
 - Mutation errors: `useMutation({ onError })`
 
 **[📖 Complete Guide: resources/loading-and-error-states.md](resources/loading-and-error-states.md)**
-
----
 
 ### ⚡ Performance
 
@@ -243,8 +199,6 @@ if (isLoading) {
 
 **[📖 Complete Guide: resources/performance.md](resources/performance.md)**
 
----
-
 ### 📘 TypeScript
 
 **Standards:**
@@ -254,8 +208,6 @@ if (isLoading) {
 - Component prop interfaces with JSDoc
 
 **[📖 Complete Guide: resources/typescript-standards.md](resources/typescript-standards.md)**
-
----
 
 ### 🔧 Common Patterns
 
@@ -268,8 +220,6 @@ if (isLoading) {
 
 **[📖 Complete Guide: resources/common-patterns.md](resources/common-patterns.md)**
 
----
-
 ### 📚 Complete Examples
 
 **Full working examples:**
@@ -281,38 +231,6 @@ if (isLoading) {
 - Form with validation
 
 **[📖 Complete Guide: resources/complete-examples.md](resources/complete-examples.md)**
-
----
-
-## Navigation Guide
-
-| Need to... | Read this resource |
-|------------|-------------------|
-| Create a component | [component-patterns.md](resources/component-patterns.md) |
-| Fetch data | [data-fetching.md](resources/data-fetching.md) |
-| Organize files/folders | [file-organization.md](resources/file-organization.md) |
-| Style components | [styling-guide.md](resources/styling-guide.md) |
-| Set up routing | [routing-guide.md](resources/routing-guide.md) |
-| Handle loading/errors | [loading-and-error-states.md](resources/loading-and-error-states.md) |
-| Optimize performance | [performance.md](resources/performance.md) |
-| TypeScript types | [typescript-standards.md](resources/typescript-standards.md) |
-| Forms/Auth/DataGrid | [common-patterns.md](resources/common-patterns.md) |
-| See full examples | [complete-examples.md](resources/complete-examples.md) |
-
----
-
-## Core Principles
-
-1. **Lazy Load Everything Heavy**: Routes, DataGrid, charts, editors
-2. **Suspense for Loading**: Use SuspenseLoader, not early returns
-3. **useSuspenseQuery**: Primary data fetching pattern for new code
-4. **Features are Organized**: api/, components/, hooks/, helpers/ subdirs
-5. **Styles Based on Size**: <100 inline, >100 separate
-6. **Import Aliases**: Use @/, ~types, ~components, ~features
-7. **No Early Returns**: Prevents layout shift
-8. **useMuiSnackbar**: For all user notifications
-
----
 
 ## Quick Reference: File Structure
 
@@ -346,8 +264,6 @@ src/
       create/
         index.tsx             # Nested route
 ```
-
----
 
 ## Modern Component Template (Quick Copy)
 
@@ -388,15 +304,7 @@ export const MyComponent: React.FC<MyComponentProps> = ({ id, onAction }) => {
 export default MyComponent;
 ```
 
-For complete examples, see [resources/complete-examples.md](resources/complete-examples.md)
-
----
-
 ## Related Skills
 
 - **error-debugging-error-trace**: Error tracking setup (Sentry-style capture, release tagging, alerting), frontend included
-- **backend-dev-guidelines**: Backend API patterns that frontend consumes
-
----
-
-**Skill Status**: Modular structure with progressive loading for optimal context management
+- **backend-dev-guidelines**: Backend API patterns frontend consumes

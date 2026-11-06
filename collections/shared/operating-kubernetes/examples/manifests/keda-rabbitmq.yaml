@@ -23,7 +23,7 @@ spec:
 ---
 # Connection string comes from a Secret, never inline in the ScaledObject.
 # kubectl create secret generic rabbitmq-conn -n production \
-#   --from-literal=host='amqp://<user>:<password>@rabbitmq.default.svc.cluster.local:5672/'
+#   --from-file=host=./rabbitmq-url.txt  # amqp://<user>:<password>@rabbitmq.default.svc.cluster.local:5672/ (mode 600, not in git; keeps password out of argv)
 apiVersion: keda.sh/v1alpha1
 kind: TriggerAuthentication
 metadata:

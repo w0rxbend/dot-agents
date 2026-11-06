@@ -24,10 +24,10 @@
 
 **Storage:** BigQuery or Snowflake (pay-per-use)
 - BigQuery if GCP-committed
-- Snowflake if multi-cloud flexibility desired
+- Snowflake if multi-cloud flexibility wanted
 
 **Ingestion:** Airbyte (open-source) or Fivetran (if budget)
-- Airbyte: Free, requires some ops
+- Airbyte: Free, needs some ops
 - Fivetran: $1K-2K/month, zero maintenance
 
 **Transformation:** dbt Core (SQL-based)
@@ -45,7 +45,7 @@
 - Start with dimensional models (star schemas)
 - Add lakehouse if ML becomes priority
 
-**Why:** Minimize complexity, leverage managed services, focus on business value.
+**Why:** Minimize complexity, use managed services, focus on business value.
 
 ---
 
@@ -53,9 +53,9 @@
 
 **Context:**
 - Legacy Oracle data warehouse
-- Want cloud migration
+- Wants cloud migration
 - Support BI + ML workloads
-- Reduce costs
+- Cut costs
 - Team: 10+ data engineers
 
 **Recommendation:**
@@ -68,7 +68,7 @@
 1. Identify critical BI reports (keep on Oracle short-term)
 2. Build lakehouse for new analytics and ML
 3. Use CDC tools (Debezium, Fivetran) for continuous replication
-4. Gradually migrate Oracle tables to lakehouse
+4. Migrate Oracle tables to lakehouse gradually
 5. Sunset Oracle after full migration
 
 **Architecture:** Medallion (bronze, silver, gold)
@@ -94,32 +94,32 @@
 
 **6-Factor Scores (1-5):**
 1. Domain clarity: 4 (clear domains)
-2. Team maturity: 2 (analysts, but no data engineers in domains)
-3. Platform capability: 2 (some automation, but not self-serve)
-4. Governance maturity: 3 (centralized, but difficult to enforce)
+2. Team maturity: 2 (analysts but no data engineers in domains)
+3. Platform capability: 2 (some automation, not self-serve)
+4. Governance maturity: 3 (centralized but hard to enforce)
 5. Scale need: 2 (5-person team not yet bottleneck)
-6. Organizational buy-in: 3 (interested, but skeptical)
+6. Organizational buy-in: 3 (interested but skeptical)
 
 **Total Score:** 16/30
 
 **Recommendation:** NOT YET. Build foundation first.
 
 **Why:**
-- 200 people is too small for full data mesh (recommend >500)
-- Central team of 5 is not yet a bottleneck
+- 200 people too small for full data mesh (recommend >500)
+- Central team of 5 not yet a bottleneck
 - Domain teams lack data engineering skills
-- Self-serve platform doesn't exist yet
+- No self-serve platform yet
 
 **Alternative Approach:**
 1. Invest in self-serve platform (infrastructure as code, CI/CD)
 2. Improve governance (catalog, lineage, quality)
 3. Train domain teams on data engineering
 4. Start with "data product thinking" (SLAs, documentation) without full decentralization
-5. Reconsider data mesh at 500+ people or when central team is clear bottleneck
+5. Reconsider data mesh at 500+ people or when central team becomes clear bottleneck
 
 **Hybrid Option:**
 - Sales domain (most mature) could start owning data products
-- Marketing and Product remain centralized
+- Marketing and Product stay centralized
 - Platform team provides shared infrastructure
 
 ---
@@ -135,13 +135,13 @@
 **Recommendation:** Apache Iceberg
 
 **Why:**
-- **Multi-engine support:** Both Spark and Trino have excellent Iceberg support
+- **Multi-engine support:** Spark and Trino both have excellent Iceberg support
 - **Vendor-neutral:** Apache Foundation governance (not Databricks-led)
 - **Hidden partitioning:** Query without partition predicates
 - **Partition evolution:** Change partitioning without rewriting data
 - **Mature ecosystem:** Apache Polaris (catalog), Project Nessie (versioning)
 
-**Alternative:** Delta Lake if committed to Databricks, but less optimal for Trino
+**Alternative:** Delta Lake if committed to Databricks, but weaker fit for Trino
 
 **Implementation:**
 ```sql
@@ -160,7 +160,7 @@ PARTITIONED BY (days(order_date));
 ## Scenario 5: Streaming + Batch Architecture
 
 **Context:**
-- Need both real-time dashboards and historical analytics
+- Need real-time dashboards and historical analytics
 - Data sources: Kafka (streaming), PostgreSQL (batch)
 - Team: Experienced data engineers
 
@@ -184,9 +184,9 @@ PostgreSQL (Batch)
 **Unified Gold Layer:** Merge streaming and batch data
 
 **Why:**
-- Single pipeline for both streaming and batch (Kappa)
+- One pipeline for streaming and batch (Kappa)
 - Medallion architecture for quality layers
-- Iceberg supports both streaming writes (Flink) and batch reads (Trino)
+- Iceberg supports streaming writes (Flink) and batch reads (Trino)
 
 **Trade-Offs:**
 - Complexity: High (streaming infrastructure)
@@ -201,14 +201,14 @@ PostgreSQL (Batch)
 - Currently on Snowflake
 - $50K/month bill
 - Mostly BI workloads
-- Want to reduce costs
+- Wants lower costs
 
 **Recommendation:** Migrate to Lakehouse
 
 **Strategy:**
 1. **Assess workloads:**
-   - 80% of queries access last 30 days
-   - 20% access historical data (>1 year)
+   - 80% of queries hit last 30 days
+   - 20% hit historical data (>1 year)
 
 2. **Hot-Cold Architecture:**
    - Hot data (last 30 days): Snowflake
@@ -217,7 +217,7 @@ PostgreSQL (Batch)
 
 3. **Incremental Migration:**
    - Week 1-2: Export historical data to S3 as Iceberg tables
-   - Week 3-4: Update queries to use external tables for historical data
+   - Week 3-4: Switch historical queries to external tables
    - Week 5+: Keep only hot data in Snowflake
 
 **Cost Savings:**

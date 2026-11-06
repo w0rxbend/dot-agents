@@ -29,13 +29,13 @@ normalize('  foo bar  ') // ['FOO', 'BAR']
 
 | Use | When |
 |---|---|
-| `pipe` | You have the value and want the result |
-| `flow` | You want a named, reusable function (point-free) |
+| `pipe` | Have value, want result |
+| `flow` | Want named, reusable function (point-free) |
 | Plain method chaining | Native array methods already read well (`xs.filter(...).map(...)`) |
 
 ## With fp-ts data-last operators
 
-fp-ts operators are curried and take the data last, so they slot into `pipe`:
+fp-ts operators are curried, data-last, so they slot into `pipe`:
 
 ```typescript
 import * as O from 'fp-ts/Option'
@@ -52,7 +52,7 @@ getActiveNames(users)
 
 ## Gotchas
 
-- `pipe` is typed for up to 19 functions after the start value; long pipelines read better split into named steps anyway.
-- Type inference flows left to right: annotate the first lambda in `flow`, or the input value in `pipe`.
-- Debug a pipeline by inserting `(x) => { console.log(x); return x }` (or `O.tap` / `E.tap` / `TE.tap` for wrapped values).
-- If a pipeline is harder to read than the imperative version, keep the imperative version (fp-refactor, "When NOT to refactor").
+- `pipe` is typed for up to 19 functions after start value. Split long pipelines into named steps anyway.
+- Type inference flows left to right: annotate first lambda in `flow`, or input value in `pipe`.
+- Debug pipeline by inserting `(x) => { console.log(x); return x }` (or `O.tap` / `E.tap` / `TE.tap` for wrapped values).
+- If pipeline reads worse than imperative version, keep imperative one (fp-refactor, "When NOT to refactor").

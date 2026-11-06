@@ -1,8 +1,8 @@
 # API Reference
 
-Complete function catalog for `samber/lo` organized by domain.
+Complete `samber/lo` function catalog, organized by domain.
 
-For up-to-date signatures, use `godig symbol doc github.com/samber/lo <Symbol>` (→ `samber/cc-skills-golang@golang-pkg-go-dev`) or check [pkg.go.dev/github.com/samber/lo](https://pkg.go.dev/github.com/samber/lo). Context7 is a fallback if a symbol is not indexed there.
+Up-to-date signatures: `godig symbol doc github.com/samber/lo <Symbol>` (see `samber/cc-skills-golang@golang-pkg-go-dev`) or [pkg.go.dev/github.com/samber/lo](https://pkg.go.dev/github.com/samber/lo). Context7 is fallback if symbol not indexed there.
 
 ## Table of Contents
 
@@ -29,7 +29,7 @@ For up-to-date signatures, use `godig symbol doc github.com/samber/lo <Symbol>` 
 | Function | Description |
 | --- | --- |
 | `lo.Map(s, fn)` | Transform each element. `fn(item T, index int) R` |
-| `lo.MapErr(s, fn)` | Map with error — stops on first error |
+| `lo.MapErr(s, fn)` | Map with error; stops on first error |
 | `lo.UniqMap(s, fn)` | Map + deduplicate results in one pass |
 | `lo.Filter(s, fn)` | Keep elements where predicate returns true |
 | `lo.FilterErr(s, fn)` | Filter with error propagation |
@@ -38,7 +38,7 @@ For up-to-date signatures, use `godig symbol doc github.com/samber/lo <Symbol>` 
 | `lo.FilterReject(s, fn)` | Split into `(matching, non-matching)` slices |
 | `lo.FlatMap(s, fn)` | Map then flatten one level |
 | `lo.FlatMapErr(s, fn)` | FlatMap with error propagation |
-| `lo.FilterMap(s, fn)` | Combined filter + map in one pass. `fn` returns `(R, bool)` |
+| `lo.FilterMap(s, fn)` | Filter + map in one pass. `fn` returns `(R, bool)` |
 | `lo.Reduce(s, fn, init)` | Fold left into accumulator |
 | `lo.ReduceRight(s, fn, init)` | Fold right into accumulator |
 | `lo.ForEach(s, fn)` | Iterate with side effects |
@@ -50,8 +50,8 @@ For up-to-date signatures, use `godig symbol doc github.com/samber/lo <Symbol>` 
 | `lo.Flatten(s)` | Flatten `[][]T` → `[]T` (one level) |
 | `lo.Concat(slices...)` | Concatenate multiple slices |
 | `lo.Interleave(slices...)` | Interleave elements from multiple slices |
-| `lo.Repeat(n, val)` | Create slice of `n` copies of `val` |
-| `lo.RepeatBy(n, fn)` | Create slice of `n` values from `fn(index)` |
+| `lo.Repeat(n, val)` | Slice of `n` copies of `val` |
+| `lo.RepeatBy(n, fn)` | Slice of `n` values from `fn(index)` |
 | `lo.Splice(s, i, elements...)` | Insert elements at index |
 | `lo.Fill(s, val)` | Fill slice with value (returns new slice) |
 | `lo.Reverse(s)` | Reverse order (returns new slice) |
@@ -72,7 +72,7 @@ For up-to-date signatures, use `godig symbol doc github.com/samber/lo <Symbol>` 
 
 ### Error variants
 
-Most transform functions have `Err` suffixes: `MapErr`, `FlatMapErr`, `FilterErr`, `ReduceErr`, `ReduceRightErr`, `ForEachErr`, `GroupByErr`, `UniqByErr`, etc. These stop processing on the first error and return `(result, error)`.
+Most transform functions have `Err`-suffixed variants: `MapErr`, `FlatMapErr`, `FilterErr`, `ReduceErr`, `ReduceRightErr`, `ForEachErr`, `GroupByErr`, `UniqByErr`, etc. They stop on first error and return `(result, error)`.
 
 ## Slice Queries
 
@@ -86,7 +86,7 @@ Most transform functions have `Err` suffixes: `MapErr`, `FlatMapErr`, `FilterErr
 | `lo.FindKeyBy(m, fn)` | Find key by predicate in map |
 | `lo.IndexOf(s, val)` | Index of first occurrence (-1 if not found) |
 | `lo.LastIndexOf(s, val)` | Index of last occurrence |
-| `lo.Contains(s, val)` | True if slice contains value. Note: prefer `slices.Contains` (stdlib Go 1.21+) |
+| `lo.Contains(s, val)` | True if slice contains value. Prefer `slices.Contains` (stdlib Go 1.21+) |
 | `lo.ContainsBy(s, fn)` | True if any element matches predicate |
 | `lo.Every(s, subset)` | True if all subset elements are in s |
 | `lo.EveryBy(s, fn)` | True if all elements match predicate |
@@ -118,7 +118,7 @@ Most transform functions have `Err` suffixes: `MapErr`, `FlatMapErr`, `FilterErr
 | `lo.SampleBy(s, fn)` | Random element matching predicate |
 | `lo.Samples(s, n)` | n random elements |
 | `lo.SamplesBy(s, n, fn)` | n random elements matching predicate |
-| `lo.IsSorted(s)` / `lo.IsSortedBy(s, fn)` | Check if slice is sorted |
+| `lo.IsSorted(s)` / `lo.IsSortedBy(s, fn)` | Check if slice sorted |
 | `lo.HasPrefix(s, prefix)` | True if slice starts with prefix elements |
 | `lo.HasSuffix(s, suffix)` | True if slice ends with suffix elements |
 
@@ -140,9 +140,9 @@ Most transform functions have `Err` suffixes: `MapErr`, `FlatMapErr`, `FilterErr
 | `lo.Difference(a, b)` | Elements in a but not in b |
 | `lo.Replace(s, old, new, n)` | Replace first n occurrences |
 | `lo.ReplaceAll(s, old, new)` | Replace all occurrences |
-| `lo.FindDuplicates(s)` | Elements that appear more than once |
+| `lo.FindDuplicates(s)` | Elements appearing more than once |
 | `lo.FindDuplicatesBy(s, fn)` | Duplicates by key function |
-| `lo.FindUniques(s)` | Elements that appear exactly once |
+| `lo.FindUniques(s)` | Elements appearing exactly once |
 | `lo.FindUniquesBy(s, fn)` | Unique elements by key function |
 | `lo.ElementsMatch(a, b)` | True if same elements regardless of order |
 | `lo.ElementsMatchBy(a, b, fn)` | ElementsMatch by comparison function |
@@ -174,12 +174,12 @@ Most transform functions have `Err` suffixes: `MapErr`, `FlatMapErr`, `FilterErr
 
 | Function | Description |
 | --- | --- |
-| `lo.Keys(m)` | All keys as a slice. Note: for Go 1.23+, prefer `slices.Collect(maps.Keys(m))` when stdlib coverage is enough |
+| `lo.Keys(m)` | All keys as slice. For Go 1.23+, prefer `slices.Collect(maps.Keys(m))` when stdlib coverage is enough |
 | `lo.UniqKeys(m)` | Unique keys (useful for multi-maps) |
 | `lo.Values(m)` | All values |
 | `lo.UniqValues(m)` | Unique values |
 | `lo.HasKey(m, key)` | True if key exists |
-| `lo.ValueOr(m, key, fallback)` | Value or fallback if key missing |
+| `lo.ValueOr(m, key, fallback)` | Value, or fallback if key missing |
 | `lo.PickBy(m, fn)` | Keep entries where predicate is true |
 | `lo.PickByKeys(m, keys)` | Keep only specified keys |
 | `lo.PickByValues(m, vals)` | Keep only specified values |
@@ -236,7 +236,7 @@ Most transform functions have `Err` suffixes: `MapErr`, `FlatMapErr`, `FilterErr
 | `lo.Ternary(cond, a, b)` | Inline if/else (both values evaluated) |
 | `lo.TernaryF(cond, fnA, fnB)` | Lazy ternary (only winning branch evaluated) |
 | `lo.If(cond, val).ElseIf(cond2, val2).Else(val3)` | Chained conditional |
-| `lo.IfF(cond, fn).ElseIfF(cond2, fn2).ElseF(fn3)` | Chained conditional with lazy evaluation |
+| `lo.IfF(cond, fn).ElseIfF(cond2, fn2).ElseF(fn3)` | Chained conditional, lazy evaluation |
 | `lo.Switch[R](val).Case(v1, r1).Case(v2, r2).Default(r3)` | Pattern matching |
 
 ## Tuples
@@ -276,11 +276,11 @@ Most transform functions have `Err` suffixes: `MapErr`, `FlatMapErr`, `FilterErr
 | `lo.AttemptWithDelay(max, delay, fn)` | Retry with fixed delay between attempts |
 | `lo.AttemptWhile(fn)` | Retry while predicate returns true |
 | `lo.AttemptWhileWithDelay(delay, fn)` | AttemptWhile with delay between attempts |
-| `lo.Debounce(duration, fn)` | Debounce — execute after quiet period. Returns `(func(), func())` (trigger, cancel) |
-| `lo.DebounceBy(duration, fn)` | Debounce by key — separate debounce per key |
-| `lo.Throttle(duration, fn)` | Throttle — max one execution per duration |
+| `lo.Debounce(duration, fn)` | Execute after quiet period. Returns `(func(), func())` (trigger, cancel) |
+| `lo.DebounceBy(duration, fn)` | Debounce by key: separate debounce per key |
+| `lo.Throttle(duration, fn)` | Max one execution per duration |
 | `lo.ThrottleWithCount(duration, count, fn)` | Throttle allowing N executions per duration |
-| `lo.ThrottleBy(duration, fn)` | Throttle by key — separate throttle per key |
+| `lo.ThrottleBy(duration, fn)` | Throttle by key: separate throttle per key |
 | `lo.ThrottleByWithCount(duration, count, fn)` | ThrottleBy with count |
 | `lo.WaitFor(fn, timeout, heartbeat)` | Poll until condition met or timeout |
 | `lo.WaitForWithContext(ctx, fn, ...)` | WaitFor with context cancellation |
@@ -317,7 +317,7 @@ Most transform functions have `Err` suffixes: `MapErr`, `FlatMapErr`, `FilterErr
 
 | Function | Description |
 | --- | --- |
-| `lo.Partial(fn, arg)` | Partial application — bind first argument |
+| `lo.Partial(fn, arg)` | Partial application: bind first argument |
 | `lo.Partial2(fn, arg)` ... `lo.Partial5(fn, arg)` | Partial with 2-5 args |
 
 ## Duration Helpers
@@ -325,7 +325,7 @@ Most transform functions have `Err` suffixes: `MapErr`, `FlatMapErr`, `FilterErr
 | Function | Description |
 | --- | --- |
 | `lo.Duration(fn)` | Measure execution time. Returns `time.Duration` |
-| `lo.Duration0(fn)` ... `lo.Duration10(fn)` | Duration with 0-10 return values — returns `(time.Duration, ...)` |
+| `lo.Duration0(fn)` ... `lo.Duration10(fn)` | Duration with 0-10 return values; returns `(time.Duration, ...)` |
 
 ## Error Helpers
 

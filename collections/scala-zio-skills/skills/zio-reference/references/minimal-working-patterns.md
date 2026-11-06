@@ -1,5 +1,5 @@
 ### **1. Service Pattern with ZLayer**
-*   **Explanation**: This pattern **decouples a service's contract (interface) from its implementation**, following "Onion Architecture" principles. It uses a **trait** to define capabilities, a **concrete class** to implement them (receiving dependencies via the constructor), and a **ZLayer** in the companion object to handle initialization and finalization.
+*   **Explanation**: **Decouples a service's contract (interface) from its implementation**, per "Onion Architecture" principles. **Trait** defines capabilities; **concrete class** implements them, receiving dependencies via constructor; **ZLayer** in companion object handles initialization and finalization.
 *   **Code Example**:
     ```scala
     // 1. Interface
@@ -18,14 +18,14 @@ trait Greeter { def sayHello(name: String): UIO[String] }
     ```
 
 ### **2. Repository Pattern**
-*   **Explanation**: A specialized version of the Service Pattern used to **encapsulate data access logic** (e.g., SQL queries or API calls). It allows the rest of the application to interact with data using domain models while **hiding storage-specific details** like database connections or transaction management.
+*   **Explanation**: Specialized Service Pattern that **encapsulates data access logic** (e.g., SQL queries or API calls).
 *   **Code Example**:
     ```scala
     trait UserRepo { def findById(id: UUID): Task[Option[User]] }
     
     case class PostgresUserRepo(db: Database) extends UserRepo {
       def findById(id: UUID): Task[Option[User]] = 
-        ZIO.attemptBlocking(db.query(s"SELECT * FROM users WHERE id = $id")) // simplified
+        ZIO.attemptBlocking(db.query("SELECT * FROM users WHERE id = ?", id)) // bind params; never interpolate values into SQL
     }
     
     object UserRepo {
@@ -34,7 +34,7 @@ trait Greeter { def sayHello(name: String): UIO[String] }
     ```
 
 ### **3. HTTP Handler Pattern**
-*   **Explanation**: In ZIO HTTP, transactions are modeled as **pure functions from a Request to a ZIO effect producing a Response**. Routes are defined using a **declarative DSL** (RoutePattern) that enables type-safe extraction of path parameters and query strings.
+*   **Explanation**: ZIO HTTP models transactions as **pure functions from a Request to a ZIO effect producing a Response**. Routes use **declarative DSL** (RoutePattern) for type-safe path parameter and query string extraction.
 *   **Code Example**:
     ```scala
     import zio.http._
@@ -49,7 +49,7 @@ trait Greeter { def sayHello(name: String): UIO[String] }
     ```
 
 ### **4. Background Worker / Job Processing**
-*   **Explanation**: This pattern uses **Queue** for work distribution and **forkDaemon** to run long-lived "worker" fibers that outlive the scope of their parent. It allows the main application to submit tasks to a buffer while **independent fibers process them concurrently** in the background.
+*   **Explanation**: **Queue** distributes work; **forkDaemon** runs long-lived "worker" fibers that outlive parent's scope.
 *   **Code Example**:
     ```scala
     def startWorker(queue: Queue[Job]): ZIO[Any, Nothing, Fiber.Runtime[Nothing, Nothing]] =
@@ -60,7 +60,7 @@ trait Greeter { def sayHello(name: String): UIO[String] }
     ```
 
 ### **5. Retry and Scheduling**
-*   **Explanation**: ZIO uses the **Schedule** data type to describe **composable strategies** for retrying failed effects or repeating successful ones. These "blueprints" can combine logic for **delays (exponential backoff), repetition limits, and conditions**.
+*   **Explanation**: **Schedule** describes **composable strategies** for retrying failed effects or repeating successful ones. These "blueprints" can combine **delays (exponential backoff), repetition limits, and conditions**.
 *   **Code Example**:
     ```scala
     val retryPolicy = 
@@ -71,7 +71,7 @@ trait Greeter { def sayHello(name: String): UIO[String] }
     ```
 
 ### **6. Parallel Processing**
-*   **Explanation**: High-level operators like **foreachPar** and **zipPar** allow for executing multiple effects concurrently without the overhead of manual fiber management. These operators follow **structured concurrency**, ensuring that if one sub-task fails, all siblings are automatically interrupted to prevent resource leaks.
+*   **Explanation**: High-level operators like **foreachPar** and **zipPar** run effects concurrently without manual fiber management. They follow **structured concurrency**: if one sub-task fails, all siblings are interrupted automatically, preventing resource leaks.
 *   **Code Example**:
     ```scala
     val urls = List("url1", "url2", "url3")

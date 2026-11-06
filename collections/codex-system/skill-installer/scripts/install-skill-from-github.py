@@ -47,12 +47,6 @@ def _codex_home() -> str:
     return os.environ.get("CODEX_HOME", os.path.expanduser("~/.codex"))
 
 
-def _tmp_root() -> str:
-    base = os.path.join(tempfile.gettempdir(), "codex")
-    os.makedirs(base, exist_ok=True)
-    return base
-
-
 def _request(url: str) -> bytes:
     return github_request(url, "codex-skill-install")
 
@@ -323,7 +317,7 @@ def main(argv: list[str]) -> int:
         for path in source.paths:
             _validate_relative_path(path)
         dest_root = args.dest or _default_dest()
-        tmp_dir = tempfile.mkdtemp(prefix="skill-install-", dir=_tmp_root())
+        tmp_dir = tempfile.mkdtemp(prefix="skill-install-")
         try:
             repo_root = _prepare_repo(source, args.method, tmp_dir)
             installed = []

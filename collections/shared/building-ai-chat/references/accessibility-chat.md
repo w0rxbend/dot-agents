@@ -16,8 +16,6 @@
 
 ### Message Announcement Strategy
 
-Properly announce new AI messages to screen readers:
-
 ```tsx
 function AccessibleMessage({ message, isStreaming }) {
   // Use appropriate ARIA roles
@@ -86,7 +84,7 @@ function AccessibleMessage({ message, isStreaming }) {
 
 ### Conversation Structure
 
-Semantic HTML for better screen reader navigation:
+Semantic HTML for screen reader navigation:
 
 ```tsx
 function AccessibleConversation({ messages }) {
@@ -149,8 +147,6 @@ function AccessibleConversation({ messages }) {
 ## Keyboard Navigation
 
 ### Complete Keyboard Support
-
-Enable full keyboard control:
 
 ```tsx
 function KeyboardNavigableChat() {
@@ -269,8 +265,6 @@ function KeyboardNavigableChat() {
 ```
 
 ### Focus Trap for Modals
-
-Trap focus in dialogs and modals:
 
 ```tsx
 function FocusTrap({ children, isActive }) {
@@ -418,8 +412,6 @@ function StreamingIndicator({ isStreaming }) {
 
 ### Smart Focus Control
 
-Manage focus during interactions:
-
 ```tsx
 function FocusManager({ children }) {
   const lastFocusedElement = useRef<HTMLElement | null>(null);
@@ -484,8 +476,6 @@ function FocusManager({ children }) {
 ## Visual Indicators
 
 ### Clear Visual Feedback
-
-Provide visual cues for all users:
 
 ```tsx
 function VisualIndicators() {
@@ -578,8 +568,6 @@ function VisualIndicators() {
 ## Voice Control
 
 ### Voice Command Integration
-
-Enable voice control for accessibility:
 
 ```tsx
 function VoiceControl({ onCommand }) {
@@ -849,7 +837,7 @@ function HighContrastStyles() {
 
 ### Color Contrast Validation
 
-Ensure WCAG compliance:
+Check WCAG compliance:
 
 ```tsx
 function ContrastChecker({ foreground, background }) {
@@ -896,16 +884,8 @@ function ContrastChecker({ foreground, background }) {
 
 ## Best Practices Summary
 
-1. **Semantic HTML** - Use proper roles and landmarks
-2. **ARIA labels** - Provide context for screen readers
-3. **Keyboard navigation** - Everything accessible via keyboard
-4. **Focus management** - Logical focus order and restoration
-5. **Live regions** - Announce dynamic changes appropriately
-6. **High contrast** - Support forced colors and high contrast modes
-7. **Reduced motion** - Respect user preferences for animation
-8. **Voice control** - Alternative input methods
-9. **Clear indicators** - Visual, auditory, and haptic feedback
-10. **WCAG compliance** - Meet AA standards minimum
+1. **Clear indicators** - Visual, auditory, and haptic feedback
+2. **WCAG compliance** - AA minimum
 
 ## Additional Patterns
 
@@ -1023,18 +1003,6 @@ const buttonStyles = {
 <button style={buttonStyles}>Send</button>
 ```
 
-#### Reduced Motion
-
-```tsx
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-<div
-  className={prefersReducedMotion ? '' : 'animate-slide-up'}
->
-  {message.content}
-</div>
-```
-
 ### Testing Checklist
 
 - [ ] Screen reader announces new messages
@@ -1046,7 +1014,7 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 - [ ] Errors announced with `role="alert"`
 - [ ] Loading states announced
 - [ ] Stop button accessible during streaming
-- [ ] Works with reduced motion preference
+- [ ] Respects reduced motion preference
 
 ### Resources
 

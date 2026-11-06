@@ -1,6 +1,6 @@
 # Grafana Dashboards for Go Services
 
-These community Grafana dashboards visualize Go runtime performance out of the box. They display the metrics automatically exposed by `github.com/prometheus/client_golang` — no custom instrumentation needed.
+Community Grafana dashboards for Go runtime performance. They use metrics `github.com/prometheus/client_golang` exposes by default. No custom instrumentation needed.
 
 ## Recommended Dashboards
 
@@ -12,12 +12,12 @@ These community Grafana dashboards visualize Go runtime performance out of the b
 
 ## How to Install
 
-Dashboards are imported via **Dashboards > New > Import** in Grafana using the dashboard ID (e.g., `21221`), then selecting the Prometheus data source.
+In Grafana, open **Dashboards > New > Import**, enter dashboard ID (e.g., `21221`), select Prometheus data source.
 
-These dashboards require the default Go collector metrics (`go_goroutines`, `go_memstats_*`, `go_gc_duration_seconds`, `process_*`). If you use the Prometheus client library with default collectors, everything works out of the box.
+Needs default Go collector metrics (`go_goroutines`, `go_memstats_*`, `go_gc_duration_seconds`, `process_*`).
 
 ## When to Use Each
 
-- **21221** (Host & Runtime) — day-to-day monitoring of a single Go service alongside its host. Best as the default Go dashboard.
-- **6671** (Go Processes) — comparing multiple Go services or replicas side by side. Useful during deployments to spot regressions across instances.
-- **10826** (Go Metrics) — deep-diving into memory and GC behavior of a single service. Best for investigating performance issues.
+- **21221** (Host & Runtime) — daily monitoring of one Go service plus its host. Best default.
+- **6671** (Go Processes) — compare Go services or replicas side by side. Spots cross-instance regressions during deployments.
+- **10826** (Go Metrics) — deep dive into memory and GC of one service. Best for performance investigations.

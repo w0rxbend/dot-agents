@@ -7,7 +7,7 @@ tags: disp, shutdown, signals, graceful
 
 ## Implement Graceful Shutdown on SIGTERM
 
-When a process receives SIGTERM, it should stop accepting new work, finish in-flight requests, then exit cleanly. This enables zero-downtime deployments and prevents data loss during scaling operations.
+On SIGTERM, process must stop accepting new work, finish in-flight requests, then exit cleanly.
 
 **Incorrect (abrupt termination):**
 
@@ -107,11 +107,5 @@ def process_job(data):
     return result
     # If killed before completion, job returns to queue
 ```
-
-**Benefits:**
-- Zero-downtime deployments
-- No dropped requests during scaling
-- Data integrity preserved
-- Clean resource cleanup (connections, file handles)
 
 Reference: [The Twelve-Factor App - Disposability](https://12factor.net/disposability)

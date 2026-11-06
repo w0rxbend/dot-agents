@@ -1,13 +1,13 @@
 # CLI Distribution Guide
 
-Guide to packaging and distributing CLIs across platforms and package managers.
-
 ## Table of Contents
 
 - [Python Distribution](#python-distribution)
 - [Go Distribution](#go-distribution)
 - [Rust Distribution](#rust-distribution)
 - [Cross-Platform Binary Releases](#cross-platform-binary-releases)
+
+Publishing is public and irreversible (released versions cannot be reused). Dry run first (`twine check dist/*` + TestPyPI, `cargo publish --dry-run`, `goreleaser release --snapshot`); run `twine upload`, `cargo publish`, `goreleaser release` or tap pushes only on user's explicit go-ahead.
 
 ## Python Distribution
 
@@ -128,6 +128,8 @@ go install github.com/user/myapp@latest
 
 ### Binary Releases (GitHub Actions)
 
+Both release workflows below: pin each third-party action to a full commit SHA of a reviewed release (`uses: owner/action@<40-char-sha> # vX.Y.Z`, incl. `softprops/action-gh-release`, `dtolnay/rust-toolchain`); grant `contents: write` only to release job. See github-actions-advanced skill.
+
 **.github/workflows/release.yml:**
 ```yaml
 name: Release
@@ -139,6 +141,8 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: write  # create release + upload assets
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -219,6 +223,8 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: write  # create release + upload assets
     strategy:
       matrix:
         include:
@@ -341,11 +347,11 @@ cargo dist build
 
 ## Installation Scripts
 
-Prefer package managers (Homebrew, Scoop, `cargo install`, `go install`, `pipx`) and signed release archives. If you also ship a shell installer, make it verify what it downloads and avoid requiring root.
+Prefer package managers (Homebrew, Scoop, `cargo install`, `go install`, `pipx`) and signed release archives. If also shipping a shell installer, make it verify downloads and avoid requiring root.
 
 ### Universal Install Script
 
-**install.sh** (expects release assets named `myapp-<os>-<arch>` plus a `checksums.txt` in `sha256sum` format, as GoReleaser produces):
+**install.sh** (expects release assets named `myapp-<os>-<arch>` plus `checksums.txt` in `sha256sum` format, as GoReleaser produces):
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -380,9 +386,9 @@ echo "Installed $BINARY $VERSION to $INSTALL_DIR (make sure it is on PATH)"
 "$INSTALL_DIR/$BINARY" --version
 ```
 
-Checksums from the same release only protect against corrupted or truncated downloads; for tamper resistance also sign releases (for example cosign or GPG) and verify the signature here.
+Checksums from same release only protect against corrupted or truncated downloads. For tamper resistance, also sign releases (e.g., cosign or GPG) and verify signature here.
 
-**Usage** (document this for users; pin a tag and let them read the script first instead of piping a moving branch into a shell):
+**Usage** (document for users; pin a tag, let users read script first instead of piping a moving branch into a shell):
 ```bash
 curl -fsSLO https://raw.githubusercontent.com/user/myapp/v1.2.3/install.sh
 less install.sh                 # review it
@@ -402,7 +408,7 @@ bash install.sh v1.2.3
 - Include migration guides
 
 **Documentation:**
-- Include installation instructions in README
+- Put installation instructions in README
 - Document all package managers
 - Provide troubleshooting guides
 

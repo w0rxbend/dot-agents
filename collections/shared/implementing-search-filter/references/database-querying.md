@@ -28,9 +28,10 @@ from typing import Dict, List, Any, Optional
 class SearchQueryBuilder:
     """Build dynamic SQLAlchemy queries from search parameters."""
 
-    def __init__(self, model, session: Session):
+    def __init__(self, model, session: Session, allowed_fields: set):
         self.model = model
         self.session = session
+        self.allowed_fields = allowed_fields  # allowlist, e.g. {'category', 'brand', 'price'}
         self.query = session.query(model)
 
     def add_text_search(self, search_term: str, columns: List[str]):
@@ -55,7 +56,7 @@ class SearchQueryBuilder:
     def add_filters(self, filters: Dict[str, Any]):
         """Add exact match filters."""
         for key, value in filters.items():
-            if value is not None and hasattr(self.model, key):
+            if value is not None and key in self.allowed_fields:
                 if isinstance(value, list):
                     # IN clause for multiple values
                     self.query = self.query.filter(
@@ -71,7 +72,7 @@ class SearchQueryBuilder:
 
     def add_range_filter(self, column: str, min_val: Any, max_val: Any):
         """Add range filter (e.g., price range)."""
-        if hasattr(self.model, column):
+        if column in self.allowed_fields:
             if min_val is not None:
                 self.query = self.query.filter(
                     getattr(self.model, column) >= min_val
@@ -85,7 +86,7 @@ class SearchQueryBuilder:
 
     def add_sorting(self, sort_by: str, order: str = 'asc'):
         """Add sorting to query."""
-        if hasattr(self.model, sort_by):
+        if sort_by in self.allowed_fields:
             column = getattr(self.model, sort_by)
             if order == 'desc':
                 self.query = self.query.order_by(column.desc())
@@ -150,7 +151,7 @@ class PostgreSQLSearch:
         # Add additional filters
         if filters:
             for key, value in filters.items():
-                if hasattr(Product, key):
+                if key in {'category', 'brand', 'in_stock'}:  # allowlist
                     q = q.filter(getattr(Product, key) == value)
 
         # Order by relevance
@@ -443,7 +444,7 @@ def query_performance_monitor(operation_name: str):
 # Usage
 def search_products(query: str, filters: Dict):
     with query_performance_monitor("product_search"):
-        results = SearchQueryBuilder(Product, session)\
+        results = SearchQueryBuilder(Product, session, {'category', 'brand', 'price'})\
             .add_text_search(query, ['title', 'description'])\
             .add_filters(filters)\
             .execute()
@@ -516,6 +517,7 @@ def cached_search(query: str, filters: Dict):
 ## Security Considerations
 
 ### SQL Injection Prevention
+Defence = bound parameters (ORM or placeholders), never string-built SQL, plus allowlisted filter/sort field names (no `hasattr`/`getattr` on raw client keys: exposes columns like `password_hash`). Character stripping below is backstop only.
 ```python
 class SecureQueryBuilder:
     """Secure query building with input validation."""

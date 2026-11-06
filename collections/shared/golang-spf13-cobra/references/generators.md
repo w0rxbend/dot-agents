@@ -12,7 +12,7 @@
 
 ## Doc generation
 
-Cobra can generate documentation from your command tree in multiple formats. Import the `cobra/doc` sub-package:
+Cobra generates docs from command tree in multiple formats. Import `cobra/doc` sub-package:
 
 ```bash
 go get github.com/spf13/cobra/doc
@@ -58,10 +58,10 @@ err := doc.GenReSTTree(rootCmd, "/tmp/docs/")
 
 ## cobra-cli scaffolder
 
-`cobra-cli` generates command files and wires them into your project:
+`cobra-cli` generates command files and wires them into project:
 
 ```bash
-go get -tool github.com/spf13/cobra-cli@latest
+go get -tool github.com/spf13/cobra-cli@v1.3.0  # pinned; bump only to a reviewed version
 
 # Initialize a new cobra project
 go tool cobra-cli init myapp
@@ -71,10 +71,10 @@ go tool cobra-cli add serve
 go tool cobra-cli add migrate
 
 # Add with a parent other than root
-cobra-cli add list --parent serve
+go tool cobra-cli add list --parent serve
 ```
 
-Generated files follow the standard pattern:
+Generated files follow standard pattern:
 
 ```go
 // cmd/serve.go
@@ -91,11 +91,11 @@ func init() {
 }
 ```
 
-`cobra-cli` is optional — many teams write command files by hand following the same pattern.
+`cobra-cli` is optional — many teams hand-write command files with same pattern.
 
 ## Help and usage template customization
 
-Override the default help template:
+Override default help template:
 
 ```go
 rootCmd.SetHelpTemplate(`
@@ -109,7 +109,7 @@ Flags:
 `)
 ```
 
-Override the usage function entirely:
+Override usage function entirely:
 
 ```go
 rootCmd.SetUsageFunc(func(cmd *cobra.Command) error {
@@ -118,4 +118,4 @@ rootCmd.SetUsageFunc(func(cmd *cobra.Command) error {
 })
 ```
 
-Common template functions available: `rpad`, `trimRightSpace`, `gt`, `eq`.
+Common template functions: `rpad`, `trimRightSpace`, `gt`, `eq`.

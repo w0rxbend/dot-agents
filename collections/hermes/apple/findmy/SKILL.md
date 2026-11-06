@@ -12,16 +12,12 @@ metadata:
 
 # Find My (Apple)
 
-Track Apple devices and AirTags via the FindMy.app on macOS. Since Apple doesn't
-provide a CLI for FindMy, this skill uses AppleScript to open the app and
-screen capture to read device locations.
-
 ## Prerequisites
 
 - **macOS** with Find My app and iCloud signed in
 - Devices/AirTags already registered in Find My
 - Screen Recording permission for terminal (System Settings → Privacy → Screen Recording)
-- **Optional but recommended**: Install `peekaboo` for better UI automation:
+- **Optional but recommended**: install `peekaboo` for better UI automation:
   `brew install steipete/tap/peekaboo`
 
 ## When to Use
@@ -44,10 +40,11 @@ sleep 3
 
 # Take a non-interactive screenshot (Find My is frontmost after activate).
 # Do not use `screencapture -w`: it waits for a mouse click and blocks the agent.
+# Captures whole screen: hide other sensitive windows first, or use Method 2 (app-only).
 screencapture -x ~/.hermes/cache/scratch/findmy.png
 ```
 
-Then use `vision_analyze` to read the screenshot:
+Read screenshot with `vision_analyze`:
 ```
 vision_analyze(image_url="~/.hermes/cache/scratch/findmy.png", question="What devices/items are shown and what are their locations?")
 ```
@@ -74,7 +71,7 @@ end tell'
 
 ## Method 2: Peekaboo UI Automation (Recommended)
 
-If `peekaboo` is installed, use it for more reliable UI interaction:
+If `peekaboo` installed, use it for more reliable UI interaction:
 
 ```bash
 # Open Find My
@@ -91,14 +88,14 @@ peekaboo click --on B3 --app "FindMy"
 peekaboo image --app "FindMy" --path ~/.hermes/cache/scratch/findmy-detail.png
 ```
 
-Then analyze with vision:
+Analyze with vision:
 ```
 vision_analyze(image_url="~/.hermes/cache/scratch/findmy-detail.png", question="What is the location shown for this device/item? Include address and coordinates if visible.")
 ```
 
 ## Workflow: Track AirTag Location Over Time
 
-For monitoring an AirTag (e.g., tracking a cat's patrol route):
+To monitor an AirTag (e.g., cat's patrol route):
 
 ```bash
 # 1. Open FindMy to Items tab
@@ -111,24 +108,24 @@ sleep 3
 #    Agree the duration with the user; run it with background=true.
 for i in $(seq 1 12); do
     osascript -e 'tell application "FindMy" to activate'
-    screencapture -x ~/.hermes/cache/scratch/findmy-$(date +%H%M%S).png
+    peekaboo image --app "FindMy" --path ~/.hermes/cache/scratch/findmy-$(date +%H%M%S).png \
+      || screencapture -x ~/.hermes/cache/scratch/findmy-$(date +%H%M%S).png
     sleep 300
 done
 ```
 
-Analyze each screenshot with vision to extract coordinates, then compile a route.
+Analyze each screenshot with vision to extract coordinates. Compile route from them.
 
 ## Limitations
 
-- FindMy has **no CLI or API** — must use UI automation
-- AirTags only update location while the FindMy page is actively displayed
-- Location accuracy depends on nearby Apple devices in the FindMy network
-- Screen Recording permission required for screenshots
+- FindMy has **no CLI or API**. Must use UI automation.
+- Location accuracy depends on nearby Apple devices in FindMy network
 - AppleScript UI automation may break across macOS versions
 
 ## Rules
 
-1. Keep FindMy app in the foreground when tracking AirTags (updates stop when minimized)
-2. Use `vision_analyze` to read screenshot content — don't try to parse pixels
-3. For ongoing tracking, use a cronjob to periodically capture and log locations
-4. Respect privacy — only track devices/items the user owns
+1. Keep FindMy app in foreground when tracking AirTags (updates stop when minimized)
+2. Read screenshot content with `vision_analyze`. Do not try to parse pixels.
+3. For ongoing tracking, cronjob may capture and log locations periodically: agree interval and end date with user; remove job when done.
+4. Respect privacy: track only devices/items user owns
+5. Screenshots hold location data: delete them after analysis (`rm -f ~/.hermes/cache/scratch/findmy*.png`).

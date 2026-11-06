@@ -16,7 +16,7 @@
 
 ## Cancellation
 
-`context.WithCancel` returns a derived context and a `cancel` function. When `cancel()` is called, the context's `Done()` channel is closed, signaling all listeners to stop.
+`context.WithCancel` returns derived context plus `cancel` function. `cancel()` closes context's `Done()` channel, signaling all listeners to stop.
 
 ```go
 func processItems(ctx context.Context, items []Item) error {
@@ -42,7 +42,7 @@ func processItems(ctx context.Context, items []Item) error {
 
 ### Why `defer cancel()` matters
 
-Every `WithCancel`, `WithTimeout`, and `WithDeadline` creates cancellation state; timeout/deadline contexts also use timer resources. `cancel()` MUST be called on all control-flow paths unless the function explicitly returns or transfers ownership of both the context and cancel function. In ordinary scoped work, defer cancel immediately.
+Every `WithCancel`, `WithTimeout` and `WithDeadline` creates cancellation state; timeout/deadline contexts also hold timers. `cancel()` MUST run on all control-flow paths unless function explicitly returns or transfers ownership of both context and cancel function. Scoped work: defer cancel immediately.
 
 ```go
 // ✗ Bad — cancel is never called, resources leak
@@ -91,8 +91,6 @@ func (s *BatchService) ProcessBatch(ctx context.Context, batch Batch) error {
 
 ### Nested timeouts take the shorter deadline
 
-If a parent context has a 5s timeout and you create a child with 10s, the child still expires at 5s. The shorter deadline always wins.
-
 ```go
 // Parent has 2s timeout — child's 10s is effectively ignored
 parentCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
@@ -107,7 +105,7 @@ defer childCancel()
 
 ### The `select` pattern
 
-Use `ctx.Done()` in a `select` statement to react to cancellation alongside other work:
+React to cancellation alongside other work with `ctx.Done()` in `select`:
 
 ```go
 func poll(ctx context.Context, interval time.Duration) error {
@@ -129,7 +127,7 @@ func poll(ctx context.Context, interval time.Duration) error {
 
 ### Checking cancellation in loops
 
-For CPU-bound work, periodically check `ctx.Err()`:
+CPU-bound work: check `ctx.Err()` periodically:
 
 ```go
 func processLargeDataset(ctx context.Context, items []Item) error {
@@ -145,7 +143,7 @@ func processLargeDataset(ctx context.Context, items []Item) error {
 
 ## `context.AfterFunc` (Go 1.21+)
 
-Registers a callback that runs in its own goroutine when the context is cancelled. Useful for cleanup without blocking the main flow.
+Registers callback run in own goroutine when context is cancelled. Use for cleanup without blocking main flow.
 
 ```go
 func watchResource(ctx context.Context, res *Resource) {
@@ -162,7 +160,7 @@ func watchResource(ctx context.Context, res *Resource) {
 
 ## `context.WithoutCancel` (Go 1.21+)
 
-Creates a child context that is not cancelled when the parent is. Use this for background work that must continue after the request completes — like async logging, audit trails, or enqueuing follow-up tasks.
+Child context not cancelled when parent is. Use for background work that must continue after request completes: async logging, audit trails, enqueuing follow-up tasks.
 
 ```go
 func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
@@ -183,4 +181,4 @@ func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-Without `WithoutCancel`, you'd have to choose between `ctx` (which gets cancelled when the handler returns, killing your background work) and `context.Background()` (which loses trace_id and other values). `WithoutCancel` gives you the best of both: values are preserved, but cancellation is detached.
+Without `WithoutCancel`, options are `ctx` (cancelled when handler returns, killing background work) or `context.Background()` (loses trace_id and other values).

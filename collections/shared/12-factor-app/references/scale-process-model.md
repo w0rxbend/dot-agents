@@ -7,7 +7,7 @@ tags: scale, processes, horizontal-scaling, concurrency
 
 ## Scale Out via the Process Model with Multiple Process Types
 
-A twelve-factor app scales out by running multiple processes. Different types of work (web requests, background jobs, scheduled tasks) are assigned to different process types. Scaling means increasing the number of processes of each type as needed.
+Scale out by running multiple processes. Each kind of work (web requests, background jobs, scheduled tasks) gets its own process type. Scale by raising process count per type as needed.
 
 **Incorrect (single monolithic process):**
 
@@ -93,11 +93,5 @@ heroku ps:scale worker=20
 kubectl scale deployment web --replicas=10
 kubectl scale deployment worker --replicas=20
 ```
-
-**Benefits:**
-- Scale each workload type independently
-- Resource allocation matches actual demand
-- Failure isolation: crashed worker doesn't affect web
-- Clear separation of concerns
 
 Reference: [The Twelve-Factor App - Concurrency](https://12factor.net/concurrency)

@@ -1,7 +1,5 @@
 # Configuration Management - UnifiedConfig Pattern
 
-Complete guide to managing configuration in backend microservices.
-
 ## Table of Contents
 
 - [UnifiedConfig Overview](#unifiedconfig-overview)
@@ -14,16 +12,6 @@ Complete guide to managing configuration in backend microservices.
 ---
 
 ## UnifiedConfig Overview
-
-### Why UnifiedConfig?
-
-**Problems with process.env:**
-- ❌ No type safety
-- ❌ No validation
-- ❌ Hard to test
-- ❌ Scattered throughout code
-- ❌ No default values
-- ❌ Runtime errors for typos
 
 **Benefits of unifiedConfig:**
 - ✅ Type-safe configuration
@@ -52,7 +40,7 @@ const dbHost = config.database.host;
 
 ### Why This Matters
 
-**Example of problems:**
+**Example problems:**
 ```typescript
 // Typo in environment variable name
 const host = process.env.DB_HSOT; // undefined! No error!
@@ -156,13 +144,6 @@ if (!config.tokens.jwt) {
 }
 ```
 
-**Key Points:**
-- Read from config.ini first
-- Fallback to process.env
-- Default values for development
-- Validation at startup
-- Type-safe access
-
 ---
 
 ## Environment-Specific Configs
@@ -208,11 +189,11 @@ PORT=80
 ```
 
 **Precedence:**
-1. process.env variables (highest priority, so deployments can override)
+1. process.env variables (highest; lets deployments override)
 2. config.ini
-3. Hard-coded defaults for non-secret values only (lowest priority)
+3. Hard-coded defaults, non-secret values only (lowest)
 
-Secrets (passwords, session and JWT secrets) have no default: startup fails if they are missing.
+Secrets (passwords, session and JWT secrets) have no default. Startup fails if they are missing.
 
 ---
 
@@ -273,12 +254,6 @@ const timeout = config.keycloak.timeout;
 const keycloakUrl = config.keycloak.baseUrl;
 const jwtSecret = config.tokens.jwt;
 ```
-
-**Benefits:**
-- Type-safe
-- Centralized
-- Easy to test
-- Validated at startup
 
 ---
 

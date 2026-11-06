@@ -17,8 +17,7 @@
         "image/jpeg",
         "image/png",
         "image/webp",
-        "image/gif",
-        "image/svg+xml"
+        "image/gif"
       ],
       "video": [
         "video/mp4",
@@ -40,7 +39,7 @@
       ]
     },
     "extensions": {
-      "image": [".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"],
+      "image": [".jpg", ".jpeg", ".png", ".webp", ".gif"],
       "video": [".mp4", ".webm", ".ogg"],
       "audio": [".mp3", ".m4a", ".ogg", ".wav"],
       "document": [".pdf", ".doc", ".docx", ".xls", ".xlsx"]

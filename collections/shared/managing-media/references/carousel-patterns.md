@@ -1,7 +1,5 @@
 # Carousel and Slider Patterns
 
-Image carousels, sliders, and slideshow implementations with accessibility.
-
 ## Basic Carousel
 
 ```tsx
@@ -76,11 +74,10 @@ useEffect(() => {
 
 1. **Keyboard navigation** - Arrow keys, Home, End
 2. **Touch gestures** - Swipe on mobile
-3. **Pagination dots** - Show current slide
-4. **Lazy load** - Load adjacent slides only
-5. **Pause on hover** - Stop autoplay
-6. **ARIA labels** - For screen readers
-7. **Performance** - Limit simultaneous slides in DOM
+3. **Lazy load** - Load only adjacent slides
+4. **Pause on hover** - Stop autoplay
+5. **ARIA labels** - For screen readers
+6. **Performance** - Limit slides in DOM at once
 
 ## Resources
 

@@ -15,16 +15,14 @@ prerequisites:
 
 # songsee
 
-Generate spectrograms and multi-panel audio feature visualizations from audio files.
-
 ## Prerequisites
 
-Requires [Go](https://go.dev/doc/install):
+Requires [Go](https://go.dev/doc/install). If `songsee` missing, ask user before installing. Pinned tag is verified against sum.golang.org:
 ```bash
-go install github.com/steipete/songsee/cmd/songsee@latest
+go install github.com/steipete/songsee/cmd/songsee@v0.1.3
 ```
 
-Optional: `ffmpeg` for formats beyond WAV/MP3.
+WAV and MP3 decode natively. Other formats need `ffmpeg`.
 
 ## Quick Start
 
@@ -47,7 +45,7 @@ cat track.mp3 | songsee - --format png -o out.png
 
 ## Visualization Types
 
-Use `--viz` with comma-separated values:
+`--viz` takes comma-separated values. Multiple types render as grid in one image.
 
 | Type | Description |
 |------|-------------|
@@ -61,23 +59,16 @@ Use `--viz` with comma-separated values:
 | `mfcc` | Mel-frequency cepstral coefficients |
 | `flux` | Spectral flux (onset detection) |
 
-Multiple `--viz` types render as a grid in a single image.
-
 ## Common Flags
 
 | Flag | Description |
 |------|-------------|
-| `--viz` | Visualization types (comma-separated) |
 | `--style` | Color palette: `classic`, `magma`, `inferno`, `viridis`, `gray` |
 | `--width` / `--height` | Output image dimensions |
 | `--window` / `--hop` | FFT window and hop size |
 | `--min-freq` / `--max-freq` | Frequency range filter |
-| `--start` / `--duration` | Time slice of the audio |
+| `--start` / `--duration` | Audio time slice |
 | `--format` | Output format: `jpg` or `png` |
 | `-o` | Output file path |
 
-## Notes
-
-- WAV and MP3 are decoded natively; other formats require `ffmpeg`
-- Output images can be inspected with `vision_analyze` for automated audio analysis
-- Useful for comparing audio outputs, debugging synthesis, or documenting audio processing pipelines
+Inspect output images with `vision_analyze` for automated audio analysis.

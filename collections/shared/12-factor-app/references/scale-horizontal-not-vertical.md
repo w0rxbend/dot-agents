@@ -7,9 +7,9 @@ tags: scale, horizontal, vertical, architecture
 
 ## Design for Horizontal Scaling Over Vertical Scaling
 
-A twelve-factor app scales horizontally by adding more processes, not vertically by adding more resources to a single process. While individual processes can use threads or async I/O internally, the primary scaling mechanism is running more process instances.
+Scale horizontally by adding processes, not vertically by adding resources to one process. Threads or async I/O inside a process are fine, but primary scaling mechanism is running more process instances.
 
-**Incorrect (vertical scaling approach):**
+**Incorrect (vertical scaling):**
 
 ```python
 # Design assumes single big server
@@ -33,7 +33,7 @@ class OrderProcessor:
 # Single point of failure
 ```
 
-**Correct (horizontal scaling approach):**
+**Correct (horizontal scaling):**
 
 ```python
 import redis
@@ -100,11 +100,5 @@ kubectl scale deployment web --replicas=20
 # Heroku
 heroku ps:scale web=20
 ```
-
-**Benefits:**
-- No upper limit on capacity (cloud has more servers)
-- Cost-effective (small instances are cheaper per unit)
-- Resilient (losing one process doesn't lose all capacity)
-- Geographic distribution possible
 
 Reference: [The Twelve-Factor App - Concurrency](https://12factor.net/concurrency)

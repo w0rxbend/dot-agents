@@ -1,7 +1,5 @@
 # Serverless Databases (Scale-to-Zero)
 
-Serverless database options that automatically scale to zero when not in use.
-
 ## Table of Contents
 
 - [Neon PostgreSQL](#neon-postgresql)
@@ -11,26 +9,17 @@ Serverless database options that automatically scale to zero when not in use.
 
 ## Neon PostgreSQL
 
-Serverless PostgreSQL with database branching and scale-to-zero compute.
-
 ### Key Features
 
-- **Database Branching**: Create instant copies like Git branches
-- **Scale-to-Zero**: Compute pauses after inactivity, resumes on first query
+- **Database Branching**: Instant copies, like Git branches
+- **Scale-to-Zero**: Compute pauses when idle, resumes on first query
 - **Separate Compute/Storage**: Pay only for what you use
 - **PostgreSQL Compatibility**: Full Postgres 15/16 features
 - **Cold Start**: <1 second
 
-### When to Use
-
-- Development environments (branch per PR)
-- Variable traffic applications
-- Cost-sensitive projects
-- Need PostgreSQL features
-
 ### Pricing Model
 
-- **Compute**: Per-hour usage (pauses automatically)
+- **Compute**: Per-hour usage, pauses automatically
 - **Storage**: Per GB/month
 - **Free Tier**: 0.5 GB storage, reasonable compute
 
@@ -45,25 +34,25 @@ Serverless PostgreSQL with database branching and scale-to-zero compute.
 **Create Branch (Database Branching)**:
 
 ```bash
-# Install Neon CLI
+# Install Neon CLI (analytics on by default: pass --no-analytics on every command)
 npm i -g neonctl
 
 # Create branch from main
-neonctl branches create --project-id <project-id> --name feature-123
+neonctl branches create --no-analytics --project-id <project-id> --name feature-123
 
-# Get connection string
-neonctl connection-string feature-123
+# Get connection string (contains password: capture, never print)
+export DATABASE_URL=$(neonctl connection-string --no-analytics feature-123)
 ```
 
-**Connect from Application**:
+**Connect from App**:
 
 ```typescript
 import { Pool } from 'pg';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  // Neon requires SSL
-  ssl: { rejectUnauthorized: false }
+  // Neon requires SSL; publicly trusted certs, so keep verification on
+  ssl: true
 });
 
 // Queries work exactly like standard PostgreSQL
@@ -96,8 +85,8 @@ const database = new neon.Database("app-db", {
     ownerName: "neondb_owner",
 });
 
-// Export connection string
-export const connectionString = pulumi.interpolate`postgres://neondb_owner:${project.databasePassword}@${mainBranch.host}/myapp`;
+// Export connection string (contains password: keep secret so Pulumi masks it)
+export const connectionString = pulumi.secret(pulumi.interpolate`postgres://neondb_owner:${project.databasePassword}@${mainBranch.host}/myapp`);
 ```
 
 ### Database Branching Workflow
@@ -106,19 +95,16 @@ export const connectionString = pulumi.interpolate`postgres://neondb_owner:${pro
 
 ```bash
 # Create branch for feature
-neonctl branches create --name feature-auth-refactor
+neonctl branches create --no-analytics --name feature-auth-refactor
 
-# Get connection string
-neonctl connection-string feature-auth-refactor
-
-# Use in local development
-export DATABASE_URL=<branch-connection-string>
+# Use in local development (captured, not printed: URL contains password)
+export DATABASE_URL=$(neonctl connection-string --no-analytics feature-auth-refactor)
 
 # Test migrations
 npm run migrate
 
 # Merge feature, delete branch
-neonctl branches delete feature-auth-refactor
+neonctl branches delete --no-analytics feature-auth-refactor
 ```
 
 **CI/CD Pattern**:
@@ -128,20 +114,27 @@ neonctl branches delete feature-auth-refactor
 name: Test
 on: pull_request
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
     steps:
       - uses: actions/checkout@<pinned-sha> # current release, pinned by full SHA
 
       - name: Create Neon branch
         id: create-branch
         run: |
-          BRANCH=$(neonctl branches create \
+          BRANCH=$(neonctl branches create --no-analytics \
             --project-id ${{ secrets.NEON_PROJECT_ID }} \
             --name pr-${{ github.event.pull_request.number }} \
             --output json)
-          echo "connection_string=$(echo $BRANCH | jq -r .connection_string)" >> $GITHUB_OUTPUT
+          CONN=$(echo "$BRANCH" | jq -r .connection_string)
+          echo "::add-mask::$CONN"
+          echo "connection_string=$CONN" >> "$GITHUB_OUTPUT"
 
       - name: Run tests
         env:
@@ -151,27 +144,18 @@ jobs:
       - name: Delete branch
         if: always()
         run: |
-          neonctl branches delete pr-${{ github.event.pull_request.number }}
+          neonctl branches delete --no-analytics pr-${{ github.event.pull_request.number }}
 ```
 
 ## Turso SQLite
-
-Edge SQLite database with sub-millisecond read latency.
 
 ### Key Features
 
 - **Edge Deployment**: 200+ global locations
 - **Sub-millisecond Reads**: <1ms from edge
-- **libSQL**: SQLite fork with improved replication
+- **libSQL**: SQLite fork, better replication
 - **Multi-region Replication**: Automatic data sync
 - **Embedded Replicas**: Local SQLite + edge sync
-
-### When to Use
-
-- Edge functions (Cloudflare Workers, Deno Deploy)
-- Global applications requiring low latency
-- Read-heavy workloads
-- Simple data models (SQLite)
 
 ### Pricing Model
 
@@ -195,8 +179,8 @@ turso db create my-app
 # Get connection URL
 turso db show my-app --url
 
-# Get auth token
-turso db tokens create my-app
+# Create auth token straight into secret store (Workers here; never printed)
+turso db tokens create my-app | wrangler secret put TURSO_AUTH_TOKEN
 ```
 
 ### Client Usage (TypeScript)
@@ -275,22 +259,14 @@ await client.sync();
 
 ## PlanetScale MySQL
 
-Serverless MySQL powered by Vitess (YouTube's infrastructure).
+Serverless MySQL on Vitess (YouTube's infrastructure).
 
 ### Key Features
 
 - **Non-blocking Schema Changes**: Deploy migrations without downtime
-- **Vitess-powered**: Battle-tested at Google/YouTube scale
-- **Database Branching**: Development branches like Git
+- **Database Branching**: Development branches, like Git
 - **Per-row Pricing**: Pay only for rows read/written
 - **Horizontal Scaling**: Automatic sharding
-
-### When to Use
-
-- MySQL-dependent applications
-- Frequent schema changes
-- Large-scale MySQL workloads
-- Need MySQL compatibility
 
 ### Pricing Model
 
@@ -403,18 +379,18 @@ pscale deploy-request deploy my-app 1
 **Neon (PostgreSQL)**:
 - ✅ Need PostgreSQL features (JSONB, arrays, full-text search)
 - ✅ Development branches (one per PR)
-- ✅ Variable traffic (scale-to-zero cost savings)
+- ✅ Variable traffic (scale-to-zero saves cost)
 - ✅ Familiar PostgreSQL ecosystem
 
 **Turso (SQLite)**:
 - ✅ Edge functions (Cloudflare Workers, Deno Deploy)
-- ✅ Global low-latency (<50ms)
+- ✅ Global low latency (<50ms)
 - ✅ Read-heavy workloads
 - ✅ Simple data models
 - ❌ Complex joins or large writes
 
 **PlanetScale (MySQL)**:
-- ✅ MySQL-dependent applications
+- ✅ MySQL-dependent apps
 - ✅ Frequent schema changes
 - ✅ Large-scale workloads (>100 GB)
 - ✅ Need horizontal sharding
@@ -430,21 +406,11 @@ pscale deploy-request deploy my-app 1
 | **Turso** | ~$10 | Included (edge routing) |
 | **PlanetScale** | ~$39 | N/A (always on) |
 
-**Note**: Actual costs vary based on workload patterns.
+**Note**: Actual costs vary by workload pattern.
 
 ## Integration Patterns
 
 ### With Pulumi
-
-**Neon**:
-```typescript
-import * as neon from "@pulumiverse/neon";
-
-const project = new neon.Project("app", {
-    name: "my-app",
-    regionId: "aws-us-east-1",
-});
-```
 
 **Turso** (via environment variables):
 ```typescript
@@ -510,15 +476,15 @@ export default app
 
 **Deno Deploy + Turso**:
 ```typescript
-import { serve } from "https://deno.land/std/http/server.ts";
-import { createClient } from "npm:@libsql/client/web";
+// Pinned (verify current release); commit deno.lock so integrity is checked
+import { createClient } from "npm:@libsql/client@0.18.0/web";
 
 const client = createClient({
   url: Deno.env.get("TURSO_URL")!,
   authToken: Deno.env.get("TURSO_TOKEN")!,
 });
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
   const url = new URL(req.url);
   const id = url.searchParams.get("id");
 
@@ -596,7 +562,7 @@ try {
 **Neon (PostgreSQL) - Use branches**:
 ```bash
 # Create migration branch
-neonctl branches create migration-add-users
+neonctl branches create --no-analytics migration-add-users
 
 # Test migration
 psql $MIGRATION_BRANCH_URL -f migrations/001_add_users.sql

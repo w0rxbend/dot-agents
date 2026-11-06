@@ -7,7 +7,7 @@ tags: parity, environments, consistency, deployment
 
 ## Minimize Gaps Between Development and Production Environments
 
-A twelve-factor app minimizes the gap between development and production in three dimensions: time (deploy frequently), personnel (developers are involved in deploys), and tools (use the same backing services everywhere).
+Twelve-factor app minimizes gap between development and production in three dimensions: time (deploy frequently), personnel (developers involved in deploys) and tools (same backing services everywhere).
 
 **The three gaps:**
 
@@ -87,11 +87,5 @@ promote:
     - promote-staging-to-production
   when: manual  # But still same day
 ```
-
-**Benefits:**
-- Bugs caught in development, not production
-- Developers understand deployment
-- Continuous deployment becomes possible
-- Faster feedback loops
 
 Reference: [The Twelve-Factor App - Dev/prod parity](https://12factor.net/dev-prod-parity)

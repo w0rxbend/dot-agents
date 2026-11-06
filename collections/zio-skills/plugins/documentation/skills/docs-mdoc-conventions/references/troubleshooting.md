@@ -2,7 +2,7 @@
 
 ## "My code won't compile in mdoc"
 
-**Symptom:** mdoc reports a compilation error when running locally.
+**Symptom:** mdoc reports compilation error when run locally.
 
 **Common causes:**
 
@@ -12,7 +12,7 @@
 val p = Product("Widget", 99)
 ```
 
-**Fix:** Add the import:
+**Fix:** Add import:
 ```scala mdoc:silent
 case class Product(name: String, price: Double)
 val p = Product("Widget", 99)
@@ -28,7 +28,7 @@ case class User(name: String, age: Int)
 val user = User("Alice", "thirty")
 ```
 
-**Fix:** Match the types:
+**Fix:** Match types:
 ```scala mdoc:compile-only
 val user = User("Alice", 30)
 ```
@@ -43,7 +43,7 @@ case class Point(x: Int, y: Int)
 val moved = Point(1, 2).moveTo(3, 4)
 ```
 
-**Fix:** Define the method or use available operations:
+**Fix:** Define method or use available operations:
 ```scala mdoc:compile-only
 val p = Point(1, 2)
 val moved = Point(3, 4)  // Create new point
@@ -56,7 +56,7 @@ case class Product(name: String, price: Double)
 val schema = Schema[Product]
 ```
 
-**Fix:** Add the implicit derivation:
+**Fix:** Add implicit derivation:
 ```scala mdoc:compile-only
 import zio.blocks.schema.Schema
 
@@ -68,10 +68,10 @@ implicit val schema: Schema[Product] = Schema.derived
 
 ## "I can't redefine a name — it says the type already exists"
 
-**Symptom:** Compilation error like "type Person is defined twice" when redefining a name in a later block.
+**Symptom:** Compilation error like "type Person is defined twice" when redefining name in later block.
 
 ### Reason
-Once a `mdoc:silent` block runs, the name stays in scope for all subsequent blocks. You can't redefine it in another `silent` block:
+Once `mdoc:silent` block runs, name stays in scope for all later blocks. Cannot redefine it in another `silent` block:
 
 ```scala mdoc:silent
 case class Person(name: String, age: Int)
@@ -94,10 +94,10 @@ case class Person(name: String, email: String)
 val bob = Person("Bob", "bob@example.com")
 ```
 
-The `:nest` modifier wraps code in an anonymous object, creating a new namespace.
+`:nest` modifier wraps code in anonymous object, creating new namespace.
 
 ### Fix 2: Use `mdoc:silent:reset`
-Use this when you want a **completely fresh scope** (often better for new sections of a guide):
+Use for **completely fresh scope** (often better for new guide sections):
 
 ```scala mdoc:silent
 case class Person(name: String, age: Int)
@@ -109,7 +109,7 @@ case class Person(name: String, email: String)
 ```
 
 ### Fix 3: Use different names
-If you just need a variation, name them differently:
+If you need only a variation, name them differently:
 
 ```scala mdoc:silent
 case class PersonV1(name: String, age: Int)
@@ -120,7 +120,7 @@ case class PersonV2(name: String, email: String)
 
 ## "The output doesn't show — the result is hidden"
 
-**Symptom:** You use `mdoc` but nothing appears in the rendered output.
+**Symptom:** You use `mdoc` but nothing appears in rendered output.
 
 ### Reason 1: You used `mdoc:compile-only` instead of `mdoc`
 ```scala mdoc:silent
@@ -163,7 +163,7 @@ val result = 2 + 2
 result
 ```
 
-**Fix:** Put the expression in a separate `mdoc` block:
+**Fix:** Put expression in separate `mdoc` block:
 ```scala mdoc:silent
 val result = 2 + 2
 ```
@@ -176,10 +176,10 @@ result
 
 ## "My `mdoc:silent:reset` didn't clear the prior scope"
 
-**Symptom:** A name you thought was cleared is still accessible after reset.
+**Symptom:** Name you thought was cleared is still accessible after reset.
 
 ### Reason
-Scope is per-document-section. If the blocks are in **different Markdown sections** separated by headers or prose, they may not share scope. Reset applies within the current context.
+Scope is per-document-section. If blocks sit in **different Markdown sections** separated by headers or prose, they may not share scope. Reset applies within current context.
 
 **Example (wrong assumption):**
 ```scala mdoc:silent
@@ -192,7 +192,7 @@ Lots of prose here...
 val y = x + 1  // ❌ x might not be in scope if reset "cleared" it
 ```
 
-**Fix:** Test locally with `sbt docs` to verify scope behavior. If you want to be explicit, redefine everything you need:
+**Fix:** Verify scope behavior locally with `sbt docs`. To be explicit, redefine everything needed:
 
 ```scala mdoc:silent:reset
 val x = 1
@@ -203,7 +203,7 @@ val y = x + 1
 
 ## "Why is the order of my mdoc blocks weird?"
 
-**Symptom:** Your blocks compile individually but fail when run together.
+**Symptom:** Blocks compile individually but fail when run together.
 
 ### Reason
 Scope is **cumulative and sequential**. If Block B depends on something defined in Block A, Block A **must come first**:
@@ -216,7 +216,7 @@ val name = "Alice"
 val greeting = s"Hello, $name"  // ✓ OK: name defined earlier
 ```
 
-But reversing them fails:
+Reversed order fails:
 
 ```scala mdoc:silent
 // ❌ ERROR: name not yet defined
@@ -237,10 +237,10 @@ val name = "Alice"
 
 ## "I used imports in multiple blocks — will they conflict?"
 
-**Symptom:** You have `import zio.blocks.schema._` in multiple blocks and wonder if there's duplication.
+**Symptom:** `import zio.blocks.schema._` sits in multiple blocks; duplication worry.
 
 ### Answer
-**No conflict.** Imports are idempotent. Importing the same module multiple times is safe:
+**No conflict.** Imports are idempotent. Importing same module multiple times is safe:
 
 ```scala mdoc:silent
 import zio.blocks.schema._
@@ -252,13 +252,13 @@ import zio.blocks.schema._  // ✓ OK: re-importing is safe
 val x = Schema[Int]
 ```
 
-**Style tip:** Put all imports in the first `mdoc:silent` block to keep them visible. If a later section needs different imports, use `mdoc:silent:reset` first.
+**Style tip:** Put all imports in first `mdoc:silent` block to keep them visible. If later section needs different imports, use `mdoc:silent:reset` first.
 
 ---
 
 ## "I want to show imports but not actually use them in later blocks"
 
-**Symptom:** You want readers to see the import statement, but you don't want it in scope.
+**Symptom:** Readers should see import statement, but it should not be in scope.
 
 ### Solution: Use `mdoc:compile-only`
 ```scala mdoc:compile-only
@@ -266,7 +266,7 @@ import zio.blocks.schema._
 import zio.blocks.schema.json._
 ```
 
-This shows the imports without adding them to the shared scope.
+Shows imports without adding them to shared scope.
 
 If you **do** want them in scope, use `mdoc:silent`:
 
@@ -278,13 +278,13 @@ import zio.blocks.schema._
 
 ## "The real output differs from what I wrote in comments"
 
-**Symptom:** You manually wrote `// Right(42)` but mdoc shows `// val res0: Either[...] = Right(42)`.
+**Symptom:** You hand-wrote `// Right(42)` but mdoc shows `// val res0: Either[...] = Right(42)`.
 
 ### Why This Happens
-You used `mdoc:compile-only` (which doesn't evaluate) but manually added a result comment. mdoc doesn't evaluate `compile-only` blocks, so the comment is just text.
+You used `mdoc:compile-only` but hand-added result comment. mdoc doesn't evaluate `compile-only` blocks, so comment is plain text.
 
 ### Fix
-Use `mdoc` and let mdoc render the actual output:
+Use `mdoc` and let mdoc render actual output:
 
 ```scala mdoc:silent
 def safeDivide(a: Int, b: Int): Either[String, Int] =
@@ -296,23 +296,21 @@ safeDivide(10, 2)
 safeDivide(10, 0)
 ```
 
-mdoc will show the real evaluated results, which are always more accurate than hand-written comments.
-
 ---
 
 ## "I have a large example — should it be one block or multiple?"
 
-**Symptom:** Your example is long and you're not sure how to structure it.
+**Symptom:** Example is long; structure unclear.
 
 ### Guideline
 Split into **multiple blocks** if:
-- You want to explain something **between the setup and the usage**
-- Different **sections** of the example should be independently visible
-- The output of one part is **educational by itself**
+- Explanation belongs **between setup and usage**
+- Different **sections** of example should be independently visible
+- Output of one part is **educational by itself**
 
 Keep as **one block** if:
-- It's a **self-contained, standalone example** (use `compile-only`)
-- All parts are **equally important** and best understood together
+- **Self-contained, standalone example** (use `compile-only`)
+- All parts **equally important**, best understood together
 
 ### Example: Multi-block (Progressive Narrative)
 ```scala mdoc:silent

@@ -1,10 +1,8 @@
 # Render Loop
 
-Every PixiJS frame runs a fixed sequence of ticker callbacks in priority order, with `app.render()` registered at `UPDATE_PRIORITY.LOW` — scene graph update and GPU draw happen _inside_ that one callback. The `Application`'s `TickerPlugin` drives this loop automatically. Understanding the priority order and when to render yourself is key for integrating game logic, physics, and custom frame pacing.
-
 ## Frame lifecycle
 
-Each frame, the `Ticker` measures elapsed time, clamps it with `minFPS`/`maxFPS`, then calls every listener registered with `ticker.add()` in priority order. `app.render()` is itself one of those listeners, registered at `UPDATE_PRIORITY.LOW`. When it runs, it walks the display list from `app.stage`, recalculates world transforms (position/rotation/scale propagated parent-to-child), fires each object's `onRender` hook, culls off-screen objects if culling is enabled, then batches draw calls and issues GPU commands.
+Each frame, `Ticker` measures elapsed time, clamps it with `minFPS`/`maxFPS`, then calls every `ticker.add()` listener in priority order. `app.render()` is one such listener, at `UPDATE_PRIORITY.LOW`. It walks display list from `app.stage` and recalculates world transforms (position/rotation/scale propagated parent-to-child). Then it fires each object's `onRender` hook, culls off-screen objects if culling enabled, batches draw calls and issues GPU commands.
 
 ```
 requestAnimationFrame
@@ -24,31 +22,13 @@ requestAnimationFrame
         └─ UTILITY listeners (post-render)
 ```
 
-Rendering is **retained mode**: objects persist across frames unless you explicitly remove them.
-
-## Quick Start
-
-```ts
-app.ticker.add((ticker) => {
-  sprite.rotation += 0.01 * ticker.deltaTime;
-});
-
-app.ticker.add(
-  (ticker) => {
-    updatePhysics(ticker.deltaMS);
-  },
-  undefined,
-  UPDATE_PRIORITY.HIGH,
-);
-```
-
-Callbacks receive a `Ticker` instance. Use `ticker.deltaTime` (dimensionless, ~1.0 at 60fps) for simple multipliers; use `ticker.deltaMS` (milliseconds) for time-based calculations.
+Rendering is **retained mode**: objects persist across frames unless explicitly removed.
 
 ## Core Patterns
 
 ### Priority order
 
-The ticker runs registered callbacks in descending priority. The `TickerPlugin` registers `app.render()` at `UPDATE_PRIORITY.LOW`, so callbacks at `NORMAL`, `HIGH`, or `INTERACTION` run before the render.
+Ticker runs callbacks in descending priority. `TickerPlugin` registers `app.render()` at `UPDATE_PRIORITY.LOW`, so `NORMAL`, `HIGH` and `INTERACTION` callbacks run before render.
 
 ```
 UPDATE_PRIORITY.INTERACTION = 50   // pointer events
@@ -82,7 +62,7 @@ app.ticker.add((ticker) => {
 | `deltaMS`   | milliseconds                  | yes              | yes               |
 | `elapsedMS` | milliseconds                  | no               | no                |
 
-Use `deltaTime` as a frame-rate multiplier for simple per-frame logic; use `deltaMS` for pixels-per-second or other time-based math; use `elapsedMS` only for profiling (raw, uncapped, unscaled).
+`deltaTime`: frame-rate multiplier for simple per-frame logic. `deltaMS`: pixels-per-second or other time-based math. `elapsedMS`: only for profiling (raw, uncapped, unscaled).
 
 ### Manual rendering
 
@@ -98,7 +78,7 @@ function frame(time: number) {
 requestAnimationFrame(frame);
 ```
 
-`autoStart: false` disables the `TickerPlugin`'s automatic render registration. You control when the scene draws, letting you integrate with a custom loop, an external animation library, or a fixed-timestep game clock.
+`autoStart: false` disables `TickerPlugin`'s automatic render registration. You decide when scene draws: custom loop, external animation library or fixed-timestep game clock.
 
 ### Stop and start
 
@@ -107,7 +87,7 @@ app.stop(); // pause the ticker and rendering
 app.start(); // resume
 ```
 
-Useful for a pause menu or when the user switches away from the tab. The ticker is automatically paused on page blur when `sharedTicker: false` (default).
+Use for pause menus or when user leaves tab. Ticker auto-pauses on page blur when `sharedTicker: false` (default).
 
 ### Per-object update via `onRender`
 
@@ -120,7 +100,7 @@ sprite.onRender = () => {
 app.stage.addChild(sprite);
 ```
 
-`onRender` is called during scene graph traversal, just before the object is drawn. It's a per-object hook; an alternative to a global ticker callback when the logic is tied to a specific display object.
+`onRender` runs during scene graph traversal, right before object draws. Per-object alternative to global ticker callback when logic belongs to one display object.
 
 ### Frame rate capping
 
@@ -129,7 +109,7 @@ app.ticker.maxFPS = 30; // run at 30fps
 app.ticker.minFPS = 10; // cap deltaTime at 10fps worth if frames drop
 ```
 
-`maxFPS` enforces a ceiling by skipping updates. `minFPS` caps `deltaTime` so large frame drops don't produce enormous deltas that break physics. Defaults: no `maxFPS`, `minFPS: 10`.
+`maxFPS` sets ceiling by skipping updates. `minFPS` caps `deltaTime` so big frame drops do not yield huge deltas that break physics. Defaults: no `maxFPS`, `minFPS: 10`.
 
 ## Common Mistakes
 
@@ -151,8 +131,7 @@ app.ticker.add((ticker) => {
 });
 ```
 
-v8 passes the `Ticker` instance to the callback, not a delta. Old v7 code that used `(dt) => sprite.x += dt` compiles but produces `NaN` because `dt` is an object.
-
+v8 passes `Ticker` instance, not a delta. Old v7 code like `(dt) => sprite.x += dt` compiles but produces `NaN` because `dt` is an object.
 
 ### [HIGH] Using `updateTransform` for per-frame logic
 
@@ -180,8 +159,7 @@ class MySprite extends Sprite {
 }
 ```
 
-`updateTransform` was removed in v8. Use `onRender` for per-object per-frame logic.
-
+`updateTransform` removed in v8. Use `onRender` for per-object per-frame logic.
 
 ### [MEDIUM] Assuming ticker callbacks run after render
 
@@ -205,8 +183,7 @@ app.ticker.add(
 );
 ```
 
-Callbacks added at the default priority (`NORMAL = 0`) run _before_ the render call (at `LOW = -25`). Use `UTILITY = -50` for post-render work like pixel readbacks or DOM sync.
-
+Default-priority callbacks (`NORMAL = 0`) run _before_ render (at `LOW = -25`). Use `UTILITY = -50` for post-render work like pixel readbacks or DOM sync.
 
 ## API Reference
 

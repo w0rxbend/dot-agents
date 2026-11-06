@@ -1,8 +1,5 @@
 # Advanced Upload Patterns
 
-Chunked uploads, resumable uploads, and multi-file queue management for large files.
-
-
 ## Table of Contents
 
 - [Chunked Upload (Large Files >100MB)](#chunked-upload-large-files-100mb)
@@ -102,12 +99,11 @@ function MultiFileUpload({ files }: { files: File[] }) {
 
 ## Best Practices
 
-1. **Chunk large files** - >100MB files into 5-10MB chunks
-2. **Resume capability** - Track uploaded chunks
-3. **Parallel uploads** - Limit concurrency (3-5 max)
-4. **Progress tracking** - Per-file and overall
-5. **Error retry** - Exponential backoff
-6. **Cancel capability** - Allow user to abort
+1. **Chunk large files** - Split >100MB files into 5-10MB chunks
+2. **Parallel uploads** - Limit concurrency (3-5 max)
+3. **Progress tracking** - Per-file and overall
+4. **Error retry** - Exponential backoff
+5. **Cancel capability** - Let user abort
 
 ## Resources
 

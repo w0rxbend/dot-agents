@@ -15,22 +15,18 @@
 
 ## Why Sample
 
-High-throughput services generate enormous log volumes. At 10k RPS with 1KB per log entry, you produce 10MB/s — 864GB/day. Sampling reduces cost, network bandwidth, and storage without losing visibility into critical events.
-
-The key insight: sample noise (Debug/Info), never errors. Combine sampling strategies with level-based routing so Warn/Error records always reach every sink.
+Sample noise (Debug/Info), never errors. Pair sampling with level-based routing so Warn/Error records always reach every sink.
 
 ## Strategy Comparison
 
 | Strategy | Constructor | Behavior | Overhead | Best for |
 | --- | --- | --- | --- | --- |
 | Uniform | `UniformSamplingOption` | Drop fixed % of all records randomly | Minimal | Dev/staging noise reduction |
-| Threshold | `ThresholdSamplingOption` | Log first N per interval, then sample at rate R | Low | Production — initial visibility then throttle |
+| Threshold | `ThresholdSamplingOption` | Log first N per interval, then sample at rate R | Low | Production; initial visibility, then throttle |
 | Absolute | `AbsoluteSamplingOption` | Cap at N records per interval globally | Medium | Hard cost/throughput cap |
 | Custom | `CustomSamplingOption` | User function returns sample rate per record | Varies | Level-aware, time-aware, context-aware rules |
 
 ## Uniform Sampling
-
-Simplest strategy. Drops a fixed percentage of all records uniformly.
 
 ```go
 import slogsampling "github.com/samber/slog-sampling"
@@ -45,11 +41,11 @@ logger := slog.New(
 )
 ```
 
-**Warning:** Uniform sampling drops errors and warnings at the same rate as debug logs. Only use in dev/staging or combine with level-based routing that bypasses sampling for high-severity records.
+**Warning:** Uniform sampling drops errors and warnings at same rate as debug logs. Only use in dev/staging, or pair with level-based routing that bypasses sampling for high-severity records.
 
 ## Threshold Sampling
 
-Logs the first N records with the same "hash" per interval, then switches to rate-based sampling. The hash is determined by the Matcher.
+Logs first N records with same "hash" per interval, then switches to rate-based sampling. Matcher defines hash.
 
 ```go
 option := slogsampling.ThresholdSamplingOption{
@@ -60,11 +56,11 @@ option := slogsampling.ThresholdSamplingOption{
 }
 ```
 
-**Pattern:** "Show me the first 10 occurrences of each message per 5s window. After that, show every 10th." This preserves initial visibility into new issues while limiting noise from repeated messages.
+**Pattern:** "Show me the first 10 occurrences of each message per 5s window. After that, show every 10th." Keeps initial visibility into new issues, limits noise from repeated messages.
 
 ## Absolute Sampling
 
-Caps total throughput at a fixed number of records per interval, regardless of how many unique messages exist.
+Caps total throughput at fixed records per interval, regardless of unique message count.
 
 ```go
 option := slogsampling.AbsoluteSamplingOption{
@@ -74,11 +70,11 @@ option := slogsampling.AbsoluteSamplingOption{
 }
 ```
 
-**Use when:** You have a hard budget — e.g., "our log backend can handle 1000 records/sec max" or "we pay per GB ingested."
+**Use when:** hard budget, e.g., "our log backend can handle 1000 records/sec max" or "we pay per GB ingested."
 
 ## Custom Sampling
 
-Full control: return a sample rate [0.0, 1.0] per record based on any criteria.
+Full control: return sample rate [0.0, 1.0] per record from any criteria.
 
 ```go
 option := slogsampling.CustomSamplingOption{
@@ -97,11 +93,11 @@ option := slogsampling.CustomSamplingOption{
 }
 ```
 
-**When to use:** Complex rules that depend on time of day, log level, specific attributes, or context values. Higher overhead than other strategies because the function runs per record.
+**When to use:** complex rules on time of day, log level, specific attributes or context values. Higher overhead than other strategies: function runs per record.
 
 ## Matchers — Record Grouping
 
-Matchers determine how records are grouped for threshold/absolute counting. Records with the same hash share a counter.
+Matchers define how records group for threshold/absolute counting. Records with same hash share a counter.
 
 | Matcher | Groups by | Use when |
 | --- | --- | --- |
@@ -115,7 +111,7 @@ Matchers determine how records are grouped for threshold/absolute counting. Reco
 
 ## Chaining Multiple Strategies
 
-Stack sampling strategies for layered control:
+Stack strategies for layered control:
 
 ```go
 // Layer 1: per-message deduplication (threshold)
@@ -140,7 +136,7 @@ logger := slog.New(
 
 ## Pipeline Ordering
 
-Sampling MUST be the first stage in the pipeline. Placing it after formatting or routing wastes CPU on records that get dropped.
+Sampling MUST be first pipeline stage. Placed after formatting or routing, it wastes CPU on dropped records.
 
 ```
 // WRONG: format then sample — CPU wasted on dropped records
@@ -150,7 +146,7 @@ record → [Formatter] → [Sampling] → [Sink]
 record → [Sampling] → [Formatter] → [Sink]
 ```
 
-To exempt errors from sampling, use a `FirstMatch` Router so error records match the first route and skip sampling:
+To exempt errors, use `FirstMatch` Router: error records match first route and skip sampling:
 
 ```go
 logger := slog.New(
@@ -167,7 +163,7 @@ logger := slog.New(
 
 ## Hook Functions — Observability on Sampling
 
-Track how many records are dropped via `OnAccepted` and `OnDropped` hooks:
+Count accepted and dropped records via `OnAccepted` and `OnDropped` hooks:
 
 ```go
 var (
@@ -186,4 +182,4 @@ option := slogsampling.ThresholdSamplingOption{
 }
 ```
 
-This lets you monitor your sampling ratio in Prometheus/Grafana and tune thresholds based on actual traffic patterns.
+Monitor sampling ratio in Prometheus/Grafana; tune thresholds to actual traffic.

@@ -15,7 +15,7 @@
 
 ### Chunk Processing Optimization
 
-Efficiently process streaming tokens:
+Batch streaming tokens:
 
 ```tsx
 // Optimized stream processor with batching
@@ -96,7 +96,7 @@ function useStreamProcessor() {
 
 ### Markdown Parsing Optimization
 
-Optimize markdown rendering during streaming:
+Parse markdown incrementally while streaming:
 
 ```tsx
 // Incremental markdown parser
@@ -168,7 +168,7 @@ class IncrementalMarkdownParser {
 
 ### Component Memoization
 
-Prevent unnecessary re-renders:
+Skip unneeded re-renders:
 
 ```tsx
 // Memoized message component
@@ -216,8 +216,6 @@ const Message = memo(
 ```
 
 ### Hook Memoization
-
-Optimize expensive hook computations:
 
 ```tsx
 // Memoized search hook
@@ -273,7 +271,7 @@ function tokenize(text: string): string[] {
 
 ### Large Conversation Handling
 
-Efficiently render thousands of messages:
+Render thousands of messages efficiently:
 
 ```tsx
 import { VariableSizeList } from 'react-window';
@@ -358,7 +356,7 @@ function VirtualizedChat({ messages }) {
 
 ### Dynamic Imports for Heavy Components
 
-Split code for better initial load:
+Split code for faster initial load:
 
 ```tsx
 // Lazy load heavy components
@@ -417,8 +415,6 @@ function MessageContent({ message }) {
 
 ### Route-Based Splitting
 
-Split by features:
-
 ```tsx
 // Route configuration with lazy loading
 const routes = [
@@ -450,8 +446,6 @@ routes.filter(r => r.preload).forEach(route => {
 ## Bundle Optimization
 
 ### Tree Shaking Configuration
-
-Optimize bundle size:
 
 ```javascript
 // webpack.config.js
@@ -490,7 +484,7 @@ module.exports = {
 
 ### Import Optimization
 
-Reduce bundle size with specific imports:
+Import specific modules to cut bundle size:
 
 ```tsx
 // ❌ Bad - imports entire library
@@ -517,8 +511,6 @@ const iconMap = {
 ## Memory Management
 
 ### Cleanup Strategies
-
-Prevent memory leaks:
 
 ```tsx
 function ChatSession() {
@@ -563,7 +555,7 @@ function ChatSession() {
 
 ### Cache Management
 
-Implement LRU caches:
+Use LRU caches:
 
 ```tsx
 class LRUCache<K, V> {
@@ -612,8 +604,6 @@ const searchIndexCache = new LRUCache<string, any>(50);
 ## Network Optimization
 
 ### Request Batching
-
-Batch multiple requests:
 
 ```tsx
 class RequestBatcher {
@@ -678,8 +668,6 @@ class RequestBatcher {
 
 ### Connection Pooling
 
-Reuse connections efficiently:
-
 ```tsx
 // Connection pool for WebSocket/SSE
 class ConnectionPool {
@@ -717,7 +705,7 @@ class ConnectionPool {
 
 ### Frame Rate Optimization
 
-Maintain 60fps during streaming:
+Keep 60fps during streaming:
 
 ```tsx
 // Use RAF for smooth updates
@@ -774,8 +762,6 @@ function StreamingText({ text }) {
 
 ### CSS Optimization
 
-Optimize rendering with CSS:
-
 ```css
 /* Use CSS containment for better performance */
 .message {
@@ -811,8 +797,6 @@ Optimize rendering with CSS:
 ## Performance Monitoring
 
 ### Performance Metrics
-
-Track key metrics:
 
 ```tsx
 function usePerformanceMonitor() {
@@ -862,13 +846,5 @@ function usePerformanceMonitor() {
 
 ## Best Practices Summary
 
-1. **Batch stream processing** - Process chunks in groups
-2. **Memoize aggressively** - Cache expensive computations
-3. **Use virtual scrolling** - For conversations >100 messages
-4. **Split code smartly** - Lazy load heavy components
-5. **Optimize bundles** - Tree shake and split chunks
-6. **Manage memory** - Clean up old data and URLs
-7. **Pool connections** - Reuse WebSocket/SSE connections
-8. **Maintain 60fps** - Use RAF for smooth animations
-9. **Monitor performance** - Track FPS, memory, latency
-10. **Profile regularly** - Use Chrome DevTools Performance tab
+1. **Use virtual scrolling** - For conversations >100 messages
+2. **Profile regularly** - Use Chrome DevTools Performance tab

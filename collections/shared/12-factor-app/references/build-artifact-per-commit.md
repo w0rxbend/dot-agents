@@ -7,7 +7,7 @@ tags: build, artifacts, ci-cd, consistency
 
 ## Generate One Build Artifact Per Commit Deploy Same Artifact Everywhere
 
-Build the application once per commit, producing a single artifact that is deployed to all environments. Never rebuild for staging vs production - the artifact is identical, only configuration differs.
+Build once per commit; deploy that one artifact everywhere. Never rebuild for staging vs production. Same artifact; only config differs.
 
 **Incorrect (rebuild per environment):**
 
@@ -68,7 +68,7 @@ deploy-production:
   when: manual  # Requires approval
 ```
 
-**Container tagging strategy:**
+**Container tagging:**
 
 ```bash
 # Tag with commit SHA (immutable)
@@ -85,11 +85,5 @@ docker push registry/myapp:latest
 # Staging deployed with :abc123def
 # Production deployed with same :abc123def
 ```
-
-**Benefits:**
-- What passed tests in staging is exactly what runs in production
-- No "but the production build is different" debugging
-- Artifact can be promoted without rebuilding
-- Audit trail: commit SHA → artifact → all deployments
 
 Reference: [The Twelve-Factor App - Build, Release, Run](https://12factor.net/build-release-run)

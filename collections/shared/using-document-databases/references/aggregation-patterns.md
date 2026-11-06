@@ -1,8 +1,5 @@
 # MongoDB Aggregation Pipeline Patterns
 
-Complete guide to MongoDB aggregation framework for complex queries, analytics, and data transformations.
-
-
 ## Table of Contents
 
 - [Aggregation Pipeline Basics](#aggregation-pipeline-basics)
@@ -31,7 +28,7 @@ Complete guide to MongoDB aggregation framework for complex queries, analytics, 
 
 ## Aggregation Pipeline Basics
 
-Pipeline stages process documents sequentially:
+Stages process documents in order:
 
 ```javascript
 db.collection.aggregate([
@@ -56,8 +53,6 @@ db.orders.aggregate([
   // ... other stages
 ])
 ```
-
-**Best practice:** Use $match early to reduce document count.
 
 ### $group (Aggregate)
 
@@ -334,14 +329,9 @@ db.orders.aggregate([
 
 ## Best Practices
 
-1. **$match early** - Filter before expensive operations
-2. **Use indexes** - Ensure $match and $sort use indexes
-3. **$project unwanted fields** - Reduce memory usage
-4. **Limit results** - Use $limit early when possible
-5. **Avoid $lookup on large collections** - Index foreign keys
-6. **Test with explain()** - Verify index usage
-7. **Use $facet sparingly** - Multiple sub-pipelines are expensive
-8. **Consider denormalization** - Avoid $lookup for frequent queries
+1. **Avoid $lookup on large collections** - Index foreign keys
+2. **Use $facet sparingly** - Multiple sub-pipelines are expensive
+3. **Consider denormalization** - Avoid $lookup for frequent queries
 
 ## Resources
 

@@ -1,7 +1,5 @@
 # PostgreSQL Guide
 
-PostgreSQL is the recommended relational database for maximum flexibility and advanced features.
-
 
 ## Table of Contents
 
@@ -39,14 +37,14 @@ PostgreSQL is the recommended relational database for maximum flexibility and ad
 
 **Choose PostgreSQL when:**
 - Need advanced data types (JSON, arrays, hstore, custom types)
-- Require vector search (pgvector for embeddings)
-- Working with geospatial data (PostGIS extension)
+- Need vector search (pgvector for embeddings)
+- Have geospatial data (PostGIS extension)
 - Need time-series optimization (TimescaleDB extension)
 - Want graph relationships (Apache AGE extension)
-- Maximum standards compliance required (ACID, SQL standard)
+- Need maximum standards compliance (ACID, SQL standard)
 
 **Skip PostgreSQL for:**
-- Simple embedded applications (use SQLite)
+- Simple embedded apps (use SQLite)
 - Legacy MySQL systems (migration complexity)
 - Pure key-value workloads (use Redis)
 
@@ -159,9 +157,9 @@ BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 ```
 
 **Use Cases:**
-- **Read Committed** (default): Most web applications
-- **Repeatable Read**: Financial transactions, reports requiring consistency
-- **Serializable**: Critical operations requiring absolute consistency
+- **Read Committed** (default): Most web apps
+- **Repeatable Read**: Financial transactions, reports needing consistency
+- **Serializable**: Critical operations needing absolute consistency
 
 ## PostgreSQL Extensions
 
@@ -374,8 +372,8 @@ EXPLAIN ANALYZE SELECT * FROM users WHERE email = 'test@example.com';
 
 **Key metrics:**
 - **Seq Scan**: Table scan (bad for large tables, add index)
-- **Index Scan**: Using index (good)
-- **Bitmap Index Scan**: Combining multiple indexes (good)
+- **Index Scan**: Uses index (good)
+- **Bitmap Index Scan**: Combines multiple indexes (good)
 - **Cost**: Estimated cost (lower is better)
 - **Actual Time**: Real execution time
 
@@ -398,7 +396,7 @@ maintenance_work_mem = 128MB  -- For VACUUM, CREATE INDEX
 
 ### Vacuuming
 
-PostgreSQL uses MVCC (Multi-Version Concurrency Control) which creates dead tuples on UPDATE/DELETE.
+PostgreSQL MVCC (Multi-Version Concurrency Control) creates dead tuples on UPDATE/DELETE.
 
 **Auto-vacuum (enabled by default):**
 ```sql
@@ -453,7 +451,7 @@ WHERE schemaname = 'public'
 ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 ```
 
-**Cache hit ratio (should be >90%):**
+**Cache hit ratio (target >90%):**
 ```sql
 SELECT
     sum(heap_blks_read) AS heap_read,
@@ -486,7 +484,7 @@ CREATE TABLE posts (
 );
 ```
 
-**Use appropriate data types:**
+**Use fitting data types:**
 - `SERIAL` or `BIGSERIAL` for auto-incrementing IDs
 - `TIMESTAMPTZ` (not `TIMESTAMP`) for timestamps (stores timezone)
 - `TEXT` for variable-length strings (no length limit)
@@ -495,7 +493,7 @@ CREATE TABLE posts (
 
 ### Security
 
-**Create application user with limited permissions:**
+**Create app user with limited permissions:**
 ```sql
 CREATE USER myapp_user WITH PASSWORD 'secure_password';
 GRANT CONNECT ON DATABASE mydb TO myapp_user;
@@ -512,9 +510,9 @@ ssl_cert_file = '/path/to/server.crt'
 ssl_key_file = '/path/to/server.key'
 ```
 
-**Connection string with SSL:**
+**Connection string with SSL** (`verify-full` checks server cert and hostname; `require` only encrypts, open to MITM):
 ```
-postgresql://user:pass@host:5432/db?sslmode=require
+postgresql://user:pass@host:5432/db?sslmode=verify-full&sslrootcert=/path/to/root.crt
 ```
 
 ### Backups
@@ -539,7 +537,7 @@ archive_command = 'cp %p /backup/archive/%f'
 ```
 
 **Point-in-time recovery (PITR):**
-Restore base backup + replay WAL files to specific timestamp.
+Restore base backup, then replay WAL files to target timestamp.
 
 ## Common Patterns
 
@@ -618,7 +616,7 @@ CREATE TABLE users (
 - Slower index performance (random inserts)
 - Less human-readable
 
-**Recommendation:** Use UUID for distributed systems, SERIAL/BIGSERIAL for single-database apps.
+**Recommendation:** UUID for distributed systems, SERIAL/BIGSERIAL for single-database apps.
 
 ## Resources
 

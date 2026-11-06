@@ -261,6 +261,7 @@ metadata:
   security_checklist:
     - "IAM roles for cloud storage access"
     - "API key rotation and secrets management"
+    - "Secrets files (.dlt/secrets.toml, .env) git-ignored, never committed"
     - "Network policies for database access"
     - "Data encryption in transit and at rest"
     - "Audit logging of ingestion operations"

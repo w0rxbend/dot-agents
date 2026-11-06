@@ -1,8 +1,8 @@
 # Renderers: WebGPU, WebGL, and Canvas
 
-PixiJS v8 ships three renderers: `WebGPURenderer` (fastest where available), `WebGLRenderer` (broad compatibility, WebGL2), and `CanvasRenderer` (a last-resort 2D Canvas backend). `autoDetectRenderer` (used internally by `Application.init`) picks the best available backend based on a preference list.
+PixiJS v8 ships three renderers: `WebGPURenderer` (fastest where available), `WebGLRenderer` (broad compatibility, WebGL2), `CanvasRenderer` (last-resort 2D Canvas backend). `autoDetectRenderer` (used internally by `Application.init`) picks best available backend from preference list.
 
-**Status:** `WebGLRenderer` is recommended for production. `WebGPURenderer` is feature-complete but still experimental; browser implementations have inconsistencies. `CanvasRenderer` is a fallback for environments without WebGL/WebGPU and supports a reduced feature set.
+**Status:** `WebGLRenderer` recommended for production. `WebGPURenderer` feature-complete but still experimental; browser implementations inconsistent. `CanvasRenderer`: fallback for environments without WebGL/WebGPU, reduced feature set.
 
 ## Quick Start
 
@@ -20,7 +20,7 @@ await app.init({
 document.body.appendChild(app.canvas);
 ```
 
-`preference` can be a single string (try that first, fall back to default order) or an array (use only these, in this order; others are excluded). Default priority when `preference` is not set: `webgl`, `webgpu`, `canvas`.
+`preference`: single string (try it first, then default order) or array (only these, in this order; others excluded). Default order when `preference` is not set: `webgl`, `webgpu`, `canvas`.
 
 ## Core Patterns
 
@@ -40,8 +40,6 @@ await app.init({ preference: ["webgl"] }); // never uses webgpu or canvas
 await app.init({ preference: ["canvas"] });
 ```
 
-A string form falls through to defaults if the preferred backend isn't available. An array form excludes any backend not in the list, even if the preferred one fails.
-
 ### Per-renderer options
 
 ```ts
@@ -54,20 +52,20 @@ await app.init({
 });
 ```
 
-Common options live at the top level; renderer-specific options go in `webgpu`, `webgl`, or `canvasOptions`. Only the options for the selected renderer apply; the others are discarded.
+Common options at top level. Renderer-specific options go in `webgpu`, `webgl` or `canvasOptions`. Only selected renderer's options apply; rest discarded.
 
 ### Systems and pipes
 
-Each renderer is composed of a fixed set of `System`s (lifecycle services: textures, buffers, state, events, filters, masks) and a set of `RenderPipe`s (per-renderable instruction builders: sprite, graphics, mesh, particle, text, tiling-sprite).
+Each renderer has fixed set of `System`s (lifecycle services: textures, buffers, state, events, filters, masks) plus `RenderPipe`s (per-renderable instruction builders: sprite, graphics, mesh, particle, text, tiling-sprite).
 
-- `Systems` run once per renderer lifecycle and manage GPU state.
-- `RenderPipes` run every frame, one per renderable type. They batch instructions for their object class and flush them to the GPU.
+- `Systems` run once per renderer lifecycle, manage GPU state.
+- `RenderPipes` run every frame, one per renderable type. Each batches instructions for its object class, flushes them to GPU.
 
-Writing a custom renderable means implementing a `RenderPipe`, a `BatchableX` class, and registering both via the extensions system. These skills do not cover it further; see the [RenderPipe API](https://pixijs.download/release/docs/rendering.RenderPipe.html.md).
+Custom renderable: implement `RenderPipe` and `BatchableX` class, register both via extensions. These skills do not cover it further; see [RenderPipe API](https://pixijs.download/release/docs/rendering.RenderPipe.html.md).
 
 ### Lazy-loading backend-specific systems and pipes
 
-Systems and pipes that only one backend needs can stay out of the main bundle. Register a renderer loader (`ExtensionType.WebGLLoader`, `ExtensionType.WebGPULoader`, or `ExtensionType.CanvasLoader`) whose `load()` dynamic-imports the module that registers them. During `init`, the renderer awaits every loader for its own backend after the environment extensions load and before it creates its systems and pipes; loaders for other backends never run.
+Systems and pipes needed by only one backend can stay out of main bundle. Register renderer loader (`ExtensionType.WebGLLoader`, `ExtensionType.WebGPULoader` or `ExtensionType.CanvasLoader`) whose `load()` dynamic-imports the registering module. During `init`, renderer awaits every loader for its own backend: after environment extensions load, before creating systems and pipes. Loaders for other backends never run.
 
 ```ts
 import { extensions, ExtensionType } from "pixi.js";
@@ -78,7 +76,7 @@ extensions.add({
 });
 ```
 
-Loader names are unique per backend; a second loader with the same name is ignored. Loaders run concurrently; registered systems and pipes are ordered by their own `priority`, not by loader completion. `skipExtensionImports: true` skips loaders too, so custom builds import backend modules directly.
+Loader names unique per backend; second loader with same name ignored. Loaders run concurrently. Registered systems and pipes are ordered by own `priority`, not by loader completion. `skipExtensionImports: true` skips loaders too, so custom builds import backend modules directly.
 
 ### Direct renderer construction
 
@@ -89,11 +87,11 @@ const renderer = new WebGLRenderer();
 await renderer.init({ width: 800, height: 600 });
 ```
 
-Most apps use `Application.init` or `autoDetectRenderer()`, but you can instantiate a specific renderer directly when the target environment is known (tests, tooling, editor integrations).
+Most apps use `Application.init` or `autoDetectRenderer()`. Construct specific renderer directly when target environment known (tests, tooling, editor integrations).
 
 ### `renderer.render()` options
 
-The `.render()` method accepts either a `Container` or an options object:
+`.render()` accepts `Container` or options object:
 
 ```ts
 // shorthand: just render the stage
@@ -118,7 +116,7 @@ renderer.render({
 renderer.render({ container: scene3d, target: renderTexture, flipY: true });
 ```
 
-`container` is the scene root to draw. `target` is a separate destination (e.g. a `RenderTexture`). `mipLevel > 0` is useful for custom LOD systems or manual mipmap generation. `flipY` defaults to `false`; set it to store a texture render un-flipped, with winding adjusted so back-face culling still works. `layer` selects an array layer, a cube face, or a depth slice of a 3D `TextureSource` (`depth`); pass the source itself as `target`.
+`container`: scene root to draw. `target`: separate destination (e.g. `RenderTexture`). `mipLevel > 0` suits custom LOD systems or manual mipmap generation. `flipY` defaults to `false`; set it to store texture render un-flipped, winding adjusted so back-face culling still works. `layer` selects array layer, cube face or depth slice of 3D `TextureSource` (`depth`); pass source itself as `target`.
 
 ### Render targets
 
@@ -148,10 +146,10 @@ const depthCopy = new Texture({
 renderer.renderTarget.copyDepthTexture(target, depthCopy, { x: 0, y: 0 }, { width: 512, height: 512 });
 ```
 
-- `RenderTarget` takes WebGPU-style `colorAttachments`/`depthStencilAttachment` or the older `colorTextures`/`depth`/`stencil`/`depthStencilTexture` options. `colorTextures: 0` with `depth: true` makes a depth-only target.
-- Positional `bind(target, clear, ...)` and `push(...)` are deprecated since 8.20.0. `pop()` throws when the stack is empty.
-- `copyDepthTexture` needs WebGL2 or WebGPU and a depth-format destination. The next render into the destination target must clear color only (`clear: CLEAR.COLOR`), or the copied depth is lost.
-- Destroy a target you constructed with `target.destroy()`; the renderer releases the GPU objects it built for it.
+- `RenderTarget` takes WebGPU-style `colorAttachments`/`depthStencilAttachment` or older `colorTextures`/`depth`/`stencil`/`depthStencilTexture` options. `colorTextures: 0` with `depth: true` makes a depth-only target.
+- Positional `bind(target, clear, ...)` and `push(...)` are deprecated since 8.20.0. `pop()` throws when stack is empty.
+- `copyDepthTexture` needs WebGL2 or WebGPU and a depth-format destination. Next render into destination target must clear color only (`clear: CLEAR.COLOR`), or copied depth is lost.
+- Destroy targets you constructed with `target.destroy()`; renderer releases GPU objects it built for them.
 
 ### Resizing, texture generation, and interop
 
@@ -168,7 +166,7 @@ pixiRenderer.resetState();
 pixiRenderer.render({ container: stage });
 ```
 
-Call `resetState()` before each library renders. Both libraries leave GPU state (bound textures, blend modes, active shaders) that conflicts with the other; without `resetState()`, objects can disappear or blend incorrectly.
+Call `resetState()` before each library renders. Each leaves GPU state (bound textures, blend modes, active shaders) that conflicts with the other. Without `resetState()`, objects can disappear or blend wrong.
 
 ### Destroying a renderer
 
@@ -176,21 +174,7 @@ Call `resetState()` before each library renders. Both libraries leave GPU state 
 renderer.destroy();
 ```
 
-Releases GPU resources, systems, pipes, and event listeners. A destroyed renderer cannot be used for further rendering.
-
-### Manual rendering
-
-```ts
-await app.init({ autoStart: false, width: 800, height: 600 });
-
-function frame() {
-  app.renderer.render(app.stage);
-  requestAnimationFrame(frame);
-}
-requestAnimationFrame(frame);
-```
-
-Disable the automatic ticker plugin with `autoStart: false`, then call `app.renderer.render(app.stage)` yourself. Useful for integrating with an external game loop.
+Releases GPU resources, systems, pipes and event listeners. Destroyed renderer cannot render again.
 
 ### Renderer selection at runtime
 
@@ -198,7 +182,7 @@ Disable the automatic ticker plugin with `autoStart: false`, then call `app.rend
 console.log(app.renderer.name); // 'webgl', 'webgpu', or 'canvas'
 ```
 
-After `init`, `app.renderer` is the concrete class. Use `app.renderer.name` (a string) to branch on backend; `app.renderer.type` exists but is a numeric id meant for internal dispatch — prefer `name` in user code.
+After `init`, `app.renderer` is concrete class. Branch on backend with `app.renderer.name` (string). `app.renderer.type` is numeric id for internal dispatch; prefer `name` in user code.
 
 ### Supports check
 
@@ -218,7 +202,7 @@ if (renderer.name === "webgpu") {
 }
 ```
 
-Both helpers are exported from `pixi.js`. Useful if you want to tell the user which backend is about to be used before calling `app.init`.
+Both helpers exported from `pixi.js`. Use to tell user which backend will be used before calling `app.init`.
 
 ### Context and device loss
 
@@ -229,7 +213,7 @@ if (!renderer.encoder.isBundleValid(bundle)) {
 }
 ```
 
-The WebGL renderer restores itself after `webglcontextrestored`. The WebGPU renderer requests a new device when the browser reports `GPUDevice.lost` and rebuilds its GPU resources on the next render. A device you pass through the WebGPU `gpu` option is neither restored nor destroyed by PixiJS. A render bundle recorded on a lost device fails `isBundleValid` and must be re-recorded.
+WebGL renderer restores itself after `webglcontextrestored`. WebGPU renderer requests new device when browser reports `GPUDevice.lost`, rebuilds GPU resources on next render. PixiJS neither restores nor destroys device passed through WebGPU `gpu` option. Render bundle recorded on lost device fails `isBundleValid` and must be re-recorded.
 
 ## Common Mistakes
 
@@ -247,34 +231,11 @@ Correct:
 await app.init({ preference: ["webgpu", "webgl"] });
 ```
 
-WebGPU is not yet available on all browsers. An array-form preference of only `['webgpu']` will fail init on unsupported browsers (no fallback). Always include `'webgl'` as a fallback unless you've verified WebGPU support upstream.
-
+WebGPU not yet available on all browsers. Array preference of only `['webgpu']` fails init on unsupported browsers (no fallback). Always include `'webgl'` fallback unless WebGPU support verified upstream.
 
 ### [MEDIUM] Assuming CanvasRenderer supports everything
 
-CanvasRenderer does not support filters, masks beyond basic clipping, compressed textures, or custom shaders. It's intended as a last-resort for environments that can't run WebGL. If you need full feature parity, target WebGL or WebGPU.
-
-
-### [MEDIUM] Calling render before init
-
-Wrong:
-
-```ts
-const app = new Application();
-app.renderer.render(app.stage);
-await app.init();
-```
-
-Correct:
-
-```ts
-const app = new Application();
-await app.init();
-app.renderer.render(app.stage);
-```
-
-`app.renderer` is populated only after `init()` resolves. Any access before that is `undefined`.
-
+CanvasRenderer does not support filters, masks beyond basic clipping, compressed textures or custom shaders. Last resort for environments that cannot run WebGL. For full feature parity, target WebGL or WebGPU.
 
 ## API Reference
 

@@ -1,7 +1,5 @@
 # Retry and Backoff Strategies
 
-Comprehensive guide to implementing retry logic with exponential backoff, jitter, and rate limit handling.
-
 ## Table of Contents
 
 1. [Exponential Backoff](#exponential-backoff)
@@ -187,7 +185,7 @@ function calculateFullJitter(attempt: number, baseDelay: number, maxDelay: numbe
 
 **Benefits:**
 - Maximum spread across time
-- Best for preventing thundering herd
+- Best at preventing thundering herd
 - Used by AWS SDK
 
 ### Equal Jitter
@@ -203,7 +201,7 @@ function calculateEqualJitter(attempt: number, baseDelay: number, maxDelay: numb
 
 **Benefits:**
 - Balance between predictability and spread
-- Shorter average wait time than full jitter
+- Shorter average wait than full jitter
 
 ### Decorrelated Jitter
 
@@ -382,26 +380,31 @@ await client.charges.create(
 
 ### Server-Side Idempotency
 
-Server caches responses by idempotency key:
+Server caches responses by idempotency key, scoped to the authenticated account. Never share keys across accounts; reject a reused key whose request differs.
 
 ```typescript
 // Pseudo-code for server
-const cache = new Map<string, Response>()
+const cache = new Map<string, { fingerprint: string; response: Response }>()
 
 async function handleRequest(req: Request): Promise<Response> {
   const idempotencyKey = req.headers['idempotency-key']
+  const cacheKey = idempotencyKey && `${req.accountId}:${idempotencyKey}`
+  const fingerprint = hash(req.method, req.path, req.body)
 
-  if (idempotencyKey && cache.has(idempotencyKey)) {
-    // Return cached response
-    return cache.get(idempotencyKey)!
+  const hit = cacheKey ? cache.get(cacheKey) : undefined
+  if (hit) {
+    if (hit.fingerprint !== fingerprint) {
+      return new Response('Idempotency-Key reused with a different request', { status: 422 })
+    }
+    return hit.response
   }
 
   const response = await processRequest(req)
 
-  if (idempotencyKey) {
+  if (cacheKey) {
     // Cache response for 24 hours
-    cache.set(idempotencyKey, response)
-    setTimeout(() => cache.delete(idempotencyKey), 24 * 60 * 60 * 1000)
+    cache.set(cacheKey, { fingerprint, response })
+    setTimeout(() => cache.delete(cacheKey), 24 * 60 * 60 * 1000)
   }
 
   return response
@@ -412,7 +415,7 @@ async function handleRequest(req: Request): Promise<Response> {
 
 ### Configuration
 
-Allow users to configure retry behavior:
+Let users configure retry behavior:
 
 ```typescript
 const client = new APIClient({

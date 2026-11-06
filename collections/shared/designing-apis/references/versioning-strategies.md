@@ -1,42 +1,12 @@
 # API Versioning Strategies
 
-Comprehensive guide to API versioning approaches, breaking change management, and deprecation policies.
-
 ## Table of Contents
 
-1. [Why Version APIs](#why-version-apis)
-2. [Versioning Strategies](#versioning-strategies)
-3. [Breaking vs Non-Breaking Changes](#breaking-vs-non-breaking-changes)
-4. [Deprecation Process](#deprecation-process)
-5. [Migration Patterns](#migration-patterns)
-6. [Version Strategy Selection](#version-strategy-selection)
-
-## Why Version APIs
-
-### Business Drivers
-
-**Backward Compatibility:**
-- Old clients continue working while new features are added
-- Gradual migration reduces risk
-- Multiple client versions coexist
-
-**Evolving Requirements:**
-- Business needs change over time
-- New features require API changes
-- Technical debt must be addressed
-
-**Multiple Clients:**
-- Web, mobile, desktop apps on different release cycles
-- Third-party integrations with varying upgrade capabilities
-- Internal services with independent deployments
-
-### Consequences of Poor Versioning
-
-- Broken production integrations
-- Client downtime during upgrades
-- Support burden for unlimited old versions
-- Technical debt accumulation
-- Lost customer trust
+1. [Versioning Strategies](#versioning-strategies)
+2. [Breaking vs Non-Breaking Changes](#breaking-vs-non-breaking-changes)
+3. [Deprecation Process](#deprecation-process)
+4. [Migration Patterns](#migration-patterns)
+5. [Version Strategy Selection](#version-strategy-selection)
 
 ## Versioning Strategies
 
@@ -49,7 +19,7 @@ https://api.example.com/v2/users
 ```
 
 **Pros:**
-- ✅ Highly visible and explicit
+- ✅ Highly visible, explicit
 - ✅ Easy to implement and test
 - ✅ Works with all HTTP clients
 - ✅ Simplifies caching (different URLs)
@@ -59,15 +29,9 @@ https://api.example.com/v2/users
 **Cons:**
 - ❌ Not strictly RESTful (resource identity changes)
 - ❌ Maintenance overhead (multiple codebases)
-- ❌ URLs become longer
+- ❌ Longer URLs
 
 **Implementation Example:**
-
-Structure:
-```
-/api/v1/users  → v1_routes
-/api/v2/users  → v2_routes
-```
 
 Express.js:
 ```javascript
@@ -92,8 +56,8 @@ app.include_router(v2_router)
 **When to Use:**
 - Public APIs with diverse clients
 - APIs with long support windows
-- When visibility is important
-- When testing ease is critical
+- Visibility important
+- Ease of testing critical
 
 ### 2. Header-Based Versioning
 
@@ -114,12 +78,12 @@ X-API-Version: 2
 - ✅ Clean URLs (resource identity preserved)
 - ✅ RESTful principles maintained
 - ✅ Supports content negotiation
-- ✅ Easy to add new versions without URL changes
+- ✅ New versions without URL changes
 
 **Cons:**
 - ❌ Less visible (hidden in headers)
 - ❌ Harder to test in browser
-- ❌ Requires middleware/header parsing
+- ❌ Needs middleware/header parsing
 - ❌ Not cacheable by default (Vary header needed)
 
 **Implementation Example:**
@@ -147,8 +111,8 @@ Vary: Accept-Version
 
 **When to Use:**
 - Internal APIs
-- APIs where clean URLs are prioritized
-- When strong RESTful principles required
+- Clean URLs prioritized
+- Strong RESTful principles required
 
 ### 3. Media Type Versioning
 
@@ -165,11 +129,11 @@ Accept: application/vnd.example.v1+json
 **Pros:**
 - ✅ True content negotiation
 - ✅ RESTful and semantic
-- ✅ Allows multiple representations per version
+- ✅ Multiple representations per version
 
 **Cons:**
 - ❌ Complex implementation
-- ❌ Requires proper Accept header handling
+- ❌ Needs proper Accept header handling
 - ❌ Less discoverable
 - ❌ Not widely adopted
 
@@ -198,7 +162,7 @@ Content-Type: application/vnd.example.v2+json
 **When to Use:**
 - APIs with strong REST requirements
 - Multiple representation formats per version
-- When content negotiation is already used
+- Content negotiation already in use
 
 ### 4. Query Parameter Versioning
 
@@ -243,9 +207,9 @@ router.get('/users', (req, res) => {
 Example: `2.1.3`
 
 **Version Increments:**
-- **MAJOR**: Breaking changes (2.0.0 → 3.0.0)
-- **MINOR**: New features, backward compatible (2.0.0 → 2.1.0)
-- **PATCH**: Bug fixes, backward compatible (2.0.0 → 2.0.1)
+- **MAJOR**: Breaking changes (2.0.0 to 3.0.0)
+- **MINOR**: New features, backward compatible (2.0.0 to 2.1.0)
+- **PATCH**: Bug fixes, backward compatible (2.0.0 to 2.0.1)
 
 **Usage:**
 ```http
@@ -260,7 +224,7 @@ GET /api/v2.1/users
 **When to Use:**
 - Libraries and SDKs
 - Internal service APIs with frequent updates
-- When fine-grained versioning needed
+- Fine-grained versioning
 
 ## Breaking vs Non-Breaking Changes
 
@@ -269,7 +233,7 @@ GET /api/v2.1/users
 **Field Changes:**
 - ❌ Remove field from response
 - ❌ Rename field
-- ❌ Change field type (string → number)
+- ❌ Change field type (string to number)
 - ❌ Make optional field required
 - ❌ Change field validation rules (stricter)
 
@@ -302,7 +266,7 @@ GET /api/v2.1/users
 **Relaxations:**
 - ✅ Make required field optional
 - ✅ Relax validation rules
-- ✅ Accept additional input formats
+- ✅ Accept extra input formats
 
 **Bug Fixes:**
 - ✅ Fix incorrect behavior
@@ -474,7 +438,7 @@ logger.info('v1_usage', {
 
 ### Adapter Pattern
 
-Support both versions with shared business logic:
+Serve both versions from shared business logic:
 
 ```javascript
 // Shared business logic
@@ -514,7 +478,7 @@ router.get('/api/v2/users/:id', async (req, res) => {
 
 ### Migration Tools
 
-**Provide tooling to assist migration:**
+**Provide migration tooling:**
 
 ```javascript
 // SDK with automatic version handling
@@ -554,19 +518,19 @@ function convertV1toV2(v1Response) {
 
 **Public Third-Party API:**
 - Use: URL Path Versioning
-- Why: Maximum visibility, ease of testing, clear documentation
+- Why: maximum visibility, easy testing, clear documentation
 
 **Internal Microservices:**
 - Use: Header-Based or Semantic Versioning
-- Why: Clean URLs, frequent minor updates
+- Why: clean URLs, frequent minor updates
 
 **Mobile App Backend:**
 - Use: URL Path Versioning
-- Why: Mobile apps update slowly, need clear version targeting
+- Why: mobile apps update slowly, need clear version targeting
 
 **Legacy System Migration:**
 - Use: URL Path Versioning
-- Why: Clear separation, gradual migration, both versions coexist
+- Why: clear separation, gradual migration, both versions coexist
 
 **GraphQL API:**
 - Use: No versioning (schema evolution)
@@ -575,23 +539,16 @@ function convertV1toV2(v1Response) {
 ## Best Practices Checklist
 
 ### Versioning Strategy
-- [ ] Choose consistent versioning strategy (URL path recommended)
+- [ ] Choose one consistent versioning strategy (URL path recommended)
 - [ ] Document versioning policy
 - [ ] Communicate breaking changes clearly
 - [ ] Maintain migration guides
 
 ### Breaking Changes
-- [ ] Identify breaking vs non-breaking changes
+- [ ] Classify breaking vs non-breaking changes
 - [ ] Increment major version for breaking changes
 - [ ] Provide migration period (minimum 3-6 months)
 - [ ] Support previous version during migration
-
-### Deprecation
-- [ ] Announce deprecation with clear timeline
-- [ ] Add deprecation headers to responses
-- [ ] Monitor old version usage
-- [ ] Provide migration support
-- [ ] Return 410 Gone after sunset
 
 ### Documentation
 - [ ] Document current version

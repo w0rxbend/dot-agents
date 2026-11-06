@@ -4,87 +4,86 @@
 
 ### "MCP server not found" or tool not available
 
-**Cause:** MCP server not configured in the AI tool.
+**Cause:** MCP server not configured in AI tool.
 
-**Fix:** Follow the setup instructions in the main SKILL.md. If you use the Render plugin, reinstall or update it and reload the tool so it loads the plugin's MCP server. For manual clients, add the config and restart the tool.
+**Fix:** Follow setup instructions in main SKILL.md. On Render plugin: reinstall or update it, then reload tool so it loads plugin's MCP server. On manual clients: add config, then restart tool.
 
 ### "Connection refused" or timeout
 
 **Cause:** Network issue or incorrect URL.
 
 **Fix:**
-- Verify the URL is exactly `https://mcp.render.com/mcp`
-- Check internet connectivity
-- Some corporate firewalls block MCP connections — try from a different network
+- Verify URL is exactly `https://mcp.render.com/mcp`
+- Some corporate firewalls block MCP connections — try different network
 
 ### "Transport error" or "SSE not supported"
 
-**Cause:** Using the wrong transport or URL.
+**Cause:** Wrong transport or URL.
 
 **Fix:**
 - Use HTTP transport (streamable HTTP), not SSE
 - URL should be `https://mcp.render.com/mcp`, not `https://mcp.render.com/sse`
-- For Claude Code: use `--transport http` flag
+- Claude Code: use `--transport http` flag
 
 ## Authentication Errors
 
 ### "Unauthorized" or 401
 
-**Cause:** Missing or expired OAuth authorization (plugin setup), or a missing, invalid, or expired API key (manual setup).
+**Cause:** Missing or expired OAuth authorization (plugin setup), or missing, invalid, or expired API key (manual setup).
 
 **Fix:**
-1. Plugin setup: reinstall or update the Render plugin, then complete the Render OAuth prompt after reloading the tool.
-2. Manual setup: generate a new API key (`https://dashboard.render.com/u/*/settings#api-keys`) and update it in your tool's MCP config.
-3. Restart the tool.
+1. Plugin setup: reinstall or update Render plugin, reload tool, then complete Render OAuth prompt.
+2. Manual setup: generate new API key (`https://dashboard.render.com/u/*/settings#api-keys`) and update it in tool's MCP config.
+3. Restart tool.
 4. Verify with `list_services()`.
 
 ### "Forbidden" or 403
 
-**Cause:** OAuth authorization or API key doesn't have access to the requested resource, or wrong workspace.
+**Cause:** OAuth authorization or API key lacks access to requested resource, or wrong workspace.
 
 **Fix:**
-- Check the active workspace with `get_selected_workspace()`
+- Check active workspace with `get_selected_workspace()`
 - Switch workspaces if needed with `list_workspaces()`
-- Ensure the API key belongs to an account with access to the workspace
+- Ensure API key belongs to account with workspace access
 
 ## Tool-Specific Issues
 
-> Installed the Render plugin? It provides the MCP server over OAuth — complete the Render OAuth prompt and reload the tool after installing or updating the plugin. The manual notes below apply to hand-configured MCP clients.
+> Installed Render plugin? It provides MCP server over OAuth. Manual notes below apply to hand-configured MCP clients.
 
 ### Cursor
 
 - Config file: `~/.cursor/mcp.json`
 - Must be valid JSON (no trailing commas)
-- Restart Cursor fully after config changes (not just reload window)
-- If multiple MCP servers are configured, ensure the `render` key is unique
+- Fully restart Cursor after config changes (not just reload window)
+- If multiple MCP servers configured, ensure `render` key is unique
 
 ### Claude Code
 
-- Added via CLI: `claude mcp add --transport http render https://mcp.render.com/mcp --header "Authorization: Bearer <key>"`
+- Added via CLI: `claude mcp add --transport http render https://mcp.render.com/mcp --header "Authorization: Bearer $RENDER_API_KEY"` (key exported via `read -rs`, never typed inline)
 - To update: `claude mcp remove render` then re-add
 - To list: `claude mcp list`
 
 ### Codex
 
-- Requires `RENDER_API_KEY` env var to be set in the shell where Codex runs
+- Requires `RENDER_API_KEY` env var set in shell where Codex runs
 - Added via: `codex mcp add render --url https://mcp.render.com/mcp --bearer-token-env-var RENDER_API_KEY`
-- If the env var is not set when Codex starts, MCP auth fails
+- If env var not set when Codex starts, MCP auth fails
 
 ## Workspace Issues
 
 ### "No workspace selected"
 
-**Fix:** Run `list_workspaces()` to see available workspaces, then ask the user to select one.
+**Fix:** Run `list_workspaces()` to see available workspaces, then ask user to select one.
 
 ### Operations return empty results
 
-**Cause:** Active workspace has no services, or wrong workspace is selected.
+**Cause:** Active workspace has no services, or wrong workspace selected.
 
-**Fix:** Verify with `get_selected_workspace()` and switch if needed.
+**Fix:** Verify with `get_selected_workspace()`, switch if needed.
 
 ## MCP vs CLI Fallback
 
-If MCP cannot be configured (network restrictions, unsupported tool), use the Render CLI as a fallback. See **render-cli** for setup and usage.
+If MCP cannot be configured (network restrictions, unsupported tool), fall back to Render CLI. See **render-cli** for setup and usage. Render CLI sends usage analytics by default; `export RENDER_CLI_DISABLE_ANALYTICS=1` before any `render` command. Same gates as MCP: confirm deploys and write SQL with user first.
 
 | Capability | MCP | CLI |
 |-----------|-----|-----|

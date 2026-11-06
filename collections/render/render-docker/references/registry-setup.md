@@ -1,12 +1,12 @@
 # Private registry setup for Render
 
-Render pulls private images when you attach **Registry Credentials** from the Dashboard and reference them in Blueprint YAML via **`registryCredential.fromRegistryCreds`**.
+Render pulls private images through **Registry Credentials** from Dashboard, referenced in Blueprint YAML via `registryCredential.fromRegistryCreds`.
 
 ## Dashboard: Registry Credentials
 
-1. Open the Render Dashboard → **Registry Credentials** (or your team’s equivalent settings).
-2. Create a credential with a **memorable name** (you will use this name in `render.yaml`).
-3. Store **only** what the registry expects (username + token, or cloud keys as required).
+1. In Render Dashboard, open **Registry Credentials** (or your team’s equivalent settings).
+2. Create credential with memorable name (used in `render.yaml`).
+3. Store **only** what registry expects (username + token, or cloud keys as required).
 
 Blueprint reference pattern:
 
@@ -22,22 +22,22 @@ services:
         name: my-dockerhub-cred
 ```
 
-Use the same `registryCredential` block for **`runtime: docker`** when the **base image** in your Dockerfile is private.
+Same `registryCredential` block works for `runtime: docker` with private Dockerfile base image.
 
 ---
 
 ## Docker Hub
 
 - **Username:** Docker Hub user or org name.
-- **Password / token:** a **personal access token** or account password (prefer tokens).
+- **Password / token:** personal access token (preferred) or account password.
 - **Image URL examples:** `docker.io/myuser/myrepo:1.0.0`, or `myuser/myrepo@sha256:...` for immutability.
 
 ---
 
 ## GitHub Container Registry (GHCR)
 
-- **Username:** GitHub username (or `x-access-token` patterns if your registry documents them).
-- **Password:** GitHub **personal access token** with at least **`read:packages`** (and repo access if the package is private to a repo).
+- **Username:** GitHub username (or `x-access-token` patterns if registry documents them).
+- **Password:** GitHub personal access token with at least `read:packages` (plus repo access if package is private to a repo).
 - **Image URL:** `ghcr.io/OWNER/IMAGE:tag` or digest form.
 
 ---
@@ -45,23 +45,23 @@ Use the same `registryCredential` block for **`runtime: docker`** when the **bas
 ## AWS Elastic Container Registry (ECR)
 
 - **Registry URL is regional:** `ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/repository:tag`.
-- **Authentication:** IAM user or role access keys with `ecr:GetAuthorizationToken` and pull permissions on the repository, **or** long-lived credentials your org approves. Render’s Dashboard form expects the values Render documents for ECR (access key id + secret; confirm field names when creating the credential).
-- **Important:** each **region** has its own registry host — the image URL must match the region where the image lives.
+- **Authentication:** IAM user or role access keys with `ecr:GetAuthorizationToken` and repository pull permissions, **or** org-approved long-lived credentials. Render’s Dashboard form expects values Render documents for ECR (access key id + secret). Confirm field names when creating credential.
+- **Important:** each region has own registry host. Image URL must match image’s region.
 
 ---
 
 ## Google Artifact Registry
 
 - **Host:** `REGION-docker.pkg.dev/PROJECT/REPOSITORY/IMAGE:tag`.
-- **Credential:** typically a **service account JSON key** with **Artifact Registry Reader** on the target repo (exact Dashboard fields follow Render’s registry UI).
-- Prefer **service accounts** over user passwords for CI-style pulls.
+- **Credential:** typically service account JSON key with **Artifact Registry Reader** on target repo (exact Dashboard fields follow Render’s registry UI).
+- Prefer service accounts over user passwords for CI-style pulls.
 
 ---
 
 ## Blueprint: `runtime: image`
 
-- Set **`runtime: image`** and **`image.url`** to the full reference (tag or digest).
-- Add **`registryCredential`** when the registry is private.
+- Set `runtime: image` and `image.url` to full reference (tag or digest).
+- Add `registryCredential` when registry is private.
 
 Immutable deploys:
 
@@ -74,9 +74,9 @@ image:
 
 ## Auto-deploy and prebuilt images
 
-Services that **only pull** a prebuilt image (**`runtime: image`**) **do not** auto-deploy when a mutable tag like **`latest`** is updated upstream. After publishing a new image you must:
+Services that **only pull** prebuilt image (`runtime: image`) **do not** auto-deploy when mutable tag like `latest` updates upstream. After publishing new image, you must:
 
-- Trigger a **manual redeploy** in the Dashboard, or
-- Call a **deploy hook** / API flow your team uses for CD.
+- Trigger manual redeploy in Dashboard, or
+- Call deploy hook / API flow your team uses for CD.
 
-Combine **immutable tags or digests** with your release pipeline so each deploy points at an explicit artifact.
+Pair immutable tags or digests with release pipeline so each deploy points at explicit artifact.

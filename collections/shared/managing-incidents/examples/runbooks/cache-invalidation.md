@@ -590,9 +590,11 @@ After completing cache invalidation, verify:
 ```yaml
 # GitHub Actions workflow
 - name: Invalidate cache post-deployment
+  env:
+    ADMIN_API_TOKEN: ${{ secrets.ADMIN_API_TOKEN }}
   run: |
     curl -X POST https://api.example.com/admin/cache/invalidate \
-      -H "Authorization: Bearer ${{ secrets.ADMIN_API_TOKEN }}" \
+      -H "Authorization: Bearer $ADMIN_API_TOKEN" \
       -d '{"namespace": "api_v1", "reason": "Deployment ${{ github.sha }}"}'
 ```
 

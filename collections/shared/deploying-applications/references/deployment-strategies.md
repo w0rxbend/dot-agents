@@ -1,7 +1,5 @@
 # Deployment Strategies
 
-Comprehensive guide to deployment strategies including blue-green, canary, rolling, recreate, and A/B testing patterns.
-
 ## Table of Contents
 
 - [Strategy Overview](#strategy-overview)
@@ -17,8 +15,6 @@ Comprehensive guide to deployment strategies including blue-green, canary, rolli
 
 ## Strategy Overview
 
-Deployment strategies determine how application updates roll out to production.
-
 ### Quick Comparison
 
 | Strategy | Downtime | Risk | Rollback Speed | Resource Cost | Complexity |
@@ -29,36 +25,7 @@ Deployment strategies determine how application updates roll out to production.
 | **Recreate** | Yes | High | Slow | Low (1x) | Very Low |
 | **A/B Testing** | None | Low | Medium | Medium (1.5x) | High |
 
-### Strategy Characteristics
-
-**Rolling Deployment**:
-- Gradual replacement of old version with new version
-- No downtime, incremental updates
-- Default strategy for most platforms
-
-**Blue-Green Deployment**:
-- Two identical environments (blue = current, green = new)
-- Instant cutover via traffic switch
-- Easy rollback, requires 2x resources
-
-**Canary Deployment**:
-- Small percentage of traffic to new version
-- Gradual increase based on metrics
-- Lowest risk, complex monitoring
-
-**Recreate Deployment**:
-- Stop all old instances, then start new ones
-- Brief downtime, simplest approach
-- Useful for stateful apps or dev environments
-
-**A/B Testing**:
-- Split traffic between versions based on criteria
-- Long-running (days/weeks)
-- Feature validation, not just deployment
-
 ## Decision Matrix
-
-Select deployment strategy based on application characteristics and requirements.
 
 ### Decision Tree
 
@@ -98,9 +65,9 @@ FEATURE VALIDATION NEEDED?
 ### Selection Guidelines
 
 **Use Rolling When**:
-- Standard application updates
+- Standard app updates
 - Well-tested changes
-- Cost optimization important
+- Cost matters
 - Kubernetes default deployments
 
 **Use Blue-Green When**:
@@ -111,13 +78,13 @@ FEATURE VALIDATION NEEDED?
 
 **Use Canary When**:
 - Major version upgrades
-- New features with unknown impact
+- New features, unknown impact
 - Complex distributed systems
 - High-traffic production systems
 
 **Use Recreate When**:
 - Development/staging environments
-- Stateful applications (single-instance databases)
+- Stateful apps (single-instance databases)
 - Downtime windows available
 - Simple deployment pipeline
 
@@ -129,7 +96,7 @@ FEATURE VALIDATION NEEDED?
 
 ## Rolling Deployment
 
-Gradually replace old version pods with new version pods.
+Replace old-version pods with new-version pods gradually.
 
 ### How Rolling Works
 
@@ -213,20 +180,20 @@ kubectl rollout undo deployment/my-app
 
 **Explanation**:
 - `maximumPercent: 200` allows 2x tasks during deployment
-- `minimumHealthyPercent: 100` ensures no capacity reduction
-- Circuit breaker automatically rolls back on failure
+- `minimumHealthyPercent: 100` means no capacity reduction
+- Circuit breaker rolls back automatically on failure
 
 ### Configuration Parameters
 
 **maxSurge**:
-- Number of pods that can be created above desired count
+- Max pods created above desired count
 - Value: number (e.g., `1`) or percentage (e.g., `25%`)
-- Higher = faster rollout, more resources
+- Higher value: faster rollout, more resources
 
 **maxUnavailable**:
-- Number of pods that can be unavailable during update
+- Max pods unavailable during update
 - Value: number (e.g., `1`) or percentage (e.g., `25%`)
-- `0` = zero capacity reduction (safest)
+- `0` means zero capacity reduction (safest)
 
 **Common Configurations**:
 
@@ -246,7 +213,7 @@ maxUnavailable: 25%
 
 ## Blue-Green Deployment
 
-Two identical environments with instant traffic cutover.
+Two identical environments, instant traffic cutover.
 
 ### How Blue-Green Works
 
@@ -348,7 +315,7 @@ kubectl patch service my-app -p '{"spec":{"selector":{"version":"green"}}}'
 
 # 5. Monitor metrics (if issues, rollback)
 
-# 6. If stable, delete blue deployment
+# 6. If stable and user confirms, delete blue deployment
 kubectl delete deployment my-app-blue
 ```
 
@@ -439,7 +406,7 @@ const greenService = new aws.ecs.Service("green", {
 
 ## Canary Deployment
 
-Gradual rollout to small percentage of traffic with monitoring.
+Roll out gradually to small traffic share, with monitoring.
 
 ### How Canary Works
 
@@ -467,7 +434,10 @@ Each step includes metrics monitoring and automatic rollback on failure.
 
 ```bash
 kubectl create namespace argo-rollouts
-kubectl apply -n argo-rollouts -f https://github.com/argoproj/argo-rollouts/releases/latest/download/install.yaml
+# Pinned release tag (not latest): render, review, then apply. Tag's base still says image :latest, so pin it too
+kubectl kustomize 'github.com/argoproj/argo-rollouts/manifests/cluster-install?ref=v1.10.2' \
+  | sed 's#argo-rollouts:latest#argo-rollouts:v1.10.2#' > argo-rollouts-install.yaml
+kubectl apply -n argo-rollouts -f argo-rollouts-install.yaml
 ```
 
 **Rollout Resource**:
@@ -663,29 +633,11 @@ spec:
         image: my-app:v2
 ```
 
-**Update Process**:
-
-```bash
-# Update deployment
-kubectl apply -f deployment.yaml
-
-# All v1 pods deleted immediately
-# Then v2 pods created
-
-# No gradual transition, brief downtime
-```
-
 ### Use Cases for Recreate
 
 **Stateful Single-Instance Applications**:
-- Development databases
 - Legacy monoliths
-- Applications with file locks
-
-**Scheduled Maintenance Windows**:
-- Off-hours deployments
-- Pre-announced downtime
-- Coordinated with users
+- Apps with file locks
 
 **Incompatible Version Transitions**:
 - Breaking database schema changes
@@ -694,7 +646,7 @@ kubectl apply -f deployment.yaml
 
 ## A/B Testing
 
-Long-running deployment with traffic split based on user attributes.
+Long-running deployment, traffic split by user attributes.
 
 ### How A/B Testing Works
 
@@ -724,7 +676,9 @@ Users arrive → Route by attribute → Version A or B
 **Installation**:
 
 ```bash
-kubectl apply -k github.com/fluxcd/flagger//kustomize/linkerd
+# Pinned release tag: render, review, then apply
+kubectl kustomize 'github.com/fluxcd/flagger//kustomize/linkerd?ref=v1.45.0' > flagger-install.yaml
+kubectl apply -f flagger-install.yaml
 ```
 
 **Canary Resource (A/B Mode)**:
@@ -946,22 +900,6 @@ histogram_quantile(0.95,
 - Health check failures
 - Memory/CPU saturation
 
-**Kubernetes Example with Argo Rollouts**:
-
-```yaml
-strategy:
-  canary:
-    steps:
-    - setWeight: 10
-    - pause: {duration: 5m}
-    analysis:
-      templates:
-      - templateName: error-rate
-      args:
-      - name: error-threshold
-        value: "0.05"  # 5% error rate triggers rollback
-```
-
 ### Communication and Documentation
 
 **Deployment Checklist**:
@@ -972,7 +910,7 @@ strategy:
 5. Notify stakeholders
 6. Prepare incident response plan
 7. Monitor metrics during deployment
-8. Document any issues encountered
+8. Document issues encountered
 
 **Runbook Template**:
 ```markdown
@@ -1050,7 +988,7 @@ kubectl describe analysistemplate success-rate
 ### Performance Degradation
 
 **Symptoms**:
-- Increased latency during deployment
+- Higher latency during deployment
 - Intermittent errors
 - Resource exhaustion
 
@@ -1111,7 +1049,7 @@ kubectl argo rollouts status my-app
 
 ## Additional Resources
 
-- Argo Rollouts documentation: https://argoproj.github.io/argo-rollouts/
-- Flagger documentation: https://flagger.app/
+- Argo Rollouts docs: https://argoproj.github.io/argo-rollouts/
+- Flagger docs: https://flagger.app/
 - Istio traffic management: https://istio.io/latest/docs/concepts/traffic-management/
 - AWS deployment strategies: https://docs.aws.amazon.com/whitepapers/latest/overview-deployment-options/deployment-strategies.html

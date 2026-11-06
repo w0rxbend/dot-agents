@@ -1,8 +1,5 @@
 # Message Component Patterns
 
-Reusable component patterns for AI chat messages including bubbles, avatars, actions, and formatting.
-
-
 ## Table of Contents
 
 - [Basic Message Structure](#basic-message-structure)
@@ -365,7 +362,7 @@ function EmptyChat() {
 2. **ARIA roles and labels** - For screen reader context
 3. **Keyboard navigation** - All actions accessible without mouse
 4. **Focus management** - Return focus after actions
-5. **Announce updates** - Use `aria-live` for new messages
+5. **Announce updates** - `aria-live` for new messages
 6. **High contrast** - Minimum 4.5:1 text contrast
 7. **Visible focus** - Clear focus indicators
 8. **Alternative content** - Descriptions for images, code

@@ -33,18 +33,18 @@ hot.NewHotCache[K comparable, V any](algorithm hot.EvictionAlgorithm, capacity i
 
 ## Builder Methods
 
-Call these on the builder returned by `NewHotCache()`, then finalize with `.Build()`.
+Call on builder returned by `NewHotCache()`, then finalize with `.Build()`.
 
 | Method | Description |
 | --- | --- |
 | `WithTTL(ttl time.Duration)` | Default expiration for all entries |
 | `WithJitter(lambda float64, upperBound time.Duration)` | Randomize TTL by +/-lambda (capped at upperBound) to prevent thundering herd |
-| `WithJanitor()` | Start background goroutine to evict expired entries. Mutually exclusive with `WithoutLocking()` |
-| `WithLoaders(loaders ...Loader[K, V])` | Chain of loader functions for cache misses. Execute sequentially; later loaders receive only unmapped keys |
+| `WithJanitor()` | Start background goroutine evicting expired entries. Mutually exclusive with `WithoutLocking()` |
+| `WithLoaders(loaders ...Loader[K, V])` | Loader function chain for cache misses. Execute sequentially; later loaders receive only unmapped keys |
 | `WithRevalidation(stale time.Duration, loaders ...Loader[K, V])` | Enable stale-while-revalidate. After TTL, entries become stale and trigger async refresh. Hard-expired after `stale` duration |
 | `WithRevalidationErrorPolicy(policy)` | `hot.KeepOnError` (keep stale value) or `hot.DropOnError` (drop on refresh failure) |
 | `WithMissingCache(algorithm, capacity)` | Dedicated cache for missing keys (independent eviction) |
-| `WithMissingSharedCache()` | Store missing keys in the main cache |
+| `WithMissingSharedCache()` | Store missing keys in main cache |
 | `WithSharding(shards uint64, hasher Hasher[K])` | Split into N shards to reduce lock contention. Use powers of 2 |
 | `WithCopyOnRead(fn func(V) V)` | Clone values on retrieval to prevent external mutation |
 | `WithCopyOnWrite(fn func(V) V)` | Clone values on storage to capture snapshots |
@@ -52,7 +52,7 @@ Call these on the builder returned by `NewHotCache()`, then finalize with `.Buil
 | `WithEvictionCallback(fn func(K, V))` | Synchronous callback on eviction |
 | `WithoutLocking()` | Disable mutexes. Single-goroutine access only. Mutually exclusive with `WithJanitor()` |
 | `WithWarmUp(fn func() (map[K]V, []K, error))` | Pre-populate cache on build. Returns values + missing keys + error |
-| `WithWarmUpWithTimeout(timeout, fn)` | Same as WarmUp with timeout protection |
+| `WithWarmUpWithTimeout(timeout, fn)` | Same as WarmUp, with timeout protection |
 | `Build()` | Finalize and return `*HotCache[K, V]` |
 
 ## Read Operations
@@ -87,9 +87,9 @@ Call these on the builder returned by `NewHotCache()`, then finalize with `.Buil
 | `SetWithTTL` | `(key K, value V, ttl time.Duration)` | Set with custom TTL |
 | `SetMany` | `(items map[K]V)` | Batch set with default TTL |
 | `SetManyWithTTL` | `(items map[K]V, ttl time.Duration)` | Batch set with custom TTL |
-| `SetMissing` | `(key K)` | Mark key as non-existent. Requires `WithMissingCache()` or `WithMissingSharedCache()` |
+| `SetMissing` | `(key K)` | Mark key non-existent. Requires `WithMissingCache()` or `WithMissingSharedCache()` |
 | `SetMissingWithTTL` | `(key K, ttl time.Duration)` | Mark missing with custom TTL |
-| `SetMissingMany` | `(keys []K)` | Batch mark as missing |
+| `SetMissingMany` | `(keys []K)` | Batch mark missing |
 | `SetMissingManyWithTTL` | `(keys []K, ttl time.Duration)` | Batch mark missing with custom TTL |
 
 ## Maintenance Operations
@@ -113,9 +113,9 @@ type Loader[K comparable, V any] func(keys []K) (found map[K]V, err error)
 
 - Loaders execute sequentially in provided order
 - Each loader receives only **unmapped keys** from previous loaders
-- Later loader values **overwrite** earlier values for the same key
-- Any loader error stops the chain and returns `(nil, err)`
-- Built-in singleflight deduplication: concurrent `Get()` calls for the same key share one loader invocation
+- Later loader values **overwrite** earlier values for same key
+- Any loader error stops chain and returns `(nil, err)`
+- Built-in singleflight deduplication: concurrent `Get()` calls for same key share one loader invocation
 
 ## Hasher Type (for Sharding)
 

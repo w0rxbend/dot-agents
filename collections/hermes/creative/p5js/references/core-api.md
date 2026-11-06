@@ -17,7 +17,7 @@ createCanvas(windowWidth, windowHeight);
 
 ### Pixel Density
 
-High-DPI displays render at 2x by default. This doubles memory usage and halves performance.
+High-DPI displays render at 2x by default. Doubles memory use, halves performance.
 
 ```javascript
 // Force 1x for consistent export and performance
@@ -33,7 +33,7 @@ function setup() {
 }
 ```
 
-For export, always `pixelDensity(1)` and use the exact target resolution. Never rely on device scaling for final output.
+For export, always use `pixelDensity(1)` and exact target resolution. Never rely on device scaling for final output.
 
 ### Responsive Resize
 
@@ -55,9 +55,9 @@ function windowResized() {
 - Angles: radians by default, `angleMode(DEGREES)` to switch
 
 ### WEBGL
-- Origin: center of canvas
+- Origin: canvas center
 - X increases rightward, Y increases **downward** (same as P2D), Z increases toward viewer
-- To get P2D-like coordinates in WEBGL: `translate(-width/2, -height/2)`
+- P2D-like coordinates in WEBGL: `translate(-width/2, -height/2)`
 
 ## Draw Loop
 
@@ -99,7 +99,7 @@ millis()                // milliseconds since sketch started
 
 ## Transform Stack
 
-Every transform is cumulative. Use `push()`/`pop()` to isolate.
+Transforms are cumulative. Isolate with `push()`/`pop()`.
 
 ```javascript
 push();
@@ -138,7 +138,7 @@ pop();
 
 ## Offscreen Buffers (createGraphics)
 
-Offscreen buffers are separate canvases you can draw to and composite. Essential for:
+Offscreen buffers are separate canvases to draw on and composite. Essential for:
 - **Layered composition** — background, midground, foreground
 - **Persistent trails** — draw to buffer, fade with semi-transparent rect, never clear
 - **Masking** — draw mask to buffer, apply with `image()` or pixel operations
@@ -326,7 +326,7 @@ let v = noise(x * 0.01, y * 0.01);  // returns 0.0 to 1.0
 
 ## p5.js 2.0 Changes
 
-p5.js 2.0 (released Apr 2025, current: 2.2) introduces breaking changes. The p5.js editor defaults to 1.x until Aug 2026. Use 2.x only when you need its features.
+p5.js 2.0 (released Apr 2025, current: 2.2) has breaking changes. p5.js editor defaults to 1.x until Aug 2026. Use 2.x only when you need its features.
 
 ### async setup() replaces preload()
 
@@ -357,7 +357,7 @@ colorMode(HWB);    // Hue-Whiteness-Blackness
 
 ### splineVertex() replaces curveVertex()
 
-No more doubling first/last control points:
+No doubling of first/last control points:
 
 ```javascript
 // p5.js 1.x — must repeat first and last
@@ -405,6 +405,9 @@ let geo = font.textToModel('HELLO', 0, 0, 200);
 
 ### CDN for p5.js 2.x
 
+Pin exact version in production (e.g. `p5@2.3.4`), not floating `p5@2`.
+
 ```html
-<script src="https://cdn.jsdelivr.net/npm/p5@2/lib/p5.min.js"></script>
+<!-- SRI = p5@2.3.4 build; any other build is blocked -->
+<script src="https://cdn.jsdelivr.net/npm/p5@2/lib/p5.min.js" integrity="sha384-Cs48F1uukMPysq29xNsf/FZL5ZNGsPfi6lDSGOxo6dypVFFiWO9Q3YbRKoXPPBii" crossorigin="anonymous"></script>
 ```

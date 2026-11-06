@@ -1,6 +1,5 @@
 # Pagination Strategies
 
-
 ## Table of Contents
 
 - [Client-Side Pagination](#client-side-pagination)
@@ -24,7 +23,7 @@
 
 ## Client-Side Pagination
 
-For datasets under 1,000 rows where all data is loaded upfront.
+Datasets under 1,000 rows, all data loaded upfront.
 
 ### Basic Implementation
 
@@ -185,7 +184,7 @@ function PaginationControls({
 
 ### Smart Page Numbers
 
-Show limited page numbers with ellipsis:
+Limited page numbers with ellipsis:
 
 ```javascript
 function PageNumbers({ currentPage, totalPages, goToPage }) {
@@ -245,7 +244,7 @@ function PageNumbers({ currentPage, totalPages, goToPage }) {
 
 ## Server-Side Pagination
 
-For large datasets where data is fetched page by page.
+Large datasets, fetched page by page.
 
 ### API Integration
 
@@ -317,8 +316,8 @@ async function fetchPage(endpoint, page, pageSize) {
 ```javascript
 // Express.js endpoint
 app.get('/api/users', async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 25;
+  const page = Math.max(parseInt(req.query.page) || 1, 1);
+  const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 100); // clamp page size
   const offset = (page - 1) * limit;
 
   try {
@@ -327,7 +326,7 @@ app.get('/api/users', async (req, res) => {
 
     // Get paginated data
     const items = await db('users')
-      .select('*')
+      .select('id', 'name', 'email', 'created_at') // explicit columns, never password hashes
       .orderBy('created_at', 'desc')
       .limit(limit)
       .offset(offset);
@@ -343,14 +342,15 @@ app.get('/api/users', async (req, res) => {
       hasMore: page < totalPages
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error(error);
+    res.status(500).json({ error: 'Failed to load users' }); // no internal details to client
   }
 });
 ```
 
 ### Cursor-Based Pagination
 
-More stable for real-time data:
+Stabler for real-time data:
 
 ```javascript
 // Frontend
@@ -395,11 +395,11 @@ const useCursorPagination = (apiEndpoint, pageSize = 25) => {
 
 // Backend
 app.get('/api/users/cursor', async (req, res) => {
-  const limit = parseInt(req.query.limit) || 25;
+  const limit = Math.min(Math.max(parseInt(req.query.limit) || 25, 1), 100);
   const cursor = req.query.cursor;
 
   let query = db('users')
-    .select('*')
+    .select('id', 'name', 'email', 'created_at')
     .orderBy('id', 'asc')
     .limit(limit + 1); // Fetch one extra to check for more
 
@@ -422,8 +422,6 @@ app.get('/api/users/cursor', async (req, res) => {
 ```
 
 ## Infinite Scroll
-
-Load more data as user scrolls.
 
 ### Implementation with Intersection Observer
 
@@ -562,8 +560,6 @@ function LoadMoreTable() {
 
 ## Virtual Scrolling with Pagination
 
-Combine virtual scrolling with data pagination:
-
 ```javascript
 const useVirtualPagination = (totalItems, itemHeight = 35) => {
   const [loadedPages, setLoadedPages] = useState(new Map());
@@ -617,7 +613,7 @@ const useVirtualPagination = (totalItems, itemHeight = 35) => {
 
 ### Optimistic Updates
 
-Update UI immediately while fetching:
+Update UI immediately, fetch in background:
 
 ```javascript
 const useOptimisticPagination = () => {

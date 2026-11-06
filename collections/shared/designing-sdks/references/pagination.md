@@ -1,13 +1,5 @@
 # Pagination Patterns
 
-Guide to implementing cursor-based and offset-based pagination with async iterators.
-
-## Table of Contents
-
-1. [Async Iterator Pattern](#async-iterator-pattern-recommended)
-2. [Manual Pagination](#manual-pagination)
-3. [Go Pagination with Channels](#go-pagination-with-channels)
-
 ## Async Iterator Pattern (Recommended)
 
 ### TypeScript Implementation

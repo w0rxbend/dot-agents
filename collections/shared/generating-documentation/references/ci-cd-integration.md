@@ -1,7 +1,5 @@
 # CI/CD Integration Reference
 
-Automate documentation generation, validation, and deployment in continuous integration pipelines.
-
 ## Table of Contents
 
 1. [GitHub Actions](#github-actions)
@@ -22,6 +20,9 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+
+env:
+  REDOCLY_TELEMETRY: "off"  # opt out of Redocly CLI usage data
 
 jobs:
   validate:
@@ -167,6 +168,9 @@ on:
       - 'openapi/**'
       - '.github/workflows/api-docs.yml'
 
+env:
+  REDOCLY_TELEMETRY: "off"
+
 jobs:
   generate:
     runs-on: ubuntu-latest
@@ -180,7 +184,7 @@ jobs:
 
       - name: Generate Redoc HTML
         run: |
-          npx @redocly/cli build-docs openapi/api.yaml \
+          redocly build-docs openapi/api.yaml \
             --output docs/api.html
 
       - name: Deploy to GitHub Pages
@@ -204,6 +208,7 @@ stages:
 
 variables:
   NODE_VERSION: "20"
+  REDOCLY_TELEMETRY: "off"
 
 # Cache dependencies
 cache:
@@ -269,7 +274,7 @@ build:site:
 
 deploy:pages:
   stage: deploy
-  image: alpine:latest
+  image: alpine:3.24
   dependencies:
     - build:site
   script:
@@ -343,7 +348,8 @@ lint:
 ```
 
 ```bash
-# Install
+# Install (opt out of usage data)
+export REDOCLY_TELEMETRY=off
 npm install -g @redocly/cli
 
 # Validate
@@ -392,12 +398,12 @@ npm run build
 # Deploy
 npm run deploy  # If configured in package.json
 
-# Or manually
-git checkout gh-pages
-cp -r build/* .
-git add .
-git commit -m "Update documentation"
-git push origin gh-pages
+# Or manually (separate worktree keeps untracked files like .env out of the commit)
+git worktree add ../gh-pages gh-pages
+cp -r build/. ../gh-pages/
+git -C ../gh-pages add -A
+git -C ../gh-pages commit -m "Update documentation"
+git -C ../gh-pages push origin gh-pages  # publishes: confirm with user first
 ```
 
 ### Vercel
@@ -461,11 +467,11 @@ git push origin gh-pages
 
 ```yaml
 # .github/workflows/aws.yml
+# job needs permissions: { id-token: write, contents: read } (OIDC, no long-lived keys)
 - name: Configure AWS credentials
   uses: aws-actions/configure-aws-credentials@v4
   with:
-    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
     aws-region: us-east-1
 
 - name: Deploy to S3
@@ -517,11 +523,7 @@ git push origin gh-pages
 
 1. **Validate on PR**: Run validation on pull requests
 2. **Deploy on Merge**: Only deploy from main/production branch
-3. **Cache Dependencies**: Cache npm/pip packages for faster builds
-4. **Parallel Jobs**: Run validation checks in parallel
-5. **Artifacts**: Use artifacts to pass data between jobs
-6. **Fail Fast**: Stop pipeline on validation errors
-7. **Version Documentation**: Tag documentation with releases
-8. **Monitor Builds**: Set up notifications for failed builds
-9. **Test Locally**: Test CI configuration locally before committing
-10. **Security**: Use secrets for sensitive credentials
+3. **Fail Fast**: Stop pipeline on validation errors
+4. **Version Documentation**: Tag docs with releases
+5. **Security**: Keep credentials in secrets; prefer OIDC over long-lived cloud keys
+6. **Pin Dependencies**: Third-party actions to full commit SHA (`uses: owner/action@<sha> # v3`), tools and images to exact versions; grant least `permissions:` per job

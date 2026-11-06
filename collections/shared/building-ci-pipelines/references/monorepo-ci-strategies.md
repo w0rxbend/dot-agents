@@ -1,7 +1,5 @@
 # Monorepo CI Strategies
 
-Strategies for building efficient CI pipelines in monorepos with affected detection, intelligent caching, and parallel execution.
-
 ## Table of Contents
 
 1. [Monorepo Challenges](#monorepo-challenges)
@@ -21,20 +19,6 @@ Strategies for building efficient CI pipelines in monorepos with affected detect
 # BAD: Rebuilds all packages on every commit
 - run: npm run build --workspaces
 ```
-
-**Impact:**
-- 100+ packages = 30+ minute builds
-- Wastes CI minutes (60-80% unnecessary builds)
-- Slow feedback loop for developers
-- Expensive cloud CI costs
-
-### Monorepo Scale Examples
-
-| Repository | Packages | Build Time (Naive) | With Affected | Savings |
-|------------|----------|-------------------|---------------|---------|
-| Small | 10 packages | 3 min | 1 min | 67% |
-| Medium | 50 packages | 15 min | 4 min | 73% |
-| Large | 200 packages | 60 min | 12 min | 80% |
 
 ## Affected Detection
 
@@ -57,16 +41,6 @@ Example dependency graph:
 Changed files:
 - `packages/api-client/src/index.ts`
 - `packages/backend/src/server.ts`
-
-Affected packages:
-- `api-client` (changed)
-- `frontend` (depends on api-client)
-- `mobile` (depends on api-client)
-- `backend` (changed)
-- `admin` (depends on backend)
-
-Not affected:
-- `docs` (no changes, no dependencies on changed packages)
 
 ### Dependency Graph Construction
 
@@ -107,6 +81,7 @@ api-client#build    ↗
 
 ```bash
 npm install turbo --save-dev
+npx turbo telemetry disable  # turbo sends anonymous telemetry by default; in CI set TURBO_TELEMETRY_DISABLED=1
 ```
 
 **turbo.json:**
@@ -144,6 +119,9 @@ name: CI
 on:
   pull_request:
     branches: [main]
+
+env:
+  TURBO_TELEMETRY_DISABLED: '1'
 
 jobs:
   build:
@@ -196,11 +174,6 @@ npx turbo run build --filter='@myorg/frontend...' --filter='@myorg/mobile...'
 
 ### Remote Caching
 
-**Benefits:**
-- Share build artifacts across CI runs
-- Share artifacts across team members
-- 70-90% cache hit rate in practice
-
 **Setup (Vercel):**
 ```bash
 npx turbo login
@@ -214,12 +187,13 @@ env:
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}       # From Vercel
 ```
 
-Cache is automatically used for matching builds.
+Matching builds use cache automatically.
 
 ### Turborepo + Docker
 
 ```dockerfile
 FROM node:24-alpine AS base
+ENV TURBO_TELEMETRY_DISABLED=1
 
 FROM base AS builder
 WORKDIR /app
@@ -247,7 +221,7 @@ CMD ["node", "apps/api/dist/index.js"]
 ### Setup
 
 ```bash
-npx create-nx-workspace@latest myorg --preset=npm
+npm install nx --save-dev  # not create-nx-workspace / nx init: both post usage stats to Nx Cloud, no opt-out
 ```
 
 **nx.json:**
@@ -268,13 +242,14 @@ npx create-nx-workspace@latest myorg --preset=npm
     "default": {
       "runner": "nx-cloud",
       "options": {
-        "cacheableOperations": ["build", "test", "lint"],
-        "accessToken": "NX_CLOUD_TOKEN"
+        "cacheableOperations": ["build", "test", "lint"]
       }
     }
   }
 }
 ```
+
+Never commit Nx Cloud access token in `nx.json`; CI reads `NX_CLOUD_ACCESS_TOKEN` from secrets (below).
 
 ### CI Integration (GitHub Actions)
 
@@ -341,8 +316,7 @@ npx nx run-many -t build --all
 ### Nx Cloud Features
 
 **Distributed Task Execution:**
-- Nx Cloud distributes tasks across multiple agents
-- 10x speedup for large monorepos
+- Nx Cloud spreads tasks across multiple agents
 
 ```yaml
 # .github/workflows/ci.yml
@@ -360,10 +334,6 @@ npx nx run-many -t build --all
 - Hash inputs (source files, dependencies, environment)
 - Store outputs in cloud
 - Restore exact outputs on cache hit
-
-**Performance:**
-- 70-90% cache hit rate
-- 50-80% reduction in CI time
 
 ## Bazel Strategy
 
@@ -425,7 +395,7 @@ bazel build $(bazel query '...')
 
 ### Remote Execution
 
-Bazel can execute builds on remote servers:
+Bazel can run builds on remote servers:
 
 ```bash
 bazel build //... \
@@ -433,11 +403,6 @@ bazel build //... \
   --remote_cache=grpcs://remote.buildbuddy.io \
   --remote_upload_local_results=true
 ```
-
-**Benefits:**
-- Consistent build environment
-- Massive parallelization (100+ machines)
-- Shared remote cache across team
 
 ## Change Detection Algorithms
 
@@ -561,7 +526,7 @@ async function runTask(task: Task) {
 
 **3. Cache hit = skip execution**
 
-Same inputs → Same hash → Cached output restored
+Same inputs give same hash, so cached output is restored.
 
 ## Performance Optimization
 
@@ -634,7 +599,7 @@ Cache `.tsbuildinfo` in CI:
 
 ### CI-Specific Optimizations
 
-**Shallow clones:**
+**Shallow clones (when possible):**
 ```yaml
 # Fetch minimal history
 - uses: actions/checkout@v4
@@ -671,22 +636,6 @@ jobs:
     steps:
       - run: npm run build --workspace=${{ matrix.package }}
 ```
-
-## Best Practices
-
-**DO:**
-- Use affected detection for all monorepo CI
-- Enable remote caching (Turborepo/Nx Cloud)
-- Cache build artifacts between CI runs
-- Parallelize independent tasks
-- Use shallow clones when possible
-
-**DON'T:**
-- Build all packages on every commit
-- Skip dependency graph construction
-- Ignore cache optimization
-- Run serial pipelines unnecessarily
-- Use Bazel for small JavaScript monorepos
 
 ## Tool Comparison
 

@@ -6,9 +6,9 @@ tags: struct, srp, solid, class-design
 
 ## Apply Single Responsibility Principle
 
-A class should have only one reason to change. When a class handles multiple responsibilities, changes to one responsibility risk breaking others.
+Class should have only one reason to change. With multiple responsibilities, changing one risks breaking others.
 
-**Incorrect (class with multiple responsibilities):**
+**Incorrect (multiple responsibilities):**
 
 ```typescript
 class UserService {
@@ -73,10 +73,5 @@ class NotificationService {
   }
 }
 ```
-
-**Benefits:**
-- Each class can change independently
-- Classes are easier to test in isolation
-- Code is more reusable across different contexts
 
 Reference: [Single Responsibility Principle](https://en.wikipedia.org/wiki/Single-responsibility_principle)

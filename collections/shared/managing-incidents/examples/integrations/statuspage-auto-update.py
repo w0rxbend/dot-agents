@@ -13,6 +13,8 @@ Configuration:
     - SLACK_BOT_TOKEN: Slack bot token
     - STATUSPAGE_API_KEY: Statuspage.io API key
     - STATUSPAGE_PAGE_ID: Statuspage.io page ID
+    - STATUSPAGE_ALLOWED_USERS: Comma-separated Slack user IDs of Communications Leads
+      allowed to publish (required; all other authors are ignored)
 
 Usage:
     python statuspage-auto-update.py
@@ -32,6 +34,10 @@ SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
 SLACK_APP_TOKEN = os.environ.get("SLACK_APP_TOKEN")
 STATUSPAGE_API_KEY = os.environ.get("STATUSPAGE_API_KEY")
 STATUSPAGE_PAGE_ID = os.environ.get("STATUSPAGE_PAGE_ID")
+# Only these Slack users may trigger public status page posts
+STATUSPAGE_ALLOWED_USERS = {
+    u.strip() for u in os.environ.get("STATUSPAGE_ALLOWED_USERS", "").split(",") if u.strip()
+}
 
 STATUSPAGE_API_BASE = f"https://api.statuspage.io/v1/pages/{STATUSPAGE_PAGE_ID}"
 
@@ -194,8 +200,12 @@ def handle_slack_message(client: SocketModeClient, req: SocketModeRequest):
 
         event = req.payload["event"]
 
-        # Only process messages in incident channels
-        if event.get("type") == "message" and "incident-" in event.get("channel_name", ""):
+        # Only process new human messages from allowlisted Communications Leads
+        # in incident channels (skip bots, edits and anyone else)
+        if (event.get("type") == "message"
+                and "incident-" in event.get("channel_name", "")
+                and not event.get("subtype") and not event.get("bot_id")
+                and event.get("user") in STATUSPAGE_ALLOWED_USERS):
             message_text = event.get("text", "")
 
             # Parse status update
@@ -227,9 +237,9 @@ def main():
     """
     Start Slack event listener for automatic status page updates.
     """
-    if not all([SLACK_APP_TOKEN, STATUSPAGE_API_KEY, STATUSPAGE_PAGE_ID]):
+    if not all([SLACK_APP_TOKEN, STATUSPAGE_API_KEY, STATUSPAGE_PAGE_ID, STATUSPAGE_ALLOWED_USERS]):
         print("Error: Missing required environment variables")
-        print("Required: SLACK_APP_TOKEN, STATUSPAGE_API_KEY, STATUSPAGE_PAGE_ID")
+        print("Required: SLACK_APP_TOKEN, STATUSPAGE_API_KEY, STATUSPAGE_PAGE_ID, STATUSPAGE_ALLOWED_USERS")
         return
 
     client = SocketModeClient(

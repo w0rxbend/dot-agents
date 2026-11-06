@@ -1,6 +1,6 @@
 # Advanced — uber-go/dig
 
-Detail topics that are referenced from `SKILL.md`. Each section is self-contained.
+Detail topics referenced from `SKILL.md`.
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ Detail topics that are referenced from `SKILL.md`. Each section is self-containe
 
 ## Decorate
 
-`Decorate` modifies a value already provided in the container — the decorator receives the original instance and returns a replacement. Common uses: enriching a logger with context, wrapping a metrics scope with tags, swapping a real client for a recording one in a child scope.
+`Decorate` modifies value already provided in container. Decorator receives original instance, returns replacement. Common uses: enrich logger with context, wrap metrics scope with tags, swap real client for recording one in child scope.
 
 ```go
 c.Decorate(func(log *zap.Logger) *zap.Logger {
@@ -25,11 +25,11 @@ c.Decorate(func(log *zap.Logger) *zap.Logger {
 })
 ```
 
-Decorators apply to the scope they were registered in and to that scope's descendants. Use them at scope boundaries or package wiring boundaries, not in main(), so changes stay local.
+Decorators apply to scope where registered and to its descendants. Use them at scope or package wiring boundaries, not in main(), so changes stay local.
 
 ## Scopes
 
-A `Scope` is a child container that inherits providers from its parent and can add or override its own. Scopes let request-, tenant-, or module-level dependencies coexist with shared singletons:
+A `Scope` is child container that inherits parent's providers and can add or override its own. Scopes let request-, tenant- or module-level dependencies coexist with shared singletons:
 
 ```go
 root := dig.New()
@@ -43,7 +43,7 @@ requestScope.Decorate(func(l *zap.Logger) *zap.Logger {
 })
 ```
 
-By default, providers registered to a scope are private to that scope and its children. Pass `dig.Export(true)` to `Provide` inside a scope to make the type visible from the parent:
+By default, providers registered to scope are private to that scope and its children. Pass `dig.Export(true)` to `Provide` inside scope to make type visible from parent:
 
 ```go
 requestScope.Provide(NewSharedCache, dig.Export(true))
@@ -51,7 +51,7 @@ requestScope.Provide(NewSharedCache, dig.Export(true))
 
 ## Optional Dependencies
 
-`optional:"true"` lets a consumer compile and run when a provider is missing. Use it sparingly — optional dependencies hide configuration mistakes. They make sense for genuinely optional features (a tracing exporter, an in-memory cache) but not for core services like a database.
+`optional:"true"` lets consumer compile and run when provider missing. Use sparingly: optional dependencies hide configuration mistakes. Fit for genuinely optional features (tracing exporter, in-memory cache), not core services like database.
 
 ```go
 type Params struct {
@@ -64,7 +64,7 @@ type Params struct {
 
 ## Error Handling
 
-dig wraps the constructor error with the dependency path so you can see _which_ graph edge failed:
+dig wraps constructor error with dependency path, showing _which_ graph edge failed:
 
 ```go
 if err := c.Invoke(run); err != nil {
@@ -74,14 +74,14 @@ if err := c.Invoke(run); err != nil {
 
 Useful helpers:
 
-- `errors.As(err, &dig.Error{})` — true if the error originated inside dig
-- `dig.RootCause(err)` — unwrap to the original constructor error returned by user code
-- `dig.IsCycleDetected(err)` — true if the graph contains a cycle (typically reported at first `Invoke` unless `DeferAcyclicVerification` is set)
-- `errors.As(err, &dig.PanicError{})` — when `RecoverFromPanics` is enabled, a panicking constructor surfaces as this typed error
+- `errors.As(err, &dig.Error{})` — true if error originated inside dig
+- `dig.RootCause(err)` — unwrap to original constructor error returned by user code
+- `dig.IsCycleDetected(err)` — true if graph contains cycle (typically reported at first `Invoke` unless `DeferAcyclicVerification` set)
+- `errors.As(err, &dig.PanicError{})` — with `RecoverFromPanics` enabled, panicking constructor surfaces as this typed error
 
 ## Visualization
 
-dig can emit the dependency graph in DOT format — useful when wiring becomes too tangled to reason about by reading code:
+dig can emit dependency graph in DOT format. Use when wiring gets too tangled to reason about by reading code:
 
 ```go
 f, _ := os.Create("graph.dot")
@@ -89,7 +89,7 @@ _ = dig.Visualize(c, f)
 // then: dot -Tpng graph.dot -o graph.png
 ```
 
-`dig.VisualizeError(err)` highlights the failed edges when an `Invoke` returns an error — invaluable for debugging "missing type" failures in deep graphs.
+`dig.VisualizeError(err)` highlights failed edges when `Invoke` returns error. Invaluable for debugging "missing type" failures in deep graphs.
 
 ## Quick Reference
 
@@ -97,11 +97,11 @@ _ = dig.Visualize(c, f)
 
 | Function/Method | Purpose |
 | --- | --- |
-| `dig.New(opts...)` | Create a root container |
-| `c.Provide(ctor, opts...)` | Register a constructor |
-| `c.Invoke(fn, opts...)` | Run a function with injected dependencies |
-| `c.Decorate(fn, opts...)` | Modify a previously-provided value within a scope |
-| `c.Scope(name, opts...)` | Create a child scope (private providers by default) |
+| `dig.New(opts...)` | Create root container |
+| `c.Provide(ctor, opts...)` | Register constructor |
+| `c.Invoke(fn, opts...)` | Run function with injected dependencies |
+| `c.Decorate(fn, opts...)` | Modify previously-provided value within scope |
+| `c.Scope(name, opts...)` | Create child scope (private providers by default) |
 | `c.String()` | Human-readable text summary of providers (not DOT; use `dig.Visualize` for DOT) |
 
 ### Provide options
@@ -109,9 +109,9 @@ _ = dig.Visualize(c, f)
 | Option | Purpose |
 | --- | --- |
 | `dig.Name("...")` | Disambiguate same-typed providers |
-| `dig.Group("...")` | Add the result to a value group |
-| `dig.As(new(I))` | Provide the concrete value as one or more interfaces |
-| `dig.Export(true)` | Make a scope-level provider visible from the root |
+| `dig.Group("...")` | Add result to value group |
+| `dig.As(new(I))` | Provide concrete value as one or more interfaces |
+| `dig.Export(true)` | Make scope-level provider visible from root |
 | `dig.FillProvideInfo(&info)` | Capture metadata for tooling |
 
 ### Container options
@@ -124,9 +124,9 @@ _ = dig.Visualize(c, f)
 
 ### Errors
 
-| Helper                              | Purpose                           |
-| ----------------------------------- | --------------------------------- |
-| `dig.RootCause(err)`                | Unwrap to the user-returned error |
-| `dig.IsCycleDetected(err)`          | True if the graph has a cycle     |
-| `errors.As(err, &dig.PanicError{})` | Detect a recovered panic          |
-| `dig.Visualize(c, w, opts...)`      | Write the graph in DOT format     |
+| Helper                              | Purpose                       |
+| ----------------------------------- | ----------------------------- |
+| `dig.RootCause(err)`                | Unwrap to user-returned error |
+| `dig.IsCycleDetected(err)`          | True if graph has cycle       |
+| `errors.As(err, &dig.PanicError{})` | Detect recovered panic        |
+| `dig.Visualize(c, w, opts...)`      | Write graph in DOT format     |

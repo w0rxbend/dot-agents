@@ -1,7 +1,5 @@
 # Advanced Data Grid Features
 
-Enterprise features: virtual scrolling, cell editing, aggregation, pivoting, and Excel export.
-
 
 ## Table of Contents
 

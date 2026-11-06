@@ -1,7 +1,5 @@
 # Package Guide
 
-samber/lo ships five packages. Each serves a different performance/ergonomics trade-off.
-
 ## Table of Contents
 
 - [Import Paths and Aliases](#import-paths-and-aliases)
@@ -27,17 +25,17 @@ import (
 
 ## `lo` — Core (Immutable)
 
-The default package. 300+ functions that return new collections without modifying inputs.
+Default package. 300+ functions returning new collections without modifying inputs.
 
-**Mental model:** Functional transforms like JavaScript's `Array.prototype.map/filter/reduce`, but type-safe via generics.
+**Mental model:** JavaScript's `Array.prototype.map/filter/reduce`, but type-safe via generics.
 
 **Characteristics:**
 
-- Every function allocates a new result slice/map — the input is never modified
-- Safe for concurrent reads on the input while transforms run
-- Composable: output of one function feeds directly into the next
+- Every function allocates new result slice/map; input never modified
+- Safe for concurrent reads on input while transforms run
+- Composable: one function's output feeds directly into next
 
-**Use when:** Always start here. Only move to other packages when profiling reveals a measured bottleneck.
+**Use when:** Always start here. Move to other packages only when profiling reveals measured bottleneck.
 
 ```go
 // Immutable — users slice is untouched
@@ -48,27 +46,27 @@ active := lo.Filter(users, func(u User, _ int) bool {
 
 ## `lo/parallel` (lop) — Concurrent Transforms
 
-Parallel variants of core functions. Each element is processed in a separate goroutine with automatic worker pooling.
+Parallel variants of core functions. Each element processed in separate goroutine with automatic worker pooling.
 
 **Available functions:** `Map`, `ForEach`, `Times`, `GroupBy`, `PartitionBy`
 
 **Characteristics:**
 
 - Results preserve original order despite concurrent execution
-- Internal goroutine pool manages concurrency (not configurable via API — one goroutine per element)
+- Internal goroutine pool manages concurrency (not configurable via API; one goroutine per element)
 - Synchronization via `sync.WaitGroup`
 
 **Use when:**
 
 - CPU-bound transforms on large datasets (~1000+ items)
-- Transform function is expensive (parsing, hashing, computing)
+- Expensive transform function (parsing, hashing, computing)
 - Order must be preserved
 
 **Do NOT use when:**
 
-- Small datasets (<100 items) — goroutine creation overhead exceeds benefit
-- I/O-bound work (HTTP calls, DB queries) — use `errgroup` with context cancellation instead
-- Transform function is trivial (field access, type cast) — `lo.Map` is faster
+- Small datasets (<100 items): goroutine creation overhead exceeds benefit
+- I/O-bound work (HTTP calls, DB queries): use `errgroup` with context cancellation instead
+- Trivial transform function (field access, type cast): `lo.Map` is faster
 
 ```go
 // CPU-heavy: parse 10k JSON documents in parallel
@@ -77,32 +75,32 @@ parsed := lop.Map(rawDocs, func(doc []byte, _ int) *Document {
 })
 ```
 
-**Diagnose:** `go tool pprof -cpu` — if transform function dominates CPU profile and dataset is large, `lop` helps.
+**Diagnose:** `go tool pprof -cpu`. If transform function dominates CPU profile on large dataset, `lop` helps.
 
 ## `lo/mutable` (lom) — In-Place Mutations
 
-Modify the original slice directly. Zero allocation overhead.
+Modifies original slice directly. Zero allocation overhead.
 
 **Available functions:** `Filter`, `Map`, `Shuffle`, `Reverse`, `Replace`
 
 **Characteristics:**
 
-- Modifies the input slice — callers must expect side effects
-- `lom.Filter` shortens the slice (removes non-matching elements in-place)
+- Modifies input slice; callers must expect side effects
+- `lom.Filter` shortens slice (removes non-matching elements in-place)
 - `lom.Map` transforms elements in-place (preserves length)
 - Uses Fisher-Yates for `Shuffle`
-- Not safe for concurrent access to the source slice
+- Not safe for concurrent access to source slice
 
 **Use when:**
 
 - `go tool pprof -alloc_objects` confirms allocation pressure from `lo.Filter`/`lo.Map`
-- Working with very large slices where GC pressure is measurable
-- You explicitly want to modify the source and won't need the original
+- Very large slices with measurable GC pressure
+- Source modification explicitly wanted; original not needed afterwards
 
 **Do NOT use when:**
 
-- Multiple goroutines read the same slice
-- You need the original data after the transform
+- Multiple goroutines read same slice
+- Original data needed after transform
 - Code readability matters more than micro-optimization
 
 ```go
@@ -112,30 +110,30 @@ items = lom.Filter(items, func(item Item, _ int) bool {
 })
 ```
 
-**Diagnose:** 1- `go tool pprof -alloc_objects` — find which `lo.*` calls allocate the most 2- `go build -gcflags="-m"` — check if result slices escape to heap
+**Diagnose:** 1- `go tool pprof -alloc_objects`: find which `lo.*` calls allocate most 2- `go build -gcflags="-m"`: check if result slices escape to heap
 
 ## `lo/it` (loi) — Lazy Iterators
 
-Go 1.23+ iterator support with lazy evaluation. Transforms are deferred until consumed — no intermediate slices allocated.
+Go 1.23+ iterator support with lazy evaluation. Transforms deferred until consumed; no intermediate slices allocated.
 
 **Characteristics:**
 
 - Uses `range`-over-func (Go 1.23+)
-- Composable pipelines: `loi.Map` → `loi.Filter` → `loi.Take` runs as a single pass
+- Composable pipelines: `loi.Map` → `loi.Filter` → `loi.Take` runs as single pass
 - No intermediate slice allocations between pipeline stages
 - Modules: `channel`, `find`, `intersect`, `map`, `math`, `seq`, `string`, `tuples`, `type_manipulation`
 
 **Use when:**
 
-- Chaining 3+ transforms on large datasets — eliminates intermediate allocations
-- Processing sequences where you only need a subset (lazy `Take`/`TakeWhile`)
-- Building composable pipelines with range-over-func
+- Chaining 3+ transforms on large datasets: eliminates intermediate allocations
+- Sequences where only subset needed (lazy `Take`/`TakeWhile`)
+- Composable pipelines with range-over-func
 
 **Do NOT use when:**
 
 - Go version < 1.23
-- Simple single-step transforms — `lo.Map` is clearer and has negligible overhead
-- You need random access to intermediate results
+- Simple single-step transforms: `lo.Map` is clearer, negligible overhead
+- Random access to intermediate results needed
 
 ```go
 // Lazy pipeline — no intermediate slices allocated
@@ -151,9 +149,9 @@ for name := range loi.Map(
 
 SIMD (Single Instruction Multiple Data) optimized operations for numeric types on amd64.
 
-**Use when:** Bulk numeric operations after benchmarking confirms the bottleneck. Very specialized.
+**Use when:** Bulk numeric operations after benchmarking confirms bottleneck. Very specialized.
 
-**Warning:** This package is experimental and not covered by semver stability guarantees, so its API may break between minor versions. Do not use in production without version pinning.
+**Warning:** Experimental, not covered by semver stability guarantees; API may break between minor versions. Do not use in production without version pinning.
 
 ## Decision Flowchart
 

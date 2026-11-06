@@ -1,7 +1,5 @@
 # Pinecone Vector Database Reference
 
-Comprehensive guide to Pinecone, a fully-managed vector database designed for production AI applications. Use Pinecone for zero-ops deployment, excellent developer experience, and enterprise-grade reliability.
-
 ## Table of Contents
 
 1. [When to Use Pinecone](#when-to-use-pinecone)
@@ -24,54 +22,54 @@ Comprehensive guide to Pinecone, a fully-managed vector database designed for pr
 ## When to Use Pinecone
 
 **Choose Pinecone when:**
-- **Zero-ops requirement:** No infrastructure management desired
-- **Enterprise reliability:** Need 99.9% SLA guarantees
-- **Rapid development:** Excellent SDKs and documentation
+- **Zero-ops requirement:** No infrastructure to manage
+- **Enterprise reliability:** Need 99.9% SLA
+- **Rapid development:** Strong SDKs and docs
 - **Hybrid search:** Built-in sparse-dense vector support
 - **Global distribution:** Need low-latency worldwide access
 
 **Consider alternatives when:**
-- **Cost-sensitive:** Pinecone pricing higher than self-hosted (use Qdrant)
+- **Cost-sensitive:** Pricier than self-hosted (use Qdrant)
 - **On-premises required:** Pinecone is cloud-only (use Qdrant/Milvus)
 - **Small scale:** <10M vectors on existing PostgreSQL (use pgvector)
-- **Complex filtering:** Qdrant has more advanced metadata filtering
+- **Complex filtering:** Qdrant has richer metadata filtering
 
 **Scale characteristics:**
-- Efficient for 1M to 100M+ vectors
-- Serverless tier: Auto-scaling, pay-per-use
-- Pod-based tier: Reserved capacity, predictable costs
+- Efficient at 1M to 100M+ vectors
+- Serverless tier: auto-scaling, pay-per-use
+- Pod-based tier: reserved capacity, predictable costs
 
 ---
 
 ## Core Concepts
 
 ### Index
-Highest-level organizational unit in Pinecone. Each index:
-- Contains vectors of identical dimensions
-- Uses single distance metric (cosine, euclidean, dotproduct)
-- Deployed in specific cloud region (AWS us-east-1, GCP us-central1, etc.)
-- Configured with pod type (serverless vs. pod-based)
+Top-level unit in Pinecone. Each index:
+- Holds vectors of identical dimensions
+- Uses one distance metric (cosine, euclidean, dotproduct)
+- Lives in one cloud region (AWS us-east-1, GCP us-central1, etc.)
+- Has pod type (serverless vs. pod-based)
 
 ### Namespace
-Logical partition within an index for data isolation:
-- Share same index configuration (dimensions, metric)
-- Enable multi-tenancy (isolate user/org data)
-- Support efficient bulk operations (delete namespace)
+Logical partition inside index, for data isolation:
+- Shares index configuration (dimensions, metric)
+- Enables multi-tenancy (isolate user/org data)
+- Supports efficient bulk operations (delete namespace)
 - No cross-namespace querying (filter by namespace)
 
 ### Metadata
-JSON-compatible key-value pairs attached to vectors:
-- Support filtering during queries
-- Maximum 40KB per vector
+JSON-compatible key-value pairs on vectors:
+- Filterable at query time
+- Max 40KB per vector
 - Indexed types: string, number, boolean, array
-- Enable pre-filtering before vector search
+- Enables pre-filtering before vector search
 
 ### Sparse-Dense Vectors
-Hybrid representation combining semantic and keyword signals:
+Hybrid of semantic and keyword signals:
 - **Dense vectors:** Semantic embeddings (1024-3072 dimensions)
 - **Sparse vectors:** Keyword weights (BM25, SPLADE)
 - Combined via weighted scoring (alpha parameter)
-- Improves retrieval quality for exact term matching
+- Better retrieval on exact term matches
 
 ---
 
@@ -92,9 +90,9 @@ npm install @pinecone-database/pinecone
 ### Create API Key
 
 1. Sign up at https://app.pinecone.io
-2. Navigate to API Keys section
-3. Create new API key (save securely)
-4. Note the environment (e.g., `us-east-1-aws`)
+2. Open API Keys section
+3. Create API key (store securely)
+4. Note environment (e.g., `us-east-1-aws`)
 
 ### Initialize Client
 
@@ -163,20 +161,7 @@ const index = pc.index('my-index');
 
 ### Serverless vs. Pod-Based
 
-**Serverless (Recommended for most use cases):**
-```python
-from pinecone import ServerlessSpec
-
-pc.create_index(
-    name="serverless-index",
-    dimension=1536,
-    metric="cosine",
-    spec=ServerlessSpec(
-        cloud="aws",
-        region="us-east-1"
-    )
-)
-```
+**Serverless (recommended for most cases):**
 
 **Benefits:**
 - Auto-scaling (no capacity planning)
@@ -186,7 +171,7 @@ pc.create_index(
 
 **Use when:** Variable workload, development, cost-conscious
 
-**Pod-Based (Reserved capacity):**
+**Pod-Based (reserved capacity):**
 ```python
 from pinecone import PodSpec
 
@@ -208,7 +193,7 @@ pc.create_index(
 - Predictable performance
 - Dedicated resources
 - Lower per-operation cost at scale
-- Advanced tuning options
+- More tuning options
 
 **Use when:** High-throughput production, consistent load, >10M requests/month
 
@@ -218,15 +203,13 @@ pc.create_index(
 ```python
 metric="cosine"  # Range: -1 to 1 (1 = identical)
 ```
-- Use with normalized embeddings (OpenAI, Voyage, Cohere)
 - Measures angle between vectors
-- Invariant to magnitude
+- Ignores magnitude
 
 **Euclidean distance:**
 ```python
 metric="euclidean"  # Range: 0 to infinity (0 = identical)
 ```
-- Use with unnormalized embeddings
 - Measures straight-line distance
 - Sensitive to magnitude
 
@@ -234,12 +217,11 @@ metric="euclidean"  # Range: 0 to infinity (0 = identical)
 ```python
 metric="dotproduct"  # Range: -infinity to infinity
 ```
-- Use with pre-normalized embeddings
 - Fastest computation
-- Equivalent to cosine for unit vectors
+- Same as cosine for unit vectors
 
 **Choosing metric:**
-- **OpenAI/Cohere/Voyage:** Use `cosine` (embeddings are normalized)
+- **OpenAI/Cohere/Voyage:** Use `cosine` (embeddings normalized)
 - **Custom embeddings:** Use `euclidean` unless normalized
 - **Performance-critical:** Use `dotproduct` with normalized vectors
 
@@ -385,11 +367,9 @@ await index.update({
 
 ### Filter Syntax
 
-Pinecone supports filtering during queries to reduce search space before vector comparison.
-
 **Supported operators:**
-- `$eq`: Equal to
-- `$ne`: Not equal to
+- `$eq`: Equal
+- `$ne`: Not equal
 - `$gt`, `$gte`: Greater than (or equal)
 - `$lt`, `$lte`: Less than (or equal)
 - `$in`: Value in array
@@ -525,20 +505,18 @@ metadata = {
 
 **Avoid over-indexing:**
 - Limit to 10-15 metadata fields per vector
-- Store large text in `text` field (not filtered, only returned)
-- Use consistent data types (don't mix strings/numbers)
+- Put large text in `text` field (not filtered, only returned)
+- Keep data types consistent (don't mix strings/numbers)
 
 ---
 
 ## Sparse-Dense Vectors (Hybrid Search)
 
-Hybrid search combines dense semantic vectors with sparse keyword vectors for improved retrieval quality.
-
 ### Dense Vectors (Semantic)
-Standard embeddings from models like OpenAI, Voyage, Cohere.
+Standard embeddings (OpenAI, Voyage, Cohere).
 
 ### Sparse Vectors (Keyword)
-Token-based representations (BM25, SPLADE) encoding exact term importance.
+Token-based (BM25, SPLADE); encode exact term importance.
 
 **Format:**
 ```python
@@ -550,7 +528,7 @@ sparse_vector = {
 
 ### Python Hybrid Search Example
 
-**Using BM25 for sparse vectors:**
+**BM25 for sparse vectors:**
 ```python
 from rank_bm25 import BM25Okapi
 import numpy as np
@@ -632,7 +610,7 @@ results = index.query(
 ```
 
 **Recommended alpha values:**
-- **0.7-0.8:** General RAG (favor semantic understanding)
+- **0.7-0.8:** General RAG (favor semantics)
 - **0.5:** Balanced (code search, mixed queries)
 - **0.3-0.4:** Keyword-heavy (legal, compliance, exact terms)
 
@@ -676,12 +654,10 @@ await index.upsert([
 
 ### What are Namespaces?
 
-Namespaces partition vectors within an index for logical isolation while sharing infrastructure.
-
 **Use cases:**
 - **Multi-tenant systems:** Isolate customer data
 - **Environment separation:** dev, staging, production
-- **Content versioning:** v1, v2, v3 documentation
+- **Content versioning:** v1, v2, v3 docs
 - **A/B testing:** Separate experimental embeddings
 
 ### Create and Use Namespaces
@@ -763,19 +739,12 @@ def query_tenant_docs(tenant_id: str, query_embedding: list):
 ```
 
 **Benefits:**
-- Complete data isolation (no cross-tenant leakage)
-- Efficient bulk operations (delete entire namespace)
-- Simplified access control
+- Full data isolation (no cross-tenant leakage)
+- Efficient bulk operations (delete whole namespace)
+- Simpler access control
 - Independent scaling per tenant
 
 ### Namespace Operations
-
-**List namespaces:**
-```python
-stats = index.describe_index_stats()
-namespaces = stats['namespaces'].keys()
-print(f"Namespaces: {list(namespaces)}")
-```
 
 **Delete namespace:**
 ```python
@@ -1132,17 +1101,7 @@ for await (const result of streamingQuery(index, queryEmbedding, 5)) {
 
 ### Indexing Best Practices
 
-**1. Batch operations for efficiency:**
-```python
-# ✅ Good: Batch upserts
-index.upsert(vectors=batch_of_100)
-
-# ❌ Bad: Individual upserts
-for vector in vectors:
-    index.upsert(vectors=[vector])
-```
-
-**2. Use consistent ID schemes:**
+**1. Consistent ID schemes:**
 ```python
 # ✅ Good: Predictable, collision-resistant
 id = f"{tenant_id}-{doc_id}-{chunk_index}"
@@ -1151,7 +1110,7 @@ id = f"{tenant_id}-{doc_id}-{chunk_index}"
 id = str(uuid.uuid4())
 ```
 
-**3. Store full text in metadata:**
+**2. Store full text in metadata:**
 ```python
 metadata = {
     "text": full_chunk_text,  # For retrieval/display
@@ -1176,7 +1135,7 @@ results = index.query(vector=query_embedding, top_k=100)
 filtered = [r for r in results if r['metadata']['source_type'] == 'documentation'][:10]
 ```
 
-**2. Use appropriate top_k:**
+**2. Right-size top_k:**
 ```python
 # ✅ Good: Retrieve enough for re-ranking
 top_k = 20  # Re-rank to 5
@@ -1200,7 +1159,7 @@ include_metadata=True  # Even for similarity-only tasks
 
 ### Metadata Best Practices
 
-**1. Optimize for filtering:**
+**Optimize for filtering:**
 ```python
 # ✅ Good: Low-cardinality categorical
 metadata = {
@@ -1216,35 +1175,15 @@ metadata = {
 }
 ```
 
-**2. Consistent data types:**
-```python
-# ✅ Good: Consistent types
-metadata = {"version": "2.0"}  # Always string
-
-# ❌ Bad: Mixed types
-metadata = {"version": 2.0}  # Sometimes number
-metadata = {"version": "2.0"}  # Sometimes string
-```
-
 ### Namespace Best Practices
 
-**1. Namespace per tenant:**
+**Namespace per tenant:**
 ```python
 # ✅ Good: Complete isolation
 namespace = f"tenant-{tenant_id}"
 
 # ❌ Bad: Metadata filtering only (risk of leakage)
 metadata = {"tenant_id": tenant_id}
-```
-
-**2. Namespace for environment separation:**
-```python
-# ✅ Good: Separate dev/staging/prod
-namespaces = {
-    "development": "dev",
-    "staging": "staging",
-    "production": "prod"
-}
 ```
 
 ---
@@ -1262,7 +1201,7 @@ dimension = 1024  # vs. 3072 (3x faster)
 embedding = get_embedding(text)[:1024]  # Truncate to 1024d
 ```
 
-**2. Reduce top_k when possible:**
+**2. Lower top_k when possible:**
 ```python
 # Balance precision vs. speed
 top_k = 10  # Fast, usually sufficient
@@ -1270,27 +1209,9 @@ top_k = 10  # Fast, usually sufficient
 top_k = 100  # Slower, more comprehensive
 ```
 
-**3. Use pod-based for high-throughput:**
-```python
-# Serverless: Variable performance
-spec = ServerlessSpec(cloud="aws", region="us-east-1")
-
-# Pod-based: Consistent, faster at scale
-spec = PodSpec(
-    environment="us-east-1-aws",
-    pod_type="p1.x2",  # Higher tier
-    pods=2
-)
-```
-
 ### Indexing Performance
 
-**1. Batch upserts:**
-```python
-batch_size = 100  # Optimal range: 100-200
-```
-
-**2. Parallel batch processing:**
+**Parallel batch processing:**
 ```python
 import concurrent.futures
 
@@ -1299,12 +1220,6 @@ def upsert_batch(batch):
 
 with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
     executor.map(upsert_batch, batches)
-```
-
-**3. Async upserts (TypeScript):**
-```typescript
-const batches = [...]; // Array of batches
-await Promise.all(batches.map(batch => index.upsert(batch)));
 ```
 
 ---
@@ -1330,7 +1245,7 @@ storage_1024d = 1024 * 4 bytes = 4.1 KB per vector
 # 3x storage savings
 ```
 
-**2. Minimize metadata size:**
+**2. Shrink metadata:**
 ```python
 # ✅ Good: Compact metadata
 metadata = {
@@ -1347,7 +1262,7 @@ metadata = {
 }
 ```
 
-**3. Use namespaces for bulk deletion:**
+**3. Namespaces for bulk deletion:**
 ```python
 # ✅ Good: Delete entire namespace (fast, cheap)
 index.delete(delete_all=True, namespace="temp-docs")
@@ -1380,12 +1295,12 @@ def get_cached_embedding(text: str):
 
 ### Pod-Based Pricing
 
-**Pricing:** Fixed monthly cost per pod ($70-$1000/month depending on tier)
+**Pricing:** Fixed monthly cost per pod ($70-$1000/month by tier)
 
 **When pod-based is cheaper:**
 - High query volume (>10M queries/month)
-- Consistent workload (predictable traffic)
-- Large-scale production (cost per operation lower)
+- Steady workload (predictable traffic)
+- Large-scale production (lower cost per operation)
 
 ---
 
@@ -1414,10 +1329,10 @@ results = index.query(vector=query_embedding, top_k=10)
 ```
 
 **Solutions:**
-- Check if vectors were actually indexed (describe_index_stats)
-- Verify namespace (querying wrong namespace)
+- Confirm vectors were indexed (describe_index_stats)
+- Verify namespace (wrong namespace queried)
 - Check filter constraints (too restrictive)
-- Verify embedding generation (not all zeros)
+- Verify embeddings are not all zeros
 
 **3. Slow queries:**
 
@@ -1434,8 +1349,8 @@ print(f"Query took {elapsed:.2f}s")
 **Solutions:**
 - Reduce top_k
 - Reduce vector dimensions
-- Use pre-filtering (metadata filters)
-- Consider pod-based for consistent performance
+- Pre-filter (metadata filters)
+- Try pod-based for consistent performance
 
 **4. Metadata filtering not working:**
 
@@ -1468,7 +1383,7 @@ def upsert_with_retry(vectors):
 
 ### Debugging Tips
 
-**1. Check index statistics:**
+**1. Check index stats:**
 ```python
 stats = index.describe_index_stats()
 print(f"Total vectors: {stats['total_vector_count']}")
@@ -1491,7 +1406,7 @@ for match in results['matches']:
     print(f"Vector (first 5): {match['values'][:5]}")
 ```
 
-**3. Verify embeddings are non-zero:**
+**3. Verify embeddings non-zero:**
 ```python
 import numpy as np
 
@@ -1506,10 +1421,10 @@ if magnitude < 0.01:
 
 ## Additional Resources
 
-**Official Documentation:**
+**Official docs:**
 - Pinecone Docs: https://docs.pinecone.io
 - Python SDK: https://docs.pinecone.io/docs/python-client
 - TypeScript SDK: https://docs.pinecone.io/docs/typescript-client
 
-**Code Examples:**
+**Code examples:**
 - `examples/typescript-rag/` - TypeScript RAG with Pinecone

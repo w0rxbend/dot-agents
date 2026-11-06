@@ -1,8 +1,5 @@
 # InfluxDB Reference Guide
 
-InfluxDB is a purpose-built time-series database with native support for DevOps metrics and Prometheus integration.
-
-
 ## Table of Contents
 
 - [Version Overview](#version-overview)
@@ -12,7 +9,6 @@ InfluxDB is a purpose-built time-series database with native support for DevOps 
 - [Data Model](#data-model)
 - [Writing Data](#writing-data)
   - [Line Protocol (Universal)](#line-protocol-universal)
-  - [Python Client (InfluxDB 3.x)](#python-client-influxdb-3x)
   - [TypeScript Client](#typescript-client)
 - [Querying Data](#querying-data)
   - [InfluxQL (SQL-like)](#influxql-sql-like)
@@ -58,9 +54,11 @@ InfluxDB is a purpose-built time-series database with native support for DevOps 
 ```bash
 docker run -d \
   --name influxdb3 \
-  -p 8086:8086 \
-  -v influxdb3-data:/var/lib/influxdb3 \
-  influxdata/influxdb:3.0-alpine
+  -p 127.0.0.1:8181:8181 \
+  -v influxdb3-data:/var/lib/influxdb3/data \
+  influxdb:3.12.2-core influxdb3 serve \
+  --node-id node0 --object-store file --data-dir /var/lib/influxdb3/data \
+  --disable-telemetry-upload
 ```
 
 ### InfluxDB 2.x (Docker)
@@ -68,14 +66,16 @@ docker run -d \
 ```bash
 docker run -d \
   --name influxdb \
-  -p 8086:8086 \
+  -p 127.0.0.1:8086:8086 \
+  -e INFLUXD_REPORTING_DISABLED=true \
   -v influxdb-data:/var/lib/influxdb2 \
   influxdb:2.7-alpine
 
 # Initial setup (creates admin user, org, bucket)
+# INFLUX_ADMIN_PASSWORD: generated, e.g. openssl rand -base64 24
 docker exec influxdb influx setup \
   --username admin \
-  --password adminpassword \
+  --password "$INFLUX_ADMIN_PASSWORD" \
   --org myorg \
   --bucket mybucket \
   --retention 30d \
@@ -84,7 +84,7 @@ docker exec influxdb influx setup \
 
 ## Data Model
 
-InfluxDB uses **measurements** (like tables), **tags** (indexed metadata), **fields** (actual values), and **timestamps**.
+**Measurements** (like tables), **tags** (indexed metadata), **fields** (actual values), **timestamps**.
 
 ```
 measurement,tag1=value1,tag2=value2 field1=value1,field2=value2 timestamp
@@ -96,10 +96,10 @@ cpu,host=server01,region=us-west usage=0.64,cores=8 1465839830100400200
 ```
 
 Tags vs. Fields:
-- **Tags**: Indexed, use for filtering (host, region, device_id)
-- **Fields**: Not indexed, use for actual measurements (temperature, cpu_usage)
+- **Tags**: Indexed. Use for filtering (host, region, device_id)
+- **Fields**: Not indexed. Use for actual measurements (temperature, cpu_usage)
 
-**Anti-pattern**: High-cardinality tags (unique user IDs, UUIDs) - causes performance issues.
+**Anti-pattern**: High-cardinality tags (unique user IDs, UUIDs) cause performance issues.
 
 ## Writing Data
 
@@ -114,39 +114,6 @@ cpu,host=server01 usage=0.64 1465839830100400200
 cpu,host=server01 usage=0.72 1465839830200400200
 cpu,host=server01 usage=0.68 1465839830300400200
 "
-```
-
-### Python Client (InfluxDB 3.x)
-
-```python
-from influxdb_client_3 import InfluxDBClient3, Point
-
-client = InfluxDBClient3(
-    host='localhost',
-    token='YOUR_API_TOKEN',
-    org='myorg',
-    database='mybucket'
-)
-
-# Write single point
-point = Point("cpu") \
-    .tag("host", "server01") \
-    .tag("region", "us-west") \
-    .field("usage", 0.64) \
-    .field("cores", 8)
-
-client.write(point)
-
-# Batch write (recommended)
-points = []
-for i in range(10000):
-    point = Point("cpu") \
-        .tag("host", f"server{i:02d}") \
-        .field("usage", random.uniform(0, 100)) \
-        .time(datetime.now())
-    points.append(point)
-
-client.write(points)
 ```
 
 ### TypeScript Client
@@ -253,8 +220,6 @@ ORDER BY bucket DESC;
 
 ## Retention Policies
 
-Automatically expire old data.
-
 ### InfluxDB 2.x
 
 ```bash
@@ -281,8 +246,6 @@ CREATE RETENTION POLICY "infinite" ON "mydb" DURATION INF REPLICATION 1;
 ```
 
 ## Downsampling (Continuous Queries)
-
-Pre-aggregate data for faster queries.
 
 ### InfluxDB 1.x
 
@@ -326,7 +289,7 @@ from(bucket: "mybucket")
 
 ## Prometheus Integration
 
-InfluxDB can act as long-term storage for Prometheus.
+InfluxDB serves as long-term storage for Prometheus.
 
 ### prometheus.yml Configuration
 
@@ -493,26 +456,31 @@ Point("events") \
 ### FastAPI Backend
 
 ```python
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from influxdb_client_3 import InfluxDBClient3
 
 app = FastAPI()
 client = InfluxDBClient3(host='localhost', token='YOUR_API_TOKEN', org='myorg', database='mybucket')
+RANGES = {"1h": "1 hour", "6h": "6 hours", "1d": "1 day", "7d": "7 days"}
 
 @app.get("/api/metrics/cpu")
 async def get_cpu_metrics(start: str = "1h", host: str = None):
+    if start not in RANGES:  # fixed literals only; request values go in $params
+        raise HTTPException(400, "unsupported range")
     query = f"""
         SELECT time, host, usage
         FROM cpu
-        WHERE time > NOW() - INTERVAL '{start}'
+        WHERE time > NOW() - INTERVAL '{RANGES[start]}'
     """
+    params = {}
 
     if host:
-        query += f" AND host = '{host}'"
+        query += " AND host = $host"
+        params["host"] = host
 
     query += " ORDER BY time DESC LIMIT 1000"
 
-    df = client.query(query=query, language="sql")
+    df = client.query(query=query, language="sql", query_parameters=params)
     return df.to_dict(orient="records")
 ```
 
@@ -541,7 +509,7 @@ function CPUChart() {
 
 ## Telegraf Integration
 
-Telegraf is InfluxDB's official metrics collector with 200+ input plugins.
+Telegraf: InfluxDB's official metrics collector, 200+ input plugins.
 
 ### telegraf.conf
 
@@ -570,11 +538,8 @@ Telegraf is InfluxDB's official metrics collector with 200+ input plugins.
 
 ## Best Practices
 
-1. **Data Model**: Use low-cardinality tags (host, region), high-cardinality fields (user_id)
-2. **Retention**: Set appropriate retention policies (raw: 30d, rollups: 1y)
-3. **Downsampling**: Create continuous queries for hourly/daily rollups
-4. **Batch Writes**: Write 1,000-5,000 points per batch for best performance
-5. **Query Optimization**: Always filter by time, use downsampled data for long ranges
-6. **Cardinality**: Avoid high-cardinality tags (> 100K unique values)
-7. **Telegraf**: Use Telegraf for collecting system metrics (easier than custom code)
-8. **Grafana**: InfluxDB has excellent Grafana integration for dashboards
+1. **Retention**: Set retention policies (raw: 30d, rollups: 1y)
+2. **Batch Writes**: 1,000-5,000 points per batch for best performance
+3. **Cardinality**: Avoid high-cardinality tags (> 100K unique values)
+4. **Telegraf**: Collect system metrics with Telegraf (easier than custom code)
+5. **Grafana**: Excellent Grafana integration for dashboards

@@ -1,7 +1,7 @@
 # Workflows SDK Quick Reference
 
-This is an **approximate** API surface map -- not a substitute for the real SDK.
-Always verify signatures against the installed package before generating code.
+**Approximate** API surface map, not substitute for real SDK.
+Always verify signatures against installed package before generating code.
 
 ## Contents
 
@@ -47,7 +47,7 @@ TS_ROOT=node_modules/@renderinc/sdk
 | Concept | Python | TypeScript |
 |---------|--------|------------|
 | Entry point | `from render_sdk import Workflows` | `import { task } from "@renderinc/sdk/workflows"` |
-| Define a task | `@app.task` decorator | `task(options, fn)` |
+| Define task | `@app.task` decorator | `task(options, fn)` |
 | Start server | `app.start()` in `__main__` | Auto-starts via `RENDER_SDK_SOCKET_PATH` |
 | Merge multi-file tasks | `Workflows.from_workflows(app1, app2)` | Side-effect imports in `index.ts` |
 | Retry config | `Retry(max_retries, wait_duration_ms, backoff_scaling)` | `{ maxRetries, waitDurationMs, backoffScaling }` |
@@ -74,8 +74,6 @@ Workflow-level defaults: `Workflows(default_retry=..., default_timeout=..., defa
 | Cancel run | `cancel_task_run()` | `await cancel_task_run()` | `await cancelTaskRun()` |
 | Stream events (SSE) | `task_run_events()` | `task_run_events()` | `taskRunEvents()` |
 
-Task identifier format: `{workflow-slug}/{task-name}`.
-
 ### Error types
 
 | Python | TypeScript | Notes |
@@ -88,7 +86,7 @@ Task identifier format: `{workflow-slug}/{task-name}`.
 | `TaskRunError` | — | Task run failed |
 | — | `AbortError` | Request aborted via AbortSignal |
 
-Import paths -- Python: `render_sdk.client.errors`, TypeScript: `@renderinc/sdk`.
+Import paths: Python `render_sdk.client.errors`, TypeScript `@renderinc/sdk`.
 
 ### Instance types
 
@@ -107,7 +105,7 @@ Import paths -- Python: `render_sdk.client.errors`, TypeScript: `@renderinc/sdk`
 
 | Scenario | `backoff_scaling` default |
 |----------|--------------------------|
-| Explicit retry config provided, field omitted | 1.5 |
+| Explicit retry config given, field omitted | 1.5 |
 | No retry config (built-in defaults) | 2.0 |
 
 ### Environment variables

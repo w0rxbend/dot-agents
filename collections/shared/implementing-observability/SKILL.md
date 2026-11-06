@@ -5,26 +5,22 @@ description: Stand up the observability platform - OpenTelemetry SDK and Collect
 
 # Production Observability with OpenTelemetry
 
-## Purpose
-
-Implement production-grade observability using OpenTelemetry as the 2025 industry standard. Covers the three pillars (metrics, logs, traces), LGTM stack deployment, and critical log-trace correlation patterns.
-
 ## When to Use
 
 Use when:
-- Building production systems requiring visibility into performance and errors
-- Debugging distributed systems with multiple services
-- Setting up monitoring, logging, or tracing infrastructure
-- Implementing structured logging with trace correlation
-- Configuring alerting rules for production systems
+- Production systems needing visibility into performance and errors
+- Debugging distributed multi-service systems
+- Setting up monitoring, logging or tracing infrastructure
+- Adding structured logging with trace correlation
+- Configuring alerting rules for production
 
 Skip if:
-- Building proof-of-concept without production deployment
+- Proof-of-concept with no production deployment
 - System has < 100 requests/day (console logging may suffice)
 
 ## The OpenTelemetry Standard (2025)
 
-OpenTelemetry is the CNCF graduated project unifying observability:
+OpenTelemetry, CNCF graduated project, unifies observability:
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -56,9 +52,9 @@ OpenTelemetry is the CNCF graduated project unifying observability:
 
 ### 1. Metrics (What is happening?)
 
-Track system health and performance over time.
+System health and performance over time.
 
-**Metric Types**: Counters (always increase), Gauges (up/down), Histograms (distributions), Summaries (percentiles).
+**Metric Types**: Counters (only increase), Gauges (up/down), Histograms (distributions), Summaries (percentiles).
 
 **Brief Example (Python)**:
 ```python
@@ -71,44 +67,15 @@ http_requests.add(1, {"method": "GET", "status": 200})
 
 ### 2. Logs (What happened?)
 
-Record discrete events with context.
+Discrete events with context.
 
 **CRITICAL**: Always inject trace_id/span_id for log-trace correlation.
 
-**Brief Example (Python + structlog)**:
-```python
-import structlog
-from opentelemetry import trace
-
-logger = structlog.get_logger()
-span = trace.get_current_span()
-ctx = span.get_span_context()
-
-logger.info(
-    "processing_request",
-    trace_id=format(ctx.trace_id, '032x'),
-    span_id=format(ctx.span_id, '016x'),
-    user_id=user_id
-)
-```
-
-**See**: `references/structured-logging.md` for complete configuration.
-
 ### 3. Traces (Where did time go?)
 
-Track request flow across distributed services.
+Request flow across distributed services.
 
-**Key Concepts**: Trace (end-to-end journey), Span (individual operation), Parent-Child (nested operations).
-
-**Brief Example (Python + FastAPI)**:
-```python
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-
-app = FastAPI()
-FastAPIInstrumentor.instrument_app(app)  # Auto-traces all HTTP requests
-```
-
-**See**: `references/opentelemetry-setup.md` for SDK installation by language.
+**Key Concepts**: Trace (end-to-end journey), Span (single operation), Parent-Child (nested operations).
 
 ## The LGTM Stack (Self-Hosted Observability)
 
@@ -144,15 +111,9 @@ LGTM = **L**oki (Logs) + **G**rafana (Visualization) + **T**empo (Traces) + **M*
 └────────────────────────────────────────────────────────┘
 ```
 
-**Quick Start**: Run `examples/lgtm-docker-compose/docker-compose.yml` for a complete LGTM stack.
-
-**See**: `references/lgtm-stack.md` for production deployment guide.
+**Quick Start**: Run `examples/lgtm-docker-compose/docker-compose.yml` for full LGTM stack.
 
 ## Critical Pattern: Log-Trace Correlation
-
-**The Problem**: Logs and traces live in separate systems. You see an error log but can't find the related trace.
-
-**The Solution**: Inject `trace_id` and `span_id` into every log record.
 
 ### Python (structlog)
 
@@ -229,8 +190,9 @@ pip install opentelemetry-api opentelemetry-sdk \
 **Docker Compose** (development):
 ```bash
 cd examples/lgtm-docker-compose
+# Set GRAFANA_ADMIN_PASSWORD in a gitignored .env first (never echo it)
 docker-compose up -d
-# Grafana: http://localhost:3000 (admin/admin)
+# Grafana: http://localhost:3000 (admin / $GRAFANA_ADMIN_PASSWORD); ports bind 127.0.0.1
 # OTLP: localhost:4317 (gRPC), localhost:4318 (HTTP)
 ```
 
@@ -238,7 +200,7 @@ docker-compose up -d
 
 ### 4. Configure Structured Logging
 
-**See**: `references/structured-logging.md` for complete setup (Python, Rust, Go, TypeScript).
+**See**: `references/structured-logging.md` for full setup (Python, Rust, Go, TypeScript).
 
 ### 5. Set Up Alerting
 
@@ -310,7 +272,7 @@ python scripts/validate_metrics.py
 - **Feedback**: Alert routing (Slack, PagerDuty), notification UI
 - **Data-Viz**: Time-series charts, trace waterfall, latency heatmaps
 
-**See**: `examples/fastapi-otel/` for complete integration.
+**See**: `examples/fastapi-otel/` for full integration.
 
 ## Progressive Disclosure
 
@@ -324,40 +286,33 @@ python scripts/validate_metrics.py
 **Examples**:
 - `examples/fastapi-otel/` - FastAPI + OpenTelemetry + LGTM
 - `examples/axum-tracing/` - Rust Axum + tracing + LGTM
-- `examples/lgtm-docker-compose/` - Local development LGTM stack (default admin/admin credentials, pinned to older image versions: harden and update before any shared use)
+- `examples/lgtm-docker-compose/` - Local development LGTM stack (loopback-only ports, admin password from `.env`, usage reporting off, pinned older images: update before shared use)
 
 **Scripts**:
 - `scripts/setup_otel.py` - Bootstrap OpenTelemetry SDK
 - `scripts/generate_dashboards.py` - Generate Grafana dashboards
 - `scripts/validate_metrics.py` - Validate metric naming
 
-## Key Principles
-
-1. **OpenTelemetry is THE standard** - Use OTel SDK, not vendor-specific SDKs
-2. **Auto-instrumentation first** - Prefer auto over manual spans
-3. **Always correlate logs and traces** - Inject trace_id/span_id into every log
-4. **Use structured logging** - JSON format, consistent field names
-5. **LGTM stack for self-hosting** - Production-ready open-source stack
-
 ## Common Pitfalls
 
 **Don't**:
 - Use vendor-specific SDKs (use OpenTelemetry)
-- Log without trace_id/span_id context
 - Manually instrument what auto-instrumentation covers
 - Mix logging libraries (pick one: structlog, tracing, slog, pino)
 
 **Do**:
 - Start with auto-instrumentation
+- Use structured logging: JSON format, consistent field names
 - Add manual spans only for business-critical operations
 - Use semantic conventions for span attributes
-- Export to OTLP (gRPC preferred over HTTP)
+- Export to OTLP (gRPC preferred over HTTP); plaintext (`insecure=True`, `WithInsecure()`) only to localhost, TLS to remote collectors
+- Keep Grafana stack usage reporting off and UIs off public interfaces (no anonymous Admin, no plain-HTTP LoadBalancer)
 - Test locally with LGTM docker-compose before production
 
 ## Success Metrics
 
-1. 100% of logs include trace_id when in request context
-2. Mean time to resolution (MTTR) decreases by >50%
+1. 100% of logs in request context include trace_id
+2. Mean time to resolution (MTTR) drops by >50%
 3. Developers use Grafana as first debugging tool
-4. 80%+ of telemetry from auto-instrumentation
+4. 80%+ of telemetry comes from auto-instrumentation
 5. Alert noise < 5% false positives

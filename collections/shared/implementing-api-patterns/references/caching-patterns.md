@@ -1,8 +1,5 @@
 # Caching Patterns for APIs
 
-Caching reduces latency, improves scalability, and decreases database load by storing frequently accessed data.
-
-
 ## Table of Contents
 
 - [Cache Layers](#cache-layers)
@@ -172,7 +169,8 @@ async def get_item(item_id: int):
 **Decorator Approach:**
 ```python
 from functools import wraps
-import pickle
+import json
+from fastapi.encoders import jsonable_encoder
 
 def cache_aside(ttl: int = 300, key_prefix: str = ""):
     def decorator(func):
@@ -184,13 +182,14 @@ def cache_aside(ttl: int = 300, key_prefix: str = ""):
             # Try cache
             cached = redis_client.get(cache_key)
             if cached:
-                return pickle.loads(cached)
+                # JSON, never pickle: unpickling cache data lets anyone who can write Redis run code
+                return json.loads(cached)
 
             # Execute function
             result = await func(*args, **kwargs)
 
             # Store in cache
-            redis_client.setex(cache_key, ttl, pickle.dumps(result))
+            redis_client.setex(cache_key, ttl, json.dumps(jsonable_encoder(result)))
 
             return result
         return wrapper
@@ -287,7 +286,7 @@ async def update_item(item_id: int, item: ItemUpdate):
 
 ### Cache Tags
 
-**Group related cache entries:**
+**Group related entries:**
 ```python
 from typing import List
 
@@ -342,7 +341,7 @@ async def delete_user(user_id: int):
 
 ## Cache Warming
 
-**Preload cache on startup:**
+**Preload on startup:**
 ```python
 @app.on_event("startup")
 async def warm_cache():
@@ -358,7 +357,7 @@ async def warm_cache():
 
 ## Cache Stampede Prevention
 
-**Problem:** Many requests hit database simultaneously when cache expires.
+**Problem:** Cache expires, many requests hit database at once.
 
 **Solution: Lock-based Approach:**
 ```python
@@ -468,7 +467,7 @@ async def multi_level_get(key: str, fetch_func):
 
 ## Cache Performance Monitoring
 
-**Track cache hit rate:**
+**Track hit rate:**
 ```python
 from prometheus_client import Counter, Histogram
 
@@ -523,8 +522,6 @@ class Query:
 | Real-time data | No cache or <10s | <10s | Balance freshness |
 | Expensive queries | Redis + early expiration | 10 min | Prevent stampede |
 
-**General Guidelines:**
-- **Static data:** Long TTL (hours/days)
-- **User data:** Medium TTL (minutes)
-- **Real-time data:** Short TTL (seconds) or no cache
-- **Always measure:** Track hit rate, latency, memory usage
+**General TTL:** static data hours/days; user data minutes; real-time data seconds or no cache.
+
+**Always measure:** Hit rate, latency, memory usage

@@ -113,7 +113,7 @@ See `references/dynamodb.md` for complete patterns.
 
 ### MongoDB + FastAPI (Python)
 
-Production-ready async API with Motor:
+Demo async API with Motor (no auth; add it before real use):
 ```bash
 cd examples/mongodb-fastapi
 pip install -r requirements.txt
@@ -130,11 +130,13 @@ python main.py
 
 ### DynamoDB + Lambda (Serverless)
 
-AWS serverless API with single-table design:
+AWS serverless demo API with single-table design (public endpoints; add an authorizer before real use):
 ```bash
 cd examples/dynamodb-serverless
-npm install -g serverless
-serverless deploy
+# v3 honors the telemetry opt-out; v4 always reports usage to Serverless Inc.
+npm install -g serverless@3.40.0
+export SLS_TELEMETRY_DISABLED=1
+serverless deploy   # creates billed AWS resources; confirm account/stage with user first
 ```
 
 **Features:**

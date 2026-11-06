@@ -1,7 +1,5 @@
 # Alerting Rules and Notification Patterns
 
-Complete guide for creating alerting rules in Prometheus, Loki, and Grafana with notification routing.
-
 ## Table of Contents
 
 - [Alerting Architecture](#alerting-architecture)
@@ -80,20 +78,7 @@ groups:
 
 #### 1. High Error Rate
 
-```yaml
-- alert: HighHTTPErrorRate
-  expr: |
-    (
-      sum(rate(http_requests_total{status=~"5.."}[5m])) by (service)
-      /
-      sum(rate(http_requests_total[5m])) by (service)
-    ) > 0.05
-  for: 5m
-  labels:
-    severity: critical
-  annotations:
-    summary: "{{ $labels.service }} error rate above 5%"
-```
+Use `HighHTTPErrorRate` above: 5xx ratio `> 0.05` `for: 5m`, `severity: critical`.
 
 #### 2. High Latency (P95)
 
@@ -304,7 +289,7 @@ contactPoints:
       - uid: slack-critical
         type: slack
         settings:
-          url: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+          url: ${SLACK_WEBHOOK_URL}  # env-interpolated; never commit the webhook
           recipient: '#alerts-critical'
           username: Grafana
           text: |
@@ -336,7 +321,7 @@ contactPoints:
     - uid: pagerduty
       type: pagerduty
       settings:
-        integrationKey: YOUR_INTEGRATION_KEY
+        integrationKey: ${PAGERDUTY_INTEGRATION_KEY}  # from env
         severity: critical
 ```
 
@@ -607,16 +592,13 @@ inhibit_rules:
 
 **Avoid flapping**:
 - Use `for: <duration>` to require sustained condition
-- Set reasonable repeat intervals
-- Use hysteresis (different thresholds for firing vs resolving)
+- Set sane repeat intervals
+- Use hysteresis: separate thresholds for firing and resolving
 
 ### 7. Alert Fatigue Prevention
 
 **Reduce noise**:
-- Start with higher thresholds, tune down based on false positives
-- Use alert inhibition for cascading failures
-- Group related alerts
-- Set appropriate repeat intervals
+- Start with high thresholds; tune down based on false positives
 - Auto-resolve when condition clears
 
 ---
@@ -628,7 +610,7 @@ inhibit_rules:
 **Create test metric**:
 
 ```bash
-# Send high error rate
+# Test Prometheus only: deletes all http_requests_total data. Confirm with user first.
 curl -X POST http://localhost:9090/api/v1/admin/tsdb/delete_series \
   -d 'match[]={__name__="http_requests_total"}'
 
@@ -666,10 +648,10 @@ curl -X POST http://localhost:3100/loki/api/v1/push \
 
 ### Test Notification
 
-**Test Slack webhook**:
+**Test Slack webhook** (posts to a real channel; confirm with user first):
 
 ```bash
-curl -X POST https://hooks.slack.com/services/YOUR/WEBHOOK/URL \
+curl -X POST "$SLACK_WEBHOOK_URL" \
   -H "Content-Type: application/json" \
   -d '{
     "text": "Test alert from Grafana",
@@ -685,7 +667,7 @@ curl -X POST https://hooks.slack.com/services/YOUR/WEBHOOK/URL \
 
 ## Auto-Generated Alerts
 
-**Use script to generate alerts**:
+**Generate alerts with script**:
 
 ```bash
 python scripts/generate_dashboards.py --alerts \
@@ -723,9 +705,9 @@ groups:
 
 **Alerts not firing**:
 - Check PromQL/LogQL query returns data
-- Verify `for:` duration hasn't been met yet
-- Check alert rule evaluation interval
-- Verify data source is connected
+- Check whether `for:` duration has not been met yet
+- Check rule evaluation interval
+- Verify data source connected
 
 **Notifications not sent**:
 - Test webhook URL manually
@@ -734,8 +716,8 @@ groups:
 - Check Alertmanager/Grafana logs
 
 **Too many alerts (alert fatigue)**:
-- Increase thresholds
+- Raise thresholds
 - Add inhibit rules
-- Increase repeat interval
+- Raise repeat interval
 - Group related alerts
-- Use more specific matchers
+- Use narrower matchers

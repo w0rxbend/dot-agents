@@ -3,7 +3,6 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [When to Use Milvus](#when-to-use-milvus)
   - [Ideal For:](#ideal-for)
   - [Not Ideal For:](#not-ideal-for)
@@ -31,22 +30,14 @@
   - [Resource Configuration](#resource-configuration)
 - [Monitoring](#monitoring)
 - [Zilliz Cloud (Managed Milvus)](#zilliz-cloud-managed-milvus)
-- [Use Cases](#use-cases)
-  - [Billion-Scale Semantic Search](#billion-scale-semantic-search)
-  - [Recommendation Systems](#recommendation-systems)
-  - [Anomaly Detection](#anomaly-detection)
 - [Production Checklist](#production-checklist)
 - [Additional Resources](#additional-resources)
-
-## Overview
-
-Milvus is an open-source vector database designed for billion-scale vector similarity search with GPU acceleration support.
 
 ## When to Use Milvus
 
 ### Ideal For:
-- **>100M vectors** - Optimized for massive scale
-- **GPU acceleration** - Leverage CUDA for 10-100x faster search
+- **>100M vectors** - Built for massive scale
+- **GPU acceleration** - CUDA gives 10-100x faster search
 - **Enterprise features** - Role-based access control, multi-tenancy
 - **Distributed deployments** - Horizontal scaling across nodes
 - **High throughput** - Millions of searches per second
@@ -54,25 +45,25 @@ Milvus is an open-source vector database designed for billion-scale vector simil
 ### Not Ideal For:
 - **<10M vectors** - Overkill for small datasets (use Qdrant/pgvector)
 - **Simple use cases** - More complex than Qdrant
-- **Resource-constrained** - Requires more infrastructure
-- **Rapid prototyping** - Longer setup time
+- **Resource-constrained** - Needs more infrastructure
+- **Rapid prototyping** - Longer setup
 
 ## Architecture Options
 
 ### Standalone Mode
-- Single-node deployment
+- Single node
 - Up to 100M vectors
-- Good for development and small production workloads
+- Fits development and small production workloads
 
 ### Cluster Mode
-- Distributed deployment
+- Distributed
 - Billions of vectors
 - Horizontal scaling
 - Production-grade high availability
 
 ### Zilliz Cloud (Managed)
 - Fully managed Milvus
-- Serverless options available
+- Serverless options
 - Auto-scaling
 - Built-in monitoring
 
@@ -81,15 +72,15 @@ Milvus is an open-source vector database designed for billion-scale vector simil
 ### Docker (Standalone)
 
 ```bash
-# Pull Milvus
-docker pull milvusdb/milvus:latest
+# Pull Milvus (pin versions, never :latest)
+docker pull milvusdb/milvus:v3.0.5
 
 # Run standalone
 docker run -d --name milvus \
-  -p 19530:19530 \
-  -p 9091:9091 \
+  -p 127.0.0.1:19530:19530 \
+  -p 127.0.0.1:9091:9091 \
   -v milvus_data:/var/lib/milvus \
-  milvusdb/milvus:latest
+  milvusdb/milvus:v3.0.5
 ```
 
 ### Docker Compose (with etcd, MinIO)
@@ -99,27 +90,27 @@ version: '3.5'
 
 services:
   etcd:
-    image: quay.io/coreos/etcd:latest
+    image: quay.io/coreos/etcd:v3.5.25  # etcd/minio tags from Milvus's official compose
     environment:
       - ETCD_AUTO_COMPACTION_MODE=revision
       - ETCD_AUTO_COMPACTION_RETENTION=1000
       - ETCD_QUOTA_BACKEND_BYTES=4294967296
 
   minio:
-    image: minio/minio:latest
-    environment:
+    image: milvusdb/minio:RELEASE.2024-12-18T13-15-44Z
+    environment:  # dev-only defaults; set real creds (and Milvus minio.accessKeyID/secretAccessKey) elsewhere
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     command: minio server /minio_data
 
   milvus:
-    image: milvusdb/milvus:latest
+    image: milvusdb/milvus:v3.0.5
     depends_on:
       - etcd
       - minio
-    ports:
-      - "19530:19530"
-      - "9091:9091"
+    ports:  # localhost only: auth is off by default
+      - "127.0.0.1:19530:19530"
+      - "127.0.0.1:9091:9091"
     volumes:
       - milvus_data:/var/lib/milvus
 ```
@@ -376,27 +367,10 @@ connections.connect(
 )
 ```
 
-## Use Cases
-
-### Billion-Scale Semantic Search
-- E-commerce product search (100M+ products)
-- Video similarity search (millions of videos)
-- Image search engines
-
-### Recommendation Systems
-- Content recommendations at Netflix scale
-- Product recommendations for large catalogs
-- User behavior-based recommendations
-
-### Anomaly Detection
-- Security threat detection across billions of events
-- Fraud detection in financial transactions
-- Network intrusion detection
-
 ## Production Checklist
 
-- [ ] Deploy in cluster mode for high availability
-- [ ] Configure resource limits (CPU, memory, GPU)
+- [ ] Deploy cluster mode for high availability
+- [ ] Set resource limits (CPU, memory, GPU)
 - [ ] Set up monitoring (Prometheus, Grafana)
 - [ ] Enable authentication and authorization
 - [ ] Configure backups (snapshots)

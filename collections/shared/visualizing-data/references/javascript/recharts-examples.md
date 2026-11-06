@@ -1,7 +1,5 @@
 # Recharts Examples (JavaScript/TypeScript)
 
-Working examples for common chart types using Recharts library.
-
 ## Installation
 
 ```bash
@@ -285,7 +283,7 @@ export function AccessibleSalesChart() {
 }
 ```
 
-**All Recharts chart types:** Explore Recharts documentation at https://recharts.org/
+**All Recharts chart types:** see Recharts documentation at https://recharts.org/
 
-For D3.js patterns, see `d3-patterns.md`.
-For Plotly examples, see `plotly-examples.md`.
+D3.js patterns: `d3-patterns.md`.
+Plotly examples: `plotly-examples.md`.

@@ -1,8 +1,5 @@
 # Table Selection Patterns
 
-Row selection, cell selection, and range selection patterns for data tables.
-
-
 ## Table of Contents
 
 - [Single Row Selection](#single-row-selection)
@@ -332,7 +329,7 @@ useEffect(() => {
 5. **Visual feedback** - Highlight selected rows
 6. **Keyboard support** - Arrow keys + Space/Enter
 7. **Persist selection** - Save across page loads (if appropriate)
-8. **Clear selection button** - Easy way to deselect all
+8. **Clear selection button** - Deselect all in one step
 9. **Selection count** - Show "X items selected"
 10. **Bulk actions** - Enable when items selected
 

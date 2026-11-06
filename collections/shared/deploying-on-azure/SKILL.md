@@ -5,29 +5,27 @@ description: "Select Azure services and reference architectures - App Service, C
 
 # Azure Patterns
 
-Design and implement Azure cloud architectures following Microsoft's Well-Architected Framework and best practices for service selection, cost optimization, and security.
-
 ## When to Use
 
-Use this skill when:
-- Designing new applications for Azure cloud
-- Selecting Azure compute services (Container Apps, AKS, Functions, App Service)
-- Architecting storage solutions (Blob Storage, Files, Cosmos DB)
+Use when:
+- Designing new Azure applications
+- Selecting compute services (Container Apps, AKS, Functions, App Service)
+- Designing storage (Blob Storage, Files, Cosmos DB)
 - Integrating Azure OpenAI or Cognitive Services
-- Implementing messaging patterns (Service Bus, Event Grid, Event Hubs)
-- Designing secure networks with Private Endpoints
-- Applying Azure governance and compliance policies
-- Optimizing Azure costs and performance
+- Building messaging (Service Bus, Event Grid, Event Hubs)
+- Securing networks with Private Endpoints
+- Applying governance and compliance policies
+- Optimizing cost and performance
 
 ## Core Concepts
 
 ### Service Selection Philosophy
 
-Azure offers 200+ services. Choose based on:
-1. **Managed vs. IaaS** - Prefer fully managed services (lower operational burden)
+Azure has 200+ services. Choose by:
+1. **Managed vs. IaaS** - Prefer fully managed services (less operational burden)
 2. **Cost Model** - Consumption vs. dedicated capacity
 3. **Integration Requirements** - Microsoft 365, Active Directory, hybrid cloud
-4. **Control vs. Simplicity** - More control = more operational overhead
+4. **Control vs. Simplicity** - More control, more operational overhead
 
 ### Azure Well-Architected Framework (Five Pillars)
 
@@ -35,11 +33,11 @@ Azure offers 200+ services. Choose based on:
 |--------|-------|---------------|
 | **Cost Optimization** | Maximize value within budget | Reserved Instances, auto-scaling, lifecycle management |
 | **Operational Excellence** | Run reliable systems | Azure Policy, automation, monitoring |
-| **Performance Efficiency** | Scale to meet demand | Autoscaling, caching, CDN |
+| **Performance Efficiency** | Scale with demand | Autoscaling, caching, CDN |
 | **Reliability** | Recover from failures | Availability Zones, multi-region, backup |
 | **Security** | Protect data and assets | Managed Identity, Private Endpoints, Key Vault |
 
-Reference `references/well-architected.md` for detailed pillar implementation patterns.
+See `references/well-architected.md` for per-pillar implementation patterns.
 
 ## Compute Service Selection
 
@@ -67,9 +65,9 @@ Container-based workload?
 | **App Service** | Web apps, simple APIs | Dedicated plans | Low |
 | **Virtual Machines** | Legacy apps, specialized software | VM-based | High |
 
-**Recommendation:** Start with Azure Container Apps for 80% of containerized workloads (simpler and cheaper than AKS).
+**Recommendation:** Start with Azure Container Apps for 80% of containerized workloads (simpler, cheaper than AKS).
 
-Reference `references/compute-services.md` for detailed comparison with Bicep and Terraform examples.
+See `references/compute-services.md` for full comparison with Bicep and Terraform examples.
 
 ## Storage Architecture
 
@@ -82,7 +80,7 @@ Reference `references/compute-services.md` for detailed comparison with Bicep an
 | **Cold** | <90 days access | $0.0045 | 90 days |
 | **Archive** | Rare access | $0.00099 | 180 days |
 
-**Pattern:** Use lifecycle management policies to automatically move data to lower-cost tiers.
+**Pattern:** Use lifecycle management policies to move data to lower-cost tiers automatically.
 
 ### Storage Service Decision
 
@@ -96,7 +94,9 @@ File system interface required?
        Analytics → Data Lake Storage Gen2
 ```
 
-Reference `references/storage-patterns.md` for lifecycle policies, redundancy options, and performance tuning.
+High-performance file storage (any protocol) → Azure NetApp Files.
+
+See `references/storage-patterns.md` for lifecycle policies, redundancy options, performance tuning.
 
 ## Database Service Selection
 
@@ -131,17 +131,17 @@ Relational data?
 | **Consistent Prefix** | Social feeds, IoT telemetry | Low | High |
 | **Eventual** | Analytics, ML training data | Lowest | Highest |
 
-Reference `references/database-selection.md` for capacity planning, indexing strategies, and migration patterns.
+See `references/database-selection.md` for capacity planning, indexing strategies, migration patterns.
 
 ## AI and Machine Learning Integration
 
 ### Azure OpenAI Service
 
 **Use Cases:**
-- Chatbots and conversational AI (GPT-4o-class and newer chat models)
-- Content generation and summarization
+- Chatbots, conversational AI (GPT-4o-class and newer chat models)
+- Content generation, summarization
 - Semantic search with embeddings (RAG pattern)
-- Code generation and completion
+- Code generation, completion
 - Function calling for structured outputs
 
 **Key Advantages:**
@@ -181,7 +181,7 @@ response = client.chat.completions.create(
 | **Azure Machine Learning** | Custom model training | MLOps, model deployment, feature engineering |
 | **Azure AI Search** | Semantic search engine | RAG patterns, document search |
 
-Reference `references/ai-integration.md` for RAG architecture, function calling, and fine-tuning patterns.
+See `references/ai-integration.md` for RAG architecture, function calling, fine-tuning patterns.
 
 ## Messaging and Integration
 
@@ -199,7 +199,7 @@ Reference `references/ai-integration.md` for RAG architecture, function calling,
 - **Event Grid:** React to Azure resource events (e.g., blob created, VM stopped)
 - **Event Hubs:** High-throughput streaming (e.g., IoT telemetry, application logs)
 
-Reference `references/messaging-patterns.md` for implementation examples, retry policies, and dead-letter handling.
+See `references/messaging-patterns.md` for implementation examples, retry policies, dead-letter handling.
 
 ## Networking Architecture
 
@@ -218,15 +218,10 @@ Reference `references/messaging-patterns.md` for implementation examples, retry 
 
 **Components:**
 - **Hub VNet:** Shared services (Azure Firewall, VPN Gateway, Private Endpoints)
-- **Spoke VNets:** Application workloads (isolated per environment or team)
+- **Spoke VNets:** Application workloads, isolated per environment or team
 - **VNet Peering:** Low-latency connectivity between hub and spokes
 
-**Benefits:**
-- Centralized security (firewall, DNS)
-- Cost optimization (shared egress)
-- Simplified governance
-
-Reference `references/networking-architecture.md` for hub-spoke Bicep templates, NSG patterns, and DNS configuration.
+See `references/networking-architecture.md` for hub-spoke Bicep templates, NSG patterns, DNS configuration.
 
 ## Identity and Access Management
 
@@ -261,13 +256,13 @@ keyvault_client = SecretClient(vault_url="...", credential=credential)
 
 ### Azure RBAC Best Practices
 
-- Use built-in roles when possible (Owner, Contributor, Reader)
-- Apply least privilege principle
+- Prefer built-in roles (Owner, Contributor, Reader)
+- Apply least privilege
 - Assign roles at resource group level (not subscription)
 - Use Azure AD groups for user management
 - Audit role assignments regularly
 
-Reference `references/identity-access.md` for Entra ID integration, Conditional Access policies, and B2C patterns.
+See `references/identity-access.md` for Entra ID integration, Conditional Access policies, B2C patterns.
 
 ## Governance and Compliance
 
@@ -304,7 +299,7 @@ Reference `references/identity-access.md` for Entra ID integration, Conditional 
 - Tag resources for cost allocation
 - Use FinOps Toolkit for Power BI dashboards
 
-Reference `references/governance-compliance.md` for Azure Landing Zones, Policy definitions, and Template Specs / Deployment Stacks (Azure Blueprints is deprecated).
+See `references/governance-compliance.md` for Azure Landing Zones, Policy definitions, Template Specs / Deployment Stacks (Azure Blueprints is deprecated).
 
 ## Infrastructure as Code
 
@@ -322,15 +317,17 @@ Reference `references/governance-compliance.md` for Azure Landing Zones, Policy 
 - Use **Terraform** for multi-cloud or existing Terraform shops
 - Use **Azure CLI** for quick scripts and CI/CD automation
 
+Azure CLI sends usage telemetry by default: run `export AZURE_CORE_COLLECT_TELEMETRY=false` (or `az config set core.collect_telemetry=false`) before any `az` command. Preview deployments with `az deployment ... what-if` and confirm with user before `create`.
+
 ### Bicep Best Practices
 
 - Use parameter files for environment-specific values
-- Leverage Azure Verified Modules (AVM) for tested patterns
+- Use Azure Verified Modules (AVM) for tested patterns
 - Organize by resource lifecycle (networking, data, compute)
 - Use symbolic names (not string interpolation)
-- Enable linting and validation in CI/CD
+- Lint and validate in CI/CD
 
-A Bicep example (Container Apps) is in `examples/bicep/container-apps/`.
+Bicep example (Container Apps): `examples/bicep/container-apps/`.
 
 ## Security Best Practices
 
@@ -354,7 +351,7 @@ A Bicep example (Container Apps) is in `examples/bicep/container-apps/`.
 4. **Data:** Encryption at rest, encryption in transit (TLS 1.2+)
 5. **Monitoring:** Microsoft Defender, Azure Monitor, Sentinel
 
-Reference `references/security-architecture.md` (see also the `security-hardening` and `architecting-security` skills).
+See `references/security-architecture.md` and the `security-hardening` and `architecting-security` skills.
 
 ## Cost Estimation
 
@@ -367,9 +364,6 @@ Reference `references/security-architecture.md` (see also the `security-hardenin
 - Functions Consumption: ~$0.20 per 1M executions
 
 **Storage:**
-- Blob Hot: $0.018/GB/month
-- Blob Cool: $0.010/GB/month
-- Blob Archive: $0.00099/GB/month
 - Managed Disks Premium SSD: $0.15/GB/month
 
 **Database:**
@@ -392,17 +386,6 @@ Reference `references/security-architecture.md` (see also the `security-hardenin
 | Batch processing, HPC | Azure Batch or VM Scale Sets |
 | Legacy application migration | Virtual Machines |
 
-### Storage Service Decision Matrix
-
-| If You Need... | Choose |
-|----------------|--------|
-| SMB file shares | Azure Files |
-| NFS file shares | Azure Files (NFS 4.1) |
-| Object storage (images, backups) | Blob Storage |
-| High-performance file storage | Azure NetApp Files |
-| Block storage for VMs | Managed Disks |
-| Big data analytics | Data Lake Storage Gen2 |
-
 ### Database Service Decision Matrix
 
 | If You Need... | Choose |
@@ -417,33 +400,17 @@ Reference `references/security-architecture.md` (see also the `security-hardenin
 
 ## Integration with Other Skills
 
-- **deploying-applications / pulumi-components:** Implement Azure patterns with OpenTofu/Terraform or Pulumi (Bicep examples live in this skill)
-- **operating-kubernetes:** AKS-specific configuration and operations
+- **deploying-applications / pulumi-components:** Azure patterns in OpenTofu/Terraform or Pulumi (Bicep examples live in this skill)
+- **operating-kubernetes:** AKS configuration and operations
 - **deploying-applications:** Container Apps and App Service deployment
 - **building-ci-pipelines:** Azure DevOps and GitHub Actions integration
 - **api-security-best-practices:** Entra ID authentication and authorization patterns
 - **observability-and-instrumentation:** Azure Monitor and Application Insights
 - **building-ai-chat:** Azure OpenAI Service for chat applications
 - **using-document-databases:** Cosmos DB implementation details
-- **hashicorp-vault:** Secret-management patterns (this skill covers Azure Key Vault itself) integration patterns
-
-## Reference Documentation
-
-For detailed implementation guidance, see:
-
-- **`references/compute-services.md`** - Container Apps, AKS, Functions, App Service with Bicep/Terraform
-- **`references/storage-patterns.md`** - Blob Storage, Files, Disks, lifecycle management
-- **`references/database-selection.md`** - SQL Database, Cosmos DB, PostgreSQL patterns
-- **`references/ai-integration.md`** - Azure OpenAI, RAG architecture, function calling
-- **`references/messaging-patterns.md`** - Service Bus, Event Grid, Event Hubs examples
-- **`references/networking-architecture.md`** - Hub-spoke, Private Endpoints, DNS configuration
-- **`references/identity-access.md`** - Entra ID, Managed Identity, RBAC
-- **`references/governance-compliance.md`** - Azure Policy, Landing Zones, cost optimization
-- **`references/well-architected.md`** - Five pillars implementation guide
+- **hashicorp-vault:** Secret-management integration patterns (this skill covers Azure Key Vault itself)
 
 ## Code Examples
-
-Working examples available in:
 
 - **`examples/bicep/container-apps/`** - Container Apps infrastructure template
 - **`examples/sdk/python/`** - Python SDK integration (OpenAI, Managed Identity, messaging)

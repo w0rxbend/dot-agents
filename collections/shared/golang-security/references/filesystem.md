@@ -1,10 +1,8 @@
 # Filesystem Security Rules
 
-Filesystem vulnerabilities can lead to unauthorized file access, data leakage, and denial-of-service attacks.
-
 **Rules:**
 
-1. User-controlled file paths MUST be confined to an allowed root.
+1. User-controlled file paths MUST stay inside an allowed root.
 2. `os.Root` SHOULD be used for scoped file access (Go 1.24+).
 3. Zip extraction MUST check for ZipSlip path traversal.
 4. Temporary files MUST use `os.CreateTemp` — NEVER predictable names.
@@ -26,7 +24,7 @@ Filesystem vulnerabilities can lead to unauthorized file access, data leakage, a
 
 ## Directory Traversal — High
 
-Paths like `../../etc/passwd` access files outside intended directory.
+Paths like `../../etc/passwd` reach files outside intended directory.
 
 **Bad:**
 
@@ -44,7 +42,7 @@ defer root.Close()
 f, err := root.Open(filename) // cannot escape root directory
 ```
 
-`os.Root` prevents ordinary path traversal at the OS level — all operations (`Open`, `Create`, `Stat`, `OpenFile`, etc.) are confined to the root directory, and symlinks that resolve outside the root are rejected. It is not a full sandbox: it does not by itself block bind mounts, special device files, or all `/proc`-style filesystem behavior. For archive extraction and uploads, still reject special files and choose a root without attacker-controlled mounts.
+`os.Root` blocks ordinary path traversal at OS level. All operations (`Open`, `Create`, `Stat`, `OpenFile`, etc.) stay inside root directory. Symlinks resolving outside root get rejected. Not a full sandbox: alone, it does not block bind mounts, special device files, or all `/proc`-style filesystem behavior. For archive extraction and uploads, still reject special files. Pick root without attacker-controlled mounts.
 
 **Good (pre-Go 1.24 fallback):**
 
@@ -68,7 +66,7 @@ func safeJoin(baseDir, userPath string) (string, error) {
 }
 ```
 
-This lexical fallback is not a full symlink-resistant substitute for `os.Root`.
+Lexical fallback is not a full symlink-resistant substitute for `os.Root`.
 
 **Bad:**
 
@@ -82,8 +80,6 @@ if !strings.HasPrefix(filepath.Clean(fullPath), filepath.Clean(baseDir)) {
 ---
 
 ## Zip Archive Path Traversal — High
-
-Malicious zip files can escape extraction directory.
 
 **Bad:**
 
@@ -172,8 +168,6 @@ if _, err := io.Copy(out, lr); err != nil {
 
 ## Insecure Temporary File Creation — Medium
 
-Creating temp files without proper permissions.
-
 **Bad:**
 
 ```go
@@ -193,8 +187,6 @@ f.Chmod(0600) // Restrictive permissions
 
 ## Insecure File Permissions — Medium
 
-Opening files with excessive permissions.
-
 **Bad:**
 
 ```go
@@ -210,8 +202,6 @@ f, _ := os.OpenFile("config.json", os.O_CREATE, 0600) // OK: Owner only
 ---
 
 ## Insecure mkdir — Low
-
-Creating directories with overly permissive permissions.
 
 **Bad:**
 
@@ -229,8 +219,6 @@ os.MkdirAll("/var/myapp/cache", 0750) // OK: Group-writable
 
 ## Insecure File Write Permissions — Medium
 
-Opening files for writing with inappropriate permissions.
-
 **Bad:**
 
 ```go
@@ -246,8 +234,6 @@ os.OpenFile("app.log", os.O_CREATE|os.O_APPEND, 0640) // OK
 ---
 
 ## Tainted File Read — High
-
-Reading files based on unvalidated input.
 
 **Bad:**
 

@@ -1,6 +1,6 @@
 # Selective execution with a valid baseline
 
-Mill's selective workflow snapshots task implementations and inputs, then finds tasks affected by changes. Use the same candidate selectors when preparing and evaluating:
+Mill's selective workflow snapshots task implementations and inputs, then finds tasks affected by changes. Use same candidate selectors to prepare and evaluate:
 
 ```sh
 ./mill selective.prepare '__.test'
@@ -9,16 +9,16 @@ Mill's selective workflow snapshots task implementations and inputs, then finds 
 ./mill selective.run '__.test'
 ```
 
-Do not prepare after the change and call the resulting empty selection proof that tests are unnecessary. In CI, establish the target branch/merge-base policy, check out that baseline, prepare the snapshot, then evaluate the PR revision in the same preserved output/snapshot context. Separate worktrees have separate `out/` directories unless deliberately configured; merely running prepare in one and run in another does not automatically transfer the baseline. Avoid changing a developer's dirty checkout to emulate this procedure; use an isolated checkout for revision switching.
+Do not prepare after change and call empty selection proof that tests are unnecessary. CI: set target branch/merge-base policy, check out baseline, prepare snapshot, evaluate PR revision in same preserved output/snapshot context. Separate worktrees have separate `out/` directories unless deliberately configured; running prepare in one and run in another does not transfer baseline automatically. Avoid changing developer's dirty checkout for this; switch revisions in isolated checkout.
 
-The baseline should be known and appropriate for the proposed change. If preparation fails, the snapshot is absent/stale, or the graph cannot be evaluated, fail clearly or use full candidate execution. Cache restore must not silently substitute a snapshot from an unrelated branch/toolchain. Preserve selector scope: preparing only application tests and later selecting other modules needs an explicit policy and validation.
+Baseline should be known and fit proposed change. If preparation fails, snapshot is absent/stale, or graph cannot be evaluated: fail clearly or run full candidate set. Cache restore must not silently substitute snapshot from unrelated branch/toolchain. Preserve selector scope: preparing only application tests, then selecting other modules, needs explicit policy and validation.
 
-Use `selective.resolveChanged` for changed input tasks and `selective.resolveTree` for their downstream selected tasks on versions supporting them. For the mixed-language template, a Kotlin implementation change should affect the Scala service test; the independent Java module should stay outside that path. Shared convention/compiler/BOM changes should invalidate all relevant consumers even when no source files changed. These are meaningful affectedness checks.
+On versions supporting them, inspect with `selective.resolveChanged` (changed input tasks) and `selective.resolveTree` (their downstream selected tasks). Meaningful affectedness checks: in mixed-language template, Kotlin implementation change should affect Scala service test; independent Java module should stay outside that path. Shared convention/compiler/BOM changes should invalidate all relevant consumers, even without source file changes.
 
-Task graph correctness is the foundation. Undeclared environment variables, mutable remote services, external clocks, filesystem reads outside source tasks, and test fixtures outside tracked inputs can cause selective execution to miss real behavior changes. `selectiveInputs` can deliberately refine command selection where documented, but overly narrow input lists hide dependencies. Avoid narrowing them just to make CI faster.
+Selective execution can miss real behavior changes from undeclared environment variables, mutable remote services, external clocks, filesystem reads outside source tasks, test fixtures outside tracked inputs. `selectiveInputs` can deliberately refine command selection where documented; overly narrow input lists hide dependencies. Do not narrow them for CI speed alone.
 
-Keep full test execution at suitable milestones or scheduled runs when tests depend on environment/runtime behavior beyond the graph. Commands such as tests normally execute when selected, so the selective snapshot determines which commands are invoked rather than converting tests into permanent cached results. Tests that never run due to a broken selector or zero framework discovery are not a performance improvement.
+Keep full test runs at milestones or on schedule when tests depend on environment/runtime behavior beyond graph. Selected commands such as tests normally execute: snapshot picks which commands run; tests do not become permanent cached results. Tests that never run (broken selector, zero framework discovery) are no performance win.
 
-Parallelism compounds resource demand: build jobs, test-fork groups, framework threads, databases, and containers are separate concurrency budgets. Give CI an explicit jobs limit suited to runner memory and isolate service ports/temp files. Retain test reports and selection diagnostics when execution fails.
+Parallelism compounds resource demand: build jobs, test-fork groups, framework threads, databases, containers are separate concurrency budgets. Set explicit CI jobs limit fitting runner memory. Isolate service ports/temp files. Keep test reports and selection diagnostics on failure.
 
 Sources: [selective execution](https://mill-build.org/mill/large/selective-execution.html), [stable selective execution](https://mill-build.org/mill/1.1.x/large/selective-execution.html), [CI setup](https://mill-build.org/mill/cli/installation-ide.html), [parallelism](https://mill-build.org/mill/depth/parallelism.html), [task inputs](https://mill-build.org/mill/fundamentals/tasks.html).

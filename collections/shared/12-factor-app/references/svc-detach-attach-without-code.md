@@ -7,11 +7,11 @@ tags: svc, resilience, migration, operations
 
 ## Design Services to Be Detachable and Attachable Without Code Changes
 
-A twelve-factor app can detach a backing service and attach a replacement without deploying new code. This capability is essential for disaster recovery, performance migrations, and operational flexibility.
+Detach a backing service and attach a replacement without deploying new code. Essential for disaster recovery, performance migrations, operational flexibility.
 
 **Scenario: Database failing due to hardware issues**
 
-**Incorrect (requires code changes to switch):**
+**Incorrect (switch requires code changes):**
 
 ```python
 # config.py
@@ -76,10 +76,5 @@ SMTP_URL="smtp://mail.internal:25"
 # After: SendGrid
 SMTP_URL="smtp://apikey:SG.xxx@smtp.sendgrid.net:587"
 ```
-
-**Benefits:**
-- Disaster recovery without emergency deploys
-- Migrate services during low-traffic windows via config change
-- A/B test different service providers
 
 Reference: [The Twelve-Factor App - Backing Services](https://12factor.net/backing-services)

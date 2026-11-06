@@ -1,7 +1,5 @@
 # Python Data Visualization (Future Implementation)
 
-This directory will contain Python-specific visualization guidance and examples.
-
 ## Planned Libraries
 
 **Primary:**
@@ -10,7 +8,7 @@ This directory will contain Python-specific visualization guidance and examples.
 - **Seaborn** - Statistical visualizations
 
 **Research When Needed:**
-Use `../../RESEARCH_GUIDE.md` to research Python visualization libraries.
+Research Python visualization libraries with `../../RESEARCH_GUIDE.md`.
 
 **Query Examples:**
 ```
@@ -32,4 +30,4 @@ Use `../../RESEARCH_GUIDE.md` to research Python visualization libraries.
 
 ---
 
-**To implement:** Follow universal patterns from `../selection-matrix.md` and apply with Python libraries.
+**To implement:** Apply universal patterns from `../selection-matrix.md` with Python libraries.

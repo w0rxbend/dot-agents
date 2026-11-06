@@ -1,7 +1,5 @@
 # Interactive Table Patterns
 
-Row selection, inline editing, expandable rows, and action buttons.
-
 
 ## Table of Contents
 
@@ -257,12 +255,10 @@ function TableWithBulkActions({ data }: { data: User[] }) {
 
 1. **Keyboard support** - Enter to select, Space to expand, Arrow keys to navigate
 2. **Visual feedback** - Highlight selected/hovered rows
-3. **Bulk actions** - Operate on multiple rows
-4. **Inline editing** - Edit cells without modal
-5. **Expandable details** - Collapse/expand additional info
-6. **Action confirmation** - Confirm destructive actions
-7. **Optimistic updates** - Update UI before server confirms
-8. **Error handling** - Rollback on failure
+3. **Inline editing** - Edit cells without modal
+4. **Action confirmation** - Confirm destructive actions
+5. **Optimistic updates** - Update UI before server confirms
+6. **Error handling** - Roll back on failure
 
 ## Resources
 

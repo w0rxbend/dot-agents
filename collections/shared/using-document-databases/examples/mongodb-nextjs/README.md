@@ -1,6 +1,6 @@
 # MongoDB + Next.js Example
 
-Full-stack Next.js 14 application with MongoDB, demonstrating CRUD operations, server components, and real-time updates.
+Full-stack Next.js 14 application with MongoDB, demonstrating CRUD operations, server components, and real-time updates. Demo only: API routes have no auth or ownership checks; add them before real use.
 
 ## Stack
 
@@ -52,6 +52,7 @@ cp .env.example .env
 # Set MONGODB_URI=mongodb://localhost:27017/myapp
 
 # Run
+export NEXT_TELEMETRY_DISABLED=1  # Next.js CLI telemetry is on by default
 npm run dev
 ```
 

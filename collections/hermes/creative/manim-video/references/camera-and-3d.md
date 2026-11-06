@@ -77,7 +77,7 @@ helix = ParametricFunction(
 
 ## ZoomedScene — Inset Zoom
 
-Show a magnified inset of a detail while keeping the full view visible:
+Shows magnified inset of a detail while full view stays visible:
 
 ```python
 class ZoomExample(ZoomedScene):
@@ -105,7 +105,7 @@ class ZoomExample(ZoomedScene):
         self.play(self.get_zoomed_display_pop_out_animation(), rate_func=lambda t: smooth(1-t))
 ```
 
-Use cases: zooming into a specific term in an equation, showing fine detail in a diagram, magnifying a region of a plot.
+Use cases: zoom into specific term in equation, show fine detail in diagram, magnify region of plot.
 
 ## LinearTransformationScene — Linear Algebra
 
@@ -132,4 +132,4 @@ class LinearTransformExample(LinearTransformationScene):
         self.wait(2)
 ```
 
-This produces the signature 3Blue1Brown "Essence of Linear Algebra" look — grid lines deforming, basis vectors stretching, determinant visualized through area change.
+Produces signature 3Blue1Brown "Essence of Linear Algebra" look: grid lines deform, basis vectors stretch, determinant shown through area change.

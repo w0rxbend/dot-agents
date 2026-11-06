@@ -1,92 +1,90 @@
 # Punctuation
 
-Entries about punctuation marks: periods, commas, colons, em-dashes, en-dashes, parentheses, quotation marks, apostrophes, brackets, slashes, ampersands.
-
 ## Entries
 
 ### ampersand
-Use the ampersand character (&) in text only when you refer to onscreen elements, document titles, or other items containing the character.
+Use ampersand (&) in text only for onscreen elements, document titles, or other items containing it.
 
 > Choose Insert > Date & Time.
 > To allow apps to use your camera, use Privacy & Security settings.
 
 ### and/or
-Rewrite to avoid this construction.
+Rewrite to avoid.
 
 > Correct: document and app icons
 > Avoid: document and/or app icons
 
 ### angle brackets
-Use *angle brackets*, not *brackets*, to describe the < and > symbols.
+Use *angle brackets*, not *brackets*, for < and > symbols.
 
-Use *left angle bracket* and *right angle bracket* when you need to distinguish between opening and closing angle brackets.
+To distinguish opening from closing, use *left angle bracket* and *right angle bracket*.
 
-You can also use *less-than sign* and *greater-than sign* for these symbols if appropriate in the context. See also [braces](#braces); [brackets](#brackets); [greater-than sign](#greater-than-sign); [less-than sign](#less-than-sign); [menus](ui-elements.md#menus).
+Also OK if context fits: *less-than sign* and *greater-than sign*. See also [braces](#braces); [brackets](#brackets); [greater-than sign](#greater-than-sign); [less-than sign](#less-than-sign); [menus](ui-elements.md#menus).
 
 ### apostrophes
-Use the curly apostrophe (Option-Shift-Right Bracket) except in code font and for units of measure. See also [plurals](#plurals); [possessives](#possessives); [quotation marks](#quotation-marks).
+Use curly apostrophe (Option-Shift-Right Bracket) except in code font and for units of measure. See also [plurals](#plurals); [possessives](#possessives); [quotation marks](#quotation-marks).
 
 ### backslash
-Use *backslash* to describe this character: \. See also [slash](#slash).
+Use *backslash* for this character: \. See also [slash](#slash).
 
 ### braces
-Use *braces*, not *curly brackets*, to describe these symbols: { }.
+Use *braces*, not *curly brackets*, for these symbols: { }.
 
-When you need to distinguish between the opening and closing braces, use *left brace* and *right brace*.
+To distinguish opening from closing, use *left brace* and *right brace*.
 
 ### brackets
-Use *brackets*, not *square brackets*, to describe these symbols: [ ]. Don't use *brackets* when you mean *angle brackets* (< >).
+Use *brackets*, not *square brackets*, for these symbols: [ ]. Don't use *brackets* when you mean *angle brackets* (< >).
 
-When you need to distinguish between the opening and closing brackets, use *left bracket* and *right bracket*.
+To distinguish opening from closing, use *left bracket* and *right bracket*.
 
 ### colons
-Follow these guidelines for using colons:
+Colon guidelines:
 
-- *In running text:* Capitalize the first word after the colon if the word begins a complete sentence (exception to *The Chicago Manual of Style*).
+- *In running text:* Capitalize first word after colon if it begins a complete sentence (exception to *The Chicago Manual of Style*).
 
 > There are two ways to raise or lower text in relation to adjacent text: You can make characters superscript or subscript, or you can adjust the baseline shift.
 > Ordinary video clips and image files have three channels of color information: red, green, and blue.
 
-- *In headings:* If you use a colon in a heading, capitalize the first word after the colon, regardless of its part of speech.
+- *In headings:* Capitalize first word after a colon, whatever its part of speech.
 
 > Setting up: A beginner's guide
 
-- *With lists:* Precede every list with a colon, whether the sentence before the colon is a complete thought or a partial thought (exception to *The Chicago Manual of Style*). See also [lists (bulleted)](#lists-bulleted).
+- *With lists:* Precede every list with a colon, whether preceding sentence is a complete or partial thought (exception to *The Chicago Manual of Style*). See also [lists (bulleted)](#lists-bulleted).
 
 ### commas
-Use a serial comma before *and* or *or* in a list of three or more items.
+Serial comma before *and* or *or* in lists of three or more items.
 
 > Correct: You can ask Siri to place phone calls, send text messages, send reminders, and more.
 > Incorrect: You can ask Siri to place phone calls, send text messages, send reminders and more.
 
 ### curly brackets
-Don't use *curly brackets* to describe these symbols: { }; use *braces*.
+Don't use *curly brackets* for these symbols: { }; use *braces*.
 
 ### dash (em)
-Use the em dash (—) to set off a word or phrase that interrupts or changes the direction of a sentence or to set off a lengthy list that would otherwise make the syntax of a sentence confusing. Don't overuse em dashes. If the text being set off doesn't come at the end of the sentence, use an em dash both before it and after it.
+Use em dash (—) to set off an interrupting or redirecting word or phrase, or a long list that would otherwise confuse syntax. Don't overuse. If set-off text isn't at sentence end, put em dash before and after it.
 
 > See all your schedules—work, school, and social life—in one app.
 
-To generate an em dash, press Option-Shift-Hyphen. Close up the em dash with the word before it and the word after it.
+Generate with Option-Shift-Hyphen. Close up with words on both sides.
 
 ### dash (en)
-The en dash (–) is shorter than an em dash and longer than a hyphen. Use the en dash as follows:
+En dash (–): shorter than em dash, longer than hyphen. Use for:
 
-- *Numbers in a range:* Use an en dash between numbers that represent the endpoints of a continuous range.
+- *Numbers in a range:* Between endpoints of a continuous range.
 
 > bits 3–17, 2003–2005
 
-- *Compound adjectives:* Use an en dash between the elements of a compound adjective when one of those elements is itself two words.
+- *Compound adjectives:* Between compound-adjective elements when one element is itself two words.
 
 > desktop interface–specific instructions
 > Grammy Award–winning producer
 > ex–Sun Studio tour guide
 
-- *Minus sign:* Use an en dash as a minus sign (except in code font, where you use a hyphen).
+- *Minus sign:* As minus sign (except in code font, which uses a hyphen).
 
 > –1, –65,535
 
-To generate an en dash, press Option-Hyphen. Close up the en dash with the word (or number) before it and the word (or number) after it.
+Generate with Option-Hyphen. Close up with word (or number) on both sides.
 
 See also [hyphenation](hyphenation-and-compounds.md#hyphenation).
 
@@ -94,9 +92,9 @@ See also [hyphenation](hyphenation-and-compounds.md#hyphenation).
 Not *division symbol*.
 
 ### ellipsis
-A set of three dots indicating a continuation or, in a quotation, the omission of one or more words. Use the ellipsis character (Option-Semicolon) to prevent line breaks from occurring between the dots. For more information about using ellipses, refer to *The Chicago Manual of Style*.
+Three dots marking continuation or, in a quotation, omitted words. Use ellipsis character (Option-Semicolon) to prevent line breaks between dots. More on ellipses: *The Chicago Manual of Style*.
 
-If the name of a menu item or button ends with an ellipsis, don't include the ellipsis in running text.
+If a menu item or button name ends with an ellipsis, don't include the ellipsis in running text.
 
 > Correct: Choose File > New and click a template.
 > Incorrect: Choose File > New… and click a template.
@@ -105,22 +103,22 @@ If the name of a menu item or button ends with an ellipsis, don't include the el
 Not *equal's sign*, *equals sign*, or *equal symbol*.
 
 ### exclamation points
-OK to use exclamation points occasionally in promotional text and dialogue. Avoid in documentation.
+OK occasionally in promotional text and dialogue. Avoid in documentation.
 
 ### greater-than sign
-Use *greater-than sign*, not *greater-than symbol*, to describe the > symbol. You can also use *right angle bracket* if appropriate in the context. See also [angle brackets](#angle-brackets).
+Use *greater-than sign*, not *greater-than symbol*, for > symbol. Also OK if context fits: *right angle bracket*. See also [angle brackets](#angle-brackets).
 
 ### less-than sign
-Use *less-than sign*, not *less-than symbol*, to describe the < symbol. You can also use *left angle bracket* if appropriate in the context. See also [angle brackets](#angle-brackets).
+Use *less-than sign*, not *less-than symbol*, for < symbol. Also OK if context fits: *left angle bracket*. See also [angle brackets](#angle-brackets).
 
 ### lists (bulleted)
-Use a bulleted list when you want to stress the parallelism of a number of options, elements, rules, or instructions that need not be presented or performed in a particular order.
+Use bulleted list to stress parallelism of options, elements, rules, or instructions that need not be presented or performed in particular order.
 
-- *Introductory punctuation:* Precede all lists with colons, whether the sentence before the colon is a complete thought or a partial thought (exception to *The Chicago Manual of Style*). See also [colons](#colons).
-- *Capitalization:* All list items should start with a capital letter unless the word is a product name that begins with a lowercase letter or, in developer materials, is a computer literal that begins with a lowercase letter.
-- *Punctuation within a list:* List items that are fragments or that complete the thought started by the main clause should not end with a period; list items that are complete sentences should end with a period.
-- *Parallelism:* Within a single list, all bulleted items should be parallel.
-- *A regular sentence broken into a list:* This type of list emphasizes the parts of a series. The syntax of the sentence is unbroken.
+- *Introductory punctuation:* Precede all lists with colons. See also [colons](#colons).
+- *Capitalization:* Capitalize first letter of every item, unless it's a lowercase product name or, in developer materials, a lowercase computer literal.
+- *Punctuation within a list:* No period after fragments or items completing main clause's thought. Period after complete sentences.
+- *Parallelism:* Keep all items in one list parallel.
+- *A regular sentence broken into a list:* Emphasizes parts of a series. Sentence syntax stays unbroken.
 
 > Using the Clock app, you can:
 > - Check on the time anywhere in the world
@@ -128,11 +126,11 @@ Use a bulleted list when you want to stress the parallelism of a number of optio
 > - Time an event
 > - Set a timer
 
-- *A simple list:* The main clause is an independent clause and each bulleted item is a sentence fragment.
-- *A complex list:* The main clause is an independent clause and each bulleted item is a complete sentence.
+- *A simple list:* Main clause independent; each item a sentence fragment.
+- *A complex list:* Main clause independent; each item a complete sentence.
 
 ### lists (numbered)
-Use a numbered list when you want to stress the sequential nature of steps, rules, or instructions. In numbered task lists (steps), each item should be a complete sentence. Use sentence-style capitalization for each item and end each item with closing punctuation.
+Use numbered list to stress sequence of steps, rules, or instructions. In numbered task lists (steps), each item is a complete sentence, with sentence-style capitalization and closing punctuation.
 
 > Reduce an image's file size:
 > 1. Choose Tools > Adjust Size.
@@ -140,15 +138,15 @@ Use a numbered list when you want to stress the sequential nature of steps, rule
 > 3. Enter a smaller value in the Resolution field.
 
 ### minus sign
-Use *minus sign*, not *minus symbol*, to describe this symbol: –. Use an en dash (generated by pressing Option-Hyphen) for a minus sign (except in code font, where a hyphen is used).
+Use *minus sign*, not *minus symbol*, for this symbol: –. Type it as en dash (Option-Hyphen), except in code font, which uses a hyphen.
 
 ### multiplication sign
 Not *multiplication symbol*.
 
 ### number sign
-Use to describe this character: #. Don't use *pound sign* or *number symbol*. Avoid using the number sign to specify an item in a numbered series.
+Use for this character: #. Don't use *pound sign* or *number symbol*. Avoid number sign to mark an item in a numbered series.
 
-You can frequently omit *number* or the number sign from a sentence and still make the meaning clear.
+Often you can omit *number* or the number sign and meaning stays clear.
 
 > See document 58677 for more information.
 > Use part 661-2262 to repair the computer.
@@ -160,38 +158,38 @@ Note different spelling of singular and plural. See also [punctuation](#punctuat
 See [ellipsis](#ellipsis).
 
 ### plurals
-Follow these guidelines for plurals:
+Plural guidelines:
 
-- *Acronyms and abbreviations:* To form the plural of an acronym or an abbreviation, add an *s* but no apostrophe.
+- *Acronyms and abbreviations:* Add *s*, no apostrophe.
 
 > CDs, DVDs
 
-- *Adjectives:* Don't add an *s* to an adjective unless necessary. For example, it's *electronic circuit* but *electronics engineer*. Other words that fall into this class of adjectives are *graphic* and *graphics*, *communication* and *communications*, *numeric* and *numerics*.
+- *Adjectives:* Don't add *s* to an adjective unless necessary. For example, *electronic circuit* but *electronics engineer*. Same class: *graphic* and *graphics*, *communication* and *communications*, *numeric* and *numerics*.
 
-- *Letters and symbols:* To form the plural of a letter or symbol, add an apostrophe and an *s*.
+- *Letters and symbols:* Add apostrophe and *s*.
 
 > p's, +'s
 
-- *Numbers:* Form the plural of numbers by adding an *s*.
+- *Numbers:* Add *s*.
 
 > 1s, 1930s
 
-- *Nouns:* Don't use *(s)* to indicate that a noun can be either singular or plural. To refer to both the singular and plural forms, spell them out; if possible, rewrite to avoid either construction.
+- *Nouns:* Don't use *(s)* to show a noun can be singular or plural. For both forms, spell them out; if possible, rewrite to avoid either construction.
 
 > Acceptable: initializing your disk or disks
 > Preferable: initializing disks
 > Incorrect: initializing your disk(s)
 
-- *Trademarked product names:* Form the plural of trademarked product names by adding the plural generic noun to the singular product name.
+- *Trademarked product names:* Add plural generic noun to singular product name.
 
 > Correct: Mac computers, MacBook Pro computers, iMac computers
 > Incorrect: Macs, MacBook Pros, iMacs
 
-If a product name includes a generic noun as well as a trademarked adjective, form the plural as you would with any noun.
+If product name includes a generic noun plus a trademarked adjective, pluralize like any noun.
 
 > AirPort Cards, AppleCare Service Parts Kits
 
-- *Words as words:* Form the plural of a word italicized to show that it's used as a word by adding an apostrophe and an *s*. Don't italicize the apostrophe or the *s*.
+- *Words as words:* For a word italicized to show it's used as a word, add apostrophe and *s*. Don't italicize the apostrophe or the *s*.
 
 > He had too many *and*'s in the sentence.
 
@@ -199,102 +197,102 @@ If a product name includes a generic noun as well as a trademarked adjective, fo
 Not *plus symbol*.
 
 ### possessives
-Follow these guidelines for possessives:
+Possessive guidelines:
 
-- *Singular nouns:* Form the possessive of a singular noun, including one that ends in *s*, by adding an apostrophe and an *s*.
+- *Singular nouns:* Add apostrophe and *s*, even when noun ends in *s*.
 
 > the device's dock connector
 > the boss's husband
 
-- *Plural nouns:* Form the possessive of a plural noun that ends in *s* by adding an apostrophe. Form the possessive of a plural noun that doesn't end in *s* by adding an apostrophe and an *s*.
+- *Plural nouns:* Ending in *s*: add apostrophe. Not ending in *s*: add apostrophe and *s*.
 
 > the students' curriculum
 > children's requirements
 
-- *Proper nouns or names:* Form the possessive of a singular proper noun or proper name, including one that ends in *s*, by adding an apostrophe and an *s*. Form the possessive of a plural proper noun or proper name by adding an apostrophe.
+- *Proper nouns or names:* Singular, even ending in *s*: add apostrophe and *s*. Plural: add apostrophe.
 
 > Susan Torres's biography [singular]
 > the Joneses' computer [plural]
 
-- *Product names:* Rewrite to avoid forming a possessive of any product name, trademarked or not (for example, don't use *Keynote's slides*). See also [trademarks (usage)](#trademarks-usage).
+- *Product names:* Rewrite to avoid possessive of any product name, trademarked or not (for example, don't use *Keynote's slides*). See also [trademarks (usage)](#trademarks-usage).
 
 ### punctuation
-Punctuation marks should be in the same type style and font as the main body text, except for punctuation that belongs to a title in a different font.
+Set punctuation in same type style and font as body text, except punctuation belonging to a title in a different font.
 
 > This address, called a *vector*, directs program control to a specified destination. [The second comma isn't italicized.]
 > See *What is Motion?* for more information. [The question mark is italicized.]
 
-Note the following:
+Notes:
 
-- *Punctuation in code font:* Punctuation following code font in running text should be in the font of the overall sentence, not in code font, unless the punctuation mark is part of what actually appears on the screen or in the code listing. Avoid punctuation after something the user should type. (The user may type the punctuation.)
-- *Parentheses, brackets, and quotation marks:* Parentheses, brackets, and quotation marks ("paired punctuation") should be in the same style as the body text. For example, the parentheses around an italicized word should be in plain style, not italics.
+- *Punctuation in code font:* In running text, punctuation after code font takes the sentence's font, not code font, unless the mark itself appears onscreen or in the code listing. Avoid punctuation after something user should type (user may type the punctuation).
+- *Parentheses, brackets, and quotation marks:* Set these ("paired punctuation") in body-text style. For example, parentheses around an italicized word are plain, not italic.
 
 > Read the manual (*iPhone User Guide*). [The parentheses aren't italicized.]
 
-- *Plurals:* When you form the plural of an italicized letter used as a letter, a number used as a number, or a word used as a word, don't use italics for the apostrophe or the *s*.
+- *Plurals:* For plural of an italicized letter used as a letter, number used as a number, or word used as a word, don't italicize the apostrophe or the *s*.
 
 > Enter a series of *D*'s. [The apostrophe and *s* aren't italicized.]
 
 See also [apostrophes](#apostrophes); [commas](#commas); [dash (em)](#dash-em); [dash (en)](#dash-en); [ellipsis](#ellipsis); [hyphenation](hyphenation-and-compounds.md#hyphenation); [quotation marks](#quotation-marks).
 
 ### quotation marks
-Use curly opening and closing quotation marks except in code font. Don't use single or double quotation marks for units of measure; use the prime symbol for feet (Option-Shift-E) and the double prime symbol for inches (Option-Shift-G).
+Use curly opening and closing quotation marks except in code font. Don't use single or double quotation marks for units of measure; use prime symbol for feet (Option-Shift-E) and double prime symbol for inches (Option-Shift-G).
 
-- *With periods and commas:* Put periods and commas within quotation marks. If necessary for clarity, periods and commas can go outside, as in AN$ = "1".
-- *With other punctuation:* Semicolons, colons, question marks, and exclamation points go outside quotation marks unless they're part of an actual quotation.
-- *Four-character identifiers:* When you give the name of four-character identifiers such as file types, use straight, single quotation marks in code font and place any punctuation outside the quotation marks.
+- *With periods and commas:* Put them inside quotation marks. If clarity requires, they can go outside, as in AN$ = "1".
+- *With other punctuation:* Semicolons, colons, question marks, and exclamation points go outside quotation marks unless part of an actual quotation.
+- *Four-character identifiers:* For names of four-character identifiers such as file types, use straight, single quotation marks in code font; put any punctuation outside them.
 
 > Examples of file types are 'TEXT', 'PICT', and 'APPL'.
 
 - *Terminology:* Use *quotation marks*, not *quote marks* or *quotes*. (*Quote* is a verb; *quotation* is a noun or an adjective.)
-- *Cross-references and quotations:* Cross-references to sections and chapter titles are traditionally set off in quotation marks (unless they are hyperlinks); follow your department's style. Use quotation marks for direct quotations.
-- *Onscreen messages:* Enclose quotations from the screen, such as alert messages, in quotation marks.
-- *Terms that stand for or define other terms:* Use italics, not quotation marks, for terms after *called, known as, labeled, named, termed,* and so on. Use plain style for onscreen elements whose names are in title-style capitalization.
+- *Cross-references and quotations:* Cross-references to section and chapter titles traditionally go in quotation marks (unless hyperlinks); follow your department's style. Use quotation marks for direct quotations.
+- *Onscreen messages:* Put quotations from the screen, such as alert messages, in quotation marks.
+- *Terms that stand for or define other terms:* Use italics, not quotation marks, for terms after *called, known as, labeled, named, termed,* and so on. Use plain style for onscreen elements with title-style names.
 
 > A folder called My Files appears.
 
-- *Text the user types:* Use quotation marks or code font to represent what the user actually types, depending on your department's style guidelines.
+- *Text the user types:* Use quotation marks or code font for what user types, per your department's style guidelines.
 
 > For example, type "dog" in the search field to find photos of dogs.
 > In the Title field, type Exchange Rate per $1.
 
-- *Sentence-style onscreen elements:* Use quotation marks for elements whose names use sentence-style capitalization.
+- *Sentence-style onscreen elements:* Use quotation marks for elements with sentence-style names.
 
 > Select the checkbox labeled "Keep lines together."
 > Search for "Apps for college."
 
-- *Title-style onscreen elements:* For title-style elements, use quotation marks only if there's a significant chance the name could be misread in context.
+- *Title-style onscreen elements:* Use quotation marks only if significant chance of misreading the name in context.
 
 > Tap Use as Wallpaper.
 > To store media outside the library, click the Media pop-up menu, choose "Choose," and then select a storage location.
 
-- *Smart quotation marks:* Most apps have an option called "smart" quotation marks, which automatically generates curly quotation marks (and apostrophes) as you type.
+- *Smart quotation marks:* Most apps have a "smart" quotation marks option that generates curly quotation marks (and apostrophes) as you type.
 
 See also *italics (n.), italic (adj.)*; [titles of works](#titles-of-works).
 
 ### slash
-Use *slash* to describe this character: /. See also [backslash](#backslash).
+Use *slash* for this character: /. See also [backslash](#backslash).
 
 ### titles of works
-Use italics for the titles of books, magazines, newspapers, manuals, movies, videos, plays, television shows, radio shows, podcast series, blogs, music albums, and works of art.
+Italicize titles of books, magazines, newspapers, manuals, movies, videos, plays, television shows, radio shows, podcast series, blogs, music albums, and works of art.
 
-Use plain text and quotation marks for the titles of works that are more limited in scope, such as articles, stories, reports, TV episodes, podcast episodes, sections of blogs, songs, chapters and sections of works, and photographs.
+Plain text and quotation marks for titles of narrower works, such as articles, stories, reports, TV episodes, podcast episodes, sections of blogs, songs, chapters and sections of works, and photographs.
 
 See also *disc titles*; *document titles*.
 
 ### trademarks (usage)
-Follow these guidelines for using trademarks in text:
+Trademark guidelines for text:
 
-- *Plural form:* Don't use a trademarked name in the plural form.
+- *Plural form:* Don't use a trademarked name in plural form.
 
 > Correct: If you have more than one Mac computer…
 > Incorrect: If you have several Macs…
 
-- *Possessive form:* Don't use a trademarked name in the possessive form.
+- *Possessive form:* Don't use a trademarked name in possessive form.
 
 > Correct: Learn more about the features of your MacBook Pro.
 > Incorrect: Learn more about your MacBook Pro's features.
 
-- *Multiple-word trademarks:* If a trademark is more than one word (for example, Apple TV, iPad Pro), don't break it across multiple lines of text. In many cases, you can use a nonbreaking space (Option-Space bar) to keep the name on one line.
+- *Multiple-word trademarks:* Don't break a multiword trademark (for example, Apple TV, iPad Pro) across lines. Often a nonbreaking space (Option-Space bar) keeps it on one line.
 
-- *Third-party trademarks:* For third-party trademarks, follow the usage guidelines posted on the Apple trademark list.
+- *Third-party trademarks:* Follow usage guidelines posted on the Apple trademark list.

@@ -2,7 +2,7 @@
 
 ## Packages
 
-Package names MUST be **lowercase, single-word**, with no underscores or MixedCaps. They should be short, concise, and evocative of their purpose. Numbers are allowed (`oauth2`, `k8s`).
+Package names MUST be **lowercase, single-word**: no underscores, no MixedCaps. Keep short and evocative of purpose. Numbers allowed (`oauth2`, `k8s`).
 
 ```go
 // Good
@@ -21,13 +21,13 @@ package base          // says nothing
 package model         // too vague
 ```
 
-NEVER use generic package names like `util`, `helper`, `common`, `base`, `model`. They fail to communicate purpose and cause import collisions. If you reach for `util`, the function probably belongs in a more specific package.
+NEVER use generic package names like `util`, `helper`, `common`, `base`, `model`. They hide purpose and cause import collisions. Reaching for `util`? Function probably belongs in more specific package.
 
-Package names SHOULD be **singular**, not plural — `net/url` not `net/urls`, `go/token` not `go/tokens`.
+Package names SHOULD be **singular**, not plural: `net/url` not `net/urls`, `go/token` not `go/tokens`.
 
 ### Directory vs Package Name
 
-Directory names SHOULD **match the package name** when possible. Multi-word directories use **hyphens**, but since package names cannot contain hyphens, the package drops them.
+Directory names SHOULD **match the package name** when possible. Multi-word directories use **hyphens**; package names cannot contain hyphens, so package drops them.
 
 ```
 // Good — directory matches package
@@ -50,18 +50,18 @@ UserService/       → package UserService   (no MixedCaps in directories)
 myPackage/         → package mypackage     (directory has caps, package doesn't)
 ```
 
-Special directories have Go toolchain meaning and don't follow normal naming:
+Special directories have Go toolchain meaning, don't follow normal naming:
 
 - `cmd/` — entry points, each subdirectory is `package main`
 - `internal/` — restricts import visibility to parent module
-- `testdata/` — ignored by the Go tool
+- `testdata/` — ignored by Go tool
 - `vendor/` — vendored dependencies
 
-Package names SHOULD NOT duplicate exported names — users see `bufio.Reader`, not `bufio.BufReader`. Think about the call site.
+Package names SHOULD NOT duplicate exported names: `bufio.Reader`, not `bufio.BufReader`.
 
 ## Files
 
-File names MUST be **lowercase** with words separated by **underscores**.
+File names MUST be **lowercase**, words separated by **underscores**.
 
 ```
 user_handler.go
@@ -76,7 +76,7 @@ Special suffixes:
 
 ## Import Aliasing
 
-Import aliases SHOULD only be used on name collision. When an alias is necessary, use a descriptive short name.
+Import aliases SHOULD only be used on name collision. Then use descriptive short name.
 
 ```go
 // Good — no alias needed

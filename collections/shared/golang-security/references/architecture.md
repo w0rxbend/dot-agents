@@ -1,7 +1,5 @@
 # Security Architecture Patterns
 
-Defense-in-depth, Zero Trust, and authentication patterns for Go services.
-
 ## Table of Contents
 
 - [Defense-in-Depth Layers](#defense-in-depth-layers)
@@ -15,7 +13,7 @@ Defense-in-depth, Zero Trust, and authentication patterns for Go services.
 
 ## Defense-in-Depth Layers
 
-Multiple security controls ensure that failure of one layer doesn't compromise the system:
+Layered controls; one failed layer doesn't compromise system:
 
 ```
 Layer 1: PERIMETER — Rate limiting, DDoS mitigation, WAF
@@ -46,7 +44,7 @@ func RateLimitMiddleware(rps float64, burst int) func(http.Handler) http.Handler
 }
 ```
 
-**Per-client rate limiting** prevents a single abuser from exhausting the global limit:
+**Per-client rate limiting** stops one abuser exhausting global limit:
 
 ```go
 type ClientRateLimiter struct {
@@ -103,7 +101,7 @@ func MaxBodySize(maxBytes int64) func(http.Handler) http.Handler {
 
 **Layer 4 — Encryption at Rest (AES-GCM):**
 
-Use `crypto/aes` with GCM mode for authenticated encryption. See [Cryptography Security](./cryptography.md) for full `EncryptAESGCM`/`DecryptAESGCM` implementations, algorithm selection guide, and envelope encryption for key rotation.
+Use `crypto/aes` GCM mode for authenticated encryption. Full `EncryptAESGCM`/`DecryptAESGCM`, algorithm selection, envelope encryption for key rotation: [Cryptography Security](./cryptography.md).
 
 ---
 
@@ -111,9 +109,9 @@ Use `crypto/aes` with GCM mode for authenticated encryption. See [Cryptography S
 
 | Principle | Implementation |
 | --- | --- |
-| Verify explicitly | Authenticate and authorize every request — no implicit trust from network location |
-| Least privilege | Grant minimum permissions; use short-lived tokens (15min access, 7d refresh) |
-| Assume breach | Segment services, encrypt all communication, log all access for anomaly detection |
+| Verify explicitly | Authenticate and authorize every request; network location grants no implicit trust |
+| Least privilege | Minimum permissions; short-lived tokens (15min access, 7d refresh) |
+| Assume breach | Segment services, encrypt all traffic, log all access for anomaly detection |
 
 ```go
 // Zero Trust middleware: verify identity + permissions on every request
@@ -157,7 +155,7 @@ func ZeroTrustMiddleware(next http.Handler) http.Handler {
 
 ### JWT Validation — Complete Example
 
-JWT validation must pin the signing algorithm to prevent algorithm confusion attacks (where an attacker switches RS256 to HS256 and signs with the public key):
+JWT validation MUST pin signing algorithm. Blocks algorithm confusion (attacker switches RS256 to HS256, signs with public key):
 
 ```go
 import "github.com/golang-jwt/jwt/v5"
@@ -185,7 +183,7 @@ func validateJWT(authHeader string) (*jwt.RegisteredClaims, error) {
 
 ### Password Hashing — Argon2id
 
-Argon2id is the recommended password hashing algorithm (memory-hard, resists GPU attacks). For algorithm comparison (bcrypt, scrypt, PBKDF2), see [Cryptography Security](./cryptography.md).
+Argon2id is recommended password hash (memory-hard, resists GPU attacks). Comparison with bcrypt, scrypt, PBKDF2: [Cryptography Security](./cryptography.md).
 
 ```go
 import "golang.org/x/crypto/argon2"
@@ -236,14 +234,14 @@ func SecurityHeadersMiddleware(next http.Handler) http.Handler {
 }
 ```
 
-| Header | Purpose | Recommended Value |
-| --- | --- | --- |
-| Content-Security-Policy | Prevents XSS by restricting resource sources | `default-src 'self'; script-src 'self'` |
-| X-Frame-Options | Prevents clickjacking via framing | `DENY` |
-| X-Content-Type-Options | Prevents MIME-type sniffing | `nosniff` |
-| Strict-Transport-Security | Forces HTTPS, prevents protocol downgrade | `max-age=31536000; includeSubDomains` |
-| Referrer-Policy | Controls referrer header leakage | `strict-origin-when-cross-origin` |
-| Permissions-Policy | Restricts browser features (camera, mic, geolocation) | `geolocation=(), microphone=(), camera=()` |
+| Header | Purpose |
+| --- | --- |
+| Content-Security-Policy | Restricts resource sources, blocks XSS |
+| X-Frame-Options | Blocks clickjacking via framing |
+| X-Content-Type-Options | Blocks MIME-type sniffing |
+| Strict-Transport-Security | Forces HTTPS, blocks protocol downgrade |
+| Referrer-Policy | Limits referrer header leakage |
+| Permissions-Policy | Restricts browser features (camera, mic, geolocation) |
 
 ---
 
@@ -251,12 +249,12 @@ func SecurityHeadersMiddleware(next http.Handler) http.Handler {
 
 | Anti-Pattern | Why It Fails | Go Fix |
 | --- | --- | --- |
-| Security through obscurity | Hidden admin URLs are discoverable via fuzzing, logs, or source code | Authentication + authorization on all endpoints |
+| Security through obscurity | Fuzzing, logs, or source code reveal hidden admin URLs | Authentication + authorization on all endpoints |
 | Trusting client headers | `X-Forwarded-For`, `X-Is-Admin` — clients forge any header | Server-side identity verification; trust proxy headers only from known load balancers |
-| Client-side authorization | JavaScript checks are trivially bypassed by any HTTP client | Server-side `if !user.HasRole("admin")` on every protected handler |
-| Shared secrets across environments | Staging breach → production compromise | Per-environment secrets via secret manager |
-| Catching and ignoring crypto errors | `_, _ = encrypt(data)` silently proceeds with unencrypted data | Always check error returns — fail closed, never open |
-| Rolling your own crypto | Custom encryption hasn't been analyzed by cryptographers | Use `crypto/aes` GCM, `golang.org/x/crypto/argon2` |
+| Client-side authorization | Any HTTP client skips JavaScript checks | Server-side `if !user.HasRole("admin")` on every protected handler |
+| Shared secrets across environments | Staging breach compromises production | Per-environment secrets via secret manager |
+| Catching and ignoring crypto errors | `_, _ = encrypt(data)` silently proceeds with unencrypted data | Check every error return; fail closed, never open |
+| Rolling your own crypto | Custom encryption lacks cryptographer review | Use `crypto/aes` GCM, `golang.org/x/crypto/argon2` |
 | Verbose error responses | Stack traces and DB errors reveal internals to attackers | Generic errors to clients (`http.Error(w, "Internal error", 500)`), detailed logs server-side |
 
 ```go

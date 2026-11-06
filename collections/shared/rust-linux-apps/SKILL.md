@@ -6,10 +6,10 @@ license: MIT
 
 # Rust Linux desktop and terminal applications
 
-Read Cargo.toml, the lockfile, rust-toolchain.toml when present, local instructions, CI, and packaging manifests before choosing libraries or commands. Match the existing edition, MSRV, features, native dependency train, and supported targets. Linux distribution packaging is part of the app contract; a static-looking CLI and a GTK desktop application need different runtime environments.
+Before choosing libraries or commands, read Cargo.toml, lockfile, rust-toolchain.toml when present, local instructions, CI, packaging manifests. Match existing edition, MSRV, features, native dependency train, supported targets. Linux distribution packaging is part of app contract. Static-looking CLI and GTK desktop app need different runtime environments.
 
-Read [desktop.md](references/desktop.md) for GTK/Relm4, resources, thread ownership, D-Bus secrets, and distribution. Read [terminal.md](references/terminal.md) for Ratatui/Crossterm input, cleanup, text width, bounded async work, and meaningful PTY coverage.
+Read [desktop.md](references/desktop.md) for GTK/Relm4, resources, thread ownership, D-Bus secrets, distribution. Read [terminal.md](references/terminal.md) for Ratatui/Crossterm input, cleanup, text width, bounded async work, meaningful PTY coverage.
 
-Keep domain calculations, config parsing, and policy testable outside the UI. Send background results through the application's existing messages or channels. Do not perform blocking network, keyring, disk, or terminal reads on the GTK main loop or an async executor thread that must remain responsive.
+Keep domain calculations, config parsing, policy testable outside UI. Send background results through app's existing messages or channels. No blocking network, keyring, disk or terminal reads on GTK main loop or on async executor thread that must stay responsive.
 
-Use the repository's actual test gates. A representative desktop gate is `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets --all-features --locked -- -D warnings`, and `cargo test --workspace --all-features --locked`; preserve repository-specific feature and target exclusions. Verify changed resources and packaging separately. State whether graphical, D-Bus, real-terminal, and live-service checks actually ran.
+Use repository's actual test gates. Typical desktop gate: `cargo fmt --all -- --check`, `cargo clippy --workspace --all-targets --all-features --locked -- -D warnings`, `cargo test --workspace --all-features --locked`. Keep repository-specific feature and target exclusions. Verify changed resources and packaging separately. Report whether graphical, D-Bus, real-terminal, live-service checks actually ran.

@@ -6,24 +6,22 @@
 
 | Symptom | Likely Cause | Fix |
 |---------|-------------|-----|
-| All black output | tonemap gamma too high or no effects rendering | Lower gamma to 0.5, check scene_fn returns non-zero canvas |
+| All black output | tonemap gamma too high, or no effects rendering | Lower gamma to 0.5, check scene_fn returns non-zero canvas |
 | Washed out / too bright | Linear brightness multiplier instead of tonemap | Replace `canvas * N` with `tonemap(canvas, gamma=0.75)` |
 | ffmpeg hangs mid-render | stderr=subprocess.PIPE deadlock | Redirect stderr to file |
 | "read-only" array error | broadcast_to view without .copy() | Add `.copy()` after broadcast_to |
 | PicklingError | Lambda or closure in SCENES table | Define all fx_* at module level |
 | Random dark holes in output | Font missing Unicode glyphs | Validate palettes at init |
 | Audio-visual desync | Frame timing accumulation | Use integer frame counter, compute t fresh each frame |
-| Single-color flat output | Hue field shape mismatch | Ensure h,s,v arrays all (rows,cols) before hsv2rgb |
-| Text unreadable over busy bg | No contrast between text and background | Use `apply_text_backdrop()` (composition.md) + `reverse_vignette` shader (shaders.md) |
-| Text garbled/mirrored | Kaleidoscope or mirror shader applied to text scene | **Never apply kaleidoscope, mirror_h/v/quad/diag to scenes with readable text** — radial folding destroys legibility. Apply these only to background layers or text-free scenes |
-
-Common bugs, gotchas, and platform-specific issues encountered during ASCII video development.
+| Single-color flat output | Hue field shape mismatch | Make h,s,v arrays all (rows,cols) before hsv2rgb |
+| Text unreadable over busy bg | No text/background contrast | Use `apply_text_backdrop()` (composition.md) + `reverse_vignette` shader (shaders.md) |
+| Text garbled/mirrored | Kaleidoscope or mirror shader on text scene | **Never apply kaleidoscope, mirror_h/v/quad/diag to scenes with readable text**. Radial folding destroys legibility. Use only on background layers or text-free scenes |
 
 ## NumPy Broadcasting
 
 ### The `broadcast_to().copy()` Trap
 
-Hue field generators often return arrays that are broadcast views — they have shape `(1, cols)` or `(rows, 1)` that numpy broadcasts to `(rows, cols)`. These views are **read-only**. If any downstream code tries to modify them in-place (e.g., `h %= 1.0`), numpy raises:
+Hue field generators often return broadcast views: shape `(1, cols)` or `(rows, 1)`, broadcast to `(rows, cols)`. Views are **read-only**. Downstream in-place edits (e.g., `h %= 1.0`) make numpy raise:
 
 ```
 ValueError: output array is read-only
@@ -35,11 +33,11 @@ ValueError: output array is read-only
 h = np.broadcast_to(h, (g.rows, g.cols)).copy()
 ```
 
-This is especially important in `_render_vf()` where hue arrays flow through `hsv2rgb()`.
+Matters most in `_render_vf()`: hue arrays flow through `hsv2rgb()`.
 
 ### The `+=` vs `+` Trap
 
-Broadcasting also fails with in-place operators when operand shapes don't match exactly:
+In-place operators also fail on mismatched operand shapes:
 
 ```python
 # FAILS if result is (rows,1) and operand is (rows, cols)
@@ -49,13 +47,13 @@ val += np.sin(g.cc * 0.02 + t * 0.3) * 0.5
 val = val + np.sin(g.cc * 0.02 + t * 0.3) * 0.5
 ```
 
-The `vf_plasma()` function had this bug. Use `+` instead of `+=` when mixing different-shaped arrays.
+Mixing array shapes: use `+`, not `+=`.
 
 ### Shape Mismatch in `hsv2rgb()`
 
-`hsv2rgb(h, s, v)` requires all three arrays to have identical shapes. If `h` is `(1, cols)` and `s` is `(rows, cols)`, the function crashes or produces wrong output.
+`hsv2rgb(h, s, v)` needs identical shapes for all three arrays. `h` `(1, cols)` with `s` `(rows, cols)` crashes or gives wrong output.
 
-**Fix**: Ensure all inputs are broadcast and copied to `(rows, cols)` before calling.
+**Fix**: Broadcast and copy all inputs to `(rows, cols)` first.
 
 ---
 
@@ -63,27 +61,27 @@ The `vf_plasma()` function had this bug. Use `+` instead of `+=` when mixing dif
 
 ### Overlay Crushes Dark Inputs
 
-`overlay(a, b) = 2*a*b` when `a < 0.5`. Two values of 0.12 produce `2 * 0.12 * 0.12 = 0.03`. The result is darker than either input.
+`overlay(a, b) = 2*a*b` when `a < 0.5`. Two 0.12 inputs give `2 * 0.12 * 0.12 = 0.03`, darker than either.
 
-**Impact**: If both layers are dark (which ASCII art usually is), overlay produces near-black output.
+**Impact**: Dark layers (typical ASCII art) give near-black output.
 
-**Fix**: Use `screen` for dark source material. Screen always brightens: `1 - (1-a)*(1-b)`.
+**Fix**: Use `screen` for dark sources. It always brightens: `1 - (1-a)*(1-b)`.
 
 ### Colordodge Division by Zero
 
-`colordodge(a, b) = a / (1 - b)`. When `b = 1.0` (pure white pixels), this divides by zero.
+`colordodge(a, b) = a / (1 - b)`. `b = 1.0` (pure white pixels) divides by zero.
 
-**Fix**: Add epsilon: `a / (1 - b + 1e-6)`. The implementation in `BLEND_MODES` should include this.
+**Fix**: Add epsilon: `a / (1 - b + 1e-6)`. `BLEND_MODES` should include this.
 
 ### Colorburn Division by Zero
 
-`colorburn(a, b) = 1 - (1-a) / b`. When `b = 0` (pure black pixels), this divides by zero.
+`colorburn(a, b) = 1 - (1-a) / b`. `b = 0` (pure black pixels) divides by zero.
 
 **Fix**: Add epsilon: `1 - (1-a) / (b + 1e-6)`.
 
 ### Multiply Always Darkens
 
-`multiply(a, b) = a * b`. Since both operands are [0,1], the result is always <= min(a,b). Never use multiply as a feedback blend mode — the frame goes black within a few frames.
+`multiply(a, b) = a * b`. Operands in [0,1], so result always <= min(a,b). Never use multiply for feedback blend: frame goes black within a few frames.
 
 **Fix**: Use `screen` for feedback, or `add` with low opacity.
 
@@ -93,7 +91,7 @@ The `vf_plasma()` function had this bug. Use `+` instead of `+=` when mixing dif
 
 ### Pickling Constraints
 
-`ProcessPoolExecutor` serializes function arguments via pickle. This constrains what you can pass to workers:
+`ProcessPoolExecutor` pickles function arguments, limiting what workers receive:
 
 | Can Pickle | Cannot Pickle |
 |-----------|---------------|
@@ -102,22 +100,22 @@ The `vf_plasma()` function had this bug. Use `+` instead of `+=` when mixing dif
 | Class instances (with `__reduce__`) | Instance methods |
 | Strings, numbers | File handles, sockets |
 
-**Impact**: All scene functions referenced in the SCENES table must be defined at module level with `def`. If you use a lambda or closure, you get:
+**Impact**: Every scene function in SCENES table must be module-level `def`. Lambda or closure gives:
 
 ```
 _pickle.PicklingError: Can't pickle <function <lambda> at 0x...>
 ```
 
-**Fix**: Define all scene functions at module top level. Lambdas used inside `_render_vf()` as val_fn/hue_fn are fine because they execute within the worker process — they're not pickled across process boundaries.
+**Fix**: Define all scene functions at module top level. Lambdas inside `_render_vf()` as val_fn/hue_fn are fine: they run inside the worker, never pickled across processes.
 
 ### macOS spawn vs Linux fork
 
-On macOS, `multiprocessing` defaults to `spawn` (full serialization). On Linux, it defaults to `fork` (copy-on-write). This means:
+macOS `multiprocessing` defaults to `spawn` (full serialization). Linux defaults to `fork` (copy-on-write):
 
-- **macOS**: Feature arrays are serialized per worker (~57KB for 30s video, but scales with duration). Each worker re-imports the entire module.
-- **Linux**: Feature arrays are shared via COW. Workers inherit the parent's memory.
+- **macOS**: Feature arrays serialized per worker (~57KB for 30s video, scales with duration). Each worker re-imports whole module.
+- **Linux**: Feature arrays shared via COW. Workers inherit parent memory.
 
-**Impact**: On macOS, module-level code (like `detect_hardware()`) runs in every worker process. If it has side effects (e.g., subprocess calls), those happen N+1 times.
+**Impact**: On macOS, module-level code (like `detect_hardware()`) runs in every worker. Side effects (e.g., subprocess calls) happen N+1 times.
 
 ### Per-Worker State Isolation
 
@@ -126,10 +124,10 @@ Each worker creates its own:
 - `FeedbackBuffer` (feedback doesn't cross scene boundaries)
 - Random seed (`random.seed(hash(seg_id) + 42)`)
 
-This means:
+So:
 - Particle state doesn't carry between scenes (expected)
 - Feedback trails reset at scene cuts (expected)
-- `np.random` state is NOT seeded by `random.seed()` — they use separate RNGs
+- `random.seed()` does NOT seed `np.random`: separate RNGs
 
 **Fix for deterministic noise**: Use `np.random.RandomState(seed)` explicitly:
 
@@ -144,12 +142,12 @@ noise = rng.random((rows, cols))
 
 ### Dark Scenes After Tonemap
 
-If a scene is still dark after tonemap, check:
+Scene still dark after tonemap? Check:
 
 1. **Gamma too high**: Lower gamma (0.5-0.6) for scenes with destructive post-processing
-2. **Shader destroying brightness**: Solarize, posterize, or contrast adjustments in the shader chain can undo tonemap's work. Move destructive shaders earlier in the chain, or increase gamma to compensate.
-3. **Feedback with multiply**: Multiply feedback darkens every frame. Switch to screen or add.
-4. **Overlay blend in scene**: If the scene function uses `blend_canvas(..., "overlay", ...)` with dark layers, switch to screen.
+2. **Shader destroying brightness**: Solarize, posterize or contrast in shader chain can undo tonemap. Move destructive shaders earlier, or raise gamma.
+3. **Feedback with multiply**: Darkens every frame. Switch to screen or add.
+4. **Overlay blend in scene**: Scene function uses `blend_canvas(..., "overlay", ...)` on dark layers? Switch to screen.
 
 ### Diagnostic: Test-Frame Brightness
 
@@ -158,24 +156,24 @@ python reel.py --test-frame 10.0
 # Output: Mean brightness: 44.3, max: 255
 ```
 
-If mean < 20, the scene needs attention. Common fixes:
-- Lower gamma in the SCENES entry
-- Change internal blend modes from overlay/multiply to screen/add
-- Increase value field multipliers (e.g., `vf_plasma(...) * 1.5`)
-- Check that the shader chain doesn't have an aggressive solarize or threshold
+Mean < 20 needs attention. Common fixes:
+- Lower gamma in SCENES entry
+- Switch internal blend modes from overlay/multiply to screen/add
+- Raise value field multipliers (e.g., `vf_plasma(...) * 1.5`)
+- Check shader chain for aggressive solarize or threshold
 
 ### v1 Brightness Pattern (Deprecated)
 
-The old pattern used a linear multiplier:
+Old pattern used linear multiplier:
 
 ```python
 # OLD — don't use
 canvas = np.clip(canvas.astype(np.float32) * 2.0, 0, 255).astype(np.uint8)
 ```
 
-This fails because:
-- Dark scenes (mean 8): `8 * 2.0 = 16` — still dark
-- Bright scenes (mean 130): `130 * 2.0 = 255` — clipped, lost detail
+Fails because:
+- Dark scenes (mean 8): `8 * 2.0 = 16`, still dark
+- Bright scenes (mean 130): `130 * 2.0 = 255`, clipped, lost detail
 
 Use `tonemap()` instead. See `composition.md` § Adaptive Tone Mapping.
 
@@ -185,14 +183,14 @@ Use `tonemap()` instead. See `composition.md` § Adaptive Tone Mapping.
 
 ### Pipe Deadlock
 
-The #1 production bug. If you use `stderr=subprocess.PIPE`:
+#1 production bug, from `stderr=subprocess.PIPE`:
 
 ```python
 # DEADLOCK — stderr buffer fills at 64KB, blocks ffmpeg, blocks your writes
 pipe = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
 ```
 
-**Fix**: Always redirect stderr to a file:
+**Fix**: Always redirect stderr to file:
 
 ```python
 stderr_fh = open(err_path, "w")
@@ -202,12 +200,12 @@ pipe = subprocess.Popen(cmd, stdin=subprocess.PIPE,
 
 ### Frame Count Mismatch
 
-If the number of frames written to the pipe doesn't match what ffmpeg expects (based on `-r` and duration), the output may have:
-- Missing frames at the end
-- Incorrect duration
+Frames written to pipe not matching ffmpeg's expectation (from `-r` and duration) can cause:
+- Missing frames at end
+- Wrong duration
 - Audio-video desync
 
-**Fix**: Calculate frame count explicitly: `n_frames = int(duration * FPS)`. Don't use `range(int(start*FPS), int(end*FPS))` without verifying the total matches.
+**Fix**: Compute frame count explicitly: `n_frames = int(duration * FPS)`. Don't use `range(int(start*FPS), int(end*FPS))` without verifying total matches.
 
 ### Concat Fails with "unsafe file name"
 
@@ -226,7 +224,7 @@ If the number of frames written to the pipe doesn't match what ffmpeg expects (b
 
 ### Cell Height (macOS Pillow)
 
-`textbbox()` and `getbbox()` return incorrect heights on some macOS Pillow versions. Use `getmetrics()`:
+`textbbox()` and `getbbox()` give wrong heights on some macOS Pillow versions. Use `getmetrics()`:
 
 ```python
 ascent, descent = font.getmetrics()
@@ -236,7 +234,7 @@ cell_height = ascent + descent  # correct
 
 ### Missing Unicode Glyphs
 
-Not all fonts render all Unicode characters. If a palette character isn't in the font, the glyph renders as a blank or tofu box, appearing as a dark hole in the output.
+Not all fonts cover all Unicode characters. Palette character missing from font renders blank or as tofu box: dark hole in output.
 
 **Fix**: Validate at init:
 
@@ -266,7 +264,7 @@ for c in all_chars:
 | Linux | `/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf` |
 | Windows | `C:\Windows\Fonts\consola.ttf` (Consolas) |
 
-Always probe multiple paths and fall back gracefully. See `architecture.md` § Font Selection.
+Always probe multiple paths, fall back gracefully. See `architecture.md` § Font Selection.
 
 ---
 
@@ -274,7 +272,7 @@ Always probe multiple paths and fall back gracefully. See `architecture.md` § F
 
 ### Slow Shaders
 
-Some shaders use Python loops and are very slow at 1080p:
+Some shaders use Python loops and run very slow at 1080p:
 
 | Shader | Issue | Fix |
 |--------|-------|-----|
@@ -284,11 +282,11 @@ Some shaders use Python loops and are very slow at 1080p:
 
 ### Render Time Scaling
 
-If render is taking much longer than expected:
-1. Check grid count — each extra grid adds ~100-150ms/frame for init
-2. Check particle count — cap at quality-appropriate limits
-3. Check shader count — each shader adds 2-25ms
-4. Check for accidental Python loops in effects (should be numpy only)
+Render much slower than expected? Check:
+1. Grid count: each extra grid adds ~100-150ms/frame for init
+2. Particle count: cap at quality-appropriate limits
+3. Shader count: each adds 2-25ms
+4. Accidental Python loops in effects (should be numpy only)
 
 ---
 
@@ -296,7 +294,7 @@ If render is taking much longer than expected:
 
 ### Using `r.S` vs the `S` Parameter
 
-The v2 scene protocol passes `S` (the state dict) as an explicit parameter. But `S` IS `r.S` — they're the same object. Both work:
+v2 scene protocol passes `S` (state dict) as explicit parameter. `S` IS `r.S`: same object. Both work:
 
 ```python
 def fx_scene(r, f, t, S):
@@ -304,21 +302,19 @@ def fx_scene(r, f, t, S):
     r.S["counter"] = r.S.get("counter", 0) + 1  # via renderer (also works)
 ```
 
-Use the `S` parameter for clarity. The explicit parameter makes it obvious that the function has persistent state.
-
 ### Forgetting to Handle Empty Feature Values
 
-Audio features default to 0.0 if the audio is silent. Use `.get()` with sensible defaults:
+Audio features default to 0.0 on silent audio. Use `.get()` with sensible defaults:
 
 ```python
 energy = f.get("bass", 0.3)  # default to 0.3, not 0
 ```
 
-If you default to 0, effects go blank during silence.
+Default 0 blanks effects during silence.
 
 ### Writing New Files Instead of Editing Existing State
 
-A common bug in particle systems: creating new arrays every frame instead of updating persistent state.
+Common particle-system bug: new arrays every frame instead of updating persistent state.
 
 ```python
 # WRONG — particles reset every frame
@@ -335,7 +331,7 @@ if "px" not in S:
 
 ### Not Clipping Value Fields
 
-Value fields should be [0, 1]. If they exceed this range, `val2char()` produces index errors:
+Value fields should be [0, 1]. Outside range, `val2char()` produces index errors:
 
 ```python
 # WRONG — vf_plasma() * 1.5 can exceed 1.0
@@ -345,18 +341,16 @@ val = vf_plasma(g, f, t, S) * 1.5
 val = np.clip(vf_plasma(g, f, t, S) * 1.5, 0, 1)
 ```
 
-The `_render_vf()` helper clips automatically, but if you're building custom scenes, clip explicitly.
+`_render_vf()` clips automatically. Custom scenes must clip explicitly.
 
 ## Brightness Best Practices
 
-- Dense animated backgrounds — never flat black, always fill the grid
+- Dense animated backgrounds: never flat black, always fill grid
 - Vignette minimum clamped to 0.15 (not 0.12)
-- Bloom threshold 130 (not 170) so more pixels contribute to glow
-- Use `screen` blend mode (not `overlay`) for dark ASCII layers — overlay squares dark values: `2 * 0.12 * 0.12 = 0.03`
-- FeedbackBuffer decay minimum 0.5 — below that, feedback disappears too fast to see
-- Value field floor: `vf * 0.8 + 0.05` ensures no cell is truly zero
+- Bloom threshold 130 (not 170): more pixels contribute to glow
+- FeedbackBuffer decay minimum 0.5: below that, feedback fades too fast to see
+- Value field floor: `vf * 0.8 + 0.05`, so no cell is truly zero
 - Per-scene gamma overrides: default 0.75, solarize 0.55, posterize 0.50, bright scenes 0.85
-- Test frames early: render single frames at key timestamps before committing to full render
 
 **Quick checklist before full render:**
 1. Render 3 test frames (start, middle, end)

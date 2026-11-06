@@ -1,6 +1,6 @@
 # Ideation Session Examples
 
-These examples demonstrate what good ideation sessions look like across different kinds of ideas. Study the rhythm, tone, and structure — not just the content. The skill should feel equally at home with a vague startup concept, a feature for an existing product, or a process improvement.
+Study rhythm, tone, and structure, not just content. Skill should feel equally at home with vague startup concept, feature for existing product, or process improvement.
 
 ---
 
@@ -223,16 +223,16 @@ The interesting tension: variations 1 and 5 fix the *output* problem (nothing ch
 
 1. **The restatement changes the frame.** "Help restaurants compete" becomes "retain existing customers." "Add real-time collaboration" becomes "let people work simultaneously without chaos." "Fix stale retros" becomes "fix the output layer."
 
-2. **Questions diagnose before prescribing.** Each question determines which *type* of problem this actually is. The retro example reveals the problem is action item follow-through, not meeting format — and that changes every variation.
+2. **Questions diagnose before prescribing.** Each question finds which *type* of problem this is. Retro example shows problem is action item follow-through, not meeting format. That changes every variation.
 
-3. **Variations have reasons.** Each one explains *why* it exists (what lens generated it), not just *what* it is. The label (Inversion, Simplification, etc.) teaches the user to think this way themselves.
+3. **Variations have reasons.** Each explains *why* it exists (which lens generated it), not just *what* it is. Label (Inversion, Simplification, etc.) teaches user to think this way.
 
-4. **The skill has opinions.** "I'd push you toward 1 or 3." "Variation 6 is worth sitting with." It tells you what it thinks matters and why — not just neutral options.
+4. **The skill has opinions.** "I'd push you toward 1 or 3." "Variation 6 is worth sitting with." It says what it thinks matters and why, not just neutral options.
 
-5. **Phase 2 is honest.** Ideas get called out for low differentiation or high complexity. The skill pushes back: "That instinct to include the 'necessary' thing is how products lose focus."
+5. **Phase 2 is honest.** Ideas get called out for low differentiation or high complexity. Skill pushes back: "That instinct to include the 'necessary' thing is how products lose focus."
 
-6. **The output is actionable.** The one-pager ends with things you can *do* (validate assumptions, build the MVP, try the experiment), not things to *think about*.
+6. **The output is actionable.** One-pager ends with things to *do* (validate assumptions, build MVP, try experiment), not things to *think about*.
 
-7. **The "Not Doing" list does real work.** It's specific and reasoned. Each item is something you might *want* to do but shouldn't yet.
+7. **The "Not Doing" list does real work.** Specific and reasoned. Each item is something you might *want* to do but shouldn't yet.
 
-8. **The skill adapts to context.** A codebase-aware example references actual architecture. A process idea generates zero-cost experiments instead of products. The framework stays the same but the output matches the domain.
+8. **The skill adapts to context.** Codebase-aware example references actual architecture. Process idea yields zero-cost experiments instead of products. Framework stays same; output matches domain.

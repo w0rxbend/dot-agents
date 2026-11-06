@@ -17,48 +17,48 @@
 
 ## README.md
 
-A LICENSE file MUST exist in every project. The README is the project's front page — make it simple, clear, and scannable. A copy-paste template with empty sections is available at [templates/README.md](../assets/templates/README.md).
+LICENSE file MUST exist in every project. README is project's front page: keep it simple, clear, scannable. Copy-paste template with empty sections: [templates/README.md](../assets/templates/README.md).
 
 ### Section Order
 
-Follow this exact order (all sections are in the template):
+Follow this exact order (all sections are in template):
 
 1. **Title** — project name as `# heading`
 2. **Badges** — shields.io pictograms (Go version, license, CI, coverage, Go Report Card)
-3. **Summary** — 1-2 sentences explaining what the project does
+3. **Summary** — 1-2 sentences on what project does
 4. **Demo** — code snippet (libraries), GIF/video (CLIs), or screenshot (web UIs)
 5. **Getting Started** — installation + minimal working example
-6. **Features / Specification** — the longest section, organized by feature area
+6. **Features / Specification** — longest section, organized by feature area
 7. **Contributing** — link to CONTRIBUTING.md or inline if very short
 8. **License** — license name + link
 
-The template includes commented-out sections for applications (binary download table, Docker, Homebrew) that you can uncomment as needed.
+Template includes commented-out sections for applications (binary download table, Docker, Homebrew). Uncomment as needed.
 
 ---
 
 ## CONTRIBUTING.md
 
-The goal: a new contributor should be able to clone the repo, make a change, and run the tests **in under 10 minutes**. If your project takes longer, add tooling to fix that.
+Goal: new contributor should be able to clone repo, make change, run tests **in under 10 minutes**.
 
-Copy the template from [templates/CONTRIBUTING.md](../assets/templates/CONTRIBUTING.md).
+Copy template from [templates/CONTRIBUTING.md](../assets/templates/CONTRIBUTING.md).
 
 ### The 10-Minute Rule
 
-If setup takes more than 10 minutes, add these improvements:
+If setup takes more than 10 minutes, add:
 
 | Problem | Solution |
 | --- | --- |
-| Complex build steps | Add a `Makefile` with `make build`, `make test`, `make lint` |
+| Complex build steps | Add `Makefile` with `make build`, `make test`, `make lint` |
 | External service dependencies | Add `docker-compose.yml` for local dev |
 | Inconsistent dev environments | Add `.devcontainer/` for VS Code devcontainers |
 | Slow test suite | Separate unit tests (fast) from integration tests (build tags) |
-| Missing documentation | Add `make help` that lists available targets |
+| Missing documentation | Add `make help` listing available targets |
 
 ---
 
 ## Changelog
 
-CHANGELOG MUST be updated for every release, tracking the notable changes it contains. Use [Keep a Changelog](https://keepachangelog.com/) format. Copy the template from [templates/CHANGELOG.md](../assets/templates/CHANGELOG.md).
+CHANGELOG MUST be updated for every release, tracking its notable changes. Use [Keep a Changelog](https://keepachangelog.com/) format. Copy template from [templates/CHANGELOG.md](../assets/templates/CHANGELOG.md).
 
 ### Format
 
@@ -95,22 +95,17 @@ CHANGELOG MUST be updated for every release, tracking the notable changes it con
 
 ### GitHub Releases as Alternative
 
-For simpler projects, GitHub Releases can replace a CHANGELOG file. GoReleaser auto-generates release notes from git commits.
+For simpler projects, GitHub Releases can replace CHANGELOG file. GoReleaser auto-generates release notes from git commits.
 
 ---
 
 ## Distribution
 
-**YOU MUST offer multiple installation paths** (binaries, containers, APT/Homebrew/... package managers, source). Because:
-
-- Each installation method eliminates friction for a different user segment
-- Users adopt tools that fit their workflow, not tools that force workflow changes
-- A single installation path is a hidden tax on adoption—DevOps engineers skip tools requiring npm, macOS developers skip tools without Homebrew
-- Tools users _want to_ use spread faster than tools users _have to_ accommodate
+**YOU MUST offer multiple installation paths** (binaries, containers, APT/Homebrew/... package managers, source).
 
 ### Dockerfile Best Practices
 
-Use multi-stage builds with a minimal final image:
+Use multi-stage builds with minimal final image:
 
 ```dockerfile
 # Build stage

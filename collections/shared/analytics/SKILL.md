@@ -11,44 +11,29 @@ license_source: https://github.com/coreyhaines31/marketingskills/blob/main/LICEN
 
 # Analytics Tracking
 
-Set up tracking that produces trustworthy, decision-ready data. Start from the decisions the data must inform and the instrumentation that already exists; do not propose another analytics service before auditing the current one.
+Set up tracking that yields trustworthy, decision-ready data. Start from decisions data must inform and from existing instrumentation. Do not propose another analytics service before auditing current one.
 
-For in-product analytics (activation funnels, cohort retention, North Star metric, PostHog capture and flags, A/B significance), read [references/product-analytics.md](references/product-analytics.md).
+In-product analytics (activation funnels, cohort retention, North Star metric, PostHog capture and flags, A/B significance): read [references/product-analytics.md](references/product-analytics.md).
 
 ## Initial Assessment
 
 **Check for product marketing context first:**
-If `.agents/product-marketing.md` exists (or `.claude/product-marketing.md`, or the legacy `product-marketing-context.md` filename, in older setups), read it before asking questions. Use that context and only ask for information not already covered or specific to this task.
+If `.agents/product-marketing.md` exists (or `.claude/product-marketing.md`, or legacy `product-marketing-context.md` filename in older setups), read it before asking questions. Use that context. Ask only for info it does not cover or info specific to this task.
 
 Before implementing tracking, understand:
 
-1. **Business Context** - What decisions will this data inform? What are key conversions?
-2. **Current State** - What tracking exists? What tools are in use?
-3. **Technical Context** - What's the tech stack? Any privacy/compliance requirements?
+1. **Business Context** - What decisions will data inform? Key conversions?
+2. **Current State** - What tracking exists? Which tools in use?
+3. **Technical Context** - Tech stack? Privacy/compliance requirements?
 
 ---
 
 ## Core Principles
 
 ### 1. Track for Decisions, Not Data
-- Every event should inform a decision
+- Every event informs a decision
 - Avoid vanity metrics
 - Quality > quantity of events
-
-### 2. Start with the Questions
-- What do you need to know?
-- What actions will you take based on this data?
-- Work backwards to what you need to track
-
-### 3. Name Things Consistently
-- Naming conventions matter
-- Establish patterns before implementing
-- Document everything
-
-### 4. Maintain Data Quality
-- Validate implementation
-- Monitor for issues
-- Clean data > more data
 
 ---
 
@@ -70,8 +55,6 @@ Event Name | Category | Properties | Trigger | Notes
 | System Events | Signup completed, purchase, subscription changed |
 | Custom Conversions | Goal completions, funnel stages |
 
-**For comprehensive event lists**: See [references/event-library.md](references/event-library.md)
-
 ---
 
 ## Event Naming Conventions
@@ -89,7 +72,7 @@ checkout_payment_completed
 ### Best Practices
 - Lowercase with underscores
 - Be specific: `cta_hero_clicked` vs. `button_clicked`
-- Include context in properties, not event name
+- Context in properties, not event name
 - Avoid spaces and special characters
 - Document decisions
 
@@ -115,7 +98,7 @@ checkout_payment_completed
 | purchase_completed | plan, value |
 | subscription_cancelled | reason |
 
-**For full event library by business type**: See [references/event-library.md](references/event-library.md)
+**Full event library by business type**: see [references/event-library.md](references/event-library.md)
 
 ---
 
@@ -131,8 +114,7 @@ checkout_payment_completed
 | Product | product_id, product_name, category, price |
 
 ### Best Practices
-- Use consistent property names
-- Include relevant context
+- Consistent property names
 - Don't duplicate automatic properties
 - Avoid PII in properties
 
@@ -142,17 +124,17 @@ checkout_payment_completed
 
 ### What qualifies as a conversion
 
-A conversion marks real value, completed intent and progress that is not undone by a reload: `signup_completed`, `purchase_completed`, `demo_booked`. Page views, button clicks and form starts are intent signals, not conversions.
+Conversion marks real value, completed intent and progress not undone by reload: `signup_completed`, `purchase_completed`, `demo_booked`. Page views, button clicks and form starts are intent signals, not conversions.
 
 ### Counting rules
 
-- Decide per conversion whether it counts once per session, once per user, or every occurrence, and write that in the tracking plan.
-- Use the same rule in every tool (GA4, ad platforms, product analytics, BI); mismatched rules are the most common source of "the numbers disagree".
+- Decide per conversion: once per session, once per user, or every occurrence. Write it in tracking plan.
+- Same rule in every tool (GA4, ad platforms, product analytics, BI). Mismatched rules are most common source of "the numbers disagree".
 - Give transactional conversions a deduplication key (order or transaction ID) so redirects, reloads and retries do not double-count.
-- Fire on confirmed success (server response, payment confirmation), not on the button click that started it.
+- Fire on confirmed success (server response, payment confirmation), not on initiating button click.
 - Document how refunds, cancellations and test transactions are excluded.
 
-**Worked example.** `purchase_completed` fires on both the payment redirect and a page reload. Use the paid transaction ID as the dedup key, fire only after payment success, and reconcile one transaction plus two reloads against the order database: expected one counted purchase, no card data, email or raw URL query in properties. Record source count, accepted events, rejected duplicates and unexplained differences for the same window. Test consent denied, consent granted and delayed backend confirmation separately; a `dataLayer.push` alone does not prove delivery.
+**Worked example.** `purchase_completed` fires on both payment redirect and page reload. Use paid transaction ID as dedup key. Fire only after payment success. Reconcile one transaction plus two reloads against order database. Expected: one counted purchase; no card data, email or raw URL query in properties. Record source count, accepted events, rejected duplicates and unexplained differences for same window. Test consent denied, consent granted and delayed backend confirmation separately. `dataLayer.push` alone does not prove delivery.
 
 ---
 
@@ -166,16 +148,7 @@ A conversion marks real value, completed intent and progress that is not undone 
 4. Configure custom events
 5. Mark conversion events as key events in Admin (GA4 renamed "conversions" to "key events" in 2024)
 
-### Custom Event Example
-
-```javascript
-gtag('event', 'signup_completed', {
-  'method': 'email',
-  'plan': 'free'
-});
-```
-
-**For detailed GA4 implementation**: See [references/ga4-implementation.md](references/ga4-implementation.md)
+**Detailed GA4 implementation (gtag.js custom event code)**: see [references/ga4-implementation.md](references/ga4-implementation.md)
 
 ---
 
@@ -199,7 +172,7 @@ dataLayer.push({
 });
 ```
 
-**For detailed GTM implementation**: See [references/gtm-implementation.md](references/gtm-implementation.md)
+**Detailed GTM implementation**: see [references/gtm-implementation.md](references/gtm-implementation.md)
 
 ---
 
@@ -217,8 +190,8 @@ dataLayer.push({
 
 ### Naming Conventions
 - Lowercase everything
-- Use underscores or hyphens consistently
-- Be specific but concise: `blog_footer_cta`, not `cta1`
+- Underscores or hyphens, used consistently
+- Specific but concise: `blog_footer_cta`, not `cta1`
 - Document all UTMs in a spreadsheet
 
 ---
@@ -235,8 +208,8 @@ dataLayer.push({
 
 ### Validation Checklist
 
-- [ ] Events firing on correct triggers
-- [ ] Property values populating correctly
+- [ ] Events fire on correct triggers
+- [ ] Property values populate correctly
 - [ ] No duplicate events
 - [ ] Works across browsers and mobile
 - [ ] Conversions recorded correctly
@@ -254,7 +227,7 @@ dataLayer.push({
 
 ## Measurement Readiness Review (optional rubric)
 
-When auditing an existing setup, score each area from evidence (event definitions, sample payloads, reconciliation against the source of truth). This is a review aid with no validated thresholds; leave an area "unknown" rather than guessing, and never let a high total override a failed reconciliation, duplicate purchases, missing exposures or a consent violation.
+When auditing existing setup, score each area from evidence (event definitions, sample payloads, reconciliation against source of truth). Review aid with no validated thresholds. Leave area "unknown" rather than guess. Never let high total override failed reconciliation, duplicate purchases, missing exposures or consent violation.
 
 | Area | Weight | Look for |
 |------|--------|----------|
@@ -265,7 +238,7 @@ When auditing an existing setup, score each area from evidence (event definition
 | Attribution and context | 10 | UTMs consistent; source context preserved; cross-domain/device handled where needed |
 | Governance | 10 | Plan documented; owner named; changes versioned and monitored |
 
-Rough reading of the total: 85+ usable for decisions if the evidence holds; 70-84 fix gaps before major decisions; 55-69 unreliable; below 55 do not act on the data. Report remediation in priority order of concrete defects, not by score.
+Rough reading of total: 85+ usable for decisions if evidence holds; 70-84 fix gaps before major decisions; 55-69 unreliable; below 55 do not act on data. Report remediation in priority order of concrete defects, not by score.
 
 ---
 
@@ -279,8 +252,8 @@ Rough reading of the total: 85+ usable for decisions if the evidence holds; 70-8
 
 ### Implementation
 - Use consent mode (wait for consent)
-- No IP-anonymization setting needed in GA4 (it never logs or stores IP addresses); in other tools, truncate or drop IPs
-- Only collect what you need
+- No IP-anonymization setting needed in GA4 (never logs or stores IP addresses). In other tools, truncate or drop IPs
+- Collect only what you need
 - Integrate with consent management platform
 
 ---
@@ -319,23 +292,19 @@ Rough reading of the total: 85+ usable for decisions if the evidence holds; 70-8
 
 ## Task-Specific Questions
 
-1. What tools are you using (GA4, Mixpanel, etc.)?
-2. What key actions do you want to track?
-3. What decisions will this data inform?
-4. Who implements - dev team or marketing?
-5. Are there privacy/consent requirements?
-6. What's already tracked?
+1. Which key actions to track?
+2. Who implements - dev team or marketing?
 
 ---
 
 ## Tools
 
-GA4 (web, Google ecosystem), Mixpanel and Amplitude (product analytics, cohorts), PostHog (open-source analytics, flags, session replay), Segment (event routing to several destinations). Prefer the tool already installed; check each SDK's current API in its official docs before writing code.
+GA4 (web, Google ecosystem), Mixpanel and Amplitude (product analytics, cohorts), PostHog (open-source analytics, flags, session replay), Segment (event routing to several destinations). Prefer tool already installed. Check each SDK's current API in its official docs before writing code.
 
 ## Done when
 
-- Every event in the plan names the decision it supports, its trigger and its properties
+- Every plan event names its decision, trigger and properties
 - Conversions have explicit counting and dedup rules, identical across tools
-- Events were observed in DebugView / GTM preview / the tool's live view with correct values, and consent-denied behavior was tested
-- Counts for at least one key conversion reconcile with the source of truth for the same window, with differences explained
+- Events observed in DebugView / GTM preview / tool's live view with correct values; consent-denied behavior tested
+- At least one key conversion's counts reconcile with source of truth for same window, differences explained
 - No PII or free text in event properties

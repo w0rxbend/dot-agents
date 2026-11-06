@@ -337,6 +337,8 @@ function EnhancedDropzone({ onFilesAdded, accept, maxSize }) {
 
 ### Comprehensive Validation
 
+Client checks are UX only: `file.type`, name and size are user-controlled and easy to fake. Server must re-validate type (magic bytes), size and authorization on upload (see `managing-media`).
+
 ```tsx
 interface FileValidationRules {
   accept?: Record<string, string[]>;
@@ -737,8 +739,10 @@ function PasteableDropzone({ onFilesAdded }) {
           const images = doc.querySelectorAll('img');
 
           for (const img of images) {
-            const response = await fetch(img.src);
+            // Pasted HTML is untrusted: no cookies, keep only images
+            const response = await fetch(img.src, { credentials: 'omit' });
             const blob = await response.blob();
+            if (!blob.type.startsWith('image/')) continue;
             const file = new File([blob], 'pasted-image.png', { type: blob.type });
             files.push(file);
           }

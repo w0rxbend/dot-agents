@@ -17,7 +17,7 @@ metadata:
 
 # Kubernetes Hardening
 
-Work in layers and verify each one. Apply changes in a non-production cluster first; `enforce` modes and default-deny policies break workloads that were relying on the gap.
+Work in layers; verify each. Apply changes in non-production cluster first. `enforce` modes and default-deny policies break workloads relying on the gap.
 
 ## 0. Inventory first (read-only)
 
@@ -30,11 +30,11 @@ kubectl auth can-i --list --as=system:serviceaccount:<ns>:default -n <ns>
 kubectl get pods -A -o jsonpath='{range .items[*]}{.metadata.namespace}/{.metadata.name}{"\t"}{.spec.containers[*].image}{"\n"}{end}' | grep -v '@sha256'
 ```
 
-Then run the scanners in section 9 to get a baseline.
+Then run section 9 scanners for baseline.
 
 ## 1. Pod Security Admission
 
-Label every workload namespace. Roll out with `warn`/`audit` first, then `enforce`.
+Label every workload namespace. Roll out `warn`/`audit` first, then `enforce`.
 
 ```yaml
 apiVersion: v1
@@ -54,7 +54,7 @@ metadata:
 kubectl label --dry-run=server --overwrite ns production pod-security.kubernetes.io/enforce=restricted
 ```
 
-Use `baseline` only for namespaces that genuinely need it (for example some CNI or monitoring agents), and keep `privileged` for system namespaces.
+Use `baseline` only for namespaces that need it (for example some CNI or monitoring agents). Keep `privileged` for system namespaces.
 
 ## 2. Workload securityContext
 
@@ -93,17 +93,17 @@ spec:
           emptyDir: {}
 ```
 
-Also avoid `hostNetwork`, `hostPID`, `hostIPC`, `hostPath` volumes and `privileged: true`; PSA `restricted` rejects most of these.
+Avoid `hostNetwork`, `hostPID`, `hostIPC`, `hostPath` volumes and `privileged: true`. PSA `restricted` rejects most of these.
 
 ## 3. Service accounts
 
 - One service account per workload; never grant permissions to `default`.
-- Set `automountServiceAccountToken: false` on the ServiceAccount or pod unless the pod calls the API. When it does, the projected token is short-lived and audience-bound; do not create legacy long-lived token Secrets.
-- For cloud APIs, use workload identity (EKS Pod Identity/IRSA, GKE Workload Identity, AKS Workload ID) instead of static keys in Secrets.
+- Set `automountServiceAccountToken: false` on ServiceAccount or pod unless pod calls the API. When it does, projected token is short-lived and audience-bound. Do not create legacy long-lived token Secrets.
+- For cloud APIs, use workload identity (EKS Pod Identity/IRSA, GKE Workload Identity, AKS Workload ID), not static keys in Secrets.
 
 ## 4. NetworkPolicy: default deny that keeps DNS
 
-NetworkPolicies only take effect if the CNI enforces them (Calico, Cilium, cloud-native policy engines); check before relying on them.
+NetworkPolicies take effect only if CNI enforces them (Calico, Cilium, cloud-native policy engines). Check before relying on them.
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -152,7 +152,7 @@ spec:
         - { protocol: TCP, port: 8080 }
 ```
 
-Without the DNS rule, a default-deny egress policy breaks every name lookup. Add explicit egress rules for databases, external APIs and the API server where needed.
+Without DNS rule, default-deny egress policy breaks every name lookup. Add explicit egress rules for databases, external APIs and API server where needed.
 
 ## 5. RBAC least privilege
 
@@ -179,19 +179,19 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ```
 
-Treat these as privilege-escalation paths and grant them only to cluster administrators:
+Treat these as privilege-escalation paths. Grant only to cluster administrators:
 
-| Grant | Why it is dangerous |
+| Grant | Why dangerous |
 |---|---|
 | `*` verbs or resources | Includes everything, now and in future API versions |
-| `escalate`, `bind` on roles | Lets a subject grant itself more permissions |
+| `escalate`, `bind` on roles | Subject can grant itself more permissions |
 | `impersonate` | Act as any user, group or service account |
 | `create` on `pods` / workloads | Can mount any service account token or hostPath in that namespace |
 | `get`/`list` on `secrets` | Reads every credential in scope |
 | `create` on `serviceaccounts/token` | Mints tokens for other identities |
 | `nodes/proxy`, `pods/exec`, `pods/attach` | Code execution on nodes or in pods |
 
-Audit with `kubectl auth can-i --list --as=<subject>` and a tool such as `rbac-tool` or `kubectl-who-can` if installed.
+Audit with `kubectl auth can-i --list --as=<subject>` plus a tool such as `rbac-tool` or `kubectl-who-can` if installed.
 
 ## 6. Admission policy
 
@@ -229,26 +229,26 @@ spec:
       matchLabels: { env: production }   # the Namespace in section 1 carries this label
 ```
 
-This example matches Deployments only; add StatefulSets, DaemonSets, Jobs and CronJobs (CronJob pods live under `spec.jobTemplate.spec.template`), or match `pods` directly so every workload kind is covered.
+Example matches Deployments only. Add StatefulSets, DaemonSets, Jobs and CronJobs (CronJob pods live under `spec.jobTemplate.spec.template`), or match `pods` directly to cover every workload kind.
 
-Kyverno or OPA Gatekeeper add mutation, generation and image-signature checks. Start in audit mode (`validationActions: ["Audit"]`, Kyverno `Audit`) and switch to deny after reviewing reports.
+Kyverno or OPA Gatekeeper add mutation, generation and image-signature checks. Start in audit mode (`validationActions: ["Audit"]`, Kyverno `Audit`). Switch to deny after reviewing reports.
 
 ## 7. Supply chain: digests and signatures
 
-- Deploy by digest; resolve it in CI from the image you built and tested.
-- Sign images in CI (for example `cosign sign --yes <image>@<digest>` with keyless OIDC) and verify at admission (Kyverno `verifyImages`, Sigstore policy-controller, or Connaisseur).
+- Deploy by digest. Resolve digest in CI from the image you built and tested.
+- Sign images in CI (for example `cosign sign --yes <image>@<digest>` with keyless OIDC). Verify at admission (Kyverno `verifyImages`, Sigstore policy-controller, or Connaisseur).
 - Verify manually: `cosign verify <image>@<digest> --certificate-identity-regexp '<repo workflow>' --certificate-oidc-issuer https://token.actions.githubusercontent.com`.
 - Scan images in CI and continuously in-cluster (see `dockerfile-optimise` rule `sec-scan-images`).
 
 ## 8. Secrets
 
-- Enable encryption at rest for Secrets: an `EncryptionConfiguration` with a KMS provider (self-managed), or the provider's envelope-encryption option (EKS/GKE/AKS). Re-encrypt existing Secrets after enabling it.
-- Prefer an external store synced in at runtime (External Secrets Operator, Secrets Store CSI Driver, Vault Agent; see `hashicorp-vault`) over Secrets committed to Git; if they must be in Git, encrypt them (Sealed Secrets, SOPS).
-- Restrict `get/list/watch` on `secrets` to the workloads that need specific names (`resourceNames`).
+- Enable encryption at rest for Secrets: `EncryptionConfiguration` with KMS provider (self-managed), or provider's envelope-encryption option (EKS/GKE/AKS). Re-encrypt existing Secrets after enabling.
+- Prefer external store synced in at runtime (External Secrets Operator, Secrets Store CSI Driver, Vault Agent; see `hashicorp-vault`) over Secrets committed to Git. If they must be in Git, encrypt them (Sealed Secrets, SOPS).
+- Restrict `get/list/watch` on `secrets` to workloads that need specific names (`resourceNames`).
 
 ## 9. Audit logging, scanning and runtime detection
 
-- **Audit policy** (self-managed API server: `--audit-policy-file`, `--audit-log-path`; managed clusters: enable control-plane audit logs in the provider). Minimal policy:
+- **Audit policy** (self-managed API server: `--audit-policy-file`, `--audit-log-path`; managed clusters: enable control-plane audit logs in provider). Minimal policy:
 
 ```yaml
 apiVersion: audit.k8s.io/v1
@@ -264,18 +264,18 @@ rules:
   - level: None
 ```
 
-- **CIS benchmark**: `kube-bench` (run as a Job on nodes; use the managed-service profile on EKS/GKE/AKS).
-- **Posture scan**: `kubescape scan` (NSA/CISA and MITRE frameworks) or `trivy k8s --report summary`.
-- **Runtime detection**: Falco (or Tetragon) for shells in containers, unexpected outbound connections, writes below `/etc`, and token reads; route alerts to on-call.
-- **Control plane and nodes**: keep the cluster on a supported minor version, restrict API server access (private endpoint or authorized networks), disable anonymous auth, restrict kubelet (`--anonymous-auth=false`, webhook authorization), and keep etcd unreachable from workloads with client TLS.
+- **CIS benchmark**: `kube-bench` (run as Job on nodes; use managed-service profile on EKS/GKE/AKS).
+- **Posture scan**: `KS_SKIP_UPDATE_CHECK=true kubescape scan` (NSA/CISA and MITRE frameworks) or `TRIVY_DISABLE_TELEMETRY=true TRIVY_SKIP_VERSION_CHECK=true trivy k8s --report summary`. Both send usage/cluster data (version, node count, install or cluster ID) home by default; keep these opt-outs wherever they run, CI too.
+- **Runtime detection**: Falco (or Tetragon) for shells in containers, unexpected outbound connections, writes below `/etc`, and token reads. Route alerts to on-call.
+- **Control plane and nodes**: keep cluster on supported minor version. Restrict API server access (private endpoint or authorized networks). Disable anonymous auth. Restrict kubelet (`--anonymous-auth=false`, webhook authorization). Keep etcd unreachable from workloads with client TLS.
 
 ## Done when
 
 - Every workload namespace enforces PSA `restricted` (or has a documented `baseline` exception).
-- Each namespace has default-deny ingress and egress plus explicit allows, and DNS still resolves (`kubectl exec <pod> -- getent hosts kubernetes.default`).
-- No non-admin subject holds the escalation grants above; workloads use dedicated service accounts with tokens mounted only where needed.
-- Production admission rejects unpinned or unsigned images (test with a deliberately bad Deployment).
-- Secrets are encrypted at rest, audit logs are flowing, and kube-bench/kubescape findings are triaged with owners.
+- Each namespace has default-deny ingress and egress plus explicit allows. DNS still resolves (`kubectl exec <pod> -- getent hosts kubernetes.default`).
+- No non-admin subject holds escalation grants above. Workloads use dedicated service accounts with tokens mounted only where needed.
+- Production admission rejects unpinned or unsigned images (test with deliberately bad Deployment).
+- Secrets encrypted at rest. Audit logs flowing. kube-bench/kubescape findings triaged with owners.
 
 ## Related skills
 

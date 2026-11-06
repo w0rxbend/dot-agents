@@ -1,3 +1,4 @@
+# Demo only: http events are public. Add an authorizer (Cognito/JWT/IAM) to each before real use.
 service: dynamodb-api
 
 provider:

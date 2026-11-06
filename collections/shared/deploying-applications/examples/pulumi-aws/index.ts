@@ -30,7 +30,8 @@ const logGroup = new aws.cloudwatch.LogGroup("app-logs", {
     retentionInDays: 7,
 });
 
-// Application Load Balancer
+// Application Load Balancer (HTTP only for demo; production: add HTTPS listener with ACM
+// certificate and redirect HTTP to HTTPS)
 const alb = new awsx.lb.ApplicationLoadBalancer("app-alb", {
     subnetIds: vpc.publicSubnetIds,
     defaultTargetGroup: {
@@ -63,6 +64,26 @@ const executionRole = new aws.iam.Role("task-execution-role", {
 new aws.iam.RolePolicyAttachment("task-execution-policy", {
     role: executionRole.name,
     policyArn: "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
+});
+
+// DB password in Secrets Manager; task definition holds only its ARN
+const dbSecret = new aws.secretsmanager.Secret("db-password");
+const dbSecretVersion = new aws.secretsmanager.SecretVersion("db-password-version", {
+    secretId: dbSecret.id,
+    secretString: dbPassword,
+});
+
+// Execution role may read only this secret
+new aws.iam.RolePolicy("task-execution-secrets", {
+    role: executionRole.id,
+    policy: dbSecret.arn.apply(arn => JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [{
+            Effect: "Allow",
+            Action: "secretsmanager:GetSecretValue",
+            Resource: arn,
+        }],
+    })),
 });
 
 // Fargate Task Role (for application permissions)
@@ -114,7 +135,7 @@ const service = new awsx.ecs.FargateService("app-service", {
             secrets: [
                 {
                     name: "DATABASE_PASSWORD",
-                    valueFrom: dbPassword,
+                    valueFrom: dbSecretVersion.arn, // ARN, never the plaintext value
                 },
             ],
             logConfiguration: {

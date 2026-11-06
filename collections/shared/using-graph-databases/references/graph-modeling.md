@@ -6,7 +6,6 @@
 - [Core Principles](#core-principles)
   - [1. Relationships Are First-Class Citizens](#1-relationships-are-first-class-citizens)
   - [2. Model for Query Patterns](#2-model-for-query-patterns)
-  - [3. Denormalize for Performance](#3-denormalize-for-performance)
 - [Node Design](#node-design)
   - [Labels](#labels)
   - [Properties](#properties)
@@ -50,7 +49,7 @@
 
 ### 1. Relationships Are First-Class Citizens
 
-Unlike relational databases where relationships are implied through foreign keys, graph databases make relationships explicit and queryable.
+Relational databases imply relationships through foreign keys. Graph databases make relationships explicit and queryable.
 
 **Relational Model** (relationships hidden in foreign keys):
 ```sql
@@ -58,34 +57,22 @@ CREATE TABLE users (id, name, email);
 CREATE TABLE friendships (user_id, friend_id, since);
 ```
 
-**Graph Model** (relationships are explicit):
+**Graph Model** (relationships explicit):
 ```cypher
 (:User {id, name, email})-[:FRIEND {since}]->(:User)
 ```
 
 ### 2. Model for Query Patterns
 
-Design your graph schema based on how you'll query it, not just the entity relationships.
+Design graph schema around how you'll query it, not just entity relationships.
 
-**Example**: If you frequently ask "Who works with Alice?", create direct `COLLEAGUE` relationships instead of traversing through `WORKS_AT` to `COMPANY` and back.
-
-### 3. Denormalize for Performance
-
-Graph databases benefit from denormalization. Duplicate data to avoid expensive traversals.
-
-```cypher
-// Instead of traversing to get user's company name every time
-(u:User)-[:WORKS_AT]->(c:Company {name: 'Acme'})
-
-// Consider denormalizing if frequently accessed
-(u:User {company_name: 'Acme'})-[:WORKS_AT]->(c:Company {name: 'Acme'})
-```
+**Example**: if you often ask "Who works with Alice?", create direct `COLLEAGUE` relationships instead of traversing `WORKS_AT` to `COMPANY` and back.
 
 ## Node Design
 
 ### Labels
 
-Use labels to categorize nodes. A node can have multiple labels.
+Use labels to categorize nodes. Node can have multiple labels.
 
 ```cypher
 // Single label
@@ -96,7 +83,7 @@ Use labels to categorize nodes. A node can have multiple labels.
 (:Content:Video:Tutorial {title: 'Intro to Graphs'})
 ```
 
-**Best Practice**: Use labels for types you'll filter by frequently.
+**Best Practice**: use labels for types you filter by often.
 
 ```cypher
 // Efficient with label
@@ -111,7 +98,7 @@ RETURN count(u)
 
 ### Properties
 
-Store attributes that don't need to be queryable separately as properties.
+Store attributes that don't need separate querying as properties.
 
 ```cypher
 (:User {
@@ -131,11 +118,6 @@ Store attributes that don't need to be queryable separately as properties.
 - Date, DateTime, Duration
 - Point (geospatial)
 - Lists of above types
-
-**Best Practice**: Index properties you'll filter by:
-```cypher
-CREATE INDEX user_email FOR (u:User) ON (u.email);
-```
 
 ## Relationship Design
 
@@ -158,7 +140,7 @@ Use descriptive, verb-based relationship types.
 
 ### Relationship Direction
 
-Choose direction based on query patterns.
+Choose direction from query patterns.
 
 ```cypher
 // If you ask "Who does Alice manage?"
@@ -174,7 +156,7 @@ Choose direction based on query patterns.
 
 ### Relationship Properties
 
-Store metadata about relationships as properties.
+Store relationship metadata as properties.
 
 ```cypher
 (:User)-[:FRIEND {
@@ -207,11 +189,11 @@ Store metadata about relationships as properties.
 (:User {name: 'Alice'})-[:FRIEND]->(:User {id: 'u3'})
 ```
 
-**Why**: Relationships are indexed and traversable. Arrays require loading the entire node.
+**Why**: relationships are indexed and traversable. Arrays require loading entire node.
 
 ### Anti-Pattern 2: Supernodes
 
-**Problem**: Nodes with thousands of relationships slow down traversals.
+**Problem**: nodes with thousands of relationships slow traversals.
 
 ```cypher
 // BAD: User connected to 1M posts
@@ -233,7 +215,7 @@ Store metadata about relationships as properties.
 
 ### Anti-Pattern 3: Dense Nodes Without Indexes
 
-**Problem**: Querying node properties without indexes on large graphs.
+**Problem**: querying node properties without indexes on large graphs.
 
 ```cypher
 // SLOW: Full scan
@@ -253,7 +235,7 @@ RETURN u
 
 ### Anti-Pattern 4: Unbounded Traversals
 
-**Problem**: Variable-length paths without depth limits.
+**Problem**: variable-length paths without depth limits.
 
 ```cypher
 // BAD: Can traverse entire graph
@@ -261,7 +243,7 @@ MATCH (a:User {name: 'Alice'})-[:FRIEND*]->(distant)
 RETURN distant
 ```
 
-**Solution**: Bound the depth
+**Solution**: Bound depth
 ```cypher
 // GOOD: Limited to 4 hops
 MATCH (a:User {name: 'Alice'})-[:FRIEND*1..4]->(distant)
@@ -286,11 +268,11 @@ Central entity with many relationships to different types.
 (:User)-[:HAS_PAYMENT_METHOD]->(:PaymentMethod)
 ```
 
-**Use when**: Central entity has many different relationships.
+**Use when**: central entity has many different relationships.
 
 ### Pattern 2: Hierarchical Schema (Trees)
 
-Parent-child relationships forming a tree.
+Parent-child relationships forming tree.
 
 ```cypher
 // Organizational hierarchy
@@ -334,7 +316,7 @@ ORDER BY subsequent.timestamp
 
 ### Pattern 4: Many-to-Many with Junction Nodes
 
-Complex many-to-many with additional attributes.
+Complex many-to-many with extra attributes.
 
 ```cypher
 // Student enrollment with grades
@@ -481,7 +463,7 @@ RETURN u.name, u.friend_count
 ORDER BY u.friend_count DESC
 ```
 
-**Update strategy**: Batch update periodically or trigger on changes.
+**Update strategy**: batch update periodically or trigger on changes.
 
 ### Strategy 2: Shortcut Relationships
 
@@ -509,7 +491,7 @@ RETURN m.name
 (:User {name: 'Alice', company_name: 'Acme'})-[:WORKS_AT]->(:Company {name: 'Acme'})
 ```
 
-**Trade-off**: Faster reads, but need to update duplicates when source changes.
+**Trade-off**: faster reads, but duplicates need updating when source changes.
 
 ## Indexing Strategy
 
@@ -541,7 +523,7 @@ RETURN u
 
 ### Full-Text Indexes
 
-For text search queries.
+For text search.
 
 ```cypher
 CREATE FULLTEXT INDEX product_search FOR (p:Product) ON EACH [p.name, p.description];
@@ -583,7 +565,7 @@ comments (id, post_id, user_id, text)
 1. **Identify entities** → Nodes
 2. **Identify relationships** → Edges
 3. **Foreign keys** → Relationships
-4. **Junction tables** → Either relationships with properties OR intermediate nodes
+4. **Junction tables** → relationships with properties OR intermediate nodes
 5. **Attributes** → Properties
 
 ```python

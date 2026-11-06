@@ -1,6 +1,6 @@
 # pprof Reference
 
-`go tool pprof` is the primary tool for understanding where CPU time, memory, and contention go in Go programs. This file covers how to **use** the CLI and **interpret** the output. For enabling pprof endpoints on running services (net/http/pprof import, authentication, security), → See `samber/cc-skills-golang@golang-troubleshooting` skill.
+This file covers how to **use** the `go tool pprof` CLI and **interpret** output. For enabling pprof endpoints on running services (net/http/pprof import, authentication, security), → See `samber/cc-skills-golang@golang-troubleshooting` skill.
 
 ## Table of Contents
 
@@ -51,39 +51,40 @@
   - [`runtime.mallocgc` dominates CPU profile](#runtimemallocgc-dominates-cpu-profile)
   - [`runtime.memmove` high in CPU profile](#runtimememmove-high-in-cpu-profile)
   - [`runtime.scanobject` high in CPU profile](#runtimescanobject-high-in-cpu-profile)
-- [Which Profile for Which Symptom?](#which-profile-for-which-symptom)
 
 ## Profile Types
 
-Each profile type answers a different performance question. Choosing the wrong profile type wastes investigation time — match the symptom to the profile before capturing.
+Match symptom to profile before capturing.
 
 | Profile | Flag / Endpoint | Use when | Why this profile and not another |
 | --- | --- | --- | --- |
 | **CPU** | `-cpuprofile` or `/debug/pprof/profile?seconds=30` | High CPU usage, slow functions | Samples which functions are on-CPU at 100Hz; misses off-CPU time (I/O, sleep) |
-| **Heap (alloc_objects)** | `-memprofile` then `pprof -alloc_objects` | GC pressure, too many allocations | Counts allocation events regardless of size; useful when allocation frequency and object churn dominate |
-| **Heap (alloc_space)** | `pprof -alloc_space` | Finding largest allocation sites by volume | Measures total bytes allocated; use when you need to reduce peak memory, not just GC frequency |
-| **Heap (inuse_space)** | `pprof -inuse_space` | Memory growing over time, suspected leaks | Shows currently live heap objects; compare two snapshots to isolate leak sources |
-| **Heap (inuse_objects)** | `pprof -inuse_objects` | Object count growth, suspected leak of small objects | Counts live objects regardless of size; useful when leak is many small objects not visible in inuse_space |
-| **Goroutine** | `/debug/pprof/goroutine` | Blocked I/O, goroutine leaks, pool exhaustion | Snapshots all goroutine stacks; look for goroutines piling up on the same call site |
-| **Mutex** | `/debug/pprof/mutex` | Lock contention between goroutines | Measures cumulative time goroutines waited to acquire mutexes. Must enable first: `runtime.SetMutexProfileFraction(5)` |
-| **Block** | `/debug/pprof/block` | Goroutines blocked on channels, mutexes, timers, select | Measures cumulative time goroutines spent blocked on synchronization primitives. Must enable first: `runtime.SetBlockProfileRate(1)` |
-| **Threadcreate** | `/debug/pprof/threadcreate` | Excessive OS thread creation | Shows stack traces that created new OS threads; typically from cgo calls or blocking syscalls that pin a thread |
+| **Heap (alloc_objects)** | `-memprofile` then `pprof -alloc_objects` | GC pressure, too many allocations | Counts allocation events regardless of size; for when allocation frequency and object churn dominate |
+| **Heap (alloc_space)** | `pprof -alloc_space` | Largest allocation sites by volume | Total bytes allocated; for reducing peak memory, not just GC frequency |
+| **Heap (inuse_space)** | `pprof -inuse_space` | Memory growing over time, suspected leaks | Currently live heap objects; compare two snapshots to isolate leak sources |
+| **Heap (inuse_objects)** | `pprof -inuse_objects` | Object count growth, suspected leak of small objects | Counts live objects regardless of size; for leaks of many small objects not visible in inuse_space |
+| **Goroutine** | `/debug/pprof/goroutine` | Blocked I/O, goroutine leaks, pool exhaustion | Snapshots all goroutine stacks; look for goroutines piling up on same call site |
+| **Mutex** | `/debug/pprof/mutex` | Lock contention between goroutines | Cumulative time goroutines waited to acquire mutexes. Must enable first: `runtime.SetMutexProfileFraction(5)` |
+| **Block** | `/debug/pprof/block` | Goroutines blocked on channels, mutexes, timers, select | Cumulative time goroutines spent blocked on synchronization primitives. Must enable first: `runtime.SetBlockProfileRate(1)` |
+| **Threadcreate** | `/debug/pprof/threadcreate` | Excessive OS thread creation | Stack traces that created new OS threads; typically cgo calls or blocking syscalls that pin a thread |
+
+High latency but low CPU: Goroutine + Block + Trace (scheduling delays, I/O waits). See [Trace Reference](./trace.md).
 
 ### Choosing between alloc_objects and alloc_space
 
-- **alloc_objects** — "where do I allocate the most often?" — use when allocation frequency and object churn are driving GC work
-- **alloc_space** — "where do I allocate the most bytes?" — use for reducing peak memory usage and RSS
-- In practice, start with `alloc_objects` because GC churn is the most common allocation-related bottleneck in Go.
+- **alloc_objects**: "where do I allocate most often?" Use when allocation frequency and object churn drive GC work.
+- **alloc_space**: "where do I allocate most bytes?" Use to reduce peak memory usage and RSS.
+- Start with `alloc_objects`. GC churn is Go's most common allocation-related bottleneck.
 
 ### Choosing between inuse_space and alloc_space
 
-- **alloc_space** is cumulative since program start — it includes objects already freed by GC
-- **inuse_space** is a point-in-time snapshot — only currently live objects
-- Use `alloc_space` to find allocation hot spots for optimization. Use `inuse_space` to debug memory leaks.
+- **alloc_space**: cumulative since program start, includes objects already freed by GC
+- **inuse_space**: point-in-time snapshot, currently live objects only
+- `alloc_space` finds allocation hot spots to optimize. `inuse_space` debugs memory leaks.
 
 ### Enabling mutex and block profiles
 
-These profiles are disabled by default because they add overhead. Enable them before capturing:
+Disabled by default because they add overhead. Enable before capturing:
 
 ```go
 import "runtime"
@@ -98,7 +99,7 @@ runtime.SetMutexProfileFraction(5)
 runtime.SetBlockProfileRate(1)
 ```
 
-Disable after investigation to eliminate overhead:
+Disable after investigation to remove overhead:
 
 ```go
 runtime.SetMutexProfileFraction(0)
@@ -125,21 +126,47 @@ go test -bench=BenchmarkParse -cpuprofile=cpu.prof -memprofile=mem.prof ./pkg/pa
 Requires `import _ "net/http/pprof"` (see `samber/cc-skills-golang@golang-troubleshooting` skill for secure setup):
 
 ```bash
-# CPU profile — captures 30 seconds of CPU samples
+# CPU profile — fetch 30 seconds of samples and open interactive mode
 go tool pprof http://localhost:6060/debug/pprof/profile?seconds=30
 
-# Heap profile — snapshots current heap state
-go tool pprof -alloc_objects http://localhost:6060/debug/pprof/heap
+# CPU profile — fetch and immediately generate SVG (no interactive mode)
+go tool pprof -svg http://localhost:6060/debug/pprof/profile?seconds=10 > cpu.svg
 
-# Goroutine profile — snapshots all goroutine stacks
-go tool pprof http://localhost:6060/debug/pprof/goroutine
+# CPU profile — fetch with a timeout
+go tool pprof -timeout=60 "http://localhost:6060/debug/pprof/profile?seconds=30"
 
-# Mutex profile — contention data since last reset
-go tool pprof http://localhost:6060/debug/pprof/mutex
+# Heap profile — fetch and show top allocation sites
+go tool pprof -top -alloc_objects http://localhost:6060/debug/pprof/heap
 
-# Block profile — blocking data since last reset
-go tool pprof http://localhost:6060/debug/pprof/block
+# Goroutine profile — fetch and show top goroutine stacks
+go tool pprof -top http://localhost:6060/debug/pprof/goroutine
+
+# Mutex profile — fetch contention data
+go tool pprof -top http://localhost:6060/debug/pprof/mutex
+
+# Block profile — fetch blocking data
+go tool pprof -top http://localhost:6060/debug/pprof/block
+
+# Fetch and save to a file without analysis (using curl)
+curl -o heap.prof http://localhost:6060/debug/pprof/heap
+
+# Human-readable goroutine dump (no go tool pprof needed)
+curl http://localhost:6060/debug/pprof/goroutine?debug=1
+
+# Goroutine dump with full stack traces, creation site, and labels
+curl http://localhost:6060/debug/pprof/goroutine?debug=2
+
+# Human-readable heap stats
+curl http://localhost:6060/debug/pprof/heap?debug=1
+
+# Fetch over TLS with client certificate
+go tool pprof -tls_cert=client.crt -tls_key=client.key -tls_ca=ca.crt https://myservice:6060/debug/pprof/profile?seconds=30
+
+# Last resort, trusted network only: skips server cert verification (MITM risk); prefer -tls_ca above
+go tool pprof https+insecure://myservice:6060/debug/pprof/profile?seconds=30
 ```
+
+Mutex and block profiles hold data since last reset.
 
 ### From code (programmatic)
 
@@ -162,7 +189,7 @@ pprof.Lookup("goroutine").WriteTo(f, 0)
 
 ## Interactive CLI Commands
 
-Open a profile in interactive mode:
+Open profile in interactive mode:
 
 ```bash
 go tool pprof cpu.prof
@@ -172,7 +199,7 @@ go tool pprof http://localhost:6060/debug/pprof/profile?seconds=30
 
 ### `top` — self time ranking (start here)
 
-The first command to run. Shows functions ranked by the time (or allocations) spent in the function itself:
+Run first. Ranks functions by time (or allocations) spent in function itself:
 
 ```
 (pprof) top
@@ -189,11 +216,11 @@ Showing nodes accounting for 4.2s, 84% of 5s total
 
 | Column | Meaning | How to read it |
 | --- | --- | --- |
-| **flat** | Time spent in the function itself, excluding callees | High flat = the function's own code is expensive |
-| **flat%** | flat as percentage of total sample time | Quick way to see relative cost |
-| **sum%** | Running total of flat% going down the list | "The top 3 functions account for 58% of total time" |
-| **cum** | Time in function + all functions it calls (cumulative) | High cum with low flat = the function delegates to expensive callees |
-| **cum%** | cum as percentage of total | Compare with flat% — big gap means the cost is in callees |
+| **flat** | Time in function itself, excluding callees | High flat = function's own code is expensive |
+| **flat%** | flat as percentage of total sample time | Quick view of relative cost |
+| **sum%** | Running total of flat% down the list | "The top 3 functions account for 58% of total time" |
+| **cum** | Time in function + all functions it calls (cumulative) | High cum with low flat = function delegates to expensive callees |
+| **cum%** | cum as percentage of total | Compare with flat%; big gap means cost is in callees |
 
 **Limiting output:**
 
@@ -205,7 +232,7 @@ Showing nodes accounting for 4.2s, 84% of 5s total
 
 ### `top -cum` — cumulative time ranking
 
-Critical when `top` shows runtime functions (`runtime.mallocgc`, `runtime.memmove`, `runtime.scanobject`) dominating. These are symptoms, not causes. `top -cum` reveals which **application** functions trigger them:
+Critical when runtime functions (`runtime.mallocgc`, `runtime.memmove`, `runtime.scanobject`) dominate `top`. They are symptoms, not causes. `top -cum` reveals which **application** functions trigger them:
 
 ```
 (pprof) top -cum
@@ -215,11 +242,11 @@ Critical when `top` shows runtime functions (`runtime.mallocgc`, `runtime.memmov
      1.50s 30.00% 40.00%      2.80s 56.00%  encoding/json.Marshal
 ```
 
-Now you can see that `HandleRequest` → `serializeResponse` → `json.Marshal` is the hot path. The optimization target is `serializeResponse`, not `runtime.mallocgc`.
+Hot path: `HandleRequest` → `serializeResponse` → `json.Marshal`. Optimize `serializeResponse`, not `runtime.mallocgc`.
 
 ### `list funcName` — annotated source
 
-Shows the source code of a function with per-line cost annotations. This is how you pinpoint the **exact line** causing the bottleneck:
+Function source with per-line cost. Pinpoints **exact line** causing the bottleneck:
 
 ```
 (pprof) list serializeResponse
@@ -237,11 +264,11 @@ ROUTINE ======================== myapp/pkg/handler.serializeResponse
          .          .     46:}
 ```
 
-- Left column = **flat** time (work done by this line itself)
+- Left column = **flat** time (this line's own work)
 - Right column = **cumulative** time (this line + everything it calls)
-- Line 40 accounts for 2.60s cumulative because `json.Marshal` is expensive
+- Line 40 has 2.60s cumulative because `json.Marshal` is expensive
 
-**Use `list` with a regex** to find all matching functions:
+**Use `list` with regex** to match multiple functions:
 
 ```
 (pprof) list Parse.*       # all functions starting with Parse
@@ -250,7 +277,7 @@ ROUTINE ======================== myapp/pkg/handler.serializeResponse
 
 ### `peek funcName` — callers and callees
 
-Shows who calls a function and what it calls — the one-hop neighborhood in the call graph. Use to trace the responsibility chain when a function appears hot but you're unsure whether the problem is upstream (too many calls) or downstream (expensive callees):
+One-hop call graph neighborhood: who calls a function, what it calls. Use to trace responsibility when a function is hot and cause could be upstream (too many calls) or downstream (expensive callees):
 
 ```
 (pprof) peek json.Marshal
@@ -270,7 +297,7 @@ Top section = callers (who calls json.Marshal). Bottom section = callees (what j
 
 ### `tree` — hierarchical call tree
 
-Displays the full call tree with cumulative costs at each level. Useful when you need more context than `peek` provides:
+Full call tree, cumulative cost at each level. Use when `peek` gives too little context:
 
 ```
 (pprof) tree
@@ -284,7 +311,7 @@ Displays the full call tree with cumulative costs at each level. Useful when you
 
 ### `traces` — raw stack traces
 
-Dumps all raw sample stack traces. Each stack trace shows what the program was doing at the moment it was sampled:
+Dumps all raw sample stack traces. Each shows what program was doing when sampled:
 
 ```
 (pprof) traces
@@ -297,24 +324,24 @@ Dumps all raw sample stack traces. Each stack trace shows what the program was d
 -----------+-------------------------------------------------------
 ```
 
-Useful for spotting unexpected call paths (e.g., a function you didn't expect being called from a hot path).
+Spots unexpected call paths (e.g., an unexpected function called from a hot path).
 
 ### `web` / `svg` — graphical call graph
 
-`web` opens a call graph in the browser. `svg` saves it to a file. Both require graphviz installed (`brew install graphviz` or `apt install graphviz`).
+`web` opens call graph in browser. `svg` saves it to file. Both require graphviz (`brew install graphviz` or `apt install graphviz`).
 
 Visual encoding:
 
-- **Thicker edges** = more time flows through that call
-- **Larger nodes** = more time spent in that function
+- **Thicker edges** = more time through that call
+- **Larger nodes** = more time in that function
 - **Red/dark nodes** = hot spots (high flat time)
-- **Edge labels** = time flowing through that call path
+- **Edge labels** = time through that call path
 
-Use when the text commands don't reveal the full picture — the visual layout often reveals call patterns that are hard to see in text.
+Use when text output doesn't show full picture.
 
 ### `disasm funcName` — assembly-level
 
-Shows generated assembly with per-instruction cost. Use for micro-optimization: verifying SIMD instructions, bounds check elimination, or inlining at the instruction level:
+Assembly with per-instruction cost. For micro-optimization: verify SIMD instructions, bounds check elimination, or inlining:
 
 ```
 (pprof) disasm Parse
@@ -329,17 +356,17 @@ ROUTINE ======================== myapp/pkg/parser.Parse
 
 ### `weblist funcName` — annotated source in browser
 
-Like `list` but opens the annotated source in a browser with color-coded cost highlighting. Each line is shaded from white (no cost) to red (hot). More visually immediate than the text version:
+Like `list`, but in browser with color-coded cost. Lines shade from white (no cost) to red (hot):
 
 ```
 (pprof) weblist serializeResponse
 ```
 
-Requires a browser. Falls back to `list` if no browser is available.
+Requires browser. Falls back to `list` if none is available.
 
 ### `tags` — profile label breakdown
 
-Shows tag values present in the profile. Go runtime profiles carry tags like `thread_id`; custom profiles can add arbitrary labels via `pprof.Do()`:
+Tag values in profile. Runtime profiles carry tags like `thread_id`; custom profiles add arbitrary labels via `pprof.Do()`:
 
 ```go
 labels := pprof.Labels("request_type", "api", "endpoint", "/users")
@@ -356,7 +383,7 @@ endpoint: /users (40%), /orders (35%), /products (25%)
 
 ### `tagroot` and `tagleaf` — group by labels
 
-Group the profile data by tag values, creating a virtual call tree rooted on tag names:
+Group profile data by tag values into a virtual call tree rooted on tag names:
 
 ```
 (pprof) tagroot request_type    # group everything by request_type first
@@ -364,11 +391,11 @@ Group the profile data by tag values, creating a virtual call tree rooted on tag
 (pprof) tagleaf endpoint        # add endpoint as leaf grouping
 ```
 
-Useful for multi-tenant profiling or breaking down by request type without code changes.
+For multi-tenant profiling or breakdown by request type without code changes.
 
 ### `granularity` — control grouping level
 
-Changes how samples are aggregated:
+Sets sample aggregation level:
 
 ```
 (pprof) granularity=functions    # default — group by function name
@@ -378,7 +405,7 @@ Changes how samples are aggregated:
 (pprof) granularity=addresses    # group by instruction address (most granular)
 ```
 
-`lines` is especially useful when a single function has multiple hot spots — it reveals which specific lines are expensive without needing `list`.
+`lines` helps when one function has multiple hot spots: shows expensive lines without needing `list`.
 
 ### `sort` — change sort order
 
@@ -389,7 +416,7 @@ Changes how samples are aggregated:
 
 ### `source` — show source for matching regex
 
-Similar to `list` but searches all functions matching a pattern and shows their annotated source:
+Like `list`, but annotated source for all functions matching a pattern:
 
 ```
 (pprof) source handler   # show annotated source for all functions matching "handler"
@@ -397,7 +424,7 @@ Similar to `list` but searches all functions matching a pattern and shows their 
 
 ### `focus`, `ignore`, `hide`, `show` — filtering
 
-Narrow the analysis to specific functions or exclude noise. These are stateful — they persist across commands until explicitly cleared:
+Narrow to specific functions or drop noise. Filters persist across commands until explicitly cleared:
 
 ```
 (pprof) focus=myapp            # only show call paths that pass through "myapp"
@@ -410,8 +437,8 @@ Narrow the analysis to specific functions or exclude noise. These are stateful �
 
 **Difference between `focus`, `show`, `hide`, and `ignore`:**
 
-- `focus` — keeps only paths that contain a matching function; everything else is dropped
-- `ignore` — removes matching functions from the graph entirely; their costs are attributed to callers
+- `focus` — keeps only paths containing a matching function; drops the rest
+- `ignore` — removes matching functions from graph entirely; their costs are attributed to callers
 - `show` — like `focus` but only affects display, not cost accounting
 - `hide` — like `ignore` but only hides from display, not cost accounting
 
@@ -423,7 +450,7 @@ Narrow the analysis to specific functions or exclude noise. These are stateful �
 
 ### `normalize` — normalize against a base profile
 
-When comparing two profiles with `-base`, values are deltas by default. `normalize` scales the base profile to match the total of the main profile, making ratios comparable even if run durations differ:
+With `-base`, values are deltas by default. `normalize` scales base profile to main profile total, so ratios stay comparable even if run durations differ:
 
 ```
 (pprof) normalize
@@ -431,7 +458,7 @@ When comparing two profiles with `-base`, values are deltas by default. `normali
 
 ### `sample_index` — switch metric in multi-metric profiles
 
-Heap profiles contain multiple metrics (alloc_objects, alloc_space, inuse_objects, inuse_space). Switch between them without reloading:
+Heap profiles hold multiple metrics (alloc_objects, alloc_space, inuse_objects, inuse_space). Switch without reloading:
 
 ```
 (pprof) sample_index=alloc_objects
@@ -451,7 +478,7 @@ Heap profiles contain multiple metrics (alloc_objects, alloc_space, inuse_object
 
 ### `callgrind` — export for KCachegrind
 
-Exports the profile in callgrind format, which can be opened in KCachegrind or QCachegrind for advanced visualization:
+Exports callgrind format. Open in KCachegrind or QCachegrind for advanced visualization:
 
 ```
 (pprof) callgrind
@@ -460,7 +487,7 @@ Generating report in callgrind format
 
 ### `proto` — save processed profile
 
-Save the current profile (after filtering) in protobuf format for sharing or later analysis:
+Saves current profile (after filtering) as protobuf, for sharing or later analysis:
 
 ```
 (pprof) proto > filtered.pb.gz
@@ -475,7 +502,7 @@ Save the current profile (after filtering) in protobuf format for sharing or lat
 
 ### `show_from=regex` — trim callers above match
 
-Hides all frames above the first matching function. Useful when you're only interested in a specific subsystem and want to remove framework/routing noise above it:
+Hides all frames above first matching function. Use when only one subsystem matters, to strip framework/routing noise above it:
 
 ```
 (pprof) show_from=handler.Handle   # start the graph from Handle, hide all callers above
@@ -483,7 +510,7 @@ Hides all frames above the first matching function. Useful when you're only inte
 
 ### `noinlines` — flatten inlined functions
 
-Attributes inlined functions to their first out-of-line caller. Useful when inlined functions create confusing call chains in the graph:
+Attributes inlined functions to their first out-of-line caller. Use when inlining makes graph call chains confusing:
 
 ```
 (pprof) noinlines
@@ -491,7 +518,7 @@ Attributes inlined functions to their first out-of-line caller. Useful when inli
 
 ### Full command reference
 
-Every command below works both as a standalone shell command and inside the interactive `(pprof)` prompt. The interactive form omits `go tool pprof` and the profile path — e.g., `go tool pprof -top cpu.prof` becomes just `top` inside the prompt.
+Each command below works in shell and inside interactive `(pprof)` prompt. Interactive form drops `go tool pprof` and profile path: `go tool pprof -top cpu.prof` becomes just `top`.
 
 **Reporting commands:**
 
@@ -662,49 +689,6 @@ go tool pprof -base heap-baseline.prof -svg heap-after.prof > leak.svg
 go tool pprof -base heap-baseline.prof -list=handleRequest heap-after.prof
 ```
 
-**Fetching profiles from a running service:**
-
-```bash
-# CPU profile — fetch 30 seconds of samples and open interactive mode
-go tool pprof http://localhost:6060/debug/pprof/profile?seconds=30
-
-# CPU profile — fetch and immediately generate SVG (no interactive mode)
-go tool pprof -svg http://localhost:6060/debug/pprof/profile?seconds=10 > cpu.svg
-
-# CPU profile — fetch with a timeout
-go tool pprof -timeout=60 "http://localhost:6060/debug/pprof/profile?seconds=30"
-
-# Heap profile — fetch and show top allocation sites
-go tool pprof -top -alloc_objects http://localhost:6060/debug/pprof/heap
-
-# Goroutine profile — fetch and show top goroutine stacks
-go tool pprof -top http://localhost:6060/debug/pprof/goroutine
-
-# Mutex profile — fetch contention data
-go tool pprof -top http://localhost:6060/debug/pprof/mutex
-
-# Block profile — fetch blocking data
-go tool pprof -top http://localhost:6060/debug/pprof/block
-
-# Fetch and save to a file without analysis (using curl)
-curl -o heap.prof http://localhost:6060/debug/pprof/heap
-
-# Human-readable goroutine dump (no go tool pprof needed)
-curl http://localhost:6060/debug/pprof/goroutine?debug=1
-
-# Goroutine dump with full stack traces, creation site, and labels
-curl http://localhost:6060/debug/pprof/goroutine?debug=2
-
-# Human-readable heap stats
-curl http://localhost:6060/debug/pprof/heap?debug=1
-
-# Fetch over TLS with client certificate
-go tool pprof -tls_cert=client.crt -tls_key=client.key -tls_ca=ca.crt https://myservice:6060/debug/pprof/profile?seconds=30
-
-# Fetch over TLS skipping server certificate verification
-go tool pprof https+insecure://myservice:6060/debug/pprof/profile?seconds=30
-```
-
 **Comparison commands (diff two profiles):**
 
 ```bash
@@ -722,28 +706,6 @@ go tool pprof -top -base cpu-before.prof cpu-after.prof
 
 # Diff as SVG graph
 go tool pprof -svg -base cpu-before.prof cpu-after.prof > diff.svg
-```
-
-**Web UI:**
-
-```bash
-# Open interactive web UI with flamegraph, graph, source, and disassembly views
-go tool pprof -http=:8080 cpu.prof
-
-# Open on a different port
-go tool pprof -http=:9090 mem.prof
-
-# Open with a specific sample type pre-selected
-go tool pprof -http=:8080 -alloc_objects mem.prof
-
-# Open with filters pre-applied
-go tool pprof -http=:8080 -focus=handler cpu.prof
-
-# Open a diff view in the web UI
-go tool pprof -http=:8080 -base heap-baseline.prof heap-after.prof
-
-# Open with no browser auto-launch (just start the server)
-go tool pprof -http=:8080 -no_browser cpu.prof
 ```
 
 **Symbolization flags:**
@@ -769,46 +731,49 @@ go tool pprof -symbolize=demangle=full cpu.prof
 
 | Variable | Purpose |
 | --- | --- |
-| `PPROF_BINARY_PATH` | Search path for local binaries used in symbolization (default: `$HOME/pprof/binaries`). Set when profiling remote servers where binaries aren't in the default path. |
-| `PPROF_TOOLS` | Directory containing binutils tools (`addr2line`, `nm`, `objdump`). Set when these tools aren't in `$PATH`. |
+| `PPROF_BINARY_PATH` | Search path for local binaries used in symbolization (default: `$HOME/pprof/binaries`). Set when profiling remote servers whose binaries aren't in default path. |
+| `PPROF_TOOLS` | Directory with binutils tools (`addr2line`, `nm`, `objdump`). Set when these tools aren't in `$PATH`. |
 
 ## Graphical / Web UI
 
-When CLI output is insufficient and you need interactive exploration:
+For interactive exploration when CLI output is insufficient:
 
 ```bash
-# Opens browser with interactive UI
+# Open interactive web UI with flamegraph, graph, source, and disassembly views
 go tool pprof -http=:8080 cpu.prof
 
-# Specify a different port if 8080 is taken
+# Open on a different port
 go tool pprof -http=:9090 mem.prof
 
-# Open with specific sample type pre-selected
+# Open with a specific sample type pre-selected
 go tool pprof -http=:8080 -alloc_objects mem.prof
 
 # Open with filters pre-applied
 go tool pprof -http=:8080 -focus=handler cpu.prof
 
-# Compare two profiles — open with -base
+# Open a diff view in the web UI
 go tool pprof -http=:8080 -base heap-baseline.prof heap-after.prof
+
+# Open with no browser auto-launch (just start the server)
+go tool pprof -http=:8080 -no_browser cpu.prof
 ```
 
-The web UI provides:
+Web UI views:
 
-- **Flamegraph** (most intuitive) — horizontal width proportional to cost; click to zoom into subtrees; inverted flamegraph available (icicle graph)
+- **Flamegraph** (most intuitive) — width proportional to cost; click to zoom into subtrees; inverted flamegraph (icicle graph) available
 - **Graph** — directed call graph with edge weights; nodes and edges sized/colored by cost; interactive zoom and click-to-focus
-- **Top** — same as `top` command but sortable columns, clickable to navigate to source
+- **Top** — like `top` command, with sortable columns; click to navigate to source
 - **Source** — annotated source with per-line cost; browsable across all functions
-- **Disassembly** — same as `disasm` but browsable across functions
-- **Peek** — interactive peek view with expandable callers/callees
+- **Disassembly** — like `disasm`, browsable across functions
+- **Peek** — interactive peek with expandable callers/callees
 
-Default to CLI commands for quick diagnosis — use the web UI when exploring unfamiliar call graphs, comparing profiles visually, or presenting findings to others.
+Default to CLI for quick diagnosis. Use web UI to explore unfamiliar call graphs, compare profiles visually, or present findings.
 
 ## Comparing Profiles
 
 ### Memory leak detection with `-base`
 
-Compare two heap profiles to isolate what grew between them:
+Diff two heap profiles to isolate what grew between them:
 
 ```bash
 # Step 1: take a baseline snapshot
@@ -838,58 +803,42 @@ go tool pprof -http=:8080 cpu-before.prof
 go tool pprof -http=:8081 cpu-after.prof
 ```
 
-For statistical comparison of benchmark numbers (not profiles), use [benchstat](./benchstat.md) instead.
+For statistical comparison of benchmark numbers (not profiles), use [benchstat](./benchstat.md).
 
 ## Common Patterns
 
-Learn to recognize these recurring shapes — they tell you what class of problem you're dealing with before you start fixing.
-
 ### Flat high + cum high
 
-The function itself is the bottleneck. It does expensive work directly (tight loop, heavy computation, complex string processing). Optimize the function's own code — algorithm, data structure, or implementation.
+Function itself is the bottleneck: does expensive work directly (tight loop, heavy computation, complex string processing). Optimize its own code: algorithm, data structure, or implementation.
 
 ### Flat low + cum high
 
-The function calls slow things but does little work itself — it's a coordinator or dispatcher. Drill into callees with `list` or `peek`. The fix is usually in the called functions, or reducing how often they're called.
+Coordinator or dispatcher: calls slow things, does little work itself. Drill into callees with `list` or `peek`. Fix is usually in callees, or in calling them less often.
 
 ### `alloc_objects` high, `inuse_space` low
 
-Short-lived allocations creating GC churn — objects are allocated and freed rapidly, each cheap individually but the aggregate volume triggers frequent GC cycles. Common sources: `fmt.Errorf` in hot paths (allocates every call), interface boxing (`any` arguments), string-to-byte conversions, slice growth without preallocation. → See `samber/cc-skills-golang@golang-performance` skill for allocation reduction patterns.
+Short-lived allocations cause GC churn: each is cheap, but aggregate volume triggers frequent GC cycles. Common sources: `fmt.Errorf` in hot paths (allocates every call), interface boxing (`any` arguments), string-to-byte conversions, slice growth without preallocation. → See `samber/cc-skills-golang@golang-performance` skill for allocation reduction patterns.
 
 ### `inuse_space` growing over time
 
-Memory leak. Take two heap snapshots minutes apart and compare with `-base` (see Comparing Profiles above) — growing types reveal the leak source. Common causes: unbounded caches, maps that never shrink (Go maps don't release bucket memory on delete), goroutine leaks holding references.
+Memory leak. Take two heap snapshots minutes apart, compare with `-base` (see Comparing Profiles above). Growing types reveal leak source. Common causes: unbounded caches, maps that never shrink (Go maps don't release bucket memory on delete), goroutine leaks holding references.
 
 ### Mutex/block profile hot
 
-Contention, not CPU — the goroutines are all waiting to acquire the same lock or read from the same channel instead of working. Reduce critical section scope, shard locks across multiple mutexes, or use lock-free structures (`sync/atomic`, `sync.Map` for read-heavy workloads). → See `samber/cc-skills-golang@golang-concurrency` skill.
+Contention, not CPU: goroutines wait on same lock or channel instead of working. Reduce critical section scope, shard locks across multiple mutexes, or use lock-free structures (`sync/atomic`, `sync.Map` for read-heavy workloads). → See `samber/cc-skills-golang@golang-concurrency` skill.
 
 ### Many goroutines blocked on same channel/mutex
 
-Serialization bottleneck — all work funnels through a single point, so the throughput ceiling is the speed of that single point. Consider worker pools with multiple independent queues, sharding the work, or buffered channels to smooth bursts.
+Serialization bottleneck: all work funnels through one point, so its speed caps throughput. Options: worker pools with multiple independent queues, sharding work, or buffered channels to smooth bursts.
 
 ### `runtime.mallocgc` dominates CPU profile
 
-Allocation rate is the bottleneck, not computation. The Go runtime is spending more time allocating and collecting garbage than running your code. Switch to the `alloc_objects` heap profile to find which functions allocate the most, then → See `samber/cc-skills-golang@golang-performance` skill for reduction patterns.
+Allocation rate, not computation, is the bottleneck: runtime spends more time allocating and collecting garbage than running your code. Find top allocators with `alloc_objects` heap profile, then → See `samber/cc-skills-golang@golang-performance` skill for reduction patterns.
 
 ### `runtime.memmove` high in CPU profile
 
-Large memory copies — usually from slice `append` growing beyond capacity, `copy()` of large slices, or string-to-byte conversions. Pre-allocate slices to final capacity, reuse buffers, or work with `[]byte` directly.
+Large memory copies, usually from slice `append` growing beyond capacity, `copy()` of large slices, or string-to-byte conversions. Pre-allocate slices to final capacity, reuse buffers, or work with `[]byte` directly.
 
 ### `runtime.scanobject` high in CPU profile
 
-GC pointer scanning. The heap contains many pointers that the GC must trace. Reduce pointer density: use value types instead of pointers in slices/maps, flatten nested structures, consider `[N]byte` arrays instead of `string` in hot structs.
-
-## Which Profile for Which Symptom?
-
-| Symptom | Profile | Flag/Command |
-| --- | --- | --- |
-| High CPU, slow function | CPU | `-cpuprofile` or `pprof/profile` |
-| Too many allocations (GC pressure) | Heap (alloc_objects) | `-memprofile` then `pprof -alloc_objects` |
-| Large allocations (memory usage) | Heap (alloc_space) | `pprof -alloc_space` |
-| Memory growing over time (leak) | Heap (inuse_space) | `pprof -inuse_space`, compare with `-base` |
-| Lock contention | Mutex | `pprof/mutex` (enable `SetMutexProfileFraction` first) |
-| Goroutines blocked on sync | Block | `pprof/block` (enable `SetBlockProfileRate` first) |
-| Too many goroutines / leak | Goroutine | `pprof/goroutine` |
-| High latency but low CPU | Goroutine + Block + Trace | Scheduling delays, I/O waits — see [Trace Reference](./trace.md) |
-| Excessive thread creation | Threadcreate | `pprof/threadcreate` |
+GC pointer scanning: heap holds many pointers GC must trace. Reduce pointer density: use value types instead of pointers in slices/maps, flatten nested structures, consider `[N]byte` arrays instead of `string` in hot structs.

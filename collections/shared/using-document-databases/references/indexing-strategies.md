@@ -1,8 +1,5 @@
 # MongoDB Indexing Strategies
 
-Complete guide to index types, optimization, and best practices for document databases.
-
-
 ## Table of Contents
 
 - [Index Types](#index-types)
@@ -13,14 +10,12 @@ Complete guide to index types, optimization, and best practices for document dat
   - [Partial Index (Index Subset)](#partial-index-index-subset)
   - [TTL Index (Auto-Delete)](#ttl-index-auto-delete)
   - [Sparse Index](#sparse-index)
-- [Index Selection Rules](#index-selection-rules)
 - [Covering Indexes](#covering-indexes)
 - [Performance Optimization](#performance-optimization)
   - [Index Intersection](#index-intersection)
   - [Index Prefix Usage](#index-prefix-usage)
 - [Monitoring and Analysis](#monitoring-and-analysis)
   - [List Indexes](#list-indexes)
-  - [Index Usage Stats](#index-usage-stats)
   - [Explain Query](#explain-query)
   - [Slow Query Log](#slow-query-log)
 - [Index Maintenance](#index-maintenance)
@@ -41,7 +36,7 @@ db.posts.createIndex({ createdAt: -1 })              // Descending
 
 ### Compound Index
 
-**Order matters!** Equality → Sort → Range (MongoDB ESR rule)
+**Order matters.** Equality, then Sort, then Range (MongoDB ESR rule).
 
 ```javascript
 // Query: WHERE status = 'active' AND createdAt > date ORDER BY createdAt
@@ -122,22 +117,9 @@ db.sessions.createIndex(
 db.users.createIndex({ phone: 1 }, { sparse: true })
 ```
 
-## Index Selection Rules
-
-**Compound index order:**
-1. Equality filters first
-2. Range filters second
-3. Sort fields last
-
-```javascript
-// Query: status = X AND createdAt > Y ORDER BY createdAt
-// Index: { status: 1, createdAt: -1 }  ✓ Correct order
-// Index: { createdAt: -1, status: 1 }  ✗ Wrong order
-```
-
 ## Covering Indexes
 
-Index includes all queried fields (no document fetch needed):
+Index holds every queried field, so no document fetch:
 
 ```javascript
 // Query needs: userId, createdAt, amount
@@ -156,7 +138,7 @@ db.orders.find(
 
 ### Index Intersection
 
-MongoDB can combine multiple indexes:
+MongoDB can combine several indexes:
 
 ```javascript
 db.orders.createIndex({ userId: 1 })
@@ -168,7 +150,7 @@ db.orders.find({ userId: 123, status: "pending" })
 
 ### Index Prefix Usage
 
-Compound indexes can support prefix queries:
+Compound indexes support prefix queries:
 
 ```javascript
 db.orders.createIndex({ userId: 1, status: 1, createdAt: -1 })
@@ -189,12 +171,6 @@ db.orders.createIndex({ userId: 1, status: 1, createdAt: -1 })
 
 ```javascript
 db.collection.getIndexes()
-```
-
-### Index Usage Stats
-
-```javascript
-db.collection.aggregate([{ $indexStats: {} }])
 ```
 
 ### Explain Query
@@ -238,16 +214,10 @@ db.collection.dropIndex("index_name")
 
 ## Best Practices
 
-1. **Index queried fields** - Every filter/sort should have index
-2. **Compound index order** - Equality, Sort, Range (ESR)
-3. **Use covering indexes** - Avoid document fetches
-4. **Partial indexes** - Index only needed subset
-5. **Monitor index usage** - Drop unused indexes
-6. **Limit index count** - Each index slows writes
-7. **Use explain()** - Verify index usage
-8. **Index foreign keys** - For $lookup performance
-9. **TTL indexes** - Auto-cleanup for temp data
-10. **Text indexes** - One per collection max
+1. **Index queried fields** - Every filter/sort needs index
+2. **Use explain()** - Verify index usage
+3. **Index foreign keys** - Speeds $lookup
+4. **Text indexes** - One per collection max
 
 ## Anti-Patterns
 

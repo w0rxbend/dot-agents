@@ -25,6 +25,7 @@ my_dbt_project/
 
 ```bash
 pip install dbt-snowflake
+export DBT_SEND_ANONYMOUS_USAGE_STATS=False  # dbt sends usage stats by default
 dbt init my_dbt_project
 cd my_dbt_project
 dbt run

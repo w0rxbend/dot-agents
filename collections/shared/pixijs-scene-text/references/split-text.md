@@ -1,6 +1,6 @@
 # SplitText
 
-A container that splits a canvas `Text` render into independently-animatable `lines`, `words`, and `chars`; each exposed as its own `Text` instance. Use `SplitText` for per-character intro animations, staggered reveals, or any effect where you need to transform each glyph, word, or line separately.
+Container that splits canvas `Text` render into independently-animatable `lines`, `words` and `chars`, each exposed as its own `Text` instance. Use `SplitText` for per-character intro animations, staggered reveals, or any effect that transforms each glyph, word or line separately.
 
 ## Quick Start
 
@@ -26,7 +26,7 @@ split.chars.forEach((char, i) => {
 });
 ```
 
-`SplitText` is new in v8; API shape may still evolve. It wraps `Text` internally, so the same TextStyle options apply. Every character is a full `Text` instance; use sparingly and prefer `SplitBitmapText` for long strings or many animated instances.
+`SplitText` is new in v8; API shape may still evolve. Wraps `Text` internally, so same TextStyle options apply.
 
 ## Construction
 
@@ -51,20 +51,20 @@ const full = new SplitText({
 
 ### SplitTextOptions
 
-`SplitText` is a `Container` (not a `ViewContainer`), so unlike `Text` it does NOT take `anchor`, `resolution`, `roundPixels`, `textureStyle`, or `autoGenerateMipmaps` at the top level. Those belong on the internal per-character `Text` instances. The splitting behavior is controlled by the fields below.
+`SplitText` is a `Container` (not a `ViewContainer`), so unlike `Text` it does NOT take `anchor`, `resolution`, `roundPixels`, `textureStyle` or `autoGenerateMipmaps` at top level. Those belong on internal per-character `Text` instances. Fields below control splitting.
 
-| Option       | Type                                     | Default | Description                                                                                                            |
-| ------------ | ---------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `text`       | `string`                                 | —       | Text content to render and segment. Required.                                                                          |
-| `style`      | `TextStyle \| Partial<TextStyleOptions>` | —       | TextStyle instance or style options; the same TextStyle used by `Text`. See `references/text.md`. Required.            |
-| `autoSplit`  | `boolean`                                | `true`  | Automatically re-split when `text` or `style` changes; set `false` to batch updates and call `split.split()` manually. |
-| `lineAnchor` | `number \| PointData`                    | `0`     | Normalized transform origin (0–1) for each line container; controls the pivot of per-line rotations/scales.            |
-| `wordAnchor` | `number \| PointData`                    | `0`     | Same as `lineAnchor` but for each word container.                                                                      |
-| `charAnchor` | `number \| PointData`                    | `0`     | Same as `lineAnchor` but for each character container.                                                                 |
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `text` | `string` | — | Text content to render and segment. Required. |
+| `style` | `TextStyle \| Partial<TextStyleOptions>` | — | TextStyle instance or style options; same TextStyle `Text` uses. See `references/text.md`. Required. |
+| `autoSplit` | `boolean` | `true` | Re-split automatically when `text` or `style` changes; set `false` to batch updates and call `split.split()` manually. |
+| `lineAnchor` | `number \| PointData` | `0` | Normalized transform origin (0–1) for each line container; controls pivot of per-line rotations/scales. |
+| `wordAnchor` | `number \| PointData` | `0` | Same as `lineAnchor` but for each word container. |
+| `charAnchor` | `number \| PointData` | `0` | Same as `lineAnchor` but for each character container. |
 
-All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) are also valid here — see the constructor-options table in `references/scene-core-concepts.md` of the `pixijs-scene-container` skill.
+All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) also valid here. See constructor-options table in `references/scene-core-concepts.md` of `pixijs-scene-container` skill.
 
-> `SplitText.defaultOptions` overrides the defaults globally for every new `SplitText` instance. The built-in defaults are the values above.
+> `SplitText.defaultOptions` overrides defaults globally for every new `SplitText` instance. Built-in defaults are values above.
 
 ## Core Patterns
 
@@ -82,25 +82,7 @@ split.chars.forEach((char) => {
 });
 ```
 
-`lines` and `words` are `Container[]`; `chars` is `Text[]` directly (or `BitmapText[]` for `SplitBitmapText`). All three arrays are refreshed whenever the text or style changes (when `autoSplit` is `true`).
-
-### Transform origins
-
-```ts
-const split = new SplitText({
-  text: "Wave",
-  style: { fontSize: 64, fill: 0xffffff },
-  lineAnchor: 0.5,
-  wordAnchor: { x: 0, y: 0.5 },
-  charAnchor: { x: 0.5, y: 1 },
-});
-```
-
-- `lineAnchor`: transform origin for each line container (0–1 normalized).
-- `wordAnchor`: transform origin for each word container.
-- `charAnchor`: transform origin for each character container.
-
-Setting these once at construction time ensures rotations and scales pivot around the intended point (center, bottom, etc.).
+`lines` and `words` are `Container[]`; `chars` is `Text[]` directly (or `BitmapText[]` for `SplitBitmapText`). All three arrays refresh whenever text or style changes (when `autoSplit` is `true`).
 
 ### Animating per character
 
@@ -113,15 +95,7 @@ split.chars.forEach((char, i) => {
 });
 ```
 
-Using each character's `onRender` hook avoids one global ticker callback. Each char updates itself every render pass.
-
-### Auto-split on change
-
-```ts
-split.text = "New text";
-```
-
-With `autoSplit = true` (default), reassigning `text` or `style` re-splits and rebuilds the segment arrays. Set `autoSplit = false` to batch multiple changes before calling `split.split()` manually (see `pixijs-scene-text` source).
+Per-character `onRender` hook avoids one global ticker callback. Each char updates itself every render pass.
 
 ### Constructing from an existing Text
 
@@ -130,13 +104,13 @@ const plain = new Text({ text: "Convert me", style: { fontSize: 32 } });
 const converted = SplitText.from(plain);
 ```
 
-`SplitText.from(existingText)` copies content and style, then splits. Useful when you already have a `Text` instance and want to apply per-character animation retroactively.
+`SplitText.from(existingText)` copies content and style, then splits. Use when you already have a `Text` instance and want per-character animation retroactively.
 
 ## Common Mistakes
 
 ### [HIGH] Many SplitText instances with long strings
 
-Each character is a full `Text` instance with its own canvas rasterization and GPU texture. A 40-character `SplitText` creates 40 text renders at construction time. For long strings, use `SplitBitmapText`; it wraps `BitmapText` instead, so each character reuses the glyph atlas.
+Each character is a full `Text` instance with own canvas rasterization and GPU texture. A 40-character `SplitText` creates 40 text renders at construction. For long strings, use `SplitBitmapText`; it wraps `BitmapText` instead, so each character reuses glyph atlas.
 
 
 ### [MEDIUM] Modifying `chars` array directly
@@ -153,12 +127,12 @@ Correct:
 split.text = split.text + "extra";
 ```
 
-`chars`, `words`, and `lines` are managed arrays. Pushing to them is ignored and will be overwritten on the next auto-split. Always update via the `text` property and let the class rebuild segments.
+`chars`, `words` and `lines` are managed arrays. Pushing to them is ignored and gets overwritten on next auto-split. Always update via `text` property and let class rebuild segments.
 
 
 ### [MEDIUM] Expecting segments before the first render
 
-When `autoSplit` is true, splitting happens lazily on first property read or render. If you need segments immediately after construction, access `chars` (or call `split.split()` manually) once before iterating.
+When `autoSplit` is true, splitting happens lazily on first property read or render. For segments right after construction, access `chars` (or call `split.split()` manually) once before iterating.
 
 
 ## API Reference

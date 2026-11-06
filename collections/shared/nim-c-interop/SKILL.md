@@ -7,25 +7,7 @@ allowed-tools: []
 
 # Nim C Interop
 
-## Introduction
-
-Nim compiles to C, enabling seamless interoperability with C code and libraries.
-This bi-directional integration allows Nim developers to leverage decades of C
-libraries while exposing Nim code to C applications. Understanding C interop is
-essential for systems programming and library wrapping.
-
-The interop mechanism uses pragmas like importc, exportc, and header to declare
-foreign functions and types. Nim's type system maps naturally to C, with explicit
-control over memory layout and calling conventions. This enables zero-overhead
-abstraction while maintaining C ABI compatibility.
-
-This skill covers importing C functions and types, wrapping C libraries, header
-file generation, memory layout control, callback handling, and patterns for safe
-type-safe C interop in systems programming.
-
 ## Importing C Functions
-
-Import C functions using pragmas to make them callable from Nim code.
 
 ```nim
 # Basic C function import
@@ -109,11 +91,7 @@ proc cpp_function(x: cint): cint
 proc cos(x: cdouble): cdouble {.importc, header: "<math.h>".}
 ```
 
-Import pragmas enable calling C code with full type safety from Nim.
-
 ## Wrapping C Libraries
-
-Create type-safe Nim wrappers around C libraries for idiomatic usage.
 
 ```nim
 # Simple wrapper
@@ -232,11 +210,7 @@ proc registerEvent() =
   c_register_callback(nimCallback, nil)
 ```
 
-Wrappers provide Nim-idiomatic interfaces while preserving C library functionality.
-
 ## Exporting to C
-
-Export Nim functions to C using exportc pragma for library creation.
 
 ```nim
 # Basic export
@@ -316,11 +290,7 @@ proc safeOperation(value: cint): cint {.exportc.} =
     result = -1
 ```
 
-Exportc enables creating C-compatible libraries from Nim code.
-
 ## Memory Layout and Alignment
-
-Control memory layout for C struct compatibility and performance.
 
 ```nim
 # Packed structures
@@ -403,11 +373,7 @@ proc createFlexArray(size: int): ptr FlexArray =
   result.length = cint(size)
 ```
 
-Memory layout control ensures C compatibility and optimal performance.
-
 ## FFI Patterns and Safety
-
-Common patterns for safe foreign function interface usage.
 
 ```nim
 # Safe string conversion
@@ -476,83 +442,47 @@ elif defined(posix):
   proc posixFunc() {.importc, header: "<unistd.h>".}
 ```
 
-Safe FFI patterns prevent common C interop errors and resource leaks.
-
 ## Best Practices
 
-1. **Use distinct types** for C handles to prevent mixing different handle types
+1. **Use distinct types** for C handles so handle types cannot mix
 
-2. **Implement destructors** for wrapped resources to ensure cleanup
+2. **Wrap C APIs** in Nim-idiomatic interfaces; do not expose raw C
 
-3. **Check for nil** when receiving pointers from C code
+3. **Make every handle wrapper move-only** (`=copy {.error.}`) so no copy can
+   double-free the C resource
 
-4. **Use cstring carefully** as Nim strings and C strings have different lifetimes
+4. **Ship a hand-written header** for exported procs, synced with `exportc`
+   names. With `--noMain`, call `NimMain()` once before other exports
 
-5. **Wrap C APIs** with Nim-idiomatic interfaces rather than exposing C directly
-
-6. **Test interop code** thoroughly as type mismatches cause runtime errors
-
-7. **Make every handle wrapper move-only** (`=copy {.error.}`) so a copy can
-   never double-free the C resource
-
-8. **Ship a hand-written header** for exported procs and keep it in sync with
-   the `exportc` names; call `NimMain()` once before other exports when built
-   with `--noMain`
-
-9. **Handle C errors** explicitly and convert to Nim exceptions
-
-10. **Document memory ownership** for functions passing pointers between
-    Nim and C
+5. **Handle C errors** explicitly; convert to Nim exceptions
 
 ## Common Pitfalls
 
-1. **Not preserving string lifetime** when passing Nim strings to C causes corruption
+1. **Forgetting to link C libraries** with passL causes undefined symbol errors
 
-2. **Forgetting to link C libraries** with passL causes undefined symbol errors
+2. **Mismatching calling conventions** (cdecl vs stdcall) causes stack corruption
 
-3. **Mismatching calling conventions** (cdecl vs stdcall) causes stack corruption
+3. **Not handling nil pointers** from C causes segmentation faults
 
-4. **Not handling nil pointers** from C causes segmentation faults
+4. **Handing a `ref` to C without keeping a Nim-side owner** lets ARC/ORC free
+   it while C still holds the pointer. Keep the `ref` alive (store it, or
+   `GC_ref` then `GC_unref`) while C may call back with it
 
-5. **Incorrect memory layout** for C structs causes data corruption
+5. **Mixing Nim and C memory** management causes double-free or leaks
 
-6. **Handing a `ref` to C without keeping a Nim-side owner** lets ARC/ORC free
-   it while C still holds the pointer; keep it alive (store it, or `GC_ref`
-   and later `GC_unref`) for as long as C may call back with it
-
-7. **Not checking C return values** misses error conditions
-
-8. **Mixing Nim and C memory** management causes double-free or leaks
-
-9. **Re-declaring C structs by hand** instead of importing them: prefer
-   `{.importc: "struct x", header: "x.h".} = object` so the C compiler owns the
-   layout; use `{.packed.}` only when the C side is packed
-
-10. **Not testing on target platform** misses platform-specific issues
-
-## When to Use This Skill
-
-Apply C interop when wrapping existing C libraries for Nim projects.
-
-Use importc to leverage battle-tested C code without reimplementation.
-
-Export Nim functions to create libraries usable from C applications.
-
-Integrate with system APIs only available through C interfaces.
-
-Optimize hot paths by calling optimized C implementations.
-
-Build upon C ecosystems while writing higher-level Nim code.
+6. **Re-declaring C structs by hand** instead of importing them: prefer
+   `{.importc: "struct x", header: "x.h".} = object` so the C compiler owns
+   layout. Use `{.packed.}` only if the C struct is packed
 
 ## Done when
 
-- Every imported proc matches the C prototype (types, `cint`/`csize_t`,
+- Every imported proc matches its C prototype (types, `cint`/`csize_t`,
   calling convention) and links (`{.passL: "-lfoo".}` or `dynlib`).
 - Each owned C handle lives in a move-only wrapper with Nim 2 hooks
   (`=destroy(x: T)`, `=wasMoved`, `=copy {.error.}`).
-- No `cstring` derived from a Nim string outlives that string, and every
-  pointer handed to C has a documented owner and free function.
-- Built and run on the target platform; examples here were not compiled while
+- No `cstring` from a Nim string outlives that string. Every pointer handed
+  to C has a documented owner and free function.
+- Built and run on target platform. Examples here were not compiled while
   editing this skill.
 
 ## Resources

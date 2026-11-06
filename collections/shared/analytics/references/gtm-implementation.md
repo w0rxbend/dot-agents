@@ -1,7 +1,5 @@
 # Google Tag Manager Implementation Reference
 
-Detailed guide for implementing tracking via Google Tag Manager.
-
 ## Contents
 - Container Structure (tags, triggers, variables)
 - Naming Conventions
@@ -16,8 +14,6 @@ Detailed guide for implementing tracking via Google Tag Manager.
 
 ### Tags
 
-Tags are code snippets that execute when triggered.
-
 **Common tag types:**
 - GA4 Configuration (base setup)
 - GA4 Event (custom events)
@@ -27,8 +23,6 @@ Tags are code snippets that execute when triggered.
 - Custom HTML (for other pixels)
 
 ### Triggers
-
-Triggers define when tags fire.
 
 **Built-in triggers:**
 - Page View: All Pages, DOM Ready, Window Loaded
@@ -43,8 +37,6 @@ Triggers define when tags fire.
 - Trigger Groups (multiple conditions)
 
 ### Variables
-
-Variables capture dynamic values.
 
 **Built-in (enable as needed):**
 - Click Text, Click URL, Click ID, Click Classes
@@ -207,7 +199,7 @@ dataLayer.push({
 **Settings:**
 - Measurement ID: G-XXXXXXXX
 - Send page view: Checked (for pageviews)
-- User Properties: Add any user-level dimensions
+- User Properties: Add user-level dimensions
 
 **Trigger:** All Pages
 
@@ -270,7 +262,7 @@ dataLayer.push({
 **What to check:**
 - Tags fired on this event
 - Tags not fired (and why)
-- Variables and their values
+- Variables and values
 - Data layer contents
 
 ### Debug Tips
@@ -343,7 +335,7 @@ function grantConsent() {
 ### GTM Consent Overview
 
 1. Enable Consent Overview in Admin
-2. Configure consent for each tag
+2. Configure consent per tag
 3. Tags respect consent state automatically
 
 ---
@@ -352,7 +344,7 @@ function grantConsent() {
 
 ### Tag Sequencing
 
-**Setup tags to fire in order:**
+**Fire tags in order:**
 Tag Configuration > Advanced Settings > Tag Sequencing
 
 **Use cases:**

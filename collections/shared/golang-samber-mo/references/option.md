@@ -21,9 +21,9 @@
 
 | Function | Description |
 | --- | --- |
-| `mo.Some[T](value T)` | Creates Option with a present value |
-| `mo.None[T]()` | Creates Option with an absent value |
-| `mo.TupleToOption[T](value T, ok bool)` | Converts (value, bool) tuple — Some if ok is true, None otherwise |
+| `mo.Some[T](value T)` | Creates Option with present value |
+| `mo.None[T]()` | Creates Option with absent value |
+| `mo.TupleToOption[T](value T, ok bool)` | Converts (value, bool) tuple: Some if ok is true, None otherwise |
 | `mo.EmptyableToOption[T](value T)` | None if value equals its zero value, Some otherwise |
 | `mo.PointerToOption[T](value *T)` | None if pointer is nil, Some(\*value) otherwise |
 
@@ -35,7 +35,7 @@
 | `IsAbsent()` / `IsNone()` | `bool` | True if value is missing |
 | `Size()` | `int` | 1 if present, 0 if absent |
 | `Get()` | `(T, bool)` | Value and presence indicator |
-| `MustGet()` | `T` | Value or panics — use only inside `mo.Do` |
+| `MustGet()` | `T` | Value or panics. Use only inside `mo.Do` |
 
 ## Value Extraction
 
@@ -62,7 +62,7 @@ filtered := opt.Map(func(v int) (int, bool) {
 })
 ```
 
-**Go limitation:** Option.Map takes `func(T) (T, bool)` — the input and output types must be the same `T`. The bool controls whether the result is Some or None. To change the type (e.g. `Option[int]` to `Option[string]`), use sub-package `option.Map` — see [Pipelines Reference](./pipelines.md).
+**Go limitation:** Option.Map takes `func(T) (T, bool)`. Input and output types must be the same `T`. Bool controls whether result is Some or None. To change type (e.g. `Option[int]` to `Option[string]`), use sub-package `option.Map`. See [Pipelines Reference](./pipelines.md).
 
 ### MapValue — transform without filter
 
@@ -72,7 +72,7 @@ doubled := opt.MapValue(func(v int) int { return v * 2 })
 // Some(84) — always stays Some if input was Some, no bool needed
 ```
 
-Unlike Map, MapValue's callback returns just `T` (not `(T, bool)`), so it cannot convert to None.
+Unlike Map, MapValue's callback returns only `T` (not `(T, bool)`), so it cannot convert to None.
 
 ### MapNone — provide value when absent
 
@@ -95,7 +95,7 @@ refreshed := findUser("123").FlatMap(func(u User) mo.Option[User] {
 })
 ```
 
-**Go limitation:** Direct `.FlatMap` requires `func(T) Option[T]` — same input and output type. For type-changing chains (e.g. `Option[User]` to `Option[string]`), use `option.FlatMap` from the sub-package or `mo.Do` notation.
+**Go limitation:** direct `.FlatMap` requires `func(T) Option[T]`: same input and output type. For type-changing chains (e.g. `Option[User]` to `Option[string]`), use `option.FlatMap` from sub-package or `mo.Do` notation.
 
 ### Match — handle both cases
 
@@ -130,7 +130,7 @@ mo.None[int]().Equal(mo.None[int]())  // true
 
 ## Serialization
 
-Option implements multiple encoding interfaces:
+Option implements several encoding interfaces:
 
 | Interface | Behavior |
 | --- | --- |
@@ -165,4 +165,4 @@ type Response struct {
 }
 ```
 
-`IsZero()` returns true when the Option is None, enabling the `omitzero` JSON tag.
+`IsZero()` returns true when Option is None, enabling `omitzero` JSON tag.

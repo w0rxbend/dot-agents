@@ -17,12 +17,12 @@
 
 ### Basic REST API Handler
 
-**Pattern:** Single Lambda function handling HTTP requests through API Gateway.
+**Pattern:** One Lambda function handles HTTP requests via API Gateway.
 
 **Use When:**
-- Building CRUD APIs with predictable traffic
+- CRUD APIs with predictable traffic
 - Execution time under 15 minutes
-- Need automatic scaling
+- Automatic scaling needed
 - Cost optimization for variable workloads
 
 **Architecture:**
@@ -47,14 +47,14 @@ ProvisionedConcurrency: 0 (avoid unless cold start critical)
 - 1M requests at 1GB memory, 500ms duration: ~$4.17/month
 
 **Memory Allocation Guidance:**
-- 128-256 MB: Simple data transformations, S3 processing
+- 128-256 MB: simple data transformations, S3 processing
 - 512-1024 MB: API handlers, moderate database queries
-- 1536-3008 MB: Complex processing, ML inference, heavy I/O
-- 10240 MB: Maximum, for CPU-intensive workloads
+- 1536-3008 MB: complex processing, ML inference, heavy I/O
+- 10240 MB: maximum, for CPU-intensive workloads
 
 ### Event-Driven Processing
 
-**Pattern:** Lambda triggered by events from S3, DynamoDB Streams, or EventBridge.
+**Pattern:** Lambda triggered by S3, DynamoDB Streams, or EventBridge events.
 
 **Architecture:**
 ```
@@ -94,7 +94,7 @@ ParallelizationFactor: 10  # Process 10 shards concurrently
 
 ### Scheduled Task Pattern
 
-**Pattern:** Lambda function running on schedule using EventBridge Rules.
+**Pattern:** Lambda runs on schedule via EventBridge Rules.
 
 **Use When:**
 - Periodic data processing (ETL jobs)
@@ -113,10 +113,9 @@ cron(0/15 * * * ? *)              # Every 15 minutes
 ```
 
 **Best Practices:**
-- Use UTC timezone for cron expressions
+- Use UTC for cron expressions
 - Set appropriate timeout (max 15 minutes)
-- Implement idempotency (safe to retry)
-- Use CloudWatch Logs for debugging
+- Make jobs idempotent (safe to retry)
 
 ## API Gateway Patterns
 
@@ -134,11 +133,11 @@ cron(0/15 * * * ? *)              # Every 15 minutes
 | Usage Plans | No | Yes |
 | WebSocket | Separate | No |
 
-**Recommendation:** Use HTTP API for 90% of use cases. Use REST API only when request validation, API keys, or usage plans required.
+**Recommendation:** Use HTTP API for 90% of use cases. Use REST API only for request validation, API keys, or usage plans.
 
 ### Lambda Proxy Integration
 
-**Pattern:** Pass entire request to Lambda, return entire response.
+**Pattern:** Pass whole request to Lambda, return whole response.
 
 **Request Format Received:**
 ```json
@@ -180,7 +179,7 @@ cron(0/15 * * * ? *)              # Every 15 minutes
 **Common Errors:**
 - Missing statusCode field (required)
 - Body not stringified (must be string, not object)
-- Incorrect header names (case-sensitive)
+- Wrong header names (case-sensitive)
 
 ### CORS Configuration
 
@@ -202,7 +201,7 @@ CorsConfiguration:
 ```
 
 **For REST API:**
-Must implement OPTIONS method with CORS headers in Lambda response.
+Must implement OPTIONS method returning CORS headers in Lambda response.
 
 ### Custom Domain Names
 
@@ -245,7 +244,7 @@ ApiMapping:
 
 **Use Cases:**
 - **Express:** API response orchestration, real-time data processing
-- **Standard:** Long-running workflows, ETL pipelines, human approval
+- **Standard:** long-running workflows, ETL pipelines, human approval
 
 ### Common State Types
 
@@ -317,7 +316,7 @@ ApiMapping:
 **Use When:**
 - Processing thousands to millions of items
 - Items stored in S3 (JSON array or CSV)
-- Need massive parallelism (10,000+ concurrent executions)
+- Massive parallelism needed (10,000+ concurrent executions)
 
 **Configuration:**
 ```json
@@ -357,16 +356,11 @@ ApiMapping:
 }
 ```
 
-**Performance:**
-- Can process millions of items in minutes
-- Automatic result aggregation to S3
-- Built-in fault tolerance
-
 ## EventBridge Patterns
 
 ### Event-Driven Architecture
 
-**Pattern:** Decouple producers and consumers using EventBridge.
+**Pattern:** Decouple producers and consumers via EventBridge.
 
 **Architecture:**
 ```
@@ -409,7 +403,7 @@ Producer Service → EventBridge Event Bus → EventBridge Rule → Target (Lamb
 
 ### EventBridge Pipes (2023+ Feature)
 
-**Pattern:** Simplified event processing with built-in filtering and enrichment.
+**Pattern:** Simpler event processing with built-in filtering and enrichment.
 
 **Architecture:**
 ```
@@ -417,8 +411,8 @@ Source (SQS/Kinesis/DynamoDB) → Filter → Enrichment (Lambda/API) → Target
 ```
 
 **Use When:**
-- Need to filter events before processing
-- Require data enrichment from external API
+- Events need filtering before processing
+- Data needs enrichment from external API
 - Want simpler configuration than Lambda + EventBridge
 
 **Configuration:**
@@ -511,7 +505,7 @@ Pipe:
 
 ### Single-Table Design
 
-**Pattern:** Store multiple entity types in one table using GSIs.
+**Pattern:** Store multiple entity types in one table with GSIs.
 
 **Primary Key Design:**
 ```
@@ -595,14 +589,14 @@ def lambda_handler(event, context):
 ### Java Cold Start Optimization
 
 **Use When:**
-- Using Java 11 or Java 17 runtime
-- Cold start latency is critical (APIs, synchronous processing)
-- Application initialization is expensive (framework startup, connection pools)
+- Java 11 or Java 17 runtime
+- Cold start latency critical (APIs, synchronous processing)
+- Initialization expensive (framework startup, connection pools)
 
 **Performance Improvement:**
 - Cold start: 10-15 seconds → 200-500 milliseconds
-- Warm start: No change (still fast)
-- Cost: Same as regular Lambda
+- Warm start: no change (still fast)
+- Cost: same as regular Lambda
 
 **Configuration:**
 ```yaml
@@ -645,7 +639,7 @@ private static HttpClient getClient() {
 
 **Uniqueness Requirements:**
 - Generate unique IDs in handler, not initialization
-- Refresh credentials on each invocation
+- Refresh credentials on every invocation
 - Don't cache sensitive data in static variables
 
 ## Response Streaming
@@ -653,13 +647,13 @@ private static HttpClient getClient() {
 ### Large Response Pattern (2023+ Feature)
 
 **Use When:**
-- Response size exceeds 6 MB (synchronous limit)
-- Need to stream data to client incrementally
+- Response exceeds 6 MB (synchronous limit)
+- Streaming data to client incrementally
 - Generating large reports or files
 
 **Maximum Size:**
 - Standard response: 6 MB
-- Streaming response: larger than buffered (see current Lambda quotas; the limit has been raised over time)
+- Streaming response: larger than buffered (check current Lambda quotas; limit has been raised over time)
 
 **Configuration:**
 ```yaml
@@ -779,7 +773,7 @@ def dlq_handler(event, context):
 
 ### Idempotency
 
-**Pattern:** Ensure safe retries using idempotency keys.
+**Pattern:** Make retries safe with idempotency keys.
 
 **Implementation (Python):**
 ```python
@@ -840,7 +834,7 @@ def lambda_handler(event, context):
 - 128 MB, 1000ms = $0.0000002083 per invocation
 - 1024 MB, 125ms = $0.0000002083 per invocation (8x faster, same cost!)
 
-**Recommendation:** Use AWS Lambda Power Tuning to find optimal memory.
+**Recommendation:** Find optimal memory with AWS Lambda Power Tuning.
 
 ### Connection Pooling
 
@@ -875,8 +869,8 @@ def lambda_handler(event, context):
 ```
 
 **RDS Proxy (Recommended):**
-- Manages connection pooling automatically
-- Reduces overhead by 66%+
+- Pools connections automatically
+- Cuts overhead by 66%+
 - Built-in failover
 - IAM authentication support
 
@@ -898,14 +892,14 @@ DBProxy:
 ### Provisioned Concurrency
 
 **Use When:**
-- Cold starts are unacceptable (<100ms p99 required)
+- Cold starts unacceptable (<100ms p99 required)
 - Predictable high traffic (not cost-effective for variable traffic)
-- Cost is secondary to performance
+- Performance matters more than cost
 
 **Cost Model:**
 - Provisioned concurrency: $0.0000041667 per GB-second
 - On-demand: $0.0000166667 per GB-second
-- Provisioned is always running (charged even when idle)
+- Provisioned always runs (charged even when idle)
 
 **Configuration:**
 ```yaml
@@ -939,19 +933,19 @@ ScalingPolicy:
 
 ### Don't: Run Long-Running Tasks
 
-**Problem:** Lambda has 15-minute timeout limit.
+**Problem:** Lambda times out at 15 minutes.
 
 **Solution:** Use Step Functions, ECS Fargate, or Batch.
 
 ### Don't: Store State in /tmp
 
-**Problem:** /tmp is ephemeral and limited to 512 MB (10 GB in 2024+).
+**Problem:** /tmp is ephemeral, limited to 512 MB (10 GB in 2024+).
 
 **Solution:** Use S3, EFS, or ElastiCache for persistent storage.
 
 ### Don't: Use Lambda for Predictable High Traffic
 
-**Problem:** More expensive than Fargate/EC2 at constant utilization.
+**Problem:** Costs more than Fargate/EC2 at constant utilization.
 
 **Breakeven Analysis:**
 - Lambda: $0.0000166667 per GB-second
@@ -961,7 +955,7 @@ ScalingPolicy:
 
 ### Don't: Hardcode Configuration
 
-**Problem:** Requires redeployment for configuration changes.
+**Problem:** Configuration changes need redeployment.
 
 **Solution:** Use environment variables, Parameter Store, or AppConfig.
 
@@ -984,7 +978,7 @@ ScalingPolicy:
 
 ### Don't: Synchronous Step Functions for APIs
 
-**Problem:** Express workflows have 5-minute limit, standard workflows are slow.
+**Problem:** Express workflows cap at 5 minutes; standard workflows are slow.
 
 **Solution:** Use direct Lambda integration or asynchronous workflows.
 
@@ -995,12 +989,12 @@ ScalingPolicy:
 **Solution:**
 1. Request limit increase
 2. Use reserved concurrency to prevent throttling
-3. Implement backpressure (SQS rate limiting)
+3. Add backpressure (SQS rate limiting)
 4. Use Provisioned Concurrency for critical functions
 
 ### Don't: Skip VPC Best Practices
 
-**Problem:** Lambda in VPC requires ENIs (slow cold starts pre-2019).
+**Problem:** Lambda in VPC needs ENIs (slow cold starts pre-2019).
 
 **Modern Solution (Post-2019):**
 - Hyperplane ENIs (shared across functions)

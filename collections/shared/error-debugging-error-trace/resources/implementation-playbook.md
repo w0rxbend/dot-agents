@@ -1,14 +1,10 @@
 # Error Tracking and Monitoring Implementation Playbook
 
-This file contains detailed patterns, checklists, and code samples referenced by the skill.
-
-> **Version caveat:** these samples are starting templates, not drop-in code. The Sentry Node.js sample targets `@sentry/node` v8+ (functional integrations, `setupExpressErrorHandler`); the other samples are SDK-agnostic patterns. Check every call against the installed SDK version's documentation before use.
+> **Version caveat:** samples are starting templates, not drop-in code. Sentry Node.js sample targets `@sentry/node` v8+ (functional integrations, `setupExpressErrorHandler`); other samples are SDK-agnostic patterns. Check every call against installed SDK version's docs before use.
 
 ## Instructions
 
 ### 1. Error Tracking Analysis
-
-Analyze current error handling and tracking:
 
 **Error Analysis Script**
 ```python
@@ -97,11 +93,9 @@ class ErrorTrackingAnalyzer:
 
 ### 2. Error Tracking Service Integration
 
-Implement integrations with popular error tracking services:
-
 **Sentry Integration (Node.js, `@sentry/node` v8+)**
 
-Sentry JS v8 replaced the `new Sentry.Integrations.*` classes and `Sentry.Handlers.*` middleware with functional integrations and `Sentry.setupExpressErrorHandler`. HTTP, Express, Postgres, MySQL and MongoDB instrumentation, plus uncaught-exception and unhandled-rejection capture, are enabled by default, so do not add your own `process.on(...)` handlers that report the same errors again. Check option names against the installed major (profiling options in particular changed in later majors).
+Sentry JS v8 replaced `new Sentry.Integrations.*` classes and `Sentry.Handlers.*` middleware with functional integrations and `Sentry.setupExpressErrorHandler`. HTTP, Express, Postgres, MySQL and MongoDB instrumentation are enabled by default. So are uncaught-exception and unhandled-rejection capture. Do not add your own `process.on(...)` handlers that report same errors again. Check option names against installed major; profiling options especially changed in later majors.
 
 ```javascript
 // instrument.mjs - load before any other module: node --import ./instrument.mjs app.mjs
@@ -254,7 +248,7 @@ class ErrorTracker {
     
     private sanitizeEvent(event: ErrorEvent): ErrorEvent {
         // Remove sensitive data
-        const sensitiveKeys = ['password', 'token', 'secret', 'api_key'];
+        const sensitiveKeys = ['password', 'token', 'secret', 'api_key', 'authorization', 'cookie'];
         
         const sanitize = (obj: any): any => {
             if (!obj || typeof obj !== 'object') return obj;
@@ -312,8 +306,6 @@ class ErrorTracker {
 ```
 
 ### 3. Structured Logging Implementation
-
-Implement comprehensive structured logging:
 
 **Advanced Logger**
 ```typescript
@@ -445,8 +437,7 @@ export function requestLoggingMiddleware(logger: StructuredLogger) {
         // Log request
         logger.info('Incoming request', {
             method: req.method,
-            url: req.url,
-            ip: req.ip,
+            path: req.path,  // no query string (may carry tokens) or IP
             userAgent: req.get('user-agent')
         });
         
@@ -455,7 +446,7 @@ export function requestLoggingMiddleware(logger: StructuredLogger) {
             const duration = Date.now() - start;
             logger.info('Request completed', {
                 method: req.method,
-                url: req.url,
+                path: req.path,
                 status: res.statusCode,
                 duration,
                 contentLength: res.get('content-length')
@@ -468,8 +459,6 @@ export function requestLoggingMiddleware(logger: StructuredLogger) {
 ```
 
 ### 4. Error Alerting Configuration
-
-Set up intelligent alerting:
 
 **Alert Manager**
 ```python
@@ -632,8 +621,6 @@ class SlackAlertChannel:
 
 ### 5. Error Grouping and Deduplication
 
-Implement intelligent error grouping:
-
 **Error Grouping Algorithm**
 ```python
 import hashlib
@@ -749,8 +736,6 @@ class ErrorGrouper:
 ```
 
 ### 6. Performance Impact Tracking
-
-Monitor performance impact of errors:
 
 **Performance Monitor**
 ```typescript
@@ -873,8 +858,6 @@ class PerformanceMonitor {
 ```
 
 ### 7. Error Recovery Strategies
-
-Implement automatic error recovery:
 
 **Recovery Manager**
 ```javascript
@@ -1090,8 +1073,6 @@ class CircuitBreaker {
 
 ### 8. Error Dashboard
 
-Create comprehensive error dashboard:
-
 **Dashboard Component**
 ```typescript
 // error-dashboard.tsx
@@ -1239,16 +1220,3 @@ const ErrorStream: React.FC = () => {
     );
 };
 ```
-
-## Output Format
-
-1. **Error Tracking Analysis**: Current error handling assessment
-2. **Integration Configuration**: Setup for error tracking services
-3. **Logging Implementation**: Structured logging setup
-4. **Alert Rules**: Intelligent alerting configuration
-5. **Error Grouping**: Deduplication and grouping logic
-6. **Recovery Strategies**: Automatic error recovery implementation
-7. **Dashboard Setup**: Real-time error monitoring dashboard
-8. **Documentation**: Implementation and troubleshooting guide
-
-Focus on providing comprehensive error visibility, intelligent alerting, and quick error resolution capabilities.

@@ -46,9 +46,23 @@ def generate_sample_data():
     }
     return data
 
+FORMULA_PREFIXES = ('=', '+', '-', '@', '\t', '\r')
+
+def neutralize_formulas(value):
+    """Quote strings a spreadsheet would run as formulas (CSV/formula injection)."""
+    if isinstance(value, str):
+        return "'" + value if value.startswith(FORMULA_PREFIXES) else value
+    if isinstance(value, dict):
+        return {neutralize_formulas(k): neutralize_formulas(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [neutralize_formulas(v) for v in value]
+    return value
+
 def export_to_csv(data, output_path):
     """Export to CSV format"""
     import csv
+
+    data = neutralize_formulas(data)
 
     with open(output_path, 'w', newline='') as f:
         # Write KPIs section
@@ -100,6 +114,7 @@ def export_to_excel(data, output_path, include_charts=False):
         print("Install: pip install pandas openpyxl")
         sys.exit(1)
 
+    data = neutralize_formulas(data)
     with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
         # KPIs sheet
         kpi_df = pd.DataFrame([
@@ -174,7 +189,7 @@ def main():
     if args.api_url:
         import requests
         try:
-            response = requests.get(args.api_url)
+            response = requests.get(args.api_url, timeout=30)
             response.raise_for_status()
             data = response.json()
         except Exception as e:

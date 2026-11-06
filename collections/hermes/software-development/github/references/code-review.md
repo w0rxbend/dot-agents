@@ -1,11 +1,9 @@
 # GitHub Code Review
 
-Perform code reviews on local changes before pushing, or review open PRs on GitHub. Most of this skill uses plain `git` — the `gh`/`curl` split only matters for PR-level interactions.
-
 ## Prerequisites
 
 - Authenticated with GitHub (see `references/auth.md` in this skill)
-- Inside a git repository
+- Inside git repository
 
 ### Setup (for PR interactions)
 
@@ -18,7 +16,7 @@ else
     if _hermes_env="${HERMES_HOME:-$HOME/.hermes}/.env"; [ -f "$_hermes_env" ] && grep -q "^GITHUB_TOKEN=" "$_hermes_env"; then
       GITHUB_TOKEN=$(grep "^GITHUB_TOKEN=" "$_hermes_env" | head -1 | cut -d= -f2 | tr -d '\n\r')
     elif grep -q "github.com" ~/.git-credentials 2>/dev/null; then
-      GITHUB_TOKEN=$(uv run python "$GH_SKILL_DIR/scripts/git-credential-token.py")
+      GITHUB_TOKEN=$(python3 -I "$GH_SKILL_DIR/scripts/git-credential-token.py")
     fi
   fi
 fi
@@ -33,7 +31,7 @@ REPO=$(echo "$OWNER_REPO" | cut -d/ -f2)
 
 ## 1. Reviewing Local Changes (Pre-Push)
 
-This is pure `git` — works everywhere, no API needed.
+Pure `git`: works everywhere, no API.
 
 ### Get the Diff
 
@@ -53,14 +51,14 @@ git diff main...HEAD --stat
 
 ### Review Strategy
 
-1. **Get the big picture first:**
+1. **Big picture first:**
 
 ```bash
 git diff main...HEAD --stat
 git log main..HEAD --oneline
 ```
 
-2. **Review file by file** — use `read_file` on changed files for full context, and the diff to see what changed:
+2. **Review file by file**: `read_file` on changed files for full context, diff for what changed:
 
 ```bash
 git diff main...HEAD -- src/auth/login.py
@@ -82,11 +80,11 @@ git diff main...HEAD | grep -in "password\|secret\|api_key\|token.*=\|private_ke
 git diff main...HEAD | grep -n "<<<<<<\|>>>>>>\|======="
 ```
 
-4. **Present structured feedback** to the user.
+4. **Present structured feedback** to user.
 
 ### Review Output Format
 
-When reviewing local changes, present findings in this structure:
+For local changes, present findings in this structure:
 
 ```
 ## Code Review Summary
@@ -131,7 +129,7 @@ PR_NUMBER=123
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$OWNER/$REPO/pulls/$PR_NUMBER \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 pr = json.load(sys.stdin)
 print(f\"Title: {pr['title']}\")
@@ -144,7 +142,7 @@ print(f\"Body:\n{pr['body']}\")"
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$OWNER/$REPO/pulls/$PR_NUMBER/files \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 for f in json.load(sys.stdin):
     print(f\"{f['status']:10} +{f['additions']:-4} -{f['deletions']:-4}  {f['filename']}\")"
@@ -152,14 +150,14 @@ for f in json.load(sys.stdin):
 
 ### Check Out PR Locally for Full Review
 
-This works with plain `git` — no `gh` needed:
+Plain `git`, no `gh` needed:
 
 ```bash
 # Fetch the PR branch and check it out
 git fetch origin pull/123/head:pr-123
 git checkout pr-123
 
-# Now you can use read_file, search_files, run tests, etc.
+# Now you can use read_file, search_files; run PR code only per Step 5 gate
 
 # View diff against the base branch
 git diff main...pr-123
@@ -211,7 +209,7 @@ gh api repos/$OWNER/$REPO/pulls/123/comments \
 HEAD_SHA=$(curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$OWNER/$REPO/pulls/$PR_NUMBER \
-  | python -c "import sys,json; print(json.load(sys.stdin)['head']['sha'])")
+  | python3 -I -c "import sys,json; print(json.load(sys.stdin)['head']['sha'])")
 
 curl -s -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
@@ -241,7 +239,7 @@ gh pr review 123 --comment --body "Some suggestions, nothing blocking."
 HEAD_SHA=$(curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$OWNER/$REPO/pulls/$PR_NUMBER \
-  | python -c "import sys,json; print(json.load(sys.stdin)['head']['sha'])")
+  | python3 -I -c "import sys,json; print(json.load(sys.stdin)['head']['sha'])")
 
 curl -s -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
@@ -260,16 +258,16 @@ curl -s -X POST \
 
 Event values: `"APPROVE"`, `"REQUEST_CHANGES"`, `"COMMENT"`
 
-The `line` field refers to the line number in the *new* version of the file. For deleted lines, use `"side": "LEFT"`.
+`line` is line number in *new* version of file. For deleted lines, use `"side": "LEFT"`.
 
 ---
 
 ## 3. Review Checklist
 
-When performing a code review (local or PR), systematically check:
+For any review (local or PR), check systematically:
 
 ### Correctness
-- Does the code do what it claims?
+- Code does what it claims?
 - Edge cases handled (empty inputs, nulls, large data, concurrent access)?
 - Error paths handled gracefully?
 
@@ -282,8 +280,8 @@ When performing a code review (local or PR), systematically check:
 ### Code Quality
 - Clear naming (variables, functions, classes)
 - No unnecessary complexity or premature abstraction
-- DRY — no duplicated logic that should be extracted
-- Functions are focused (single responsibility)
+- DRY: no duplicated logic that should be extracted
+- Focused functions (single responsibility)
 
 ### Testing
 - New code paths tested?
@@ -292,7 +290,7 @@ When performing a code review (local or PR), systematically check:
 
 ### Performance
 - No N+1 queries or unnecessary loops
-- Appropriate caching where beneficial
+- Caching where beneficial
 - No blocking operations in async code paths
 
 ### Documentation
@@ -304,20 +302,20 @@ When performing a code review (local or PR), systematically check:
 
 ## 4. Pre-Push Review Workflow
 
-When the user asks you to "review the code" or "check before pushing":
+When user asks to "review the code" or "check before pushing":
 
-1. `git diff main...HEAD --stat` — see scope of changes
-2. `git diff main...HEAD` — read the full diff
-3. For each changed file, use `read_file` if you need more context
-4. Apply the checklist above
-5. Present findings in the structured format (Critical / Warnings / Suggestions / Looks Good)
-6. If critical issues found, offer to fix them before the user pushes
+1. `git diff main...HEAD --stat` — scope of changes
+2. `git diff main...HEAD` — read full diff
+3. Per changed file, `read_file` if more context needed
+4. Apply checklist above
+5. Present findings in structured format (Critical / Warnings / Suggestions / Looks Good)
+6. If critical issues found, offer to fix them before user pushes
 
 ---
 
 ## 5. PR Review Workflow (End-to-End)
 
-When the user asks you to "review PR #N", "look at this PR", or gives you a PR URL, follow this recipe:
+When user asks to "review PR #N", "look at this PR", or gives PR URL:
 
 ### Step 1: Set up environment
 
@@ -328,7 +326,7 @@ source "$GH_SKILL_DIR/scripts/gh-env.sh"
 
 ### Step 2: Gather PR context
 
-Get the PR metadata, description, and list of changed files to understand scope before diving into code.
+Get PR metadata, description and changed files; grasp scope before reading code.
 
 **With gh:**
 ```bash
@@ -352,7 +350,7 @@ curl -s -H "Authorization: token $GITHUB_TOKEN" \
 
 ### Step 3: Check out the PR locally
 
-This gives you full access to `read_file`, `search_files`, and the ability to run tests.
+Unlocks `read_file`, `search_files` and (gated, Step 5) running tests.
 
 ```bash
 git fetch origin pull/$PR_NUMBER/head:pr-$PR_NUMBER
@@ -371,13 +369,15 @@ git diff main...HEAD --name-only
 git diff main...HEAD -- path/to/file.py
 ```
 
-For each changed file, use `read_file` to see full context around the changes — diffs alone can miss issues visible only with surrounding code.
+Per changed file, `read_file` for full context around changes.
 
 ### Step 5: Run automated checks locally (if applicable)
 
+PR code is untrusted (tests, linter configs and build scripts can read env, `~/.git-credentials`, gh config). Default: read-only diff review. Run them only after user confirms, in a disposable sandbox/container without credentials; at minimum strip tokens with `env -u GITHUB_TOKEN -u GH_TOKEN`.
+
 ```bash
-# Run tests if there's a test suite
-python -m pytest 2>&1 | tail -20
+# Run tests if there's a test suite (after user confirms)
+env -u GITHUB_TOKEN -u GH_TOKEN python -m pytest 2>&1 | tail -20
 # or: npm test, cargo test, go test ./..., etc.
 
 # Run linter if configured
@@ -387,15 +387,13 @@ ruff check . 2>&1 | head -30
 
 ### Step 6: Apply the review checklist (Section 3)
 
-Go through each category: Correctness, Security, Code Quality, Testing, Performance, Documentation.
-
 ### Step 7: Post the review to GitHub
 
-Collect your findings and submit them as a formal review with inline comments.
+Submit findings as formal review with inline comments. First show user verdict, inline comments and summary; post (review, comments, Step 8) only after explicit confirmation. Never approve unless user says so.
 
 **With gh:**
 ```bash
-# If no issues — approve
+# Approve only on user's explicit OK
 gh pr review $PR_NUMBER --approve --body "Reviewed by Hermes Agent. Code looks clean — good test coverage, no security concerns."
 
 # If issues found — request changes with inline comments
@@ -406,7 +404,7 @@ gh pr review $PR_NUMBER --request-changes --body "Found a few issues — see inl
 ```bash
 HEAD_SHA=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$GH_OWNER/$GH_REPO/pulls/$PR_NUMBER \
-  | python -c "import sys,json; print(json.load(sys.stdin)['head']['sha'])")
+  | python3 -I -c "import sys,json; print(json.load(sys.stdin)['head']['sha'])")
 
 # Build the review JSON — event is APPROVE, REQUEST_CHANGES, or COMMENT
 curl -s -X POST \
@@ -426,7 +424,7 @@ curl -s -X POST \
 
 ### Step 8: Also post a summary comment
 
-In addition to inline comments, leave a top-level summary so the PR author gets the full picture at a glance. Use the review output format from `references/review-output-template.md`.
+Use review output format from `references/review-output-template.md`.
 
 **With gh:**
 ```bash
@@ -464,5 +462,5 @@ git branch -D pr-$PR_NUMBER
 ### Decision: Approve vs Request Changes vs Comment
 
 - **Approve** — no critical or warning-level issues, only minor suggestions or all clear
-- **Request Changes** — any critical or warning-level issue that should be fixed before merge
-- **Comment** — observations and suggestions, but nothing blocking (use when you're unsure or the PR is a draft)
+- **Request Changes** — any critical or warning-level issue to fix before merge
+- **Comment** — observations and suggestions, nothing blocking (use when unsure or PR is draft)

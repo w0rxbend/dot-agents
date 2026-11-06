@@ -34,9 +34,9 @@
 
 ### Multi-Phase Deployments
 
-**Problem:** Dropping columns or renaming tables can break running application instances during deployment.
+**Problem:** Dropping columns or renaming tables can break running app instances during deploy.
 
-**Solution:** Multi-phase migrations that maintain backward compatibility.
+**Solution:** Multi-phase migrations that keep backward compatibility.
 
 ## Common Patterns
 
@@ -51,7 +51,7 @@ ALTER TABLE users ADD COLUMN phone VARCHAR(20);
 -- ALTER TABLE users ALTER COLUMN phone SET NOT NULL;
 ```
 
-**Why Safe:** New code can write to column, old code ignores it.
+**Why Safe:** New code writes to column; old code ignores it.
 
 ### 2. Dropping a Column
 
@@ -203,13 +203,15 @@ def downgrade():
 ### TypeScript (Prisma Migrate)
 
 ```bash
+export CHECKPOINT_DISABLE=1 PRISMA_DISABLE_TELEMETRY=1  # Prisma CLI telemetry off
+
 # Create migration
 npx prisma migrate dev --name add_users
 
-# Apply to production
+# Apply to production (review SQL first; confirm with user)
 npx prisma migrate deploy
 
-# Reset (development only!)
+# Reset (development only! drops all data)
 npx prisma migrate reset
 ```
 
@@ -219,10 +221,10 @@ npx prisma migrate reset
 # Generate migration
 npx drizzle-kit generate:pg
 
-# Apply migration
+# Prototype only: push syncs schema directly, can drop columns/data. Never on production.
 npx drizzle-kit push:pg
 
-# Or use custom migration runner
+# Production: apply reviewed generated SQL with a migration runner
 ```
 
 ### Rust (SQLx)
@@ -251,11 +253,11 @@ sqlx::migrate!("./migrations")
 # Create migration
 migrate create -ext sql -dir migrations -seq add_users
 
-# Run migrations
-migrate -path migrations -database "postgresql://..." up
+# Run migrations (URL from env, not inline)
+migrate -path migrations -database "$DATABASE_URL" up
 
 # Rollback
-migrate -path migrations -database "postgresql://..." down 1
+migrate -path migrations -database "$DATABASE_URL" down 1
 ```
 
 ## Best Practices
@@ -263,7 +265,7 @@ migrate -path migrations -database "postgresql://..." down 1
 ### 1. Test Migrations in Staging
 
 ```bash
-# Copy production data to staging
+# Copy production data to staging (mask PII; confirm with user first)
 pg_dump -h prod -d mydb | psql -h staging -d mydb_staging
 
 # Run migration in staging

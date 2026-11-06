@@ -1,7 +1,5 @@
 # Cryptography Security Rules
 
-Cryptography vulnerabilities threaten confidentiality and integrity of sensitive data.
-
 **Rules:**
 
 1. TLS MUST use 1.2+.
@@ -36,16 +34,16 @@ Cryptography vulnerabilities threaten confidentiality and integrity of sensitive
 
 ## Algorithm Selection Guide
 
-Choose the right algorithm for the job — using the wrong primitive (e.g. SHA256 for passwords) is as dangerous as using a broken one:
+Wrong primitive (e.g. SHA256 for passwords) is as dangerous as broken one:
 
 | Use Case | Recommended | Avoid | Why |
 | --- | --- | --- | --- |
-| Symmetric encryption | AES-256-GCM, ChaCha20-Poly1305 | DES, 3DES, AES-ECB, RC4 | ECB reveals patterns; DES/RC4 are broken |
+| Symmetric encryption | AES-256-GCM, ChaCha20-Poly1305 | DES, 3DES, AES-ECB, RC4 | ECB reveals patterns; DES/RC4 broken |
 | Password hashing | Argon2id (preferred), bcrypt, scrypt | MD5, SHA-1, plain SHA-256 | Fast hashes enable brute-force; memory-hard functions resist GPU attacks |
 | Message authentication | HMAC-SHA256, Poly1305 | HMAC-MD5, HMAC-SHA1 | MD5/SHA1 have known collision weaknesses |
 | Digital signatures | Ed25519, ECDSA P-256 | RSA-PKCS1v1.5 | PKCS1v1.5 has padding oracle vulnerabilities |
 | Key exchange | X25519, ECDH P-256 | Static RSA key transport | Forward secrecy requires ephemeral keys |
-| Random generation | `crypto/rand` | `math/rand` | `math/rand` output is predictable |
+| Random generation | `crypto/rand` | `math/rand` | `math/rand` output predictable |
 | TLS | TLS 1.2+ (prefer 1.3) | TLS 1.0, 1.1, SSL | Known attacks (BEAST, POODLE) on older versions |
 
 ### Key Size Requirements
@@ -60,7 +58,7 @@ Choose the right algorithm for the job — using the wrong primitive (e.g. SHA25
 
 ## Key Rotation Pattern
 
-Keys should be rotated periodically. Use envelope encryption so rotating the Key Encryption Key (KEK) doesn't require re-encrypting all data:
+Rotate keys periodically. Envelope encryption lets you rotate Key Encryption Key (KEK) without re-encrypting all data:
 
 ```go
 // Envelope encryption: encrypt data with a DEK, encrypt DEK with KEK
@@ -117,7 +115,7 @@ func DecryptAESGCM(key, ciphertext []byte) ([]byte, error) {
 }
 ```
 
-When the KEK is rotated, only re-encrypt the DEKs (small), not the data (potentially large).
+On KEK rotation, re-encrypt only DEKs (small), not data (potentially large).
 
 ---
 
@@ -125,7 +123,7 @@ When the KEK is rotated, only re-encrypt the DEKs (small), not the data (potenti
 
 ### Mistake 1: AES-ECB reveals patterns — High
 
-ECB encrypts each block independently — identical plaintext blocks produce identical ciphertext blocks, revealing data structure:
+ECB encrypts each block independently. Identical plaintext blocks give identical ciphertext blocks, exposing data structure:
 
 ```go
 // Bad — ECB mode reveals patterns in structured data
@@ -146,7 +144,7 @@ ciphertext := aead.Seal(nonce, nonce, plaintext, nil)
 
 ### Mistake 2: Reusing nonces — Critical
 
-A nonce reuse with AES-GCM completely breaks confidentiality and authentication:
+Nonce reuse with AES-GCM completely breaks confidentiality and authentication:
 
 ```go
 // Bad — static or reused nonce
@@ -161,13 +159,13 @@ if _, err := rand.Read(nonce); err != nil {
 
 ### Mistake 3: Non-constant-time comparison for secrets — Medium
 
-Comparing secrets with `==` short-circuits on the first differing byte, leaking timing information. See [Network/Web Security — Observable Timing](./network.md) for constant-time comparison patterns using `crypto/subtle`.
+`==` on secrets short-circuits on first differing byte, leaking timing. Constant-time patterns with `crypto/subtle`: [Network/Web Security — Observable Timing](./network.md).
 
 ---
 
 ## Insecure TLS Configuration — High
 
-Using insecure TLS configurations can expose your application to man-in-the-middle attacks.
+Insecure TLS config exposes app to man-in-the-middle attacks.
 
 **Bad:**
 
@@ -195,8 +193,6 @@ func secureConfig() *tls.Config {
 ---
 
 ## DES Encryption — High
-
-DES is cryptographically broken.
 
 **Bad:**
 
@@ -239,8 +235,6 @@ import "golang.org/x/crypto/ssh"
 
 ## MD5 Hash — High
 
-MD5 is collision-prone and weak for security.
-
 **Bad:**
 
 ```go
@@ -271,8 +265,6 @@ digest := sha256.Sum256(data)
 
 ## RC4 Cipher — High
 
-RC4 is cryptographically broken.
-
 **Bad:**
 
 ```go
@@ -295,8 +287,6 @@ aead, _ := chacha20poly1305.New(key)
 ---
 
 ## SHA1 Hash — Medium
-
-SHA1 provides insufficient collision resistance.
 
 **Bad:**
 
@@ -335,8 +325,6 @@ mac := hmac.New(sha256.New, key)
 
 ## Insufficient Key Strength — Medium
 
-RSA keys smaller than 2048 bits are insufficient.
-
 **Bad:**
 
 ```go
@@ -353,8 +341,6 @@ key, _ := rsa.GenerateKey(rand.Reader, 4096) // OK: 2048+ bits
 ---
 
 ## Weak Random Number Generators — High
-
-`math/rand` is predictable, never use for security.
 
 **Bad:**
 
@@ -375,8 +361,6 @@ _, err := rand.Read(bytes) // OK: cryptographically secure
 
 ## Weak TLS Versions — High
 
-TLS 1.0 and 1.1 have known vulnerabilities.
-
 **Bad:**
 
 ```go
@@ -393,8 +377,6 @@ import "crypto/tls"
 ---
 
 ## Password Hashing — High
-
-Don't use MD5, SHA1, or single-iteration hashes for passwords.
 
 **Bad:**
 
@@ -432,7 +414,7 @@ if err != nil {
 }
 ```
 
-For Go 1.24+, prefer stdlib `crypto/hkdf`, `crypto/pbkdf2`, and `crypto/sha3`. Use `golang.org/x/crypto/...` fallbacks only for modules targeting older Go versions or for algorithms still outside the standard library.
+Go 1.24+: prefer stdlib `crypto/hkdf`, `crypto/pbkdf2`, `crypto/sha3`. Use `golang.org/x/crypto/...` fallbacks only for modules targeting older Go versions or algorithms still outside stdlib.
 
 ---
 

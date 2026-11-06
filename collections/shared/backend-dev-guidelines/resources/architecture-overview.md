@@ -1,7 +1,5 @@
 # Architecture Overview - Backend Services
 
-Complete guide to the layered architecture pattern used in backend microservices.
-
 ## Table of Contents
 
 - [Layered Architecture Pattern](#layered-architecture-pattern)
@@ -60,28 +58,6 @@ Complete guide to the layered architecture pattern used in backend microservices
 └─────────────────────────────────────┘
 ```
 
-### Why This Architecture?
-
-**Testability:**
-- Each layer can be tested independently
-- Easy to mock dependencies
-- Clear test boundaries
-
-**Maintainability:**
-- Changes isolated to specific layers
-- Business logic separate from HTTP concerns
-- Easy to locate bugs
-
-**Reusability:**
-- Services can be used by routes, cron jobs, scripts
-- Repositories hide database implementation
-- Business logic not tied to HTTP
-
-**Scalability:**
-- Easy to add new endpoints
-- Clear patterns to follow
-- Consistent structure
-
 ---
 
 ## Request Lifecycle
@@ -121,7 +97,7 @@ Complete guide to the layered architecture pattern used in backend microservices
 
 ### Middleware Execution Order
 
-**Critical:** Middleware executes in registration order
+**Critical:** middleware runs in registration order.
 
 ```typescript
 // 1. Sentry: `import './instrument'` as the FIRST import of server.ts (@sentry/node v8+);
@@ -136,7 +112,7 @@ Sentry.setupExpressErrorHandler(app);        // 7. Sentry errors (after routes, 
 app.use(errorBoundary);                      // 8. Error handler (LAST)
 ```
 
-**Rule:** Error handlers must be registered AFTER routes!
+**Rule:** error handlers must come AFTER routes!
 
 ---
 
@@ -145,9 +121,9 @@ app.use(errorBoundary);                      // 8. Error handler (LAST)
 ### Email Service (Mature Pattern ✅)
 
 **Strengths:**
-- Comprehensive BaseController with Sentry integration
+- Full BaseController with Sentry integration
 - Clean route delegation (no business logic in routes)
-- Consistent dependency injection pattern
+- Consistent dependency injection
 - Good middleware organization
 - Type-safe throughout
 - Excellent error handling
@@ -170,7 +146,7 @@ email/src/
     └── DevImpersonationSSOMiddleware.ts
 ```
 
-**Use as template** for new services!
+**Use as template** for new services.
 
 ### Form Service (Transitioning ⚠️)
 
@@ -178,13 +154,13 @@ email/src/
 - Excellent workflow architecture (event sourcing)
 - Good Sentry integration
 - Innovative audit middleware (AsyncLocalStorage)
-- Comprehensive permission system
+- Full permission system
 
 **Weaknesses:**
-- Some routes have 200+ lines of business logic
+- Some routes hold 200+ lines of business logic
 - Inconsistent controller naming
 - Direct process.env usage (60+ occurrences)
-- Minimal repository pattern usage
+- Little repository pattern use
 
 **Example:**
 ```
@@ -213,74 +189,46 @@ form/src/
 
 ### Controllers Directory
 
-**Purpose:** Handle HTTP request/response concerns
+**Purpose:** HTTP request/response concerns
 
 **Contents:**
-- `BaseController.ts` - Base class with common methods
-- `{Feature}Controller.ts` - Feature-specific controllers
+- `BaseController.ts` - base class, shared methods
+- `{Feature}Controller.ts` - per-feature controllers
 
 **Naming:** PascalCase + Controller
 
-**Responsibilities:**
-- Parse request parameters
-- Validate input (Zod)
-- Call appropriate service methods
-- Format responses
-- Handle errors (via BaseController)
-- Set HTTP status codes
-
 ### Services Directory
 
-**Purpose:** Business logic and orchestration
+**Purpose:** business logic and orchestration
 
 **Contents:**
-- `{feature}Service.ts` - Feature business logic
+- `{feature}Service.ts` - feature business logic
 
 **Naming:** camelCase + Service (or PascalCase + Service)
 
-**Responsibilities:**
-- Implement business rules
-- Orchestrate multiple repositories
-- Transaction management
-- Business validations
-- No HTTP knowledge (Request/Response types)
-
 ### Repositories Directory
 
-**Purpose:** Data access abstraction
+**Purpose:** data access abstraction
 
 **Contents:**
-- `{Entity}Repository.ts` - Database operations for entity
+- `{Entity}Repository.ts` - database operations per entity
 
 **Naming:** PascalCase + Repository
 
-**Responsibilities:**
-- Prisma query operations
-- Query optimization
-- Database error handling
-- Caching layer
-- Hide Prisma implementation details
-
-**Current Gap:** Only 1 repository exists (WorkflowRepository)
+**Current Gap:** only 1 repository exists (WorkflowRepository)
 
 ### Routes Directory
 
-**Purpose:** Route registration ONLY
+**Purpose:** route registration ONLY
 
 **Contents:**
-- `{feature}Routes.ts` - Express router for feature
+- `{feature}Routes.ts` - Express router per feature
 
 **Naming:** camelCase + Routes
 
-**Responsibilities:**
-- Register routes with Express
-- Apply middleware
-- Delegate to controllers
-- **NO business logic!**
-
 ### Middleware Directory
 
-**Purpose:** Cross-cutting concerns
+**Purpose:** cross-cutting concerns
 
 **Contents:**
 - Authentication middleware
@@ -298,20 +246,20 @@ form/src/
 
 ### Config Directory
 
-**Purpose:** Configuration management
+**Purpose:** configuration management
 
 **Contents:**
-- `unifiedConfig.ts` - Type-safe configuration
-- Environment-specific configs
+- `unifiedConfig.ts` - type-safe configuration
+- Per-environment configs
 
-**Pattern:** Single source of truth
+**Pattern:** single source of truth
 
 ### Types Directory
 
 **Purpose:** TypeScript type definitions
 
 **Contents:**
-- `{feature}.types.ts` - Feature-specific types
+- `{feature}.types.ts` - feature types
 - DTOs (Data Transfer Objects)
 - Request/Response types
 - Domain models
@@ -322,7 +270,7 @@ form/src/
 
 ### Feature-Based Organization
 
-For large features, use subdirectories:
+Large features: use subdirectories.
 
 ```
 src/workflow/
@@ -337,11 +285,11 @@ src/workflow/
 **When to use:**
 - Feature has 5+ files
 - Clear sub-domains exist
-- Logical grouping improves clarity
+- Grouping improves clarity
 
 ### Flat Organization
 
-For simple features:
+Simple features:
 
 ```
 src/
@@ -354,7 +302,7 @@ src/
 **When to use:**
 - Simple features (< 5 files)
 - No clear sub-domains
-- Flat structure is clearer
+- Flat structure clearer
 
 ---
 
@@ -368,20 +316,20 @@ src/
 - ✅ Controller delegation
 - ❌ Business logic
 - ❌ Database operations
-- ❌ Validation logic (should be in validator or controller)
+- ❌ Validation logic (belongs in validator or controller)
 
 **Controllers Layer:**
 - ✅ Request parsing (params, body, query)
 - ✅ Input validation (Zod)
 - ✅ Service calls
-- ✅ Response formatting
-- ✅ Error handling
+- ✅ Response formatting, HTTP status codes
+- ✅ Error handling (via BaseController)
 - ❌ Business logic
 - ❌ Database operations
 
 **Services Layer:**
 - ✅ Business logic
-- ✅ Business rules enforcement
+- ✅ Business rule enforcement
 - ✅ Orchestration (multiple repos)
 - ✅ Transaction management
 - ❌ HTTP concerns (Request/Response)
@@ -442,11 +390,9 @@ async findByEmail(email: string): Promise<User | null> {
 }
 ```
 
-**Notice:** Each layer has clear, distinct responsibilities!
-
 ---
 
 **Related Files:**
-- [SKILL.md](../SKILL.md) - Main guide
-- [routing-and-controllers.md](routing-and-controllers.md) - Routes and controllers details
-- [services-and-repositories.md](services-and-repositories.md) - Service and repository patterns
+- [SKILL.md](../SKILL.md) - main guide
+- [routing-and-controllers.md](routing-and-controllers.md) - routes and controllers
+- [services-and-repositories.md](services-and-repositories.md) - service and repository patterns

@@ -1,6 +1,6 @@
 # Subjects Guide
 
-Subjects are both Observable and Observer — they can receive values (via `Send`, `Error`, `Complete`) and be subscribed to. Subjects are natively **hot**: subscribers share a single execution, and late subscribers only see future emissions (unless replay is configured).
+Subjects are both Observable and Observer: they receive values (via `Send`, `Error`, `Complete`) and accept subscribers. Natively **hot**: subscribers share one execution. Late subscribers only see future emissions (unless replay configured).
 
 ## Table of Contents
 
@@ -22,9 +22,9 @@ Subjects are both Observable and Observer — they can receive values (via `Send
 
 | Use case | Approach |
 | --- | --- |
-| Data pipeline from a known source (slice, channel, HTTP) | Cold observable (default) |
-| Event bus where producers and consumers are decoupled | Subject |
-| Multiple consumers need the same WebSocket/ticker stream | Cold observable + `Share()` or `ShareReplay()` |
+| Data pipeline from known source (slice, channel, HTTP) | Cold observable (default) |
+| Event bus with decoupled producers and consumers | Subject |
+| Multiple consumers need same WebSocket/ticker stream | Cold observable + `Share()` or `ShareReplay()` |
 | Imperatively push values from non-reactive code | Subject |
 | Bridge between callback API and reactive pipeline | Subject (receive callbacks, emit to pipeline) |
 
@@ -57,7 +57,7 @@ subject.Complete()
 
 ### BehaviorSubject
 
-Replays the **last emitted value** (or the initial value) to every new subscriber immediately on subscription.
+Replays **last emitted value** (or initial value) to every new subscriber immediately on subscription.
 
 ```go
 subject := ro.NewBehaviorSubject[int](0) // initial value = 0
@@ -75,11 +75,11 @@ subject.Subscribe(ro.OnNext(func(v int) {
 }))
 ```
 
-**Use when:** subscribers need the current state — config values, connection status, latest price.
+**Use when:** subscribers need current state — config values, connection status, latest price.
 
 ### ReplaySubject
 
-Buffers the last **N values** and replays them to every new subscriber.
+Buffers last **N values**, replays them to every new subscriber.
 
 ```go
 subject := ro.NewReplaySubject[string](3) // buffer size = 3
@@ -99,7 +99,7 @@ subject.Subscribe(ro.OnNext(func(s string) {
 
 ### AsyncSubject
 
-Emits **only the last value** and only when the subject completes. If the subject errors, no value is emitted.
+Emits **only the last value**, and only when subject completes. If subject errors, no value emitted.
 
 ```go
 subject := ro.NewAsyncSubject[int]()
@@ -116,7 +116,7 @@ subject.Send(3)
 subject.Complete() // triggers emission of 3, then "done"
 ```
 
-**Use when:** only the final result matters — computation result, last response in a batch.
+**Use when:** only final result matters — computation result, last response in batch.
 
 ### UnicastSubject
 
@@ -139,7 +139,7 @@ subject.Subscribe(ro.OnNext(func(v int) {
 
 ## Cold to Hot Conversion
 
-When you have a cold observable (e.g. an HTTP request) but need multiple subscribers to share it:
+Cold observable (e.g. HTTP request) that multiple subscribers must share:
 
 ### Share
 
@@ -154,7 +154,7 @@ hot.Subscribe(uiObserver)       // shares one HTTP call
 hot.Subscribe(metricsObserver)  // same data, no extra request
 ```
 
-`Share` uses reference counting: the source subscribes when the first subscriber arrives and unsubscribes when the last one leaves.
+`Share` uses reference counting: source subscribes when first subscriber arrives, unsubscribes when last one leaves.
 
 ### ShareReplay
 
@@ -165,7 +165,7 @@ hot := ro.Pipe1(cold, ro.ShareReplay[Data](1))
 
 ### Connectable Observable
 
-For precise control over when the shared subscription starts:
+Precise control over when shared subscription starts:
 
 ```go
 connectable := ro.Connectable[Data](cold)
@@ -192,8 +192,8 @@ sub, err := connectable.Connect(ctx)
 
 | Mistake | Why | Fix |
 | --- | --- | --- |
-| Calling `Send()` after `Complete()` | Values are silently dropped — the subject is terminal | Track lifecycle, don't reuse completed subjects |
+| Calling `Send()` after `Complete()` | Values silently dropped — subject is terminal | Track lifecycle, don't reuse completed subjects |
 | Using PublishSubject when late subscribers need history | Late subscribers miss all prior events | Use BehaviorSubject (last 1) or ReplaySubject (last N) |
-| Using ReplaySubject with unbounded buffer | Memory grows without limit | Set an explicit `bufferSize` |
+| Using ReplaySubject with unbounded buffer | Memory grows without limit | Set explicit `bufferSize` |
 | Multiple subscribers on UnicastSubject | Panics or undefined behavior | Use PublishSubject for multicast, UnicastSubject for single consumer |
-| Not calling `Complete()` on subjects | Subscribers wait forever, goroutine leak | Always `Complete()` or `Error()` when the source is done |
+| Not calling `Complete()` on subjects | Subscribers wait forever, goroutine leak | Always `Complete()` or `Error()` when source is done |

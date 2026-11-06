@@ -1,8 +1,5 @@
 # Drift Detection and Remediation
 
-Detecting and correcting configuration drift in GitOps workflows.
-
-
 ## Table of Contents
 
 - [Drift Detection Concepts](#drift-detection-concepts)
@@ -23,14 +20,14 @@ Detecting and correcting configuration drift in GitOps workflows.
 
 ## Drift Detection Concepts
 
-**Drift:** Divergence between desired state (Git) and actual state (cluster).
+**Drift:** actual state (cluster) diverges from desired state (Git).
 
 **Common Causes:**
-- Manual kubectl apply commands
+- Manual kubectl apply
 - Cluster operators modifying resources
 - External controllers changing state
-- Resource finalizers preventing deletion
-- CRD updates requiring migration
+- Finalizers blocking deletion
+- CRD updates needing migration
 
 ## ArgoCD Drift Detection
 
@@ -73,7 +70,7 @@ spec:
 # Sync specific resource
 argocd app sync myapp --resource apps:Deployment:myapp
 
-# Force sync (ignore hooks)
+# Force sync (may delete and recreate resources; confirm with user first)
 argocd app sync myapp --force
 
 # Sync with prune
@@ -124,7 +121,8 @@ metadata:
 spec:
   interval: 10m       # Check every 10 minutes
   prune: true         # Remove resources not in Git
-  force: true         # Force apply on conflicts
+  # force: true       # Opt-in only: recreates resources on immutable-field
+                      # conflicts (downtime; data loss for some resources)
   wait: true          # Wait for resources to be ready
   timeout: 5m
   sourceRef:
@@ -138,9 +136,8 @@ spec:
 ### ArgoCD Recovery
 
 ```bash
-# 1. Reinstall ArgoCD
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# 1. Reinstall ArgoCD at the same pinned release the cluster ran (not `stable`)
+ARGOCD_VERSION=v3.6.1 scripts/install-argocd.sh   # set to your release tag
 
 # 2. Re-register clusters
 argocd cluster add prod-cluster

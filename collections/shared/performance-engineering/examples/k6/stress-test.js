@@ -4,7 +4,7 @@
  * Demonstrates: Finding breaking points and maximum capacity
  *
  * Usage:
- *   k6 run stress-test.js
+ *   k6 run --no-usage-report stress-test.js
  *
  * Scenario:
  *   - Ramp up to 100 users over 2 minutes

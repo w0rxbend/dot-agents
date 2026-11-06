@@ -20,8 +20,6 @@ HSB advantages:
 - Desaturate: reduce S
 - Darken: reduce B
 - Monochrome variations: fix H, vary S and B
-- Complementary: `(hue + 180) % 360`
-- Analogous: `hue +/- 30`
 
 ### HSL
 

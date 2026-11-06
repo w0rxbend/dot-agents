@@ -1,6 +1,6 @@
 # Himalaya Configuration Reference
 
-Configuration file location: `~/.config/himalaya/config.toml`
+Config file location: `~/.config/himalaya/config.toml`
 
 ## Minimal IMAP + SMTP Setup
 
@@ -17,7 +17,7 @@ backend.port = 993
 backend.encryption.type = "tls"
 backend.login = "user@example.com"
 backend.auth.type = "password"
-backend.auth.raw = "your-password"
+backend.auth.cmd = "pass show email/imap"
 
 # SMTP backend for sending emails
 message.send.backend.type = "smtp"
@@ -26,7 +26,7 @@ message.send.backend.port = 587
 message.send.backend.encryption.type = "start-tls"
 message.send.backend.login = "user@example.com"
 message.send.backend.auth.type = "password"
-message.send.backend.auth.raw = "your-password"
+message.send.backend.auth.cmd = "pass show email/smtp"
 
 # Folder aliases — required whenever server folder names differ
 # from himalaya's canonical names. See "Folder Aliases" below.
@@ -57,7 +57,7 @@ backend.auth.cmd = "pass show email/imap"
 backend.auth.keyring = "imap-example"
 ```
 
-Then run `himalaya account configure <account>` to store the password.
+Then user runs `himalaya account configure <account>` in own terminal to store password.
 
 ## Gmail Configuration
 
@@ -94,7 +94,7 @@ folder.aliases.drafts = "[Gmail]/Drafts"
 folder.aliases.trash = "[Gmail]/Trash"
 ```
 
-**Note:** Gmail requires an App Password if 2FA is enabled.
+**Note:** Gmail requires App Password if 2FA is enabled.
 
 ## iCloud Configuration
 
@@ -120,14 +120,13 @@ message.send.backend.auth.type = "password"
 message.send.backend.auth.cmd = "pass show icloud/app-password"
 ```
 
-**Note:** Generate an app-specific password at appleid.apple.com
+**Note:** Generate app-specific password at appleid.apple.com
 
 ## Folder Aliases
 
 Map himalaya's canonical folder names (`inbox`, `sent`, `drafts`,
-`trash`) to whatever the server actually calls them. Use the
-v1.2.0 `folder.aliases.X` syntax (plural, dotted keys, directly
-under `[accounts.NAME]`):
+`trash`) to server's actual names. Use v1.2.0 `folder.aliases.X`
+syntax (plural, dotted keys, directly under `[accounts.NAME]`):
 
 ```toml
 [accounts.default]
@@ -139,7 +138,7 @@ folder.aliases.drafts = "Drafts"
 folder.aliases.trash = "Trash"
 ```
 
-The equivalent TOML sub-section form also works in v1.2.0:
+Equivalent TOML sub-section form also works in v1.2.0:
 
 ```toml
 [accounts.default.folder.aliases]
@@ -151,14 +150,14 @@ trash = "Trash"
 
 > **Don't use the singular `alias` form.** Pre-v1.2.0 docs showed
 > `[accounts.NAME.folder.alias]` (singular). v1.2.0 silently
-> ignores that sub-section — TOML parses without error, but the
-> alias resolver never reads it. Every lookup then falls through
-> to the canonical name. On Gmail (where `sent` is actually
-> `[Gmail]/Sent Mail`) this means save-to-Sent fails *after* SMTP
-> delivery succeeds, and `himalaya message send` exits non-zero.
-> Any caller (agent, script, user) that retries on that error
-> code will re-run the send — including SMTP — producing duplicate
-> emails to recipients. Always use `folder.aliases.X` (plural).
+> ignores that sub-section. TOML parses without error, but alias
+> resolver never reads it. Every lookup then falls through to
+> canonical name. On Gmail (where `sent` is actually
+> `[Gmail]/Sent Mail`), save-to-Sent fails *after* SMTP delivery
+> succeeds, and `himalaya message send` exits non-zero.
+> Any caller (agent, script, user) retrying on that error code
+> re-runs send, including SMTP, producing duplicate emails to
+> recipients. Always use `folder.aliases.X` (plural).
 
 ## Multiple Accounts
 

@@ -6,10 +6,10 @@ license: MIT
 
 # Mill code quality workflows
 
-Read [quality.md](references/quality.md) for language-specific integrations, exact useful task forms, adoption policy, and compatibility checks. Inspect the pinned Mill/plugin APIs before applying a documentation snippet; some prose examples contain mismatched names, so cross-check the configuration and module API.
+Read [quality.md](references/quality.md) for language-specific integrations, task forms, adoption policy, compatibility checks. Before applying docs snippets, inspect pinned Mill/plugin APIs. Some prose examples mismatch names; cross-check configuration and module API.
 
-Keep developer fix commands separate from CI check commands. A formatter that rewrites files successfully is not a formatting check. Scope operations to owned source roots and exclude generated/vendor outputs deliberately. Scala 3 formatting needs the Scala 3 dialect; do not copy a Scala 2 formatter setting into VSS code.
+Separate developer fix commands from CI check commands. Successful formatter rewrite is not a formatting check. Scope operations to owned source roots; deliberately exclude generated/vendor outputs. Scala 3 formatting needs Scala 3 dialect. Do not copy Scala 2 formatter setting into VSS code.
 
-Use ScalaFmt/Scalafix for Scala, Java formatters and Java analyzers for Java, and KtFmt/KtLint/Detekt for Kotlin. Do not wire Kotlin Detekt through ErrorProne because of a mistaken prose mention. Semantic and compiler plugins require matching compiler/version artifacts.
+Scala: ScalaFmt/Scalafix. Java: Java formatters and analyzers. Kotlin: KtFmt/KtLint/Detekt. Do not wire Kotlin Detekt through ErrorProne; docs prose mentions it by mistake. Semantic and compiler plugins need matching compiler/version artifacts.
 
-For a large repository, share owned configs and use gradual adoption/ratcheting when appropriate. Do not relax all warnings to accommodate one generated library. Check coverage and binary compatibility at the correct module/platform boundary; neither is interchangeable with ordinary tests.
+Large repositories: share owned configs; use gradual adoption/ratcheting when appropriate. Do not relax all warnings for one generated library. Check coverage and binary compatibility at correct module/platform boundary. Neither is interchangeable with ordinary tests.

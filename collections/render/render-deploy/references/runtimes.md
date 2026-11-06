@@ -1,7 +1,5 @@
 # Render Runtime Options
 
-Complete guide to available runtimes on Render, including versions, configuration, and best practices for each language.
-
 ## Native Language Runtimes
 
 ### Node.js (`runtime: node`)
@@ -11,7 +9,7 @@ Complete guide to available runtimes on Render, including versions, configuratio
 
 **Version Specification:**
 
-Specify Node version in `package.json`:
+Set Node version in `package.json`:
 ```json
 {
   "engines": {
@@ -39,13 +37,6 @@ npm start                       # Uses "start" script in package.json
 node server.js                  # Direct file execution
 node dist/main.js               # Built output
 ```
-
-**Popular Frameworks:**
-- Express.js, Fastify, Koa (APIs)
-- Next.js (full-stack React)
-- Nest.js (enterprise TypeScript)
-- Remix (full-stack React)
-- Nuxt.js (full-stack Vue)
 
 **Example Configuration:**
 ```yaml
@@ -97,12 +88,6 @@ uvicorn main:app --host 0.0.0.0 --port $PORT       # FastAPI
 celery -A tasks worker                              # Celery worker
 ```
 
-**Popular Frameworks:**
-- Django (full-stack web framework)
-- Flask (microframework)
-- FastAPI (modern async API framework)
-- Celery (task queue)
-
 **Example Configuration:**
 ```yaml
 type: web
@@ -121,14 +106,14 @@ startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
 
 **Version Specification:**
 
-Specify in `go.mod`:
+Set in `go.mod`:
 ```go
 module myapp
 
 go 1.22
 ```
 
-**Build System:** Uses Go modules
+**Build System:** Go modules
 
 **Common Build Commands:**
 ```bash
@@ -142,14 +127,6 @@ go build -tags netgo -ldflags '-s -w' -o bin/app
 ./bin/app
 ./bin/server
 ```
-
-**Popular Frameworks:**
-- net/http (standard library)
-- Gin (fast web framework)
-- Echo (high performance framework)
-- Chi (lightweight router)
-- Fiber (Express-inspired framework)
-- Gorilla Mux (powerful router)
 
 **Example Configuration:**
 ```yaml
@@ -195,11 +172,6 @@ bundle exec rackup -o 0.0.0.0 -p $PORT
 bundle exec sidekiq                                  # Worker
 ```
 
-**Popular Frameworks:**
-- Ruby on Rails (full-stack framework)
-- Sinatra (microframework)
-- Sidekiq (background jobs)
-
 **Example Configuration:**
 ```yaml
 type: web
@@ -228,12 +200,6 @@ cargo build --release --locked
 ```bash
 ./target/release/myapp
 ```
-
-**Popular Frameworks:**
-- Actix Web (powerful, performant)
-- Rocket (web framework with focus on usability)
-- Axum (modern, ergonomic framework)
-- Warp (composable web framework)
 
 **Example Configuration:**
 ```yaml
@@ -266,10 +232,6 @@ mix phx.server
 elixir --name myapp -S mix phx.server
 ```
 
-**Popular Frameworks:**
-- Phoenix (full-stack web framework)
-- Phoenix LiveView (real-time applications)
-
 **Example Configuration:**
 ```yaml
 type: web
@@ -285,7 +247,7 @@ startCommand: mix phx.server
 
 ### Docker (`runtime: docker`)
 
-Build your application from a Dockerfile in your repository.
+Builds app from Dockerfile in repository.
 
 **Additional Configuration:**
 - `dockerfilePath`: Path to Dockerfile (default: `./Dockerfile`)
@@ -321,9 +283,6 @@ CMD ["node", "dist/main.js"]
 ```
 
 **Best Practices:**
-- Use multi-stage builds to reduce image size
-- Copy `package.json` before source code (better caching)
-- Use `.dockerignore` to exclude unnecessary files
 - Expose port dynamically via `$PORT` environment variable
 - Run as non-root user for security
 
@@ -331,7 +290,7 @@ CMD ["node", "dist/main.js"]
 
 ### Pre-built Image (`runtime: image`)
 
-Deploy pre-built Docker images from a container registry.
+Deploys pre-built Docker images from container registry.
 
 **Additional Configuration:**
 - `image`: Full image URL with tag or digest
@@ -357,20 +316,14 @@ registryCredential:
     sync: false  # User provides in Dashboard
 ```
 
-**Use Cases:**
-- Deploy images built in CI/CD pipeline
-- Use images from container registries
-- Deploy Docker Hub images
-- Use private registry images
-
 ---
 
 ## Static Runtime (`runtime: static`)
 
-Serve pre-built static files without a backend runtime. Files are served via CDN.
+Serves pre-built static files without backend runtime. Files served via CDN.
 
 **Additional Configuration:**
-- `staticPublishPath`: Directory containing built files (e.g., `./dist`, `./build`)
+- `staticPublishPath`: Directory with built files (e.g., `./dist`, `./build`)
 
 **Common Build Commands by Framework:**
 
@@ -433,25 +386,25 @@ staticPublishPath: ./build
 ## Choosing the Right Runtime
 
 **Choose Node.js when:**
-- Building JavaScript-based applications
+- Building JavaScript-based apps
 - Need rich npm ecosystem
-- Want fast iteration and deployment
-- Building full-stack applications (Next.js, Remix)
+- Want fast iteration and deploys
+- Building full-stack apps (Next.js, Remix)
 
 **Choose Python when:**
-- Building data-heavy applications
+- Building data-heavy apps
 - Need machine learning libraries
 - Django or Flask expertise
 - Data processing pipelines
 
 **Choose Go when:**
-- Need high performance and low resource usage
+- Need high performance, low resource usage
 - Building microservices
-- Want simple deployment (single binary)
+- Want simple deploy (single binary)
 - Handling high concurrency
 
 **Choose Ruby when:**
-- Building traditional web applications
+- Building traditional web apps
 - Ruby on Rails expertise
 - Rapid development priority
 
@@ -462,7 +415,7 @@ staticPublishPath: ./build
 
 **Choose Docker when:**
 - Need custom system dependencies
-- Multi-language application
+- Multi-language app
 - Existing Dockerfile
 - Need full control over environment
 

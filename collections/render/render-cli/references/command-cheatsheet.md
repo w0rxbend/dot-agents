@@ -6,7 +6,10 @@
 # Interactive login (opens browser)
 render login
 
-# CI/CD authentication (no login needed)
+# Opt out of usage telemetry (CLI v2.26.0+)
+export RENDER_CLI_DISABLE_ANALYTICS=1
+
+# CI/CD authentication (no login needed; key from user's shell or CI secret store, never chat)
 export RENDER_API_KEY=rnd_...
 
 # Set active workspace
@@ -108,10 +111,8 @@ render blueprints validate path/to/render.yaml
 # Interactive skill management
 render skills
 
-# Install skills
+# Install / update skills (only on explicit user request)
 render skills install
-
-# Update skills
 render skills update
 
 # List installed skills
@@ -135,7 +136,7 @@ export RENDER_OUTPUT=json
 
 ## Non-Interactive Patterns
 
-Always include `--confirm` and `-o <format>` for CI/CD:
+In CI/CD the user wrote, include `--confirm` and `-o <format>`. Agent: get user approval before deploys, data writes or `render ssh` commands; pass `--confirm` only after.
 
 ```bash
 # Deploy and check exit code
@@ -152,8 +153,8 @@ render services -o json --confirm | jq -r '.[] | select(.id == "srv-xxx") | .ser
 ## Config
 
 ```bash
-# Config file location
-cat ~/.render/cli.yaml
+# Config file location (holds CLI token: never cat, print or paste it)
+ls -l ~/.render/cli.yaml
 
 # Override config path
 export RENDER_CLI_CONFIG_PATH=/path/to/cli.yaml

@@ -1,7 +1,5 @@
 # PDF Viewer Implementation
 
-Display PDFs in-browser with navigation, zoom, search, and annotations.
-
 ## Libraries
 
 | Library | Features | Size | Best For |
@@ -15,7 +13,8 @@ Display PDFs in-browser with navigation, zoom, search, and annotations.
 ```tsx
 import { Document, Page, pdfjs } from 'react-pdf';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+// Bundle worker locally; no runtime third-party script
+pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
 function PDFViewer({ file }: { file: string }) {
   const [numPages, setNumPages] = useState<number>(0);

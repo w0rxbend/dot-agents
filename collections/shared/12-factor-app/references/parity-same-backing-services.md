@@ -7,7 +7,7 @@ tags: parity, backing-services, consistency, testing
 
 ## Use the Same Type and Version of Backing Services in All Environments
 
-The twelve-factor developer resists the urge to use different backing services between development and production. Using SQLite locally and PostgreSQL in production, or mocking Redis in tests, creates subtle bugs that only appear in production.
+Twelve-factor developer resists using different backing services in development and production. SQLite locally with PostgreSQL in production, or mocked Redis in tests, creates subtle bugs that only appear in production.
 
 **Incorrect (different backing services):**
 
@@ -99,8 +99,8 @@ volumes:
 
 ```bash
 # Docker makes running real services trivial
-docker run -d -p 5432:5432 postgres:15
-docker run -d -p 6379:6379 redis:7
+docker run -d -p 127.0.0.1:5432:5432 postgres:15  # localhost only
+docker run -d -p 127.0.0.1:6379:6379 redis:7
 
 # Package managers have database packages
 brew install postgresql@15
@@ -108,15 +108,9 @@ brew install redis
 
 # Cloud emulators for cloud services
 # LocalStack for AWS
-docker run -d -p 4566:4566 localstack/localstack
+docker run -d -p 127.0.0.1:4566:4566 -e DISABLE_EVENTS=1 localstack/localstack:4.14.0  # no usage events
 # Firebase emulator for Google services
 firebase emulators:start
 ```
-
-**Benefits:**
-- Same query behavior in development and production
-- Same caching semantics everywhere
-- No "it works in SQLite" production bugs
-- Tests reflect real production behavior
 
 Reference: [The Twelve-Factor App - Dev/prod parity](https://12factor.net/dev-prod-parity)

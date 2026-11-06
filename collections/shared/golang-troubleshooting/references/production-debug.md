@@ -15,11 +15,11 @@
 
 ## Production Debugging Checklist
 
-When paged for a production issue:
+When paged for production issue:
 
 ### Step 1: Capture Immediately (don't restart!)
 
-Capture all profiles before restarting the process. The curl commands in [pprof.md](./pprof.md) can be used targeting your production server address. At minimum, capture: goroutine dump (`?debug=2`), heap, CPU (30s), and mutex profiles.
+Capture all profiles before restarting process. Run curl commands in [pprof.md](./pprof.md) against production via its Remote Profiling rules (tunnel, auth), with user approval. At minimum capture: goroutine dump (`?debug=2`), heap, CPU (30s), mutex profiles.
 
 ### Step 2: System Metrics
 
@@ -32,7 +32,7 @@ netstat -an | grep ESTABLISHED | wc -l
 
 ### Step 3: Analyze Locally
 
-Download the captured `.prof` files and analyze with `go tool pprof` (see [pprof.md](./pprof.md)).
+Download captured `.prof` files and analyze with `go tool pprof` (see [pprof.md](./pprof.md)).
 
 ---
 
@@ -40,7 +40,7 @@ Download the captured `.prof` files and analyze with `go tool pprof` (see [pprof
 
 ### Strategic Log Placement
 
-Place logs at **component boundaries**, not sprinkled randomly. The goal is to see data entering and exiting each layer, so you can identify exactly which component corrupts or drops it:
+Place logs at **component boundaries**, not sprinkled randomly. Goal: see data entering and exiting each layer, to identify exactly which component corrupts or drops it:
 
 ```go
 // 1. Function entry/exit with key parameters
@@ -130,9 +130,13 @@ if resp.StatusCode >= 400 {
     return fmt.Errorf("API error %d: %s", resp.StatusCode, body)
 }
 
-// 4. Dump full request/response for debugging
+// 4. Dump request/response: local debugging only, never in production logs.
+// Dumps include Authorization/Cookie headers and bodies; redact secrets first.
 import "net/http/httputil"
-dump, _ := httputil.DumpRequestOut(req, true)
+redacted := req.Clone(req.Context())
+redacted.Header.Del("Authorization")
+redacted.Header.Del("Cookie")
+dump, _ := httputil.DumpRequestOut(redacted, false) // false: clone shares req.Body
 log.Printf("request:\n%s", dump)
 dump, _ = httputil.DumpResponse(resp, true)
 log.Printf("response:\n%s", dump)

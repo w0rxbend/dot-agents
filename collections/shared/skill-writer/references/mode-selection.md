@@ -1,6 +1,6 @@
 # Mode Selection
 
-Use this file first. Pick the smallest path that can satisfy the user's request.
+Read this file first. Pick smallest path that satisfies user's request.
 
 ## Skill classes
 
@@ -13,9 +13,9 @@ Use this file first. Pick the smallest path that can satisfy the user's request.
 ## Operation modes
 
 - `create`: new skill folder or new supporting files.
-- `update`: revise an existing skill without changing its core purpose.
-- `synthesize`: build a skill from external docs, local files, examples, or multiple sources.
-- `iterate`: improve a skill from observed outcomes, user feedback, traces, or examples.
+- `update`: revise existing skill without changing its core purpose.
+- `synthesize`: build skill from external docs, local files, examples, or multiple sources.
+- `iterate`: improve skill from observed outcomes, user feedback, traces, or examples.
 
 ## Required paths
 
@@ -26,10 +26,10 @@ Use this file first. Pick the smallest path that can satisfy the user's request.
 | `synthesize` | `synthesis-path.md`, then `authoring-path.md` |
 | `iterate` | `iteration-path.md`, then `authoring-path.md` |
 
-For hybrid work, run the paths in this order: `synthesize`, `iterate`, `authoring`, `evaluation`, `registration`.
+For hybrid work, run paths in this order: `synthesize`, `iterate`, `authoring`, `evaluation`, `registration`.
 
 ## Depth decision
 
-- Use a lightweight pass for small copy, metadata, or reference repairs.
-- Use a full synthesis pass when the skill depends on external behavior, tools, safety rules, or examples.
+- Use lightweight pass for small copy, metadata, or reference repairs.
+- Use full synthesis pass when skill depends on external behavior, tools, safety rules, or examples.
 - Ask one concise clarification only when target audience, tool surface, or safety boundary is unknown and cannot be inferred.

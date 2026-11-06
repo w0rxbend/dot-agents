@@ -1,6 +1,6 @@
 # Blueprint environment variable wiring
 
-This reference covers every supported pattern for `envVars` entries in `render.yaml`. Pair with the **render-blueprints** skill for service structure, previews, and validation.
+Pair with **render-blueprints** skill for service structure, previews and validation.
 
 ## Field summary
 
@@ -8,11 +8,11 @@ This reference covers every supported pattern for `envVars` entries in `render.y
 |-------|---------|
 | `key` | Environment variable name |
 | `value` | Hardcoded string (avoid secrets) |
-| `generateValue: true` | Platform generates a **base64 256-bit** random string |
+| `generateValue: true` | Platform generates **base64 256-bit** random string |
 | `sync: false` | Dashboard prompt on **initial Blueprint create only**; ignored on updates; not for previews or env groups |
-| `fromDatabase` | Pull fields from a Postgres (or other supported) database resource |
+| `fromDatabase` | Pull fields from Postgres (or other supported) database resource |
 | `fromService` | Pull connection details from another Render service |
-| `fromGroup` | Import all variables from an environment group by name |
+| `fromGroup` | Import all variables from environment group by name |
 
 ## `value` — hardcoded string
 
@@ -24,7 +24,7 @@ envVars:
     value: production
 ```
 
-Use only for non-sensitive configuration. Never commit API keys or passwords this way.
+Use only for non-sensitive config. Never commit API keys or passwords this way.
 
 ## `generateValue` — random secret
 
@@ -34,7 +34,7 @@ envVars:
     generateValue: true
 ```
 
-Render creates a **base64-encoded 256-bit** value at provision time. Rotating usually requires a manual Dashboard edit or API update depending on your workflow.
+Render creates **base64-encoded 256-bit** value at provision time. Rotation usually needs manual Dashboard edit or API update, depending on workflow.
 
 ## `sync: false` — Dashboard-supplied on first create
 
@@ -44,16 +44,15 @@ envVars:
     sync: false
 ```
 
-- Prompt appears in the Dashboard when the Blueprint **first** creates the service.
-- **Updates** to `render.yaml` do **not** re-trigger the prompt for existing services.
-- **Invalid** in environment group definitions.
+- Prompt appears in Dashboard when Blueprint **first** creates service.
+- **Updates** to `render.yaml` do **not** re-trigger prompt for existing services.
 - **Excluded** from preview environment behavior for protected values (treat as operator-managed).
 
 ## `fromDatabase` — database properties
 
-Reference a database defined in the same Blueprint (name must match the resource’s `name`).
+Reference database defined in same Blueprint (name must match resource’s `name`).
 
-Available **properties** (use the subset your app needs):
+Available **properties** (use subset app needs):
 
 - `connectionString`
 - `host`
@@ -140,7 +139,7 @@ For **private services** (`pserv`) or **web** services, typical properties:
 - `host` — internal hostname
 - `hostport` — `host:port` combined
 
-Alternatively, reference a **specific env var** exposed by the other service with `envVarKey` (when supported for that link type—confirm in Dashboard-generated Blueprints for your service types).
+Or reference **specific env var** exposed by other service with `envVarKey` (when supported for that link type; confirm in Dashboard-generated Blueprints for your service types).
 
 ```yaml
 services:
@@ -172,11 +171,11 @@ services:
       envVarKey: SERVICE_TOKEN
 ```
 
-(Adjust `type` to match the target service: `web`, `pserv`, etc.)
+(Adjust `type` to match target service: `web`, `pserv`, etc.)
 
 ## `fromGroup` — environment group
 
-Links **all** variables from the named group. Group must exist (or be created in the same Blueprint workflow, depending on your org’s pattern).
+Links **all** variables from named group. Group must exist (or be created in same Blueprint workflow, depending on org’s pattern).
 
 ```yaml
 services:
@@ -188,19 +187,19 @@ services:
         value: only-on-app
 ```
 
-Individual keys from the group appear as if they were defined on the service. **Service-level** keys override **group** keys with the same name.
+Group keys appear as if defined on service.
 
 ## Precedence
 
-1. **Service-level** `envVars` entries **override** any variable with the same name coming from linked **environment groups**.
-2. **Multiple groups** on one service: overlapping keys resolve using the **most recently created** group—this is **not guaranteed stable** across account operations. Prefer **non-overlapping** keys per group or a **single** group per concern.
+1. **Service-level** `envVars` entries **override** any same-name variable from linked **environment groups**.
+2. **Multiple groups** on one service: overlapping keys resolve to **most recently created** group. This is **not guaranteed stable** across account operations. Prefer **non-overlapping** keys per group or **single** group per concern.
 
 ## Edge cases
 
-- **`fromService` / `fromDatabase` outside the Blueprint file** — You may reference resources that are **not** declared in `render.yaml` **only if** they **already exist** in the same Render **workspace** (same team/account context) and names match. Otherwise provision fails at apply time.
+- **`fromService` / `fromDatabase` outside the Blueprint file** — Can reference resources **not** declared in `render.yaml` **only if** they **already exist** in same Render **workspace** (same team/account context) and names match. Otherwise provision fails at apply time.
 - **`sync: false` in groups** — Not allowed; use Dashboard or service-level entries.
-- **Preview environments** — Sensitive patterns (`sync: false`, some generated rotations) may behave differently; verify preview env docs in **render-blueprints**.
-- **Secret files** — Declared separately from `envVars`; paths are always `/etc/secrets/<filename>` at runtime.
+- **Preview environments** — Sensitive patterns (`sync: false`, some generated rotations) may behave differently. Verify preview env docs in **render-blueprints**.
+- **Secret files** — Declared separately from `envVars`. Paths always `/etc/secrets/<filename>` at runtime.
 
 ## Minimal multi-pattern example
 

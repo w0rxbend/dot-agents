@@ -15,27 +15,25 @@ metadata:
 
 ## When to use
 
-Use when users request: animated explanations, math animations, concept visualizations, algorithm walkthroughs, technical explainers, 3Blue1Brown style videos, or any programmatic animation with geometric/mathematical content. Creates 3Blue1Brown-style explainer videos, algorithm visualizations, equation derivations, architecture diagrams, and data stories using Manim Community Edition.
+Use for: animated explanations, math animations, concept visualizations, algorithm walkthroughs, technical explainers, 3Blue1Brown style videos, any programmatic geometric/mathematical animation.
 
 ## Creative Standard
 
-This is educational cinema. Every frame teaches. Every animation reveals structure.
+**Before writing a single line of code**, state the narrative arc. What misconception does it correct? What is the "aha moment"? What visual story moves viewer from confusion to understanding? Treat user's prompt as a starting point; interpret with pedagogical ambition.
 
-**Before writing a single line of code**, articulate the narrative arc. What misconception does this correct? What is the "aha moment"? What visual story takes the viewer from confusion to understanding? The user's prompt is a starting point — interpret it with pedagogical ambition.
+**Geometry before algebra.** Shape first, equation second.
 
-**Geometry before algebra.** Show the shape first, the equation second. Visual memory encodes faster than symbolic memory. When the viewer sees the geometric pattern before the formula, the equation feels earned.
+**First-render excellence is non-negotiable.** Output must be visually clear and aesthetically cohesive with no revision rounds. Anything cluttered, poorly timed, or like "AI-generated slides" is wrong.
 
-**First-render excellence is non-negotiable.** The output must be visually clear and aesthetically cohesive without revision rounds. If something looks cluttered, poorly timed, or like "AI-generated slides," it is wrong.
+**Opacity layering directs attention.** Never show everything at full brightness. Primary elements at 1.0, contextual at 0.4, structural (axes, grids) at 0.15.
 
-**Opacity layering directs attention.** Never show everything at full brightness. Primary elements at 1.0, contextual elements at 0.4, structural elements (axes, grids) at 0.15. The brain processes visual salience in layers.
+**Breathing room.** Every animation needs `self.wait()` after it. 2-second pause after key reveal is never wasted.
 
-**Breathing room.** Every animation needs `self.wait()` after it. The viewer needs time to absorb what just appeared. Never rush from one animation to the next. A 2-second pause after a key reveal is never wasted.
-
-**Cohesive visual language.** All scenes share a color palette, consistent typography sizing, matching animation speeds. A technically correct video where every scene uses random different colors is an aesthetic failure.
+**Cohesive visual language.** All scenes share one palette, typography sizing, animation speeds.
 
 ## Prerequisites
 
-Run `scripts/setup.sh` to verify all dependencies. Requires: Python 3.10+, Manim Community Edition v0.20+ (`pip install manim`), LaTeX (`texlive-full` on Linux, `mactex` on macOS), and ffmpeg. Reference docs tested against Manim CE v0.20.1.
+Run `scripts/setup.sh` to verify dependencies. Requires Python 3.10+, Manim Community Edition v0.20+ (`pip install manim`), LaTeX (`texlive-full` on Linux, `mactex` on macOS), and ffmpeg. Reference docs tested against Manim CE v0.20.1.
 
 ## Modes
 
@@ -45,13 +43,13 @@ Run `scripts/setup.sh` to verify all dependencies. Requires: Python 3.10+, Manim
 | **Equation derivation** | Math expressions | Step-by-step animated proof | `references/equations.md` |
 | **Algorithm visualization** | Algorithm description | Step-by-step execution with data structures | `references/graphs-and-data.md` |
 | **Data story** | Data/metrics | Animated charts, comparisons, counters | `references/graphs-and-data.md` |
-| **Architecture diagram** | System description | Components building up with connections | `references/mobjects.md` |
-| **Paper explainer** | Research paper | Key findings and methods animated | `references/scene-planning.md` |
+| **Architecture diagram** | System description | Components built up with connections | `references/mobjects.md` |
+| **Paper explainer** | Research paper | Key findings and methods animated | `references/paper-explainer.md` |
 | **3D visualization** | 3D concept | Rotating surfaces, parametric curves, spatial geometry | `references/camera-and-3d.md` |
 
 ## Stack
 
-Single Python script per project. No browser, no Node.js, no GPU required.
+No browser, no Node.js, no GPU required.
 
 | Layer | Tool | Purpose |
 |-------|------|---------|
@@ -66,12 +64,12 @@ Single Python script per project. No browser, no Node.js, no GPU required.
 PLAN --> CODE --> RENDER --> STITCH --> AUDIO (optional) --> REVIEW
 ```
 
-1. **PLAN** — Write `plan.md` with narrative arc, scene list, visual elements, color palette, voiceover script
-2. **CODE** — Write `script.py` with one class per scene, each independently renderable
+1. **PLAN** — Write `plan.md`: narrative arc, scene list, visual elements, color palette, voiceover script
+2. **CODE** — Write `script.py`, one class per scene, each independently renderable
 3. **RENDER** — `manim -ql script.py Scene1 Scene2 ...` for draft, `-qh` for production
 4. **STITCH** — ffmpeg concat of scene clips into `final.mp4`
 5. **AUDIO** (optional) — Add voiceover and/or background music via ffmpeg. See `references/rendering.md`
-6. **REVIEW** — Render preview stills, verify against plan, adjust
+6. **REVIEW** — Render preview stills, check against plan, adjust
 
 ## Project Structure
 
@@ -112,14 +110,14 @@ project-name/
 | Role | Font size | Usage |
 |------|-----------|-------|
 | Title | 48 | Scene titles, opening text |
-| Heading | 36 | Section headers within a scene |
+| Heading | 36 | Section headers in a scene |
 | Body | 30 | Explanatory text |
 | Label | 24 | Annotations, axis labels |
 | Caption | 20 | Subtitles, fine print |
 
 ### Fonts
 
-**Use monospace fonts for all text.** Manim's Pango renderer produces broken kerning with proportional fonts at all sizes. See `references/visual-design.md` for full recommendations.
+**Use monospace fonts for all text.** Manim's Pango renderer breaks kerning with proportional fonts at all sizes. Full recommendations: `references/visual-design.md`.
 
 ```python
 MONO = "Menlo"  # define once at top of file
@@ -133,8 +131,8 @@ Minimum `font_size=18` for readability.
 
 ### Per-Scene Variation
 
-Never use identical config for all scenes. For each scene:
-- **Different dominant color** from the palette
+Never use identical config for all scenes. Per scene:
+- **Different dominant color** from palette
 - **Different layout** — don't always center everything
 - **Different animation entry** — vary between Write, FadeIn, GrowFromCenter, Create
 - **Different visual weight** — some scenes dense, others sparse
@@ -143,11 +141,9 @@ Never use identical config for all scenes. For each scene:
 
 ### Step 1: Plan (plan.md)
 
-Before any code, write `plan.md`. See `references/scene-planning.md` for the comprehensive template.
+Write `plan.md` before any code. Full template: `references/scene-planning.md`.
 
 ### Step 2: Code (script.py)
-
-One class per scene. Every scene is independently renderable.
 
 ```python
 from manim import *
@@ -247,7 +243,7 @@ Always iterate at `-ql`. Only render `-qh` for final output.
 | `references/troubleshooting.md` | LaTeX errors, animation errors, common mistakes, debugging |
 | `references/animation-design-thinking.md` | When to animate vs show static, decomposition, pacing, narration sync |
 | `references/updaters-and-trackers.md` | ValueTracker, add_updater, always_redraw, time-based updaters, patterns |
-| `references/paper-explainer.md` | Turning research papers into animations — workflow, templates, domain patterns |
+| `references/paper-explainer.md` | Research papers into animations: workflow, templates, domain patterns |
 | `references/decorations.md` | SurroundingRectangle, Brace, arrows, DashedLine, Angle, annotation lifecycle |
 | `references/production-quality.md` | Pre-code, pre-render, post-render checklists, spatial layout, color, tempo |
 
@@ -255,21 +251,21 @@ Always iterate at `-ql`. Only render `-qh` for final output.
 
 ## Creative Divergence (use only when user requests experimental/creative/unique output)
 
-If the user asks for creative, experimental, or unconventional explanatory approaches, select a strategy and reason through it BEFORE designing the animation.
+Pick a strategy and reason through it BEFORE designing the animation.
 
-- **SCAMPER** — when the user wants a fresh take on a standard explanation
-- **Assumption Reversal** — when the user wants to challenge how something is typically taught
+- **SCAMPER** — when user wants a fresh take on a standard explanation
+- **Assumption Reversal** — when user wants to challenge how a topic is typically taught
 
 ### SCAMPER Transformation
-Take a standard mathematical/technical visualization and transform it:
-- **Substitute**: replace the standard visual metaphor (number line → winding path, matrix → city grid)
+Transform a standard mathematical/technical visualization:
+- **Substitute**: replace standard visual metaphor (number line → winding path, matrix → city grid)
 - **Combine**: merge two explanation approaches (algebraic + geometric simultaneously)
-- **Reverse**: derive backward — start from the result and deconstruct to axioms
+- **Reverse**: derive backward. Start from result, deconstruct to axioms
 - **Modify**: exaggerate a parameter to show why it matters (10x the learning rate, 1000x the sample size)
-- **Eliminate**: remove all notation — explain purely through animation and spatial relationships
+- **Eliminate**: remove all notation. Explain purely through animation and spatial relationships
 
 ### Assumption Reversal
-1. List what's "standard" about how this topic is visualized (left-to-right, 2D, discrete steps, formal notation)
-2. Pick the most fundamental assumption
+1. List what's "standard" about how topic is visualized (left-to-right, 2D, discrete steps, formal notation)
+2. Pick most fundamental assumption
 3. Reverse it (right-to-left derivation, 3D embedding of a 2D concept, continuous morphing instead of steps, zero notation)
-4. Explore what the reversal reveals that the standard approach hides
+4. Explore what reversal reveals that standard approach hides

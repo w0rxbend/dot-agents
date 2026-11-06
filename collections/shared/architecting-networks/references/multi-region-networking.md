@@ -1,28 +1,17 @@
 # Multi-Region Networking
 
-Cross-region connectivity patterns for disaster recovery and global applications.
-
-## Table of Contents
-
-1. [Use Cases](#use-cases)
-2. [Cross-Region VPC Peering](#cross-region-vpc-peering)
-3. [Global Load Balancing](#global-load-balancing)
-4. [Multi-Region Architecture Pattern](#multi-region-architecture-pattern)
-
----
-
 ## Use Cases
 
 1. **Disaster Recovery**
    - Failover to secondary region
-   - Data replication across regions
+   - Cross-region data replication
 
 2. **Global Applications**
-   - Serve users worldwide with low latency
+   - Low latency for users worldwide
    - Geo-distributed workloads
 
 3. **Data Residency**
-   - Compliance with regional data laws
+   - Regional data-law compliance
    - Data sovereignty requirements
 
 ## Cross-Region VPC Peering
@@ -56,9 +45,9 @@ resource "aws_vpc_peering_connection_accepter" "eu_accept" {
 
 ### GCP
 
-**VPC is global by default**
-- Subnets are regional
-- No cross-region peering needed within single VPC
+**VPC global by default**
+- Subnets regional
+- No cross-region peering needed within one VPC
 - Multi-region by design
 
 ### Azure
@@ -72,8 +61,8 @@ resource "aws_vpc_peering_connection_accepter" "eu_accept" {
 ### AWS Global Accelerator
 
 **Use When:**
-- Need static anycast IPs
-- Improve availability and performance globally
+- Static anycast IPs needed
+- Better global availability and performance
 - Instant regional failover
 
 **Cost:** $0.025/hour + $0.015/GB
@@ -109,8 +98,3 @@ resource "aws_vpc_peering_connection_accepter" "eu_accept" {
    │       │ Peering│       │
    └───────┘        └───────┘
 ```
-
-**Benefits:**
-- Low latency for global users
-- High availability (multi-region failover)
-- Disaster recovery

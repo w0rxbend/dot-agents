@@ -1,12 +1,5 @@
 # Testing SDK Code
 
-Guide to unit testing, mocking HTTP requests, and integration testing for SDKs.
-
-## Table of Contents
-
-1. [Mocking HTTP Requests](#mocking-http-requests)
-2. [Integration Tests](#integration-tests)
-
 ## Mocking HTTP Requests
 
 ### TypeScript (Vitest)

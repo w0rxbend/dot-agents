@@ -1,7 +1,5 @@
 # Subcommand Design Guide
 
-Comprehensive guide to structuring CLI command hierarchies with subcommands, nesting strategies, and organization patterns.
-
 ## Table of Contents
 
 - [Command Structure Patterns](#command-structure-patterns)
@@ -23,8 +21,8 @@ app command3 [args]
 
 **When to Use:**
 - Small CLIs with 5-10 distinct operations
-- Commands are independent (no natural groupings)
-- Simplicity is priority
+- Independent commands (no natural groupings)
+- Simplicity matters most
 
 **Example:**
 ```bash
@@ -36,13 +34,13 @@ myapp rollback
 ```
 
 **Advantages:**
-- Simple to understand and use
+- Simple to learn and use
 - Low cognitive load
 - Easy to implement
 
 **Disadvantages:**
 - Doesn't scale beyond 10-15 commands
-- No logical grouping of related operations
+- No grouping of related operations
 
 ### Pattern 2: Grouped Structure (Two Levels)
 
@@ -54,8 +52,8 @@ app group2 subcommand [args]
 
 **When to Use:**
 - Medium CLIs with logical groupings (10-30 commands)
-- Commands naturally cluster by resource or action
-- Need organization without overwhelming complexity
+- Commands cluster by resource or action
+- Organization without heavy complexity
 
 **Example (Resource-Based Grouping):**
 ```bash
@@ -79,12 +77,12 @@ docker image pull
 
 **Advantages:**
 - Logical organization
-- Scalable to 30-40 commands
+- Scales to 30-40 commands
 - Discoverable via help
 
 **Disadvantages:**
 - Slightly more typing
-- Requires choosing between resource-based or action-based grouping
+- Must choose resource-based or action-based grouping
 
 ### Pattern 3: Nested Structure (Three+ Levels)
 
@@ -95,7 +93,7 @@ app group subgroup command [args]
 
 **When to Use:**
 - Large CLIs with deep hierarchies (30+ commands)
-- Complex domains with multiple dimensions of organization
+- Complex domains with several organizing dimensions
 - Cloud provider CLIs, infrastructure tools
 
 **Example:**
@@ -113,14 +111,14 @@ aws s3 cp
 - Precise organization
 
 **Disadvantages:**
-- Can become unwieldy (typing overhead)
-- Difficult to remember deep paths
+- Can get unwieldy (typing overhead)
+- Deep paths hard to remember
 - Risk of over-nesting
 
-**⚠️ Warning:** Avoid nesting beyond 3 levels. Beyond this, consider:
-- Flattening hierarchy
-- Splitting into multiple CLI tools
-- Using aliases for common paths
+**⚠️ Warning:** Avoid nesting beyond 3 levels. Instead, consider:
+- Flatten hierarchy
+- Split into multiple CLI tools
+- Add aliases for common paths
 
 ## Organization Strategies
 
@@ -150,56 +148,15 @@ dbcli tables drop
 
 **When to Use:**
 - Managing resources (infrastructure, databases)
-- CRUD operations are primary use case
-- Users think in terms of "what" they're managing
+- CRUD operations are main use case
+- Users think about "what" they manage
 
 **Advantages:**
 - Natural for resource management
 - Clear resource boundaries
-- Easy to add new resources
+- Easy to add resources
 
-**Implementation:**
-
-**Python (Typer):**
-```python
-import typer
-
-app = typer.Typer()
-
-# Create subapps for each resource
-pods_app = typer.Typer()
-services_app = typer.Typer()
-
-@pods_app.command("list")
-def list_pods():
-    """List all pods."""
-    pass
-
-@pods_app.command("create")
-def create_pod(name: str):
-    """Create a pod."""
-    pass
-
-# Mount subapps
-app.add_typer(pods_app, name="pods")
-app.add_typer(services_app, name="services")
-```
-
-**Go (Cobra):**
-```go
-var rootCmd = &cobra.Command{Use: "myapp"}
-
-var podsCmd = &cobra.Command{Use: "pods"}
-var listPodsCmd = &cobra.Command{
-    Use:   "list",
-    Run: func(cmd *cobra.Command, args []string) {
-        // List pods
-    },
-}
-
-podsCmd.AddCommand(listPodsCmd)
-rootCmd.AddCommand(podsCmd)
-```
+**Implementation:** one sub-app/group command per resource; see [Language-Specific Implementation](#language-specific-implementation).
 
 ### Strategy 2: Action-Based (Verb-First Pattern)
 
@@ -224,9 +181,9 @@ build package dist/
 ```
 
 **When to Use:**
-- Actions are the primary mental model
+- Actions are primary mental model
 - Workflows are action-centric
-- Consistent actions across different resources
+- Same actions across resources
 
 **Advantages:**
 - Natural for workflow-oriented CLIs
@@ -256,7 +213,7 @@ app.add_typer(delete_app, name="delete")
 
 ### Strategy 3: Hybrid (Context-Dependent)
 
-**Organization:** Mix resource-based and action-based as appropriate
+**Organization:** Mix resource-based and action-based as fits
 
 **Structure:**
 ```
@@ -278,11 +235,11 @@ aws configure          # standalone action
 ```
 
 **When to Use:**
-- Some commands are clearly resource-bound
-- Other commands are standalone actions
-- Pragmatic balance between consistency and usability
+- Some commands clearly resource-bound
+- Others are standalone actions
+- Pragmatic balance of consistency and usability
 
-**Best Practice:** Be consistent within each command group, even if different groups use different patterns.
+**Best Practice:** Stay consistent within each command group, even if groups use different patterns.
 
 ## Naming Conventions
 
@@ -307,7 +264,7 @@ aws configure          # standalone action
 ### Consistency Rules
 
 **Verb Consistency:**
-- Choose one verb per action and stick to it
+- Pick one verb per action and keep it
 - ✅ Always use `create` (not mix of `create`, `new`, `add`)
 - ✅ Always use `list` (not mix of `list`, `ls`, `show`)
 
@@ -318,7 +275,7 @@ aws configure          # standalone action
 - ❌ Mix of `pod` and `services` (inconsistent)
 
 **Abbreviations:**
-- Support both full and short forms where appropriate
+- Support full and short forms where appropriate
 - `list` and `ls`, `delete` and `rm`
 - Document abbreviations in help text
 
@@ -611,13 +568,6 @@ app resource status
 
 ### 5. Design for Discoverability
 
-**Use `--help` liberally:**
-```bash
-myapp --help           # Root help
-myapp pods --help      # Group help
-myapp pods list --help # Command help
-```
-
 **Show examples in help:**
 ```python
 @app.command(help="""
@@ -664,13 +614,6 @@ myapp new-database  # Should be: myapp create database
 myapp add-role      # Should be: myapp create role
 ```
 
-### ❌ Over-Nesting
-```bash
-myapp infrastructure cloud provider aws region us-west-2 ec2 instances list
-# Too deep! Simplify to:
-myapp aws ec2 list --region us-west-2
-```
-
 ### ❌ Ambiguous Commands
 ```bash
 myapp run      # Run what? Tests? Server? Script?
@@ -692,11 +635,11 @@ myapp delete user   # action-based
 ## Command Hierarchy Checklist
 
 - [ ] Commands grouped logically (resource or action based)
-- [ ] Maximum nesting depth of 3 levels
+- [ ] Maximum nesting depth: 3 levels
 - [ ] Consistent verb usage (create, list, delete)
 - [ ] Consistent noun usage (singular or plural)
-- [ ] Help available at each level
+- [ ] Help at each level
 - [ ] Common aliases provided (ls, rm)
-- [ ] Global flags available to all subcommands
+- [ ] Global flags reach all subcommands
 - [ ] Examples in help text
 - [ ] Clear, descriptive command names

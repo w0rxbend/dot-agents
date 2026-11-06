@@ -18,62 +18,60 @@ metadata:
 
 # Render Background Workers
 
-This skill explains **worker** services on Render: processes that **consume jobs from a queue** instead of serving HTTP. Pair with **render-blueprints**, **render-env-vars**, and **render-networking** when wiring `render.yaml` and private connectivity.
+Worker services on Render: processes that consume queue jobs instead of serving HTTP. Pair with **render-blueprints**, **render-env-vars** and **render-networking** for `render.yaml` and private connectivity.
 
 ## When to Use
 
-- Designing or debugging **queue-backed workers** (Celery, Sidekiq, BullMQ, Asynq, etc.)
-- Choosing between a **worker**, **Cron Job**, or **Workflow** for background work
-- Configuring **Render Key Value** as a **broker** (not a cache) with correct **eviction policy**
-- Implementing **graceful shutdown** so in-flight jobs are not lost on deploy
-
-Per-framework setup and signal-handling detail: `references/queue-framework-setup.md`, `references/graceful-shutdown.md`.
+- Design or debug queue-backed workers (Celery, Sidekiq, BullMQ, Asynq, etc.)
+- Choose worker, Cron Job or Workflow for background work
+- Configure Render Key Value as broker (not cache) with correct eviction policy
+- Implement graceful shutdown so deploys do not lose in-flight jobs
 
 ## How Workers Work
 
-- **Long-running services** with **no inbound (HTTP) traffic**. Render does not expose a public URL or internal hostname for workers the way it does for web or private services—**workers cannot receive private network traffic directed at them**.
-- The typical pattern is a **poll loop**: the process connects to a **queue backend** (often **Render Key Value**, Redis-compatible **Valkey 8**) and **pulls jobs**.
-- Workers **can initiate outbound connections** on the private network—to **PostgreSQL**, **Key Value**, **private services**, **web services** (internal URLs), and the public internet—subject to your plan and firewall rules.
+- Long-running, no inbound (HTTP) traffic. Unlike web or private services, workers get no public URL or internal hostname. **Workers cannot receive private network traffic directed at them.**
+- Typical pattern: poll loop. Process connects to queue backend (often Render Key Value, Redis-compatible Valkey 8) and pulls jobs.
+- Workers can open outbound connections: private network to PostgreSQL, Key Value, private services, web services (internal URLs); also public internet. Plan and firewall rules apply.
 
 ## Queue Framework Overview
 
-| Framework | Language | Queue backend | Notes |
-|-----------|----------|---------------|--------|
-| Celery | Python | Redis / Key Value | Most common Python task queue |
-| Sidekiq | Ruby | Redis / Key Value | Standard for Rails |
-| BullMQ | Node.js | Redis / Key Value | Modern Node queue (Redis-based) |
-| Asynq | Go | Redis / Key Value | Go async task processing |
-| Oban | Elixir | **Postgres** (not Redis) | Queue stored in the database |
+| Framework | Language | Queue backend |
+|-----------|----------|---------------|
+| Celery | Python | Redis / Key Value |
+| Sidekiq | Ruby | Redis / Key Value |
+| BullMQ | Node.js | Redis / Key Value |
+| Asynq | Go | Redis / Key Value |
+| Oban | Elixir | **Postgres** (not Redis) |
 
 ## Pairing with Key Value
 
-- Use **Render Key Value** as the **job broker** when your framework expects Redis.
-- Set **maxmemory policy** to **`noeviction`**. **`allkeys-lru`** and similar policies are for **caches**; evicting queue keys **drops jobs**.
-- Wire **`REDIS_URL`** (or your framework’s equivalent) via **`fromService`** with `type: keyvalue` and `property: connectionString` in the Blueprint.
-- **Blueprints require `ipAllowList`** on Key Value—include the CIDRs that should reach the instance (often `[]` for private-network-only access; see **render-blueprints** / Key Value field reference).
+- Use Render Key Value as job broker when framework expects Redis.
+- Set maxmemory policy to **`noeviction`**. `allkeys-lru` and similar suit caches; evicting queue keys **drops jobs**.
+- In Blueprint, wire `REDIS_URL` (or framework equivalent) via `fromService` with `type: keyvalue`, `property: connectionString`.
+- Blueprints require `ipAllowList` on Key Value: CIDRs allowed to reach instance (often `[]` for private-network-only; see **render-blueprints** / Key Value field reference).
 
-See `references/queue-framework-setup.md` for minimal app + YAML examples.
+Per-framework (Celery, Sidekiq, BullMQ, Asynq, Oban) minimal app + YAML examples: `references/queue-framework-setup.md`.
 
 ## Worker vs Cron vs Workflow
 
 | Need | Use | Why |
 |------|-----|-----|
-| Always-on queue consumer | **Background Worker** | Polls continuously; long-lived process |
-| Periodic scheduled task | **Cron Job** | Runs on a schedule, **exits**; **12h max** per run |
-| Distributed parallel compute | **Workflow** | Each run gets its own instance; fan-out patterns |
-| High-volume or bursty jobs | **Workflow** | Scales per run; **no idle instance cost** between runs |
+| Always-on queue consumer | Background Worker | Polls continuously; long-lived |
+| Periodic scheduled task | Cron Job | Runs on schedule, exits; 12h max per run |
+| Distributed parallel compute | Workflow | Each run gets own instance; fan-out |
+| High-volume or bursty jobs | Workflow | Scales per run; no idle instance cost between runs |
 
 ## Graceful Shutdown
 
-- Before stopping an instance, Render sends **`SIGTERM`**, then waits up to **`maxShutdownDelaySeconds`** (**1–300**, **default 30**) before **`SIGKILL`**.
-- Workers should: **(1)** stop accepting new jobs, **(2)** finish the current job or **checkpoint** progress, **(3)** close connections, **(4)** exit **0**.
-- Set **`maxShutdownDelaySeconds`** to at least your **longest safe job duration** (see Dashboard or Blueprint).
+- Before stopping instance, Render sends `SIGTERM`, waits up to `maxShutdownDelaySeconds` (1–300, default 30), then sends `SIGKILL`.
+- Worker steps: (1) stop accepting new jobs, (2) finish current job or checkpoint progress, (3) close connections, (4) exit 0.
+- Set `maxShutdownDelaySeconds` to at least longest safe job duration (Dashboard or Blueprint).
 
 Language- and framework-specific handlers: `references/graceful-shutdown.md`.
 
 ## Blueprint Configuration
 
-Minimal pattern: **`type: worker`**, **`runtime`**, **`buildCommand`**, **`startCommand`**, and **`envVars`** wired from Key Value.
+Minimal pattern: `type: worker`, `runtime`, `buildCommand`, `startCommand`, plus `envVars` from Key Value.
 
 ```yaml
 services:
@@ -98,14 +96,7 @@ services:
           property: connectionString
 ```
 
-Optional: **`maxShutdownDelaySeconds`** on the worker service for longer draining jobs.
-
-## References
-
-| Topic | File |
-|--------|------|
-| Celery, Sidekiq, BullMQ, Asynq, Oban setup + YAML | `references/queue-framework-setup.md` |
-| SIGTERM, `maxShutdownDelaySeconds`, per-language patterns | `references/graceful-shutdown.md` |
+Optional: `maxShutdownDelaySeconds` on worker for long-draining jobs.
 
 ## Related Skills
 

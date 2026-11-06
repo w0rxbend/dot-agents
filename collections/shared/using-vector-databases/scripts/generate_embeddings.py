@@ -118,18 +118,14 @@ def main():
         default=100,
         help="Batch size for API requests"
     )
-    parser.add_argument(
-        "--api-key",
-        help="OpenAI API key (or set OPENAI_API_KEY env var)"
-    )
 
     args = parser.parse_args()
 
     # Validate API key
-    api_key = args.api_key or os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         print("Error: OpenAI API key not found.")
-        print("Set OPENAI_API_KEY environment variable or use --api-key")
+        print("Set the OPENAI_API_KEY environment variable")
         sys.exit(1)
 
     try:

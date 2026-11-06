@@ -1,13 +1,11 @@
 # Database Debugging
 
-Diagnose and fix PostgreSQL database issues on Render using MCP tools.
-
 ## When to Use Database Debugging
 
-Use these techniques when you see:
+Use when you see:
 - `ECONNREFUSED` or connection errors
 - `ETIMEDOUT` on database operations
-- Slow queries affecting application performance
+- Slow queries hurting app performance
 - Connection pool exhaustion
 - Database CPU/memory alerts
 
@@ -19,7 +17,7 @@ Use these techniques when you see:
 list_postgres_instances()
 ```
 
-Verify the database exists and note its ID.
+Verify database exists. Note its ID.
 
 ### Get Database Details
 
@@ -49,9 +47,9 @@ query_render_postgres(
 **Connection states:**
 | State | Meaning |
 |-------|---------|
-| `active` | Running a query |
-| `idle` | Connected but not running query |
-| `idle in transaction` | In a transaction, not running query (potential issue) |
+| `active` | Running query |
+| `idle` | Connected, not running query |
+| `idle in transaction` | In transaction, not running query (potential issue) |
 | `idle in transaction (aborted)` | Transaction failed, connection stuck |
 
 ### Check Connection Limits
@@ -74,7 +72,7 @@ query_render_postgres(
 ### Fix Connection Issues
 
 **Connection pool exhaustion:**
-1. Implement connection pooling in your app
+1. Add connection pooling in app
 2. Reduce connection timeout
 3. Close connections properly
 4. Upgrade database plan
@@ -113,7 +111,7 @@ query_render_postgres(
 )
 ```
 
-**Note:** `pg_stat_statements` must be enabled (it is by default on Render).
+**Note:** `pg_stat_statements` must be enabled (on by default on Render).
 
 ### Find Queries by Total Time
 
@@ -124,11 +122,11 @@ query_render_postgres(
 )
 ```
 
-This finds queries that consume the most total time (even if individual executions are fast).
+Finds queries consuming most total time, even if each execution is fast.
 
 ### Analyze Query Plans
 
-For a specific slow query, run EXPLAIN ANALYZE (be careful in production):
+For specific slow query, run EXPLAIN ANALYZE (careful in production):
 
 ```
 query_render_postgres(
@@ -162,7 +160,7 @@ query_render_postgres(
 )
 ```
 
-Indexes with `idx_scan = 0` are unused and could be removed.
+Indexes with `idx_scan = 0` are unused. Candidates for removal.
 
 ## Lock Debugging
 
@@ -227,7 +225,7 @@ get_metrics(
 )
 ```
 
-High database CPU usually indicates:
+High database CPU usually means:
 - Slow queries doing full table scans
 - Complex joins without proper indexes
 - High query volume

@@ -1,7 +1,5 @@
 # Complete Chart Type Catalog
 
-Detailed reference for all 24+ visualization types with implementation guidance, use cases, and design patterns.
-
 ## Table of Contents
 
 1. [Comparison Charts](#comparison-charts)
@@ -24,21 +22,20 @@ Detailed reference for all 24+ visualization types with implementation guidance,
 **Purpose:** Compare values across categories
 
 **When to Use:**
-- Comparing sales across products
-- Showing survey results
+- Sales across products
+- Survey results
 - Ranking items by value
-- 2-20 categories, straightforward comparisons
+- 2-20 categories, simple comparisons
 
-**Why It's Powerful:**
+**Strengths:**
 - Universally understood
-- Precise value comparison through length
+- Length gives precise value comparison
 - Easy to scan and rank
-- Works for most audiences
 
-**Implementation Guidance:**
-- Sort by value for easier reading (unless natural order matters)
-- Use horizontal bars for long category names
-- Limit to 20 categories (use filtering for more)
+**Implementation:**
+- Sort by value for readability (unless natural order matters)
+- Horizontal bars for long category names
+- Max 20 categories (filter for more)
 - Start y-axis at zero
 
 **Variants:**
@@ -49,7 +46,7 @@ Detailed reference for all 24+ visualization types with implementation guidance,
 **Accessibility:**
 - Direct labels on bars
 - Color + pattern for grouped bars
-- Provide data table alternative
+- Data table alternative
 
 ---
 
@@ -58,22 +55,20 @@ Detailed reference for all 24+ visualization types with implementation guidance,
 **Purpose:** Space-efficient alternative to bar charts
 
 **When to Use:**
-- Many categories to compare (10-30)
+- Many categories (10-30)
 - Emphasize endpoint values
-- Cleaner visual than dense bars
-- Modern, minimal aesthetic desired
+- Cleaner than dense bars
+- Modern, minimal look wanted
 
-**Why It's Powerful:**
-- Less visual clutter than bars
-- Draws attention to data point
+**Strengths:**
 - Better ink-to-data ratio
-- Effective for ranking displays
+- Good for rankings
 
 **Implementation:**
 - Circle at data point end
 - Thin line from baseline to circle
 - Sort by value for readability
-- Circle size should be consistent
+- Consistent circle size
 
 ---
 
@@ -82,18 +77,12 @@ Detailed reference for all 24+ visualization types with implementation guidance,
 **Purpose:** Before/after comparison showing change
 
 **When to Use:**
-- Showing ranking changes between two periods
+- Ranking changes between two periods
 - Before/after interventions
-- Emphasizing rate and direction of change
+- Emphasize rate and direction of change
 - 5-15 entities, two time points
 
-**Why It's Powerful:**
-- Instantly shows direction of change
-- Reveals ranking shifts
-- Emphasizes magnitude of change
-- Simple yet information-rich
-
-**Implementation Guidance:**
+**Implementation:**
 - Two vertical axes (start and end)
 - Lines connect same entity across time
 - Color-code by direction (up/down)
@@ -119,19 +108,16 @@ Before  After
 - Stock prices, sales trends
 - Website traffic patterns
 - Temperature/weather data
-- 1-4 series maximum for clarity
+- Max 1-4 series for clarity
 
-**Why It's Powerful:**
-- Natural representation of time flow
-- Easy to spot trends and patterns
+**Strengths:**
 - Reveals seasonality and cycles
 - Handles many data points well
 
 **Implementation:**
-- Use monotone or smooth interpolation
-- Add markers for actual data points
-- Multiple series: limit to 4
-- Include legend for multi-series
+- Monotone or smooth interpolation
+- Markers for actual data points
+- Legend for multi-series
 
 **Variants:**
 - Step chart: Discrete value changes
@@ -145,10 +131,10 @@ Before  After
 **Purpose:** Emphasize magnitude and volume over time
 
 **When to Use:**
-- Showing total volume/quantity
-- Emphasizing scale of values
+- Total volume/quantity
+- Scale of values
 - Cumulative totals
-- When filled area reinforces the message
+- Filled area reinforces message
 
 **Variants:**
 - Simple: Single series with fill
@@ -156,8 +142,8 @@ Before  After
 - Normalized (100%): Proportional composition
 
 **When to use stacked:**
-- Parts that sum to a meaningful total
-- Showing composition changes over time
+- Parts sum to meaningful total
+- Composition changes over time
 - Comparing category proportions
 
 ---
@@ -167,25 +153,21 @@ Before  After
 **Purpose:** Flowing composition over time with aesthetic emphasis
 
 **When to Use:**
-- Showing proportional change with visual appeal
-- Displaying evolving composition (4-10 categories)
+- Proportional change with visual appeal
+- Evolving composition (4-10 categories)
 - Cultural/music evolution over decades
 - Technology adoption patterns
 - Presentations where engagement matters
 
-**Why It's Powerful:**
-- Beautiful, engaging visual form
-- Natural "flow" metaphor resonates
-- Emphasizes continuity and organic change
+**Strengths:**
 - Center baseline reduces perceptual distortion
-- Memorable for presentations
 
-**Implementation Guidance:**
-- Use center-weighted or symmetric baseline
+**Implementation:**
+- Center-weighted or symmetric baseline
 - Organic, flowing shapes (not sharp edges)
-- Related categories placed near each other
-- Add interactive hover to isolate streams
-- Consider transparency for overlapping
+- Place related categories near each other
+- Interactive hover to isolate streams
+- Try transparency for overlap
 
 **Visual Form:**
 ```
@@ -201,9 +183,9 @@ Before  After
 ```
 
 **Cautions:**
-- Difficult to read exact values
-- Baseline ambiguity can confuse some users
-- Not suitable when precise comparison needed
+- Exact values hard to read
+- Baseline ambiguity confuses some users
+- Not suited to precise comparison
 
 ---
 
@@ -214,13 +196,13 @@ Before  After
 **When to Use:**
 - Dashboard KPIs
 - Tables with trend context
-- Small multiples in constrained space
+- Small multiples in tight space
 - Quick trend overview without detail
 
 **Implementation:**
 - Minimal: no axes, no labels
 - Typical height: 30-50px
-- Can include min/max markers
+- Optional min/max markers
 - Often grayscale or single color
 
 ---
@@ -232,13 +214,13 @@ Before  After
 **Purpose:** Show frequency distribution of continuous data
 
 **When to Use:**
-- Understanding data spread
-- Identifying skewness, bimodality
-- Detecting outliers
+- Data spread
+- Skewness, bimodality
+- Outlier detection
 - Statistical analysis
 
 **Implementation:**
-- Choose bin size using rules:
+- Bin size rules:
   - Sturges: k = 1 + log2(n)
   - Scott: h = 3.49σn^(-1/3)
   - Freedman-Diaconis: h = 2*IQR*n^(-1/3)
@@ -252,9 +234,9 @@ Before  After
 **Purpose:** Summary statistics with outlier detection
 
 **When to Use:**
-- Comparing distributions across groups
+- Compare distributions across groups
 - Quick statistical summary
-- Identifying outliers
+- Spot outliers
 - Technical/statistical audiences
 
 **Shows:** Minimum, Q1, median, Q3, maximum, outliers
@@ -278,22 +260,19 @@ Before  After
 **Purpose:** Full distribution shape with summary statistics
 
 **When to Use:**
-- Comparing distributions across categories
-- When distribution shape matters as much as summary
-- Revealing bimodal or multimodal distributions
+- Compare distributions across categories
+- Distribution shape matters as much as summary
+- Reveal bimodal or multimodal distributions
 - Scientific/technical data with complex distributions
 
-**Why It's Powerful:**
-- Shows full distribution, not just summary
+**Strengths:**
 - Reveals bimodality that box plots hide
-- Combines statistical rigor with visual richness
-- More informative than box plots alone
 
-**Implementation Guidance:**
+**Implementation:**
 - Mirror density estimation around vertical axis
 - Include box plot elements (median line, quartiles)
 - Optionally add individual data points
-- Width represents density at that value
+- Width shows density at that value
 
 **Example Use Cases:**
 - Salary distributions showing bimodal patterns
@@ -302,8 +281,8 @@ Before  After
 - Product ratings showing polarization
 
 **Cautions:**
-- Requires more space than box plots
-- Can be unfamiliar to non-technical audiences
+- Needs more space than box plots
+- Often unfamiliar to non-technical audiences
 - Less effective with <20 data points
 
 ---
@@ -313,23 +292,21 @@ Before  After
 **Purpose:** Compare many distributions efficiently
 
 **When to Use:**
-- Comparing distributions across many categories (6-30+)
-- Showing distribution evolution over time
+- Distributions across many categories (6-30+)
+- Distribution evolution over time
 - Temperature patterns by month
 - Any data where distribution shape matters
 
-**Why It's Powerful:**
-- Shows both shape and between-group comparison
-- Aesthetically appealing and space-efficient
+**Strengths:**
 - Easier to read than overlapping curves
 - Reveals patterns like bimodality, shifts
 
 **Implementation:**
-- Stack from top to bottom
-- Overlap by 20-40% for visibility
+- Stack top to bottom
+- Overlap 20-40% for visibility
 - Consistent horizontal scale
-- Add subtle transparency
-- Clear labels on the left
+- Subtle transparency
+- Clear labels on left
 
 ---
 
@@ -341,14 +318,14 @@ Before  After
 
 **When to Use:**
 - Exploring correlation
-- Identifying outliers and clusters
+- Spotting outliers and clusters
 - Finding patterns in two dimensions
 - <1000 points (use hexbin for more)
 
 **Implementation:**
 - Point size/color can encode third variable (bubble chart)
-- Add trend line if correlation exists
-- Consider jittering for overlapping points
+- Trend line if correlation exists
+- Try jitter for overlapping points
 
 ---
 
@@ -358,14 +335,14 @@ Before  After
 
 **When to Use:**
 - Relationship + magnitude
-- Comparing entities across 3 dimensions
-- Making impactful presentations
+- Compare entities across 3 dimensions
+- Impactful presentations
 
 **Implementation:**
 - Size encodes third variable
-- Use AREA not radius for sizing
+- Size by AREA, not radius
 - Limit to 20-50 bubbles
-- Consider overlap handling
+- Plan overlap handling
 
 ---
 
@@ -376,20 +353,18 @@ Before  After
 **When to Use:**
 - Scatter plots with thousands of overlapping points
 - Geographic density visualization
-- When individual points are less important than density
+- Individual points matter less than density
 - Large datasets (10,000+ points)
 
-**Why It's Powerful:**
-- Handles overplotting better than scatter
+**Strengths:**
 - Hexagons tile more naturally than squares
 - Shows density patterns at multiple scales
-- Reduces visual noise
 
 **Implementation:**
-- Choose bin size based on data density
+- Pick bin size from data density
 - Color gradient shows density
-- Optionally add contour lines
-- Provide zoom interaction
+- Optional contour lines
+- Zoom interaction
 
 ---
 
@@ -398,19 +373,17 @@ Before  After
 **Purpose:** Two-variable relationship evolving over time
 
 **When to Use:**
-- Showing relationship AND temporal evolution
+- Relationship AND temporal evolution
 - Economic analysis (e.g., Phillips curve)
 - Before/after with intermediate states
 - Cyclical relationship analysis
 
-**Why It's Powerful:**
-- Shows relationship AND time simultaneously
+**Strengths:**
 - Reveals loops, spirals, reversals
 - Path density shows acceleration/deceleration
-- Memorable visual form
 
 **Implementation:**
-- Add directional arrows or gradients
+- Directional arrows or gradients
 - Label key points (start, end, inflections)
 - Color gradient for temporal encoding
 - Annotate major events
@@ -447,21 +420,19 @@ Before  After
 - Hierarchical data with size comparison
 - Portfolio allocation (sectors → stocks)
 - File system disk usage
-- Budget breakdown by categories
+- Budget breakdown by category
 - Market share with sub-segments
 
-**Why It's Powerful:**
-- Space-efficient visualization
-- Shows proportions and hierarchy together
-- Can display thousands of items
+**Strengths:**
+- Space-efficient
+- Displays thousands of items
 - Immediate visual size comparison
-- Effective use of screen space
 
 **Implementation:**
-- Use squarified algorithm for better aspect ratios
+- Squarified algorithm for better aspect ratios
 - Color-code by category or performance
-- Add borders to distinguish levels
-- Implement zoom/drill-down for deep hierarchies
+- Borders to distinguish levels
+- Zoom/drill-down for deep hierarchies
 - Label only significant rectangles
 
 ---
@@ -473,14 +444,14 @@ Before  After
 **When to Use:**
 - Hierarchical data with aesthetic emphasis
 - Drill-down navigation through levels
-- When circular/radial metaphor fits
+- Circular/radial metaphor fits
 - Alternative to treemap
 
 **Implementation:**
 - Center is root, outer rings are leaves
 - Color by category or value
 - Click-to-zoom for interactivity
-- Add breadcrumb trail
+- Breadcrumb trail
 - Limit to 4-6 levels
 
 ---
@@ -496,9 +467,9 @@ Before  After
 - Financial reporting
 
 **Implementation:**
-- Floating bars showing incremental changes
+- Floating bars show incremental changes
 - Color-code positive (green) and negative (red)
-- Show running total at each step
+- Running total at each step
 - Final bar shows total
 
 ---
@@ -516,10 +487,8 @@ Before  After
 - Customer journey through website
 - Supply chain visualization
 
-**Why It's Powerful:**
+**Strengths:**
 - Instantly reveals major flows and losses
-- Shows redistribution and transformation
-- Width encoding is highly intuitive
 - Reveals inefficiencies and bottlenecks
 
 **Implementation:**
@@ -527,7 +496,7 @@ Before  After
 - Nodes = states, Links = flows
 - Link width proportional to quantity
 - Color-code by category or source
-- Add hover for exact values
+- Hover for exact values
 
 **Structure:**
 ```
@@ -540,9 +509,9 @@ Source C ━━━━━━┛
 ```
 
 **Cautions:**
-- Can become cluttered with many nodes
-- Crossing flows reduce readability
-- Requires careful node ordering
+- Clutters with many nodes
+- Crossing flows hurt readability
+- Needs careful node ordering
 
 ---
 
@@ -556,11 +525,9 @@ Source C ━━━━━━┛
 - Trade relationships between countries
 - Character co-occurrence
 
-**Why It's Powerful:**
-- Compact representation of full relationship matrix
-- Visually striking and memorable
+**Strengths:**
+- Compact view of full relationship matrix
 - Shows bidirectional flows
-- Space-efficient for many-to-many relationships
 
 **Implementation:**
 - Use D3-chord library
@@ -591,8 +558,8 @@ Source C ━━━━━━┛
 
 **Cautions:**
 - Performance degrades >100 nodes
-- Layout is non-deterministic
-- Can be hard to interpret
+- Non-deterministic layout
+- Often hard to interpret
 - Consider alternatives for large networks
 
 ---
@@ -610,10 +577,10 @@ Source C ━━━━━━┛
 - Sprint planning
 
 **Implementation:**
-- Horizontal bars showing duration
+- Horizontal bars show duration
 - Dependencies as arrows
 - Color by status or assignee
-- Include milestones as diamonds
+- Milestones as diamonds
 
 ---
 
@@ -623,15 +590,13 @@ Source C ━━━━━━┛
 
 **When to Use:**
 - Daily activity tracking (GitHub-style)
-- Showing seasonality and weekly cycles
+- Seasonality and weekly cycles
 - Habit tracking and streaks
 - Event frequency patterns
 
-**Why It's Powerful:**
+**Strengths:**
 - Natural calendar metaphor
-- Reveals weekly/monthly patterns
 - Shows micro (daily) and macro (seasonal)
-- Engaging for personal metrics
 
 **Layout:**
 ```
@@ -652,22 +617,20 @@ Legend: ░░ Low  ▓▓ Medium  ██ High
 **Purpose:** Explore high-dimensional data (5-15 dimensions)
 
 **When to Use:**
-- Finding patterns across multiple dimensions
+- Patterns across multiple dimensions
 - Filtering and brushing multivariate data
-- Comparing profiles of entities
-- Identifying clusters and outliers
+- Comparing entity profiles
+- Spotting clusters and outliers
 
-**Why It's Powerful:**
-- Shows high-dimensional relationships in 2D
-- Interactive brushing reveals patterns
-- Can display hundreds of observations
+**Strengths:**
+- Displays hundreds of observations
 - Reveals correlations and anti-correlations
 
 **Implementation:**
 - Normalize axes to comparable ranges
-- Use brushing to filter/highlight
+- Brushing to filter/highlight
 - Allow axis reordering
-- Add transparency for overplotting
+- Transparency for overplotting
 
 **Structure:**
 ```
@@ -687,7 +650,7 @@ Var1  Var2  Var3  Var4  Var5
 **Use Cautiously:**
 - Area distortion makes comparison misleading
 - Axis order affects perceived patterns
-- Hard to read exact values
+- Exact values hard to read
 - Many experts recommend alternatives
 
 **When Acceptable:**
@@ -705,20 +668,19 @@ Var1  Var2  Var3  Var4  Var5
 **Purpose:** Compare patterns across many categories
 
 **When to Use:**
-- Comparing patterns across categories
 - Regional comparisons with consistent metrics
 - Time-period analysis (monthly breakdown)
-- When faceting reveals more than grouping
+- Faceting reveals more than grouping
 
-**Why It's Powerful:**
-- Enables pattern recognition at a glance
-- Maintains context while showing variation
-- Avoids overcrowding single chart
-- Scalable to many categories (4-20+ panels)
+**Strengths:**
+- Pattern recognition at a glance
+- Keeps context while showing variation
+- Avoids overcrowding one chart
+- Scales to many categories (4-20+ panels)
 
 **Implementation:**
 - Keep scales consistent across panels
-- Use 2-6 columns depending on width
+- 2-6 columns depending on width
 - Order by meaningful dimension
 - Each panel readable at reduced size
 
@@ -732,7 +694,7 @@ Var1  Var2  Var3  Var4  Var5
 
 **When to Use:**
 - Before/after comparisons
-- Showing data evolution
+- Data evolution
 - Narrative-driven presentations
 - Reducing cognitive load during changes
 
@@ -740,7 +702,7 @@ Var1  Var2  Var3  Var4  Var5
 - D3.js transitions with interpolators
 - Duration: 500-800ms typical
 - Easing: ease-in-out for natural feel
-- Maintain data keys for object constancy
+- Keep data keys for object constancy
 
 **Code Pattern:**
 ```javascript
@@ -754,7 +716,7 @@ svg.selectAll('circle')
 
 **Cautions:**
 - Don't overuse (becomes gimmicky)
-- Provide option to skip for accessibility
+- Offer skip option for accessibility
 - Performance concerns with 1000+ elements
 
 ---
@@ -776,7 +738,7 @@ svg.selectAll('circle')
 
 ---
 
-*For working code examples, see:*
+*Working code examples:*
 - `javascript/recharts-examples.md`
 - `javascript/d3-patterns.md`
 - `python/plotly-examples.md`

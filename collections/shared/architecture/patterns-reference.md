@@ -1,7 +1,5 @@
 # Architecture Patterns Reference
 
-> Quick reference for common patterns with usage guidance.
-
 ## Data Access Patterns
 
 | Pattern | When to Use | When NOT to Use | Complexity |
@@ -38,13 +36,3 @@
 | **GraphQL** | Flexible queries, multiple clients | Simple CRUD, caching needs | Medium |
 | **gRPC** | Internal services, performance | Public APIs, browser clients | Medium |
 | **WebSocket** | Real-time updates | Simple request/response | Medium |
-
----
-
-## Simplicity Principle
-
-**"Start simple, add complexity only when proven necessary."**
-
-- You can always add patterns later
-- Removing complexity is MUCH harder than adding it
-- When in doubt, choose simpler option

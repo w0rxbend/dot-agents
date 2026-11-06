@@ -1,6 +1,6 @@
 # Application Configuration with Cobra + Viper
 
-→ See `samber/cc-skills-golang@golang-cli` skill for complete Cobra+Viper setup, flag binding, precedence rules, and configuration layering.
+→ See `samber/cc-skills-golang@golang-cli` skill for complete Cobra+Viper setup, flag binding, precedence rules and configuration layering.
 
 ## Where Config Lives
 
@@ -17,7 +17,7 @@ myapp/
 
 ## Config Struct
 
-Define configuration as a struct with `mapstructure` tags matching your YAML keys:
+Define configuration as struct with `mapstructure` tags matching YAML keys:
 
 ```go
 // cmd/myapp/config.go
@@ -48,4 +48,4 @@ func loadConfig() (Config, error) {
 }
 ```
 
-Configuration MUST be loaded from env vars, files, or flags — NEVER hardcoded. Sensitive values MUST come from env vars or secret managers, NEVER config files.
+Configuration MUST load from env vars, files or flags, NEVER hardcoded. Sensitive values MUST come from env vars or secret managers, NEVER config files.

@@ -47,7 +47,7 @@
 ## Custom Controls
 
 ### Why Custom Controls?
-- Consistent UI across browsers
+- Same UI in every browser
 - Brand styling
 - Advanced features
 - Better accessibility
@@ -94,7 +94,7 @@ This is a subtitle example.
 
 ### HLS (HTTP Live Streaming)
 - Apple standard
-- Widely supported
+- Wide support
 - Multiple quality levels
 
 ### DASH (Dynamic Adaptive Streaming)
@@ -103,7 +103,7 @@ This is a subtitle example.
 - DRM support
 
 ### Implementation
-Both supported by video.js with plugins.
+video.js supports both via plugins.
 
 ## Keyboard Shortcuts
 
@@ -142,11 +142,11 @@ if (document.pictureInPictureEnabled) {
 
 ## Performance Optimization
 
-- Use `preload="metadata"` by default
+- Default to `preload="metadata"`
 - Lazy load off-screen videos
 - Provide poster image
 - Compress and transcode
-- Use CDN for delivery
+- Deliver via CDN
 
 ## See Also
 - `video-optimization.md` - Performance strategies

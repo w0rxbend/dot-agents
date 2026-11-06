@@ -12,6 +12,7 @@ Usage:
 """
 
 import argparse
+import re
 import sys
 from pathlib import Path
 from textwrap import dedent
@@ -28,6 +29,9 @@ def generate_api_pipeline(name: str) -> str:
         Usage:
             python {name}_pipeline.py
         """
+
+        import os
+        os.environ.setdefault("RUNTIME__DLTHUB_TELEMETRY", "false")  # dlt telemetry is on by default
 
         import dlt
         import requests
@@ -109,6 +113,9 @@ def generate_s3_pipeline(name: str) -> str:
         Usage:
             python {name}_pipeline.py
         """
+
+        import os
+        os.environ.setdefault("RUNTIME__DLTHUB_TELEMETRY", "false")  # dlt telemetry is on by default
 
         import dlt
         import boto3
@@ -194,6 +201,9 @@ def generate_database_pipeline(name: str) -> str:
             python {name}_pipeline.py
         """
 
+        import os
+        os.environ.setdefault("RUNTIME__DLTHUB_TELEMETRY", "false")  # dlt telemetry is on by default
+
         import dlt
         from dlt.sources.sql_database import sql_database
 
@@ -256,6 +266,10 @@ def main():
 
     args = parser.parse_args()
 
+    # Name lands in generated source and the output path: identifiers only
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", args.name):
+        parser.error("--name must be a Python identifier (letters, digits, _)")
+
     # Generate code
     generator = TEMPLATES[args.source]
     code = generator(args.name)
@@ -263,13 +277,17 @@ def main():
     # Write file
     output_file = args.output / f"{args.name}_pipeline.py"
     args.output.mkdir(parents=True, exist_ok=True)
-    output_file.write_text(code)
+    try:
+        with output_file.open("x") as f:  # exclusive create: no overwrite, no symlink follow
+            f.write(code)
+    except FileExistsError:
+        sys.exit(f"Error: {output_file} already exists; not overwriting")
 
     print(f"Generated: {output_file}")
     print("")
     print("Next steps:")
     print(f"  1. Edit {output_file} to configure your source")
-    print("  2. Add credentials to .dlt/secrets.toml")
+    print("  2. Add credentials to .dlt/secrets.toml (keep it in .gitignore)")
     print(f"  3. Run: python {output_file}")
 
 

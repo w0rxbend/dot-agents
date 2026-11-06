@@ -1,8 +1,5 @@
 # Audio Player Implementation
 
-Custom audio players with waveform visualization, playlists, and controls.
-
-
 ## Table of Contents
 
 - [Native HTML5 Audio](#native-html5-audio)

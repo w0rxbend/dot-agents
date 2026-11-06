@@ -37,11 +37,11 @@
 
 ## WCAG 2.1 Requirements
 
-Tables must meet Level AA compliance:
-- **Perceivable**: Information must be presentable in different ways
+Tables must meet Level AA:
+- **Perceivable**: Information presentable in different ways
 - **Operable**: All functionality available via keyboard
-- **Understandable**: Information and UI operation must be understandable
-- **Robust**: Content must work with assistive technologies
+- **Understandable**: Information and UI operation understandable
+- **Robust**: Content works with assistive technologies
 
 ## Semantic HTML Structure
 
@@ -78,7 +78,7 @@ Always use semantic HTML elements:
 
 ### Required Elements
 
-- `<caption>`: Provides table title and context
+- `<caption>`: Table title and context
 - `<thead>`: Groups header content
 - `<tbody>`: Groups body content
 - `<tfoot>`: Groups footer content
@@ -86,7 +86,7 @@ Always use semantic HTML elements:
 
 ## ARIA Grid Pattern
 
-For interactive tables, use the grid pattern:
+For interactive tables, use grid pattern:
 
 ```html
 <div role="application" aria-label="Employee data grid">
@@ -113,17 +113,17 @@ For interactive tables, use the grid pattern:
 
 ### ARIA Attributes Explained
 
-- `role="grid"`: Indicates interactive table with keyboard navigation
+- `role="grid"`: Interactive table with keyboard navigation
 - `role="columnheader"`: Column header cell
 - `role="rowheader"`: Row header cell
 - `role="gridcell"`: Data cell in grid
-- `aria-sort`: Indicates sort direction (ascending/descending/none/other)
-- `aria-rowcount`: Total rows when not all are in DOM
-- `aria-colcount`: Total columns when not all are visible
+- `aria-sort`: Sort direction (ascending/descending/none/other)
+- `aria-rowcount`: Total rows when not all in DOM
+- `aria-colcount`: Total columns when not all visible
 - `aria-rowindex`: Row position in full dataset
 - `aria-colindex`: Column position when columns hidden
 - `aria-selected`: Selection state for rows/cells
-- `aria-readonly`: Indicates non-editable cells
+- `aria-readonly`: Marks non-editable cells
 - `aria-invalid`: Marks cells with validation errors
 - `aria-describedby`: Links to help text
 
@@ -572,35 +572,35 @@ th {
 ## Testing Checklist
 
 ### Keyboard Testing
-- [ ] Navigate with Tab key through interactive elements
-- [ ] Use arrow keys to move between cells (grid pattern)
-- [ ] Home/End keys work as expected
+- [ ] Tab key navigates through interactive elements
+- [ ] Arrow keys move between cells (grid pattern)
+- [ ] Home/End keys work
 - [ ] Enter/Space activate buttons and links
 - [ ] Escape cancels operations
-- [ ] All interactive elements are reachable
-- [ ] Focus is never lost or trapped
+- [ ] All interactive elements reachable
+- [ ] Focus never lost or trapped
 
 ### Screen Reader Testing
-- [ ] Table caption is announced
-- [ ] Column headers are read with data cells
-- [ ] Sort state is announced
-- [ ] Selection state is communicated
+- [ ] Table caption announced
+- [ ] Column headers read with data cells
+- [ ] Sort state announced
+- [ ] Selection state communicated
 - [ ] Live regions announce changes
-- [ ] Empty and loading states are clear
-- [ ] Error messages are announced
+- [ ] Empty and loading states clear
+- [ ] Error messages announced
 
 ### Visual Testing
 - [ ] 4.5:1 contrast for normal text
 - [ ] 3:1 contrast for large text
-- [ ] Focus indicators are visible
-- [ ] Information isn't conveyed by color alone
+- [ ] Focus indicators visible
+- [ ] Information not conveyed by color alone
 - [ ] Works in high contrast mode
 - [ ] Zoom to 200% without horizontal scroll
 
 ### Mobile Testing
-- [ ] Touch targets are at least 44x44 pixels
+- [ ] Touch targets at least 44x44 pixels
 - [ ] Swipe gestures have alternatives
-- [ ] Pinch-zoom is not disabled
+- [ ] Pinch-zoom not disabled
 - [ ] Works with screen readers (TalkBack/VoiceOver)
 
 ## Tools and Resources
@@ -609,7 +609,7 @@ th {
 - axe DevTools: Browser extension for accessibility testing
 - WAVE: Web Accessibility Evaluation Tool
 - Pa11y: Command line accessibility testing
-- Jest-axe: Automated testing in unit tests
+- Jest-axe: Automated checks in unit tests
 
 ### Manual Testing Tools
 - NVDA (Windows): Free screen reader

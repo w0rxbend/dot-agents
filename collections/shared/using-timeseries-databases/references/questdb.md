@@ -1,8 +1,5 @@
 # QuestDB Reference Guide
 
-QuestDB is a high-performance time-series database optimized for maximum write throughput (4M+ inserts/sec) using SIMD-accelerated SQL.
-
-
 ## Table of Contents
 
 - [Installation](#installation)
@@ -40,8 +37,9 @@ QuestDB is a high-performance time-series database optimized for maximum write t
 ## Installation
 
 ```bash
-# Docker
-docker run -p 9000:9000 -p 9009:9009 -p 8812:8812 questdb/questdb:latest
+# Docker (telemetry off)
+docker run -p 127.0.0.1:9000:9000 -p 127.0.0.1:9009:9009 -p 127.0.0.1:8812:8812 \
+  -e QDB_TELEMETRY_ENABLED=false questdb/questdb:8.1.4
 
 # Homebrew (macOS)
 brew install questdb
@@ -51,6 +49,7 @@ questdb start
 wget https://github.com/questdb/questdb/releases/download/7.3.4/questdb-7.3.4-rt-linux-amd64.tar.gz
 tar -xzf questdb-7.3.4-rt-linux-amd64.tar.gz
 ./questdb-7.3.4-rt-linux-amd64/bin/questdb.sh start
+# Brew/binary: set telemetry.enabled=false in server.conf, then restart
 ```
 
 Access:
@@ -62,7 +61,7 @@ Access:
 
 ### 1. SIMD-Accelerated Queries
 
-QuestDB uses SIMD (Single Instruction, Multiple Data) for vectorized query execution, achieving 100x faster aggregations than traditional row-based processing.
+SIMD (Single Instruction, Multiple Data) gives vectorized query execution. Aggregations run 100x faster than row-based processing.
 
 **Optimized operations:**
 - Time-based aggregations (AVG, SUM, MIN, MAX)
@@ -72,7 +71,7 @@ QuestDB uses SIMD (Single Instruction, Multiple Data) for vectorized query execu
 
 ### 2. Designated Timestamp Column
 
-Every table must have a designated timestamp for optimal partitioning.
+Every table must have designated timestamp for optimal partitioning.
 
 ```sql
 CREATE TABLE trades (
@@ -85,13 +84,12 @@ CREATE TABLE trades (
 ```
 
 **Key points:**
-- `TIMESTAMP(timestamp)` designates the time column
+- `TIMESTAMP(timestamp)` designates time column
 - `PARTITION BY DAY` creates daily partitions (also: HOUR, MONTH, YEAR)
-- SYMBOL type for low-cardinality strings (internalized)
 
 ### 3. Symbol Type for String Optimization
 
-Use SYMBOL instead of STRING for repeated values (tickers, device IDs, regions).
+Use SYMBOL, not VARCHAR/STRING, for low-cardinality repeated values (tickers, device IDs, regions).
 
 ```sql
 CREATE TABLE sensor_data (
@@ -135,7 +133,7 @@ with Sender('localhost', 9009) as sender:
 
 ### Method 2: PostgreSQL Wire Protocol
 
-Standard SQL INSERT with JDBC/ODBC/psycopg compatibility.
+Standard SQL INSERT, JDBC/ODBC/psycopg compatible.
 
 ```python
 import psycopg2
@@ -187,8 +185,6 @@ ETH-USD,sell,3000.0,1.5,2025-12-03T10:00:01.000000Z
 
 ### SAMPLE BY - Downsampling
 
-Efficiently downsample high-frequency data.
-
 ```sql
 -- 1-minute OHLC (Open-High-Low-Close) for trading data
 SELECT
@@ -234,8 +230,6 @@ WHERE timestamp = (
 
 ### ASOF JOIN - Point-in-Time Join
 
-Join time-series with different frequencies.
-
 ```sql
 -- Join trades with mid-market prices
 SELECT
@@ -280,7 +274,7 @@ ALTER TABLE trades DETACH PARTITION LIST '2024-01';
 
 ### 1. Out-of-Order Ingestion
 
-QuestDB handles out-of-order data automatically but with performance cost.
+Out-of-order data handled automatically, but with performance cost.
 
 **Configuration (server.conf):**
 ```
@@ -301,8 +295,8 @@ ALTER TABLE trades SET PARAM commit.lag = 1000000us;
 
 ### 3. Columnar Storage Benefits
 
-QuestDB stores data columnar-first:
-- Only read columns in SELECT clause
+Data stored columnar-first:
+- Reads only columns in SELECT clause
 - Compression-friendly
 - SIMD vectorization
 
@@ -316,8 +310,6 @@ SELECT * FROM trades WHERE symbol = 'BTC-USD';
 ```
 
 ## Financial Tick Data Use Case
-
-QuestDB excels at handling financial market data.
 
 ### Schema Design
 
@@ -410,7 +402,7 @@ print(df.head())
 
 ## Integration with Grafana
 
-QuestDB has native PostgreSQL wire protocol support for Grafana.
+Grafana connects through native PostgreSQL wire protocol support.
 
 **Data Source Configuration:**
 - Type: PostgreSQL
@@ -446,36 +438,23 @@ SAMPLE BY $__interval
 
 ## Best Practices
 
-1. **Use SYMBOL type** for repeated strings (10-100x space savings)
-2. **Partition by time frequency** (HOUR for high-volume, DAY for medium, MONTH for low)
-3. **Ingest in chronological order** when possible (avoid O3 overhead)
-4. **Use ILP for maximum throughput** (4M+ inserts/sec)
-5. **Use SAMPLE BY for downsampling** (much faster than GROUP BY)
-6. **Use LATEST ON instead of subqueries** for most recent rows
-7. **Select only needed columns** (columnar storage optimization)
-8. **Set commit lag for batching** (1-5 seconds for high throughput)
+1. **Use SAMPLE BY for downsampling** (much faster than GROUP BY)
+2. **Set commit lag for batching** (1-5 seconds for high throughput)
 
 ## Common Pitfalls
 
 **Don't:**
-- Use VARCHAR/STRING for repeated values (use SYMBOL)
 - Query without WHERE on timestamp (full table scan)
-- Use `SELECT *` in production (read all columns)
 - Insert out-of-order data without O3 configuration
 - Over-partition (too many small partitions)
 
 **Do:**
-- Filter by time range first (leverages partitioning)
-- Use SYMBOL for low-cardinality columns
-- Batch inserts for better performance
-- Use SAMPLE BY for downsampling (not GROUP BY)
-- Monitor partition sizes and consolidate if needed
+- Monitor partition sizes; consolidate if needed
 
 ## Resources
 
 - **Official docs:** https://questdb.io/docs/
 - **GitHub:** https://github.com/questdb/questdb
-- **Context7 ID:** (Not yet available)
 - **Community:** https://questdb.io/community/
 
 ---

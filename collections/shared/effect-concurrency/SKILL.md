@@ -3,7 +3,6 @@ name: effect-concurrency
 user-invocable: false
 description: "Effect-TS v3: run effects concurrently with Effect.all/forEach concurrency options, fibers (fork, join, interrupt, forkScoped, forkDaemon), racing and timeouts, and coordinate them with Queue, Deferred, Semaphore, PubSub and request batching. Use when Effect code must do work in parallel, limit parallelism, run background workers or pass data between fibers."
 allowed-tools:
-  - Bash
   - Read
   - Write
   - Edit
@@ -12,24 +11,23 @@ allowed-tools:
 # Effect Concurrency
 
 > **Version:** targets `effect` 3.x (examples checked against 3.22). Effect 4
-> renames `Effect.fork` to `Effect.forkChild` among others; check `effect` in
+> renames `Effect.fork` to `Effect.forkChild`, among others. Check `effect` in
 > package.json first.
 
-Effect uses fibers: lightweight, interruptible virtual threads. Concurrency is
-*structured*: a fiber forked with `Effect.fork` is interrupted when its parent
-finishes, and interruption runs finalizers. Prefer high-level combinators;
-fork manually only for background work or custom coordination.
+Concurrency is *structured*: fiber forked with `Effect.fork` is interrupted
+when parent finishes; interruption runs finalizers. Prefer high-level combinators.
+Fork manually only for background work or custom coordination.
 
 ## Pick the primitive
 
 | Need | Use |
 | --- | --- |
 | Run N independent effects, collect results | `Effect.all([...], { concurrency })` |
-| Map a collection with an effect | `Effect.forEach(items, f, { concurrency })` |
-| First success wins, cancel the rest | `Effect.race`, `Effect.raceAll` |
+| Map collection with effect | `Effect.forEach(items, f, { concurrency })` |
+| First success wins, cancel rest | `Effect.race`, `Effect.raceAll` |
 | Deadline | `Effect.timeout`, `Effect.timeoutFail`, `Effect.timeoutTo` |
-| Background work tied to a scope | `Effect.forkScoped` (or `FiberSet`/`FiberMap` for many) |
-| Background work that outlives the caller | `Effect.forkDaemon` (rarely right) |
+| Background work tied to scope | `Effect.forkScoped` (or `FiberSet`/`FiberMap` for many) |
+| Background work outliving caller | `Effect.forkDaemon` (rarely right) |
 | Producer/consumer, work queue, back-pressure | `Queue` |
 | One-shot signal / promise between fibers | `Deferred` |
 | Limit concurrent access (rate, connections) | `Semaphore` via `Effect.makeSemaphore` |
@@ -62,7 +60,7 @@ const settled = Effect.all(ids.map(fetchUser), { concurrency: 10, mode: "either"
 const fireAll = Effect.forEach(ids, fetchUser, { concurrency: 10, discard: true })
 ```
 
-Use `concurrency: "inherit"` in library code to let the caller decide via
+Use `concurrency: "inherit"` in library code so caller decides via
 `Effect.withConcurrency(n)`.
 
 ## Fibers
@@ -90,12 +88,12 @@ const cancelLater = Effect.gen(function* () {
 
 | Fork variant | Lifetime |
 | --- | --- |
-| `Effect.fork` | interrupted when the parent fiber ends |
-| `Effect.forkScoped` | interrupted when the enclosing `Scope` closes (use in `Layer.scoped` for background services) |
-| `Effect.forkIn(scope)` | interrupted when the given scope closes |
-| `Effect.forkDaemon` | global; lives until done or the program exits |
+| `Effect.fork` | interrupted when parent fiber ends |
+| `Effect.forkScoped` | interrupted when enclosing `Scope` closes (use in `Layer.scoped` for background services) |
+| `Effect.forkIn(scope)` | interrupted when given scope closes |
+| `Effect.forkDaemon` | global; lives until done or program exits |
 
-`FiberSet` / `FiberMap` (scoped collections of fibers) are the right tool for
+`FiberSet` / `FiberMap` (scoped fiber collections) fit
 "start a fiber per connection/job and interrupt all on shutdown".
 
 ## Racing, timeouts, interruption
@@ -117,10 +115,10 @@ const transfer = Effect.uninterruptible(Effect.zipRight(debit, credit))
 const logged = primary.pipe(Effect.onInterrupt(() => Effect.log("cancelled")))
 ```
 
-`Effect.race` returns the first *success*; it fails only if both fail. Use
-`Effect.raceFirst` when the first completion (success or failure) should win.
-Interrupting a fiber blocked in `Effect.tryPromise` aborts the `AbortSignal`
-passed to `try`, so pass it to `fetch`.
+`Effect.race` returns first *success*; fails only if both fail. Use
+`Effect.raceFirst` when first completion (success or failure) should win.
+Interrupting fiber blocked in `Effect.tryPromise` aborts `AbortSignal`
+passed to `try`, so pass that signal to `fetch`.
 
 ## Queue: producer/consumer with back-pressure
 
@@ -145,10 +143,10 @@ const processAll = (jobs: ReadonlyArray<Job>) =>
   }).pipe(Effect.scoped)
 ```
 
-For a long-lived worker service, fork
+For long-lived worker service, fork
 `Effect.forever(Effect.flatMap(Queue.take(queue), handle))` with
-`Effect.forkScoped` inside a `Layer.scoped`, so workers stop on shutdown.
-Do not fork workers and then let the scope close immediately: they are
+`Effect.forkScoped` inside `Layer.scoped`, so workers stop on shutdown.
+Do not fork workers then let scope close immediately: workers get
 interrupted before taking anything.
 
 | Constructor | When full |
@@ -158,8 +156,8 @@ interrupted before taking anything.
 | `Queue.sliding(n)` | oldest items dropped |
 | `Queue.unbounded()` | never full (watch memory) |
 
-`Queue.shutdown` interrupts waiting `take`/`offer` callers. For pipelines
-with transformations, `Stream.fromQueue` is often cleaner than manual loops.
+`Queue.shutdown` interrupts waiting `take`/`offer` callers. For transforming
+pipelines, `Stream.fromQueue` often beats manual loops.
 
 ## Deferred: one-shot handoff
 
@@ -178,8 +176,7 @@ const handshake = Effect.gen(function* () {
 ```
 
 Use `Deferred` for "wait until initialized", request/response correlation, or
-gating many fibers on one event. A reusable open/close gate is
-`Effect.makeLatch`.
+gating many fibers on one event. Reusable open/close gate: `Effect.makeLatch`.
 
 ## Semaphore: limit concurrent access
 
@@ -199,9 +196,9 @@ const limited = Effect.gen(function* () {
 })
 ```
 
-Share one semaphore across call sites (put it in a service) to protect a
-resource globally; `concurrency: n` on a single `forEach` only limits that
-call. A semaphore with 1 permit is a mutex.
+Share one semaphore across call sites (put it in a service) to protect
+resource globally. `concurrency: n` on single `forEach` limits only that call.
+Semaphore with 1 permit is mutex.
 
 ## PubSub: broadcast
 
@@ -220,7 +217,7 @@ const broadcast = Effect.scoped(
 ```
 
 Subscribe *before* publishing; messages published with no subscribers are
-gone. `Stream.fromPubSub` turns a hub into a stream per consumer.
+gone. `Stream.fromPubSub` turns hub into stream per consumer.
 
 ## Batching and deduplicating requests
 
@@ -257,31 +254,28 @@ const users = Effect.forEach(["1", "2", "1"], getUser, {
 }).pipe(Effect.withRequestCaching(true))
 ```
 
-Without `batching: true` (or `Effect.withRequestBatching(true)`) each request
-runs as its own batch. The resolver must complete every request, otherwise
-callers hang.
+Without `batching: true` (or `Effect.withRequestBatching(true)`), each request
+runs as own batch. Resolver must complete every request, otherwise callers hang.
 
 ## Pitfalls
 
-- Expecting `Effect.all` to be parallel by default: it is sequential unless
-  `concurrency` is set.
-- Unbounded fan-out over user-controlled input: always cap with a number.
-- `forkDaemon` for request-scoped work: it leaks past cancellation.
-- Shared mutable JS variables across fibers: use `Ref`; for read-modify-write
-  that itself is effectful use `SynchronizedRef` or a 1-permit semaphore.
-- `while (true)` loops without a yield point: use `Effect.forever` or
-  `Effect.repeat` with a `Schedule` so the loop is interruptible.
-- Interrupting a just-forked fiber before it starts skips its body, including
-  `ensuring`/`acquireRelease` inside it; signal readiness with a `Deferred`
-  when the order matters.
+- Unbounded fan-out over user-controlled input: always cap with number.
+- `forkDaemon` for request-scoped work: leaks past cancellation.
+- Shared mutable JS variables across fibers: use `Ref`. For effectful
+  read-modify-write, use `SynchronizedRef` or 1-permit semaphore.
+- `while (true)` loops without yield point: use `Effect.forever` or
+  `Effect.repeat` with `Schedule` so loop is interruptible.
+- Interrupting just-forked fiber before it starts skips its body, including
+  `ensuring`/`acquireRelease` inside it. Signal readiness with `Deferred`
+  when order matters.
 - Timing-based tests: use `TestClock` (see **effect-testing**).
 
 ## Done when
 
-- Every parallel call site has an explicit `concurrency`.
-- Background fibers are owned by a scope (`forkScoped`, `FiberSet`, scoped
+- Every parallel call site has explicit `concurrency`.
+- Background fibers owned by scope (`forkScoped`, `FiberSet`, scoped
   layer) and stop on shutdown.
-- Interruption of the caller cancels in-flight work (verified by a test that
+- Caller interruption cancels in-flight work (verified by test that
   interrupts and checks finalizers or `onInterrupt`).
 
 ## Related skills

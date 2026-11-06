@@ -14,7 +14,7 @@
 
 ### User-Friendly Token Display
 
-Convert technical token counts to understandable metrics:
+Convert token counts to understandable metrics:
 
 ```tsx
 function TokenDisplay({ used, total, wordsPerToken = 0.75 }) {
@@ -80,7 +80,7 @@ function TokenDisplay({ used, total, wordsPerToken = 0.75 }) {
 
 ### Progressive Warnings
 
-Alert users before hitting limits:
+Warn users before hitting limits:
 
 ```tsx
 function ContextWarnings({ percentage, onSummarize, onNewChat, onExport }) {
@@ -166,7 +166,7 @@ function ContextWarnings({ percentage, onSummarize, onNewChat, onExport }) {
 
 ### Automatic Summarization
 
-Compress conversation history while preserving key information:
+Compress history, keep key information:
 
 ```tsx
 interface SummarizationConfig {
@@ -308,7 +308,7 @@ function SummarizationDialog({ messages, onConfirm, onCancel }) {
 
 ### Branch Management
 
-Allow forking conversations at any point:
+Fork conversations at any point:
 
 ```tsx
 interface ConversationBranch {
@@ -407,8 +407,6 @@ class ConversationTree {
 
 ### Branch Visualization
 
-Show conversation tree structure:
-
 ```tsx
 function ConversationTreeView({ tree, activeBranchId, onSwitchBranch }) {
   const branches = tree.getAllBranches();
@@ -475,7 +473,7 @@ function ConversationTreeView({ tree, activeBranchId, onSwitchBranch }) {
 
 ### Intelligent Message Pruning
 
-Keep relevant context while dropping less important messages:
+Keep relevant context, drop less important messages:
 
 ```tsx
 class SlidingWindowManager {
@@ -581,7 +579,7 @@ class SlidingWindowManager {
 
 ### Folder and Tag System
 
-Organize conversations for easy retrieval:
+Organize conversations for retrieval:
 
 ```tsx
 interface ConversationFolder {
@@ -1074,16 +1072,3 @@ class ConversationPersistence {
   }
 }
 ```
-
-## Best Practices Summary
-
-1. **Make tokens understandable** - Use pages/messages, not token counts
-2. **Warn progressively** - Alert at 80%, 90%, 95% thresholds
-3. **Offer clear actions** - Summarize, export, or start new
-4. **Let users control** - Pin important messages, choose what to keep
-5. **Support branching** - Non-linear conversations are powerful
-6. **Implement smart pruning** - Keep important context, drop filler
-7. **Organize effectively** - Folders, tags, search are essential
-8. **Persist everything** - Use IndexedDB for offline support
-9. **Export options** - JSON, Markdown, PDF for different needs
-10. **Visualize structure** - Show conversation trees and context usage

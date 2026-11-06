@@ -12,7 +12,7 @@
 
 ## Enable pprof HTTP Server
 
-Pprof endpoints MUST be protected with basic auth — NEVER expose them publicly. They leak sensitive runtime information (goroutine stacks, memory contents) and can be abused to DoS your service (CPU profiling is expensive). Pprof SHOULD be toggled via a `PPROF_ENABLED` environment variable.
+Pprof endpoints MUST be protected with basic auth — NEVER expose them publicly. They leak sensitive runtime info (goroutine stacks, memory contents) and can be abused for DoS (CPU profiling is expensive). Pprof SHOULD be toggled via `PPROF_ENABLED` environment variable.
 
 ### Quick Setup (Development)
 
@@ -28,8 +28,6 @@ func main() {
 ```
 
 ### Secure Setup (Production)
-
-For production, protect endpoints with basic auth:
 
 ```go
 import "net/http/pprof"
@@ -76,7 +74,7 @@ func basicAuth(username, password string) func(http.Handler) http.Handler {
 
 | Profile | Command | What It Shows |
 | --- | --- | --- |
-| **CPU** | `go tool pprof profile` | Where CPU time is spent |
+| **CPU** | `go tool pprof profile` | Where CPU time goes |
 | **Heap** | `go tool pprof heap` | Memory allocations, live objects |
 | **Goroutine** | `go tool pprof goroutine` | Stack traces of all goroutines |
 | **Block** | `go tool pprof block` | Blocking operations (needs SetBlockProfileRate) |
@@ -112,7 +110,7 @@ curl http://localhost:6060/debug/pprof/block > block.prof
 
 ## Analyzing and Interpreting Profiles
 
-→ See `samber/cc-skills-golang@golang-benchmark` skill (pprof.md) for interpreting profiles: `top`, `list`, `peek`, common profile patterns (flat vs cum, GC churn, memory leaks), and compiler diagnostics. See also compiler-analysis.md for escape analysis and inlining decisions.
+→ See `samber/cc-skills-golang@golang-benchmark` skill (pprof.md) for interpreting profiles: `top`, `list`, `peek`, common profile patterns (flat vs cum, GC churn, memory leaks), compiler diagnostics. See also compiler-analysis.md for escape analysis and inlining decisions.
 
 **Quick start:**
 
@@ -124,9 +122,9 @@ go tool pprof -base heap1.prof heap2.prof  # compare heap snapshots
 
 ## Remote Profiling (Production)
 
-For production servers, replace `localhost:6060` with your server address and use basic auth credentials.
+For production servers, reach pprof through SSH tunnel or `kubectl port-forward` so commands keep `localhost:6060`; otherwise HTTPS only. Pass basic auth via `curl --netrc-file`, never `-u user:pass` or credentials in the URL.
 
-**Safety:** idle pprof endpoints have low overhead, but profile captures are not free. CPU profiling samples for the requested duration, heap profiles may trigger extra work, and block/mutex profiles add runtime overhead when enabled.
+**Safety:** idle pprof endpoints have low overhead, but profile captures are not free. CPU profiling samples for requested duration. Heap profiles may trigger extra work. Block/mutex profiles add runtime overhead when enabled.
 
 ---
 

@@ -15,11 +15,11 @@ Structure:
 
 ## Navigation skill with references
 
-Use when the skill covers several modes, tools, or depth levels.
+Use when skill covers several modes, tools, or depth levels.
 
 Structure:
 
-1. Short SKILL.md with a routing table.
+1. Short SKILL.md with routing table.
 2. One reference per mode or domain.
 3. Examples in `references/examples/`.
 4. Scripts only for deterministic repeated actions.

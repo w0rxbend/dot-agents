@@ -11,8 +11,8 @@ pip install confluent-kafka
 # Start Kafka (Docker)
 docker run -d \
   --name kafka \
-  -p 9092:9092 \
-  apache/kafka:latest
+  -p 127.0.0.1:9092:9092 \
+  apache/kafka:4.3.2
 ```
 
 ## Files

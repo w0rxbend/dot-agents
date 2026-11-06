@@ -40,4 +40,4 @@ curl -sL https://raw.githubusercontent.com/JimLiu/baoyu-skills/main/skills/baoyu
 diff <(curl -sL https://raw.githubusercontent.com/.../references/layouts/bento-grid.md) references/layouts/bento-grid.md
 ```
 
-Reference files can be overwritten directly (they're unchanged from upstream). SKILL.md must be manually merged since it contains Hermes-specific adaptations.
+Sync reference files from a pinned upstream tag (e.g. `v1.56.1`), not `main`, and review the diff before overwriting: the agent reads them as instructions. SKILL.md must be manually merged since it contains Hermes-specific adaptations.

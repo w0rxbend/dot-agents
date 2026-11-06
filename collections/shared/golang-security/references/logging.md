@@ -1,7 +1,5 @@
 # Logging Security Rules
 
-Logging sensitive information can lead to data exposure and compliance violations.
-
 **Rules:**
 
 1. PII MUST NEVER be logged — filter passwords, tokens, emails, and personal data.
@@ -53,8 +51,6 @@ func logUserLogin(logger *slog.Logger, user *User) {
 ---
 
 ## Log Injection — Low
-
-User input in logs can lead to log injection attacks.
 
 **Bad:**
 
@@ -152,14 +148,11 @@ logger.Info("user_login",
 
 - [ ] No passwords, tokens, or secrets in logs
 - [ ] No PII/PHI in production logs
-- [ ] Sanitize user input before logging
 - [ ] Use structured logging (JSON)
-- [ ] Implement log level strategy
+- [ ] Define log level strategy
 - [ ] Separate access logs from error logs
 - [ ] Log file permissions restricted (e.g., 600)
 - [ ] Log rotation prevents disk exhaustion
-- [ ] Generic error messages to clients
-- [ ] Detailed errors only in internal logs
 
 ---
 

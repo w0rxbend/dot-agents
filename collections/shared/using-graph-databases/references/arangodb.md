@@ -4,7 +4,6 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [Key Advantages](#key-advantages)
 - [Installation](#installation)
   - [Docker](#docker)
   - [Language Drivers](#language-drivers)
@@ -48,28 +47,22 @@
 
 ## Overview
 
-ArangoDB is a multi-model database supporting documents, graphs, and key-value storage in a single unified query language (AQL). This makes it ideal for applications that need both flexible document storage AND graph relationships.
-
-## Key Advantages
-
-1. **Multi-model**: Store documents and graphs together
-2. **Single query language**: AQL combines document and graph operations
-3. **Schema flexibility**: Documents can have varying structures
-4. **Distributed**: Built-in sharding and clustering (SmartGraphs)
-5. **Open source**: Apache 2.0 license
+ArangoDB: multi-model database for documents, graphs and key-value storage under one unified query language (AQL). Built-in sharding and clustering (SmartGraphs). Open source: Apache 2.0 license.
 
 ## Installation
 
 ### Docker
+Pin a tested tag (telemetrics removed in 3.12.10; older tags need `--server.telemetrics-api false`). Port binds to loopback; root password comes from env, never a literal.
 ```bash
-docker run -d \
+export ARANGO_PASSWORD="$(openssl rand -hex 16)"  # keep in a secret store or gitignored .env
+ARANGO_ROOT_PASSWORD="$ARANGO_PASSWORD" docker run -d \
   --name arangodb \
-  -p 8529:8529 \
-  -e ARANGO_ROOT_PASSWORD=password \
-  arangodb/arangodb:latest
+  -p 127.0.0.1:8529:8529 \
+  -e ARANGO_ROOT_PASSWORD \
+  arangodb:3.12.12
 ```
 
-Access Web UI at: http://localhost:8529
+Web UI: http://localhost:8529
 
 ### Language Drivers
 
@@ -89,6 +82,8 @@ go get github.com/arangodb/go-driver
 ```
 
 ## Connection Setup
+
+Load passwords from env or a secret store. Apps connect as a least-privilege user; `root` only for admin (e.g. `create_database`).
 
 ### Python
 ```python
@@ -126,11 +121,11 @@ console.log(`ArangoDB ${version.version}`)
 
 ### Collections
 
-ArangoDB has three collection types:
+Three collection types:
 
-1. **Document Collections**: Standard NoSQL documents
-2. **Edge Collections**: Store relationships (graph edges)
-3. **Vertex Collections**: Nodes in graphs (can be document collections)
+1. **Document Collections**: standard NoSQL documents
+2. **Edge Collections**: store relationships (graph edges)
+3. **Vertex Collections**: graph nodes (can be document collections)
 
 ```python
 # Create document collection
@@ -153,7 +148,7 @@ friends.insert({
 
 ### Graph Definitions
 
-Named graphs provide schema-like definitions for relationships:
+Named graphs give schema-like relationship definitions:
 
 ```python
 # Define graph
@@ -212,14 +207,6 @@ FOR vertex, edge, path IN 1..3 OUTBOUND 'users/alice' GRAPH 'social'
     depth: LENGTH(path.edges),
     relationship: edge.type
   }
-```
-
-#### Shortest Path
-```aql
-// Find shortest path between two users
-FOR path IN OUTBOUND SHORTEST_PATH
-  'users/alice' TO 'users/charlie' GRAPH 'social'
-  RETURN path
 ```
 
 #### Pattern Matching
@@ -293,7 +280,7 @@ FOR user IN users
 
 ## SmartGraphs (Enterprise)
 
-SmartGraphs enable horizontal sharding for massive graphs.
+SmartGraphs give horizontal sharding for massive graphs.
 
 ```python
 # Create smart graph (Enterprise only)
@@ -482,7 +469,6 @@ package main
 
 import (
     "context"
-    "fmt"
     driver "github.com/arangodb/go-driver"
     "github.com/arangodb/go-driver/http"
 )
@@ -496,13 +482,17 @@ type User struct {
 func findFriendsOfFriends(db driver.Database, userId string, maxDepth int) ([]User, error) {
     ctx := context.Background()
 
-    query := fmt.Sprintf(`
-        FOR vertex IN %d..%d OUTBOUND 'users/%s' GRAPH 'social'
+    // Bind vars, never fmt.Sprintf: userId is untrusted (AQL injection)
+    query := `
+        FOR vertex IN @depth..@depth OUTBOUND @start GRAPH 'social'
             RETURN DISTINCT vertex
             LIMIT 100
-    `, maxDepth, maxDepth, userId)
+    `
 
-    cursor, err := db.Query(ctx, query, nil)
+    cursor, err := db.Query(ctx, query, map[string]interface{}{
+        "start": "users/" + userId,
+        "depth": maxDepth,
+    })
     if err != nil {
         return nil, err
     }
@@ -547,7 +537,7 @@ with open('users_export.json', 'w') as f:
 
 ## Graph Algorithms
 
-ArangoDB provides basic graph algorithms through AQL:
+AQL provides basic graph algorithms:
 
 ### Shortest Path
 ```aql
@@ -578,34 +568,36 @@ FOR path IN OUTBOUND K_SHORTEST_PATHS
 ## Backup and Restore
 
 ### Backup (arangodump)
+`@ARANGO_PASSWORD@` reads the env var (keeps it out of `ps`/history); omit the option to be prompted.
 ```bash
 arangodump \
   --server.endpoint tcp://localhost:8529 \
   --server.username root \
-  --server.password password \
+  --server.password @ARANGO_PASSWORD@ \
   --output-directory /backups/mydb \
   --overwrite true
 ```
 
 ### Restore (arangorestore)
+Overwrites existing collections (`--overwrite` defaults true): confirm target DB with user first.
 ```bash
 arangorestore \
   --server.endpoint tcp://localhost:8529 \
   --server.username root \
-  --server.password password \
+  --server.password @ARANGO_PASSWORD@ \
   --input-directory /backups/mydb
 ```
 
 ## ArangoDB Oasis (Managed Cloud)
 
-ArangoDB Oasis is the fully managed cloud service.
+ArangoDB Oasis: fully managed cloud service.
 
 **Features**:
 - Automated backups and updates
 - Multi-region deployments
 - SSL/TLS encryption
 - Monitoring dashboards
-- Free tier available
+- Free tier
 
 **Connection**:
 ```python
@@ -619,8 +611,8 @@ db = client.db('mydb', username='root', password='password')
 
 **Choose ArangoDB when**:
 - Need both documents AND graphs (multi-model)
-- Schema flexibility is important
-- Want single query language for all data
+- Schema flexibility matters
+- Want one query language for all data
 - Need distributed graph processing (SmartGraphs)
 
 **Choose Neo4j when**:

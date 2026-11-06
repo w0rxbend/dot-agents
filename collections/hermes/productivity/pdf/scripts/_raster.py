@@ -63,7 +63,7 @@ def _via_pdftoppm(pdf_path: str, page: int, dpi: int, password: str | None):
     with tempfile.TemporaryDirectory() as tmp:
         prefix = str(Path(tmp) / "page")
         cmd = ["pdftoppm", "-png", "-r", str(dpi), "-f", str(page), "-l", str(page)]
-        if password:
+        if password:  # pdftoppm only takes it on argv (visible in ps); pypdfium2 is tried first
             cmd += ["-upw", password]
         cmd += [pdf_path, prefix]
         proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")

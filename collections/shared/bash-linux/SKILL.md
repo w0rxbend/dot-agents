@@ -8,13 +8,7 @@ date_added: "2026-02-27"
 
 # Bash Linux Patterns
 
-> Essential patterns for Bash on Linux/macOS.
-
----
-
 ## 1. Operator Syntax
-
-### Chaining Commands
 
 | Operator | Meaning | Example |
 |----------|---------|---------|
@@ -23,11 +17,7 @@ date_added: "2026-02-27"
 | `\|\|` | Run if previous failed | `npm test \|\| echo "Tests failed"` |
 | `\|` | Pipe output | `ls \| grep ".js"` |
 
----
-
 ## 2. File Operations
-
-### Essential Commands
 
 | Task | Command |
 |------|---------|
@@ -41,26 +31,20 @@ date_added: "2026-02-27"
 | File size | `du -sh *` |
 | Disk usage | `df -h` |
 
----
-
 ## 3. Process Management
 
 | Task | Command |
 |------|---------|
 | List processes | `ps aux` |
 | Find by name | `ps aux \| grep node` |
-| Stop by PID | `kill <PID>` (SIGTERM); `kill -9 <PID>` only if it ignores SIGTERM |
+| Stop by PID | `kill <PID>` (SIGTERM); `kill -9 <PID>` only if process ignores SIGTERM |
 | Find port user | `lsof -i :3000` |
-| Stop port owner | `lsof -t -i :3000` to see the PID(s) and confirm they are yours, then `kill <PID>` |
+| Stop port owner | `lsof -t -i :3000` to list PID(s); confirm they are yours, then `kill <PID>` |
 | Background | `npm run dev &` |
 | Jobs | `jobs -l` |
 | Bring to front | `fg %1` |
 
----
-
 ## 4. Text Processing
-
-### Core Tools
 
 | Tool | Purpose | Example |
 |------|---------|---------|
@@ -72,19 +56,15 @@ date_added: "2026-02-27"
 | `uniq` | Unique lines | `sort file.txt \| uniq -c` |
 | `wc` | Count | `wc -l file.txt` |
 
----
-
 ## 5. Environment Variables
 
 | Task | Command |
 |------|---------|
-| View all | `env` or `printenv` |
+| View all | `compgen -e` (names only; never print token/key/password values) |
 | View one | `echo $PATH` |
 | Set temporary | `export VAR="value"` |
 | Set in script | `VAR="value" command` |
 | Add to PATH | `export PATH="$PATH:/new/path"` |
-
----
 
 ## 6. Network
 
@@ -95,8 +75,6 @@ date_added: "2026-02-27"
 | POST JSON | `curl -X POST -H "Content-Type: application/json" -d '{"key":"value"}' URL` |
 | Check port | `nc -zv localhost 3000` |
 | Network info | `ifconfig` or `ip addr` |
-
----
 
 ## 7. Script Template
 
@@ -125,8 +103,6 @@ main() {
 
 main "$@"
 ```
-
----
 
 ## 8. Common Patterns
 
@@ -160,8 +136,6 @@ for file in *.js; do
 done
 ```
 
----
-
 ## 9. Differences from PowerShell
 
 | Task | PowerShell | Bash |
@@ -173,8 +147,6 @@ done
 | Null check | `if ($x)` | `if [ -n "$x" ]` |
 | Pipeline | Object-based | Text-based |
 
----
-
 ## 10. Error Handling
 
 ### Set options
@@ -183,21 +155,20 @@ done
 set -e          # Exit on error
 set -u          # Exit on undefined variable
 set -o pipefail # Exit on pipe failure
-set -x          # Debug: print commands
+set -x          # Debug: print commands (expands secrets; keep off around them)
 ```
 
 ### Trap for cleanup
 
 ```bash
+tmp=$(mktemp)  # unique file, not fixed /tmp path
 cleanup() {
     echo "Cleaning up..."
-    rm -f /tmp/tempfile
+    rm -f "$tmp"
 }
 trap cleanup EXIT
 ```
 
----
+> **Remember:** Quote variables.
 
-> **Remember:** Bash is text-based. Use `&&` for success chains, `set -e` for safety, and quote your variables!
-
-On macOS the default tools are BSD variants (`sed`, `grep`, `find`, `date`, `stat`) and `/bin/bash` is 3.2; flags differ from GNU. Check `man <tool>` or install GNU coreutils (`brew install coreutils gnu-sed`) when a Linux one-liner fails.
+On macOS, `/bin/bash` is 3.2 and default tools are BSD variants (`sed`, `grep`, `find`, `date`, `stat`). Flags differ from GNU. If a Linux one-liner fails, check `man <tool>` or install GNU coreutils (`brew install coreutils gnu-sed`).

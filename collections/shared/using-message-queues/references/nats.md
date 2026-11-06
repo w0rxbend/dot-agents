@@ -1,8 +1,5 @@
 # NATS - Cloud-Native Messaging
 
-NATS is a high-performance, cloud-native messaging system with built-in request-reply patterns and JetStream for persistence.
-
-
 ## Table of Contents
 
 - [When to Use NATS](#when-to-use-nats)
@@ -38,13 +35,12 @@ NATS is a high-performance, cloud-native messaging system with built-in request-
   - [Messages Not Being Delivered](#messages-not-being-delivered)
   - [Consumer Lag Growing](#consumer-lag-growing)
   - [Connection Issues](#connection-issues)
-- [Related Patterns](#related-patterns)
 
 ## When to Use NATS
 
 **Best for:**
 - Cloud-native microservices (Kubernetes-friendly)
-- Request-reply / RPC patterns
+- Request-reply / RPC
 - Low-latency messaging (sub-millisecond)
 - IoT and edge computing
 - Lightweight pub/sub
@@ -58,20 +54,20 @@ NATS is a high-performance, cloud-native messaging system with built-in request-
 
 ### Core NATS (At-Most-Once)
 
-**Pub/Sub:** Fire-and-forget messaging
+**Pub/Sub:** Fire-and-forget
 - No persistence
 - No delivery guarantees
 - Ultra-low latency
 
 ### JetStream (At-Least-Once, Exactly-Once)
 
-**Stream:** Durable log of messages (like Kafka)
+**Stream:** Durable message log (like Kafka)
 - Persistence (file/memory)
-- Replay capability
+- Replay
 - Acknowledgments
 
 **Consumer:** Reads from stream
-- Push (messages sent to subscriber)
+- Push (server sends to subscriber)
 - Pull (subscriber requests messages)
 
 ## Python Implementation
@@ -481,7 +477,7 @@ consumer_config = api.ConsumerConfig(
 1. Stream exists? `nats stream list`
 2. Consumer exists? `nats consumer list STREAM_NAME`
 3. Subject matches? Check wildcards
-4. Consumer ack pending limit reached?
+4. Consumer ack pending limit hit?
 
 ```bash
 # CLI tools
@@ -493,7 +489,7 @@ nats consumer info ORDERS processor
 
 **Check:**
 - Processing too slow?
-- Max ack pending limit?
+- Max ack pending limit hit?
 - Network issues?
 
 ```python
@@ -517,10 +513,3 @@ if nc.is_connected:
 else:
     print("Disconnected")
 ```
-
-## Related Patterns
-
-- **Request-Reply**: Built-in RPC pattern
-- **Work Queue**: Queue groups for load balancing
-- **Pub/Sub**: Core NATS pattern
-- **Event Streaming**: JetStream for persistence

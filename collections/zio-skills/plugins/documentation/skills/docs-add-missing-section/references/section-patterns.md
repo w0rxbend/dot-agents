@@ -1,6 +1,6 @@
 # Section-Type-Specific Patterns
 
-Templates for writing each canonical section type used by `docs-add-missing-section`. Load this file in **Step 4** when you've identified which section type you need to write — each pattern below specifies the structural rules and the minimal code-block template.
+Templates for each canonical section type used by `docs-add-missing-section`. Load in **Step 4**, once section type is identified.
 
 ---
 
@@ -10,15 +10,15 @@ One `###` subsection per major factory method or constructor group.
 
 **For each subsection:**
 
-1. Subsection heading is the method name (e.g., `### apply`, `### empty`, `### from[B]`).
-2. One sentence explaining what the method does and its typical use case.
+1. Subsection heading is method name (e.g., `### apply`, `### empty`, `### from[B]`).
+2. One sentence on what method does and its typical use case.
 3. Signature block in plain ```` ```scala ```` (not mdoc):
    ```scala
    object TypeName {
      def method(...): TypeName[...]
    }
    ```
-4. Prose sentence ending in `:` introducing the example.
+4. Prose sentence ending in `:` introducing example.
 5. Self-contained code block using `mdoc:compile-only`:
    ```scala mdoc:compile-only
    // Complete example, no output needed
@@ -28,11 +28,11 @@ One `###` subsection per major factory method or constructor group.
 
 ## Predefined Instances Section Pattern
 
-Use a Markdown table with columns: **Instance Name**, **Type**, **Description**.
+Use Markdown table with columns: **Instance Name**, **Type**, **Description**.
 
 Group instances by category (e.g., "Common Types", "Numeric Types", "Collections") if more than 5 instances exist.
 
-After the table, add one example demonstrating usage of a few predefined instances:
+After table, add one example using a few predefined instances:
 
 ```scala mdoc:compile-only
 // Show using 2–3 predefined instances together
@@ -42,12 +42,12 @@ After the table, add one example demonstrating usage of a few predefined instanc
 
 ## Comparison Section Pattern
 
-1. Create a dimensions table:
+1. Create dimensions table:
    - Column 1: Type / Alternative name.
    - Columns 2–N: Dimensions (Mutability, Performance, API Breadth, Laziness, …).
-   - Use `✓` / `✗` for binary dimensions or short text for continuous dimensions.
+   - Use `✓` / `✗` for binary dimensions, short text for continuous dimensions.
 
-2. Follow the table with **mandatory** "Use X when… Use Y instead when…" paragraphs:
+2. Follow table with **mandatory** "Use X when… Use Y instead when…" paragraphs:
 
    > **Use `TypeA` when:**
    > - You need immutability
@@ -57,7 +57,7 @@ After the table, add one example demonstrating usage of a few predefined instanc
    > - You need lazy evaluation
    > - API breadth is more important than performance
 
-3. Include a code example **only** if API differences require demonstration of calling conventions. Otherwise, skip the example (comparison is conceptual, not operational).
+3. Include code example **only** if API differences require demonstrating calling conventions. Otherwise skip example (comparison is conceptual, not operational).
 
 ---
 
@@ -66,8 +66,8 @@ After the table, add one example demonstrating usage of a few predefined instanc
 Create 2–4 `###` subsections, each with:
 
 1. Subsection heading: realistic scenario name (e.g., `### Composing with Results`, `### Custom Derivations`).
-2. Brief explanation of the scenario.
-3. Prose sentence ending in `:` introducing the example.
+2. Brief scenario explanation.
+3. Prose sentence ending in `:` introducing example.
 4. Code block using `mdoc:compile-only`:
    ```scala mdoc:compile-only
    // Realistic scenario code
@@ -77,9 +77,9 @@ Create 2–4 `###` subsections, each with:
 
 ## Motivation Section Pattern
 
-1. **Problem paragraph**: describe a limitation or gap that motivated the type's creation.
-2. **Naive approach paragraph**: show what a reader might try without this type and why it fails.
-3. **Working example**: show how this type solves the problem:
+1. **Problem paragraph**: describe limitation or gap that motivated type's creation.
+2. **Naive approach paragraph**: show what reader might try without this type, and why it fails.
+3. **Working example**: show how type solves problem:
    ```scala mdoc:compile-only
    // Solution using the type
    ```
@@ -88,7 +88,6 @@ Create 2–4 `###` subsections, each with:
 
 ## Cross-Pattern Rules
 
-- Every code block must respect `docs-mdoc-conventions` — pick the right modifier (`mdoc`, `mdoc:silent`, `mdoc:compile-only`, `mdoc:reset`) based on whether the block needs scope sharing or output rendering.
-- Prose immediately preceding a code block must end with `:` (`docs-writing-style` Rule 15).
-- Type definitions use plain ```` ```scala ```` without mdoc modifiers — they are structural illustrations, not executable examples.
-- Method signatures inside Construction subsections likewise use plain ```` ```scala ```` (signature is illustrative; the runnable example follows).
+- Every code block must respect `docs-mdoc-conventions`. Pick right modifier (`mdoc`, `mdoc:silent`, `mdoc:compile-only`, `mdoc:reset`) based on whether block needs scope sharing or output rendering.
+- Prose immediately preceding code block must end with `:` (`docs-writing-style` Rule 15).
+- Type definitions use plain ```` ```scala ```` without mdoc modifiers. They are structural illustrations, not executable examples.

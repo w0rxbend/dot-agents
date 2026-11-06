@@ -1,10 +1,10 @@
 # Description Optimization
 
-The frontmatter `description` is the trigger surface. It should say what the skill does and when to use it.
+Frontmatter `description` is trigger surface. State what skill does and when to use it.
 
 ## Should-trigger set
 
-Write 3 to 6 queries that should load the skill. Confirm the description contains the user's likely nouns and verbs.
+Write 3 to 6 queries that should load skill. Confirm description contains user's likely nouns and verbs.
 
 Examples:
 
@@ -14,7 +14,7 @@ Examples:
 
 ## Should-not-trigger set
 
-Write 3 to 6 nearby queries that should not load the skill. Remove vague words that over-trigger.
+Write 3 to 6 nearby queries that should not load skill. Remove vague words that over-trigger.
 
 Examples:
 
@@ -24,7 +24,7 @@ Examples:
 
 ## Precision rules
 
-- Put domain, artifact, and action words in the first sentence.
+- Put domain, artifact, and action words in first sentence.
 - Avoid generic descriptions like "helps with productivity."
-- Include major variants only if the skill really supports them.
-- Keep the description compact enough to scan.
+- Include major variants only if skill truly supports them.
+- Keep description compact enough to scan.

@@ -14,19 +14,19 @@
 Use Go workspaces (`go.work`) when:
 
 - Developing multiple related modules that import each other
-- Building a monorepo with separate Go modules
+- Building monorepo with separate Go modules
 - Testing local changes across module boundaries
 - Avoiding `replace` directives in every module
 
 **Don't use workspaces for:**
 
 - Single-module projects
-- Projects that only use external dependencies
+- Projects using only external dependencies
 - Simple applications
 
 ## Workspace Structure
 
-Example monorepo with multiple modules:
+Monorepo with multiple modules:
 
 ```
 my-monorepo/
@@ -62,13 +62,13 @@ my-monorepo/
 
 ## Creating a Workspace
 
-1. **Initialize the workspace:**
+1. **Initialize workspace:**
 
 ```bash
 go work init
 ```
 
-This creates `go.work`:
+Creates `go.work`:
 
 ```go
 go 1.21
@@ -101,7 +101,7 @@ go 1.21
 require github.com/user/my-monorepo/shared/libs v0.0.0
 ```
 
-The workspace automatically resolves `shared/libs` to the local directory.
+Workspace resolves `shared/libs` to local directory automatically.
 
 ## Workspace Commands
 

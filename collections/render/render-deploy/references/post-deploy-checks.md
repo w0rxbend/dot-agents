@@ -1,6 +1,6 @@
 # Post-deploy checks
 
-Use this after any deploy or service creation. Keep it short; stop when a check fails.
+Run after any deploy or service creation. Keep short; stop when check fails.
 
 ## 1) Confirm deploy status
 
@@ -13,8 +13,8 @@ list_deploys(serviceId: "<service-id>", limit: 1)
 
 ## 2) Verify service health
 
-- Hit the health endpoint (preferred) or `/` and confirm a 200 response.
-- If there is no health endpoint, add one and redeploy.
+- Hit health endpoint (preferred) or `/`, confirm 200 response.
+- If no health endpoint exists, add one and redeploy.
 
 ## 3) Scan recent error logs
 
@@ -22,15 +22,15 @@ list_deploys(serviceId: "<service-id>", limit: 1)
 list_logs(resource: ["<service-id>"], level: ["error"], limit: 50)
 ```
 
-- If you see a clear error signature, jump to the matching fix in
+- On clear error signature, jump to matching fix in
   [troubleshooting-basics.md](troubleshooting-basics.md) or
   [error-patterns.md](error-patterns.md).
 
 ## 4) Verify env vars and port binding
 
-- Confirm all required env vars are set (especially secrets marked `sync: false`).
-- Ensure the app binds to `0.0.0.0:$PORT` (not localhost).
+- Confirm all required env vars set (especially secrets marked `sync: false`).
+- App must bind to `0.0.0.0:$PORT` (not localhost).
 
 ## 5) Redeploy only after fixing the first failure
 
-- Avoid repeated deploys without changes; fix one issue at a time.
+- Avoid repeated deploys without changes. Fix one issue at a time.

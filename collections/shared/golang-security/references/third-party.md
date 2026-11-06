@@ -1,11 +1,9 @@
 # Third-Party Data Leak Rules
 
-Third-party monitoring and analytics services can inadvertently transmit sensitive user data to external systems.
-
 **Rules:**
 
 1. PII MUST be filtered before sending to third-party services.
-2. Error tracking MUST NOT receive raw user data — use `BeforeSend` hooks to redact.
+2. Error tracking MUST NOT receive raw user data. Redact with `BeforeSend` hooks.
 
 ---
 
@@ -21,7 +19,7 @@ Third-party monitoring and analytics services can inadvertently transmit sensiti
 
 ## Overview
 
-These rules detect Go code that sends data to third-party services. Always review what data is being transmitted and ensure it complies with privacy regulations (GDPR, CCPA, etc.).
+Rules detect Go code that sends data to third-party services. Always review what data goes out. Confirm it complies with privacy regulations (GDPR, CCPA, etc.).
 
 ---
 
@@ -29,7 +27,7 @@ These rules detect Go code that sends data to third-party services. Always revie
 
 | Service          | Risk                                                  |
 | ---------------- | ----------------------------------------------------- |
-| Airbrake         | Error tracking - sensitive data may be sent           |
+| Airbrake         | Error tracking - may send sensitive data              |
 | Bugsnag          | Error tracking - sensitive data exposure              |
 | Sentry           | Error tracking - sensitive data in breadcrumbs/events |
 | Rollbar          | Error tracking - sensitive data leaks                 |
@@ -149,16 +147,16 @@ func (f *DataFilter) Filter(data map[string]interface{}) map[string]interface{} 
 
 Before integrating any third-party service:
 
-- [ ] Identify what data is being sent
-- [ ] Remove any PII/PHI from transmitted data
+- [ ] Identify what data gets sent
+- [ ] Remove all PII/PHI from transmitted data
 - [ ] Review data residency requirements
-- [ ] Implement data retention policies
-- [ ] Set up data export logging/auditing
+- [ ] Set data retention policies
+- [ ] Log and audit data exports
 - [ ] Configure error handling to avoid data exposure
-- [ ] Review terms of service for data usage
-- [ ] Implement user consent management
+- [ ] Review terms of service on data usage
+- [ ] Add user consent management
 - [ ] Support data deletion requests
-- [ ] Conduct regular data flow audits
+- [ ] Audit data flows regularly
 
 ---
 

@@ -2,16 +2,12 @@
 name: pulumi-stacks
 user-invocable: false
 description: "Manage Pulumi stacks across environments - per-stack config and secrets, stack references between projects, transformations and promotion from dev to staging to production. Use when organizing multi-environment Pulumi deployments; use pulumi-components to build the resources they instantiate."
-allowed-tools: [Bash, Read]
+allowed-tools: [Read, "Bash(pulumi preview:*)", "Bash(pulumi stack ls:*)"]
 ---
 
 # Pulumi Stacks
 
-Manage multiple environments and configurations with Pulumi stacks for consistent infrastructure across development, staging, and production.
-
-## Overview
-
-Pulumi stacks are isolated, independently configurable instances of a Pulumi program. Each stack has its own state, configuration, and resources, enabling you to deploy the same infrastructure code to multiple environments.
+Agent rules: show `pulumi preview` and get explicit user confirmation before `up`, `refresh`, `stack rm`, `stack import` or `state delete`/`rename`. Never pass `--yes`. Never run `--show-secrets` or `pulumi config get <secret>`; user runs those outside agent session.
 
 ## Stack Basics
 
@@ -88,18 +84,6 @@ config:
   my-infrastructure:minSize: "1"
   my-infrastructure:maxSize: "3"
   my-infrastructure:enableMonitoring: "false"
-```
-
-### Pulumi.staging.yaml
-
-```yaml
-config:
-  aws:region: us-east-1
-  my-infrastructure:instanceType: t3.small
-  my-infrastructure:environment: staging
-  my-infrastructure:minSize: "2"
-  my-infrastructure:maxSize: "5"
-  my-infrastructure:enableMonitoring: "true"
 ```
 
 ### Pulumi.prod.yaml
@@ -588,8 +572,8 @@ pulumi stack export > stack-state.json
 # Export to file
 pulumi stack export --file stack-backup.json
 
-# Export with secrets in plaintext (use carefully!)
-pulumi stack export --show-secrets > stack-with-secrets.json
+# Plaintext secrets (user only): owner-only file outside repo, never commit, delete after use
+(umask 077; pulumi stack export --show-secrets > "$HOME/stack-with-secrets.json")
 ```
 
 ### Importing Stack State
@@ -753,7 +737,7 @@ op read "op://infra/db/password" | pulumi config set --secret dbPassword   # exa
 # View config (secret values are masked)
 pulumi config
 
-# View secrets in plaintext (use carefully!)
+# View secrets in plaintext (user only, never in agent session)
 pulumi config --show-secrets      # whole config
 pulumi config get dbPassword      # single key prints the decrypted value
 ```
@@ -800,11 +784,11 @@ export const connectionString = pulumi.secret(
 
 ## Promoting Changes Across Stacks
 
-Promote the *same commit* through dev, staging and prod; only stack config differs.
+Promote *same commit* through dev, staging and prod. Only stack config differs.
 
 ```bash
 # 1. Deploy and verify in dev
-pulumi up --stack dev --yes
+pulumi up --stack dev                      # interactive confirmation
 pulumi stack output --stack dev            # smoke-test the outputs
 
 # 2. Preview staging/prod from the same commit and review the diff before applying
@@ -818,9 +802,9 @@ pulumi preview --stack prod --save-plan prod-plan.json
 pulumi up --stack prod --plan prod-plan.json
 ```
 
-- In CI, gate each stage on the previous one passing (and on a manual approval for prod); never run `--yes` against prod without a reviewed preview.
-- Copy shared config between stacks with `pulumi config cp --stack dev --dest staging <key>`; set per-environment values and secrets explicitly.
-- Done when: prod's preview shows only the changes already seen in staging, and staging outputs passed their checks.
+- In CI, gate each stage on previous stage passing (and on manual approval for prod). Never run `--yes` against prod without reviewed preview.
+- Copy shared config between stacks with `pulumi config cp --stack dev --dest staging <key>`. Set per-environment values and secrets explicitly.
+- Done when: prod preview shows only changes already seen in staging, and staging outputs passed checks.
 
 ## Stack Refresh and State
 
@@ -830,7 +814,7 @@ pulumi up --stack prod --plan prod-plan.json
 # Refresh stack to match actual cloud state
 pulumi refresh
 
-# Refresh with auto-approval
+# Refresh with auto-approval (CI after reviewed preview only; never in agent session)
 pulumi refresh --yes
 
 # Refresh specific resources
@@ -857,58 +841,31 @@ pulumi state delete 'urn:pulumi:dev::myapp::aws:s3/bucket:Bucket::my-bucket'
 pulumi state rename 'urn:pulumi:dev::myapp::aws:s3/bucket:Bucket::old-name' new-name
 ```
 
-## When to Use This Skill
-
-Use the `pulumi-stacks` skill when you need to:
-
-- Deploy infrastructure to multiple environments (dev, staging, prod)
-- Manage environment-specific configurations
-- Create isolated instances of the same infrastructure
-- Share infrastructure outputs between projects
-- Implement multi-region deployments
-- Separate infrastructure concerns (networking, databases, applications)
-- Manage secrets per environment
-- Track infrastructure state per environment
-- Implement progressive deployment strategies
-- Organize complex infrastructure into manageable units
-- Apply environment-specific policies and protections
-- Maintain consistent infrastructure across environments
-
 ## Best Practices
 
-1. **Naming Convention**: Use consistent stack naming like `<env>` or `<region>-<env>` (e.g., `prod`, `us-east-1-prod`)
-2. **Configuration Files**: Keep stack config files in version control (except secrets)
-3. **Environment Isolation**: Never share state between environments; each environment gets its own stack
-4. **Stack References**: Use stack references instead of duplicating infrastructure code
-5. **Secrets Management**: Always use `--secret` flag for sensitive values
-6. **Progressive Deployment**: Deploy to dev first, then staging, finally production
-7. **State Backups**: Regularly export stack state for disaster recovery
-8. **Resource Protection**: Enable `protect` option for critical production resources
-9. **Tagging Strategy**: Apply consistent tags across all environments for cost tracking
-10. **Stack Outputs**: Export all values needed by other stacks or external systems
-11. **Configuration Validation**: Validate configuration values before creating resources
-12. **Environment Parity**: Keep environments as similar as possible, differing only in scale
-13. **Automation**: Use CI/CD pipelines for stack deployments
-14. **Documentation**: Document stack dependencies and required configuration
-15. **State Encryption**: Use encrypted state backends for sensitive infrastructure
+1. **Naming Convention**: Consistent stack names like `<env>` or `<region>-<env>` (e.g., `prod`, `us-east-1-prod`)
+2. **Configuration Files**: Stack config files in version control (except secrets)
+3. **Environment Isolation**: Never share state between environments. One stack per environment.
+4. **Stack References**: Reference stacks instead of duplicating infrastructure code
+5. **Secrets Management**: Always set sensitive values with `--secret`
+6. **State Backups**: Export stack state regularly for disaster recovery
+7. **Resource Protection**: Set `protect` on critical production resources
+8. **Tagging Strategy**: Consistent tags across all environments for cost tracking
+9. **Stack Outputs**: Export every value other stacks or external systems need
+10. **Configuration Validation**: Validate config before creating resources
+11. **Environment Parity**: Environments as similar as possible, differing only in scale
+12. **Automation**: Deploy stacks via CI/CD pipelines
+13. **Documentation**: Document stack dependencies and required config
+14. **State Encryption**: Encrypted state backends for sensitive infrastructure
 
 ## Common Pitfalls
 
-1. **Hardcoded Values**: Hardcoding environment-specific values instead of using configuration
-2. **Shared State**: Attempting to share stack state between environments
-3. **Missing Config**: Deploying to new stack without setting required configuration
-4. **Unencrypted Secrets**: Storing secrets as plain text in configuration
-5. **Inconsistent Naming**: Using different naming conventions across stacks
-6. **Broken References**: Stack references that point to non-existent stacks or outputs
-7. **Missing Exports**: Not exporting values needed by dependent stacks
-8. **Config Drift**: Manual changes to config files not reflected in version control
-9. **No Resource Protection**: Forgetting to protect critical production resources
-10. **Stack Sprawl**: Creating too many stacks without clear organization
-11. **Missing Validation**: Not validating configuration before deployment
-12. **Circular Dependencies**: Creating circular stack references
-13. **No Backup Strategy**: Not exporting stack state for disaster recovery
-14. **Environment Differences**: Production significantly different from other environments
-15. **Poor Secret Management**: Checking encrypted secrets into public repositories without proper key management
+1. **Hardcoded Values**: Environment-specific values hardcoded instead of in config
+2. **Missing Config**: New stack deployed without required config
+3. **Broken References**: References to non-existent stacks or outputs
+4. **Stack Sprawl**: Too many stacks, no clear organization
+5. **Circular Dependencies**: Circular stack references
+6. **Poor Secret Management**: Encrypted secrets in public repositories without proper key management
 
 ## Resources
 

@@ -1,8 +1,5 @@
 # Rate Limiting Strategies
 
-Rate limiting controls request frequency to prevent abuse, ensure fair resource allocation, and maintain API stability.
-
-
 ## Table of Contents
 
 - [Algorithm Comparison](#algorithm-comparison)
@@ -32,9 +29,9 @@ Rate limiting controls request frequency to prevent abuse, ensure fair resource 
 **Concept:**
 - Bucket holds tokens (max capacity = rate limit)
 - Tokens added at fixed rate (e.g., 100/minute)
-- Each request consumes 1 token
+- Each request uses 1 token
 - Request rejected if bucket empty
-- Allows bursts up to bucket capacity
+- Bursts allowed up to bucket capacity
 
 **FastAPI Implementation:**
 ```python
@@ -89,7 +86,7 @@ app.use('/api/*', limiter)
 **Concept:**
 - Tracks exact request timestamps in rolling window
 - More accurate than fixed window
-- Higher memory usage (stores all timestamps)
+- Higher memory use (stores every timestamp)
 - No burst allowance issues
 
 **Redis Lua Script (Atomic Operation):**
@@ -172,7 +169,7 @@ Window 2: 12:00:00 - 12:00:59 → 100 requests at 12:00:00
 Result: 200 requests in 1 second (burst problem)
 ```
 
-**Use only for low-stakes scenarios.**
+**Use only for low-stakes cases.**
 
 ## Distributed Rate Limiting (Microservices)
 
@@ -243,7 +240,7 @@ async def public_items(request: Request):
 
 ## Rate Limit Headers (Best Practice)
 
-Include standard headers in responses:
+Add standard headers to responses:
 
 ```python
 from fastapi import Response
@@ -261,7 +258,7 @@ async def list_items(response: Response):
     return {"items": []}
 ```
 
-**Response on rate limit exceeded:**
+**Response when limit exceeded:**
 ```python
 @app.exception_handler(RateLimitExceeded)
 async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
@@ -288,16 +285,16 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 - Persistent, shared state
 - ~1-2ms latency per operation
 - Scales horizontally
-- Requires Redis infrastructure
+- Needs Redis infrastructure
 
 **DynamoDB/Database (Rare):**
 - Persistent, global
 - 10-50ms latency
-- Overkill for most use cases
+- Overkill for most cases
 
 ## Adaptive Rate Limiting
 
-Adjust limits based on load:
+Adjust limits by load:
 
 ```python
 import asyncio
@@ -331,7 +328,7 @@ async def list_items():
 
 ## Cost-Based Rate Limiting
 
-Different costs for different endpoints:
+Each endpoint costs a different amount:
 
 ```python
 ENDPOINT_COSTS = {
@@ -388,4 +385,4 @@ asyncio.run(test_rate_limit("http://localhost:8000/items"))
 | Cost-based | Custom | Redis/DB | Track budget |
 | Adaptive | Token Bucket | Redis + metrics | Respond to load |
 
-**Default recommendation:** Token Bucket with Redis for production systems.
+**Default recommendation:** Token Bucket with Redis in production.

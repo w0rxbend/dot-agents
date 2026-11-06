@@ -48,7 +48,7 @@ class CustomersResource {
   }
 
   async retrieve(id: string) {
-    return this.client.request('GET', `/customers/${id}`)
+    return this.client.request('GET', `/customers/${encodeURIComponent(id)}`)
   }
 }
 

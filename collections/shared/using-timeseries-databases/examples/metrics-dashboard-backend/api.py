@@ -16,24 +16,25 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Tuple
 import asyncio
 import json
+import os
 
 app = FastAPI(title="Metrics Dashboard API")
 
-# CORS for frontend
+# CORS for frontend: API has no auth, so allow only the dashboard origin(s), never "*"
+ALLOWED_ORIGINS = os.environ.get("DASHBOARD_ORIGINS", "http://localhost:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Database connection
+# Database connection (password from PGPASSWORD or ~/.pgpass)
 def get_db():
     return psycopg2.connect(
         host="localhost",
         database="postgres",
         user="postgres",
-        password="password",
         cursor_factory=RealDictCursor
     )
 
@@ -250,6 +251,9 @@ async def websocket_metrics(websocket: WebSocket, metric_name: str, host: Option
       const ws = new WebSocket('ws://localhost:8000/ws/metrics/cpu_usage?host=server-01');
       ws.onmessage = (event) => console.log(JSON.parse(event.data));
     """
+    if websocket.headers.get("origin") not in ALLOWED_ORIGINS:  # CORS does not cover WebSockets
+        await websocket.close(code=1008)
+        return
     await websocket.accept()
 
     try:
@@ -292,4 +296,4 @@ async def websocket_metrics(websocket: WebSocket, metric_name: str, host: Option
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)  # local only; front with auth+TLS to expose

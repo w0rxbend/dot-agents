@@ -128,13 +128,14 @@ function useMultiEventSSE(endpoint: string) {
 ### SSE Server Implementation (Node.js)
 ```javascript
 // Server-side SSE endpoint
-app.get('/api/dashboard/stream', (req, res) => {
-  // Set SSE headers
+// requireAuth = your session/token auth middleware; metrics streams are not public
+app.get('/api/dashboard/stream', requireAuth, (req, res) => {
+  // Set SSE headers. Same-origin dashboard needs no CORS header; else allow only its origin, never '*'
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     'Connection': 'keep-alive',
-    'Access-Control-Allow-Origin': '*'
+    ...(process.env.DASHBOARD_ORIGIN && { 'Access-Control-Allow-Origin': process.env.DASHBOARD_ORIGIN })
   });
 
   // Send initial data

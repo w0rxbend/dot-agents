@@ -5,12 +5,6 @@ description: Plan and run load, stress, soak and spike tests (k6, Locust), profi
 
 # Performance Engineering
 
-## Purpose
-
-Performance engineering encompasses load testing, profiling, and optimization to deliver reliable, scalable systems. This skill provides frameworks for choosing the right performance testing approach (load, stress, soak, spike), profiling techniques to identify bottlenecks (CPU, memory, I/O), and optimization strategies for backend APIs, databases, and frontend applications.
-
-Use this skill to validate system capacity before launch, detect performance regressions in CI/CD pipelines, identify and resolve bottlenecks through profiling, and optimize application responsiveness across the stack.
-
 ## When to Use This Skill
 
 **Common Triggers:**
@@ -23,37 +17,33 @@ Use this skill to validate system capacity before launch, detect performance reg
 **Use Cases:**
 - Pre-launch capacity planning and load validation
 - Post-refactor performance regression testing
-- Investigating slow response times or high latency
+- Investigating slow responses or high latency
 - Detecting memory leaks in long-running services
 - Measuring database query latency under load (fixes: performance-optimization)
 - Validating auto-scaling configuration
-- Establishing performance SLOs and budgets
+- Setting performance SLOs and budgets
 
 ## Performance Testing Types
 
 ### Load Testing
-Validate system behavior under expected traffic levels.
-
-**When to use:** Pre-launch capacity planning, regression testing after refactors, validating auto-scaling.
+**When to use:** Pre-launch capacity planning, regression testing after refactors, auto-scaling validation.
 
 ### Stress Testing
-Find system capacity limits and failure modes.
+Find capacity limits and failure modes.
 
-**When to use:** Capacity planning, understanding failure behavior, infrastructure sizing decisions.
+**When to use:** Capacity planning, understanding failure behavior, infrastructure sizing.
 
 ### Soak Testing
-Identify memory leaks, resource exhaustion, and degradation over time.
+Find memory leaks, resource exhaustion and degradation over time.
 
-**When to use:** Detecting memory leaks, validating connection pool cleanup, testing long-running batch jobs.
+**When to use:** Memory leak detection, connection pool cleanup checks, long-running batch job testing.
 
 ### Spike Testing
-Validate system response to sudden traffic spikes.
-
-**When to use:** Validating auto-scaling, testing event-driven systems (product launches), ensuring rate limiting works.
+**When to use:** Auto-scaling validation, event-driven systems (product launches), confirming rate limiting works.
 
 ## Quick Decision Framework
 
-**Which test type to use?**
+**Which test type?**
 
 ```
 What am I trying to learn?
@@ -63,9 +53,11 @@ What am I trying to learn?
 └─ Can it handle traffic spikes? → SPIKE TEST
 ```
 
-For detailed testing patterns, load scenarios, and interpreting results, see `references/testing-types.md`.
+Testing patterns, load scenarios and result interpretation: `references/testing-types.md`.
 
 ## Load Testing Quick Starts
+
+**Before any load, stress, soak or spike run:** confirm with user that target is an environment they own and may load (production only with explicit approval), plus peak VUs/RPS and duration. Never aim tests at third-party hosts.
 
 ### k6 (JavaScript)
 
@@ -101,9 +93,9 @@ export default function () {
 }
 ```
 
-**Run:** `k6 run script.js`
+**Run:** `k6 run --no-usage-report script.js`. k6 sends anonymous usage stats by default; keep `--no-usage-report` (or env `K6_NO_USAGE_REPORT=true`) on every run, CI included.
 
-For stress and soak scripts, see `examples/k6/` (`stress-test.js`, `soak-test.js`); for spike profiles, see `references/testing-types.md`.
+Stress and soak scripts: `examples/k6/` (`stress-test.js`, `soak-test.js`). Spike profiles: `references/testing-types.md`.
 
 ### Locust (Python)
 
@@ -131,7 +123,7 @@ class WebsiteUser(HttpUser):
 
 **Run:** `locust -f locustfile.py --headless -u 100 -r 10 --run-time 10m`
 
-For a fuller Locust example, see `examples/locust/load_test.py`.
+Fuller Locust example: `examples/locust/load_test.py`.
 
 ## Profiling Quick Starts
 
@@ -209,18 +201,19 @@ node --inspect app.js
 **clinic.js (Node.js):**
 ```bash
 npm install -g clinic
-clinic doctor -- node app.js
+NO_INSIGHT=1 clinic doctor -- node app.js
 ```
 
-For detailed profiling workflows across Python, Go and Node.js, see `references/profiling-guide.md`; a runnable py-spy script is in `examples/profiling/python/pyspy_example.sh`.
+Always set `NO_INSIGHT=1` for clinic: without it, non-interactive runs send usage stats to Google Analytics.
+
+Profiling workflows for Python, Go and Node.js: `references/profiling-guide.md`. Runnable py-spy script: `examples/profiling/python/pyspy_example.sh`.
 
 ## After Finding the Bottleneck
 
-This skill measures and gates; it does not own the fixes. Once a load test or profile points
-at a specific slow query, endpoint, cache miss or page, hand off to **performance-optimization**
-(caching, N+1 queries, indexing, pagination, Core Web Vitals, bundle size), then re-run the
-same test here to confirm the gain. Background notes on common fixes are in
-`references/optimization-strategies.md` and `references/frontend-performance.md`.
+Skill measures and gates. It does not own fixes. Once a load test or profile points at a specific
+slow query, endpoint, cache miss or page, hand off to **performance-optimization** (caching, N+1
+queries, indexing, pagination, Core Web Vitals, bundle size). Then re-run same test here to confirm
+gain. Background on common fixes: `references/optimization-strategies.md`, `references/frontend-performance.md`.
 
 ## Performance SLOs
 
@@ -238,10 +231,10 @@ same test here to confirm the gain. Background notes on common fixes are in
 
 1. Measure baseline performance
 2. Identify user expectations
-3. Set targets at or slightly below the measured baseline, so the SLO is met from day one
+3. Set targets at or slightly below measured baseline, so SLO is met from day one
 4. Tighten targets as reliability improves
 
-For detailed SLO framework and performance budgets, see `references/slo-framework.md`.
+SLO framework and performance budgets: `references/slo-framework.md`.
 
 ## CI/CD Integration
 
@@ -258,6 +251,8 @@ on:
 jobs:
   load-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -265,8 +260,10 @@ jobs:
         uses: grafana/setup-k6-action@v1   # pin a k6 version via its `k6-version` input for reproducible runs
 
       - name: Run load test
-        run: k6 run tests/load/api-test.js
+        run: k6 run --no-usage-report tests/load/api-test.js
 ```
+
+Pin third-party actions to full commit SHAs (version tag in a comment); keep `permissions` read-only.
 
 **Performance budgets:**
 ```javascript
@@ -284,25 +281,21 @@ export const options = {
 **Standard process:**
 1. Observe symptoms (high CPU, memory growth, slow response)
 2. Hypothesize bottleneck (CPU? Memory? I/O?)
-3. Choose profiling type based on hypothesis
+3. Pick profiling type from hypothesis
 4. Run profiler under realistic load
 5. Analyze profile (flamegraph, call tree)
 6. Identify hot spots (top 20% functions using 80% resources)
-7. Optimize bottlenecks
+7. Optimize bottlenecks, biggest first
 8. Re-profile to validate improvement
 
 **Best practices:**
-- Profile under realistic load (not idle systems)
 - Use sampling profilers (py-spy, pprof) in production (low overhead)
-- Focus on hot paths (optimize biggest bottlenecks first)
-- Validate optimizations with before/after comparisons
 
 ## Tool Recommendations
 
 ### Load Testing
 
 **Primary: k6** (JavaScript-based, Grafana-backed)
-- Modern architecture, cloud-native
 - JavaScript DSL (ES6+)
 - Grafana/Prometheus integration
 - Multi-protocol (HTTP/1.1, HTTP/2, WebSocket, gRPC)
@@ -310,9 +303,8 @@ export const options = {
 **When to use:** Modern APIs, microservices, CI/CD integration.
 
 **Alternative: Locust** (Python-based)
-- Python-native (write tests in Python)
 - Web UI for real-time monitoring
-- Flexible for complex user scenarios
+- Handles complex user scenarios
 
 **When to use:** Python-heavy teams, complex user flows.
 
@@ -330,7 +322,7 @@ export const options = {
 - Chrome DevTools (browser/Node.js)
 - clinic.js (Node.js performance suite)
 
-For detailed tool comparisons, see `references/testing-types.md` and `references/profiling-guide.md`.
+Tool comparisons: `references/testing-types.md`, `references/profiling-guide.md`.
 
 ## Reference Documentation
 
@@ -345,15 +337,15 @@ For detailed tool comparisons, see `references/testing-types.md` and `references
 **Examples:**
 - `examples/k6/` - Load, stress and soak tests
 - `examples/locust/load_test.py` - Python-based load testing
-- `examples/profiling/python/pyspy_example.sh` - py-spy CPU profiling (Go and Node.js workflows are in `references/profiling-guide.md`)
+- `examples/profiling/python/pyspy_example.sh` - py-spy CPU profiling
 - `examples/optimization/api_optimization.ts` - API caching and pagination patterns
 
 ## Related Skills
 
-For comprehensive testing strategies, see the `testing-strategies` skill.
+Full testing strategies: `testing-strategies` skill.
 
-For CI/CD integration patterns, see the `building-ci-pipelines` skill.
+CI/CD integration patterns: `building-ci-pipelines` skill.
 
-For fixing a specific measured bottleneck (frontend, query, algorithm), see the `performance-optimization` skill.
+Fixing a specific measured bottleneck (frontend, query, algorithm): `performance-optimization` skill.
 
-For Kubernetes resource requests/limits and autoscaling validated by load tests, see the `operating-kubernetes` skill.
+Kubernetes resource requests/limits and autoscaling validated by load tests: `operating-kubernetes` skill.

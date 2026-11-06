@@ -1,8 +1,5 @@
 # Color System
 
-Complete color token reference for the design system.
-
-
 ## Table of Contents
 
 - [Color Scale Structure](#color-scale-structure)
@@ -15,7 +12,7 @@ Complete color token reference for the design system.
 
 ## Color Scale Structure
 
-Each color has a 9-shade scale from lightest (50) to darkest (900):
+Each color has 9-shade scale, lightest (50) to darkest (900):
 
 ```css
 /* Blue Scale */
@@ -128,7 +125,7 @@ Map primitive colors to semantic meaning:
 
 ### Validated Combinations
 
-These combinations meet WCAG AA:
+Pairs meeting WCAG AA:
 
 | Background | Text | Ratio |
 |------------|------|-------|
@@ -139,7 +136,7 @@ These combinations meet WCAG AA:
 
 ### Colorblind-Safe Considerations
 
-Avoid relying solely on:
+Avoid relying only on:
 - Red vs Green (deuteranopia, protanopia)
 - Blue vs Purple (tritanopia)
 

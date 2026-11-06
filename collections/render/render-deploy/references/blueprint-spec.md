@@ -1,15 +1,6 @@
 # Render Blueprint Specification
 
-Complete reference for render.yaml Blueprint files. Blueprints define your infrastructure as code for reproducible deployments on Render.
-
-## Overview
-
-A Blueprint is a YAML file (typically `render.yaml`) placed in your repository root that describes:
-- Services (web, worker, cron, static, private)
-- Databases (PostgreSQL, Redis)
-- Environment variables and secrets
-- Scaling and resource configuration
-- Project organization
+Reference for Blueprint files: YAML (typically `render.yaml`) in repository root.
 
 ## Root-Level Structure
 
@@ -28,23 +19,23 @@ previews:            # Preview environment configuration (optional)
 
 ### Web Services (`type: web`)
 
-HTTP services, APIs, and web applications. Publicly accessible via HTTPS.
+HTTP services, APIs, web apps. Public via HTTPS.
 
 **Required fields:**
-- `name`: Unique service identifier
+- `name`: Unique service ID
 - `type`: Must be `web`
 - `runtime`: Language/environment (see Runtimes section)
-- `buildCommand`: Command to build the application
-- `startCommand`: Command to start the server
+- `buildCommand`: Builds app
+- `startCommand`: Starts server
 
 **Common optional fields:**
 - `plan`: Instance type (default: `free`)
-- `region`: Deployment region (default: `oregon`)
+- `region`: Deploy region (default: `oregon`)
 - `branch`: Git branch to deploy (default: `main`)
 - `autoDeploy`: Auto-deploy on push (default: `true`)
 - `envVars`: Environment variables array
 - `healthCheckPath`: Health check endpoint (default: `/`)
-- `numInstances`: Number of instances (manual scaling)
+- `numInstances`: Instance count (manual scaling)
 - `scaling`: Autoscaling configuration
 
 **Example:**
@@ -70,14 +61,13 @@ services:
 Background job processors, queue consumers. Not publicly accessible.
 
 **Required fields:**
-- `name`: Unique service identifier
+- `name`: Unique service ID
 - `type`: Must be `worker`
 - `runtime`: Language/environment
-- `buildCommand`: Command to build
-- `startCommand`: Command to start worker process
+- `buildCommand`: Build command
+- `startCommand`: Starts worker process
 
 **Key differences from web services:**
-- No public URL
 - No health checks
 - No port binding required
 
@@ -100,15 +90,15 @@ services:
 
 ### Cron Jobs (`type: cron`)
 
-Scheduled tasks that run on a cron schedule.
+Tasks run on cron schedule.
 
 **Required fields:**
-- `name`: Unique service identifier
+- `name`: Unique service ID
 - `type`: Must be `cron`
 - `runtime`: Language/environment
 - `schedule`: Cron expression
-- `buildCommand`: Command to build
-- `startCommand`: Command to execute on schedule
+- `buildCommand`: Build command
+- `startCommand`: Runs on schedule
 
 **Schedule format:** Standard cron syntax (minute hour day month weekday)
 
@@ -138,14 +128,14 @@ services:
 Serve static HTML/CSS/JS files via CDN.
 
 **Required fields:**
-- `name`: Unique service identifier
+- `name`: Unique service ID
 - `type`: `web`
 - `runtime`: `static`
-- `buildCommand`: Command to build static assets
+- `buildCommand`: Builds static assets
 - `staticPublishPath`: Path to built files (e.g., `./build`, `./dist`)
 
 **Optional configuration:**
-- `routes`: Routing rules for SPAs
+- `routes`: SPA routing rules
 - `headers`: Custom HTTP headers
 - `buildFilter`: Path filters for build triggers
 
@@ -169,19 +159,16 @@ services:
 
 ### Private Services (`type: pserv`)
 
-Internal services accessible only within your Render account.
+Internal services, reachable only within your Render account.
 
 **Required fields:**
-- `name`: Unique service identifier
+- `name`: Unique service ID
 - `type`: Must be `pserv`
 - `runtime`: Language/environment
-- `buildCommand`: Command to build
-- `startCommand`: Command to start
+- `buildCommand`: Build command
+- `startCommand`: Start command
 
-**Use cases:**
-- Internal APIs
-- Database proxies
-- Microservices not exposed to internet
+**Use cases:** internal APIs, database proxies, microservices not exposed to internet.
 
 **Example:**
 ```yaml
@@ -201,12 +188,12 @@ services:
 **Node.js (`runtime: node`):**
 - Versions: 14, 16, 18, 20, 21
 - Default version: 20
-- Specify version in `package.json` engines field
+- Set version in `package.json` engines field
 
 **Python (`runtime: python`):**
 - Versions: 3.8, 3.9, 3.10, 3.11, 3.12
 - Default version: 3.11
-- Specify version in `runtime.txt` or `Pipfile`
+- Set version in `runtime.txt` or `Pipfile`
 
 **Go (`runtime: go`):**
 - Versions: 1.20, 1.21, 1.22, 1.23
@@ -229,7 +216,7 @@ services:
 ### Docker Runtime
 
 **Docker (`runtime: docker`):**
-Build from a Dockerfile in your repository.
+Builds from Dockerfile in repository.
 
 **Additional fields:**
 - `dockerfilePath`: Path to Dockerfile (default: `./Dockerfile`)
@@ -247,7 +234,7 @@ services:
 ```
 
 **Image (`runtime: image`):**
-Deploy pre-built Docker images from a registry.
+Deploys pre-built Docker images from registry.
 
 **Additional fields:**
 - `image`: Image URL (e.g., `registry.com/image:tag`)
@@ -265,8 +252,6 @@ services:
 
 ## Service Plans
 
-Available instance types:
-
 | Plan | RAM | CPU | Price |
 |------|-----|-----|-------|
 | `free` | 512 MB | 0.5 | Free (750 hrs/mo) |
@@ -275,11 +260,9 @@ Available instance types:
 | `pro` | 4 GB | 2 | $85/month |
 | `pro_plus` | 8 GB | 4 | $175/month |
 
-**Default to `plan: free` for web services, static sites, Postgres and Key Value unless the user specifies otherwise.** Background workers, cron jobs and private services have no free instance type; use `starter` (the cheapest paid plan) for them and tell the user they will be billed.
+**Default to `plan: free` for web services, static sites, Postgres and Key Value unless user specifies otherwise.** Background workers, cron jobs and private services have no free instance type. Use `starter` (cheapest paid plan) for them and tell user they will be billed.
 
 ## Regions
-
-Available deployment regions:
 
 - `oregon` (US West) - Default
 - `ohio` (US East)
@@ -287,22 +270,11 @@ Available deployment regions:
 - `frankfurt` (EU)
 - `singapore` (Asia)
 
-**Example:**
-```yaml
-services:
-  - type: web
-    name: my-app
-    runtime: node
-    region: frankfurt
-```
-
 ## Environment Variables
-
-Three patterns for defining environment variables:
 
 ### 1. Hardcoded Values
 
-For non-sensitive configuration:
+Non-sensitive configuration:
 
 ```yaml
 envVars:
@@ -316,7 +288,7 @@ envVars:
 
 ### 2. Generated Secrets
 
-Render generates a base64-encoded 256-bit random value:
+Render generates base64-encoded 256-bit random value:
 
 ```yaml
 envVars:
@@ -328,7 +300,7 @@ envVars:
 
 ### 3. User-Provided Secrets
 
-Prompt user for values during Blueprint creation:
+Prompts user for values during Blueprint creation:
 
 ```yaml
 envVars:
@@ -340,7 +312,7 @@ envVars:
     sync: false
 ```
 
-**The `sync: false` flag means "user will fill this in the Dashboard".**
+**`sync: false` means "user will fill this in the Dashboard".**
 
 ### 4. Database References
 
@@ -456,8 +428,8 @@ databases:
 
 ### Key Value (Redis-compatible)
 
-Key Value instances are declared under `services:` with `type: keyvalue` (not under `databases:`), and
-other services reference them with `fromService` + `type: keyvalue`:
+Declare Key Value instances under `services:` with `type: keyvalue` (not under `databases:`).
+Other services reference them with `fromService` + `type: keyvalue`:
 
 ```yaml
 services:
@@ -468,7 +440,7 @@ services:
     ipAllowList: []  # internal only
 ```
 
-**Plans:** Key Value has its own plan list (`free`, `starter`, `standard`, `pro`, ...); see the render-keyvalue skill
+**Plans:** Key Value has own plan list (`free`, `starter`, `standard`, `pro`, ...). See render-keyvalue skill.
 
 **maxmemoryPolicy options:**
 - `allkeys-lru`: Evict least recently used keys
@@ -482,7 +454,7 @@ services:
 
 ### Manual Scaling
 
-Fixed number of instances:
+Fixed instance count:
 
 ```yaml
 services:
@@ -495,7 +467,7 @@ services:
 
 ### Autoscaling
 
-Dynamic scaling based on CPU/memory (Professional workspace required):
+Scales on CPU/memory:
 
 ```yaml
 services:
@@ -517,8 +489,6 @@ services:
 
 ## Health Checks
 
-Configure health check endpoints:
-
 ```yaml
 services:
   - type: web
@@ -527,13 +497,11 @@ services:
     healthCheckPath: /health
 ```
 
-**Default:** `/` (root path)
-
-**Recommended:** Add a dedicated `/health` endpoint that returns `200 OK`.
+**Recommended:** Add dedicated `/health` endpoint returning `200 OK`.
 
 ## Build Filters
 
-Control when builds are triggered based on changed files:
+Trigger builds based on changed files:
 
 ```yaml
 services:
@@ -590,12 +558,12 @@ projects:
 ```
 
 **Environment features:**
-- `networking.isolation`: Enable network isolation between environments
+- `networking.isolation`: Network isolation between environments
 - `permissions.protection`: Require approval for environment changes
 
 ## Preview Environments
 
-Configure automatic preview environments for pull requests:
+Automatic preview environments for pull requests:
 
 ```yaml
 previews:
@@ -603,13 +571,11 @@ previews:
 ```
 
 **Options:**
-- `auto_preview`: Create preview environment for each PR automatically
-- `manual`: User manually triggers preview creation
+- `auto_preview`: Auto-create preview environment for each PR
+- `manual`: User triggers preview creation manually
 - `none`: Disable preview environments
 
 ## Complete Example
-
-Full-featured Blueprint with multiple services and databases:
 
 ```yaml
 services:
@@ -695,7 +661,7 @@ databases:
 
 ## Validation
 
-Validate your Blueprint before deploying (when CLI command is available):
+Validate Blueprint before deploying (when CLI command is available):
 
 ```bash
 render blueprint validate
@@ -710,16 +676,11 @@ render blueprint validate
 
 ## Best Practices
 
-1. **Use `plan: free` by default where it exists** (web, static, Postgres, Key Value) - workers, cron jobs and private services need a paid plan such as `starter`
-2. **Mark all secrets with `sync: false`** - Never hardcode sensitive values
-3. **Use `fromDatabase` for Postgres URLs and `fromService` (with `type: keyvalue`) for Key Value URLs** - Automatic internal connection strings
-4. **Add health check endpoints** - Faster deployment detection
-5. **Use non-interactive build commands** - Prevents build hangs
-6. **Bind to `0.0.0.0:$PORT`** - Required for web services
-7. **Use environment variable groups** - Share config across services
-8. **Enable autoDeploy: true** - Deploy automatically on push
-9. **Set appropriate regions** - Choose closest to your users
-10. **Use build filters** - Optimize build triggers in monorepos
+1. **Mark all secrets with `sync: false`** - Never hardcode sensitive values
+2. **Use `fromDatabase` for Postgres URLs and `fromService` (with `type: keyvalue`) for Key Value URLs** - Automatic internal connection strings
+3. **Use non-interactive build commands** - Prevents build hangs
+4. **Bind to `0.0.0.0:$PORT`** - Required for web services
+5. **Use build filters** - Optimize build triggers in monorepos
 
 ## Additional Resources
 

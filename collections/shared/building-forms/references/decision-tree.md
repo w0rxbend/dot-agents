@@ -1,8 +1,5 @@
 # Form Component Selection Decision Tree
 
-**Universal framework for selecting the appropriate form input component based on data type and requirements.**
-
-
 ## Table of Contents
 
 - [The Golden Rule](#the-golden-rule)
@@ -34,9 +31,9 @@
 **Data Type → Input Component → Validation Pattern**
 
 Always start by identifying:
-1. **What type of data** are you collecting?
-2. **How many options** are there (for choices)?
-3. **What constraints** exist (min/max, format, required)?
+1. **What type of data** you collect
+2. **How many options** exist (for choices)
+3. **What constraints** apply (min/max, format, required)
 
 ## Complete Decision Tree
 
@@ -51,7 +48,6 @@ Always start by identifying:
 
 **Email address?**
 → **Email Input**
-- Use for: Email addresses
 - HTML: `<input type="email">`
 - Validation: Email format (RFC 5322), domain verification
 - Mobile: Shows email keyboard (@, .)
@@ -62,12 +58,11 @@ Always start by identifying:
 - Use for: Passwords, PINs, secrets
 - HTML: `<input type="password">`
 - Features: Visibility toggle, strength meter
-- Validation: Min length, complexity requirements
+- Validation: Min length, complexity rules
 - Example: Login password, new password
 
 **Phone number?**
 → **Tel Input**
-- Use for: Phone numbers
 - HTML: `<input type="tel">`
 - Features: International formatting, country code selector
 - Mobile: Shows numeric keyboard
@@ -76,7 +71,6 @@ Always start by identifying:
 
 **URL/Website?**
 → **URL Input**
-- Use for: Web addresses
 - HTML: `<input type="url">`
 - Validation: Protocol, domain, valid URL structure
 - Example: https://example.com
@@ -216,7 +210,7 @@ Always start by identifying:
 → **Toggle Switch**
 - Use for: Settings, feature flags
 - Better UX: Immediate visual feedback of state
-- Best for: Actions that take effect immediately
+- Best for: Actions with immediate effect
 - Example: Enable notifications, Dark mode
 
 **Part of mutually exclusive group?**
@@ -236,9 +230,9 @@ Always start by identifying:
 
 **6-15 options?**
 → **Select Dropdown**
-- Use for: Medium-sized option lists
+- Use for: Medium option lists
 - HTML: `<select>`
-- Best for: Known categories, conserving space
+- Best for: Known categories, saving space
 - Features: Search within options (native or enhanced)
 - Example: Country selection, Department
 
@@ -249,7 +243,7 @@ Always start by identifying:
 - Best for: Searchable lists (cities, products, users)
 - Example: City (1000s of options), Product search
 
-**Need search functionality?**
+**Need search?**
 → **Autocomplete with Search**
 - Features: Server-side search, debouncing
 - Best for: Very large datasets, API-backed options
@@ -268,7 +262,7 @@ Always start by identifying:
 
 **8-20 options?**
 → **Multi-Select Dropdown**
-- Use for: Medium-sized lists, multiple selections
+- Use for: Medium lists, multiple selections
 - HTML: `<select multiple>`
 - Features: Select/deselect all, selected count
 - Example: Skills selection, Categories
@@ -277,7 +271,7 @@ Always start by identifying:
 → **Transfer List** or **Autocomplete Multi**
 - Transfer List: Two columns (available/selected)
 - Autocomplete Multi: Type to add, chips for selected
-- Best for: Large lists, clear visual of selections
+- Best for: Large lists, clear view of selections
 - Example: Assign permissions, Email recipients
 
 **Free-form tags (user can create)?**
@@ -321,7 +315,7 @@ Always start by identifying:
 
 ### Color Selection
 
-**Any color needed?**
+**Any color?**
 → **Color Picker**
 - Use for: Theme customization, design tools
 - HTML: `<input type="color">`
@@ -331,7 +325,7 @@ Always start by identifying:
 **Limited color palette?**
 → **Color Swatches**
 - Use for: Predefined color options
-- Better UX: Visual selection of preset colors
+- Better UX: Visual pick of preset colors
 - Example: Product color (Red, Blue, Green)
 
 ---
@@ -355,7 +349,6 @@ Always start by identifying:
 
 **Phone number (international)?**
 → **Phone Number Input**
-- Use for: International phone numbers
 - Features: Country code selector, format by region, validation
 - Standard: E.164 format (+1234567890)
 - Example: Contact phone, WhatsApp number
@@ -405,27 +398,27 @@ Always start by identifying:
 **Use Select Dropdown when:**
 - 6-15 options
 - Options are well-known categories
-- User knows what they're looking for
+- User knows what they want
 - Options fit in dropdown without scroll
 
 **Use Autocomplete when:**
 - More than 15 options
-- Need search/filter functionality
-- Options are searchable (cities, products, names)
+- Search/filter needed
+- Searchable options (cities, products, names)
 - Better mobile experience needed
 
 ### When to use Checkbox vs. Toggle Switch?
 
 **Use Checkbox when:**
-- Part of a form that requires submission
+- Part of form that requires submission
 - User must explicitly agree (terms of service)
 - Multiple related options (checkbox group)
-- Effect happens on form submit
+- Effect applies on form submit
 
 **Use Toggle Switch when:**
-- Settings that take effect immediately
+- Settings take effect immediately
 - Clear binary state (on/off, enabled/disabled)
-- Modern UI, app-like interface
+- Modern, app-like UI
 - Single standalone option
 
 ### When to use Radio Group vs. Select Dropdown?
@@ -433,27 +426,27 @@ Always start by identifying:
 **Use Radio Group when:**
 - 2-5 options
 - All options should be visible for comparison
-- Options are short (1-3 words)
-- Frequently used, important choices
+- Short options (1-3 words)
+- Frequent, important choices
 
 **Use Select Dropdown when:**
 - 6+ options
-- Space is limited
-- Options are longer text
-- Less frequently used
+- Limited space
+- Longer option text
+- Less frequent use
 
 ### When to use Text Input vs. Autocomplete?
 
 **Use Text Input when:**
-- Truly free-form (no predefined options)
-- Value is unique (name, custom text)
+- Free-form (no predefined options)
+- Unique value (name, custom text)
 - No common suggestions available
 
 **Use Autocomplete when:**
 - Predefined options exist but user can add new
 - Common values can be suggested
-- Better UX with autocomplete
-- Want to reduce typos
+- Autocomplete improves UX
+- Reducing typos matters
 
 ---
 
@@ -461,7 +454,7 @@ Always start by identifying:
 
 ### Input Type → Keyboard Type
 
-Choosing the correct input type automatically shows the appropriate mobile keyboard:
+Correct input type shows matching mobile keyboard automatically:
 
 | Input Type | Mobile Keyboard | Best For |
 |------------|-----------------|----------|
@@ -473,8 +466,6 @@ Choosing the correct input type automatically shows the appropriate mobile keybo
 | `type="search"` | Search (Go button) | Search queries |
 | `type="date"` | Date picker | Date selection |
 | `type="time"` | Time picker | Time selection |
-
-**Impact:** Improves mobile UX by showing the right keyboard for the data type.
 
 ---
 
@@ -524,7 +515,7 @@ Choosing the correct input type automatically shows the appropriate mobile keybo
 
 ## Next Steps
 
-After selecting the appropriate component:
+After picking component:
 
 1. **Implement validation** → See `validation-concepts.md`
 2. **Ensure accessibility** → See `accessibility-forms.md`

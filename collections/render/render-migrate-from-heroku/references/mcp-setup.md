@@ -1,19 +1,19 @@
 # MCP Server Setup for Heroku to Render Migration
 
-The Render MCP server is recommended for direct service creation and automated verification, but not required for the Blueprint path. The Heroku MCP server is optional — it enables automatic discovery of config vars, add-on plans, and dyno sizes.
+Render MCP server: recommended for direct service creation and automated verification; not required for Blueprint path.
 
 ## Render MCP Server (Recommended)
 
-Hosted at `https://mcp.render.com/mcp` (recommended, auto-updates). The Render plugin (Cursor, Codex, Claude Code) connects to this server over OAuth with a pre-registered client id — no API key needed. Manual MCP clients can still use a Render API key from [Account Settings](https://dashboard.render.com/u/*/settings#api-keys).
+Hosted at `https://mcp.render.com/mcp` (recommended, auto-updates). Render plugin (Cursor, Codex, Claude Code) connects over OAuth with a pre-registered client id; no API key needed. Manual MCP clients can use a Render API key from [Account Settings](https://dashboard.render.com/u/*/settings#api-keys). Prefer plugin OAuth; with a manual key, user runs the steps below themselves and never pastes the key into chat.
 
 Alternative: run locally via Docker or binary (see [Render MCP docs](https://render.com/docs/mcp-server)).
 Source: [render-mcp-server](https://github.com/render-oss/render-mcp-server)
 
-**Detecting the user's tool:** Infer the AI tool from this skill's install path (`~/.cursor/skills/` = Cursor, `~/.claude/skills/` = Claude Code, `~/.codex/skills/` = Codex). If the path doesn't match a known tool, ask the user which tool they're using, then follow the matching section below.
+**Detecting the user's tool:** Infer AI tool from this skill's install path (`~/.cursor/skills/` = Cursor, `~/.claude/skills/` = Claude Code, `~/.codex/skills/` = Codex). Unknown path: ask user which tool they use, then follow matching section below.
 
 ### Render plugin (recommended)
 
-If the Render plugin is installed for your tool, it already declares this MCP server with a pre-registered OAuth client id. Reload the tool (restart Cursor or Claude Code, or start a new Codex thread), complete the Render OAuth prompt when asked, then retry `list_services()`. The manual, API-key setups below are for tools without the plugin.
+If Render plugin is installed, it already declares this MCP server with a pre-registered OAuth client id. Reload tool (restart Cursor or Claude Code, or start a new Codex thread), complete Render OAuth prompt, then retry `list_services()`. Manual API-key setups below are for tools without the plugin.
 
 ### Cursor
 
@@ -45,9 +45,10 @@ https://dashboard.render.com/u/*/settings#api-keys
 https://dashboard.render.com/u/*/settings#api-keys
 ```
 
-2. Add the MCP server with Claude Code (replace `<YOUR_API_KEY>`):
+2. Load key without echo, then add MCP server with Claude Code:
 ```bash
-claude mcp add --transport http render https://mcp.render.com/mcp --header "Authorization: Bearer <YOUR_API_KEY>"
+read -rs RENDER_API_KEY && export RENDER_API_KEY
+claude mcp add --transport http render https://mcp.render.com/mcp --header "Authorization: Bearer $RENDER_API_KEY"
 ```
 
 3. Restart Claude Code, then retry `list_services()`.
@@ -59,12 +60,12 @@ claude mcp add --transport http render https://mcp.render.com/mcp --header "Auth
 https://dashboard.render.com/u/*/settings#api-keys
 ```
 
-2. Set it in your shell:
+2. Set it in shell (no echo, not in history):
 ```bash
-export RENDER_API_KEY="<YOUR_API_KEY>"
+read -rs RENDER_API_KEY && export RENDER_API_KEY
 ```
 
-3. Add the MCP server with the Codex CLI:
+3. Add MCP server with Codex CLI:
 ```bash
 codex mcp add render --url https://mcp.render.com/mcp --bearer-token-env-var RENDER_API_KEY
 ```
@@ -73,25 +74,27 @@ codex mcp add render --url https://mcp.render.com/mcp --bearer-token-env-var REN
 
 ### Other Tools
 
-If using another AI tool, direct the user to the [Render MCP docs](https://render.com/docs/mcp-server) for that tool's setup steps and install method.
+Other AI tool: point user to [Render MCP docs](https://render.com/docs/mcp-server) for its setup steps and install method.
 
 ## Heroku MCP Server (Optional)
 
-The Heroku MCP server enables automatic discovery of config vars, add-on plans, and dyno sizes. If it's not configured, the migration skill still works — it reads local project files and asks you to provide config var values manually.
+Heroku MCP server auto-discovers config vars, add-on plans, dyno sizes. Without it, skill still works: reads local project files, asks user for config var names manually.
 
 - Requires Heroku CLI v10.8.1+ installed globally
 - `heroku mcp:start` uses existing CLI auth (no API key needed)
-- Alternative: `npx -y @heroku/mcp-server` with `HEROKU_API_KEY` env var
+- Alternative: `npx -y @heroku/mcp-server@1.2.13` (pinned; review before bumping) with `HEROKU_API_KEY` env var
+- Heroku CLI sends telemetry by default; `DISABLE_TELEMETRY=true` in server `env` turns it off (either launch method)
 - Source: [heroku-mcp-server](https://github.com/heroku/heroku-mcp-server)
 
-Add to your MCP config alongside the Render server:
+Add to MCP config alongside Render server:
 
 ```json
 {
   "mcpServers": {
     "heroku": {
       "command": "heroku",
-      "args": ["mcp:start"]
+      "args": ["mcp:start"],
+      "env": {"DISABLE_TELEMETRY": "true"}
     }
   }
 }
@@ -99,8 +102,8 @@ Add to your MCP config alongside the Render server:
 
 ## Verification
 
-After configuring, test your connections:
+After configuring, test connections:
 - Ask: "List my Render services" — should return services via Render MCP (required)
 - Ask: "List my Heroku apps" — should return apps via Heroku MCP (optional)
 
-If Render MCP fails, reinstall or update the Render plugin and reload the tool (plugin setup), or check your API key and restart your MCP client (manual setup). If Heroku MCP is not configured, the migration skill still works — it reads local project files and asks you to provide config var values manually.
+If Render MCP fails, reinstall or update Render plugin and reload tool (plugin setup), or check API key and restart MCP client (manual setup).

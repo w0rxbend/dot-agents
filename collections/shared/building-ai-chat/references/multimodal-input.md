@@ -16,7 +16,7 @@
 
 ### Image Upload Interface
 
-Support multiple ways to add images:
+Several ways to add images:
 
 ```tsx
 function ImageUploadInterface({ onImagesAdded, maxSize = 10 * 1024 * 1024 }) {
@@ -173,7 +173,7 @@ function ImageUploadInterface({ onImagesAdded, maxSize = 10 * 1024 * 1024 }) {
 
 ### Image Preview Component
 
-Display images with zoom and metadata:
+Show images with zoom and metadata:
 
 ```tsx
 function ImagePreviewCard({ preview, onRemove, onEdit }) {
@@ -258,8 +258,6 @@ function ImageLightbox({ image, onClose }) {
 
 ### AI Image Analysis Display
 
-Show AI's understanding of images:
-
 ```tsx
 function ImageAnalysisDisplay({ image, analysis }) {
   return (
@@ -321,7 +319,7 @@ function ImageAnalysisDisplay({ image, analysis }) {
 
 ### Multi-Format File Handler
 
-Support various file types with appropriate previews:
+Many file types, each with fitting preview:
 
 ```tsx
 interface FileAttachment {
@@ -451,7 +449,7 @@ function FileAttachmentHandler({ onFilesAttached }) {
 
 ### File Attachment Display
 
-Show attached files with appropriate icons and previews:
+Show attached files with per-type icons and previews:
 
 ```tsx
 function FileAttachmentCard({ attachment, isProcessing, onRemove }) {
@@ -701,8 +699,6 @@ function AudioLevelMeter({ level }) {
 
 ### Text-to-Speech Output
 
-Read AI responses aloud:
-
 ```tsx
 function TextToSpeech({ text, autoPlay = false, voice = 'default' }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -834,8 +830,6 @@ function TextToSpeech({ text, autoPlay = false, voice = 'default' }) {
 
 ### Screen Share Component
 
-Share screen with AI for context:
-
 ```tsx
 function ScreenShare({ onScreenCapture }) {
   const [isSharing, setIsSharing] = useState(false);
@@ -957,8 +951,6 @@ function ScreenShare({ onScreenCapture }) {
 ## Collaborative Whiteboard
 
 ### Interactive Drawing Canvas
-
-Collaborate with AI on visual content:
 
 ```tsx
 function CollaborativeWhiteboard({ onCanvasUpdate }) {
@@ -1139,8 +1131,6 @@ function CollaborativeWhiteboard({ onCanvasUpdate }) {
 
 ### Video Upload and Processing
 
-Handle video files for AI analysis:
-
 ```tsx
 function VideoInput({ onVideoProcessed }) {
   const [video, setVideo] = useState<File | null>(null);
@@ -1254,8 +1244,6 @@ function VideoInput({ onVideoProcessed }) {
 
 ### Unified Multi-Modal Message
 
-Display messages with mixed content types:
-
 ```tsx
 interface MultiModalContent {
   type: 'text' | 'image' | 'file' | 'audio' | 'video' | 'code';
@@ -1351,8 +1339,6 @@ function MultiModalMessage({ message }) {
 
 ### Universal Drop Zone
 
-Accept any file type via drag and drop:
-
 ```tsx
 function UniversalDropZone({ onDrop, children }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -1444,11 +1430,11 @@ function UniversalDropZone({ onDrop, children }) {
 3. **Process asynchronously** - Don't block UI during file processing
 4. **Show progress** - Uploading, processing, analyzing indicators
 5. **Graceful degradation** - Handle unsupported formats/browsers
-6. **Size validation** - Check file sizes before upload
-7. **Type detection** - Classify files and render appropriately
-8. **Metadata extraction** - Show relevant info (dimensions, pages, duration)
+6. **Size validation** - Check size before upload
+7. **Type detection** - Classify files, render per type
+8. **Metadata extraction** - Show dimensions, pages, duration
 9. **Voice feedback** - Visual audio levels, transcription preview
-10. **Accessibility** - Keyboard support, ARIA labels, focus management
+10. **Accessibility** - Keyboard support, ARIA labels, alt text, focus management
 
 ## Additional Patterns
 
@@ -1510,12 +1496,9 @@ function CameraInput({ onCapture }: Props) {
 ### Best Practices
 
 1. **Validate file types** - Check MIME type and extension
-2. **Enforce size limits** - Prevent large uploads
-3. **Show previews** - Let users confirm before sending
-4. **Compress images** - Client-side compression before upload
-5. **Handle errors** - Clear messages for unsupported formats
-6. **Loading states** - Show progress during upload
-7. **Allow removal** - Users can remove attachments before send
-8. **Mobile-friendly** - Camera access, photo library
-9. **Accessibility** - Alt text, ARIA labels
-10. **Secure upload** - Validate server-side, scan for malware
+2. **Show previews** - Users confirm before send
+3. **Compress images** - Compress client-side before upload
+4. **Handle errors** - Clear message for unsupported format
+5. **Allow removal** - Users remove attachments before send
+6. **Mobile-friendly** - Camera access, photo library
+7. **Secure upload** - Validate server-side, scan for malware

@@ -1,7 +1,5 @@
 # Metrics-Based Debugging
 
-Use Render metrics to diagnose performance issues, resource constraints, and application health problems.
-
 ## When to Use Metrics
 
 Use metrics debugging when you see:
@@ -39,7 +37,7 @@ get_metrics(
 
 **CPU Fixes:**
 1. Profile code to find hot paths
-2. Add caching for repeated computations
+2. Cache repeated computations
 3. Optimize database queries
 4. Use async/non-blocking operations
 5. Upgrade to higher plan
@@ -62,7 +60,7 @@ get_metrics(
 |-------------------|--------|--------|
 | <70% | Healthy | No action needed |
 | 70-85% | Warning | Monitor for leaks |
-| 85-95% | Danger | Investigate immediately |
+| 85-95% | Danger | Investigate now |
 | >95% | Critical | OOM imminent |
 
 **Memory limits by plan:**
@@ -75,7 +73,7 @@ get_metrics(
 **High memory causes:**
 - Memory leaks (objects not garbage collected)
 - Large in-memory caches
-- Processing large files/datasets in memory
+- Large files/datasets processed in memory
 - Too many concurrent connections
 
 **Memory Fixes:**
@@ -117,7 +115,7 @@ get_metrics(
 
 **Common quantiles:**
 - `0.5` (p50) - Median, typical experience
-- `0.95` (p95) - Most users' worst experience
+- `0.95` (p95) - Worst experience for most users
 - `0.99` (p99) - Tail latency, outliers
 
 ### Interpreting Latency
@@ -140,7 +138,7 @@ get_metrics(
 )
 ```
 
-**Aggregate by status code to find error rates:**
+**Aggregate by status code for error rates:**
 ```
 get_metrics(
   resourceId: "<service-id>",

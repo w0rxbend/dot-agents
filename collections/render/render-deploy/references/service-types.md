@@ -1,30 +1,28 @@
 # Render Service Types
 
-Detailed explanation of each service type available on Render. Choose the right service type based on your application's needs.
-
 ## Web Services (`type: web`)
 
 ### Purpose
 
-Web services are HTTP servers that handle incoming requests from the internet. They're publicly accessible via HTTPS URLs.
+HTTP servers handling requests from internet. Publicly reachable via HTTPS URLs.
 
 ### Use Cases
 
-- **REST APIs**: JSON APIs for mobile apps or frontend applications
+- **REST APIs**: JSON APIs for mobile or frontend apps
 - **GraphQL servers**: GraphQL endpoints for client queries
-- **Web applications**: Server-rendered websites (Django, Rails, Express)
+- **Web applications**: Server-rendered sites (Django, Rails, Express)
 - **Full-stack frameworks**: Next.js, Nuxt.js, Remix, SvelteKit
 - **WebSocket servers**: Real-time communication servers
-- **SSR applications**: Server-side rendered React, Vue, or Angular apps
+- **SSR applications**: Server-side rendered React, Vue or Angular apps
 
 ### Key Characteristics
 
-- **Public URL**: Automatically assigned `https://[service-name].onrender.com`
+- **Public URL**: Auto-assigned `https://[service-name].onrender.com`
 - **Port binding required**: Must bind to `0.0.0.0:$PORT`
-- **Health checks**: Render pings your service to verify it's running
+- **Health checks**: Render pings service to verify it runs
 - **HTTPS**: Automatic SSL/TLS certificates
-- **Load balancing**: Traffic distributed across multiple instances
-- **Custom domains**: Support for your own domain names
+- **Load balancing**: Traffic spread across multiple instances
+- **Custom domains**: Own domain names supported
 
 ### Required Configuration
 
@@ -51,9 +49,9 @@ app.get('/health', (req, res) => {
 });
 ```
 
-3. **Use appropriate timeouts**: Web requests should complete within 30 seconds
+3. **Use appropriate timeouts**: Web requests should finish within 30 seconds
 
-4. **Implement graceful shutdown**: Handle SIGTERM signals properly
+4. **Implement graceful shutdown**: Handle SIGTERM signals
 
 ---
 
@@ -61,7 +59,7 @@ app.get('/health', (req, res) => {
 
 ### Purpose
 
-Worker services run background tasks without handling HTTP requests. They're not publicly accessible.
+Run background tasks without handling HTTP requests. Not publicly reachable.
 
 ### Use Cases
 
@@ -74,12 +72,12 @@ Worker services run background tasks without handling HTTP requests. They're not
 
 ### Key Characteristics
 
-- **No public URL**: Not accessible from internet
-- **No port binding**: Doesn't need to listen on a port
+- **No public URL**: Not reachable from internet
+- **No port binding**: No need to listen on port
 - **No health checks**: Render monitors process health differently
 - **Long-running**: Can run indefinitely
-- **Private communication**: Access via internal networking
-- **Restart on crash**: Automatically restarted if process dies
+- **Private communication**: Reach via internal networking
+- **Restart on crash**: Auto-restarted if process dies
 
 ### Required Configuration
 
@@ -99,13 +97,7 @@ import redis
 r = redis.from_url(os.environ['REDIS_URL'])
 ```
 
-2. **Implement retry logic**: Handle failures gracefully
-
-3. **Monitor queue depth**: Track pending jobs
-
-4. **Log processing status**: Make debugging easier
-
-5. **Graceful shutdown**: Finish current jobs before exiting
+2. **Graceful shutdown**: Finish current jobs before exit
 
 ### Common Patterns
 
@@ -124,28 +116,13 @@ envVars:
       property: connectionString
 ```
 
-**Python with Celery:**
-```yaml
-type: worker
-name: celery-worker
-runtime: python
-buildCommand: pip install -r requirements.txt
-startCommand: celery -A app.celery worker
-envVars:
-  - key: REDIS_URL
-    fromService:
-      name: redis
-      type: keyvalue
-      property: connectionString
-```
-
 ---
 
 ## Cron Jobs (`type: cron`)
 
 ### Purpose
 
-Cron jobs run scheduled tasks on a repeating schedule. They execute, complete, and shut down.
+Run tasks on repeating schedule. Execute, complete, shut down.
 
 ### Use Cases
 
@@ -161,10 +138,10 @@ Cron jobs run scheduled tasks on a repeating schedule. They execute, complete, a
 
 - **Scheduled execution**: Runs on cron schedule
 - **Automatic shutdown**: Shuts down after completing
-- **No persistent port**: Doesn't maintain listening port
-- **No health checks**: Task either completes or fails
+- **No persistent port**: No listening port kept
+- **No health checks**: Task completes or fails
 - **UTC timezone**: All schedules in UTC
-- **Maximum runtime**: Jobs timeout after configured limit
+- **Maximum runtime**: Jobs time out after configured limit
 
 ### Required Configuration
 
@@ -194,15 +171,9 @@ Standard cron syntax: `minute hour day month weekday`
 
 ### Best Practices
 
-1. **Handle failures gracefully**: Jobs should be idempotent
+1. **Handle failures gracefully**: Make jobs idempotent
 
-2. **Log completion status**: Track success/failure
-
-3. **Set appropriate timeouts**: Match expected job duration
-
-4. **Use UTC times**: All schedules are UTC-based
-
-5. **Test thoroughly**: Test with different data scenarios
+2. **Set appropriate timeouts**: Match expected job duration
 
 ### Example Use Cases
 
@@ -223,23 +194,13 @@ envVars:
     value: my-backups
 ```
 
-**Hourly Cache Refresh:**
-```yaml
-type: cron
-name: cache-refresh
-runtime: node
-schedule: "0 * * * *"  # Top of every hour
-buildCommand: npm ci
-startCommand: node scripts/refresh-cache.js
-```
-
 ---
 
 ## Static Sites (`type: web` + `runtime: static`)
 
 ### Purpose
 
-Serve static HTML, CSS, and JavaScript files via CDN. No backend runtime.
+Serve static HTML, CSS and JavaScript files via CDN. No backend runtime.
 
 ### Use Cases
 
@@ -253,11 +214,7 @@ Serve static HTML, CSS, and JavaScript files via CDN. No backend runtime.
 ### Key Characteristics
 
 - **CDN delivery**: Global edge caching
-- **No backend runtime**: Only serves built files
-- **Build output only**: Serves contents of build directory
-- **Routing support**: Rewrite rules for SPA routing
-- **Custom headers**: Cache control, security headers
-- **Fast deployment**: Quick to build and deploy
+- **No backend runtime**: Serves only built files
 
 ### Required Configuration
 
@@ -271,7 +228,7 @@ staticPublishPath: ./dist  # or ./build, ./out, ./public
 
 ### Routing for SPAs
 
-Single Page Applications need rewrite rules to handle client-side routing:
+SPAs need rewrite rules for client-side routing:
 
 ```yaml
 type: web
@@ -312,7 +269,7 @@ headers:
 
 ### Build Filters
 
-For monorepos, only build when frontend files change:
+Monorepos: build only when frontend files change:
 
 ```yaml
 type: web
@@ -330,15 +287,9 @@ buildFilter:
 
 ### Best Practices
 
-1. **Optimize build output**: Minify, compress, tree-shake
+1. **Use proper cache headers**: Long cache for hashed assets
 
-2. **Use proper cache headers**: Long cache for hashed assets
-
-3. **Add security headers**: Protect against common attacks
-
-4. **Configure SPA routing**: Add rewrite rules for client routing
-
-5. **Handle 404s**: Create custom 404.html page
+2. **Handle 404s**: Create custom 404.html page
 
 ---
 
@@ -346,11 +297,11 @@ buildFilter:
 
 ### Purpose
 
-Services that receive traffic only from other Render services on the same private network. They aren't exposed to the public internet.
+Receive traffic only from other Render services on same private network. Not exposed to public internet.
 
 ### Use Cases
 
-- **Internal APIs**: Services accessed only by other services
+- **Internal APIs**: Accessed only by other services
 - **Database proxies**: Connection pools, read replicas
 - **Microservices**: Service mesh architectures
 - **Admin tools**: Internal dashboards
@@ -359,12 +310,9 @@ Services that receive traffic only from other Render services on the same privat
 
 ### Key Characteristics
 
-- **No public URL**: Only accessible via internal DNS
+- **No public URL**: Reachable only via internal DNS
 - **Internal networking**: Fast, low-latency connections
 - **Port binding required**: Must bind to `0.0.0.0:$PORT`
-- **Private hostname**: Each service has a unique internal hostname
-- **Private-network scope**: The connecting service must be in the same workspace and region
-- **No public ingress**: Can't be accessed from the public internet
 
 ### Required Configuration
 
@@ -378,13 +326,13 @@ startCommand: npm start
 
 ### Internal Addresses
 
-Render gives each web service and private service a unique hostname on the private network. The hostname is stable and maps to instance IPs which can change between deploys. Free web services can't receive private traffic it.
+Render gives each web service and private service unique hostname on private network. Hostname is stable. It maps to instance IPs, which can change between deploys. Free web services can't receive private traffic.
 
-Services can communicate over the private network when they belong to the same workspace and region. Find the internal address in the service's **Connect** menu under **Internal**. Private services also show it as the **Service Address**.
+Services can talk over private network only when in same workspace and region. Find internal address in service's **Connect** menu under **Internal**. Private services also show it as **Service Address**.
 
-An internal address has the form `internal-hostname:port`. Add the protocol when the client requires one, for example `http://internal-hostname:port`.
+Internal address form: `internal-hostname:port`. Add protocol when client requires one, for example `http://internal-hostname:port`.
 
-In a Blueprint, use `fromService` to inject the address into another service:
+In Blueprint, use `fromService` to inject address into another service:
 
 ```yaml
 services:
@@ -399,15 +347,7 @@ services:
           property: hostport
 ```
 
-For web services and private services, `host` provides the internal hostname and `hostport` provides the hostname and listening port as `host:port`.
-
-### Best Practices
-
-1. **Use internal addresses**: Use the hostname from the Dashboard or inject it with a Blueprint service reference.
-
-2. **Fast communication**: Low latency between services
-
-3. **Simplify architecture**: No need for external load balancers
+For web and private services, `host` gives internal hostname. `hostport` gives hostname and listening port as `host:port`.
 
 ---
 
@@ -426,9 +366,9 @@ For web services and private services, `host` provides the internal hostname and
 ## Choosing the Right Service Type
 
 **Use Web Service when:**
-- Your app handles HTTP requests
-- Users need to access it via URL
-- You need load balancing and scaling
+- App handles HTTP requests
+- Users reach it via URL
+- Load balancing and scaling needed
 
 **Use Worker Service when:**
 - Processing background jobs
@@ -437,7 +377,7 @@ For web services and private services, `host` provides the internal hostname and
 
 **Use Cron Job when:**
 - Running scheduled tasks
-- Processing doesn't need to be always-on
+- Processing need not be always-on
 - Tasks run periodically (hourly, daily, weekly)
 
 **Use Static Site when:**
@@ -446,6 +386,6 @@ For web services and private services, `host` provides the internal hostname and
 - Want CDN caching and fast delivery
 
 **Use Private Service when:**
-- Service only accessed by other services
+- Only other services access it
 - Want internal-only communication
 - Building microservice architectures

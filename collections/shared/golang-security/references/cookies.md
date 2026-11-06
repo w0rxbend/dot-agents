@@ -1,12 +1,10 @@
 # Cookie Security Rules
 
-Cookie security is critical for preventing session hijacking and XSS exploitation.
-
 **Rules:**
 
-1. Cookies MUST set `HttpOnly` for session and authentication cookies.
+1. Session and authentication cookies MUST set `HttpOnly`.
 2. Cookies MUST set `Secure` in production (HTTPS only).
-3. `SameSite` SHOULD be `Lax` or `Strict` — use `None` only when cross-site access is required.
+3. `SameSite` SHOULD be `Lax` or `Strict`; `None` only when cross-site access required.
 
 ---
 
@@ -22,7 +20,7 @@ Cookie security is critical for preventing session hijacking and XSS exploitatio
 
 ## HTTP-Only Flag Missing — Medium
 
-Without HttpOnly flag, cookies can be accessed via JavaScript.
+Without HttpOnly, JavaScript can read cookies.
 
 **Bad:**
 
@@ -52,7 +50,7 @@ cookie := &http.Cookie{
 
 ## Insecure Cookie Configuration (Missing Secure Flag) — Medium
 
-Without Secure flag, cookies are sent over unencrypted HTTP.
+Without Secure, cookies travel over unencrypted HTTP.
 
 **Bad:**
 
@@ -83,7 +81,7 @@ http.SetCookie(w, &http.Cookie{
 
 ## SameSite Cookie Protection — Medium
 
-SameSite attribute protects against CSRF attacks.
+SameSite blocks CSRF.
 
 **Bad:**
 
@@ -132,7 +130,7 @@ crossSiteCookie := &http.Cookie{
 
 ## Cookie Prefix Examples — Low
 
-Modern cookie prefixes enforce cookie behavior in browsers.
+Cookie prefixes make browsers enforce cookie rules.
 
 ```go
 // __Secure- prefix: Requires Secure flag
@@ -188,9 +186,6 @@ store.Options = &sessions.Options{
 
 ## Cookie Best Practices Checklist
 
-- [ ] Set `HttpOnly: true` for all authentication cookies
-- [ ] Set `Secure: true` for all cookies over HTTPS
-- [ ] Set appropriate `SameSite` value (Strict/Lax/None)
 - [ ] Use short `MaxAge` expiration
 - [ ] Avoid setting cookie `Domain` unless necessary
 - [ ] Validate cookie values on every request

@@ -1,6 +1,5 @@
 # Sorting and Filtering Patterns
 
-
 ## Table of Contents
 
 - [Sorting Implementation](#sorting-implementation)
@@ -24,8 +23,6 @@
 ## Sorting Implementation
 
 ### Single Column Sorting
-
-Basic implementation for sortable columns:
 
 ```javascript
 const useSortableTable = (data, columns) => {
@@ -72,7 +69,7 @@ const useSortableTable = (data, columns) => {
 
 ### Multi-Column Sorting
 
-Support sorting by multiple columns with priority:
+Sort by multiple columns, with priority:
 
 ```javascript
 const useMultiSort = (data) => {
@@ -123,7 +120,7 @@ const useMultiSort = (data) => {
 
 ### Custom Sort Functions
 
-Handle different data types appropriately:
+One comparator per data type:
 
 ```javascript
 const sortFunctions = {
@@ -176,7 +173,7 @@ const sortData = (data, key, type = 'string') => {
 
 ### Text Filtering
 
-Basic text search across columns:
+Text search across columns:
 
 ```javascript
 const useTextFilter = (data, searchableColumns) => {
@@ -202,7 +199,7 @@ const useTextFilter = (data, searchableColumns) => {
 
 ### Column-Specific Filters
 
-Different filter types per column:
+Own filter type per column:
 
 ```javascript
 const useColumnFilters = (data, columns) => {
@@ -275,8 +272,6 @@ const useColumnFilters = (data, columns) => {
 ```
 
 ### Advanced Filter Logic
-
-Support complex filter expressions:
 
 ```javascript
 const useAdvancedFilters = (data) => {
@@ -450,7 +445,7 @@ function DateRangeFilter({ columnId, value, onChange }) {
 
 ## Combined Sort and Filter
 
-Integrate sorting and filtering together:
+Sort and filter in one hook:
 
 ```javascript
 const useTableData = (initialData, columns) => {
@@ -593,37 +588,43 @@ async function fetchTableData(params) {
 
 ```javascript
 // Express endpoint with sorting and filtering
+// Allowlist columns: never filter, sort or return by raw query keys (leaks hidden columns like password_hash)
+const COLUMNS = ['id', 'name', 'email', 'department', 'status'];
+
 app.get('/api/data', async (req, res) => {
   const {
-    page = 1,
-    limit = 50,
+    page: rawPage,
+    limit: rawLimit,
     sort,
     order = 'asc',
     search,
     ...filters
   } = req.query;
+  const page = Math.max(parseInt(rawPage) || 1, 1);
+  const limit = Math.min(Math.max(parseInt(rawLimit) || 50, 1), 100); // clamp page size
 
   let query = db('users');
 
-  // Apply filters
+  // Apply filters (allowlisted columns only)
   Object.entries(filters).forEach(([key, value]) => {
-    if (value) {
-      query = query.where(key, 'like', `%${value}%`);
+    if (value && COLUMNS.includes(key)) {
+      query = query.where(key, 'like', `%${String(value)}%`);
     }
   });
 
   // Apply search
   if (search) {
+    const term = `%${String(search)}%`;
     query = query.where(function() {
-      this.where('name', 'like', `%${search}%`)
-        .orWhere('email', 'like', `%${search}%`)
-        .orWhere('department', 'like', `%${search}%`);
+      this.where('name', 'like', term)
+        .orWhere('email', 'like', term)
+        .orWhere('department', 'like', term);
     });
   }
 
   // Apply sorting
-  if (sort) {
-    query = query.orderBy(sort, order);
+  if (COLUMNS.includes(sort)) {
+    query = query.orderBy(sort, order === 'desc' ? 'desc' : 'asc');
   }
 
   // Get total count before pagination
@@ -631,7 +632,7 @@ app.get('/api/data', async (req, res) => {
 
   // Apply pagination
   const offset = (page - 1) * limit;
-  const rows = await query.limit(limit).offset(offset);
+  const rows = await query.select(COLUMNS).limit(limit).offset(offset);
 
   res.json({
     rows,
@@ -693,7 +694,7 @@ const useOptimizedData = (data, sortConfig, filters) => {
 
 ### Virtual Filtering
 
-For large datasets with virtual scrolling:
+Large datasets with virtual scrolling:
 
 ```javascript
 const useVirtualFilter = (allData, filter) => {

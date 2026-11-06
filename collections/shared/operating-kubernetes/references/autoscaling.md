@@ -168,27 +168,6 @@ spec:
 
 ### Scaling Behavior
 
-**Aggressive Scale-Up, Conservative Scale-Down:**
-```yaml
-behavior:
-  scaleUp:
-    stabilizationWindowSeconds: 0  # Scale up immediately
-    policies:
-    - type: Percent
-      value: 100       # Double pods
-      periodSeconds: 15
-    - type: Pods
-      value: 4         # Or add 4 pods
-      periodSeconds: 15
-    selectPolicy: Max
-  scaleDown:
-    stabilizationWindowSeconds: 300  # Wait 5 minutes
-    policies:
-    - type: Percent
-      value: 25        # Remove max 25% of pods
-      periodSeconds: 60
-```
-
 **Prevent Flapping:**
 ```yaml
 behavior:
@@ -218,8 +197,9 @@ kubectl describe hpa web-app-hpa -n production
 
 **Fix:**
 ```bash
-# Install metrics server
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+# Install metrics server: pinned release, never latest; review, then apply (GH_TELEMETRY=false: gh sends usage telemetry by default)
+GH_TELEMETRY=false gh release download v0.9.1 -R kubernetes-sigs/metrics-server -p components.yaml
+kubectl apply -f components.yaml
 
 # Ensure pods have resource requests
 kubectl get pods -n production -o json | \
@@ -231,9 +211,9 @@ kubectl get pods -n production -o json | \
 ### Installation
 
 ```bash
-git clone https://github.com/kubernetes/autoscaler.git
+git clone --depth 1 --branch vertical-pod-autoscaler-1.8.1 https://github.com/kubernetes/autoscaler.git
 cd autoscaler/vertical-pod-autoscaler
-./hack/vpa-up.sh
+./hack/vpa-up.sh  # review script first
 ```
 
 ### VPA Configuration
@@ -271,38 +251,22 @@ spec:
 ### Update Modes
 
 **Off (Recommendations Only):**
-```yaml
-updatePolicy:
-  updateMode: "Off"
-```
-- VPA calculates recommendations
+- VPA computes recommendations
 - No automatic updates
 - View: `kubectl describe vpa my-app-vpa`
 
 **Initial:**
-```yaml
-updatePolicy:
-  updateMode: "Initial"
-```
-- Apply recommendations on pod creation
+- Applies recommendations at pod creation
 - Existing pods unchanged
-- Good for StatefulSets
+- Suits StatefulSets
 
 **Recreate:**
-```yaml
-updatePolicy:
-  updateMode: "Recreate"
-```
-- Update running pods (causes restart)
-- Evicts and recreates with new resources
+- Updates running pods (restarts them)
+- Evicts, recreates with new resources
 - Not for single-replica
 
 **Auto (Future):**
-```yaml
-updatePolicy:
-  updateMode: "Auto"
-```
-- In-place updates without restart
+- In-place updates, no restart
 - Not yet production-ready
 
 ### View VPA Recommendations
@@ -332,7 +296,7 @@ kubectl describe vpa my-app-vpa
 - **Lower Bound:** Minimum for cost efficiency
 - **Target:** Recommended values
 - **Upper Bound:** Maximum safe values
-- **Uncapped Target:** What VPA would recommend without limits
+- **Uncapped Target:** VPA recommendation without limits
 
 ### VPA + HPA Compatibility
 
@@ -378,7 +342,7 @@ spec:
 
 **Not Compatible:**
 - VPA Auto/Recreate + HPA on same metric (CPU or memory)
-- Results in thrashing and instability
+- Causes thrashing, instability
 
 ## KEDA (Event-Driven Autoscaling)
 
@@ -414,7 +378,7 @@ spec:
 ---
 # Connection string comes from a Secret, never inline in the ScaledObject.
 # kubectl create secret generic rabbitmq-conn -n production \
-#   --from-literal=host='amqp://<user>:<password>@rabbitmq.default.svc.cluster.local:5672/'
+#   --from-file=host=./rabbitmq-url.txt  # amqp://<user>:<password>@rabbitmq.default.svc.cluster.local:5672/ (mode 600, not in git; keeps password out of argv)
 apiVersion: keda.sh/v1alpha1
 kind: TriggerAuthentication
 metadata:
@@ -598,15 +562,15 @@ k8s.io/cluster-autoscaler/node-template/label/workload=general
 ### Cluster Autoscaler Behavior
 
 **Scale Up:**
-- Pods are Pending due to insufficient resources
-- Provision new nodes from auto-scaling group
+- Pods Pending from insufficient resources
+- Provisions new nodes from auto-scaling group
 - Takes 2-5 minutes (cloud provider dependent)
 
 **Scale Down:**
 - Node utilization < threshold (default 50%)
-- All pods can be rescheduled elsewhere
+- All pods reschedulable elsewhere
 - Node not running system pods (unless configured)
-- Wait 10 minutes (configurable) before scale down
+- Waits 10 minutes (configurable) before scale down
 
 **Prevent Scale Down:**
 ```yaml
@@ -653,7 +617,7 @@ spec:
 | Workload | Scaling Dimension | Use HPA | Use VPA | Use KEDA | Use Cluster Autoscaler |
 |----------|------------------|---------|---------|----------|------------------------|
 | Stateless web app (traffic-driven) | Horizontal | ✅ | ❌ | ❌ | If needed |
-| Single DB instance | Vertical | ❌ | ✅ | ❌ | Maybe |
+| Single DB instance | Vertical | ❌ | ✅ (Initial/Recreate) | ❌ | Maybe |
 | Queue processor | Horizontal | ❌ | ❌ | ✅ | If needed |
 | Scheduled batch job | Horizontal | ❌ | ❌ | ✅ (cron) | If needed |
 | Pods pending (no nodes) | Nodes | ❌ | ❌ | ❌ | ✅ |
@@ -741,25 +705,7 @@ spec:
     updateMode: "Off"
 ```
 
-## Summary
-
-**Autoscaling Pattern Selection:**
-
-| Scenario | Pattern | Configuration |
-|----------|---------|---------------|
-| Traffic-driven web app | HPA | CPU/memory metrics, 2-10 replicas |
-| Queue-based processing | KEDA | RabbitMQ/Kafka/SQS scaler, 0-50 replicas |
-| Schedule-based workload | KEDA | Cron scaler, business hours |
-| Unknown resource needs | VPA | Off mode, review recommendations |
-| Single-instance DB | VPA | Initial/Recreate mode |
-| Insufficient nodes | Cluster Autoscaler | Configured at cluster level |
-
 **Best Practices:**
-1. Start with HPA for stateless workloads
-2. Use KEDA for event-driven scaling (better than HPA for queues)
-3. Use VPA in Off mode first (review recommendations)
-4. Don't combine VPA Auto + HPA on same metric
-5. Set PodDisruptionBudgets to protect critical workloads
-6. Enable Cluster Autoscaler with appropriate limits
-7. Monitor autoscaling events and adjust thresholds
-8. Test autoscaling behavior under load before production
+1. Run VPA in Off mode first (review recommendations)
+2. Set PodDisruptionBudgets on critical workloads
+3. Load-test autoscaling before production

@@ -1,7 +1,5 @@
 # Schema Design Patterns
 
-Embedding vs referencing decision framework for document databases.
-
 ## Table of Contents
 
 - [Core Decision Matrix](#core-decision-matrix)
@@ -10,8 +8,6 @@ Embedding vs referencing decision framework for document databases.
 - [Hybrid Pattern](#hybrid-pattern)
 - [Denormalization Strategies](#denormalization-strategies)
 - [Anti-Patterns](#anti-patterns)
-
----
 
 ## Core Decision Matrix
 
@@ -62,22 +58,12 @@ Embedding vs referencing decision framework for document databases.
 |--------|-------|-----------|
 | **Relationship Size** | Few (<10) | Many (>100) |
 | **Access Pattern** | Always together | Sometimes separate |
-| **Update Frequency** | Child rarely changes | Child frequently changes |
+| **Update Frequency** | Child rarely changes | Child changes often |
 | **Data Growth** | Bounded | Unbounded |
-| **Query Pattern** | Parent + children | Children independent queries |
+| **Query Pattern** | Parent + children | Children queried independently |
 | **Consistency** | Always in sync | May be stale |
 
----
-
 ## Embedding Pattern
-
-### When to Embed
-
-1. **One-to-few relationships** (< 10 subdocuments)
-2. **Data always accessed together**
-3. **Child data rarely changes**
-4. **No need to query children independently**
-5. **Strong consistency required**
 
 ### Example 1: User Profile
 
@@ -126,8 +112,8 @@ Embedding vs referencing decision framework for document databases.
 
 **Benefits:**
 - One query gets everything
-- Atomic updates (update user and addresses together)
-- No joins needed
+- Atomic updates (user and addresses together)
+- No joins
 - Strong consistency
 
 **Query:**
@@ -137,49 +123,9 @@ const user = await db.users.findOne({ email: "user@example.com" })
 console.log(user.addresses)  // Immediately available
 ```
 
-### Example 2: Product with Specifications
-
-```javascript
-{
-  _id: ObjectId("..."),
-  sku: "WGT-PRO-001",
-  name: "Widget Pro",
-  price: 49.99,
-  category: "widgets",
-  // Embed specifications (varies by product type)
-  specifications: {
-    weight: "2.5 lbs",
-    dimensions: {
-      length: 10,
-      width: 8,
-      height: 3,
-      unit: "inches"
-    },
-    color: "silver",
-    material: "aluminum",
-    warranty: "2 years"
-  },
-  // Embed images (few, fixed URLs)
-  images: [
-    { url: "/images/wgt-pro-001-front.jpg", type: "front" },
-    { url: "/images/wgt-pro-001-side.jpg", type: "side" }
-  ],
-  inventory: 245,
-  tags: ["professional", "bestseller", "new"]
-}
-```
-
----
-
 ## Referencing Pattern
 
-### When to Reference
-
-1. **One-to-many or many-to-many** (unbounded growth)
-2. **Children queried independently**
-3. **Child data frequently changes**
-4. **Large subdocuments** (approaching 16MB limit)
-5. **Different access patterns for parent/children**
+Also reference large subdocuments (approaching 16MB limit).
 
 ### Example 1: Blog Posts and Comments
 
@@ -239,58 +185,11 @@ const postsWithComments = await db.posts.aggregate([
 ])
 ```
 
-### Example 2: E-commerce Orders
-
-```javascript
-// Orders collection
-{
-  _id: ObjectId("..."),
-  orderNumber: "ORD-2025-001234",
-  userId: ObjectId("..."),        // Reference to users
-  items: [
-    {
-      productId: ObjectId("..."), // Reference to products
-      quantity: 2,
-      priceAtPurchase: 49.99,     // Denormalized (historical)
-      name: "Widget Pro"          // Denormalized (performance)
-    },
-    {
-      productId: ObjectId("..."),
-      quantity: 1,
-      priceAtPurchase: 149.99,
-      name: "Gadget Ultra"
-    }
-  ],
-  // Snapshot of shipping address (not reference)
-  shippingAddress: {
-    street: "123 Main St",
-    city: "Boston",
-    state: "MA",
-    zip: "02101"
-  },
-  totalAmount: 249.97,
-  status: "shipped",
-  orderDate: ISODate("2025-11-25"),
-  shippedDate: ISODate("2025-11-26")
-}
-
-// Products collection (referenced)
-{
-  _id: ObjectId("..."),
-  name: "Widget Pro",
-  price: 49.99,           // Current price (may differ from order)
-  inventory: 245,
-  category: "widgets"
-}
-```
-
----
-
 ## Hybrid Pattern
 
 ### Strategy: Embed Summary, Reference Details
 
-Best for one-to-many relationships where you need both summary and detail access.
+Best for one-to-many relationships needing both summary and detail access.
 
 ### Example 1: Blog Post with Comment Preview
 
@@ -363,43 +262,6 @@ await db.posts.updateOne(
 )
 ```
 
-### Example 2: Product with Review Stats
-
-```javascript
-{
-  _id: ObjectId("..."),
-  name: "Widget Pro",
-  price: 49.99,
-  // Embed review summary
-  reviews: {
-    averageRating: 4.6,
-    totalCount: 1247,
-    ratingDistribution: {
-      5: 892,
-      4: 245,
-      3: 78,
-      2: 21,
-      1: 11
-    },
-    // Embed featured reviews
-    featured: [
-      {
-        reviewId: ObjectId("..."),
-        rating: 5,
-        title: "Excellent product!",
-        excerpt: "This widget exceeded my expectations...",
-        author: "John Smith",
-        createdAt: ISODate("2025-11-20")
-      }
-      // 3-5 featured reviews
-    ]
-  }
-  // Full reviews in separate collection
-}
-```
-
----
-
 ## Denormalization Strategies
 
 ### When to Denormalize
@@ -466,9 +328,7 @@ await db.posts.updateMany(
 }
 ```
 
-**Why?** Order shows what customer actually bought. If product name or price changes, order should reflect historical data.
-
----
+**Why?** Order shows what customer bought. If product name or price changes, order should still show historical data.
 
 ## Anti-Patterns
 
@@ -570,8 +430,6 @@ db.events.find({ userId: "user123" })
 }
 ```
 
----
-
 ## Schema Evolution
 
 ### Adding Fields (Schema-less Advantage)
@@ -610,8 +468,6 @@ await db.users.updateMany(
 )
 ```
 
----
-
 ## Performance Considerations
 
 ### Document Size Limits
@@ -632,6 +488,4 @@ await db.users.updateMany(
 | **Reference** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Write-heavy |
 | **Denormalize** | ⭐⭐⭐⭐⭐ | ⭐⭐ | Read >> Writes |
 
----
-
-This guide provides the decision framework for schema design. For database-specific patterns, see `mongodb.md`, `dynamodb.md`, `firestore.md`.
+Database-specific patterns: `mongodb.md`, `dynamodb.md`, `firestore.md`.

@@ -37,7 +37,7 @@
 **Design Principles:**
 - Perform operations as code
 - Make frequent, small, reversible changes
-- Refine operations procedures frequently
+- Refine operations procedures often
 - Anticipate failure
 - Learn from all operational events
 
@@ -45,8 +45,8 @@
 
 **Infrastructure as Code:**
 - Use CDK, Terraform, or CloudFormation
-- Version control all infrastructure
-- Peer review changes via pull requests
+- Version-control all infrastructure
+- Peer-review changes via pull requests
 - Automate deployments (CI/CD)
 
 **Deployment Strategies:**
@@ -64,14 +64,14 @@
 - Document common operations
 - Automate with Systems Manager Automation
 - Test via GameDays
-- Version control runbooks
+- Version-control runbooks
 
 ---
 
 ### 2. Security
 
 **Design Principles:**
-- Implement strong identity foundation
+- Build strong identity foundation
 - Enable traceability
 - Apply security at all layers
 - Automate security best practices
@@ -83,7 +83,7 @@
 
 **Identity:**
 - Use IAM roles for applications
-- Implement least privilege
+- Enforce least privilege
 - Enable MFA for privileged users
 - Use AWS Organizations for multi-account governance
 
@@ -96,8 +96,8 @@
 **Protection:**
 - Encrypt data at rest (KMS)
 - Encrypt data in transit (TLS 1.2+)
-- Use WAF for application layer protection
-- Implement security groups and NACLs
+- Use WAF for application-layer protection
+- Use security groups and NACLs
 
 **Incident Response:**
 - Automate responses with EventBridge + Lambda
@@ -109,7 +109,7 @@
 ### 3. Reliability
 
 **Design Principles:**
-- Automatically recover from failure
+- Recover from failure automatically
 - Test recovery procedures
 - Scale horizontally for resilience
 - Stop guessing capacity
@@ -120,7 +120,7 @@
 **Multi-AZ Architecture:**
 - RDS Multi-AZ (automatic failover)
 - Aurora replicas across AZs
-- ECS/EKS tasks distributed across AZs
+- ECS/EKS tasks spread across AZs
 - ALB/NLB across multiple AZs
 
 **Auto-Scaling:**
@@ -159,30 +159,19 @@
 **Implementation:**
 
 **Compute Optimization:**
-- Use Compute Optimizer for rightsizing
+- Rightsize with Compute Optimizer
 - Lambda for event-driven workloads
 - Fargate for containers (no EC2 management)
 - Graviton processors (25% better performance, 60% less energy)
 
 **Storage Optimization:**
-- S3 Intelligent-Tiering (auto-optimize)
-- EBS gp3 (20% cheaper than gp2)
 - EFS Intelligent-Tiering (save 92% on IA files)
 
 **Database Optimization:**
 - Use RDS Performance Insights
-- Implement read replicas (offload reads)
+- Add read replicas (offload reads)
 - Use DynamoDB DAX (microsecond latency)
 - ElastiCache for caching
-
-**Caching Strategy:**
-```
-User → CloudFront (static content)
-    → API Gateway (API response caching)
-      → Lambda
-        → DAX (DynamoDB cache)
-          → DynamoDB
-```
 
 **Global Delivery:**
 - CloudFront for static content
@@ -196,7 +185,7 @@ User → CloudFront (static content)
 
 **Design Principles:**
 - Implement cloud financial management
-- Adopt a consumption model
+- Adopt consumption model
 - Measure overall efficiency
 - Stop spending on undifferentiated heavy lifting
 - Analyze and attribute expenditure
@@ -204,7 +193,7 @@ User → CloudFront (static content)
 **Implementation:**
 
 **Right-Sizing:**
-- Use Compute Optimizer recommendations
+- Follow Compute Optimizer recommendations
 - Monitor CloudWatch metrics (CPU, memory)
 - Start small, scale based on data
 - Automate scaling (don't over-provision)
@@ -252,7 +241,7 @@ After:
 
 **Design Principles:**
 - Understand your impact
-- Establish sustainability goals
+- Set sustainability goals
 - Maximize utilization
 - Anticipate and adopt more efficient hardware
 - Use managed services
@@ -273,7 +262,7 @@ After:
 **Storage Efficiency:**
 - Delete unused data
 - Compress data
-- Use appropriate storage tiers
+- Use fitting storage tiers
 - S3 Intelligent-Tiering (auto-optimize)
 
 **Software Optimization:**
@@ -301,15 +290,15 @@ After:
 
 Use AWS Well-Architected Tool (free):
 - Answer questions per pillar
-- Identify high and medium risk issues
+- Find high and medium risk issues
 - Generate improvement plan
 
 ### 3. Prioritize Improvements
 
 **Risk Levels:**
-- High Risk (HRI): Address immediately
-- Medium Risk (MRI): Plan to address
-- None: No issues identified
+- High Risk (HRI): address immediately
+- Medium Risk (MRI): plan to address
+- None: no issues found
 
 **Example Findings:**
 
@@ -322,16 +311,16 @@ Use AWS Well-Architected Tool (free):
 
 ### 4. Implement Changes
 
-- Create tickets for each improvement
+- Create ticket per improvement
 - Use infrastructure as code
 - Test changes in non-production
 - Measure impact
 
 ### 5. Re-Review Regularly
 
-- Quarterly reviews for production workloads
+- Quarterly for production workloads
 - After major architecture changes
-- Before significant events (sales, launches)
+- Before big events (sales, launches)
 
 ---
 
@@ -452,10 +441,10 @@ Database:
 
 ### Performance Efficiency
 - [ ] Right-sized instances (Compute Optimizer)
-- [ ] Caching implemented (CloudFront, ElastiCache)
+- [ ] Caching in place (CloudFront, ElastiCache)
 - [ ] CDN for static content
 - [ ] Read replicas for databases
-- [ ] Asynchronous processing where applicable
+- [ ] Async processing where applicable
 - [ ] Monitoring and alerting active
 
 ### Cost Optimization

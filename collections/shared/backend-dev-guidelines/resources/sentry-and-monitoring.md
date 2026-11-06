@@ -1,6 +1,6 @@
 # Sentry Integration and Monitoring
 
-Complete guide to error tracking and performance monitoring with Sentry v8.
+Error tracking and performance monitoring with Sentry v8.
 
 ## Table of Contents
 
@@ -16,9 +16,7 @@ Complete guide to error tracking and performance monitoring with Sentry v8.
 
 ## Core Principles
 
-**MANDATORY**: All errors MUST be captured to Sentry. No exceptions.
-
-**ALL ERRORS MUST BE CAPTURED** - Use Sentry v8 with comprehensive error tracking across all services.
+**MANDATORY**: All errors MUST go to Sentry, across all services. No exceptions.
 
 ---
 
@@ -105,9 +103,9 @@ Sentry.setContext('runtime', {
 ```
 
 **Critical Points:**
-- PII protection built-in (beforeSend)
-- Filter non-critical errors
-- Comprehensive integrations
+- PII protection built in (beforeSend)
+- Filters non-critical errors
+- Broad integrations
 - Prisma instrumentation
 - Service-specific tagging
 

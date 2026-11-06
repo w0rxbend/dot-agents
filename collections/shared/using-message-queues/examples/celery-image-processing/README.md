@@ -31,7 +31,7 @@ celery-image-processing/
 pip install -r requirements.txt
 
 # Start Redis
-docker run -p 6379:6379 redis
+docker run -p 127.0.0.1:6379:6379 redis:7.4-alpine  # pinned, loopback only (no auth)
 
 # Start Celery worker
 celery -A app.celery_app worker --loglevel=info
@@ -99,18 +99,26 @@ def notify_user(user_id, image_urls):
 
 ```python
 # app/routes/upload.py
-from fastapi import APIRouter, UploadFile, File
+import tempfile
+from pathlib import Path
+from fastapi import APIRouter, UploadFile, File, HTTPException
 from celery import chain
 
 router = APIRouter()
+MAX_BYTES = 10 * 1024 * 1024
 
 @router.post("/upload")
 async def upload_image(file: UploadFile = File(...), user_id: int):
-    # Save temp file
-    temp_path = f"/tmp/{file.filename}"
-    with open(temp_path, "wb") as f:
-        content = await file.read()
+    # Never build paths from client filename (../ traversal): server-generated name, allow-listed ext, size cap
+    suffix = Path(file.filename or "").suffix.lower()
+    if suffix not in {".jpg", ".jpeg", ".png"}:
+        raise HTTPException(400, "unsupported file type")
+    content = await file.read(MAX_BYTES + 1)
+    if len(content) > MAX_BYTES:
+        raise HTTPException(413, "file too large")
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:  # mode 0600, unique name
         f.write(content)
+        temp_path = f.name
 
     # Create task chain
     workflow = chain(
@@ -160,8 +168,9 @@ def upload_to_s3(self, file_path):
 ## Monitoring
 
 ```bash
-# Start Flower dashboard
-celery -A app.celery_app flower --port=5555
+# Start Flower dashboard: loopback + auth (it can revoke tasks, stop workers, shows task args)
+# Set FLOWER_BASIC_AUTH=user:pass in env (not argv) or use OAuth
+celery -A app.celery_app flower --address=127.0.0.1 --port=5555
 ```
 
 Features:

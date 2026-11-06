@@ -17,6 +17,7 @@ instead of duplicating the ``HERMES_HOME = Path(os.getenv(...))`` pattern.
 from __future__ import annotations
 
 import os
+import tempfile
 from pathlib import Path
 
 try:
@@ -40,3 +41,16 @@ except (ModuleNotFoundError, ImportError):
             return "~/" + home.relative_to(Path.home()).as_posix()
         except ValueError:
             return str(home)
+
+
+def write_private(path: Path, text: str) -> None:
+    """Atomically write ``text`` to ``path`` with owner-only (0600) permissions."""
+    # mkstemp: unique name (safe for concurrent refreshes), O_EXCL, mode 0600.
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=path.name + ".", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(text)
+        os.replace(tmp, path)
+    except BaseException:
+        Path(tmp).unlink(missing_ok=True)
+        raise

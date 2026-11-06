@@ -2,95 +2,93 @@
 
 Library: com-lihaoyi/fastparse. Evidence: [evidence/scala-fastparse-diagnostic-mode-review.json](evidence/scala-fastparse-diagnostic-mode-review.json) (claims `fp-claim-diagnostic-modes`, `fp-claim-wrapper-terminal-isolation`).
 
-A diagnostic overload can preserve the failure position yet discard its new message. A passing test can encode that same mistake. Review the label producer and its oracle together, while keeping ordinary parsing, verbose parsing and replay separate.
-
 ## Scope
 
-Use for a Fastparse custom `Fail` overload, changes to terminal-message reporting, a wrapper parser that hides or negates its child (`opaque`, `unary_!` or a new combinator of that kind), or a refactor of failure tracing. The trigger is a change in diagnostic data flow or mode selection, not every unsuccessful parse.
+Use for Fastparse custom `Fail` overload, terminal-message reporting changes, wrapper parser hiding or negating its child (`opaque`, `unary_!` or similar new combinator), or failure-tracing refactor. Trigger: change in diagnostic data flow or mode selection, not every unsuccessful parse.
 
-Not for: generic logging/error handling or unrelated HTTP errors. If the change moves child execution, repetition state or cuts, review it first with the shared-run combinator case in `scala-compiler-macro-refactoring`. If the label contract is unchanged and only the cost of building messages with diagnostics off is in question, use [fastparse-hot-path-cost-review.md](fastparse-hot-path-cost-review.md). A caller asking for tracing after a one-shot input is consumed does not by itself establish a diagnostic regression. This case does not authorize unbounded buffering or replacing Fastparse with an effect system.
+Not for: generic logging/error handling or unrelated HTTP errors. If change moves child execution, repetition state or cuts, review first with shared-run combinator case in `scala-compiler-macro-refactoring`. If label contract is unchanged and only diagnostics-off message-building cost is in question, use [fastparse-hot-path-cost-review.md](fastparse-hot-path-cost-review.md). Caller wanting tracing after one-shot input is consumed does not alone establish diagnostic regression. Does not authorize unbounded buffering or replacing Fastparse with effect system.
 
 ## Prerequisites and version fence
 
-Identify Fastparse and Scala versions, the actual `Fail` overload, `Parsed.Failure`/`Extra.trace` and the concrete `ParserInput`. Read the regression test and its callers before trusting its expected string.
+Identify Fastparse and Scala versions, actual `Fail` overload, `Parsed.Failure`/`Extra.trace`, concrete `ParserInput`. Read regression test and its callers before trusting its expected string.
 
-The faulty PR 244 head is `749d0c10d9ae3a1e1d8487cc7d45df8024f21547` (2023-03-07). PR 297 corrects both implementation and test in merged commit `49ba3cf46705a5068541537991ce1c2167760a2b` (2023-11-26). Its build declares Scala 3.3.1/3.2.2/2.13.10/2.12.17/2.11.12 and excludes Scala 3 from its Native 0.4.9 matrix. Do not transfer that platform limitation or a release claim to later versions. The 2024 build has a different matrix. The inspected core remains synchronous and uses no CE/ZIO/Ox runtime.
+Faulty PR 244 head: `749d0c10d9ae3a1e1d8487cc7d45df8024f21547` (2023-03-07). PR 297 corrects implementation and test in merged commit `49ba3cf46705a5068541537991ce1c2167760a2b` (2023-11-26). Its build declares Scala 3.3.1/3.2.2/2.13.10/2.12.17/2.11.12 and excludes Scala 3 from its Native 0.4.9 matrix. Do not carry that platform limitation or release claim to later versions; 2024 build has different matrix. Inspected core is synchronous, uses no CE/ZIO/Ox runtime.
 
-Field names change across revisions: `terminalParserMsgs` (PR 276, `f40fe81`) became `terminalMsgs` (PR 278, `186337a`). Map them on the target revision.
+Field names change across revisions: `terminalParserMsgs` (PR 276, `f40fe81`) became `terminalMsgs` (PR 278, `186337a`). Map them on target revision.
 
 ## Workflow
 
-1. **Define the contract independently of the test.** For `Fail(msg)`, write separate expectations: failure rather than success, zero additional input consumption, supplied label when diagnostics are enabled, and the unchanged ordinary-mode policy. Plain `Fail` must retain its default label. An assertion copied from old behavior is not the specification for a new parameter.
-2. **Trace the message end to end.** Follow the argument into `freshFailure`, the guarded `reportTerminalMsg`, and formatting/aggregation. In PR 244, the parameter existed but the reporting closure still returned the literal `"fail"`. Check whether the test requests a distinct custom message but also expects `"fail"`.
-3. **Keep verbosity owned by the existing context.** PR 244's reviewer challenged an extra default-on verbosity argument. Preserve the target implementation's `ctx.verboseFailures` guard unless changing that policy is explicitly in scope. The review text says `ctx.verboseFailure` (singular); that is the historical quote, not the implementation identifier.
-4. **Separate the three observation paths.** Ordinary parsing may omit the label. Verbose parsing reports during that run. `extra.trace()` checks replayability and runs the original parser again with verbose failures and a trace index. It is not a pure getter over the original exception text. Repeated callbacks or nondeterministic parser actions can make replay an unsuitable oracle; use a deterministic reproduction.
-5. **Check the input capability before replay.** Indexed string input is replayable in the inspected source; buffered iterator/reader input rejects tracing. For one-shot input, test diagnostics during an appropriate original run rather than silently retaining every chunk or bypassing `checkTraceable()`.
-6. **Isolate terminals in hiding/negating wrappers.** The terminal aggregate is normally append-only, so a child's expectations accumulate even when the wrapper is meant to hide them. At PR 276, `unary_!` snapshots `terminalParserMsgs` before its child and restores it under `verboseFailures`; the source comment explains that the negated child's terminals "end up in error messages" otherwise. PR 278 fixed `opaque`, which reported its own label but leaked inner terminals; the fix snapshots `ctx.terminalMsgs` before `parse0()` and restores it under the guard before `reportTerminalMsg(oldIndex, () => msg)`. For a new or refactored wrapper, ask: should the user see the child's terminals? If not, require the snapshot/restore, keep index/success/cut computation outside the guard, and add a deterministic `trace()` test asserting `longAggregateMsg`, `longMsg` and `longTerminalsMsg` separately, as PR 278's `opaqueTerminals` does.
-7. **Repair producer and oracle together.** Use the supplied message under the existing guard, preserve the default overload and failure position, and assert a custom label distinct from the default. Then test ordinary, verbose and replay paths separately. Keep a default-label control so the repair cannot accidentally relabel all failures.
+1. **Define the contract independently of the test.** For `Fail(msg)`, write separate expectations: failure, not success; zero extra input consumption; supplied label when diagnostics enabled; unchanged ordinary-mode policy. Plain `Fail` must keep default label. Assertion copied from old behavior does not specify new parameter.
+2. **Trace the message end to end.** Follow argument through `freshFailure`, guarded `reportTerminalMsg`, formatting/aggregation. PR 244 had the parameter, but reporting closure still returned literal `"fail"`. Check for test requesting distinct custom message yet expecting `"fail"`.
+3. **Keep verbosity owned by the existing context.** PR 244's reviewer challenged extra default-on verbosity argument. Keep target's `ctx.verboseFailures` guard unless changing that policy is explicitly in scope. Review text says `ctx.verboseFailure` (singular): historical quote, not implementation identifier.
+4. **Separate the three observation paths.** Ordinary parsing may omit label. Verbose parsing reports during that run. `extra.trace()` checks replayability, then reruns original parser with verbose failures and trace index; not a pure getter over original exception text. Repeated callbacks or nondeterministic parser actions can make replay unsuitable oracle; use deterministic reproduction.
+5. **Check the input capability before replay.** In inspected source, indexed string input replays; buffered iterator/reader input rejects tracing. For one-shot input, test diagnostics during suitable original run. Do not silently retain every chunk or bypass `checkTraceable()`.
+6. **Isolate terminals in hiding/negating wrappers.** Terminal aggregate is normally append-only: child expectations accumulate even when wrapper should hide them. At PR 276, `unary_!` snapshots `terminalParserMsgs` before child, restores it under `verboseFailures`; source comment says negated child's terminals otherwise "end up in error messages". PR 278 fixed `opaque`, which reported own label but leaked inner terminals: fix snapshots `ctx.terminalMsgs` before `parse0()`, restores under guard before `reportTerminalMsg(oldIndex, () => msg)`. For new or refactored wrapper, ask: should user see child's terminals? If not: require snapshot/restore, keep index/success/cut computation outside guard, add deterministic `trace()` test asserting `longAggregateMsg`, `longMsg` and `longTerminalsMsg` separately (as PR 278's `opaqueTerminals` does).
+7. **Repair producer and oracle together.** Use supplied message under existing guard; keep default overload and failure position; assert custom label distinct from default. Then test ordinary, verbose, replay paths separately. Keep default-label control so repair cannot accidentally relabel all failures.
 
-Provenance: the historical mode-preservation request is explicit reviewer guidance; the complete test matrix, replay-safety checks and terminal isolation are source-derived inferences (PR 278 had no review or issue comments). PR 297 verifies the source correction, not universal historical CI success or a particular published release.
+Provenance: mode-preservation request is explicit historical reviewer guidance. Full test matrix, replay-safety checks, terminal isolation: source-derived inferences (PR 278 had no review or issue comments). PR 297 verifies source correction, not universal historical CI success or specific published release.
 
 ## Checks
 
-Preserve the invariant that reporting a custom label does not change acceptance, consumed index, cuts, or ordinary-mode policy. Keep the same original parser and starting index when replaying. Do not eagerly render or globally enable traces merely to make one message assertion pass.
+Invariant: reporting custom label leaves acceptance, consumed index, cuts and ordinary-mode policy unchanged. Replay with same original parser and starting index. Do not eagerly render or globally enable traces merely to pass one message assertion.
 
-Review literal/default label, custom label, position and parse-stack expectations independently. Replacing every failure-string snapshot with new output can hide an unrelated parser-name or aggregation regression.
+Review literal/default label, custom label, position, parse-stack expectations independently. Replacing every failure-string snapshot with new output can hide unrelated parser-name or aggregation regression.
 
-For a hiding/negating wrapper, also preserve: the wrapper's own label is reported at its start index; child terminals are discarded only under `verboseFailures`; enclosing terminals collected before the wrapper survive the restore.
+For hiding/negating wrapper, also preserve: own label reported at its start index; child terminals discarded only under `verboseFailures`; enclosing terminals collected before wrapper survive restore.
 
 False positives:
 
-- an empty nonverbose label is expected in the inspected `Parsed.Failure`;
-- the buffered-input replay exception is deliberate;
-- formatting changes do not automatically imply a grammar bug;
-- a transparent wrapper (a named rule, a logging wrapper) should keep child terminals, so do not demand a reset there;
-- narrowed downstream `terminals` snapshots are the intended effect when an opaque wrapper is fixed; PR 278 narrowed four ScalaParse expectations — justify each rather than rejecting them.
+- empty nonverbose label is expected in inspected `Parsed.Failure`;
+- buffered-input replay exception is deliberate;
+- formatting changes do not automatically imply grammar bug;
+- transparent wrapper (named rule, logging wrapper) should keep child terminals; do not demand reset there;
+- narrowed downstream `terminals` snapshots are intended effect of opaque-wrapper fix. PR 278 narrowed four ScalaParse expectations; justify each, do not reject them.
 
-Conversely, matching index zero alone does not establish custom-label correctness. A merged PR and an added test did not prevent the historical ignored-message defect.
+Conversely, matching index zero alone does not establish custom-label correctness. Merged PR plus added test did not prevent historical ignored-message defect.
 
 ## Distinct diagnostic oracles (folded from the original diagnostic-matrix.md)
 
-Build a minimal deterministic parser around a unique label. Keep its input, starting index and naming stable. Use the exact target-version parser syntax; do not infer current message field names from historical source.
+Build minimal deterministic parser around unique label; keep input, starting index and naming stable. Use exact target-version parser syntax; do not infer current message field names from historical source.
 
 | Input and mode | Expected invariant | Common false conclusion |
 |---|---|---|
-| String, ordinary parse of custom Fail | Failure at the expected index; no extra consumption | An absent label means the overload is broken |
-| String, verbose parse of custom Fail | Same failure position, custom label through the supported message surface | Any failure string, including the default label, proves propagation |
-| String, ordinary parse followed by trace | Replay preserves parser/start index, collects custom message at the failure | Trace is only formatting and cannot execute the parser again |
-| String, plain Fail control | Default `fail` label when the selected mode collects it | Fixing custom Fail permits changing plain Fail's contract |
-| One-shot iterator/reader | Original-run diagnostics where supported; historical replay check remains | Keeping every chunk forever is a harmless formatting repair |
+| String, ordinary parse of custom Fail | Failure at expected index; no extra consumption | Absent label means overload is broken |
+| String, verbose parse of custom Fail | Same failure position, custom label through supported message surface | Any failure string, including default label, proves propagation |
+| String, ordinary parse followed by trace | Replay preserves parser/start index, collects custom message at failure | Trace is only formatting, cannot execute parser again |
+| String, plain Fail control | Default `fail` label when selected mode collects it | Fixing custom Fail permits changing plain Fail's contract |
+| One-shot iterator/reader | Original-run diagnostics where supported; historical replay check remains | Keeping every chunk forever is harmless formatting repair |
 
-For the known PR 244 defect, inspect both `SharedPackageDefs.scala:164` and `ExampleTests.scala:135` at its head. At the PR 297 merge SHA the corrected test is at line 136; line numbers differ across revisions. Use exact SHA/file references in a historical finding and current `file:line` in a live review.
+For known PR 244 defect, inspect `SharedPackageDefs.scala:164` and `ExampleTests.scala:135` at its head. At PR 297 merge SHA, corrected test is at line 136; line numbers differ across revisions. Historical finding: exact SHA/file references. Live review: current `file:line`.
 
-Suggested mutation check, only in an authorized test checkout: temporarily change the corrected reporting closure back to the default literal. The custom-label oracle must fail while the default-Fail control remains valid. Restore the implementation. This is a proposed test of the oracle, not an operation executed during research.
+Suggested mutation check, only in authorized test checkout: temporarily revert corrected reporting closure to default literal. Custom-label oracle must fail while default-Fail control stays valid. Restore implementation. Proposed oracle test, not operation executed during research.
 
-The historical correction supplies a replay assertion but not proof that every row above was independently tested. PR 297 comments distinguish the focused change from external-repository integration failures; do not relabel author-reported CI retries as locally reproduced success. Relevant evidence IDs: `fp-fail-source-244`, `fp-fail-test-244`, `fp-fail-fix-297`, `fp-fail-test-297`, `fp-trace-2022`, `fp-input-2020`, `fp-fix-validation-297`.
+Historical correction supplies replay assertion, not proof each row above was independently tested. PR 297 comments separate focused change from external-repository integration failures; do not relabel author-reported CI retries as locally reproduced success. Relevant evidence IDs: `fp-fail-source-244`, `fp-fail-test-244`, `fp-fail-fix-297`, `fp-fail-test-297`, `fp-trace-2022`, `fp-input-2020`, `fp-fix-validation-297`.
 
 ## Validation
 
-Discover the target revision's library build, launcher and test modules. The sampled `build.sbt` is for the documentation site, not the core suite. In a trusted, separately authorized checkout matching the PR 297 build, `./mill -i 'fastparse.jvm[3.3.1].test'` targets a declared core test module; use its Scala 2 cells as appropriate. Confirm `ExampleTests` and the relevant diagnostic cases execute, rather than accepting compilation-only output.
+Discover target revision's library build, launcher, test modules. Sampled `build.sbt` is for documentation site, not core suite. In trusted, separately authorized checkout matching PR 297 build, `./mill -i 'fastparse.jvm[3.3.1].test'` targets declared core test module; use its Scala 2 cells as appropriate. Confirm `ExampleTests` and relevant diagnostic cases execute; do not accept compilation-only output.
 
-For the later 2024 revision, the observed CI gate is `./mill -i --disable-ticker __.jvm.__.publishArtifacts + __.jvm.__.compile + __.jvm.__.test`; discover narrower selectors from that build before applying them elsewhere. Require the minimal label regression to fail before the correction and pass afterwards when execution is authorized. Exercise the broader failure suite for shared message machinery. Do not claim that a JVM run covers JS or Native.
+For later 2024 revision, observed CI gate is `./mill -i --disable-ticker __.jvm.__.publishArtifacts + __.jvm.__.compile + __.jvm.__.test`. Discover narrower selectors from that build before applying them elsewhere. When execution is authorized, minimal label regression must fail before correction and pass after. Exercise broader failure suite for shared message machinery. Do not claim JVM run covers JS or Native.
 
-No upstream build was executed while authoring this case. PR 297's discussion reports intermittent integration-source failures, including failures after merge. If an external grammar checkout blocks a future run, report that separately from the focused label test; do not fabricate a green full suite or repeatedly rerun until only the last success is visible.
+No upstream build executed while authoring this case. PR 297 discussion reports intermittent integration-source failures, including after merge. If external grammar checkout blocks future run, report it apart from focused label test. Do not fabricate green full suite or rerun repeatedly until only last success is visible.
 
 ## Examples
 
-**Good.** At the PR 297 merge commit, `Fail(msg)` calls `reportTerminalMsg(ctx.index, () => msg)` only under `ctx.verboseFailures`, and plain `Fail` delegates with `"fail"`. The named parser `failWithLabel` fails at index zero on `asdad`; its replay test expects `Expected failWithLabel:1:1 / custom fail msg:1:1, found "asdad"`. This is an observed source/test pair, not an execution result from this research.
+**Good.** At PR 297 merge commit, `Fail(msg)` calls `reportTerminalMsg(ctx.index, () => msg)` only under `ctx.verboseFailures`; plain `Fail` delegates with `"fail"`. Named parser `failWithLabel` fails at index zero on `asdad`; its replay test expects `Expected failWithLabel:1:1 / custom fail msg:1:1, found "asdad"`. Observed source/test pair, not execution result from this research.
 
-**Broken and correction (Fail).** At PR 244 head, `Fail("custom fail msg")` still reports `() => "fail"`, and `ExampleTests` expects the default label. Correction: replace the literal reporting value with `msg` and change that oracle to the requested custom label, while keeping the verbosity guard and zero-consumption failure. PR 297 contains exactly that bounded semantic repair. Add separate default, ordinary and explicit-verbose controls for new work; those additional controls are proposed validation, not all asserted to exist in the historical fix.
+**Broken and correction (Fail).** At PR 244 head, `Fail("custom fail msg")` still reports `() => "fail"`; `ExampleTests` expects default label. Correction: replace literal reporting value with `msg`, change that oracle to requested custom label, keep verbosity guard and zero-consumption failure. PR 297 contains exactly that bounded semantic repair. For new work, add separate default, ordinary and explicit-verbose controls. Those extras are proposed validation, not all asserted to exist in historical fix.
 
-**Broken and correction (opaque).** At PR 276 merge `f40fe81`, `opaque` runs `parse0()` and then only calls `reportTerminalMsg(oldIndex, () => msg)` under the guard. It takes no snapshot, so the terminals its hidden child appended stay in the aggregate. PR 278's commit message names this ("manually backtrack any terminals"), and its ScalaParse snapshots narrowed from long alternations of identifier sub-parsers to `(id | "case" | "object")`. Correction: capture the terminal aggregate before `parse0()` and restore it under `verboseFailures` before reporting the wrapper label. The merged `opaqueTerminals` test for `"A".opaque("a") ~/ "B".opaque("b") ~/ End` on `AAB` expects all three trace views to read `Expected Test:1:1 / b:1:2, found "AB"`.
+**Broken and correction (opaque).** At PR 276 merge `f40fe81`, `opaque` runs `parse0()`, then only calls `reportTerminalMsg(oldIndex, () => msg)` under guard. No snapshot, so terminals appended by hidden child stay in aggregate. PR 278's commit message names this ("manually backtrack any terminals"); its ScalaParse snapshots narrowed from long alternations of identifier sub-parsers to `(id | "case" | "object")`. Correction: capture terminal aggregate before `parse0()`, restore it under `verboseFailures` before reporting wrapper label. Merged `opaqueTerminals` test for `"A".opaque("a") ~/ "B".opaque("b") ~/ End` on `AAB` expects all three trace views to read `Expected Test:1:1 / b:1:2, found "AB"`.
 
-**Negative.** A failure from `IteratorParserInput` rejects `trace()` after consumption. Do not report a missing custom-label fix solely because replay is unavailable, nor remove the capability check. Use fresh input and an appropriate initial diagnostic mode for a supported probe. An ordinary nonverbose string parse with no label likewise does not justify enabling verbose failures globally.
+**Negative.** Failure from `IteratorParserInput` rejects `trace()` after consumption. Do not report missing custom-label fix solely because replay is unavailable; do not remove capability check. For supported probe, use fresh input and suitable initial diagnostic mode.
 
 ## Case output fields
 
-Each finding: `file:line`, severity, mode/input capability, supplied versus observed label, failure index, evidence ID and source URL, bounded correction, and a discriminating test. Separate the implementation defect from a defective oracle. For no-change verdicts, explain the policy that makes the apparent missing label or replay rejection intentional.
+Each finding: `file:line`, severity, mode/input capability, supplied versus observed label, failure index, evidence ID and source URL, bounded correction, discriminating test. Separate implementation defect from defective oracle. For no-change verdict, explain policy making apparent missing label or replay rejection intentional.
 
 ## Limitations
 
-A focused diagnostic contract review, not proof of security hardening, exhaustive aggregation correctness or performance neutrality. The correction's exact merged SHA is established; its first released version is not. Existing ABI guidance still applies if an overload's public signature changes (see `scala-library-compatibility-laws`). Historical maintainer rank is not inferred from current GitHub association. Independent peer exercise and authorized Scala execution remain separate gates.
+Focused diagnostic contract review; not proof of security hardening, exhaustive aggregation correctness or performance neutrality. Correction's exact merged SHA is established; its first released version is not. Existing ABI guidance still applies if overload's public signature changes (see `scala-library-compatibility-laws`). Historical maintainer rank not inferred from current GitHub association. Independent peer exercise and authorized Scala execution remain separate gates.
 
 ## Sources
 
@@ -99,4 +97,4 @@ A focused diagnostic contract review, not proof of security hardening, exhaustiv
 - [Corrected producer](https://github.com/com-lihaoyi/fastparse/blob/49ba3cf46705a5068541537991ce1c2167760a2b/fastparse/src/fastparse/SharedPackageDefs.scala#L157-L166) and [corrected test](https://github.com/com-lihaoyi/fastparse/blob/49ba3cf46705a5068541537991ce1c2167760a2b/fastparse/test/src/fastparse/ExampleTests.scala#L130-L136).
 - [`unary_!` terminal reset, PR 276](https://github.com/com-lihaoyi/fastparse/blob/f40fe81b485b561587ca06ff64fd4b5fac6f88d6/fastparse/src-2/fastparse/package.scala#L279-L302), [`opaque` fix](https://github.com/com-lihaoyi/fastparse/blob/186337a0b73423b1dc77562979135f8cfbf47e5f/fastparse/src/fastparse/SharedPackageDefs.scala#L230-L245) and [`opaqueTerminals` test, PR 278](https://github.com/com-lihaoyi/fastparse/blob/186337a0b73423b1dc77562979135f8cfbf47e5f/fastparse/test/src/fastparse/ParsingTests.scala#L246-L253).
 - [Replay implementation](https://github.com/com-lihaoyi/fastparse/blob/af4b47f25bdf7e85bf6196676db84805fb6e5358/fastparse/src/fastparse/Parsed.scala#L131-L142) and [buffered input restriction](https://github.com/com-lihaoyi/fastparse/blob/dd74612224846d3743e19419b3f1191554b973f5/fastparse/src/fastparse/ParserInput.scala#L185-L189).
-- [Evidence and claim subset](evidence/scala-fastparse-diagnostic-mode-review.json), including exact timestamps and original short excerpts.
+- [Evidence and claim subset](evidence/scala-fastparse-diagnostic-mode-review.json), with exact timestamps and original short excerpts.

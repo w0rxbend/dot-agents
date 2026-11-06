@@ -1,8 +1,5 @@
 # GCP Security and IAM Reference
 
-IAM patterns, Workload Identity, Secret Manager, and security best practices.
-
-
 ## Table of Contents
 
 - [IAM Best Practices](#iam-best-practices)

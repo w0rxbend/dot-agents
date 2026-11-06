@@ -5,32 +5,32 @@
 | Task kind | Use | Caching/lifetime concern |
 | --- | --- | --- |
 | `Task.Source` / `Task.Sources` | Tracked files/directories | Fingerprints must capture actual inputs |
-| `Task.Input` | Environment/system property/external changing value | Re-read input each evaluation; avoid exposing secrets in results |
-| `Task { ... }` | Deterministic computation or generated files | Serialized value and output content feed cache invalidation |
-| `Task.Command { ... }` | Run, test, interactive or external action | Invoked action executes rather than being skipped like a cached artifact |
-| `Task(persistent = true) { ... }` | Tool needing incremental state across evaluation | State persists; manage stale data and correctness explicitly |
-| `Task.Worker` | Compiler/tool/classloader cached in memory | Handle concurrency, cleanup, and invalidation |
-| `Task.Anon` | Composed internal task not independently named | Still belongs in an explicit graph |
-| Uncached task form | Specialized value intentionally reevaluated | Verify version-specific API and concrete need |
+| `Task.Input` | Environment/system property/changing external value | Re-read each evaluation; avoid exposing secrets in results |
+| `Task { ... }` | Deterministic computation or generated files | Serialized value and output content drive cache invalidation |
+| `Task.Command { ... }` | Run, test, interactive or external action | Executes on invocation; not skipped like cached artifact |
+| `Task(persistent = true) { ... }` | Tool needing incremental state across evaluations | State persists; manage stale data, correctness explicitly |
+| `Task.Worker` | Compiler/tool/classloader cached in memory | Handle concurrency, cleanup, invalidation |
+| `Task.Anon` | Composed internal task, not independently named | Still in explicit graph |
+| Uncached task form | Specialized value, intentionally reevaluated | Verify version-specific API, concrete need |
 
-Cached results need a supported JSON writer/reader. Simple primitives/collections and `PathRef` are convenient; custom result types need appropriate serialization. Do not return a live stream, process, classloader, or mutable compiler instance as an ordinary cached task value. Those resources require a worker or an action scope.
+Cached results need supported JSON writer/reader. Primitives/collections and `PathRef` are convenient; custom result types need serialization. Do not return live stream, process, classloader or mutable compiler instance as ordinary cached value; use worker or action scope.
 
-Task dependencies are planned before execution. `def archive = Task { packageFiles(compile(), resources()) }` exposes both prerequisite values. An applicative task graph is not an arbitrary dynamic workflow engine: do not conditionally discover and invoke unknown tasks only after executing another task. When module instances form a statically known collection, `Task.traverse(modules)(_.compile)()` exposes the dependencies. If a workflow truly needs evaluator APIs, treat those as advanced/version-sensitive rather than a default shortcut.
+Dependencies are planned before execution. `def archive = Task { packageFiles(compile(), resources()) }` exposes both prerequisites. Task graph is applicative, not arbitrary dynamic workflow engine: do not conditionally discover and invoke unknown tasks only after executing another. Statically known module collection: `Task.traverse(modules)(_.compile)()` exposes dependencies. Evaluator APIs, if truly needed, are advanced/version-sensitive, not default shortcut.
 
 ## Inputs and output ownership
 
-Use `Task.Source("schema.json")` or `Task.Sources("schemas")` for disk inputs instead of `os.read(moduleDir / "schema.json")` hidden inside a cached computation. Reading a file without a tracked source task can produce stale output. Capture relevant environment/system properties through their documented input mechanism. Keep configuration values immutable and deterministic; a top-level `val` reading time/git/environment may not participate in task invalidation correctly.
+Disk inputs: `Task.Source("schema.json")` or `Task.Sources("schemas")`, not `os.read(moduleDir / "schema.json")` hidden in cached computation. Untracked file reads can produce stale output. Capture environment/system properties via documented input mechanism. Keep configuration values immutable, deterministic; top-level `val` reading time/git/environment may miss task invalidation.
 
-Each task has a destination. Write under `Task.dest`; use separate subdirectories when a single task deliberately manages multiple outputs. Return `PathRef` only after the final output is written so its content signature describes the completed artifact. Consumers should use the producer's returned path, not `out/foo/task.dest` hardcoded from knowledge of Mill's internal layout.
+Each task owns a destination: write under `Task.dest`. Use separate subdirectories when one task deliberately manages multiple outputs. Return `PathRef` only after final output is written, so content signature describes completed artifact. Consumers use producer's returned path, not `out/foo/task.dest` hardcoded from Mill's internal layout.
 
-Do not mutate an upstream `PathRef`'s directory after consuming it. Parallel consumers may read it while it changes, and its signature no longer represents the real bytes. Copy into the current task's destination for transformations. Preserve static resources by appending a generated directory to `super.resources()` where that is the intended behavior. Replacing the list can be valid, but needs an explicit reason.
+Do not mutate upstream `PathRef` directory after consuming it: parallel consumers may read mid-change, and signature stops matching real bytes. For transformations, copy into current task's destination. Keep static resources by appending generated directory to `super.resources()` when intended. Replacing list can be valid but needs explicit reason.
 
 ## External tools and sandboxing
 
-Use a managed/pinned executable or make its version an explicit input. Pass arguments as structured values through OS-Lib rather than a shell string assembled from user-controlled text. Set the working directory and environment deliberately, collect useful failure diagnostics, and fail the task when the subprocess fails. Files generated by a tool belong to the task destination; copy immutable inputs there if the tool insists on writing alongside them.
+Use managed/pinned executable or make its version explicit input. Pass structured arguments through OS-Lib, not shell string built from user-controlled text. Set working directory and environment deliberately, collect useful failure diagnostics, fail task on subprocess failure. Tool output belongs in task destination; if tool insists on writing beside inputs, copy immutable inputs there.
 
-Mill's filesystem checks and working-directory redirection encourage input/output isolation but are not a hostile-code sandbox or fully hermetic build. Bypassing checks is an exceptional integration choice with a documented reason, not a default response to a faulty task. Tests may also use a sandboxed working directory; configure tracked fixtures and pass paths rather than expecting the repository root.
+Mill's filesystem checks and working-directory redirection encourage input/output isolation but are not hostile-code sandbox or fully hermetic build. Bypass checks only as exceptional integration choice with documented reason, not default fix for faulty task. Tests may also use sandboxed working directory: configure tracked fixtures, pass paths, do not assume repository root.
 
-Use commands for network publication, applying database migrations, and other intentional external effects. Cached tasks are appropriate for building a migration bundle or generating a publishable archive. Defining a publish task does not itself authorize publishing; follow the actual user's scope for the external action.
+Use commands for network publication, applying database migrations, other intentional external effects. Cached tasks fit migration bundles, publishable archives. Defining publish task does not authorize publishing; follow actual user's scope for external action.
 
 Sources: [tasks](https://mill-build.org/mill/fundamentals/tasks.html), [evaluation](https://mill-build.org/mill/depth/evaluation-model.html), [sandboxing](https://mill-build.org/mill/depth/sandboxing.html), [bundled libraries](https://mill-build.org/mill/fundamentals/bundled-libraries.html), [dynamic JVM code](https://mill-build.org/mill/extending/running-jvm-code.html).

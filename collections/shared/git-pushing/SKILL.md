@@ -8,52 +8,50 @@ date_added: "2026-02-27"
 
 # Git Push Workflow
 
-Stage only the intended changes, create one Conventional Commit, and push it to the branch's remote.
-
 ## When to Use
 
-Only on an explicit request: "push this", "commit and push", "save this to GitHub/the remote". Finishing a feature is not a request to push; ask, or stop at a local commit if the user asked for one.
+Only on explicit request: "push this", "commit and push", "save this to GitHub/the remote". Finished feature is not a push request. Ask, or stop at local commit if user asked for one.
 
-Do not use it for a maintainer merge batch, canonical synchronization, versioned release, tag publication, or a repository with an explicit `merge:batch`, `release:prepare` or `release:publish` workflow. Use that repository's maintainer/release flow, which owns pull-request evidence, protected-branch checks, generated files, tags and publication verification.
+Not for maintainer merge batches, canonical synchronization, versioned releases, tag publication, or repositories with explicit `merge:batch`, `release:prepare` or `release:publish` workflow. Use that repository's maintainer/release flow. It owns PR evidence, protected-branch checks, generated files, tags, publication verification.
 
 ## Safety Gates
 
-1. Inspect `git status --short --branch` and list the files that belong to this change. Leave unrelated dirty files out.
-2. Fetch the upstream branch when a concurrent push is plausible.
-3. Read repository policy before choosing the destination branch. If `main`/`master` is protected, or the repository defines a maintainer command such as `merge:batch`, use a topic branch and finish through the required pull-request checks. "Push to main" describes the desired end state; it does not authorize bypassing server-side protection. Never keep retrying a direct push after a protected-branch rejection.
-4. Write the message in the repository's convention (see `git-workflow-and-versioning`). The helper accepts only `<type>(<scope>)?!?: <subject>`.
+1. Run `git status --short --branch`; list files in this change. Leave unrelated dirty files out.
+2. Fetch upstream branch if concurrent push is plausible.
+3. Read repository policy before picking destination branch. If `main`/`master` is protected, or repository defines maintainer command like `merge:batch`, use topic branch and finish through required PR checks. "Push to main" names desired end state, not permission to bypass server-side protection. Never keep retrying direct push after protected-branch rejection.
+4. Follow repository's message convention (see `git-workflow-and-versioning`). Helper accepts only `<type>(<scope>)?!?: <subject>`.
 
 ## Workflow
 
-Resolve the directory that contains this `SKILL.md` and substitute its absolute path for `<skill-directory>`. Do not assume the current directory is the catalog repository.
+Substitute absolute path of directory holding this `SKILL.md` for `<skill-directory>`. Do not assume current directory is catalog repository.
 
-Stage named paths (the default):
+Stage named paths (default):
 
 ```bash
 bash "<skill-directory>/scripts/smart_commit.sh" "fix(parser): handle empty input" -- src/parser.ts test/parser.test.ts
 ```
 
-Stage every change, only when the user said to include everything and `git status` shows nothing unrelated:
+Stage everything only when user said include everything and `git status` shows nothing unrelated:
 
 ```bash
 bash "<skill-directory>/scripts/smart_commit.sh" "chore: regenerate lockfile" --all
 ```
 
-The message and one of `-- <paths>` or `--all` are required. The helper exits with usage text otherwise.
+Message and one of `-- <paths>` or `--all` required. Otherwise helper exits with usage text.
 
 ## What the helper guarantees
 
-- It refuses to run if the live index already has staged changes, or if HEAD is detached.
-- It builds the commit in an isolated temporary index while holding the index lock. It runs `pre-commit`, `prepare-commit-msg` and `commit-msg` hooks, and aborts if a hook modifies the staged tree.
-- It re-validates the message after hooks run, and signs the commit when `commit.gpgsign` is true.
-- It updates the branch ref atomically, only if its parent is unchanged, and refuses to push if the branch moved concurrently.
-- It pushes to `branch.<name>.pushRemote`, then `remote.pushDefault`, then the configured upstream. A new branch requires `origin` and gets `origin/<branch>` as its upstream.
-- It requires Git's `files` ref backend and rejects `reftable` repositories before creating a commit.
+- Refuses to run if live index has staged changes or HEAD is detached.
+- Builds commit in isolated temporary index under index lock. Runs `pre-commit`, `prepare-commit-msg`, `commit-msg` hooks; aborts if hook modifies staged tree.
+- Re-validates message after hooks. Signs commit when `commit.gpgsign` is true.
+- Updates branch ref atomically, only if parent unchanged. Refuses push if branch moved concurrently.
+- Push target order: `branch.<name>.pushRemote`, `remote.pushDefault`, configured upstream. New branch requires `origin`, gets `origin/<branch>` as upstream.
+- Requires Git's `files` ref backend; rejects `reftable` repositories before committing.
 
-It does not run the project's tests or replace release tooling. Run the required checks before pushing. If the push is rejected because the upstream advanced, the commit already exists locally, so do not rerun the helper (it stops with "No changes staged for commit"). Fetch and integrate (rebase or merge per repository policy), re-run the required checks, then push with plain Git to the same destination the helper chose, for example `git push <remote> HEAD:<branch>`. Never force-push without asking.
+Does not run project tests or replace release tooling. Run required checks before pushing. If push rejected because upstream advanced, commit already exists locally: do not rerun helper (it stops with "No changes staged for commit"). Fetch, integrate (rebase or merge per repository policy), re-run required checks. Then push with plain Git to helper's chosen destination, for example `git push <remote> HEAD:<branch>`. Never force-push without asking.
 
 ## Done When
 
-- `git log -1` shows the new commit containing only the intended paths.
-- The helper printed `Successfully pushed <branch> to <remote>/<branch>`, and `git status` still shows any unrelated dirty files untouched.
-- You report the commit hash, the branch and remote, and any checks that were run or skipped.
+- `git log -1` shows new commit with only intended paths.
+- Helper printed `Successfully pushed <branch> to <remote>/<branch>`; `git status` still shows unrelated dirty files untouched.
+- Report commit hash, branch, remote, and checks run or skipped.

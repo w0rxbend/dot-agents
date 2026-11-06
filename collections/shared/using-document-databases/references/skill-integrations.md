@@ -1,8 +1,5 @@
 # Document Database Integration with Frontend Skills
 
-Integration patterns for connecting MongoDB/DynamoDB with frontend component skills.
-
-
 ## Table of Contents
 
 - [Forms Skill Integration](#forms-skill-integration)

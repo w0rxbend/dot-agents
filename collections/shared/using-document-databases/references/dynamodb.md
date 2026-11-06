@@ -1,7 +1,5 @@
 # DynamoDB Complete Guide
 
-AWS DynamoDB single-table design, GSI patterns, and serverless best practices.
-
 ## Table of Contents
 
 - [Core Concepts](#core-concepts)
@@ -13,8 +11,6 @@ AWS DynamoDB single-table design, GSI patterns, and serverless best practices.
 - [Pricing Optimization](#pricing-optimization)
 - [Performance Best Practices](#performance-best-practices)
 
----
-
 ## Core Concepts
 
 ### DynamoDB vs Traditional Databases
@@ -22,7 +18,7 @@ AWS DynamoDB single-table design, GSI patterns, and serverless best practices.
 | Feature | DynamoDB | MongoDB/SQL |
 |---------|----------|-------------|
 | **Data Model** | Key-value, document | Document, relational |
-| **Queries** | By primary key + GSI only | Flexible queries |
+| **Queries** | By primary key + GSI only | Flexible |
 | **Scaling** | Automatic, unlimited | Manual sharding/replication |
 | **Consistency** | Eventual (default), strong (optional) | Tunable |
 | **Latency** | Single-digit ms guaranteed | Varies |
@@ -30,20 +26,18 @@ AWS DynamoDB single-table design, GSI patterns, and serverless best practices.
 
 ### Key Terminology
 
-- **Partition Key (PK)**: Hash key for data distribution
-- **Sort Key (SK)**: Range key for sorting within partition
+- **Partition Key (PK)**: Hash key; distributes data
+- **Sort Key (SK)**: Range key; sorts within partition
 - **GSI**: Global Secondary Index (alternate query patterns)
 - **LSI**: Local Secondary Index (different sort key, same PK)
 - **WCU**: Write Capacity Unit (1 KB/sec)
 - **RCU**: Read Capacity Unit (4 KB/sec for eventual, 4 KB/sec for strong)
 
----
-
 ## Single-Table Design
 
 ### Philosophy
 
-Design for **access patterns**, not normalization. Store multiple entity types in one table using composite keys.
+Design for **access patterns**, not normalization. Store many entity types in one table with composite keys.
 
 ### Entity Types in One Table
 
@@ -154,8 +148,6 @@ PK: USER#12345,  SK: ORDER#001
 PK: ORDER#001,   SK: USER#12345
 ```
 
----
-
 ## Primary Keys
 
 ### Partition Key Only
@@ -233,8 +225,6 @@ suffix = random.randint(0, 9)
 PK: f"DATE#2025-11-28#{suffix}"
 ```
 
----
-
 ## Global Secondary Indexes (GSI)
 
 ### When to Use GSI
@@ -300,12 +290,9 @@ response = table.query(
 
 ### GSI Best Practices
 
-1. **Use sparse indexes** (only items with attribute are indexed)
-2. **Projection**: Use KEYS_ONLY or INCLUDE to reduce storage
-3. **Limit GSIs**: Maximum 20 per table
-4. **GSI writes**: Every item update may update multiple GSIs (cost!)
-
----
+1. **Projection**: KEYS_ONLY or INCLUDE cuts storage
+2. **Limit GSIs**: Maximum 20 per table
+3. **GSI writes**: Each item update may write several GSIs (cost!)
 
 ## Query Patterns
 
@@ -376,8 +363,6 @@ while True:
     if not last_evaluated_key:
         break
 ```
-
----
 
 ## Update Operations
 
@@ -451,8 +436,6 @@ response = table.update_item(
 print(f"New count: {response['Attributes']['viewCount']}")
 ```
 
----
-
 ## DynamoDB Streams
 
 ### Enable Change Data Capture
@@ -471,9 +454,9 @@ dynamodb.create_table(
 
 ### Stream View Types
 
-- `KEYS_ONLY`: Only key attributes
-- `NEW_IMAGE`: Entire item after update
-- `OLD_IMAGE`: Entire item before update
+- `KEYS_ONLY`: Key attributes only
+- `NEW_IMAGE`: Whole item after update
+- `OLD_IMAGE`: Whole item before update
 - `NEW_AND_OLD_IMAGES`: Both before and after
 
 ### Process Streams with Lambda
@@ -501,8 +484,6 @@ def lambda_handler(event, context):
             old_item = record['dynamodb']['OldImage']
             print(f"Order deleted: {old_item}")
 ```
-
----
 
 ## Pricing Optimization
 
@@ -571,22 +552,7 @@ table.put_item(Item={
 })
 ```
 
----
-
 ## Performance Best Practices
-
-### Design for Even Distribution
-
-```python
-# GOOD: High cardinality partition key
-PK: f"USER#{uuid.uuid4()}"
-
-# GOOD: Composite key with multiple dimensions
-PK: f"TENANT#{tenant_id}#USER#{user_id}"
-
-# BAD: Low cardinality (hot partitions)
-PK: f"STATUS#{status}"  # Only 3 values: active, pending, archived
-```
 
 ### Use Sparse Indexes
 
@@ -649,8 +615,6 @@ Key('SK').begins_with('COUNTRY#USA#STATE#MA')
 Key('SK').begins_with('COUNTRY#USA#STATE#MA#CITY#Boston')
 ```
 
----
-
 ## TypeScript Examples (AWS SDK v3)
 
 ```typescript
@@ -703,8 +667,6 @@ await client.send(new UpdateItemCommand({
 }))
 ```
 
----
-
 ## Common Patterns
 
 ### Multi-Tenant Architecture
@@ -754,6 +716,4 @@ response = table.query(
 )
 ```
 
----
-
-This guide covers DynamoDB single-table design and AWS-specific patterns. For Python FastAPI + MongoDB examples, see `../examples/dynamodb-serverless/`.
+For Python FastAPI + MongoDB examples, see `../examples/dynamodb-serverless/`.

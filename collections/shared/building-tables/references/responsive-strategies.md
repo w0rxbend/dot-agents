@@ -1,8 +1,5 @@
 # Responsive Table Strategies
 
-Patterns for making data tables work on mobile devices.
-
-
 ## Table of Contents
 
 - [Strategy 1: Horizontal Scroll](#strategy-1-horizontal-scroll)
@@ -16,7 +13,7 @@ Patterns for making data tables work on mobile devices.
 
 ## Strategy 1: Horizontal Scroll
 
-**Simplest - wraps table in scrollable container.**
+**Simplest: wrap table in scrollable container.**
 
 ```tsx
 function ResponsiveTable({ children }: { children: React.ReactNode }) {
@@ -30,12 +27,12 @@ function ResponsiveTable({ children }: { children: React.ReactNode }) {
 }
 ```
 
-**Pros:** Simple, preserves table structure
-**Cons:** Horizontal scrolling on mobile is poor UX
+**Pros:** Simple, keeps table structure
+**Cons:** Horizontal scrolling is poor UX on mobile
 
 ## Strategy 2: Card Layout (Mobile)
 
-**Transform table rows into cards on mobile.**
+**Rows become cards on mobile.**
 
 ```tsx
 function ResponsiveDataTable({ data }: { data: User[] }) {
@@ -82,12 +79,12 @@ function ResponsiveDataTable({ data }: { data: User[] }) {
 }
 ```
 
-**Pros:** Optimized for mobile, better UX
+**Pros:** Built for mobile, better UX
 **Cons:** More code, duplicate rendering logic
 
 ## Strategy 3: Priority Columns
 
-**Show important columns, hide others on mobile.**
+**Show key columns, hide others on mobile.**
 
 ```tsx
 const columns = [
@@ -159,7 +156,7 @@ function AccordionTable({ data }: { data: User[] }) {
 
 ## Strategy 5: Stacked Labels
 
-**Labels inline with each value on mobile.**
+**Label inline with each value on mobile.**
 
 ```tsx
 <table className="md:table-auto">
@@ -202,11 +199,11 @@ function AccordionTable({ data }: { data: User[] }) {
 
 1. **Test on real devices** - Don't rely on browser emulation
 2. **Touch targets 44px min** - Buttons, checkboxes, links
-3. **Reduce columns** - Show only essential on mobile
+3. **Reduce columns** - Only essentials on mobile
 4. **Horizontal scroll as fallback** - If other strategies don't fit
-5. **Fixed first column** - Keep name/ID visible during scroll
+5. **Fixed first column** - Name/ID stays visible during scroll
 6. **Expandable details** - Hide secondary info, expand on tap
-7. **Search/filter first** - Reduce rows before displaying
+7. **Search/filter first** - Fewer rows before display
 
 ## Resources
 

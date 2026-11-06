@@ -1,6 +1,6 @@
 # Spritesheet: Texture Atlases and Animations
 
-Load and use texture atlases and animation sheets with PixiJS's `Spritesheet` class. Atlases reduce draw calls by packing many textures into a single image.
+Load and use texture atlases and animation sheets with `Spritesheet` class. Atlases cut draw calls by packing many textures into one image.
 
 ## Quick Start
 
@@ -16,7 +16,7 @@ walk.play();
 app.stage.addChild(walk);
 ```
 
-When loaded through `Assets.load()`, the JSON file is fetched, the atlas image is loaded, and `sheet.parse()` is called automatically. The returned object is a `Spritesheet` instance.
+`Assets.load()` fetches JSON, loads atlas image, calls `sheet.parse()` automatically. Returns `Spritesheet` instance.
 
 ## Core Patterns
 
@@ -53,12 +53,12 @@ When loaded through `Assets.load()`, the JSON file is fetched, the atlas image i
 
 Key fields:
 
-- `frames` maps frame names to rectangle data, trim info, anchors, and 9-slice borders.
-- `rotated` indicates the frame is stored rotated 90 degrees in the atlas. The parser swaps width/height automatically.
-- `trimmed` indicates transparent padding was removed. `sourceSize` is the original dimensions; `spriteSourceSize` is the trimmed region within it.
-- `animations` maps animation names to ordered arrays of frame names.
-- `meta.scale` sets the resolution of the texture source. `"2"` means the atlas is @2x.
-- `meta.image` is the atlas image filename, resolved relative to the JSON file.
+- `frames`: frame names to rectangle data, trim info, anchors, 9-slice borders.
+- `rotated`: frame stored rotated 90 degrees in atlas; parser swaps width/height automatically.
+- `trimmed`: transparent padding removed. `sourceSize` is original dimensions; `spriteSourceSize` is trimmed region within it.
+- `animations`: animation names to ordered arrays of frame names.
+- `meta.scale`: texture source resolution. `"2"` means atlas is @2x.
+- `meta.image`: atlas image filename, resolved relative to JSON file.
 
 ### Manual Spritesheet creation
 
@@ -74,9 +74,9 @@ await sheet.parse();
 const frame = new Sprite(sheet.textures["hero.png"]);
 ```
 
-`parse()` is async for large spritesheets (over 1000 frames); it batches texture creation across multiple frames. For smaller sheets, `parseSync()` is also available.
+`parse()` is async for large sheets (over 1000 frames), batching texture creation across multiple frames. Smaller sheets can also use `parseSync()`.
 
-`cachePrefix` prepends a string to all cached texture names, preventing collisions when multiple atlases share frame names (e.g., `"hero.png"` in two different sheets).
+`cachePrefix` prefixes all cached texture names, preventing collisions when atlases share frame names (e.g., `"hero.png"` in two sheets).
 
 ### Preloaded texture with Assets
 
@@ -93,7 +93,7 @@ const sheet = await Assets.load("atlas");
 
 ### Multi-pack spritesheets
 
-When `meta.related_multi_packs` is present, the loader automatically loads and links related spritesheets. All linked sheets are accessible via `sheet.linkedSheets`.
+With `meta.related_multi_packs` present, loader automatically loads and links related spritesheets. All linked sheets live in `sheet.linkedSheets`.
 
 ### Cleanup
 
@@ -106,11 +106,11 @@ sheet.destroy(true); // also destroys the base atlas texture
 
 ### [HIGH] Spritesheet meta.scale behavior change
 
-In v8, `meta.scale` directly sets the texture source resolution. If your atlas was exported at @2x but `meta.scale` says `"1"`, frames render at double the intended size. Ensure `meta.scale` matches the actual resolution of the atlas image. Tools like TexturePacker set this automatically.
+In v8, `meta.scale` directly sets texture source resolution. Atlas exported at @2x with `meta.scale` `"1"` renders frames at double intended size. Ensure `meta.scale` matches atlas image's actual resolution. Tools like TexturePacker set it automatically.
 
 ### [MEDIUM] Not awaiting spritesheet parse
 
-`parse()` is async. Accessing `sheet.textures` before it resolves returns undefined entries. When loading via `Assets.load()`, parsing is handled automatically.
+`parse()` is async. Reading `sheet.textures` before it resolves gives undefined entries.
 
 ## API Reference
 

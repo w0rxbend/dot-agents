@@ -14,26 +14,24 @@ metadata:
       bins:
         - go
     install: []
-allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(golangci-lint:*) Bash(git:*) Agent
+allowed-tools: Read Edit Write Glob Grep Bash(gofmt:*) Bash(go build:*) Bash(go vet:*) Bash(golangci-lint run:*) Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git show:*) Agent
 paths:
   - "**/*.go"
 ---
 
-**Orchestration mode:** Fan out the sub-agents described in the "Parallelizing Code Style Reviews" section, each covering an independent style concern, when reviewing code style across a large codebase, and merge their findings.
-
-> **Community default.** A company skill that explicitly supersedes `samber/cc-skills-golang@golang-code-style` skill takes precedence.
+> **Community default.** Company skill explicitly superseding `samber/cc-skills-golang@golang-code-style` skill wins.
 
 # Go Code Style
 
-Style rules that require human judgment — linters handle formatting, this skill handles clarity. For naming see `samber/cc-skills-golang@golang-naming` skill; for design patterns see `samber/cc-skills-golang@golang-design-patterns` skill; for struct/interface design see `samber/cc-skills-golang@golang-structs-interfaces` skill.
+Style rules needing human judgment. Linters handle formatting; this skill handles clarity.
 
 > "Clear is better than clever." — Go Proverbs
 
-When ignoring a rule, add a comment to the code.
+When ignoring a rule, add a code comment.
 
 ## Line Length & Breaking
 
-No rigid line limit, but lines beyond ~120 characters MUST be broken. Break at **semantic boundaries**, not arbitrary column counts. Function calls with 4+ arguments SHOULD use one argument per line when they would otherwise be long, and when the repository already formats them this way. If the user explicitly asks for single-line code, follow the request:
+No rigid limit, but lines over ~120 characters MUST break, at **semantic boundaries**, not arbitrary columns. Calls with 4+ arguments SHOULD go one argument per line when otherwise long and repository already formats them so. If user explicitly asks for single-line code, comply:
 
 ```go
 // Good — each argument on its own line, closing paren separate
@@ -49,11 +47,11 @@ mux.HandleFunc("/api/users", func(w http.ResponseWriter, r *http.Request) {
 })
 ```
 
-When a function signature is too long, the real fix is often **fewer parameters** (use an options struct) rather than better line wrapping. For multi-line signatures, put each parameter on its own line.
+Signature too long: real fix often **fewer parameters** (options struct), not better wrapping. Multi-line signatures: one parameter per line.
 
 ## Variable Declarations
 
-SHOULD use `:=` for non-zero values, `var` for zero-value initialization. The form signals intent: `var` means "this starts at zero."
+SHOULD use `:=` for non-zero values, `var` for zero-value initialization. Form signals intent: `var` means "this starts at zero."
 
 ```go
 var count int              // zero value, set later
@@ -63,7 +61,7 @@ var buf bytes.Buffer       // zero value is ready to use
 
 ### Slice & Map Initialization
 
-Initialize a map before writing to it — nil maps panic on write. For slices, a nil slice (`var s []T`) is the idiomatic zero value and works with `len`, `append` and `range` (Go Code Review Comments prefers it). Initialize slices explicitly (`[]T{}` or `make`) where the difference is observable: values that are JSON-encoded (nil encodes as `null`, empty as `[]`), APIs whose callers distinguish nil from empty, or when the repository already does so.
+Initialize maps before writes; nil maps panic on write. Nil slice (`var s []T`) is idiomatic zero value; `len`, `append` and `range` work on it (Go Code Review Comments prefers it). Initialize slices explicitly (`[]T{}` or `make`) where difference is observable: JSON encoding (nil encodes as `null`, empty as `[]`), APIs whose callers distinguish nil from empty, or existing repository practice.
 
 ```go
 var users []User                        // nil slice: fine for internal use
@@ -73,11 +71,11 @@ users := make([]User, 0, len(ids))      // preallocate when capacity is known
 m := make(map[string]int, len(items))   // preallocate when size is known
 ```
 
-Do not preallocate speculatively — `make([]T, 0, 1000)` wastes memory when the common case is 10 items.
+Do not preallocate speculatively: `make([]T, 0, 1000)` wastes memory when common case is 10 items.
 
 ### Composite Literals
 
-Composite literals MUST use field names — positional fields break when the type adds or reorders fields:
+Composite literals MUST use field names — positional fields break when type adds or reorders fields:
 
 ```go
 srv := &http.Server{
@@ -91,7 +89,7 @@ srv := &http.Server{
 
 ### Reduce Nesting
 
-Errors and edge cases MUST be handled first (early return). Keep the happy path at minimal indentation:
+MUST handle errors and edge cases first (early return). Happy path stays at minimal indentation:
 
 ```go
 func process(data []byte) (*Result, error) {
@@ -110,7 +108,7 @@ func process(data []byte) (*Result, error) {
 
 ### Eliminate Unnecessary `else`
 
-When the `if` body ends with `return`/`break`/`continue`, the `else` MUST be dropped. Use default-then-override for simple assignments — assign a default, then override with independent conditions or a `switch`:
+If `if` body ends with `return`/`break`/`continue`, MUST drop `else`. Simple assignments: default-then-override (assign default, override via independent conditions or `switch`):
 
 ```go
 // Good — default-then-override with switch (cleanest for mutually exclusive overrides)
@@ -134,7 +132,7 @@ if debug {
 
 ### Complex Conditions & Init Scope
 
-When an `if` condition has 3+ operands, MUST extract into named booleans — a wall of `||` is unreadable and hides business logic. Keep expensive checks inline for short-circuit benefit. [Details](./references/details.md)
+`if` with 3+ operands: MUST extract named booleans. Wall of `||` is unreadable, hides business logic. Keep expensive checks inline (short-circuit). [Details](./references/details.md)
 
 ```go
 // Good — named booleans make intent clear
@@ -146,7 +144,7 @@ if isAdmin || isOwner || isPublicVerified || permissions.Contains(PermOverride) 
 }
 ```
 
-Scope variables to `if` blocks when only needed for the check:
+Scope variables to `if` when only check needs them:
 
 ```go
 if err := validate(input); err != nil {
@@ -156,7 +154,7 @@ if err := validate(input); err != nil {
 
 ### Switch Over If-Else Chains
 
-When comparing the same variable multiple times, prefer `switch`:
+Same variable compared repeatedly: prefer `switch`:
 
 ```go
 switch status {
@@ -171,10 +169,10 @@ default:
 
 ## Function Design
 
-- Functions SHOULD be **short and focused** — one function, one job.
-- Functions SHOULD have **≤4 parameters**. Beyond that, use an options struct (see `samber/cc-skills-golang@golang-design-patterns` skill).
+- Functions SHOULD be **short and focused**: one function, one job.
+- Functions SHOULD have **≤4 parameters**; beyond that, options struct (see `samber/cc-skills-golang@golang-design-patterns` skill).
 - **Parameter order**: `context.Context` first, then inputs, then output destinations.
-- Naked returns help in very short functions (1-3 lines) where return values are obvious, but become confusing when readers must scroll to find what's returned — name returns explicitly in longer functions.
+- Naked returns help in very short functions (1-3 lines) with obvious return values. Longer functions: name returns explicitly, else readers scroll to find what's returned.
 
 ```go
 func FetchUser(ctx context.Context, id string) (*User, error)
@@ -183,7 +181,7 @@ func SendEmail(ctx context.Context, msg EmailMessage) error  // grouped into str
 
 ### Prefer `range` for Iteration
 
-SHOULD use `range` over index-based loops. Use `range n` (Go 1.22+) for simple counting.
+SHOULD use `range` over index-based loops. `range n` (Go 1.22+) for simple counting.
 
 ```go
 for _, user := range users {
@@ -193,24 +191,24 @@ for _, user := range users {
 
 ## Value vs Pointer Arguments
 
-Pass small types (`string`, `int`, `bool`, `time.Time`) by value. Use pointers when mutating, for large structs (~128+ bytes), or when nil is meaningful. [Details](./references/details.md)
+Pass small types (`string`, `int`, `bool`, `time.Time`) by value. Pointers for mutation, large structs (~128+ bytes), or meaningful nil. [Details](./references/details.md)
 
 ## Code Organization Within Files
 
 - **Group related declarations**: type, constructor, methods together
 - **Order**: package doc, imports, constants, types, constructors, methods, helpers
 - **One primary type per file** when it has significant methods
-- **Blank imports** (`_ "pkg"`) register side effects (init functions). Restricting them to `main` and test packages makes side effects visible at the application root, not hidden in library code
-- **Dot imports** pollute the namespace and make it impossible to tell where a name comes from — never use in library code
-- **Unexport aggressively** — you can always export later; unexporting is a breaking change. → See `samber/cc-skills-golang@golang-gopls` skill to unexport safely — its rename updates every call site atomically and refuses the change when lowercasing a method would break interface satisfaction, a breakage grep/sed silently ships.
+- **Blank imports** (`_ "pkg"`) register side effects (init functions). Restrict to `main` and test packages so side effects show at application root, not hidden in library code
+- **Dot imports** pollute namespace and hide where a name comes from — never use in library code
+- **Unexport aggressively** — can always export later; unexporting is a breaking change. Unexport safely with `samber/cc-skills-golang@golang-gopls` skill: its rename updates every call site atomically and refuses when lowercasing a method would break interface satisfaction, a breakage grep/sed silently ships.
 
 ## String Handling
 
-Use `strconv` for simple conversions (faster), `fmt.Sprintf` for complex formatting. Use `%q` in error messages to make string boundaries visible. Use `strings.Builder` for loops, `+` for simple concatenation.
+Use `strconv` for simple conversions (faster), `fmt.Sprintf` for complex formatting. Use `%q` in error messages to show string boundaries. `strings.Builder` in loops, `+` for simple concatenation.
 
 ## Type Conversions
 
-Prefer explicit, narrow conversions. Use generics over `any` when a concrete type will do:
+Prefer explicit, narrow conversions. Generics over `any` when concrete type will do:
 
 ```go
 func Contains[T comparable](slice []T, target T) bool  // not []any
@@ -221,22 +219,21 @@ func Contains[T comparable](slice []T, target T) bool  // not []any
 - **"A little copying is better than a little dependency"**
 - **Use `slices` and `maps` standard packages**; for filter/group-by/chunk, use `github.com/samber/lo`
 - **"Reflection is never clear"** — avoid `reflect` unless necessary
-- **Don't abstract prematurely** — extract when the pattern is stable
+- **Don't abstract prematurely** — extract once pattern is stable
 - **Minimize public surface** — every exported name is a commitment
 
 ## Parallelizing Code Style Reviews
 
-When reviewing code style across a large codebase, use up to 5 parallel sub-agents, each targeting an independent style concern (e.g. control flow, function design, variable declarations, string handling, code organization).
+For large-codebase style review, use up to 5 parallel sub-agents, one per independent concern (e.g. control flow, function design, variable declarations, string handling, code organization); merge findings.
 
 ## Enforce with Linters
 
-Many rules are enforced automatically: `gofmt`, `gofumpt`, `goimports`, `gocritic`, `revive`, `wsl_v5`. → See the `samber/cc-skills-golang@golang-lint` skill.
+Linters enforce many rules: `gofmt`, `gofumpt`, `goimports`, `gocritic`, `revive`, `wsl_v5`. See `samber/cc-skills-golang@golang-lint` skill.
 
 ## Cross-References
 
-- → See the `samber/cc-skills-golang@golang-naming` skill for identifier naming conventions
-- → See the `samber/cc-skills-golang@golang-structs-interfaces` skill for pointer vs value receivers, interface design
-- → See the `samber/cc-skills-golang@golang-design-patterns` skill for functional options, builders, constructors
-- → See the `samber/cc-skills-golang@golang-lint` skill for automated formatting enforcement
-- → See `samber/cc-skills-golang@golang-continuous-integration` skill for automated AI-driven code review in CI using these guidelines
-- → See `samber/cc-skills-golang@golang-refactoring` skill for mechanically applying guard-clause conversion, function extraction, and options-struct migration safely across many call sites once a review surfaces violations at scale
+- `samber/cc-skills-golang@golang-naming` skill: identifier naming conventions
+- `samber/cc-skills-golang@golang-structs-interfaces` skill: pointer vs value receivers, interface design
+- `samber/cc-skills-golang@golang-design-patterns` skill: functional options, builders, constructors
+- `samber/cc-skills-golang@golang-continuous-integration` skill: automated AI-driven code review in CI using these guidelines
+- `samber/cc-skills-golang@golang-refactoring` skill: mechanically, safely applying guard-clause conversion, function extraction and options-struct migration across many call sites once review finds violations at scale

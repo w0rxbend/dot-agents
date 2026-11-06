@@ -5,17 +5,15 @@ description: "Prepare a production launch - pre-launch readiness checklist, feat
 
 # Shipping and Launch
 
-## Overview
-
-Ship with confidence. The goal is not just to deploy — it's to deploy safely, with monitoring in place, a rollback plan ready, and a clear understanding of what success looks like. Every launch should be reversible, observable, and incremental.
+Agent proposes deploys, flag changes, rollbacks and team notices; runs each only after user confirms.
 
 ## When to Use
 
-- Deploying a feature to production for the first time
-- Releasing a significant change to users
+- First production deploy of a feature
+- Releasing significant change to users
 - Migrating data or infrastructure
-- Opening a beta or early access program
-- Any deployment that carries risk (all of them)
+- Opening beta or early access program
+- Any risky deployment (all of them)
 
 ## The Pre-Launch Checklist
 
@@ -25,19 +23,19 @@ Ship with confidence. The goal is not just to deploy — it's to deploy safely, 
 - [ ] Build succeeds with no warnings
 - [ ] Lint and type checking pass
 - [ ] Code reviewed and approved
-- [ ] No TODO comments that should be resolved before launch
-- [ ] No `console.log` debugging statements in production code
+- [ ] No TODO comments blocking launch
+- [ ] No `console.log` debugging in production code
 - [ ] Error handling covers expected failure modes
 
 ### Security
 
 - [ ] No secrets in code or version control
-- [ ] The ecosystem's dependency audit (`npm audit`, `pip-audit`, `cargo audit`, ...) shows no critical or high vulnerabilities
+- [ ] Dependency audit (`npm audit`, `pip-audit`, `cargo audit`, ...) shows no critical or high vulnerabilities
 - [ ] Input validation on all user-facing endpoints
 - [ ] Authentication and authorization checks in place
 - [ ] Security headers configured (CSP, HSTS, etc.)
 - [ ] Rate limiting on authentication endpoints
-- [ ] CORS configured to specific origins (not wildcard)
+- [ ] CORS limited to specific origins (not wildcard)
 
 ### Performance
 
@@ -46,15 +44,15 @@ Ship with confidence. The goal is not just to deploy — it's to deploy safely, 
 - [ ] Images optimized (compression, responsive sizes, lazy loading)
 - [ ] Bundle size within budget
 - [ ] Database queries have appropriate indexes
-- [ ] Caching configured for static assets and repeated queries
+- [ ] Static assets and repeated queries cached
 
 ### Accessibility
 
-- [ ] Keyboard navigation works for all interactive elements
-- [ ] Screen reader can convey page content and structure
+- [ ] All interactive elements keyboard-navigable
+- [ ] Screen reader conveys page content and structure
 - [ ] Color contrast meets WCAG 2.1 AA (4.5:1 for text)
 - [ ] Focus management correct for modals and dynamic content
-- [ ] Error messages are descriptive and associated with form fields
+- [ ] Error messages descriptive and tied to form fields
 - [ ] No accessibility warnings in axe-core or Lighthouse
 
 ### Infrastructure
@@ -64,13 +62,13 @@ Ship with confidence. The goal is not just to deploy — it's to deploy safely, 
 - [ ] DNS and SSL configured
 - [ ] CDN configured for static assets
 - [ ] Logging and error reporting configured
-- [ ] Health check endpoint exists and responds
+- [ ] Health check endpoint responds
 
 ### Documentation
 
-- [ ] README updated with any new setup requirements
+- [ ] README updated with new setup requirements
 - [ ] API documentation current
-- [ ] ADRs written for any architectural decisions
+- [ ] ADRs written for architectural decisions
 - [ ] Changelog updated
 - [ ] User-facing documentation updated (if applicable)
 
@@ -91,20 +89,10 @@ if (flags.taskSharing) {
 return null;
 ```
 
-**Feature flag lifecycle:**
-
-```
-1. DEPLOY with flag OFF     → Code is in production but inactive
-2. ENABLE for team/beta     → Internal testing in production environment
-3. GRADUAL ROLLOUT          → 5% → 25% → 50% → 100% of users
-4. MONITOR at each stage    → Watch error rates, performance, user feedback
-5. CLEAN UP                 → Remove flag and dead code path after full rollout
-```
-
 **Rules:**
-- Every feature flag has an owner and an expiration date
-- Clean up flags within 2 weeks of full rollout
-- Don't nest feature flags (creates exponential combinations)
+- Every feature flag has owner and expiration date
+- Clean up flags (remove flag and dead code path) within 2 weeks of full rollout
+- Don't nest feature flags (combinations grow exponentially)
 - Test both flag states (on and off) in CI
 
 ## Staged Rollout
@@ -141,7 +129,7 @@ return null;
 
 ### Rollout Decision Thresholds
 
-Use these thresholds to decide whether to advance, hold, or roll back at each stage:
+At each stage, use these thresholds to advance, hold or roll back:
 
 | Metric | Advance (green) | Hold and investigate (yellow) | Roll back (red) |
 |--------|-----------------|-------------------------------|-----------------|
@@ -153,8 +141,8 @@ Use these thresholds to decide whether to advance, hold, or roll back at each st
 ### When to Roll Back
 
 Roll back immediately if:
-- Error rate increases by more than 2x baseline
-- P95 latency increases by more than 50%
+- Error rate above 2x baseline
+- P95 latency up more than 50%
 - User-reported issues spike
 - Data integrity issues detected
 - Security vulnerability discovered
@@ -233,7 +221,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 ### Post-Launch Verification
 
-In the first hour after launch:
+First hour after launch:
 
 ```
 1. Check health endpoint returns 200
@@ -246,7 +234,7 @@ In the first hour after launch:
 
 ## Error Budget Release Gate
 
-Your service's error budget — the fraction of requests or time your SLO allows to fail — determines whether it's safe to ship. Use it as an objective gate — not a negotiation:
+Error budget (fraction of requests or time SLO allows to fail) decides if shipping is safe. Objective gate, not negotiation:
 
 ```
 Budget remaining > 20%  →  Ship normally; monitor closely
@@ -255,11 +243,11 @@ Budget exhausted        →  Freeze feature work; focus entirely on reliability
 Budget resets           →  Resume normal pace; bake in the fix that recovered it
 ```
 
-A high burn rate during a canary (consuming budget faster than the baseline pace) is a **hold** signal in the rollout thresholds table above — treat it the same as an elevated error rate.
+Treat high burn rate during canary (budget consumed faster than baseline pace) as **hold** signal, same as elevated error rate in rollout thresholds table above.
 
 ## Rollback Strategy
 
-Every deployment needs a rollback plan before it happens:
+Write rollback plan before every deployment:
 
 ```markdown
 ## Rollback Plan for [Feature/Release]
@@ -272,7 +260,7 @@ Every deployment needs a rollback plan before it happens:
 ### Rollback Steps
 1. Disable feature flag (if applicable)
    OR
-1. Deploy previous version: `git revert <commit> && git push`
+1. Deploy previous version: `git revert <commit>`, ship via normal PR/protected-branch flow
 2. Verify rollback: health check, error monitoring
 3. Communicate: notify team of rollback
 
@@ -294,23 +282,16 @@ Every deployment needs a rollback plan before it happens:
 
 | Rationalization | Reality |
 |---|---|
-| "It works in staging, it'll work in production" | Production has different data, traffic patterns, and edge cases. Monitor after deploy. |
-| "We don't need feature flags for this" | Every feature benefits from a kill switch. Even "simple" changes can break things. |
-| "Monitoring is overhead" | Not having monitoring means you discover problems from user complaints instead of dashboards. |
-| "We'll add monitoring later" | Add it before launch. You can't debug what you can't see. |
-| "Rolling back is admitting failure" | Rolling back is responsible engineering. Shipping a broken feature is the failure. |
-| "The error rate looks fine, let's keep shipping" | Check the burn rate, not just the current error rate. Consuming budget faster than baseline is a hold signal even when individual thresholds are green. |
+| "It works in staging, it'll work in production" | Production differs in data, traffic patterns, edge cases. Monitor after deploy. |
+| "We don't need feature flags for this" | Every feature benefits from kill switch. Even "simple" changes can break things. |
+| "We'll add monitoring later" | Add before launch. Can't debug what you can't see. |
+| "Rolling back is admitting failure" | Rolling back is responsible engineering. Shipping broken feature is the failure. |
+| "The error rate looks fine, let's keep shipping" | Check burn rate, not only current error rate. Budget burning faster than baseline means hold, even when individual thresholds are green. |
 
 ## Red Flags
 
-- Deploying without a rollback plan
-- No monitoring or error reporting in production
-- Big-bang releases (everything at once, no staging)
-- Feature flags with no expiration or owner
-- No one monitoring the deploy for the first hour
-- Production environment configuration done by memory, not code
+- Production environment configured from memory, not code
 - "It's Friday afternoon, let's ship it"
-- Error budget exhausted but feature work continues unchanged
 
 ## Verification
 
@@ -325,12 +306,12 @@ Before deploying:
 After deploying:
 
 - [ ] Health check returns 200
-- [ ] Error rate is normal
-- [ ] Latency is normal
+- [ ] Error rate normal
+- [ ] Latency normal
 - [ ] Critical user flow works
-- [ ] Logs are flowing
+- [ ] Logs flowing
 - [ ] Rollback tested or verified ready
 
 For every shipped service:
 
-- [ ] Error budget policy in place: know what action to take when budget drops below 20% and when it's exhausted
+- [ ] Error budget policy in place: actions defined for budget below 20% and for exhausted budget

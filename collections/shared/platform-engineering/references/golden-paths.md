@@ -13,24 +13,24 @@
 
 ### The 80/20 Rule
 
-Golden paths should cover 80% of use cases while providing clear escape hatches for the remaining 20%.
+Golden paths cover 80% of use cases, with clear escape hatches for remaining 20%.
 
 **Key Principles:**
-- **Opinionated but flexible**: Make strong recommendations, allow overrides
-- **Security by default**: Bake in security best practices (RBAC, network policies, scanning)
-- **Observable from day one**: Include metrics, logging, tracing instrumentation
-- **Production-ready**: Include all necessary configs (health checks, resource limits, monitoring)
-- **Self-documenting**: Clear README, inline comments, architecture diagrams
-- **Version-controlled**: Templates evolve, provide migration paths
+- **Opinionated but flexible**: strong recommendations, allow overrides
+- **Security by default**: bake in security best practices (RBAC, network policies, scanning)
+- **Observable from day one**: metrics, logging, tracing instrumentation
+- **Production-ready**: all needed configs (health checks, resource limits, monitoring)
+- **Self-documenting**: clear README, inline comments, architecture diagrams
+- **Version-controlled**: templates evolve; provide migration paths
 
 ### Template Anatomy
 
 Every golden path template should include:
 
-1. **Application Code**: Framework setup, boilerplate, example endpoints
+1. **Application Code**: framework setup, boilerplate, example endpoints
 2. **Infrastructure as Code**: Kubernetes manifests, Terraform modules
-3. **CI/CD Pipeline**: Build, test, deploy automation
-4. **Observability**: Metrics exporters, structured logging, tracing setup
+3. **CI/CD Pipeline**: build, test, deploy automation
+4. **Observability**: metrics exporters, structured logging, tracing setup
 5. **Security**: RBAC, network policies, secret references, scanning config
 6. **Documentation**: README, runbooks, architecture diagrams
 
@@ -41,6 +41,7 @@ Every golden path template should include:
 - Resource limits (CPU, memory)
 - Security scanning (SAST, container scanning)
 - Logging to stdout/stderr (structured JSON)
+- Immutable image tags or digests (never `:latest`); non-root (numeric `USER`), no privilege escalation, read-only root FS
 
 **Recommended (Soft Constraints):**
 - Approved frameworks (Node.js, Python, Go preferred)
@@ -56,7 +57,7 @@ Every golden path template should include:
 
 ### Use Case
 
-Web application with backend API, database, and frontend (SPA or SSR).
+Web app with backend API, database, frontend (SPA or SSR).
 
 ### Technology Stack
 
@@ -144,7 +145,7 @@ const app = express();
 
 // Security
 app.use(helmet());
-app.use(cors());
+app.use(cors({ origin: (process.env.ALLOWED_ORIGINS ?? '').split(',').filter(Boolean) })); // allowlist; unset = no cross-origin
 
 // Metrics (Prometheus)
 const metricsMiddleware = promBundle({
@@ -197,7 +198,11 @@ spec:
     spec:
       containers:
       - name: backend
-        image: my-registry/my-web-app-backend:latest
+        image: my-registry/my-web-app-backend:1.0.0  # immutable tag or @sha256 digest
+        securityContext:
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
         ports:
         - containerPort: 3000
           name: http
@@ -531,7 +536,11 @@ spec:
         spec:
           containers:
           - name: job
-            image: my-registry/my-job:latest
+            image: my-registry/my-job:1.0.0  # immutable tag or @sha256 digest
+            securityContext:
+              runAsNonRoot: true
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
             env:
             - name: JOB_TYPE
               value: "daily-cleanup"

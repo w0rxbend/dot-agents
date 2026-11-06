@@ -1,7 +1,5 @@
 # Cost Optimization
 
-Strategies for reducing cloud network infrastructure costs.
-
 ## Common Cost Drivers
 
 ### 1. NAT Gateway
@@ -9,8 +7,8 @@ Strategies for reducing cloud network infrastructure costs.
 - **Annual (3 AZs):** ~$1,150 (base) + data processing
 
 **Optimization:**
-- Use VPC Endpoints for AWS services (S3, DynamoDB)
-- Single NAT Gateway for dev/test (accept availability risk)
+- VPC Endpoints for AWS services (S3, DynamoDB)
+- Single NAT Gateway for dev/test (accepts availability risk)
 - Centralized egress VPC pattern
 
 ### 2. Transit Gateway
@@ -18,9 +16,9 @@ Strategies for reducing cloud network infrastructure costs.
 - **Annual (5 VPCs):** ~$2,190 (base) + data transfer
 
 **Optimization:**
-- Use VPC Peering for small number of VPCs (< 5)
+- VPC Peering for few VPCs (< 5)
 - Direct peering for latency-sensitive pairs
-- Avoid unnecessary Transit Gateway attachments
+- Avoid unneeded Transit Gateway attachments
 
 ### 3. Data Transfer
 - **Egress Costs:** Vary by destination
@@ -29,8 +27,8 @@ Strategies for reducing cloud network infrastructure costs.
   - To internet: $0.09/GB
 
 **Optimization:**
-- Keep traffic within same region
-- Use VPC Endpoints instead of public internet
+- Keep traffic in same region
+- VPC Endpoints instead of public internet
 - Private connectivity for high-volume transfers
 
 ### 4. VPN / Direct Connect
@@ -58,9 +56,6 @@ Strategies for reducing cloud network infrastructure costs.
 
 ## Optimization Checklist
 
-- [ ] Use VPC Endpoints for AWS services
 - [ ] Right-size NAT Gateways (dev: single, prod: per AZ)
-- [ ] Minimize cross-region traffic
-- [ ] Use Transit Gateway only when needed (5+ VPCs)
 - [ ] Monitor and alert on data transfer costs
-- [ ] Review and remove unused resources monthly
+- [ ] Remove unused resources monthly

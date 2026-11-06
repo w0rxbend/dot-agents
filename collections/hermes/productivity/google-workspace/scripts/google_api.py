@@ -36,7 +36,7 @@ _SCRIPTS_DIR = str(Path(__file__).resolve().parent)
 if _SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, _SCRIPTS_DIR)
 
-from _hermes_home import get_hermes_home
+from _hermes_home import get_hermes_home, write_private
 
 HERMES_HOME = get_hermes_home()
 TOKEN_PATH = HERMES_HOME / "google_token.json"
@@ -252,11 +252,11 @@ def get_credentials():
     creds = Credentials.from_authorized_user_file(str(TOKEN_PATH), _stored_token_scopes())
     if creds.expired and creds.refresh_token:
         creds.refresh(Request())
-        TOKEN_PATH.write_text(
+        write_private(TOKEN_PATH,
             json.dumps(
                 _normalize_authorized_user_payload(json.loads(creds.to_json())),
                 indent=2,
-            ), encoding="utf-8"
+            )
         )
     if not creds.valid:
         print("Token is invalid. Re-run setup.", file=sys.stderr)
@@ -724,7 +724,12 @@ def drive_download(args):
         "application/vnd.google-apps.drawing": ("image/png", ".png"),
     }
 
-    out_path = Path(args.output).expanduser() if args.output else Path.cwd() / name
+    # Drive names are set by whoever shared the file and may contain "/" or "..":
+    # keep only the basename so the default path stays in cwd.
+    safe_name = Path(name.replace("\\", "/")).name
+    if safe_name in ("", ".", ".."):
+        safe_name = Path(args.file_id).name or "download"
+    out_path = Path(args.output).expanduser() if args.output else Path.cwd() / safe_name
 
     if mime in native_export_map:
         export_mime = args.export_mime or native_export_map[mime][0]
@@ -736,7 +741,12 @@ def drive_download(args):
         request = service.files().get_media(fileId=args.file_id)
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fh = io.FileIO(str(out_path), "wb")
+    try:
+        # Default path never overwrites an existing file; --output is explicit.
+        fh = io.FileIO(str(out_path), "wb" if args.output else "xb")
+    except FileExistsError:
+        print(f"ERROR: {out_path} already exists; pass --output to choose a path.", file=sys.stderr)
+        sys.exit(1)
     downloader = MediaIoBaseDownload(fh, request)
     done = False
     while not done:

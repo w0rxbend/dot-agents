@@ -10,7 +10,7 @@
 > ```html
 > <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
 > ```
-> Use `write_file` to create HTML, preview it locally (open the file or run `python3 -m http.server`).
+> Use `write_file` to create HTML, preview it locally (open the file or run `python3 -m http.server 8000 --bind 127.0.0.1 --directory <output-dir>`).
 > Verify visual accuracy with `browser_vision` after generating.
 
 ## 1. Visual Theme & Atmosphere

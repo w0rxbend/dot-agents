@@ -5,21 +5,15 @@ description: "Implement SOC 2, HIPAA, PCI-DSS and GDPR technical controls with a
 
 # Compliance Frameworks
 
-Implement continuous compliance with major regulatory frameworks through unified control mapping, policy-as-code enforcement, and automated evidence collection.
-
-## Purpose
-
-Modern compliance is a continuous engineering discipline requiring technical implementation of security controls. This skill provides patterns for SOC 2 Type II, HIPAA, PCI-DSS 4.0, and GDPR compliance using infrastructure-as-code, policy automation, and evidence collection. Focus on unified controls that satisfy multiple frameworks simultaneously to reduce implementation effort by 60-80%.
-
 ## When to Use
 
 Invoke when:
-- Building SaaS products requiring SOC 2 Type II for enterprise sales
-- Handling healthcare data (PHI) requiring HIPAA compliance
-- Processing payment cards requiring PCI-DSS validation
-- Serving EU residents and processing personal data under GDPR
-- Implementing security controls that satisfy multiple compliance frameworks
-- Automating compliance evidence collection and audit preparation
+- SaaS products needing SOC 2 Type II for enterprise sales
+- Healthcare data (PHI) under HIPAA
+- Payment card processing needing PCI-DSS validation
+- EU residents' personal data under GDPR
+- Security controls spanning several compliance frameworks
+- Automating evidence collection and audit preparation
 - Enforcing compliance policies in CI/CD pipelines
 
 ## Framework Selection
@@ -30,7 +24,7 @@ Invoke when:
 - Audience: SaaS vendors, cloud service providers
 - When required: Enterprise B2B sales, handling customer data
 - Timeline: 6-12 month observation period
-- No fixed testing cadence or breach-notification deadline in the Trust Services Criteria; auditors and customer contracts set those expectations (often a defined notification window such as 72 hours)
+- Trust Services Criteria fix no testing cadence or breach-notification deadline. Auditors and customer contracts set them (often a notification window such as 72 hours)
 
 **ISO 27001**
 - Audience: Global enterprises
@@ -42,12 +36,12 @@ Invoke when:
 **HIPAA (Healthcare)**
 - Audience: Healthcare providers, health tech handling PHI
 - When required: Processing Protected Health Information
-- Security Rule changes were proposed in 2025 (stricter MFA, encryption, asset inventory); check the current status before treating them as mandatory
+- Security Rule changes proposed in 2025 (stricter MFA, encryption, asset inventory). Check current status before treating them as mandatory
 
 **PCI-DSS 4.0 (Payment Card Industry)**
 - Audience: Merchants, payment processors
 - When required: Processing, storing, transmitting cardholder data
-- Future-dated v4.0 requirements became mandatory after March 31, 2025
+- Future-dated v4.0 requirements mandatory after March 31, 2025
 - Key changes: Client-side security, 12-char passwords, enhanced MFA
 
 ### Tier 3: Privacy Regulations
@@ -55,19 +49,19 @@ Invoke when:
 **GDPR (EU Privacy)**
 - Audience: Organizations processing EU residents' data
 - When required: EU customers/users (extraterritorial)
-- Breach notice to the supervisory authority within 72 hours (Art. 33); fines up to EUR 20M or 4% of global annual turnover (Art. 83)
+- Breach notice to supervisory authority within 72 hours (Art. 33). Fines up to EUR 20M or 4% of global annual turnover (Art. 83)
 
 **CCPA/CPRA (California Privacy)**
 - Audience: Businesses serving California residents
 - When required: Revenue >$25M, or 100K+ CA residents, or 50%+ revenue from data sales
 
-For detailed framework requirements, see [references/soc2-controls.md](references/soc2-controls.md), [references/hipaa-safeguards.md](references/hipaa-safeguards.md), [references/pci-dss-requirements.md](references/pci-dss-requirements.md), and [references/gdpr-articles.md](references/gdpr-articles.md).
+Framework requirement details: [references/soc2-controls.md](references/soc2-controls.md), [references/hipaa-safeguards.md](references/hipaa-safeguards.md), [references/pci-dss-requirements.md](references/pci-dss-requirements.md), [references/gdpr-articles.md](references/gdpr-articles.md).
 
 ## Universal Control Implementation
 
 ### Unified Control Strategy
 
-Implement controls once, map to multiple frameworks. Reduces effort by 60-80%.
+Implement controls once with proper tagging, map to all applicable frameworks. Cuts effort by 60-80%.
 
 **Implementation Priority:**
 1. **Encryption** (ENC-001, ENC-002): AES-256 at rest, TLS 1.3 in transit
@@ -79,20 +73,20 @@ Implement controls once, map to multiple frameworks. Reduces effort by 60-80%.
 ### Control Categories
 
 **Identity & Access:**
-- Multi-factor authentication for privileged access
-- Role-based access control with least privilege
+- MFA for privileged access
+- RBAC with least privilege
 - Quarterly access reviews
 - Password policy: 12+ characters, complexity
 
 **Data Protection:**
 - Encryption: AES-256 (rest), TLS 1.3 (transit)
 - Data classification and tagging
-- Retention policies aligned with regulations
+- Retention policies matching regulations
 - Data minimization
 
 **Logging & Monitoring:**
 - Centralized audit logging (all auth and data access)
-- Retention per framework minimum: PCI-DSS 12 months (3 months immediately available, Req 10.5.1); HIPAA keeps required documentation 6 years (§164.316(b)(2)); SOC 2 and ISO 27001 set no fixed period (your policy, covering the audit period); GDPR storage limitation (Art. 5(1)(e)) means minimizing or pseudonymizing personal data in long-lived logs. See the `audit-logging` skill, which is the authority on retention
+- Retention per framework minimum: PCI-DSS 12 months (3 months immediately available, Req 10.5.1); HIPAA required documentation 6 years (§164.316(b)(2)); SOC 2 and ISO 27001 no fixed period (own policy, covering audit period); GDPR storage limitation (Art. 5(1)(e)): minimize or pseudonymize personal data in long-lived logs. `audit-logging` skill is retention authority
 - Immutable storage (S3 Object Lock)
 - Real-time alerting
 
@@ -105,20 +99,15 @@ Implement controls once, map to multiple frameworks. Reduces effort by 60-80%.
 **Incident Response:**
 - Documented incident response plan
 - Automated detection and alerting
-- Breach notification: HIPAA without unreasonable delay and within 60 days; GDPR 72h to the supervisory authority; SOC 2 per contract/policy; PCI-DSS immediately to the acquirer and card brands
 
 **Business Continuity:**
 - Automated backups with defined RPO/RTO
 - Multi-region disaster recovery
 - Regular failover testing
 
-For complete control implementations, see [references/control-mapping-matrix.md](references/control-mapping-matrix.md).
-
 ## Compliance as Code
 
 ### Policy Enforcement with OPA
-
-Enforce compliance policies in CI/CD before infrastructure deployment.
 
 **Architecture:**
 ```
@@ -127,14 +116,11 @@ Git Push → Terraform Plan → JSON → OPA Evaluation
                                     └─► Fail → Block
 ```
 
-**Example: Encryption Policy**
-
-Enforce encryption requirements (SOC 2 CC6.1, HIPAA §164.312(a)(2)(iv), PCI-DSS Req 3.4):
-
-See examples/opa-policies/encryption.rego for complete implementation.
+**Example: Encryption Policy** (SOC 2 CC6.1, HIPAA §164.312(a)(2)(iv), PCI-DSS Req 3.4): examples/opa-policies/encryption.rego.
 
 **CI/CD Integration:**
 ```bash
+export CHECKPOINT_DISABLE=1  # no Terraform update check (OS/version/install ID) to HashiCorp
 terraform plan -out=tfplan.binary
 terraform show -json tfplan.binary > tfplan.json
 # Fails the job (exit 1) if any compliance.* package produces a deny message
@@ -143,11 +129,9 @@ opa eval --data policies/ --input tfplan.json --fail-defined 'data.compliance[_]
 opa eval --data policies/ --input tfplan.json --format raw '[m | m := data.compliance[_].deny[_]]'
 ```
 
-The example policies use Rego v1 syntax (`deny contains msg if { ... }`), which OPA 1.0+ requires by default.
+Example policies use Rego v1 syntax (`deny contains msg if { ... }`), which OPA 1.0+ requires by default.
 
 ### Static Analysis with Checkov
-
-Scan IaC with built-in compliance framework support:
 
 ```bash
 # Run all built-in checks; keep machine-readable output as audit evidence
@@ -157,11 +141,9 @@ checkov -d ./terraform -o json > reports/checkov.json
 checkov -d ./terraform --check CKV_AWS_19,CKV_AWS_145
 ```
 
-`--check` takes check IDs; maintain your own control-to-check-ID mapping (Checkov's framework mappings require the commercial platform). Write organization-specific rules as custom Checkov policies or as OPA policies (see `examples/opa-policies/`).
+`--check` takes check IDs. Keep own control-to-check-ID mapping (Checkov framework mappings need commercial platform). Write organization-specific rules as custom Checkov or OPA policies (see `examples/opa-policies/`).
 
 ### Automated Testing
-
-Integrate compliance validation into test suites:
 
 ```python
 def test_s3_encrypted(terraform_plan):
@@ -207,7 +189,7 @@ resource "aws_db_instance" "main" {
 }
 ```
 
-For complete encryption implementations including Azure and GCP, see [references/encryption-implementations.md](references/encryption-implementations.md).
+Full encryption implementations, Azure and GCP included: [references/encryption-implementations.md](references/encryption-implementations.md).
 
 ### Encryption in Transit
 
@@ -242,7 +224,7 @@ resource "aws_iam_policy" "require_mfa" {
 }
 ```
 
-For application-level MFA (TOTP), see examples/mfa-implementation.py.
+Application-level MFA (TOTP): examples/mfa-implementation.py.
 
 ### Role-Based Access Control
 
@@ -261,10 +243,11 @@ rules:
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 - apiGroups: [""]
   resources: ["secrets"]
-  verbs: ["get", "list"]  # Read-only
+  resourceNames: ["app-config"]  # named secrets only
+  verbs: ["get"]  # list/watch return every secret's value
 ```
 
-For OPA access-control policies, see examples/opa-policies/access_control.rego.
+OPA access-control policies: examples/opa-policies/access_control.rego.
 
 ### Audit Logging
 
@@ -309,13 +292,11 @@ resource "aws_s3_bucket_object_lock_configuration" "audit" {
 }
 ```
 
-For audit-event taxonomy, shipping, SIEM integration and per-framework retention, use the `audit-logging` skill.
+Audit-event taxonomy, shipping, SIEM integration and per-framework retention: `audit-logging` skill.
 
 ## Evidence Collection Automation
 
 ### Continuous Monitoring
-
-Automate evidence collection for continuous compliance validation.
 
 **Architecture:**
 ```
@@ -339,11 +320,9 @@ class EvidenceCollector:
         return evidence
 ```
 
-For complete evidence collector, see examples/evidence-collection/evidence_collector.py.
+Full evidence collector: examples/evidence-collection/evidence_collector.py.
 
 ### Audit Report Generation
-
-Generate compliance reports automatically:
 
 ```python
 class AuditReportGenerator:
@@ -357,11 +336,9 @@ class AuditReportGenerator:
         }
 ```
 
-For complete report generator, see examples/evidence-collection/report_generator.py.
+Full report generator: examples/evidence-collection/report_generator.py.
 
 ## Control Mapping Matrix
-
-Unified control mapping across frameworks:
 
 | Control | SOC 2 | HIPAA | PCI-DSS | GDPR | ISO 27001 |
 |---------|-------|-------|---------|------|-----------|
@@ -373,18 +350,16 @@ Unified control mapping across frameworks:
 | Vulnerability Scanning | CC7.1 | §164.308(a)(8) | Req 11.2 | Art 32 | A.12.6.1 |
 | Incident Response | CC7.3 | §164.308(a)(6) | Req 12.10 | Art 33 | A.16.1.1 |
 
-**Strategy:** Implement once with proper tagging, map to all applicable frameworks.
-
-For complete control mapping with 45+ controls, see [references/control-mapping-matrix.md](references/control-mapping-matrix.md).
+Full control mapping with 45+ controls: [references/control-mapping-matrix.md](references/control-mapping-matrix.md).
 
 ## Breach Notification Requirements
 
 **Framework-Specific Timelines:**
-- HIPAA: affected individuals without unreasonable delay and no later than 60 days after discovery; HHS within 60 days if 500+ individuals are affected (smaller breaches: annual log to HHS)
-- GDPR: 72 hours to the supervisory authority (Art. 33); affected individuals without undue delay when the risk is high (Art. 34)
-- SOC 2: no regulatory deadline; follow customer contracts and your own policy
-- PCI-DSS: immediately to the acquirer and card brands, per their rules
-- US state breach laws and sector rules add their own deadlines; confirm with counsel
+- HIPAA: affected individuals without unreasonable delay, no later than 60 days after discovery. HHS within 60 days if 500+ individuals affected (smaller breaches: annual log to HHS)
+- GDPR: 72 hours to supervisory authority (Art. 33). Affected individuals without undue delay when risk is high (Art. 34)
+- SOC 2: no regulatory deadline. Follow customer contracts and your own policy
+- PCI-DSS: immediately to acquirer and card brands, per their rules
+- US state breach laws and sector rules add own deadlines. Confirm with counsel
 
 **Required Elements:**
 - Description of incident and data involved
@@ -393,7 +368,7 @@ For complete control mapping with 45+ controls, see [references/control-mapping-
 - Contact information for questions
 - Remediation actions and timeline
 
-For incident response process and postmortems, use the `managing-incidents` skill.
+Incident response process and postmortems: `managing-incidents` skill.
 
 ## Vendor Management
 
@@ -416,20 +391,18 @@ For incident response process and postmortems, use the `managing-incidents` skil
 4. SOC 2 report collection (≤90 days old)
 5. Annual re-assessment
 
-
 ## Tools & Libraries
 
 **Policy as Code:**
 - Open Policy Agent (OPA): General-purpose policy engine
 - Checkov: IaC security scanning with compliance frameworks
 - tfsec: Terraform security scanner
-- Trivy: Container and IaC scanner
+- Trivy: Container and IaC scanner. Sends usage telemetry by default: set `TRIVY_DISABLE_TELEMETRY=true TRIVY_SKIP_VERSION_CHECK=true` wherever it runs, CI too
 
 **Compliance Automation:**
 - AWS Config: AWS resource compliance monitoring
 - Cloud Custodian: Multi-cloud compliance automation
 - Drata/Vanta/Secureframe: Continuous compliance platforms
-
 
 ## Integration with Other Skills
 
@@ -459,29 +432,9 @@ For incident response process and postmortems, use the `managing-incidents` skil
 - [ ] Perform annual risk assessments
 
 **Common Mistakes:**
-- Treating compliance as one-time project vs continuous process
-- Implementing per-framework vs unified controls
-- Manual evidence collection vs automation
-- Log retention below a framework minimum (e.g. under 12 months for PCI-DSS), or keeping personal data in logs longer than needed (GDPR)
+- Compliance as one-time project vs continuous process
 - Missing MFA enforcement
 - Not encrypting backups/logs
 - Inadequate vendor due diligence
-
-## References
-
-**Framework Details:**
-- [references/soc2-controls.md](references/soc2-controls.md) - SOC 2 TSC control catalog
-- [references/hipaa-safeguards.md](references/hipaa-safeguards.md) - HIPAA safeguards
-- [references/pci-dss-requirements.md](references/pci-dss-requirements.md) - PCI-DSS 4.0 requirements
-- [references/gdpr-articles.md](references/gdpr-articles.md) - GDPR key articles
-
-**Implementation Patterns:**
-- [references/control-mapping-matrix.md](references/control-mapping-matrix.md) - Unified control mapping
-- [references/encryption-implementations.md](references/encryption-implementations.md) - Encryption patterns
-
-**Code Examples:**
-- examples/opa-policies/ - OPA policy examples
-- examples/evidence-collection/ - Evidence automation
-- examples/mfa-implementation.py - TOTP MFA implementation
 
 Consult qualified legal counsel and auditors for legal interpretation and audit preparation.

@@ -14,88 +14,83 @@ source_repo: WHOISABHISHEKADHIKARI/sme-ops-system-builder
 
 # Cloud and Observability Planning
 
-**What it is:** the plan for what the business runs on, what it watches, what wakes
-someone up, and what that costs - written before any of it is bought.
-
 ## Overview
 
-Works out the smallest monitoring plan that would actually catch this business's worst
-failure, then builds it only when asked. The default output is a short recommendation, not
-a service register. The register - CSV, SQL DDL, JSON Schema, Notion mapping - is produced
-on request, from one field list so the four cannot drift apart.
+Finds smallest monitoring plan that would catch business's worst failure; builds it only
+when asked. Default output: short recommendation, not service register. Register (CSV, SQL
+DDL, JSON Schema, Notion mapping) only on request, from one field list so the four cannot
+drift apart.
 
-**The rule this table exists to enforce:** an alert is a human cost, so `Alert Channel` and
-`Severity` decide whether a person is woken at 3am. Everything else in this table exists to
-make that decision possible: what the service does (`SLI Definition`), what good looks like
-(`SLO Target`), what is measured (`Dashboard URL`), what it costs (`Monthly Cost Estimate`),
-and - the field most tables leave out - what happens when the alert fires (`Runbook URL`).
-An alert with no runbook converts a technical problem into a panicked one.
+**The rule this table exists to enforce:** alert is human cost, so `Alert Channel` and
+`Severity` decide whether person is woken at 3am. Other fields make that decision possible:
+what service does (`SLI Definition`), what good looks like (`SLO Target`), what is measured
+(`Dashboard URL`), what it costs (`Monthly Cost Estimate`), and what happens when alert
+fires (`Runbook URL`), the field most tables omit.
 
-**The second rule:** `Phase` is the field that keeps this affordable. Phase 1 holds only the
-few signals whose failure would hurt the business most; everything else waits for phase 2 or
-3, so a ten-service stack does not turn into forty alerts on day one. A
-business with no developer should be running a managed platform and three alerts, not a
-stack of collectors.
+**The second rule:** `Phase` keeps this affordable. Phase 1 holds only the few signals
+whose failure hurts business most. Rest waits for phase 2 or 3, so ten-service stack does
+not become forty alerts on day one. Business with no developer should run managed platform
+and three alerts, not collector stack.
 
 ## When to Use This Skill
 
-- A small business asks "what should we watch", "how do we know the site is down", or "we found out from a customer"
-- Choosing between managed hosting, a VPS, containers or serverless at SME scale, with cost in view
-- Deciding which few alerts should reach a person, who owns them, and what each costs
-- Writing down SLO targets and a monthly monitoring/cloud budget before buying tools
-- Producing a service/monitoring register (CSV, SQL DDL, JSON Schema, Notion mapping) on request
+- Small business asks "what should we watch", "how do we know the site is down", or "we found out from a customer"
+- Choosing managed hosting, VPS, containers or serverless at SME scale, with cost in view
+- Deciding which few alerts reach a person, who owns them, what each costs
+- Writing SLO targets and monthly monitoring/cloud budget before buying tools
+- Producing service/monitoring register (CSV, SQL DDL, JSON Schema, Notion mapping) on request
 
-Do not use it for: writing instrumentation or application code (`observability-and-instrumentation`),
-deploying a monitoring stack (`implementing-observability`), CI/CD pipelines (`building-ci-pipelines`),
-security architecture (`architecting-security`), designing an incident-response process or postmortems
-(`managing-incidents`), or a live outage, which needs action now, not a plan.
+Do not use for: writing instrumentation or application code (`observability-and-instrumentation`),
+deploying monitoring stack (`implementing-observability`), CI/CD pipelines (`building-ci-pipelines`),
+security architecture (`architecting-security`), designing incident-response process or postmortems
+(`managing-incidents`), or live outage, which needs action now, not plan.
 
 ## How It Works
 
-Ask one question per message, never hold or invent real data, and build artifacts only when the user asks. The rules below define the domain fields, decisions and safety constraints.
+Never hold or invent real data.
 
 ### Step 1 - Identify intent
 
-Read the request and pick the intent before asking anything.
+Read request, pick intent before asking anything.
 
 - "plan" / "set up" / "we need" -> artifacts wanted; go to Step 2.
-- "the site is down" / "is it down" / "we are down" -> an incident, right now. Confirm the
-  user-facing failure first and point at the runbook; do not build anything.
-- "what does this cost" / "review" / "audit" -> a review, not a build.
-- "should we use" -> a decision question; answer with trade-offs, then offer the register.
+- "the site is down" / "is it down" / "we are down" -> incident, right now. Confirm
+  user-facing failure first and point at runbook. Do not build anything.
+- "what does this cost" / "review" / "audit" -> review, not build.
+- "should we use" -> decision question. Answer with trade-offs, then offer register.
 
-Ask only if this is the highest-value missing fact; otherwise proceed without an opener:
+Ask only if this is highest-value missing fact; otherwise proceed without opener:
 
 > **Q:** What breaks for the business if the site or app is down for one hour, and who
 > would notice first - a customer, a member of staff, or an automated system?
 
 ### Step 2 - Ask only what is missing
 
-Treat ambiguous replies as unanswered and ask which explicit option the user means. Record unknown values as `Unknown` in text fields and leave numeric fields (`Monthly Cost Estimate`) blank/NULL; unknown is not zero. A record must not be `Done` when a required check fails.
+Treat ambiguous replies as unanswered; ask which explicit option user means. Text fields:
+record unknown as `Unknown`. Numeric fields (`Monthly Cost Estimate`): leave blank/NULL;
+unknown is not zero. Record must not be `Done` when required check fails.
 
-Skip anything already answered. Ask the rest one at a time, and stop as soon as the
-remaining answers would not change the plan.
+Skip anything already answered. Ask rest one at a time. Stop once remaining answers would
+not change plan.
 
-- **Failure** - What is the business-critical thing - the website, the booking form, the
-  till, email, the file uploads? / What is the worst realistic failure - down, slow, wrong
-  data, or an email that silently stops arriving? / How long is a customer willing to wait
-  before they complain, and how long before they leave?
-- **Stack** - What is actually running today - shared hosting, a VPS, a managed platform, a
-  SaaS tool, containers? / Who set it up, and is that person still available? / Is there a
+- **Failure** - What is business-critical: website, booking form, till, email, file
+  uploads? / Worst realistic failure: down, slow, wrong data, or email that silently stops
+  arriving? / How long will customer wait before complaining, and before leaving?
+- **Stack** - What runs today: shared hosting, VPS, managed platform, SaaS tool,
+  containers? / Who set it up, and is that person still available? / Is there a
   repository, and who can deploy?
-- **Traffic** - Roughly how many visitors, orders or jobs a day? / Any seasonal or campaign
-  peaks that change it by an order of magnitude? / Are there peak periods where being slow
-  is worse than being down?
-- **People** - Is there anyone who can be on call, and at what hours? / Does someone already
-  use a tool the business pays for? / Who is allowed to restart something at 3am?
-- **Data and money** - What must not be lost, and what is the acceptable recovery point? /
-  What is the current monthly spend, roughly, and the budget ceiling? / Does anything
-  process a payment, personal data, or health data?
+- **Traffic** - Roughly how many visitors, orders or jobs a day? / Seasonal or campaign
+  peaks that change it by an order of magnitude? / Peak periods where slow is worse than
+  down?
+- **People** - Anyone who can be on call, and at what hours? / Does someone already use a
+  tool the business pays for? / Who may restart something at 3am?
+- **Data and money** - What must not be lost, and what is acceptable recovery point? /
+  Rough current monthly spend, and budget ceiling? / Does anything process payment,
+  personal data, or health data?
 
 Never invent an answer. Traffic numbers, costs, hostnames, provider names, service
-identifiers, error rates, uptime figures and recovery times the user has not supplied are
-`Unknown`. A monitoring plan built on invented traffic or invented spend is worthless, and
-invented SLOs are worse - they create an alert nobody can satisfy.
+identifiers, error rates, uptime figures and recovery times user has not supplied are
+`Unknown`.
 
 ### Step 3 - Hold the internal context
 
@@ -116,22 +111,15 @@ open_questions: []
 
 ### Step 4 - Recommend the smallest workflow
 
-Build an already requested artifact without asking again. For advice-only requests, give a short recommendation and offer the relevant artifact.
+Build already requested artifact without asking again. Advice-only request: give short
+recommendation, offer relevant artifact.
 
-**Recommended approach:** Start with the one thing whose failure stops the business earning -
-usually the checkout or the booking form - and watch exactly that from outside the
-infrastructure, so the check does not fail with the thing it is checking. Three signals and
-no more: is it reachable, is it answering within a target time, and is the thing that
-transacts money or data actually succeeding. One alert channel that reaches a human, a
-runbook for each alert, and a named owner. Everything else - traces, log aggregation, five
-custom dashboards, a status page - goes in a later phase once the first phase has proven
-someone reads it.
-
-**Why this one:** The failure mode of observability is not too little monitoring, it is too
-much of the wrong. A business that installs fifteen alerts stops reading them within a
-week and returns to finding out from customers. And external monitoring matters more than
-internal: an uptime check that runs on the same box as the site reports the site is fine
-right up to the moment it is not.
+**Recommended approach:** Start with the one thing whose failure stops business earning,
+usually checkout or booking form. Watch exactly that from outside infrastructure, so check
+does not fail with what it checks. Three signals, no more: reachable, answering within
+target time, money or data transaction succeeding. One alert channel reaching a human,
+runbook per alert, named owner. Everything else (traces, log aggregation, five custom
+dashboards, status page) waits for later phase, once first phase proves someone reads it.
 
 **Workflow:** Worst failure named → What must be measured to catch it, from outside →
 Baseline measured, not assumed → Three signals defined with targets → Alerts with a channel
@@ -141,16 +129,16 @@ kept, deleted and added
 
 ### Step 5 - Build only on request
 
-Once the user asks for it, derive the fields from the confirmed context and emit the
-requested artifacts. For machine-readable text, keep prose outside the data; for files,
-provide a usable link. Report material validation failures or limitations separately.
+Once user asks, derive fields from confirmed context and emit requested artifacts.
+Machine-readable text: keep prose outside data. Files: provide usable link. Report
+material validation failures or limitations separately.
 
-**Notion output.** When the user selects Notion, deliver a CSV with the Field Reference
-columns plus a property-mapping table (column → Notion property type, from Select Options
-below) and short manual import steps: import the CSV, then change each property type per the
-mapping. Manual CSV and mapping outputs need no connection. Only write to a workspace through
-an MCP/tool connection you have actually verified, after confirming the target; a user saying
-"connected" is not tool evidence. Never ask for a Notion password or token.
+**Notion output.** When user selects Notion, deliver CSV with Field Reference columns,
+property-mapping table (column to Notion property type, from Select Options below) and
+short manual import steps: import CSV, then change each property type per mapping. Manual
+CSV and mapping outputs need no connection. Write to workspace only through verified
+MCP/tool connection, after confirming target. User saying "connected" is not tool
+evidence. Never ask for Notion password or token.
 
 ```csv
 Service ID,Service Name,Purpose,Criticality,Owner,Environment,Monitored From,SLI Definition,SLO Target,Dashboard URL,Log Source,Alert Channel,Severity,Alert Threshold,Runbook URL,Escalation Path,Monthly Cost Estimate,Data Handled,Deployment Method,Dependencies,Phase,Review Date,Status,Notes
@@ -283,9 +271,9 @@ CREATE INDEX idx_obs_service_review ON obs_service (review_date);
 | Notes | Text | Leave as Text |
 ```
 
-The rows above are documentation examples only. Emit empty templates unless the user explicitly requests examples. `Dashboard URL` and `Runbook URL` read `Not yet
-created` rather than a plausible-looking link, because a dead or wrong link in a runbook
-column is worse than an obvious gap.
+Rows above are documentation examples only. Emit empty templates unless user explicitly
+requests examples. `Dashboard URL` and `Runbook URL` read `Not yet created`, not
+plausible-looking link: dead or wrong runbook link is worse than obvious gap.
 
 ## Field Reference
 
@@ -318,47 +306,44 @@ column is worse than an obvious gap.
 
 ## Select Options
 
-**Criticality** - what the business loses. `Critical` means the business stops earning, not
-that the service is technically important. A search index that goes down is `Low`; a
-checkout that goes down is `Critical`.
+**Criticality** - what business loses. `Critical` means business stops earning, not that
+service is technically important. Search index down: `Low`. Checkout down: `Critical`.
 
 ```
 Low | Medium | High | Critical
 ```
 
-**Environment** - and the mistake this prevents: monitoring a staging URL and reporting it
-as uptime. Production is the only environment that earns an alert.
+**Environment** - prevents monitoring staging URL and reporting it as uptime. Only
+Production earns an alert.
 
 ```
 Production | Staging | Development
 ```
 
-**Severity** - the difference between a notification and a woken person. Only `Critical`
-should reach a human outside working hours, because a `Warning` that pages at 3am trains
-the on-call to ignore the channel.
+**Severity** - notification versus woken person. Only `Critical` should reach human outside
+working hours: `Warning` paging at 3am trains on-call to ignore channel.
 
 ```
 Info | Warning | Critical
 ```
 
-**Data Handled** - this is not documentation, it is an instruction. `Payment card details`,
-`Health data` and `Credentials or secrets` change the log retention period, who may read
-the logs, and whether the logs may be shipped to a third-party service at all.
+**Data Handled** - instruction, not documentation. `Payment card details`, `Health data`
+and `Credentials or secrets` change log retention period, who may read logs, and whether
+logs may go to third-party service at all.
 
 ```
 None | Personal data | Payment card details | Health data | Credentials or secrets | Business confidential | Public only
 ```
 
-**Phase** - the field that keeps this affordable. Phase 1 is what catches the worst failure
-and is read. Nothing enters phase 2 until phase 1 is being read and acted on; a plan that
-ships all phases at once is a plan nobody maintains.
+**Phase** - Phase 1 catches worst failure and is read. Nothing enters phase 2 until phase 1
+is read and acted on. Plan shipping all phases at once is plan nobody maintains.
 
 ```
 1 - core | 2 - deepen | 3 - optional | Sunset
 ```
 
-**Status** - `Blocked` is the honest value whenever something depends on a person, a
-contract or a decision that has not happened.
+**Status** - `Blocked` is honest value whenever something waits on person, contract or
+decision not yet made.
 
 ```
 Not started | In progress | Blocked | Done | Cancelled
@@ -366,12 +351,11 @@ Not started | In progress | Blocked | Done | Cancelled
 
 ## Relations
 
-- `Dependencies` names other rows in this table. A cycle here is a design smell, not an
-  error, and it is worth finding deliberately.
-- `Log Source` and `Data Handled` should match the business's own data-privacy and retention
-  rules. Confirm them before making the join live; a third-party log destination is a data transfer.
-- `Runbook URL` points at the runbook document for that alert. A blank runbook is a finding,
-  not a formality.
+- `Dependencies` names other rows in this table. Cycle is design smell, not error; find it
+  deliberately.
+- `Log Source` and `Data Handled` should match business's own data-privacy and retention
+  rules. Confirm before making join live. Third-party log destination is data transfer.
+- `Runbook URL` points at that alert's runbook document.
 
 ## Examples
 
@@ -420,63 +404,51 @@ what we should be paying for all this.
 
 ## Best Practices
 
-- Build when requested; recommend and offer a build for advice-only requests.
-- One question per message. A batched intake reads as a form and gets guessed at.
-- Monitor from outside the thing you are monitoring. A check on the same host as the site
-  reports the site healthy right up to the moment it is not.
-- Monitor the transaction, not the server. A server can return 200 while the checkout throws
-  an exception on every attempt, and no amount of CPU monitoring catches that.
-- Measure the baseline before setting the target. An SLO set above what the system has ever
-  done is a target that guarantees a permanently firing alert.
-- Three signals to start. Reachability, latency, and the business transaction. Resist the
-  fourth until the first three are read.
-- Only `Critical` pages a human. Everything else is a notification for working hours, or it
-  is deleted. Alert fatigue is the normal end state of an unmaintained alerting setup.
-- No alert without a runbook. Blank `Runbook URL` is a finding that blocks going live.
-- Set the alert threshold in advance and test it. An alert that has never fired is an
-  untested assumption.
-- Track cost against a ceiling the business named. A plan with no ceiling becomes an
-  invoice nobody predicted.
-- Name an owner per service. A service with no owner is unmonitored in practice, whatever
-  the dashboards say.
-- Set a review date and honour it. Every quarter, ask of each alert: did a human act on
-  this? If not, delete it.
-- Never log secrets, tokens, full card numbers, or unnecessary personal data. `Data
-  Handled` exists to make that decision explicit before the logs are shipped anywhere.
-- If logs go to a third-party service, that is a data transfer with its own agreement.
-  Confirm it rather than assuming it is fine.
-- Keep phase 1 small enough to maintain. An unmaintained 40-service plan is worse than a
-  maintained three-service one.
-- Derive all four artifacts from the field list in this file, never by hand.
-- If the user requests an example row, keep it obviously fake so nobody imports it as a real service.
+- One question per message. Batched intake reads as form and gets guessed at.
+- Monitor transaction, not server. Server can return 200 while checkout throws exception on
+  every attempt; no CPU monitoring catches that.
+- Measure baseline before setting target. SLO above anything system has ever done
+  guarantees permanently firing alert.
+- No alert without runbook. Blank `Runbook URL` is finding that blocks going live.
+- Set alert threshold in advance and test it. Alert that never fired is untested
+  assumption.
+- Track cost against ceiling business named. Plan with no ceiling becomes invoice nobody
+  predicted.
+- Name owner per service. Unowned service is unmonitored in practice, whatever dashboards
+  say.
+- Set review date and honour it. Quarterly, ask of each alert: did a human act on this? If
+  not, delete it.
+- Never log secrets, tokens, full card numbers, or unnecessary personal data. `Data Handled`
+  makes that decision explicit before logs ship anywhere.
+- Logs sent to third-party service are data transfer with own agreement. Confirm it; do not
+  assume it is fine.
+- Derive all four artifacts from field list in this file, never by hand.
+- If user requests example row, keep it obviously fake so nobody imports it as real service.
 
 ## Limitations
 
-- This is a plan. It does not deploy anything, install an agent, open a dashboard, create an
-  alert or read a log.
-- It has no access to the business's infrastructure, so it cannot measure a baseline, read a
-  metric, or verify an SLO. Every value in this table comes from the user.
-- Costs are estimates by definition and depend on region, tier, retention and traffic that
-  this skill cannot see. Treat `Monthly Cost Estimate` as a planning figure, never as a
-  quote, and never as a provider price list.
-- It does not recommend a specific provider on a current price. Provider capabilities,
-  pricing and free tiers change; verify against the provider's own current documentation.
-- Log volume, cardinality and ingestion cost are the usual cause of an unexpected bill, and
-  they cannot be estimated here without real traffic.
-- It cannot tell you what is currently running, what is currently alerting, or whether the
-  current setup already covers the worst failure. That needs access.
-- Uptime, latency and error-rate targets are engineering commitments. They are not
-  business promises, and a target that is missed is a trigger for a decision, not a
-  contractual breach.
-- SLOs do not replace a backup, a restore test, or a disaster recovery plan. A monitored
-  service with no tested restore is still a lost database.
-- Compliance requirements around logging, retention and personal data are jurisdiction and
-  sector specific, and are not modelled here.
-- Security monitoring, intrusion detection and access review are out of scope; use
+- Plan only. Does not deploy anything, install agent, open dashboard, create alert or read
+  log.
+- No access to business infrastructure: cannot measure baseline, read metric, or verify
+  SLO. Every value here comes from user.
+- Costs are estimates. They depend on region, tier, retention and traffic this skill cannot
+  see. Treat `Monthly Cost Estimate` as planning figure, never as quote or provider price
+  list.
+- No specific provider recommendation on current price. Provider capabilities, pricing and
+  free tiers change; verify against provider's own current documentation.
+- Log volume, cardinality and ingestion cost usually cause unexpected bills. Cannot
+  estimate them without real traffic.
+- Cannot tell what runs now, what alerts now, or whether current setup already covers worst
+  failure. That needs access.
+- Uptime, latency and error-rate targets are engineering commitments, not business
+  promises. Missed target triggers decision, not contractual breach.
+- SLOs do not replace backup, restore test, or disaster recovery plan. Monitored service
+  without tested restore is still lost database.
+- Logging, retention and personal-data compliance is jurisdiction- and sector-specific; not
+  modelled here.
+- Security monitoring, intrusion detection and access review out of scope; use
   `architecting-security` or `security-hardening`.
-- It cannot judge whether a provider, region or architecture is right. It structures the
-  question.
+- Cannot judge whether provider, region or architecture is right. Structures the question.
 
 
-See the [Security & Safety Notes](references/security-safety-notes.md) reference for the full guidance.
-
+See [Security & Safety Notes](references/security-safety-notes.md) for full guidance.

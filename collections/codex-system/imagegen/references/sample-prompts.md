@@ -1,28 +1,28 @@
 # Sample prompts (copy/paste)
 
-These prompt recipes are shared across both top-level modes of the skill:
+Shared by both top-level skill modes:
 - built-in `image_gen` tool (default)
 - `scripts/image_gen.py` CLI fallback for explicit or user-confirmed CLI/API/model requests
 
-Use these as starting points. They are intentionally complete prompt recipes, not the default amount of augmentation to add to every user request.
+Starting points: intentionally complete recipes, not default augmentation for every user request.
 
-When adapting a user's prompt:
+When adapting user prompt:
 - keep user-provided requirements
-- only add detail according to the specificity policy in `SKILL.md`
+- add detail only per specificity policy in `SKILL.md`
 - do not treat every example below as permission to invent extra story elements
 
-The labeled lines are prompt scaffolding, not a closed schema. `Asset type` and `Input images` are prompt-only scaffolding; the CLI does not expose them as dedicated flags.
+Labeled lines are prompt scaffolding, not closed schema. `Asset type` and `Input images` are prompt-only scaffolding; CLI does not expose them as dedicated flags.
 
-Execution details such as explicit CLI flags, `quality`, `input_fidelity`, masks, output formats, and local output paths depend on mode. Use built-in `image_gen` by default, request transparent backgrounds directly, and preserve the generated alpha; apply CLI-specific controls only when the user chooses or confirms that fallback.
+Execution details (explicit CLI flags, `quality`, `input_fidelity`, masks, output formats, local output paths) depend on mode. Default: built-in `image_gen`; request transparent backgrounds directly; preserve generated alpha. Apply CLI-specific controls only when user chooses or confirms that fallback.
 
 CLI model notes:
-- `gpt-image-2` is the fallback CLI default for new workflows.
-- `gpt-image-2` supports `quality` values `low`, `medium`, `high`, and `auto`.
-- For 4K-style `gpt-image-2` output, use `3840x2160` or `2160x3840`.
-- CLI `gpt-image-2` does not support `background=transparent`; ask before using `gpt-image-1.5` unless the user explicitly requested that model.
+- `gpt-image-2`: fallback CLI default for new workflows.
+- `gpt-image-2` supports `quality` values `low`, `medium`, `high`, `auto`.
+- 4K-style `gpt-image-2` output: `3840x2160` or `2160x3840`.
+- CLI `gpt-image-2` does not support `background=transparent`. Ask before using `gpt-image-1.5` unless user explicitly requested that model.
 - Do not set `input_fidelity` with `gpt-image-2`; image inputs already use high fidelity.
 
-For prompting principles (structure, specificity, invariants, iteration), see `references/prompting.md`.
+Prompting principles (structure, specificity, invariants, iteration): `references/prompting.md`.
 
 ## Generate
 

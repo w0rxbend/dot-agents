@@ -1,45 +1,45 @@
 # Model migration and prompting
 
-Use this route for model upgrades, migration planning, model-specific prompting, or latest/current/default prompting guidance. First search current official OpenAI documentation for the exact requested topic and model, then open or fetch the relevant official page using an available documentation or official-domain web capability. Do not run a resolver, open bundled references, or rely on a guide URL before completing that official search and actual page fetch.
+Route for model upgrades, migration planning, model-specific prompting, latest/current/default prompting guidance. First search current official OpenAI docs for exact requested topic and model, then open or fetch relevant official page via available docs or official-domain web capability. Until that search and actual page fetch finish, do not run resolver, open bundled references or rely on guide URL.
 
 ## Choose the target before loading more context
 
-- **Explicit model target:** Preserve the user's exact requested target, including an explicitly requested GPT-5.5 or GPT-5.6 migration. Do not run the latest-model resolver and do not substitute a newer model. Search for and fetch current guidance for that exact model. A GPT-5.6 migration must not load GPT-6 guidance or references.
-- **Unspecified, latest, current, or default target:** Search for and fetch `https://developers.openai.com/api/docs/guides/latest-model` first. Use the corresponding `latest-model.md` metadata only when dynamic migration resolution is needed, then run the platform-specific resolver below and preserve its returned model and exact guide URLs.
-- **Latest/current/default prompting:** Follow the dynamic-target route, then use the returned prompting guide. Do not run the resolver for explicitly named-model prompting.
-- **Pure model selection:** Use `references/model-selection.md` instead. Do not run the resolver.
+- **Explicit model target:** Keep user's exact requested target, including explicitly requested GPT-5.5 or GPT-5.6 migration. Do not run latest-model resolver or substitute newer model. Search and fetch current guidance for that exact model. GPT-5.6 migration must not load GPT-6 guidance or references.
+- **Unspecified, latest, current, or default target:** Search and fetch `https://developers.openai.com/api/docs/guides/latest-model` first. Use matching `latest-model.md` metadata only when dynamic migration resolution is needed; then run platform-specific resolver below and keep its returned model and exact guide URLs.
+- **Latest/current/default prompting:** Follow dynamic-target route, then use returned prompting guide.
+- **Pure model selection:** Use `references/model-selection.md` instead. Do not run resolver.
 
-For POSIX shells, invoke the resolver through `sh`, without assuming an executable bit:
+POSIX shells: invoke resolver through `sh`, without assuming executable bit:
 
 ```sh
 sh <skill-dir>/scripts/resolve-latest-model-info
 ```
 
-On Windows, use the CommonJS entry point with Node.js 18 or newer:
+Windows: CommonJS entry point, Node.js 18 or newer:
 
 ```text
 node <skill-dir>\scripts\resolve-latest-model-info.cjs
 ```
 
-If the Windows Node runtime is unavailable and `load_workspace_dependencies` is callable, use its returned runtime and retry once. Do not execute the extensionless POSIX wrapper directly on Windows.
+If Windows Node runtime is unavailable and `load_workspace_dependencies` is callable, use its returned runtime, retry once. Do not execute extensionless POSIX wrapper directly on Windows.
 
-Do not suppress or redirect resolver stdout. Success requires JSON with nonempty `model`, `migrationGuideUrl`, and `promptingGuideUrl` fields. If the command fails or any required field is missing, retry the platform-specific command once, then fall back to current official documentation and finally disclosed bundled references.
+Do not suppress or redirect resolver stdout. Success: JSON with nonempty `model`, `migrationGuideUrl` and `promptingGuideUrl` fields. If command fails or any required field is missing, retry platform-specific command once, then fall back to current official docs, finally to disclosed bundled references.
 
 ## Retrieve only the guidance this request needs
 
-Treat returned guide URLs as opaque: fetch those exact URLs without deriving, substituting, or appending a model query. Use an available official documentation or first-party-domain capability to open and read the relevant official page. Retry the exact guide URL when its response contains only a title or no substantive body.
+Treat returned guide URLs as opaque: fetch exact URLs; do not derive, substitute or append a model query. Retry exact guide URL if response has only a title or no substantive body.
 
-- Fetch `migrationGuideUrl` for a requested migration or upgrade plan.
-- Fetch `promptingGuideUrl` only when the user asks for prompting guidance or the migration requires a prompt change. Extract only `## Prompting best practices` through the next H2 heading.
-- For explicitly named-model prompting, fetch that model's official prompting guidance and extract only `## Prompting best practices` through the next H2 heading. Do not load a migration reference or run the resolver.
-- For an actual GPT-6 migration or implementation plan, fetch `https://developers.openai.com/api/docs/guides/latest-model/gpt-6-astra.md#migration-quickstart`. For specifically requested GPT-6 prompting, fetch `https://developers.openai.com/api/docs/guides/latest-model/gpt-6-astra.md#prompting-best-practices`. Read `references/upgrading-to-gpt-6-astra.md` only when fetched official guidance does not resolve needed compatibility gates, scoped code changes, tier-aware routing, validation, or other migration-specific judgment. Never load it for documentation-only questions about model tiers, the family alias, Pro mode, reasoning effort, or current guidance when the fetched official documentation already answers them.
-- Read `references/prompting-guide.md` only when prompting guidance or prompt changes are actually needed and current official guidance is unavailable.
-- Read `references/upgrade-guide.md` only when current official migration guidance is unavailable. Disclose when a bundled fallback was used.
+- Requested migration or upgrade plan: fetch `migrationGuideUrl`.
+- Fetch `promptingGuideUrl` only when user asks for prompting guidance or migration requires prompt change. Extract only `## Prompting best practices` through next H2 heading.
+- Explicitly named-model prompting: fetch that model's official prompting guidance, extract only `## Prompting best practices` through next H2 heading. Do not load migration reference or run resolver.
+- Actual GPT-6 migration or implementation plan: fetch `https://developers.openai.com/api/docs/guides/latest-model/gpt-6-astra.md#migration-quickstart`. Specifically requested GPT-6 prompting: fetch `https://developers.openai.com/api/docs/guides/latest-model/gpt-6-astra.md#prompting-best-practices`. Read `references/upgrading-to-gpt-6-astra.md` only when fetched official guidance does not resolve needed compatibility gates, scoped code changes, tier-aware routing, validation or other migration-specific judgment. Never load it for docs-only questions on model tiers, family alias, Pro mode, reasoning effort or current guidance that fetched official docs already answer.
+- Read `references/prompting-guide.md` only when prompting guidance or prompt changes are needed and current official guidance is unavailable.
+- Read `references/upgrade-guide.md` only when current official migration guidance is unavailable. Disclose bundled fallback use.
 
 ## Keep implementation changes scoped
 
-Change active model defaults and directly related prompt surfaces only when the user requested that work. Update registries, model pickers, capability metadata, routing, pricing, or tests only when they are in scope and current official documentation verifies the relevant values.
+Change active model defaults and directly related prompt surfaces only when user requested that work. Update registries, model pickers, capability metadata, routing, pricing or tests only when in scope and current official docs verify relevant values.
 
-Preserve each workload's cost, latency, quality, reasoning, tool, endpoint, and output-contract role. Do not collapse a tiered router into one flagship model, replace intentionally pinned fallbacks, or rewrite historical examples, fixtures, eval baselines, provider comparisons, or unrelated SDK and authentication configuration.
+Keep each workload's cost, latency, quality, reasoning, tool, endpoint and output-contract role. Do not collapse tiered router into one flagship model, replace intentionally pinned fallbacks, or rewrite historical examples, fixtures, eval baselines, provider comparisons, or unrelated SDK and authentication configuration.
 
-If a safe migration requires an endpoint change, request-schema change, tool-handler change, or other implementation outside the requested scope, report the exact compatibility blocker and smallest follow-up instead of silently changing behavior.
+If safe migration needs endpoint, request-schema or tool-handler change, or other work outside requested scope, report exact compatibility blocker and smallest follow-up. Do not silently change behavior.

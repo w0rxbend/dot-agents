@@ -46,7 +46,7 @@ cmd.Flags().StringToString                // --label key=value --label k2=v2
 | `StringSlice` | `--tags a,b --tags c` | `["a", "b", "c"]` — commas split  |
 | `StringArray` | `--tags a,b --tags c` | `["a,b", "c"]` — commas NOT split |
 
-Use `StringArray` when values may legitimately contain commas.
+Use `StringArray` when values may contain commas.
 
 ## Flag constraints
 
@@ -106,7 +106,7 @@ cmd.Flags().Var(outputFmt, "output", "output format (table, json, yaml)")
 
 ## Flag groups (required together)
 
-Mark a set of flags that must all be provided if any one of them is provided:
+Mark flags that must all be provided if any one is provided:
 
 ```go
 cmd.Flags().String("tls-cert", "", "TLS certificate file")
@@ -116,7 +116,7 @@ cmd.MarkFlagsRequiredTogether("tls-cert", "tls-key")
 
 ## Accessing flag values
 
-Prefer pointer binding (`StringVar`, `IntVar`, etc.) for type-safe access. When you need the flag post-parse:
+Prefer pointer binding (`StringVar`, `IntVar`, etc.) for type-safe access. To read flag post-parse:
 
 ```go
 port, err := cmd.Flags().GetInt("port")
@@ -133,4 +133,4 @@ if cmd.Flags().Changed("port") {
 }
 ```
 
-`Changed()` is also how viper knows which flags are explicit overrides — it only promotes a flag to the highest precedence layer if `Changed()` is true.
+`Changed()` also tells viper which flags are explicit overrides — viper promotes flag to highest precedence layer only if `Changed()` true.

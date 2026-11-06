@@ -11,7 +11,7 @@
 
 ## Vercel AI SDK
 
-The examples in this section target AI SDK 5 and later (`ai@5`+ with `@ai-sdk/react@2`+). They were type-checked against `ai` 5.0 and 7.0. AI SDK 4 code (`useChat` from `ai/react`, `input`/`handleInputChange`/`handleSubmit`, `isLoading`, `message.content`, `toDataStreamResponse`) does not compile against these versions; see the AI SDK migration guides if you are upgrading.
+Examples here target AI SDK 5 and later (`ai@5`+ with `@ai-sdk/react@2`+). Type-checked against `ai` 5.0 and 7.0. AI SDK 4 code (`useChat` from `ai/react`, `input`/`handleInputChange`/`handleSubmit`, `isLoading`, `message.content`, `toDataStreamResponse`) does not compile against these versions. If upgrading, see AI SDK migration guides.
 
 ### Installation & Setup
 
@@ -25,7 +25,7 @@ npm install @ai-sdk/anthropic   # Anthropic
 npm install @ai-sdk/google      # Google
 ```
 
-Pick the model ID from your provider's current model list and pass it through configuration (for example a `CHAT_MODEL` environment variable) rather than hardcoding it in components.
+Pick model ID from provider's current model list. Pass it through configuration (for example `CHAT_MODEL` environment variable), not hardcoded in components.
 
 ### Basic Implementation
 
@@ -111,7 +111,7 @@ export default function ChatPage() {
 }
 ```
 
-Key differences from AI SDK 4: the hook no longer manages the input field (keep it in your own state), you send with `sendMessage({ text })`, loading is `status` (`'submitted' | 'streaming' | 'ready' | 'error'`), retry is `regenerate()`, and message content lives in `message.parts` (text, file, reasoning, tool parts) instead of `message.content`.
+Key differences from AI SDK 4: hook no longer manages input field, so keep it in own state. Send with `sendMessage({ text })`. Loading is `status` (`'submitted' | 'streaming' | 'ready' | 'error'`). Retry is `regenerate()`. Message content lives in `message.parts` (text, file, reasoning, tool parts), not `message.content`.
 
 ### Advanced Features
 
@@ -146,9 +146,9 @@ export async function POST(req: Request) {
 }
 ```
 
-Tools are declared with `inputSchema` (AI SDK 4 used `parameters`). Never evaluate model-provided expressions with `eval`; use a real parser or a sandbox.
+Declare tools with `inputSchema` (AI SDK 4 used `parameters`). Never evaluate model-provided expressions with `eval`. Use real parser or sandbox.
 
-On the client, a tool call arrives as a part named `tool-<toolName>` with a `state`:
+On client, tool call arrives as part named `tool-<toolName>` with `state`:
 
 ```tsx
 {m.parts.map((part, i) => {
@@ -171,7 +171,7 @@ On the client, a tool call arrives as a part named `tool-<toolName>` with a `sta
 
 #### Multi-Modal Input (Images and Files)
 
-`sendMessage` accepts a `FileList` (or `FileUIPart[]`) next to the text; files come back as `file` parts:
+`sendMessage` accepts `FileList` (or `FileUIPart[]`) next to text. Files come back as `file` parts:
 
 ```tsx
 const [files, setFiles] = useState<FileList | undefined>();
@@ -195,7 +195,7 @@ case 'file':
   ) : null;
 ```
 
-The model must support the media type; validate type and size on the server as well.
+Model must support media type. Validate type and size on server too.
 
 #### Usage and Metadata
 
@@ -215,19 +215,19 @@ return result.toUIMessageStreamResponse({
 });
 ```
 
-On the client the value is available as `message.metadata`.
+On client, value is available as `message.metadata`.
 
 ## Streamdown
 
 ### Installation
 
-[Streamdown](https://github.com/vercel/streamdown) is a drop-in `react-markdown` replacement built for streaming AI output: it tolerates unterminated markdown (open code fences, bold, tables) while tokens arrive. The npm package is `streamdown`:
+[Streamdown](https://github.com/vercel/streamdown) is drop-in `react-markdown` replacement built for streaming AI output. Tolerates unterminated markdown (open code fences, bold, tables) while tokens arrive. npm package is `streamdown`:
 
 ```bash
 npm install streamdown
 ```
 
-Follow the Streamdown README for the Tailwind/CSS setup its default styles need.
+Follow Streamdown README for Tailwind/CSS setup its default styles need.
 
 ### Basic Usage
 
@@ -239,13 +239,11 @@ function StreamingMessage({ text }: { text: string }) {
 }
 ```
 
-Streamdown accepts a `components` prop to override element renderers (as in `react-markdown`) and ships code highlighting, math and Mermaid support. Prop names change between releases, so check the README of the installed version before configuring them. It renders through React rather than injecting HTML strings, and hardens links and images by default; if you instead convert markdown to an HTML string yourself, sanitize that HTML output (see `../SKILL.md`, Security Considerations).
+Streamdown accepts `components` prop to override element renderers (as in `react-markdown`). Ships code highlighting, math and Mermaid support. Prop names change between releases. Check installed version's README before configuring them. Renders through React, not by injecting HTML strings. Hardens links and images by default. If you convert markdown to HTML string yourself instead, sanitize that HTML output (see `../SKILL.md`, Security Considerations).
 
 ## React Integration
 
 ### Custom Hooks
-
-Essential hooks for AI chat:
 
 ```tsx
 // useStreamingMessage hook
@@ -329,8 +327,6 @@ function useConversation(conversationId?: string) {
 
 ### Component Library
 
-Reusable chat components:
-
 ```tsx
 // Message component library
 const ChatComponents = {
@@ -408,8 +404,6 @@ const ChatComponents = {
 ## Alternative Libraries
 
 ### Other AI SDKs
-
-Model IDs below are read from configuration; use a current model ID from the provider's model list.
 
 ```tsx
 // OpenAI SDK (direct)
@@ -542,7 +536,7 @@ export async function POST(req: Request) {
 
 ### Vue.js Integration
 
-`@ai-sdk/vue` (AI SDK 5+) exposes a `Chat` class with the same `sendMessage` / `status` / `parts` model as the React hook:
+`@ai-sdk/vue` (AI SDK 5+) exposes `Chat` class with same `sendMessage` / `status` / `parts` model as React hook:
 
 ```vue
 <!-- ChatComponent.vue -->
@@ -653,13 +647,10 @@ const productionConfig = {
 
 ## Best Practices Summary
 
-1. **Use a maintained chat SDK** - e.g. the Vercel AI SDK; pin its major version
-2. **Implement streaming properly** - Use Streamdown for markdown
-3. **Handle errors gracefully** - Network, rate limits, etc.
-4. **Optimize performance** - Memoization, debouncing, virtual scroll
-5. **Add auth & rate limiting** - Protect your API endpoints
-6. **Monitor usage** - Track tokens, costs, performance
-7. **Test across providers** - OpenAI, Anthropic, Google
-8. **Implement feedback loops** - Collect user feedback
-9. **Use proper TypeScript** - Type safety throughout
-10. **Follow accessibility guidelines** - ARIA, keyboard support
+1. **Use a maintained chat SDK** - e.g. Vercel AI SDK; pin its major version
+2. **Optimize performance** - Memoization, debouncing, virtual scroll
+3. **Add auth & rate limiting** - Protect API endpoints
+4. **Monitor usage** - Track tokens, costs, performance
+5. **Test across providers** - OpenAI, Anthropic, Google
+6. **Implement feedback loops** - Collect user feedback
+7. **Follow accessibility guidelines** - ARIA, keyboard support

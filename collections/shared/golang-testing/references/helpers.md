@@ -2,7 +2,7 @@
 
 ## Test Timeout
 
-For tests that may hang, use a timeout helper that panics with caller location:
+For tests that may hang, use timeout helper that panics with caller location:
 
 ```go
 // https://github.com/stretchr/testify/issues/1101

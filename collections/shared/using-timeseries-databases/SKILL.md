@@ -5,14 +5,12 @@ description: Time-series database implementation for metrics, IoT, financial dat
 
 # Time-Series Databases
 
-Implement efficient storage and querying for time-stamped data (metrics, IoT sensors, financial ticks, logs).
-
 ## Database Selection
 
-Choose based on primary use case:
+Pick by primary use case:
 
 **TimescaleDB** - PostgreSQL extension
-- Use when: Already on PostgreSQL, need SQL + JOINs, hybrid workloads
+- Use when: already on PostgreSQL, need SQL + JOINs, hybrid workloads
 - Query: Standard SQL
 - Scale: 100K-1M inserts/sec
 
@@ -22,12 +20,12 @@ Choose based on primary use case:
 - Scale: 500K-1M points/sec
 
 **ClickHouse** - Columnar analytics
-- Use when: Fastest aggregations needed, analytics dashboards, log analysis
+- Use when: fastest aggregations, analytics dashboards, log analysis
 - Query: SQL
 - Scale: 1M-10M inserts/sec, 100M-1B rows/sec queries
 
 **QuestDB** - High-throughput IoT
-- Use when: Highest write performance needed, financial tick data
+- Use when: highest write performance, financial tick data
 - Query: SQL + Line Protocol
 - Scale: 4M+ inserts/sec
 
@@ -49,8 +47,8 @@ SELECT create_hypertable('sensor_data', 'time');
 ```
 
 Benefits:
-- Efficient data expiration (drop old chunks)
-- Parallel query execution
+- Cheap data expiration (drop old chunks)
+- Parallel queries
 - Compression on older chunks (10-20x savings)
 
 ### 2. Continuous Aggregates
@@ -77,10 +75,10 @@ SELECT add_continuous_aggregate_policy('sensor_data_hourly',
 ```
 
 Query strategy:
-- Short range (last hour): Raw data
-- Medium range (last day): 1-minute rollups
-- Long range (last month): 1-hour rollups
-- Very long (last year): Daily rollups
+- Short range (last hour): raw data
+- Medium (last day): 1-minute rollups
+- Long (last month): 1-hour rollups
+- Very long (last year): daily rollups
 
 ### 3. Retention Policies
 
@@ -91,17 +89,16 @@ Automatic data expiration:
 SELECT add_retention_policy('sensor_data', INTERVAL '90 days');
 ```
 
-Common patterns:
+Retention policies, `drop_chunks`, `DROP PARTITION` and TTL `DELETE` erase data permanently. Confirm with user before applying to a database holding real data.
+
+Typical retention:
 - Raw data: 7-90 days
 - Hourly rollups: 1-2 years
-- Daily rollups: Infinite retention
+- Daily rollups: forever
 
 ### 4. Downsampling for Visualization
 
-Use LTTB (Largest-Triangle-Three-Buckets) algorithm to reduce points for charts.
-
-Problem: Browsers can't smoothly render 1M points
-Solution: Downsample to 500-1000 points preserving visual fidelity
+Use LTTB (Largest-Triangle-Three-Buckets) to cut chart point count.
 
 ```sql
 -- TimescaleDB toolkit LTTB
@@ -116,13 +113,11 @@ FROM unnest((
 ```
 
 Thresholds:
-- < 1,000 points: No downsampling
+- < 1,000 points: no downsampling
 - 1,000-10,000 points: LTTB to 1,000 points
 - 10,000+ points: LTTB to 500 points or use pre-aggregated data
 
 ## Dashboard Integration
-
-Time-series databases are the primary data source for real-time dashboards.
 
 Query patterns by component:
 
@@ -137,32 +132,39 @@ Data flow:
 1. Ingest metrics (Prometheus, MQTT, application events)
 2. Store in time-series DB with continuous aggregates
 3. Apply retention policies (raw: 30d, rollups: 1y)
-4. Query layer downsamples to optimal points (LTTB)
+4. Query layer downsamples to optimal point count (LTTB)
 5. Frontend renders with Recharts/visx
 
 Auto-refresh intervals:
 - Critical alerts: 1-5 seconds (WebSocket)
 - Operations dashboard: 10-30 seconds (polling)
 - Analytics dashboard: 1-5 minutes (cached)
-- Historical reports: On-demand only
+- Historical reports: on-demand only
+
+## Security
+
+- Never build SQL from request input: allowlist identifiers (metric, table, column), map ranges through a fixed dict, bind values as parameters.
+- Passwords and tokens from env or secret store (`PGPASSWORD`, `INFLUX_TOKEN`), never literals or CLI args.
+- Docker examples are local dev: ports bound to 127.0.0.1, default users. Pin image tags (or digests) to a reviewed version, never `:latest`. Anything reachable: strong passwords, auth, TLS.
+- Servers send telemetry by default; turn it off: TimescaleDB `timescaledb.telemetry_level=off`, QuestDB `telemetry.enabled=false` (`QDB_TELEMETRY_ENABLED=false`), InfluxDB 2 `INFLUXD_REPORTING_DISABLED=true`, InfluxDB 3 `--disable-telemetry-upload`, newer ClickHouse `<send_crash_reports><enabled>false</enabled></send_crash_reports>`.
 
 ## Database-Specific Details
 
-For implementation guides, see:
+Implementation guides:
 - `references/timescaledb.md` - Setup, tuning, compression
 - `references/influxdb.md` - InfluxQL/Flux, retention policies
 - `references/clickhouse.md` - MergeTree engines, clustering
 - `references/questdb.md` - Line Protocol, SIMD optimization
 
-For downsampling implementation:
+Downsampling implementation:
 - `references/downsampling-strategies.md` - LTTB algorithm, aggregation methods
 
-For examples:
+Examples:
 - `examples/metrics-dashboard-backend/` - TimescaleDB + FastAPI
 - `examples/iot-data-pipeline/` - InfluxDB + Go for IoT
 
-For scripts:
-- `scripts/setup_hypertable.py` - Create TimescaleDB hypertables
+Scripts:
+- `scripts/setup_hypertable.py` - Create TimescaleDB hypertables (password via `PGPASSWORD` or `~/.pgpass`)
 - `scripts/generate_retention_policy.py` - Generate retention policies
 
 ## Performance Optimization

@@ -19,7 +19,7 @@
 
 ## Overview
 
-CIS Controls provide prioritized, prescriptive security guidance organized in 3 Implementation Groups (IG1, IG2, IG3).
+CIS Controls: prioritized, prescriptive security guidance in 3 Implementation Groups (IG1, IG2, IG3).
 
 ## Implementation Groups
 
@@ -42,7 +42,7 @@ CIS Controls provide prioritized, prescriptive security guidance organized in 3 
 
 ### CIS 1: Inventory and Control of Enterprise Assets
 
-**Objective:** Maintain accurate asset inventory
+**Objective:** Keep accurate asset inventory
 
 **Key Safeguards:**
 - 1.1: Establish and maintain detailed asset inventory
@@ -52,7 +52,7 @@ CIS Controls provide prioritized, prescriptive security guidance organized in 3 
 
 ### CIS 2: Inventory and Control of Software Assets
 
-**Objective:** Track all software and prevent unauthorized software
+**Objective:** Track all software, block unauthorized software
 
 **Key Safeguards:**
 - 2.1: Establish software inventory
@@ -84,7 +84,7 @@ CIS Controls provide prioritized, prescriptive security guidance organized in 3 
 
 ### CIS 5: Account Management
 
-**Objective:** Manage user accounts and credentials
+**Objective:** Manage user accounts, credentials
 
 **Key Safeguards:**
 - 5.1: Establish centralized account management
@@ -94,7 +94,7 @@ CIS Controls provide prioritized, prescriptive security guidance organized in 3 
 
 ### CIS 6: Access Control Management
 
-**Objective:** Control access to resources
+**Objective:** Control resource access
 
 **Key Safeguards:**
 - 6.1: Establish access granting process
@@ -105,7 +105,7 @@ CIS Controls provide prioritized, prescriptive security guidance organized in 3 
 
 ### CIS 7: Continuous Vulnerability Management
 
-**Objective:** Identify and remediate vulnerabilities
+**Objective:** Find and remediate vulnerabilities
 
 **Key Safeguards:**
 - 7.1: Establish vulnerability management process
@@ -116,7 +116,7 @@ CIS Controls provide prioritized, prescriptive security guidance organized in 3 
 
 ### CIS 8: Audit Log Management
 
-**Objective:** Collect, alert, review, and retain audit logs
+**Objective:** Collect, alert on, review, and retain audit logs
 
 **Key Safeguards:**
 - 8.1: Establish audit log management process
@@ -139,7 +139,7 @@ CIS Controls provide prioritized, prescriptive security guidance organized in 3 
 
 ### CIS 17: Incident Response Management
 
-**Objective:** Establish incident response capability
+**Objective:** Build incident response capability
 
 **Key Safeguards:**
 - 17.1: Designate incident response personnel

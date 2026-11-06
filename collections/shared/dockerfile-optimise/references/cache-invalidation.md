@@ -7,7 +7,7 @@ tags: cache, invalidation, dockerignore, bind-mount
 
 ## Avoid Unnecessary Cache Invalidation
 
-Docker's `COPY` and `ADD` instructions compute a checksum of the copied files to determine cache validity. When `COPY . .` is used without a `.dockerignore` file, every file in the build context -- including READMEs, test suites, IDE configurations, and git history -- becomes part of the checksum. Changing any of these files invalidates the layer and forces a rebuild of everything below it.
+Docker's `COPY` and `ADD` checksum copied files to decide cache validity. `COPY . .` without `.dockerignore` checksums every build context file: READMEs, test suites, IDE configurations, git history. Changing any of them invalidates layer and rebuilds everything below.
 
 **Incorrect (no .dockerignore, broad COPY):**
 
@@ -23,22 +23,9 @@ COPY . .
 RUN npm run build
 ```
 
-(Editing `README.md` or adding a test file invalidates the `COPY . .` layer, triggering a full `npm run build` even though the application source has not changed.)
+(Editing `README.md` or adding test file invalidates `COPY . .` layer and reruns `npm run build` with unchanged application source.)
 
-**Correct (use .dockerignore to exclude irrelevant files):**
-
-```dockerfile
-FROM node:22-slim
-WORKDIR /app
-
-COPY package.json package-lock.json ./
-RUN npm ci --production
-
-COPY . .
-RUN npm run build
-```
-
-With a `.dockerignore` file:
+**Correct (same Dockerfile, plus .dockerignore excluding irrelevant files):**
 
 ```dockerfile
 # .dockerignore
@@ -63,9 +50,9 @@ coverage/
 *.swo
 ```
 
-(Now only production-relevant source files are included in the checksum. Changes to documentation, tests, or editor config do not invalidate any build layers.)
+(Only production-relevant source files enter checksum. Changes to documentation, tests or editor config do not invalidate any build layers.)
 
-**Alternative (use specific COPY paths instead of broad wildcard):**
+**Alternative (specific COPY paths instead of broad wildcard):**
 
 ```dockerfile
 FROM node:22-slim
@@ -82,6 +69,6 @@ COPY tsconfig.json ./
 RUN npm run build
 ```
 
-(Explicitly naming source directories provides even tighter control. Only changes inside `src/`, `public/`, or `tsconfig.json` invalidate the build layer.)
+(Explicit source directories give tighter control. Only changes in `src/`, `public/` or `tsconfig.json` invalidate build layer.)
 
 Reference: [Docker Build Cache](https://docs.docker.com/build/cache/)

@@ -1,7 +1,6 @@
 # Data Visualization Accessibility Guide (WCAG 2.1 AA)
 
-Ensure all visualizations meet Web Content Accessibility Guidelines Level AA standards.
-
+Accessibility is not optional: every visualization must meet Web Content Accessibility Guidelines 2.1 Level AA.
 
 ## Table of Contents
 
@@ -19,7 +18,6 @@ Ensure all visualizations meet Web Content Accessibility Guidelines Level AA sta
   - [❌ Avoid:](#avoid)
   - [✅ Do:](#do)
 - [ARIA Patterns for Charts](#aria-patterns-for-charts)
-  - [Static Charts](#static-charts)
   - [Interactive Charts](#interactive-charts)
   - [Data Points with Landmarks](#data-points-with-landmarks)
 - [Resources](#resources)
@@ -28,7 +26,7 @@ Ensure all visualizations meet Web Content Accessibility Guidelines Level AA sta
 
 ### 1. Text Alternatives (WCAG 1.1.1 - Level A)
 
-**Every visualization needs a text alternative describing the key insight.**
+**Every visualization needs a text alternative stating the key insight.**
 
 **Simple Charts (one key insight):**
 ```html
@@ -153,9 +151,9 @@ Instead of legend only, add labels directly to data:
 **Interactive charts must be keyboard accessible:**
 
 **Requirements:**
-- **Tab**: Navigate to chart, then to interactive elements
+- **Tab**: Move to chart, then to interactive elements
 - **Enter/Space**: Activate tooltips, select data points
-- **Arrow Keys**: Navigate between data points
+- **Arrow Keys**: Move between data points
 - **Escape**: Close tooltips, exit interaction mode
 
 **Implementation (React + Recharts):**
@@ -193,7 +191,7 @@ function AccessibleBarChart({ data }) {
 
 ### 5. Data Table Alternative
 
-**Provide accessible table view for all charts:**
+**Give every chart an accessible table view:**
 
 ```tsx
 function AccessibleChart({ data }) {
@@ -322,14 +320,14 @@ npm run test:a11y
 - [ ] Test with VoiceOver (Mac/iOS)
 - [ ] Test with TalkBack (Android)
 - [ ] Verify all content announced correctly
-- [ ] Check reading order makes sense
+- [ ] Check reading order is logical
 
 **Keyboard Testing:**
 - [ ] Disconnect mouse
 - [ ] Tab through all interactive elements
 - [ ] Verify focus indicators visible
-- [ ] Test all keyboard shortcuts work
-- [ ] Ensure no keyboard traps
+- [ ] Confirm all keyboard shortcuts work
+- [ ] Confirm no keyboard traps
 
 **Color Vision Testing:**
 - [ ] Use browser DevTools color vision emulator
@@ -341,7 +339,7 @@ npm run test:a11y
 - [ ] Zoom to 200% (WCAG requirement)
 - [ ] Verify chart still readable
 - [ ] Check responsive behavior
-- [ ] Ensure no horizontal scrolling on mobile
+- [ ] Confirm no horizontal scrolling on mobile
 
 ---
 
@@ -350,21 +348,21 @@ npm run test:a11y
 ### ❌ Avoid:
 
 1. **Color-only encoding**
-   - Using only color to distinguish categories
+   - Only color distinguishes categories
    - No patterns, shapes, or labels
 
 2. **Missing text alternatives**
    - Chart without aria-label or description
-   - Decorative vs. informative unclear
+   - Unclear whether decorative or informative
 
 3. **Low contrast**
-   - Pastel colors on white background
+   - Pastels on white background
    - Light gray text on slightly darker gray
 
 4. **Inaccessible tooltips**
    - Tooltips only on hover (not keyboard)
-   - Tooltips disappear too quickly
-   - No way to access tooltip content
+   - Tooltips vanish too fast
+   - No way to reach tooltip content
 
 5. **No keyboard support**
    - Interactive charts mouse-only
@@ -378,45 +376,17 @@ npm run test:a11y
 
 ### ✅ Do:
 
-1. **Multiple encoding channels**
-   - Color + pattern + shape
-   - Color + label + legend
-
-2. **Comprehensive text alternatives**
-   - Short aria-label for key insight
-   - Long description for details
-   - Data table for exact values
-
-3. **High contrast**
+1. **High contrast**
    - Test all color combinations
    - Use design tokens (auto WCAG compliance)
-   - Provide high-contrast theme option
+   - Offer high-contrast theme option
 
-4. **Accessible interactions**
-   - Keyboard navigation implemented
-   - Tooltips accessible via keyboard
-   - Focus indicators clearly visible
-
-5. **Clear labeling**
-   - All axes labeled with units
+2. **Clear labeling**
    - Legend with clear icons
-   - Direct labels when possible
 
 ---
 
 ## ARIA Patterns for Charts
-
-### Static Charts
-
-```html
-<figure role="img" aria-labelledby="title" aria-describedby="desc">
-  <figcaption id="title">Monthly Sales 2024</figcaption>
-  <svg><!-- chart --></svg>
-  <div id="desc" class="sr-only">
-    Sales ranged from $2M to $5M, with peak in December.
-  </div>
-</figure>
-```
 
 ### Interactive Charts
 
@@ -454,13 +424,6 @@ npm run test:a11y
 
 ## Resources
 
-**Testing Tools:**
-- Chrome Lighthouse (automated)
-- axe DevTools (automated)
-- WAVE (automated + manual)
-- NVDA, JAWS, VoiceOver (screen reader testing)
-- Color Oracle, Sim Daltonism (colorblind simulation)
-
 **Guidelines:**
 - WCAG 2.1: https://www.w3.org/WAI/WCAG21/quickref/
 - ARIA Authoring Practices: https://www.w3.org/WAI/ARIA/apg/
@@ -468,7 +431,3 @@ npm run test:a11y
 **Articles:**
 - "Accessible SVG Charts" - Sarah Higley
 - "Chartability" - Frank Elavsky (accessibility workbook for charts)
-
----
-
-*Accessibility is not optional. Every visualization must meet WCAG 2.1 AA standards to ensure all users can access and understand the data.*

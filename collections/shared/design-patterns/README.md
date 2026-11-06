@@ -37,8 +37,10 @@ This skill can be used with AI coding assistants that support Markdown-based ski
 ### Option 1 — Install via CLI (Recommended)
 
 ```bash id="cli-install"
-npx skills add ariaramin/design-patterns-skill
+DISABLE_TELEMETRY=1 npx skills@1.7.6 add ariaramin/design-patterns-skill
 ```
+
+The skills CLI sends anonymous usage data unless `DISABLE_TELEMETRY=1` is set. Review the repository before installing.
 
 ---
 
@@ -121,7 +123,7 @@ git pull
 If you installed via the Skills CLI:
 
 ```bash
-npx skills update
+DISABLE_TELEMETRY=1 npx skills@1.7.6 update
 ```
 
 If you installed from Releases, download the latest `.skill` package and replace the existing one.

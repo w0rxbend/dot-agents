@@ -41,7 +41,7 @@ spec:
     spec:
       containers:
       - name: test
-        image: curlimages/curl:latest
+        image: curlimages/curl:8.23.0
         command: ["/bin/sh"]
         args:
         - -c
@@ -68,7 +68,7 @@ spec:
     spec:
       containers:
       - name: notify
-        image: curlimages/curl:latest
+        image: curlimages/curl:8.23.0
         command: ["/bin/sh"]
         args:
         - -c

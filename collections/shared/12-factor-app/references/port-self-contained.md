@@ -7,7 +7,7 @@ tags: port, self-contained, webserver, binding
 
 ## Make the Application Completely Self-Contained with Embedded Server
 
-A twelve-factor app is completely self-contained and does not rely on runtime injection of a webserver. The app exports HTTP (or other protocols) as a service by binding to a port, using a webserver library that is part of the application's dependencies.
+Twelve-factor app is completely self-contained. It does not rely on runtime injection of webserver. App exports HTTP (or other protocols) as service by binding to port. Webserver library ships as one of app's dependencies.
 
 **Incorrect (requires external webserver):**
 
@@ -88,9 +88,6 @@ func main() {
 ```
 
 **Benefits:**
-- `docker run -p 8080:8080 myapp` just works
-- Same deployment model across all languages
-- Local development matches production
-- Platform assigns port, app binds to it
+- `docker run -p 8080:8080 myapp` works as-is
 
 Reference: [The Twelve-Factor App - Port Binding](https://12factor.net/port-binding)

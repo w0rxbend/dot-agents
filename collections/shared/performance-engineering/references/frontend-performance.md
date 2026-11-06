@@ -15,8 +15,6 @@
 
 ### Overview
 
-Core Web Vitals are Google's metrics for user experience, affecting SEO rankings and user retention.
-
 **Three key metrics:**
 1. **LCP (Largest Contentful Paint):** Loading performance
 2. **INP (Interaction to Next Paint):** Interactivity (replaced FID in 2024)
@@ -24,7 +22,7 @@ Core Web Vitals are Google's metrics for user experience, affecting SEO rankings
 
 ### LCP (Largest Contentful Paint)
 
-**Definition:** Time until largest content element is rendered.
+**Definition:** Time until largest content element renders.
 
 **Targets:**
 - **Good:** < 2.5 seconds
@@ -35,7 +33,7 @@ Core Web Vitals are Google's metrics for user experience, affecting SEO rankings
 - `<img>` elements
 - `<image>` inside `<svg>`
 - `<video>` with poster image
-- Element with background image via CSS
+- Element with CSS background image
 - Block-level text elements
 
 **Optimization techniques:**
@@ -95,7 +93,7 @@ Core Web Vitals are Google's metrics for user experience, affecting SEO rankings
 
 ### INP (Interaction to Next Paint)
 
-**Definition:** Latency of interactions (clicks, taps, key presses) to visual update.
+**Definition:** Latency from interaction (click, tap, key press) to visual update.
 
 **Targets:**
 - **Good:** < 200ms
@@ -244,8 +242,6 @@ container.appendChild(newElement);
 
 ### Code Splitting
 
-**Techniques:**
-
 #### 1. Route-Based Splitting
 ```typescript
 // React Router with lazy loading
@@ -290,29 +286,9 @@ module.exports = {
 ```
 
 #### 3. Component-Level Splitting
-```typescript
-// Load heavy component on interaction
-const HeavyChart = lazy(() => import('./HeavyChart'));
-
-function Dashboard() {
-  const [showChart, setShowChart] = useState(false);
-
-  return (
-    <>
-      <button onClick={() => setShowChart(true)}>Show Chart</button>
-      {showChart && (
-        <Suspense fallback={<Spinner />}>
-          <HeavyChart />
-        </Suspense>
-      )}
-    </>
-  );
-}
-```
+Lazy-load heavy components on interaction: same pattern as INP technique 4 (Code Splitting) above.
 
 ### Tree Shaking
-
-Remove unused code from bundles.
 
 ```typescript
 // Bad: Imports entire library
@@ -353,8 +329,6 @@ module.exports = {
 ## Image Optimization
 
 ### Modern Formats
-
-**Format comparison:**
 
 | Format | Compression | Browser Support | Use Case |
 |--------|-------------|-----------------|----------|
@@ -484,8 +458,8 @@ document.querySelectorAll('a').forEach(link => {
 
 | Hint | Purpose | When to Use |
 |------|---------|-------------|
-| `preload` | High-priority fetch | Critical resources needed immediately |
-| `preconnect` | Establish connection | External domains used soon |
+| `preload` | High-priority fetch | Critical resources needed now |
+| `preconnect` | Open connection early | External domains used soon |
 | `dns-prefetch` | Resolve DNS | External domains used later |
 | `prefetch` | Low-priority fetch | Resources for next navigation |
 | `prerender` | Pre-render page | Very likely next page (careful!) |
@@ -656,14 +630,14 @@ getLCP(sendToAnalytics);
 - [ ] Preload critical resources (fonts, LCP image)
 - [ ] Use CDN for static assets
 - [ ] Enable HTTP/2 or HTTP/3
-- [ ] Implement code splitting (route-based, vendor)
+- [ ] Split code (route-based, vendor)
 - [ ] Optimize images (modern formats, responsive, lazy loading)
 - [ ] Minify and compress assets (brotli)
 
 ### Interactivity
 - [ ] INP < 200ms
 - [ ] Debounce/throttle event handlers
-- [ ] Use Web Workers for heavy computation
+- [ ] Move heavy computation to Web Workers
 - [ ] Optimize React rendering (memoization, virtualization)
 - [ ] Lazy load non-critical components
 

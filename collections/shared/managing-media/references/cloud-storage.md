@@ -1,27 +1,31 @@
 # Cloud Storage Integration
 
-S3, R2, and GCS integration for media upload and delivery.
-
 ## S3 Direct Upload (Pre-signed URLs)
 
 ### Backend (Generate Pre-signed URL)
 
 ```python
+import uuid
 import boto3
-from datetime import timedelta
 
 s3 = boto3.client('s3')
+ALLOWED = {'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp'}  # no SVG
 
-def generate_presigned_upload(filename: str) -> dict:
-    key = f"uploads/{uuid.uuid4()}/{filename}"
+# Presign endpoint must require auth; never put client filename in the key
+def generate_presigned_upload(content_type: str) -> dict:
+    ext = ALLOWED.get(content_type)
+    if ext is None:
+        raise ValueError('unsupported type')
+    key = f"uploads/{uuid.uuid4()}{ext}"
 
     presigned_data = s3.generate_presigned_post(
         Bucket='my-bucket',
         Key=key,
+        Fields={'Content-Type': content_type},
         ExpiresIn=3600,  # 1 hour
         Conditions=[
             ['content-length-range', 0, 10485760],  # Max 10MB
-            ['starts-with', '$Content-Type', 'image/'],
+            {'Content-Type': content_type},
         ]
     )
 
@@ -39,7 +43,7 @@ async function uploadToS3(file: File) {
   // 1. Get pre-signed URL from backend
   const { url, fields, key } = await fetch('/api/upload/presign', {
     method: 'POST',
-    body: JSON.stringify({ filename: file.name }),
+    body: JSON.stringify({ contentType: file.type }),
   }).then(r => r.json());
 
   // 2. Upload directly to S3
@@ -81,7 +85,7 @@ await r2.send(new PutObjectCommand({
 
 ## Best Practices
 
-1. **Pre-signed URLs** - Direct upload to S3/R2
+1. **Pre-signed URLs** - Upload direct to S3/R2
 2. **CDN in front** - CloudFront, Cloudflare
 3. **Lifecycle policies** - Auto-delete temp files
 4. **Access control** - Signed URLs for private content

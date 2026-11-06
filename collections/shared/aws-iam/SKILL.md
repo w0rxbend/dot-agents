@@ -17,28 +17,26 @@ metadata:
 
 # AWS IAM
 
-Manage identity and access in AWS with least-privilege policies, roles, federation, and permission boundaries.
-
 ## When to Use This Skill
 
-- Creating roles for EC2 instances, Lambda functions, or ECS tasks
-- Writing custom IAM policies with least-privilege access
-- Setting up OIDC federation for GitHub Actions or other CI/CD systems
-- Implementing permission boundaries for delegated administration
-- Auditing access with IAM Access Analyzer and credential reports
-- Configuring cross-account access with assume-role patterns
-- Enforcing MFA and session policies
+- Roles for EC2 instances, Lambda functions or ECS tasks
+- Custom least-privilege IAM policies
+- OIDC federation for GitHub Actions or other CI/CD systems
+- Permission boundaries for delegated administration
+- Access audits with IAM Access Analyzer and credential reports
+- Cross-account access with assume-role patterns
+- MFA and session policy enforcement
 
 ## Prerequisites
 
 - AWS CLI v2 installed and configured
 - IAM permissions: `iam:*` (or scoped to specific actions for least privilege)
-- For OIDC: ability to create identity providers (`iam:CreateOpenIDConnectProvider`)
+- For OIDC: permission to create identity providers (`iam:CreateOpenIDConnectProvider`)
 - AWS Organizations access for Service Control Policies (SCPs)
 
 ## IAM Policy Structure
 
-Every IAM policy follows the same JSON structure. Always specify the minimum actions and resources required.
+Always specify minimum required actions and resources.
 
 ```json
 {
@@ -75,9 +73,9 @@ Every IAM policy follows the same JSON structure. Always specify the minimum act
 ```
 
 Encryption conditions such as `s3:x-amz-server-side-encryption` only appear on write
-requests (`PutObject`, `CopyObject`, multipart create); never put them on an Allow for
+requests (`PutObject`, `CopyObject`, multipart create). Never put them on an Allow for
 `GetObject` or `ListBucket`, or reads are silently never allowed. Enforce encryption with
-the separate Deny on `PutObject` as above (or with bucket default encryption).
+separate Deny on `PutObject` as above, or with bucket default encryption.
 
 ## Create and Manage Roles
 
@@ -154,16 +152,11 @@ aws iam create-role \
     }]
   }'
 
-# In Account A: assume the role
-aws sts assume-role \
-  --role-arn arn:aws:iam::222222222222:role/CrossAccountReadRole \
-  --role-session-name cross-account-session \
-  --external-id unique-external-id-12345
-
-# Use the temporary credentials
-export AWS_ACCESS_KEY_ID="ASIAXXX"
-export AWS_SECRET_ACCESS_KEY="xxx"
-export AWS_SESSION_TOKEN="xxx"
+# In Account A: assume via CLI profile (bare `aws sts assume-role` prints secret keys to the transcript)
+aws configure set profile.cross-account.role_arn arn:aws:iam::222222222222:role/CrossAccountReadRole
+aws configure set profile.cross-account.source_profile default
+aws configure set profile.cross-account.external_id unique-external-id-12345
+aws sts get-caller-identity --profile cross-account
 ```
 
 ## OIDC Federation for GitHub Actions
@@ -219,6 +212,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      # Pin to a reviewed commit SHA in production (tags can move).
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsDeployRole
@@ -353,11 +347,11 @@ resource "aws_iam_role" "github_actions" {
       }
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
+        # Pin sub to one branch or environment (repo:my-org/my-repo:environment:production);
+        # repo:my-org/my-repo:* lets any branch or PR workflow assume the deploy role.
         StringEquals = {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-        }
-        StringLike = {
-          "token.actions.githubusercontent.com:sub" = "repo:my-org/my-repo:*"
+          "token.actions.githubusercontent.com:sub" = "repo:my-org/my-repo:ref:refs/heads/main"
         }
       }
     }]
@@ -444,12 +438,12 @@ resource "aws_iam_policy" "boundary" {
 
 | Problem | Cause | Fix |
 |---|---|---|
-| Access Denied on API call | Missing or incorrect policy | Use `simulate-principal-policy` to test; check resource ARN format |
-| Role cannot be assumed | Trust policy does not include the caller | Verify Principal in trust policy matches caller ARN |
-| OIDC federation fails | Audience or subject mismatch | Verify OIDC provider URL, client ID list (`sts.amazonaws.com`), and the `sub`/`aud` condition keys |
-| Permission boundary blocks action | Boundary does not include the action | Add the action to the boundary; effective = identity AND boundary |
+| Access Denied on API call | Missing or wrong policy | Test with `simulate-principal-policy`; check resource ARN format |
+| Role cannot be assumed | Trust policy does not include caller | Verify trust policy Principal matches caller ARN |
+| OIDC federation fails | Audience or subject mismatch | Verify OIDC provider URL, client ID list (`sts.amazonaws.com`) and `sub`/`aud` condition keys |
+| Permission boundary blocks action | Boundary does not include action | Add action to boundary; effective = identity AND boundary |
 | Credential report shows stale keys | Keys not rotated in 90+ days | Rotate keys; disable unused access keys |
-| Service-linked role creation fails | Organization SCP blocks iam:CreateServiceLinkedRole | Add exception in SCP for the specific service |
+| Service-linked role creation fails | Organization SCP blocks iam:CreateServiceLinkedRole | Add SCP exception for that specific service |
 | Cross-account assume role fails | Missing ExternalId or wrong account | Verify ExternalId matches; check account number in Principal |
 | MFA condition not enforced | Condition key not in policy | Add `aws:MultiFactorAuthPresent` condition |
 
@@ -463,6 +457,6 @@ resource "aws_iam_policy" "boundary" {
 
 ## Safety
 
-- Run `aws sts get-caller-identity` and confirm the account, region and profile before any change.
-- Use `get`/`list` calls first and test policy changes with `aws iam simulate-principal-policy` (IAM has no `--dry-run`); keep a working admin session open while editing trust policies, boundaries or deny statements so a mistake cannot lock you out.
+- Before any change, run `aws sts get-caller-identity` and confirm account, region and profile with the user. Get user approval before each mutating call (create, put, attach, add, update, delete); trust policies and attachments grant access.
+- Use `get`/`list` calls first. Test policy changes with `aws iam simulate-principal-policy` (IAM has no `--dry-run`). Keep a working admin session open while editing trust policies, boundaries or deny statements, so a mistake cannot lock you out.
 

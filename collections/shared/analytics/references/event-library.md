@@ -1,7 +1,5 @@
 # Event Library Reference
 
-Comprehensive list of events to track by business type and context.
-
 ## Contents
 - Marketing Site Events (navigation & engagement, CTA & form interactions, conversion events)
 - Product/App Events (onboarding, core usage, errors & support)
@@ -18,7 +16,7 @@ Comprehensive list of events to track by business type and context.
 | Event Name | Description | Properties |
 |------------|-------------|------------|
 | page_view | Page loaded (enhanced) | page_title, page_location, content_group |
-| scroll_depth | User scrolled to threshold | depth (25, 50, 75, 100) |
+| scroll_depth | Scrolled to threshold | depth (25, 50, 75, 100) |
 | outbound_link_clicked | Click to external site | link_url, link_text |
 | internal_link_clicked | Click within site | link_url, link_text, location |
 | video_played | Video started | video_id, video_title, duration |
@@ -29,9 +27,9 @@ Comprehensive list of events to track by business type and context.
 | Event Name | Description | Properties |
 |------------|-------------|------------|
 | cta_clicked | Call to action clicked | button_text, cta_location, page |
-| form_started | User began form | form_name, form_location |
+| form_started | Began form | form_name, form_location |
 | form_field_completed | Field filled | form_name, field_name |
-| form_submitted | Form successfully sent | form_name, form_location |
+| form_submitted | Form sent successfully | form_name, form_location |
 | form_error | Form validation failed | form_name, error_type |
 | resource_downloaded | Asset downloaded | resource_name, resource_type |
 
@@ -58,7 +56,7 @@ Comprehensive list of events to track by business type and context.
 | onboarding_started | Began onboarding | - |
 | onboarding_step_completed | Step finished | step_number, step_name |
 | onboarding_completed | All steps done | steps_completed, time_to_complete |
-| onboarding_skipped | User skipped onboarding | step_skipped_at |
+| onboarding_skipped | Skipped onboarding | step_skipped_at |
 | first_key_action_completed | Aha moment reached | action_type |
 
 ### Core Usage
@@ -68,12 +66,12 @@ Comprehensive list of events to track by business type and context.
 | session_started | App session began | session_number |
 | feature_used | Feature interaction | feature_name, feature_category |
 | action_completed | Core action done | action_type, count |
-| content_created | User created content | content_type |
-| content_edited | User modified content | content_type |
-| content_deleted | User removed content | content_type |
+| content_created | Content created | content_type |
+| content_edited | Content modified | content_type |
+| content_deleted | Content removed | content_type |
 | search_performed | In-app search | query, results_count |
 | settings_changed | Settings modified | setting_name, new_value |
-| invite_sent | User invited others | invite_type, count |
+| invite_sent | Invited others | invite_type, count |
 
 ### Errors & Support
 
@@ -82,7 +80,7 @@ Comprehensive list of events to track by business type and context.
 | error_occurred | Error experienced | error_type, error_message, page |
 | help_opened | Help accessed | help_type, page |
 | support_contacted | Support request made | contact_method, issue_type |
-| feedback_submitted | User feedback given | feedback_type, rating |
+| feedback_submitted | Feedback given | feedback_type, rating |
 
 ---
 
@@ -173,8 +171,8 @@ Comprehensive list of events to track by business type and context.
 |------------|-------------|------------|
 | integration_viewed | Integration page seen | integration_name |
 | integration_started | Setup began | integration_name |
-| integration_connected | Successfully connected | integration_name |
-| integration_disconnected | Removed integration | integration_name, reason |
+| integration_connected | Connected successfully | integration_name |
+| integration_disconnected | Integration removed | integration_name, reason |
 
 ### Account Events
 

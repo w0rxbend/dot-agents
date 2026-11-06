@@ -19,7 +19,7 @@
 | Pragmatic drag-drop | ✅ Active | ~5KB | ⭐⭐⭐⭐ | Native | Atlassian products |
 | SortableJS | ✅ Active | ~27KB | ⭐⭐ | No | Vanilla JS |
 
-**Note:** react-beautiful-dnd was archived in August 2025. Migrate to dnd-kit or Pragmatic drag-drop.
+**Note:** react-beautiful-dnd archived August 2025. Migrate to dnd-kit or Pragmatic drag-drop.
 
 ## dnd-kit Setup
 
@@ -107,8 +107,6 @@ export interface DragState {
 
 ### Sensors
 
-Sensors detect different input methods for initiating drag operations.
-
 ```tsx
 // Pointer Sensor - Mouse and touch
 useSensor(PointerSensor, {
@@ -140,8 +138,6 @@ class TouchSensor extends PointerSensor {
 
 ### Collision Detection
 
-Algorithms to determine drop targets.
-
 ```tsx
 import {
   closestCenter,     // Closest to center point
@@ -164,8 +160,6 @@ function customCollisionDetection(args) {
 
 ### Modifiers
 
-Transform drag behavior.
-
 ```tsx
 import { restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 
@@ -175,8 +169,6 @@ import { restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifier
 ```
 
 ### Drag Overlay
-
-Custom drag preview.
 
 ```tsx
 import { DragOverlay } from '@dnd-kit/core';
@@ -321,7 +313,7 @@ function handleDragEnd(event) {
 
 **When to Use:**
 - Complex drag sources and drop targets
-- Need HTML5 backend flexibility
+- HTML5 backend flexibility
 - Custom drag layers
 
 **Setup:**
@@ -341,9 +333,9 @@ function App() {
 ### Pragmatic drag-drop (Atlassian)
 
 **When to Use:**
-- Minimal bundle size priority
+- Smallest bundle size is priority
 - Atlassian ecosystem
-- Simple drag operations
+- Simple drags
 
 **Setup:**
 ```tsx
@@ -439,21 +431,21 @@ useEffect(() => {
 
 ### Common Issues
 
-**Issue: Drag not initiating on touch devices**
-- Solution: Add delay to activation constraint
-- Check for conflicting touch handlers
+**Issue: Drag not starting on touch devices**
+- Fix: add delay to activation constraint
+- Check conflicting touch handlers
 
 **Issue: Performance lag with many items**
-- Solution: Implement virtualization
+- Fix: virtualize list
 - Use CSS transforms instead of position
 - Memoize components
 
 **Issue: Accessibility not working**
-- Solution: Ensure keyboard sensor configured
-- Add proper ARIA attributes
+- Fix: configure keyboard sensor
+- Add ARIA attributes
 - Test with screen readers
 
 **Issue: Scroll not working during drag**
-- Solution: Configure auto-scroll
+- Fix: configure auto-scroll
 - Check overflow styles
-- Implement edge detection
+- Add edge detection

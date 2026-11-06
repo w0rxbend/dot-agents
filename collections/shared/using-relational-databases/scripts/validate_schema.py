@@ -5,12 +5,13 @@ Database Schema Validator
 Validates database schema structure, constraints, and indexes.
 Checks for common issues like missing indexes, lack of constraints, and naming conventions.
 
-Usage:
-    python validate_schema.py postgresql://user:pass@localhost/db
-    python validate_schema.py postgresql://user:pass@localhost/db --table users
+Usage (URL comes from DATABASE_URL, keeping credentials out of argv and history):
+    python validate_schema.py
+    python validate_schema.py --table users
 """
 
 import argparse
+import os
 import sys
 from typing import List, Dict, Any
 from urllib.parse import urlparse
@@ -163,7 +164,9 @@ def main():
     )
     parser.add_argument(
         "database_url",
-        help="Database connection URL (e.g., postgresql://user:pass@localhost/db)"
+        nargs="?",
+        default=os.environ.get("DATABASE_URL"),
+        help="Database connection URL (default: $DATABASE_URL; prefer the env var over argv)"
     )
     parser.add_argument(
         "--table",
@@ -172,6 +175,8 @@ def main():
     )
 
     args = parser.parse_args()
+    if not args.database_url:
+        parser.error("set DATABASE_URL or pass a database URL")
 
     try:
         validator = SchemaValidator(args.database_url)

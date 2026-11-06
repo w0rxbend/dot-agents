@@ -1,6 +1,6 @@
 # Medallion Architecture Pattern
 
-Standard pattern for organizing data in lakehouses. Three layers of increasing data quality.
+Standard pattern for organizing lakehouse data. Three layers of rising data quality.
 
 
 ## Table of Contents
@@ -17,7 +17,7 @@ Standard pattern for organizing data in lakehouses. Three layers of increasing d
 
 ### Bronze Layer (Raw)
 
-**Purpose:** Exact copy of source systems; immutable historical archive
+**Purpose:** Exact copy of source systems. Immutable historical archive.
 
 **Characteristics:**
 - Append-only (never modify or delete)
@@ -92,13 +92,13 @@ JOIN gold.dim_product p ON s.product_id = p.product_id;
 
 | Layer | Quality Checks | Purpose |
 |-------|---------------|---------|
-| Bronze → Silver | Schema validation, type checks, deduplication | Ensure data is parseable and unique |
+| Bronze → Silver | Schema validation, type checks, deduplication | Ensure data parseable and unique |
 | Silver → Gold | Business rule validation, referential integrity | Ensure data meets business logic |
-| Gold | Anomaly detection, statistical checks | Ensure data is reasonable |
+| Gold | Anomaly detection, statistical checks | Ensure data reasonable |
 
 ## Medallion + Data Mesh
 
-Each domain owns bronze-silver-gold for their data products:
+Each domain owns bronze-silver-gold for its data products:
 
 ```
 Sales Domain:

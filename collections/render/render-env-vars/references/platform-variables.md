@@ -1,10 +1,10 @@
 # Render-injected and runtime environment variables
 
-Render injects **platform variables** into builds and/or running services. Treat undocumented names as **unstable**. Always read **`PORT`** for HTTP listeners on native/web services unless your stack documents otherwise.
+Render injects **platform variables** into builds and/or running services. Treat undocumented names as **unstable**. Always read **`PORT`** for HTTP listeners on native/web services unless stack documents otherwise.
 
 ## Build-time vs runtime
 
-Availability can vary by **service type**, **language**, and **Docker vs native**. When in doubt, print `env` in a one-off shell (Dashboard **Shell**) or log at process start. The table below uses:
+Availability varies by **service type**, **language**, **Docker vs native**. If unsure, list var **names** only in one-off shell (Dashboard **Shell**, e.g. `compgen -e` in bash) or log names at process start; never print or log values (secrets). Columns:
 
 - **Build** — available during `buildCommand` / image build steps Render controls
 - **Runtime** — available to `startCommand` / container CMD
@@ -23,7 +23,7 @@ Availability can vary by **service type**, **language**, and **Docker vs native*
 | `RENDER_GIT_BRANCH` | Yes | Yes | Branch for this deploy |
 | `PORT` | Sometimes | Yes | **Default `10000`**; must bind `0.0.0.0` for inbound HTTP |
 | `IS_PULL_REQUEST` | Varies | Yes | Set for preview deploys from PRs |
-| `RENDER_CPU_COUNT` | Rare | Yes | vCPUs allocated to the instance |
+| `RENDER_CPU_COUNT` | Rare | Yes | vCPUs allocated to instance |
 | `RENDER_WEB_CONCURRENCY` | Rare | Yes | Hint for process/worker count (see below) |
 | `NODE_VERSION` | Yes | If set | Native Node builds |
 | `PYTHON_VERSION` | Yes | If set | Native Python builds |
@@ -33,18 +33,18 @@ Availability can vary by **service type**, **language**, and **Docker vs native*
 | `ELIXIR_VERSION` | Yes | If set | Native Elixir builds |
 | `ERLANG_VERSION` | Yes | If set | Often paired with Elixir |
 
-Dockerfile-based services only see variables you set or that the platform injects at the relevant phase; **language version** env vars apply primarily to **Render native** build pipelines.
+Dockerfile-based services only see variables you set or platform injects at relevant phase.
 
 ## `WEB_CONCURRENCY` and `RENDER_WEB_CONCURRENCY`
 
 - Many stacks read **`WEB_CONCURRENCY`** (Gunicorn, Unicorn, Puma integrations, etc.) to choose worker count.
-- Render also exposes **`RENDER_WEB_CONCURRENCY`** as a **suggested** concurrency aligned with instance size. Some buildpacks or docs map between them; confirm in your service’s **Environment** tab.
-- **Services created after December 8, 2025** use updated **default `WEB_CONCURRENCY`** behavior compared to older services. When debugging “too many/few workers,” compare **service creation date**, explicit **`WEB_CONCURRENCY`** overrides, and **`RENDER_CPU_COUNT`**.
+- Render also exposes **`RENDER_WEB_CONCURRENCY`** as **suggested** concurrency aligned with instance size. Some buildpacks or docs map between them. Confirm in service’s **Environment** tab.
+- **Services created after December 8, 2025** use updated **default `WEB_CONCURRENCY`** behavior. When debugging “too many/few workers,” compare **service creation date**, explicit **`WEB_CONCURRENCY`** overrides and **`RENDER_CPU_COUNT`**.
 
 ## `RENDER_CPU_COUNT`
 
-- Integer string (e.g. `"2"`) reflecting **allocated vCPUs** for the current instance type.
-- Use for auto-tuning worker pools **in addition to** memory limits, not as a substitute for load testing.
+- Integer string (e.g. `"2"`) reflecting **allocated vCPUs** for current instance type.
+- Use for auto-tuning worker pools **in addition to** memory limits, not as substitute for load testing.
 
 ## Per-language defaults (implications)
 
@@ -59,7 +59,7 @@ Dockerfile-based services only see variables you set or that the platform inject
 
 ## Language version variables
 
-These pin or document the toolchain Render uses for **native** builds:
+Pin or document toolchain Render uses for **native** builds:
 
 | Variable | Purpose |
 |----------|---------|
@@ -71,7 +71,7 @@ These pin or document the toolchain Render uses for **native** builds:
 | `ELIXIR_VERSION` | Elixir |
 | `ERLANG_VERSION` | OTP / Erlang |
 
-Docker builds should encode versions in the **image** or **build args** instead of relying on these.
+Docker builds: encode versions in **image** or **build args** instead of relying on these.
 
 ## Reading environment variables from application code
 
@@ -83,4 +83,4 @@ Docker builds should encode versions in the **image** or **build args** instead 
 | **Go** | `os.Getenv("MY_VAR")` |
 | **Elixir** | `System.get_env("MY_VAR")` |
 
-Remember: all values arrive as **strings**. Parse integers with explicit error handling; treat `"false"` and `""` carefully in boolean logic.
+All values arrive as **strings**. Parse integers with explicit error handling. Treat `"false"` and `""` carefully in boolean logic.

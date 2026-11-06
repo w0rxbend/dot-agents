@@ -36,7 +36,7 @@
 
 ## Overview
 
-Alert banners are persistent notifications that appear at the top of a page or section to communicate important information that requires user awareness but not immediate action.
+Alert banners: persistent notifications at top of page or section. Carry important information needing user awareness, not immediate action.
 
 ## Alert Types & Severity
 
@@ -81,7 +81,7 @@ interface SuccessAlert {
 ```
 
 **Use cases:**
-- Operation completed successfully
+- Operation succeeded
 - Form submitted
 - Settings saved
 - Process completed
@@ -107,7 +107,7 @@ interface WarningAlert {
 - Approaching limits (storage, usage)
 - Deprecation notices
 - Potential issues
-- Required actions soon
+- Action required soon
 
 ### Error Alert
 ```tsx
@@ -131,7 +131,7 @@ interface ErrorAlert {
 - System errors
 - Connection issues
 - Critical failures
-- Required immediate attention
+- Needs immediate attention
 
 ## Positioning Strategies
 
@@ -600,13 +600,13 @@ function MyComponent() {
 
 ## Best Practices
 
-1. **Clear hierarchy**: Use consistent colors and icons for each type
+1. **Clear hierarchy**: Consistent colors and icons per type
 2. **Contextual placement**: Page-level for global, inline for specific
 3. **Action clarity**: Make primary actions obvious
-4. **Dismissal logic**: Allow dismissal for non-critical alerts
+4. **Dismissal logic**: Non-critical alerts dismissible
 5. **Persistence**: Keep errors visible until resolved
 6. **Mobile-first**: Design for small screens first
 7. **Loading states**: Show loading in alerts for async actions
-8. **Error details**: Provide actionable error messages
-9. **Batch similar**: Group related alerts when possible
-10. **Test accessibility**: Verify with screen readers and keyboard
+8. **Error details**: Actionable error messages
+9. **Batch similar**: Group related alerts where possible
+10. **Test accessibility**: Screen readers and keyboard

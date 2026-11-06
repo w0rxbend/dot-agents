@@ -1,6 +1,6 @@
 # LGTM Stack Deployment Guide
 
-Complete guide for deploying the LGTM stack (Loki, Grafana, Tempo, Mimir) in Docker Compose and Kubernetes.
+Deploy LGTM stack (Loki, Grafana, Tempo, Mimir) on Docker Compose and Kubernetes.
 
 ## Table of Contents
 
@@ -63,6 +63,8 @@ Complete guide for deploying the LGTM stack (Loki, Grafana, Tempo, Mimir) in Doc
 
 ### Complete Stack (see examples/lgtm-docker-compose/)
 
+Keep in every variant: ports on 127.0.0.1, anonymous auth off, admin password from a gitignored `.env`, usage reporting to Grafana Labs off (flags below).
+
 **docker-compose.yml**:
 
 ```yaml
@@ -74,11 +76,11 @@ services:
     image: grafana/grafana:10.2.3
     container_name: grafana
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD in .env}
+      - GF_ANALYTICS_REPORTING_ENABLED=false
     volumes:
       - ./grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - grafana-data:/var/lib/grafana
@@ -90,8 +92,8 @@ services:
     image: grafana/loki:2.9.3
     container_name: loki
     ports:
-      - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
+      - "127.0.0.1:3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml -reporting.enabled=false
     volumes:
       - ./loki/loki-config.yaml:/etc/loki/local-config.yaml
       - loki-data:/loki
@@ -103,10 +105,8 @@ services:
     image: grafana/tempo:2.3.1
     container_name: tempo
     ports:
-      - "3200:3200"   # Tempo
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
-    command: -config.file=/etc/tempo/tempo.yaml
+      - "127.0.0.1:3200:3200"   # Tempo; OTLP 4317/4318 stay internal (Alloy forwards)
+    command: -config.file=/etc/tempo/tempo.yaml -reporting.enabled=false
     volumes:
       - ./tempo/tempo-config.yaml:/etc/tempo/tempo.yaml
       - tempo-data:/var/tempo
@@ -118,9 +118,10 @@ services:
     image: grafana/mimir:2.11.0
     container_name: mimir
     ports:
-      - "9009:9009"
+      - "127.0.0.1:9009:9009"
     command:
       - -config.file=/etc/mimir/mimir.yaml
+      - -usage-stats.enabled=false
     volumes:
       - ./mimir/mimir-config.yaml:/etc/mimir/mimir.yaml
       - mimir-data:/data
@@ -132,13 +133,14 @@ services:
     image: grafana/alloy:v1.0.0
     container_name: alloy
     ports:
-      - "12345:12345"  # Alloy UI
-      - "4317:4317"    # OTLP gRPC
-      - "4318:4318"    # OTLP HTTP
+      - "127.0.0.1:12345:12345"  # Alloy UI
+      - "127.0.0.1:4317:4317"    # OTLP gRPC
+      - "127.0.0.1:4318:4318"    # OTLP HTTP
     command:
       - run
       - /etc/alloy/config.alloy
       - --server.http.listen-addr=0.0.0.0:12345
+      - --disable-reporting
     volumes:
       - ./alloy/config.alloy:/etc/alloy/config.alloy
     networks:
@@ -357,6 +359,7 @@ prometheus.remote_write "mimir" {
 
 ```bash
 cd examples/lgtm-docker-compose
+# Set GRAFANA_ADMIN_PASSWORD in a gitignored .env first
 docker-compose up -d
 
 # Verify services
@@ -365,7 +368,7 @@ docker-compose ps
 # Check logs
 docker-compose logs -f
 
-# Access Grafana: http://localhost:3000 (admin/admin)
+# Access Grafana: http://localhost:3000 (admin / $GRAFANA_ADMIN_PASSWORD)
 # OTLP endpoint: localhost:4317 (gRPC) or localhost:4318 (HTTP)
 ```
 
@@ -394,7 +397,7 @@ metadata:
   namespace: observability
 data:
   loki.yaml: |
-    auth_enabled: false
+    auth_enabled: false  # no auth: keep Loki cluster-internal (ClusterIP + NetworkPolicy)
     server:
       http_listen_port: 3100
     common:
@@ -432,6 +435,7 @@ spec:
         image: grafana/loki:2.9.3
         args:
           - -config.file=/etc/loki/loki.yaml
+          - -reporting.enabled=false
         ports:
         - containerPort: 3100
           name: http
@@ -513,6 +517,7 @@ spec:
         image: grafana/tempo:2.3.1
         args:
           - -config.file=/etc/tempo/tempo.yaml
+          - -reporting.enabled=false
         ports:
         - containerPort: 3200
           name: http
@@ -581,6 +586,8 @@ spec:
             secretKeyRef:
               name: grafana-admin
               key: password
+        - name: GF_ANALYTICS_REPORTING_ENABLED
+          value: "false"
         ports:
         - containerPort: 3000
           name: http
@@ -603,7 +610,7 @@ metadata:
   name: grafana
   namespace: observability
 spec:
-  type: LoadBalancer
+  type: ClusterIP  # expose via TLS Ingress or kubectl port-forward; never a plain-HTTP LoadBalancer
   ports:
   - port: 3000
     targetPort: 3000
@@ -635,6 +642,7 @@ spec:
         args:
           - run
           - /etc/alloy/config.alloy
+          - --disable-reporting
         ports:
         - containerPort: 4317
           name: otlp-grpc
@@ -682,8 +690,8 @@ kubectl apply -f alloy-daemonset.yaml
 # Check status
 kubectl get pods -n observability
 
-# Get Grafana URL (if LoadBalancer)
-kubectl get svc grafana -n observability
+# Reach Grafana (or via your TLS Ingress)
+kubectl port-forward -n observability svc/grafana 3000:3000
 ```
 
 ---
@@ -761,18 +769,18 @@ data:
 ### Horizontal Scaling
 
 **Loki**:
-- Read path: Scale queriers
-- Write path: Scale ingesters
+- Read path: scale queriers
+- Write path: scale ingesters
 - Use object storage (S3, GCS) for long-term storage
 
 **Tempo**:
 - Scale distributors for ingestion
-- Scale queriers for query performance
-- Object storage is mandatory for production
+- Scale queriers for query speed
+- Production must use object storage
 
 **Mimir**:
-- Distribute ingesters across AZs
-- Scale compactors based on series count
+- Spread ingesters across AZs
+- Scale compactors by series count
 - Use object storage for blocks
 
 ### Resource Requests (Production)
@@ -832,12 +840,14 @@ spec:
 
 ## Helm Charts (Alternative)
 
-**Using official Grafana Helm charts**:
+**Official Grafana Helm charts**:
 
 ```bash
 # Add Grafana Helm repo
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
+# Add --version <reviewed chart version> to each install; review `helm show values`
+# first and set each chart's usage-reporting value to false
 
 # Install Loki
 helm install loki grafana/loki -n observability
@@ -882,7 +892,7 @@ curl -X POST http://localhost:4318/v1/traces \
 ```
 
 **Check Grafana**:
-1. Navigate to http://localhost:3000
+1. Open http://localhost:3000
 2. Explore → Tempo → Search for trace
 3. Explore → Loki → Query logs
 4. Explore → Mimir → Query metrics
@@ -892,8 +902,8 @@ curl -X POST http://localhost:4318/v1/traces \
 ## Troubleshooting
 
 **Services not communicating**:
-- Check network connectivity: `kubectl exec -it <pod> -- nc -zv loki 3100`
-- Verify ConfigMaps are mounted correctly
+- Check connectivity: `kubectl exec -it <pod> -- nc -zv loki 3100`
+- Verify ConfigMaps mounted correctly
 - Check service DNS: `kubectl exec -it <pod> -- nslookup loki.observability.svc.cluster.local`
 
 **High memory usage**:
@@ -902,6 +912,6 @@ curl -X POST http://localhost:4318/v1/traces \
 - Tune batch sizes in Alloy
 
 **Missing data**:
-- Verify OTLP endpoint is accessible from apps
+- Verify apps can reach OTLP endpoint
 - Check Alloy logs: `kubectl logs -n observability -l app=alloy`
-- Validate data is reaching backends: `kubectl logs -n observability -l app=loki`
+- Confirm data reaches backends: `kubectl logs -n observability -l app=loki`

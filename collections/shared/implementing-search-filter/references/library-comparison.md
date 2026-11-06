@@ -65,7 +65,7 @@
 |----------|-----------------|-------------|----------|----------|
 | **PostgreSQL FTS** | Low | ⭐⭐⭐⭐ Good | Decent, built-in | Small-medium datasets |
 | **MySQL FULLTEXT** | Low | ⭐⭐⭐ Moderate | Basic | Simple searches |
-| **MongoDB Text** | Low | ⭐⭐⭐ Moderate | Basic text search | Document stores |
+| **MongoDB Text** | Low | ⭐⭐⭐ Moderate | Basic text | Document stores |
 | **SQLite FTS5** | Low | ⭐⭐⭐ Good | Surprisingly capable | Embedded/mobile |
 
 ### Dedicated Search Engines
@@ -103,15 +103,13 @@
 
 **Pros:**
 - Fully accessible (WAI-ARIA compliant)
-- Headless - complete control over styling
-- Excellent TypeScript support
-- Hooks-based API
-- Small bundle size for features offered
-- Active maintenance
+- Headless: full styling control
+- Small bundle for features offered
+- Actively maintained
 
 **Cons:**
-- Requires more setup than pre-styled solutions
-- Need to implement visual design
+- More setup than pre-styled solutions
+- Must build visual design yourself
 - Learning curve for advanced features
 
 **Installation:**
@@ -144,16 +142,16 @@ function Autocomplete({ items, onSelect }) {
 
 **Pros:**
 - Feature-rich out of the box
-- Pre-styled with theming support
+- Pre-styled, themeable
 - Async/creatable/multi-select variants
 - Good documentation
 - Large community
 
 **Cons:**
-- Large bundle size (160KB)
+- Large bundle (160KB)
 - Opinionated styling
 - Harder to customize deeply
-- Some accessibility issues in edge cases
+- Accessibility issues in some edge cases
 
 **Installation:**
 ```bash
@@ -190,9 +188,9 @@ npm install react-select
 
 ### Choose Downshift when:
 - Accessibility is critical
-- Need full control over UI
-- Building a design system
-- Want minimal bundle size
+- Need full UI control
+- Building design system
+- Want minimal bundle
 - Using TypeScript
 
 ### Choose React Select when:
@@ -204,26 +202,26 @@ npm install react-select
 ### Choose PostgreSQL FTS when:
 - Data already in PostgreSQL
 - < 1 million searchable records
-- Simple search requirements
-- Want to avoid additional infrastructure
+- Simple search needs
+- Want no extra infrastructure
 
 ### Choose Elasticsearch when:
 - > 1 million records
 - Need complex search features
-- Multi-language support required
-- Faceted search is critical
+- Need multi-language support
+- Faceted search critical
 - Have DevOps resources
 
 ### Choose Algolia when:
 - Need instant global search
-- SaaS/e-commerce application
-- Can afford the pricing
+- SaaS/e-commerce app
+- Can afford pricing
 - Want zero infrastructure
 
 ### Choose MeiliSearch when:
 - Want Algolia-like experience
-- Need on-premise solution
-- Cost is a concern
+- Need on-premise
+- Cost matters
 - Moderate scale (< 10M records)
 
 ## Performance Benchmarks

@@ -7,7 +7,7 @@ tags: stage, named-stages, as, maintainability
 
 ## Use Named Build Stages
 
-Using numeric stage references like `COPY --from=0` is fragile because inserting, removing, or reordering stages silently breaks all downstream references. Named stages make the Dockerfile self-documenting and resilient to structural changes.
+Numeric references like `COPY --from=0` are fragile: inserting, removing or reordering stages silently breaks every downstream reference. Named stages self-document and survive restructuring.
 
 **Incorrect (numeric stage reference breaks when stages change):**
 

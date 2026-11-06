@@ -3,7 +3,6 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [Severity Levels](#severity-levels)
   - [SEV0 (P0) - Critical Outage](#sev0-p0-critical-outage)
   - [SEV1 (P1) - Major Degradation](#sev1-p1-major-degradation)
@@ -34,19 +33,15 @@
 - [Customization for Your Organization](#customization-for-your-organization)
 - [Further Reading](#further-reading)
 
-## Overview
-
-Severity classification determines incident urgency, response time, escalation path, and resource allocation. Consistent severity assignment ensures appropriate response and prevents both over- and under-reaction.
-
 ## Severity Levels
 
 ### SEV0 (P0) - Critical Outage
 
-**Definition:** Complete service outage, critical data loss, or security breach with immediate risk.
+**Definition:** Complete outage, critical data loss, or security breach with immediate risk.
 
 **Impact Criteria:**
-- Entire customer base unable to use core service functionality
-- Complete API or web application unavailability
+- All customers unable to use core functionality
+- API or web app completely unavailable
 - Critical data loss or corruption
 - Payment processing completely broken
 - Security breach with active data exfiltration
@@ -54,7 +49,7 @@ Severity classification determines incident urgency, response time, escalation p
 
 **Response Requirements:**
 - **Alert:** Page all hands immediately, 24/7
-- **Escalation:** Executive notification (CTO, CEO)
+- **Escalation:** Notify executives (CTO, CEO)
 - **IC Assignment:** Senior engineer or team lead
 - **Communication:** Status updates every 15 minutes
 - **External:** Immediate status page update, customer notification
@@ -67,29 +62,29 @@ Severity classification determines incident urgency, response time, escalation p
 
 **Examples:**
 - Database primary down, no automatic failover
-- Complete AWS region outage affecting production
-- Ransomware attack encrypting production systems
+- Complete AWS region outage hitting production
+- Ransomware encrypting production systems
 - Payment API returning 100% errors
 - Customer PII exposed publicly
-- DDoS attack overwhelming all infrastructure
+- DDoS overwhelming all infrastructure
 
 ---
 
 ### SEV1 (P1) - Major Degradation
 
-**Definition:** Major functionality degraded, significant customer impact, but service partially operational.
+**Definition:** Major functionality degraded, significant customer impact, service partly up.
 
 **Impact Criteria:**
 - 10-50% of customers unable to use core features
 - Elevated error rates (5-25% failure)
-- Significant performance degradation (10x slower)
+- Major slowdown (10x slower)
 - Critical feature unavailable (authentication, checkout)
 - Major third-party integration failure
 - Data sync delays causing business impact
 
 **Response Requirements:**
-- **Alert:** Page on-call during business hours, escalate for off-hours
-- **Escalation:** Team lead notification, IC assigned
+- **Alert:** Page on-call in business hours, escalate off-hours
+- **Escalation:** Notify team lead, assign IC
 - **IC Assignment:** Senior on-call engineer
 - **Communication:** Status updates every 30 minutes
 - **External:** Status page update within 30 minutes
@@ -103,10 +98,10 @@ Severity classification determines incident urgency, response time, escalation p
 **Examples:**
 - API error rate at 15%, checkout partially working
 - Database replica lag causing stale data
-- Search functionality completely broken
+- Search completely broken
 - Email delivery delayed by hours
 - Mobile app crashing on startup for iOS users
-- Cache failure causing severe performance degradation
+- Cache failure causing severe slowdown
 
 ---
 
@@ -116,19 +111,19 @@ Severity classification determines incident urgency, response time, escalation p
 
 **Impact Criteria:**
 - < 10% of customers impacted
-- Edge case bug affecting specific scenarios
+- Edge-case bug in specific scenarios
 - Non-critical feature unavailable
-- Minor performance degradation (2x slower)
+- Minor slowdown (2x slower)
 - Cosmetic issues with functional impact
 - Internal tool degradation (not customer-facing)
 
 **Response Requirements:**
 - **Alert:** Email/Slack notification to on-call
 - **Escalation:** Standard on-call response, no immediate escalation
-- **IC Assignment:** Optional (single responder sufficient)
+- **IC Assignment:** Optional (single responder enough)
 - **Communication:** Status updates at major milestones
 - **External:** Status page update if customer-visible
-- **Post-Mortem:** Optional (recommended if novel issue)
+- **Post-Mortem:** Optional (recommended for novel issues)
 
 **Response Time Target:**
 - Acknowledgment: < 15 minutes
@@ -137,9 +132,9 @@ Severity classification determines incident urgency, response time, escalation p
 
 **Examples:**
 - Admin dashboard slow for specific filter combinations
-- Export feature timing out for large datasets
+- Export timing out for large datasets
 - Notification emails delayed by 1-2 hours
-- UI rendering incorrectly on specific browser version
+- UI rendering wrong on specific browser version
 - Internal monitoring dashboard unavailable
 - Third-party integration showing stale data
 
@@ -173,7 +168,7 @@ Severity classification determines incident urgency, response time, escalation p
 **Examples:**
 - Button color inconsistent with design system
 - Tooltip text has typo
-- Log message formatting incorrect
+- Log message formatting wrong
 - Internal admin tool has minor UI glitch
 - Documentation outdated but not misleading
 - Error message wording unclear
@@ -182,7 +177,7 @@ Severity classification determines incident urgency, response time, escalation p
 
 ## Impact vs. Urgency Matrix
 
-Use this matrix when severity is unclear:
+Use when severity unclear:
 
 ```
                 High Impact                  Low Impact
@@ -198,22 +193,20 @@ Urgency      │ (Major degradation)        │ (Backlog)     │
 ```
 
 **Impact Dimensions:**
-- Number of customers affected
+- Customers affected
 - Revenue impact
 - Core vs. edge functionality
 - Workaround availability
 
 **Urgency Dimensions:**
-- Speed of degradation (getting worse?)
+- Degradation speed (getting worse?)
 - Time-sensitivity (end of quarter, holiday shopping)
-- Risk of escalation (security threat, compliance)
+- Escalation risk (security threat, compliance)
 - Media/PR exposure potential
 
 ---
 
 ## Decision Tree
-
-Use this decision tree for quick severity classification:
 
 ```
 1. Is production completely down or critical data at risk?
@@ -239,7 +232,7 @@ Use this decision tree for quick severity classification:
 
 ### Security Incidents
 
-Security incidents often warrant higher severity:
+Security incidents often rate higher:
 - **Active breach or data exfiltration:** SEV0 (always)
 - **Vulnerability discovered, no active exploit:** SEV1
 - **Patch required for known CVE:** SEV2
@@ -249,25 +242,25 @@ Security incidents often warrant higher severity:
 - Engage security team immediately
 - Preserve forensic evidence
 - Follow regulatory notification requirements
-- Legal team involvement for SEV0
+- Involve legal for SEV0
 
 ### Compliance and Regulatory
 
-Incidents affecting compliance have elevated severity:
+Compliance incidents get elevated severity:
 - **Active compliance violation:** SEV0 (GDPR breach, PCI violation)
 - **Potential compliance risk:** SEV1 (audit finding)
 - **Reporting delay or error:** SEV2
 
 **Additional Actions:**
-- Legal and compliance team notification
-- Regulatory notification timeline tracking
-- Documentation preservation
+- Notify legal and compliance teams
+- Track regulatory notification timeline
+- Preserve documentation
 
 ### Time-Based Severity Escalation
 
-Severity can escalate if unresolved:
-- **SEV2 unresolved for 8+ hours:** Consider escalation to SEV1
-- **SEV1 unresolved for 4+ hours:** Consider escalation to SEV0
+Unresolved incidents can escalate:
+- **SEV2 unresolved for 8+ hours:** Consider escalating to SEV1
+- **SEV1 unresolved for 4+ hours:** Consider escalating to SEV0
 - **Repeated SEV2 incidents:** Pattern may warrant SEV1 for systemic fix
 
 ---
@@ -283,12 +276,7 @@ Severity can escalate if unresolved:
 - Single customer bug → Labeled SEV1 (should be SEV2)
 - Minor UI glitch → Labeled SEV2 (should be SEV3)
 
-**Consequences:**
-- Alert fatigue and desensitization
-- Wasted resources on low-impact issues
-- Loss of trust in severity system
-
-**Solution:** Use decision tree consistently, review quarterly for patterns
+**Solution:** Use decision tree consistently. Review quarterly for patterns.
 
 ### Under-Severity (Too Low)
 
@@ -299,32 +287,25 @@ Severity can escalate if unresolved:
 - Checkout broken → Labeled SEV3 (should be SEV0)
 - Security vulnerability → Labeled SEV2 (should be SEV1)
 
-**Consequences:**
-- Delayed response and increased customer impact
-- Missed executive notification
-- Inadequate resource allocation
-
-**Solution:** Default to higher severity when uncertain (can always downgrade)
+**Solution:** When uncertain, default to higher severity (can always downgrade).
 
 ---
 
 ## Severity Reclassification
 
-Severity can change during incident lifecycle:
-
 ### Escalation Triggers
 - Impact expands (1% → 20% of customers)
 - Mitigation attempts fail
-- Root cause more severe than initially assessed
+- Root cause worse than first assessed
 - Secondary failures cascade
 
 ### De-escalation Triggers
-- Workaround implemented successfully
+- Workaround works
 - Impact contained to smaller scope
 - Service partially restored
-- Initial assessment was over-estimated
+- Initial assessment over-estimated
 
-**Process:** IC announces severity change in incident channel, updates status page if external communication already sent.
+**Process:** IC announces severity change in incident channel. IC updates status page if external communication already sent.
 
 ---
 
@@ -335,11 +316,11 @@ Severity can change during incident lifecycle:
 Track monthly severity counts:
 - **Healthy:** 70% SEV3, 20% SEV2, 8% SEV1, 2% SEV0
 - **Warning:** 50% SEV1/SEV0 indicates instability
-- **Target:** Downward trend in SEV0/SEV1 over quarters
+- **Target:** SEV0/SEV1 trending down over quarters
 
 ### Severity Duration
 
-Track average resolution time by severity:
+Track average resolution time per severity:
 - **SEV0:** Target < 2 hours
 - **SEV1:** Target < 4 hours
 - **SEV2:** Target < 24 hours
@@ -347,7 +328,7 @@ Track average resolution time by severity:
 
 ### Reclassification Rate
 
-Track how often severity changes during incident:
+Track how often severity changes mid-incident:
 - **Normal:** < 10% reclassification rate
 - **Warning:** > 25% indicates poor initial assessment
 
@@ -357,22 +338,22 @@ Track how often severity changes during incident:
 
 ### Scenario 1: Database Slow Queries
 
-**Situation:** Database queries taking 5 seconds instead of 500ms
+**Situation:** Database queries take 5 seconds instead of 500ms
 
 **Analysis:**
 - Impact: All customers affected, 10x performance degradation
-- Functionality: Still working, just slow
+- Functionality: Still working, only slow
 - Workaround: None
 
 **Classification:** SEV1 (Major Degradation)
 
-**Reasoning:** Significant performance impact to all customers, no workaround, but service still functional.
+**Reasoning:** Major slowdown for all customers, no workaround, but service still works.
 
 ---
 
 ### Scenario 2: Login Button Color Wrong
 
-**Situation:** Login button displays green instead of blue per design system
+**Situation:** Login button shows green instead of blue per design system
 
 **Analysis:**
 - Impact: No functional impact
@@ -406,7 +387,7 @@ Track how often severity changes during incident:
 
 **Analysis:**
 - Impact: All customers see stale data
-- Functionality: Search works, data just delayed
+- Functionality: Search works, data only delayed
 - Workaround: Manual refresh of product pages
 
 **Classification:** SEV2 (Minor Issues)
@@ -417,26 +398,22 @@ Track how often severity changes during incident:
 
 ## Interactive Severity Classifier
 
-Use the provided script for guided severity classification:
-
 ```bash
 python scripts/classify-severity.py
 ```
 
-The script asks:
+Script asks:
 1. Is production completely down? (Y/N)
 2. What percentage of customers affected? (0-100)
 3. Is core functionality impacted? (Y/N)
 4. Is there a workaround? (Y/N)
 5. Is revenue actively being lost? (Y/N)
 
-Based on responses, it recommends severity and explains reasoning.
+From answers, it recommends severity and explains reasoning.
 
 ---
 
 ## Customization for Your Organization
-
-Adapt severity levels to your organization's context:
 
 **Startup (Pre-Revenue):**
 - May not need SEV0 (no revenue to lose)
@@ -446,16 +423,16 @@ Adapt severity levels to your organization's context:
 **Enterprise (Large Customer Base):**
 - May add SEV00 for "Business-Critical Emergency"
 - Segment by customer tier (enterprise vs. self-serve)
-- SLA-driven severity (breach SLA = higher severity)
+- SLA-driven severity (SLA breach = higher severity)
 
 **B2B SaaS:**
-- Consider customer size in severity (1 enterprise customer down = SEV1)
+- Factor customer size into severity (1 enterprise customer down = SEV1)
 - Contractual SLAs dictate response times
 - Compliance incidents often SEV0
 
 **Consumer App:**
 - User count drives severity (1M users = SEV0)
-- App store rating impact factored in
+- Factor in app store rating impact
 - Viral negative feedback escalates severity
 
 ---

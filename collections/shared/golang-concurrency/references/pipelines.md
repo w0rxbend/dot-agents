@@ -14,11 +14,11 @@
 
 ## Pipeline Pattern
 
-A pipeline is a series of stages connected by channels, where each stage is a goroutine (or group of goroutines) that:
+Pipeline: stages connected by channels. Each stage is goroutine (or goroutine group) that:
 
-1. Receives values from an upstream channel
+1. Receives values from upstream channel
 2. Processes each value
-3. Sends results to a downstream channel
+3. Sends results to downstream channel
 
 ```go
 // Stage 1: Generate integers
@@ -69,14 +69,14 @@ func main() {
 
 **Key rules for pipelines**:
 
-- Pipeline stages MUST accept and respect context cancellation — every stage must select on `ctx.Done()` to avoid goroutine leaks on early cancellation
-- The producer (first stage) closes its output channel; each subsequent stage closes its own output
+- Stages MUST accept and respect context cancellation. Every stage must select on `ctx.Done()` to avoid goroutine leaks on early cancellation
+- Producer (first stage) closes its output channel; each later stage closes its own
 - NEVER create unbounded goroutines in pipeline stages
-- Use unbuffered channels unless you have measured throughput needs
+- Use unbuffered channels unless throughput needs are measured
 
 ## Fan-Out / Fan-In
 
-**Fan-out**: multiple goroutines read from the same channel to parallelize CPU-bound work. **Fan-in**: multiple channels are merged into a single output channel.
+**Fan-out**: multiple goroutines read same channel to parallelize CPU-bound work. **Fan-in**: merge multiple channels into one output channel.
 
 ```go
 // Fan-out: N workers reading from the same input channel
@@ -144,7 +144,7 @@ func fanIn(ctx context.Context, channels ...<-chan Result) <-chan Result {
 
 ## Worker Pool with errgroup
 
-Fan-out workers SHOULD use `errgroup.SetLimit` for bounded concurrency. For most use cases, `errgroup.SetLimit` replaces hand-rolled worker pools:
+Fan-out workers SHOULD use `errgroup.SetLimit` for bounded concurrency. In most cases `errgroup.SetLimit` replaces hand-rolled worker pools:
 
 ```go
 func processAll(ctx context.Context, tasks []Task) error {
@@ -160,7 +160,7 @@ func processAll(ctx context.Context, tasks []Task) error {
 }
 ```
 
-Use a hand-rolled worker pool only when you need:
+Hand-roll worker pool only when you need:
 
 - Per-worker state (connections, buffers)
 - Custom backpressure or priority scheduling
@@ -168,7 +168,7 @@ Use a hand-rolled worker pool only when you need:
 
 ## Bounded Concurrency with Semaphore
 
-When you need fine-grained concurrency control without errgroup:
+For fine-grained concurrency control without errgroup:
 
 ```go
 func processAll(ctx context.Context, items []Item) error {
@@ -189,13 +189,13 @@ func processAll(ctx context.Context, items []Item) error {
 }
 ```
 
-Prefer `errgroup.SetLimit` over this pattern when error propagation is needed.
+Prefer `errgroup.SetLimit` over this when error propagation needed.
 
 ## Pipeline Alternatives
 
 ### Go 1.23+ Iterators (range-over-func)
 
-For in-process data transformations that do not need concurrency, iterators avoid the overhead of goroutines and channels:
+For in-process transformations not needing concurrency, iterators avoid goroutine and channel overhead:
 
 ```go
 func Filter[T any](seq iter.Seq[T], pred func(T) bool) iter.Seq[T] {
@@ -223,19 +223,19 @@ func Map[T, U any](seq iter.Seq[T], f func(T) U) iter.Seq[U] {
 
 Use iterators when:
 
-- Processing is CPU-bound and does not benefit from parallelism
-- You want lazy evaluation without goroutine overhead
-- The data source is already sequential (slice, database cursor)
+- Processing is CPU-bound, does not benefit from parallelism
+- Want lazy evaluation without goroutine overhead
+- Data source already sequential (slice, database cursor)
 
 Use goroutine+channel pipelines when:
 
-- Stages involve I/O (network, disk) that benefits from concurrency
-- You need true parallelism across CPU cores
-- Stages have different throughput characteristics
+- Stages do I/O (network, disk) that benefits from concurrency
+- Need true parallelism across CPU cores
+- Stages differ in throughput
 
 ### samber/ro
 
-`samber/ro` provides a fluent, type-safe pipeline API for read-only collections:
+`samber/ro`: fluent, type-safe pipeline API for read-only collections:
 
 ```go
 import "github.com/samber/ro"
@@ -250,11 +250,11 @@ emails, _ := ro.Collect( // ignore error
 
 ```
 
-Use `samber/ro` for sequential data transformations that benefit from a fluent API. It might also support parallel processing if needed.
+Use `samber/ro` for sequential transformations that benefit from fluent API. May also support parallel processing if needed.
 
 ## Goroutine Leak Detection
 
-Goroutine leaks SHOULD be detected with goleak in tests. Use `go.uber.org/goleak` in `TestMain` to catch leaked goroutines across all tests:
+Tests SHOULD detect goroutine leaks with goleak. Put `go.uber.org/goleak` in `TestMain` to catch leaks across all tests:
 
 ```go
 func TestMain(m *testing.M) {
@@ -266,10 +266,9 @@ func TestMain(m *testing.M) {
 
 | Mistake | Fix |
 | --- | --- |
-| Missing `ctx.Done()` in pipeline stage | Always select on context to allow cancellation |
 | Not closing output channel | Producer must `defer close(out)` |
-| Unbounded goroutine spawning | Use `errgroup.SetLimit` or a semaphore |
+| Unbounded goroutine spawning | `errgroup.SetLimit` or semaphore |
 | Sending mutable data through channel | Send copies or immutable values |
-| Blocking send without select | Wrap channel sends in select with `ctx.Done()` |
+| Blocking send without select | Wrap sends in select with `ctx.Done()` |
 
 → See `samber/cc-skills-golang@golang-concurrency` skill for sync primitives and channel patterns.

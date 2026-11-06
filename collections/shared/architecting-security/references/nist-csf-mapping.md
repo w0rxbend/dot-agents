@@ -29,7 +29,7 @@
 
 ## Overview
 
-The NIST Cybersecurity Framework provides a risk-based approach to managing cybersecurity risks. Version 2.0 (released 2024) introduces the GOVERN function and expands scope to all organizations.
+NIST Cybersecurity Framework: risk-based approach to managing cybersecurity risk. Version 2.0 (released 2024) adds GOVERN function and expands scope to all organizations.
 
 **Official Source:** NIST CSF 2.0 (https://www.nist.gov/cyberframework)
 
@@ -58,7 +58,7 @@ The NIST Cybersecurity Framework provides a risk-based approach to managing cybe
 - Establish cybersecurity governance structure
 - Define risk tolerance and risk appetite
 - Assign cybersecurity roles and responsibilities
-- Develop security policies and procedures
+- Write security policies and procedures
 - Supply chain risk management program
 - Third-party risk assessments
 
@@ -66,7 +66,7 @@ The NIST Cybersecurity Framework provides a risk-based approach to managing cybe
 
 ### IDENTIFY (ID)
 
-**Purpose:** Develop organizational understanding to manage cybersecurity risk to systems, people, assets, data, and capabilities.
+**Purpose:** Build organizational understanding of cybersecurity risk to systems, people, assets, data, and capabilities.
 
 **Categories:**
 - **ID.AM:** Asset Management
@@ -80,7 +80,7 @@ The NIST Cybersecurity Framework provides a risk-based approach to managing cybe
 - Software asset inventory (applications, operating systems, firmware)
 - Data asset classification (public, internal, confidential, restricted)
 - Personnel inventory (employees, contractors, privileged users)
-- Network architecture documentation (network diagrams, data flows)
+- Network architecture docs (network diagrams, data flows)
 
 **ID.RA (Risk Assessment):**
 - Identify and document cybersecurity risks
@@ -98,7 +98,7 @@ The NIST Cybersecurity Framework provides a risk-based approach to managing cybe
 
 ### PROTECT (PR)
 
-**Purpose:** Develop and implement appropriate safeguards to ensure delivery of critical services.
+**Purpose:** Implement safeguards that ensure delivery of critical services.
 
 **Categories:**
 - **PR.AA:** Identity Management, Authentication and Access Control
@@ -146,7 +146,7 @@ The NIST Cybersecurity Framework provides a risk-based approach to managing cybe
 
 ### DETECT (DE)
 
-**Purpose:** Develop and implement appropriate activities to identify occurrence of cybersecurity events.
+**Purpose:** Implement activities that identify cybersecurity events as they occur.
 
 **Categories:**
 - **DE.AE:** Adverse Event Analysis
@@ -173,7 +173,7 @@ The NIST Cybersecurity Framework provides a risk-based approach to managing cybe
 
 ### RESPOND (RS)
 
-**Purpose:** Develop and implement appropriate activities to take action regarding detected cybersecurity incidents.
+**Purpose:** Implement activities to act on detected cybersecurity incidents.
 
 **Categories:**
 - **RS.MA:** Incident Management
@@ -196,16 +196,16 @@ The NIST Cybersecurity Framework provides a risk-based approach to managing cybe
 - Threat intelligence enrichment
 
 **RS.MI (Incident Mitigation):**
-- Containment strategies (isolate, quarantine)
-- Eradication procedures (remove malware, close vulnerabilities)
-- Recovery procedures (restore systems, validate integrity)
+- Containment (isolate, quarantine)
+- Eradication (remove malware, close vulnerabilities)
+- Recovery (restore systems, validate integrity)
 - Lessons learned and post-incident review
 
 ---
 
 ### RECOVER (RC)
 
-**Purpose:** Develop and implement appropriate activities to maintain resilience and restore capabilities or services impaired by cybersecurity incidents.
+**Purpose:** Implement activities to maintain resilience and restore capabilities or services impaired by cybersecurity incidents.
 
 **Categories:**
 - **RC.RP:** Recovery Planning
@@ -250,19 +250,19 @@ The NIST Cybersecurity Framework provides a risk-based approach to managing cybe
 - Continuous improvement culture
 - Advanced threat intelligence integration
 - Real-time risk assessment and response
-- Predictive indicators and adaptive processes
+- Predictive indicators, adaptive processes
 
 ---
 
 ## NIST CSF Profiles
 
-**Current Profile:** Current state of cybersecurity posture (as-is)
+**Current Profile:** Current cybersecurity posture (as-is)
 
-**Target Profile:** Desired state of cybersecurity posture (to-be)
+**Target Profile:** Desired cybersecurity posture (to-be)
 
 **Gap Analysis:** Difference between Current and Target profiles
 
-**Roadmap:** Plan to close gaps and achieve Target profile
+**Roadmap:** Plan to close gaps and reach Target profile
 
 ---
 
@@ -272,7 +272,7 @@ The NIST Cybersecurity Framework provides a risk-based approach to managing cybe
 
 | OWASP Risk | NIST CSF Function | Category | Example Control |
 |------------|-------------------|----------|-----------------|
-| **A01: Broken Access Control** | PROTECT | PR.AA | Implement RBAC, least privilege |
+| **A01: Broken Access Control** | PROTECT | PR.AA | RBAC, least privilege |
 | **A02: Cryptographic Failures** | PROTECT | PR.DS | Encryption at rest/transit, key management |
 | **A03: Injection** | PROTECT | PR.IP | Input validation, parameterized queries |
 | **A04: Insecure Design** | IDENTIFY | ID.RA | Threat modeling, security by design |
@@ -333,38 +333,38 @@ The NIST Cybersecurity Framework provides a risk-based approach to managing cybe
 
 ### Phase 1: Assess Current State (Weeks 1-4)
 
-1. Conduct cybersecurity risk assessment
+1. Run cybersecurity risk assessment
 2. Document current security controls (Current Profile)
 3. Map existing controls to NIST CSF categories
 4. Identify gaps and weaknesses
 
 ### Phase 2: Define Target State (Weeks 5-6)
 
-1. Define security objectives based on business goals
-2. Determine acceptable risk levels (risk appetite)
+1. Define security objectives from business goals
+2. Set acceptable risk levels (risk appetite)
 3. Define Target Profile (desired security posture)
-4. Select appropriate Implementation Tier
+4. Select fitting Implementation Tier
 
 ### Phase 3: Gap Analysis (Weeks 7-8)
 
 1. Compare Current Profile vs. Target Profile
 2. Prioritize gaps by risk and business impact
-3. Estimate resources and budget for remediation
-4. Develop implementation roadmap
+3. Estimate remediation resources and budget
+4. Build implementation roadmap
 
 ### Phase 4: Implement Controls (Months 3-12)
 
 1. Implement high-priority controls first
 2. Track progress against roadmap
-3. Update Current Profile as controls implemented
-4. Regular management reporting
+3. Update Current Profile as controls go in
+4. Report to management regularly
 
 ### Phase 5: Continuous Improvement (Ongoing)
 
 1. Monitor security metrics and KPIs
-2. Conduct periodic reassessments (annually)
+2. Reassess periodically (annually)
 3. Update Target Profile as business changes
-4. Lessons learned from incidents
+4. Apply lessons learned from incidents
 
 ---
 
@@ -383,6 +383,4 @@ The NIST Cybersecurity Framework provides a risk-based approach to managing cybe
 
 ## Summary
 
-NIST CSF 2.0 provides comprehensive, risk-based framework with 6 functions: GOVERN (new), IDENTIFY, PROTECT, DETECT, RESPOND, RECOVER. Use for security program governance, compliance mapping, and continuous improvement. Implement through phased approach: Assess → Define Target → Gap Analysis → Implement → Improve.
-
-Map NIST CSF to tactical frameworks (CIS Controls for implementation, OWASP for app security, cloud provider frameworks for cloud security). Track progress with Current Profile → Target Profile comparison and Implementation Tiers (1-4).
+Use NIST CSF for security program governance, compliance mapping, and continuous improvement. Map it to tactical frameworks: CIS Controls for implementation, OWASP for app security, cloud provider frameworks for cloud security.

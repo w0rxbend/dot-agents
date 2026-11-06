@@ -15,7 +15,7 @@
 
 ## When to Use
 
-Apply clean architecture when you need strong separation between business logic and infrastructure — typically medium-to-large services (2K+ lines) where testability, framework independence, and clear dependency direction matter. Do NOT use for small CLI tools or scripts.
+Use when business logic needs strong separation from infrastructure — typically medium-to-large services (2K+ lines) where testability, framework independence, clear dependency direction matter. Do NOT use for small CLI tools or scripts.
 
 ## The Dependency Rule
 
@@ -25,8 +25,6 @@ Dependencies point inward only. Inner layers never import outer layers.
 Frameworks & Drivers  →  Interface Adapters  →  Use Cases  →  Entities
 (HTTP, DB, gRPC)         (handlers, repos)      (app logic)   (domain)
 ```
-
-Each layer defines interfaces for what it needs. Outer layers implement those interfaces.
 
 ## Project Structure
 
@@ -183,7 +181,7 @@ func (h *OrderHandler) HandlePlaceOrder(w http.ResponseWriter, r *http.Request) 
 
 ## Key Principle
 
-Interfaces live where they are consumed, not where they are implemented. The `usecase/order/port.go` file defines `OrderRepository` — the adapter in `adapter/repository/` implements it. This keeps the use case layer free from infrastructure imports.
+Interfaces live where consumed, not where implemented. `usecase/order/port.go` defines `OrderRepository`; adapter in `adapter/repository/` implements it. Keeps use case layer free of infrastructure imports.
 
 ## Wiring
 

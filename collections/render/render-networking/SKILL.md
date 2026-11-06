@@ -16,27 +16,23 @@ metadata:
 
 # Render private networking
 
-Render’s **private network** lets services talk to each other without exposing traffic on the public internet. Use this skill when users need internal connectivity, discovery across scaled instances, or correct URL/port behavior for Blueprints and the Dashboard.
-
 ## When to Use This Skill
 
 - Designing or debugging **service-to-service** traffic on Render
-- Questions about **internal hostnames**, **internal URLs**, or **Connect > Internal** in the Dashboard
+- **Internal hostnames**, **internal URLs**, **Connect > Internal** in Dashboard
 - **Service discovery** across multiple instances (custom load balancing, mesh-style setups)
-- **Port limits**, reserved ports, or **multi-port** web services (public vs private)
-- **Free-tier** web services and **who can send vs receive** private traffic
-- **Environment isolation** (Professional+) or **AWS PrivateLink** for private egress/ingress patterns
-
-For step-by-step architecture examples and Blueprint patterns, see `references/communication-patterns.md`. For failure modes and fixes, see `references/troubleshooting.md`.
+- **Port limits**, reserved ports, **multi-port** web services (public vs private)
+- **Free-tier** web services; **who can send vs receive** private traffic
+- **Environment isolation** (Professional+), **AWS PrivateLink** for private egress/ingress patterns
 
 ## Private Network Basics
 
-Private connectivity is available only when **all** of the following hold:
+Private connectivity works only when **all** hold:
 
-- Services are in the **same region**
-- Services are in the **same workspace**
+- Services in **same region**
+- Services in **same workspace**
 
-If either differs, private DNS and internal routing will not connect those services.
+If either differs, private DNS and internal routing will not connect them.
 
 ### Who can communicate
 
@@ -51,48 +47,36 @@ If either differs, private DNS and internal routing will not connect those servi
 | **Managed Postgres** | Via internal URL (from allowed clients) | N/A (datastore) | Via internal URL |
 | **Key Value** | Via internal URL (from allowed clients) | N/A (datastore) | Via internal URL |
 
-**Free-tier Web Services:** They may **send** private traffic to other services, but they **cannot receive** inbound private traffic. Plan upgrades or topology changes apply if a free web service must accept private connections.
-
-Workers, crons, and workflow runs initiate outbound connections (e.g., to internal URLs or private service hostnames) but are **not** reachable by internal hostname for inbound calls.
+**Free-tier Web Services:** Can **send** private traffic, **cannot receive** it inbound. Upgrade or change topology if one must accept private connections.
 
 ## Internal Addresses
 
-- Open the service in the Render Dashboard → **Connect** → **Internal** tab for the canonical internal hostname, URL, and connection details.
-- Clients often need an **explicit scheme** in code or config, e.g. `http://service-name:port` or `https://...` when TLS applies—do not assume a bare hostname alone is enough for every HTTP client.
+- Render Dashboard → **Connect** → **Internal** tab: canonical internal hostname, URL, connection details.
+- Clients often need **explicit scheme**, e.g. `http://service-name:port`, or `https://...` when TLS applies. Do not assume bare hostname works for every HTTP client.
 - **URL shape:** `http://[internal-hostname]:[port]/path` (adjust scheme/port per service).
 
 ## Service Discovery
 
-For services with **multiple instances**, Render exposes a **discovery DNS** name that resolves to **all instance IPs** for that service. The pattern is **`[hostname]-discovery`** (see Dashboard docs for the exact hostname shown for your service).
+Services with **multiple instances** get **discovery DNS** name resolving to **all instance IPs**. Pattern: **`[hostname]-discovery`** (Dashboard docs show exact hostname).
 
-- **`RENDER_DISCOVERY_SERVICE`** is set in environments where discovery applies; use it with the discovery hostname pattern for scripts and app code that need instance lists.
-- **Use case:** Custom load balancing, health aggregation, or any logic that must fan out or pick among instances explicitly instead of a single internal hostname.
-
-See `references/communication-patterns.md` for discovery-oriented patterns.
+- **`RENDER_DISCOVERY_SERVICE`** is set where discovery applies. Combine with discovery hostname pattern in scripts and app code needing instance lists.
+- **Use case:** Custom load balancing, health aggregation, or logic that must fan out or pick instances explicitly instead of one internal hostname.
 
 ## Port Rules
 
 - **Maximum 75 open ports** per service.
-- **Reserved ports** (do not bind your app to these for normal use): **18012**, **18013**, **19099**. Port **10000** is not reserved: it is the usual default `PORT` value, which a web service should bind.
-- **Multi-port Web Services:** Only **one** port receives **public** HTTP traffic; that port must align with the **`PORT`** environment variable. **Additional** ports are for **private network** access only.
+- **Reserved ports** (do not bind app to these for normal use): **18012**, **18013**, **19099**. Port **10000** is not reserved: it is usual default `PORT` value, which web service should bind.
+- **Multi-port Web Services:** Only **one** port gets **public** HTTP traffic; it must match **`PORT`** environment variable. **Additional** ports: **private network** access only.
 
-When something fails to connect, verify the target is listening on the expected port and that the port is not reserved or blocked by misconfiguration.
+On connection failure, verify target listens on expected port and port is not reserved or blocked by misconfiguration.
 
 ## Environment Isolation
 
-On **Professional and higher** workspaces, you can configure **per-environment** rules so private traffic does **not** cross certain environment boundaries. If private calls work in one environment but not another, check workspace **environment isolation** settings before assuming DNS or app bugs.
+**Professional and higher** workspaces can set **per-environment** rules so private traffic does **not** cross certain environment boundaries. If private calls work in one environment but not another, check workspace **environment isolation** before suspecting DNS or app bugs.
 
 ## AWS PrivateLink
 
-**Professional+** workspaces can use **AWS PrivateLink** to extend private connectivity to or from external AWS VPCs and approved endpoints. This is separate from default service-to-service private DNS; use it when the architecture requires **private** access to Render or from Render to specific AWS resources without the public internet.
-
-## Common Patterns
-
-Short summaries; full diagrams and Blueprint notes live in `references/communication-patterns.md`.
-
-1. **Web gateway + private backends** — Public Web Service terminates HTTP; internal calls use private hostnames and ports to Private Services or internal URLs.
-2. **Worker to database** — Background Worker (no internal hostname) connects **outbound** to Postgres or Key Value **internal URLs**.
-3. **Microservices** — Private Services (and eligible Web Services) call each other by **internal hostname:port** on the private network.
+**Professional+** workspaces can use **AWS PrivateLink** to extend private connectivity to or from external AWS VPCs and approved endpoints. Separate from default service-to-service private DNS. Use when architecture needs **private** access to Render, or from Render to specific AWS resources, without public internet.
 
 ## References
 
@@ -103,6 +87,6 @@ Short summaries; full diagrams and Blueprint notes live in `references/communica
 
 ## Related Skills
 
-- **render-web-services** — Public web services, `PORT`, and HTTP behavior
+- **render-web-services** — Public web services, `PORT`, HTTP behavior
 - **render-private-services** — Private Service–specific setup and scaling
-- **render-blueprints** — `render.yaml`, `fromService`, and multi-service wiring
+- **render-blueprints** — `render.yaml`, `fromService`, multi-service wiring

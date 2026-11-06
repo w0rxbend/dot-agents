@@ -2,29 +2,29 @@
 name: docker-compose-networking
 user-invocable: false
 description: Design Docker Compose networking - default and custom bridge networks, internal (no-egress) tiers, aliases, external networks shared across projects, port publishing, host mode, static IPs, IPv6 and connectivity debugging. Use when services must be segmented, discovered or exposed; see docker-compose-basics for general Compose files.
-allowed-tools: [Bash, Read]
+allowed-tools: [Read, Bash(docker compose config --no-interpolate --no-env-resolution:*), Bash(docker compose ps:*), Bash(docker network ls:*), Bash(docker network inspect:*)]
 ---
 
 # Docker Compose Networking
 
-Network design for single-host Compose projects (Compose v2, `docker compose`). Overlay networks belong to Swarm mode and are out of scope here. Omit the obsolete top-level `version:` key in every file.
+Network design for single-host Compose projects (Compose v2, `docker compose`). Overlay networks (Swarm mode) out of scope. Omit obsolete top-level `version:` key in every file.
 
 ## How Compose networks work
 
-- Compose creates one bridge network per project (`<project>_default`) and attaches every service that does not declare `networks:`.
-- Each service is resolvable by its **service name** (and any aliases) through Docker's embedded DNS at `127.0.0.11`. Scaled replicas share the name; DNS returns all of them.
-- `ports:` publishes to the host. Container-to-container traffic on a shared network needs no `ports:`; `expose:` is documentation only.
-- A service on several networks is reachable from each of them; services sharing no network cannot talk to each other.
+- Compose creates one bridge network per project (`<project>_default`). Every service not declaring `networks:` joins it.
+- Services resolve by **service name** (and aliases) via Docker's embedded DNS at `127.0.0.11`. Scaled replicas share name; DNS returns all.
+- `ports:` publishes to host. Container-to-container traffic on shared network needs no `ports:`; `expose:` is documentation only.
+- Service on several networks is reachable from each. Services sharing no network cannot talk to each other.
 
 ## Decision table
 
 | Need | Use |
 |---|---|
 | Simple app, all services may talk | Default network (declare nothing) |
-| Database reachable only from the API | Separate `backend` network; DB attached only there |
+| Database reachable only from API | Separate `backend` network; DB attached only there |
 | Tier with no internet egress | `internal: true` on that network |
 | Two Compose projects must talk | One `external: true` network, created once |
-| Expose only to the local machine | `"127.0.0.1:8080:80"` |
+| Expose only to local machine | `"127.0.0.1:8080:80"` |
 | Stable hostname independent of service name | `aliases:` |
 | Fixed IP (legacy allowlists, appliances) | `ipam` subnet + `ipv4_address` (last resort) |
 | Max throughput / needs host interfaces (Linux) | `network_mode: host` (no isolation, no `ports:`) |
@@ -72,7 +72,7 @@ secrets:
     file: ./secrets/db_password.txt
 ```
 
-Result: `proxy` reaches `api` only; `api` reaches `db` and `cache`; `db` and `cache` have no published ports and no egress. A service that must call external APIs cannot sit only on an `internal` network.
+Result: `proxy` reaches `api` only; `api` reaches `db` and `cache`; `db` and `cache` have no published ports, no egress. Service that must call external APIs cannot sit only on `internal` network.
 
 ## Aliases
 
@@ -85,7 +85,7 @@ services:
         aliases: [postgres, primary-db]
 ```
 
-Aliases are per network: they resolve only for services on that network.
+Aliases are per network: resolve only for services on that network.
 
 ## External networks (cross-project)
 
@@ -105,7 +105,7 @@ docker network create company-shared
 docker compose up -d
 ```
 
-Compose never creates or deletes an external network; `up` fails if it does not exist.
+Compose never creates or deletes external networks; `up` fails if network does not exist.
 
 ## Port publishing
 
@@ -126,7 +126,7 @@ services:
         protocol: tcp
 ```
 
-Published ports bypass host firewalls managed with ufw/firewalld on many Linux setups because Docker writes its own iptables/nftables rules. Bind admin and database ports to `127.0.0.1` rather than relying on the host firewall.
+On many Linux setups, published ports bypass ufw/firewalld host firewalls, because Docker writes its own iptables/nftables rules. Bind admin and database ports to `127.0.0.1` instead of relying on host firewall.
 
 ## Static IPs and custom subnets
 
@@ -145,7 +145,7 @@ networks:
           gateway: 172.28.0.1
 ```
 
-Pick subnets that do not overlap the host LAN, VPNs or other Docker networks. Prefer service names; static IPs break scaling and make collisions likely.
+Pick subnets that do not overlap host LAN, VPNs or other Docker networks. Prefer service names; static IPs break scaling, invite collisions.
 
 ## Host networking (Linux)
 
@@ -156,7 +156,7 @@ services:
     network_mode: host
 ```
 
-`network_mode: host` cannot be combined with `ports:` or `networks:`. On Docker Desktop host networking behaves differently; check the installed version's documentation.
+`network_mode: host` cannot combine with `ports:` or `networks:`. On Docker Desktop, host networking behaves differently; check documentation for installed version.
 
 ## IPv6
 
@@ -169,7 +169,7 @@ networks:
         - subnet: 2001:db8:1::/64     # use a real ULA/GUA prefix in practice
 ```
 
-The Docker daemon may need IPv6 enabled (`daemon.json`) depending on the engine version.
+Depending on engine version, Docker daemon may need IPv6 enabled (`daemon.json`).
 
 ## DNS overrides
 
@@ -186,32 +186,34 @@ services:
 ## Debugging connectivity
 
 ```bash
-docker compose config                      # confirm effective networks per service
+docker compose config --no-interpolate --no-env-resolution   # effective networks per service
 docker network ls
 docker network inspect <project>_backend   # attached containers and IPs
 docker compose exec api getent hosts db    # DNS resolution from inside a container
-docker run --rm -it --network <project>_backend nicolaka/netshoot \
+docker run --rm -it --network <project>_backend nicolaka/netshoot:v0.16 \
   sh -c 'dig db && nc -zv db 5432'
 ```
+
+Plain `config` inlines `.env`, shell and `env_file` values, secrets included: never paste it into chat or logs.
 
 Common failures:
 
 | Symptom | Cause |
 |---|---|
-| `could not resolve host` | Services share no network, or the name is an alias on a different network |
-| Connection refused on the right host | App listens on `127.0.0.1` inside the container; bind `0.0.0.0` |
+| `could not resolve host` | Services share no network, or name is alias on different network |
+| Connection refused on right host | App listens on `127.0.0.1` inside container; bind `0.0.0.0` |
 | Works once, fails after restart | Dependency not ready; use `depends_on` with `condition: service_healthy` |
-| No internet from a container | It is only on an `internal: true` network |
-| Pool overlaps with other network | Custom subnet collides; change the `ipam` subnet or the daemon's `default-address-pools` |
+| No internet from container | Container is only on `internal: true` network |
+| Pool overlaps with other network | Custom subnet collides; change `ipam` subnet or daemon's `default-address-pools` |
 
 ## Done when
 
-- `docker compose config` shows each service on only the networks it needs.
-- Data stores have no published ports (or loopback-only ones) and sit on an internal or backend-only network.
-- Isolation is tested: a forbidden path (for example `proxy` to `db`) fails to resolve or connect.
+- `docker compose config --no-interpolate --no-env-resolution` shows each service on only networks it needs.
+- Data stores have no published ports (or loopback-only ones) and sit on internal or backend-only network.
+- Isolation tested: forbidden path (for example `proxy` to `db`) fails to resolve or connect.
 
 ## Related skills
 
 - `docker-compose-basics` - core Compose file, healthchecks, env and secrets.
 - `docker-compose-production` - production hardening for single-host deployments.
-- `architecting-networks` - cloud VPC and subnet design beyond a single Docker host.
+- `architecting-networks` - cloud VPC and subnet design beyond single Docker host.

@@ -20,7 +20,7 @@
 
 ## Scopes (Module Tree)
 
-Scopes SHOULD be used to organize services by module:
+Scopes SHOULD organize services by module:
 
 ```go
 root := do.New()
@@ -43,7 +43,7 @@ do.Provide(apiScope, func(i do.Injector) (UserService, error) {
 userScope := root.Scope("user")
 ```
 
-Organize services by lifecycle and visibility:
+Organize by lifecycle and visibility:
 
 ```go
 root := do.New()
@@ -59,7 +59,7 @@ do.Provide(requestScope, NewRequestContext)
 
 ## Explicit Service Aliasing
 
-For rare cases when you need to adapt to legacy code:
+For rare cases adapting to legacy code:
 
 ```go
 do.Provide(injector, func(i do.Injector) (*PostgreSQLDatabase, error) {
@@ -73,11 +73,11 @@ db1 := do.MustInvoke[*PostgreSQLDatabase](injector)
 db2 := do.MustInvoke[Database](injector)
 ```
 
-Prefer implicit aliasing with `InvokeAs()` in most cases.
+Most cases: prefer implicit aliasing with `InvokeAs()`.
 
 ## Struct Injection
 
-Inject services directly into struct fields using tags:
+Inject services into struct fields via tags:
 
 ```go
 type App struct {
@@ -93,7 +93,7 @@ app := do.MustInvokeStruct[App](injector)
 
 ### Health Checks
 
-Implement the `Healthchecker` interface:
+Implement `Healthchecker` interface:
 
 ```go
 func (d *Database) HealthCheck() error {
@@ -113,7 +113,7 @@ if err := do.HealthCheck[Database](injector); err != nil {
 
 ### Graceful Shutdown
 
-Implement the `Shutdowner` interface (4 variants):
+Implement `Shutdowner` interface (4 variants):
 
 ```go
 // Simple

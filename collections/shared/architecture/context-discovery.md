@@ -1,7 +1,5 @@
 # Context Discovery
 
-> Before suggesting any architecture, gather context.
-
 ## Question Hierarchy (Ask User FIRST)
 
 1. **Scale**
@@ -16,17 +14,17 @@
 
 3. **Timeline**
    - MVP/Prototype or long-term product?
-   - Time to market pressure?
+   - Time-to-market pressure?
 
 4. **Domain**
-   - CRUD-heavy or business logic complex?
+   - CRUD-heavy or complex business logic?
    - Real-time requirements?
    - Compliance/regulations?
 
 5. **Constraints**
-   - Budget limitations?
+   - Budget limits?
    - Legacy systems to integrate?
-   - Technology stack preferences?
+   - Tech stack preferences?
 
 ## Project Classification Matrix
 

@@ -7,7 +7,7 @@ tags: log, structured, json, observability
 
 ## Use Structured Logging for Machine-Readable Event Streams
 
-While plain text logs are human-readable, structured logs (JSON) enable field-based querying, filtering, and analysis in log aggregation systems. Each log event becomes a queryable document with typed fields.
+Structured logs (JSON) enable field-based querying, filtering and analysis in log aggregation systems. Each log event becomes queryable document with typed fields.
 
 **Incorrect (unstructured text logs):**
 
@@ -105,11 +105,5 @@ fields @timestamp, @message
 | filter event = 'order.placed' and amount > 100
 | stats count(*) by user_id
 ```
-
-**Benefits:**
-- Query specific fields without regex
-- Aggregate and analyze (orders per user, avg amount)
-- Create alerts on specific conditions
-- Correlate events by request_id or user_id
 
 Reference: [The Twelve-Factor App - Logs](https://12factor.net/logs)

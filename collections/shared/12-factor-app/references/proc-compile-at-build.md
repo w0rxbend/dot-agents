@@ -7,7 +7,7 @@ tags: proc, build, assets, compilation
 
 ## Perform Asset Compilation and Bundling at Build Time Not Runtime
 
-Asset compilation (JavaScript bundling, Sass compilation, image optimization) should happen during the build stage, not at runtime. The running process should serve pre-compiled assets, not compile on demand.
+Compile assets (JavaScript bundling, Sass compilation, image optimization) in build stage, not at runtime. Running process serves pre-compiled assets and does not compile on demand.
 
 **Incorrect (runtime compilation):**
 
@@ -79,11 +79,5 @@ build:
     - python manage.py collectstatic --noinput
     - docker build -t myapp:$SHA .
 ```
-
-**Benefits:**
-- Fast startup: no compilation at process start
-- Consistent: all instances serve identical assets
-- Early failure: compilation errors fail the build, not production
-- Reduced runtime resources: no compiler in production memory
 
 Reference: [The Twelve-Factor App - Processes](https://12factor.net/processes)

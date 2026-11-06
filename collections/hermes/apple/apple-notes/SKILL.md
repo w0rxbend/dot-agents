@@ -15,7 +15,7 @@ prerequisites:
 
 # Apple Notes
 
-Use `memo` to manage Apple Notes directly from the terminal. Notes sync across all Apple devices via iCloud.
+Use `memo` to manage Apple Notes from terminal. Notes sync across all Apple devices via iCloud.
 
 ## Prerequisites
 
@@ -25,16 +25,16 @@ Use `memo` to manage Apple Notes directly from the terminal. Notes sync across a
 
 ## When to Use
 
-- User asks to create, view, or search Apple Notes
-- Saving information to Notes.app for cross-device access
-- Organizing notes into folders
-- Exporting notes to Markdown/HTML
+- User asks to create, view or search Apple Notes
+- User wants cross-device sync (iPhone/iPad/Mac): prefer Apple Notes
+- Organize notes into folders
+- Export notes to Markdown/HTML
 
 ## When NOT to Use
 
-- Obsidian vault management → use the `obsidian` skill
+- Obsidian vault or Markdown-native knowledge management → use `obsidian` skill
 - Bear Notes → separate app (not supported here)
-- Quick agent-only notes → use the `memory` tool instead
+- Quick agent-only notes that don't need sync → use `memory` tool instead
 
 ## Quick Reference
 
@@ -53,9 +53,8 @@ memo notes -a                     # Add a note (opens your $EDITOR)
 memo notes -a -f "Folder Name"    # Add a note into a specific folder
 ```
 
-`-a`/`--add` is a bare flag — it opens your `$EDITOR` to compose the note; it does
-not take a title argument. Use `-f/--folder` to target a folder. Set `$EDITOR`
-first (e.g. `export EDITOR=vim`).
+`-a`/`--add` is a bare flag: opens `$EDITOR` to compose note. Does not take a title argument.
+Use `-f/--folder` to target a folder. Set `$EDITOR` first (e.g. `export EDITOR=vim`).
 
 ### Edit Notes
 
@@ -75,6 +74,8 @@ memo notes -d                     # Interactive selection to delete
 memo notes -m                     # Move note to folder (interactive)
 ```
 
+Before `-e`, `-d` or `-m`: show user the exact note title and folder, get explicit confirmation, then select only that note in the prompt. Changes sync to every iCloud device.
+
 ### Export Notes
 
 ```bash
@@ -84,11 +85,4 @@ memo notes -ex                    # Export to HTML/Markdown
 ## Limitations
 
 - Cannot edit notes containing images or attachments
-- Interactive prompts require terminal access (use pty=true if needed)
-- macOS only — requires Apple Notes.app
-
-## Rules
-
-1. Prefer Apple Notes when user wants cross-device sync (iPhone/iPad/Mac)
-2. Use the `memory` tool for agent-internal notes that don't need to sync
-3. Use the `obsidian` skill for Markdown-native knowledge management
+- Interactive prompts need terminal access (use pty=true if needed)

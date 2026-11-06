@@ -1,8 +1,5 @@
 # CRDTs (Conflict-Free Replicated Data Types) Reference Guide
 
-CRDTs enable conflict-free collaborative editing across distributed systems.
-
-
 ## Table of Contents
 
 - [The Collaboration Problem](#the-collaboration-problem)
@@ -68,7 +65,7 @@ Benefits:
 
 ### G-Counter (Grow-Only Counter)
 
-Each replica maintains its own counter. Total is sum of all replicas.
+Each replica keeps own counter. Total is sum of all replicas.
 
 ```typescript
 class GCounter {
@@ -133,7 +130,7 @@ class LWWRegister<T> {
 
 ### OR-Set (Observed-Remove Set)
 
-Add and remove elements with unique IDs.
+Add and remove elements by unique ID.
 
 ```typescript
 type ElementId = string
@@ -192,7 +189,7 @@ class ORSet<T> {
 
 ## Yjs - Production CRDT Library
 
-Yjs is the most mature CRDT library for collaborative editing.
+Yjs: most mature CRDT library for collaborative editing.
 
 ### Architecture
 
@@ -280,27 +277,27 @@ ytext.insert(0, 'This syncs across all users!')
 
 ### Backend (y-sweet server)
 
-Yjs WebSocket server in Rust for production deployments.
+Yjs WebSocket server in Rust for production.
 
 **Run y-sweet:**
 ```bash
-# Via npx
-npx y-sweet serve
+# Local dev: in-memory, no auth, binds 127.0.0.1:8080
+npx y-sweet@0.9.1 serve
 
-# Via Docker
-docker run -p 1234:1234 ysweet/y-sweet
-
-# With persistence
-docker run -p 1234:1234 -v $(pwd)/data:/data ysweet/y-sweet
+# With persistence (directory or s3://bucket/prefix)
+npx y-sweet@0.9.1 serve ./data
 ```
 
-**Environment configuration:**
+Docker: use the image the y-sweet repo publishes on ghcr.io, pinned by `@sha256:` digest.
+
+**Production configuration:**
 ```bash
-# .env
-YSWEETD_HOST=0.0.0.0
-YSWEETD_PORT=1234
-YSWEETD_DATA_DIR=/data
-YSWEETD_AUTH=none  # or 'token' for authentication
+# .env (keep out of git)
+Y_SWEET_STORE=/data         # or s3://bucket/prefix
+PORT=8080
+Y_SWEET_HOST=127.0.0.1      # expose only through a TLS (wss://) reverse proxy
+Y_SWEET_AUTH=<private-key>  # from `npx y-sweet@0.9.1 gen-auth`; no key = local dev only
+# Start with `serve --prod`: dev mode prints a connection URL that embeds the server token
 ```
 
 ### Local Persistence (IndexedDB)
@@ -337,7 +334,7 @@ const wsProvider = new WebsocketProvider(
 
 ### Rich Text Editing
 
-Integrate with ProseMirror, Monaco, CodeMirror, or Quill.
+Binds to ProseMirror, Monaco, CodeMirror or Quill.
 
 **Quill Integration:**
 ```typescript
@@ -462,11 +459,11 @@ awareness.on('change', () => renderCursors(awareness))
 
 ## Automerge - Alternative CRDT
 
-Automerge is Rust-first CRDT for JSON-like data structures.
+Automerge: Rust-first CRDT for JSON-like data structures.
 
 ### When to Use Automerge
 
-- Need full Rust implementation (Yjs is TypeScript-first)
+- Full Rust implementation needed (Yjs is TypeScript-first)
 - JSON-like data structures (not just text)
 - Time-travel / history playback
 - Local-first architecture
@@ -556,12 +553,12 @@ console.log(doc2.notes.title)  // "Meeting Notes"
 |---------|-----|-----------|
 | **Language** | TypeScript (Rust WASM in progress) | Rust (TypeScript WASM bindings) |
 | **Best For** | Text editing, rich text | JSON-like data structures |
-| **Performance** | Faster for text operations | Slower but more flexible |
-| **Ecosystem** | Mature (ProseMirror, Monaco, Quill) | Growing (still maturing) |
+| **Performance** | Faster for text | Slower, more flexible |
+| **Ecosystem** | Mature (ProseMirror, Monaco, Quill) | Growing, still maturing |
 | **Network** | y-websocket, y-webrtc | DIY sync protocol |
 | **Persistence** | y-indexeddb | DIY storage |
-| **Awareness** | Built-in (y-protocols) | Manual implementation |
-| **Time Travel** | No built-in support | First-class feature |
+| **Awareness** | Built-in (y-protocols) | Manual |
+| **Time Travel** | No built-in support | First-class |
 | **Binary Format** | Custom (efficient) | Custom (flexible) |
 | **Bundle Size** | ~60KB | ~200KB |
 
@@ -573,17 +570,17 @@ console.log(doc2.notes.title)  // "Meeting Notes"
 
 ### Merge Strategy
 
-Both Yjs and Automerge use deterministic merge rules:
+Yjs and Automerge use deterministic merge rules:
 
 **Text (Yjs):**
 - Each character has unique position ID
-- Merge based on ID ordering
-- Always produces same result regardless of order
+- Merge by ID order
+- Same result regardless of order
 
 **Lists (Automerge):**
 - Each list insertion has unique ID
-- Concurrent insertions at same position are ordered by ID
-- Deletions are tombstones (preserved for sync)
+- Concurrent insertions at same position ordered by ID
+- Deletions become tombstones (kept for sync)
 
 **Maps:**
 - Last-write-wins with vector clock timestamps
@@ -591,7 +588,7 @@ Both Yjs and Automerge use deterministic merge rules:
 
 ### Custom Conflict Resolution
 
-For application-specific logic, wrap CRDT operations:
+Wrap CRDT operations for application-specific logic:
 
 ```typescript
 // Example: Conflict-free task priority
@@ -619,13 +616,11 @@ class TaskList {
 
 ## Best Practices
 
-1. **Use Yjs for text editing** - Most mature, best ecosystem
-2. **Use Automerge for JSON data** - Better for structured data
-3. **Always include awareness** - Track online users and cursors
-4. **Enable local persistence** - IndexedDB for offline support
-5. **Test conflict scenarios** - Simulate simultaneous edits
-6. **Monitor CRDT size** - Garbage collect tombstones periodically
-7. **Use binary encoding** - Smaller than JSON for network sync
-8. **Version your schema** - Plan for data structure changes
-9. **Implement heartbeat** - Detect disconnected users
-10. **Test with poor networks** - Ensure sync works with delays
+1. **Always include awareness** - Track online users and cursors
+2. **Enable local persistence** - IndexedDB for offline support
+3. **Test conflict scenarios** - Simulate simultaneous edits
+4. **Monitor CRDT size** - Garbage collect tombstones periodically
+5. **Use binary encoding** - Smaller than JSON for network sync
+6. **Version your schema** - Plan for structure changes
+7. **Implement heartbeat** - Detect disconnected users
+8. **Test with poor networks** - Confirm sync survives delays

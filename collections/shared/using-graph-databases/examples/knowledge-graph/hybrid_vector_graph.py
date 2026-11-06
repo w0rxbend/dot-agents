@@ -111,6 +111,9 @@ class KnowledgeGraphRAG:
             relationship_type: Type (RELATED_TO, IS_A, HAS_PROPERTY, etc.)
             strength: Relationship strength (0.0 - 1.0)
         """
+        # Relationship types cannot be parameters: validate before inlining.
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", relationship_type):
+            raise ValueError(f"invalid relationship type: {relationship_type!r}")
         query = f"""
         MATCH (c1:Concept {{id: $fromId}}), (c2:Concept {{id: $toId}})
         CREATE (c1)-[r:{relationship_type} {{strength: $strength}}]->(c2)

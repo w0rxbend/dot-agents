@@ -1,10 +1,6 @@
 # Render Deployment Error Patterns
 
-Comprehensive catalog of common deployment errors on Render, their causes, and fixes. Organized by frequency and category.
-
 ## MCP Quick Detection
-
-Use these MCP queries to quickly detect each error pattern:
 
 | Error Type | MCP Detection Query |
 |------------|-------------------|
@@ -22,7 +18,7 @@ Use these MCP queries to quickly detect each error pattern:
 
 ### 1. MISSING_ENV_VAR (Most Common)
 
-**Description:** Application crashes because required environment variable is not set.
+**Description:** App crashes because required environment variable is not set.
 
 **MCP Detection:**
 ```
@@ -54,7 +50,7 @@ list_logs(
 
 **Root Causes:**
 1. Variable not declared in render.yaml
-2. Variable marked with `sync: false` but user didn't fill in Dashboard
+2. Variable marked `sync: false` but user didn't fill it in Dashboard
 3. Typo in variable name (case-sensitive!)
 4. Variable added to code but not to render.yaml
 
@@ -84,31 +80,28 @@ envVars:
     value: production
 ```
 
-**Step 2:** For existing services, use MCP to add env vars directly:
+**Step 2:** For existing services, add non-secret env vars via MCP after user confirms (triggers redeploy). Secrets and connection strings: user enters them in Dashboard, or use Blueprint `fromDatabase`/`generateValue`; never ask user to paste secrets into chat.
 ```
 update_environment_variables(
   serviceId: "<service-id>",
   envVars: [
-    {"key": "DATABASE_URL", "value": "<connection-string>"},
-    {"key": "JWT_SECRET", "value": "<secret-value>"}
+    {"key": "NODE_ENV", "value": "production"}
   ]
 )
 ```
 
-**Step 3:** Commit and push (for Blueprint-managed services):
+**Step 3:** Commit and push after user confirms (Blueprint-managed services; push auto-deploys):
 ```bash
 git add render.yaml
 git commit -m "Add missing environment variables"
 git push origin main
 ```
 
-**Step 4:** If `sync: false` is used, remind user to fill values in Dashboard at:
+**Step 4:** If `sync: false` used, remind user to fill values in Dashboard at:
 `https://dashboard.render.com/web/[service-name]/env`
 
 **Prevention:**
 - Always declare ALL env vars in render.yaml
-- Use `sync: false` for secrets
-- Double-check variable names (case-sensitive)
 - Test locally with `.env` file first
 
 ---
@@ -124,7 +117,7 @@ list_logs(
 )
 ```
 
-**Description:** Application not binding to correct port or host.
+**Description:** App not binding to correct port or host.
 
 **Patterns to Match:**
 - `EADDRINUSE: address already in use`
@@ -137,7 +130,7 @@ list_logs(
 **Root Causes:**
 1. App hardcodes port instead of using `$PORT` environment variable
 2. App binds to `localhost` or `127.0.0.1` instead of `0.0.0.0`
-3. Multiple services trying to use same port
+3. Multiple services using same port
 4. App doesn't read PORT environment variable
 
 **Fix Strategy:**
@@ -187,8 +180,7 @@ http.ListenAndServe(":"+port, handler)
 ```
 
 **Prevention:**
-- Always use `process.env.PORT` (or equivalent)
-- Always bind to `0.0.0.0`
+- Always use `process.env.PORT` (or equivalent) and bind to `0.0.0.0`
 - Test with PORT=10000 locally
 
 ---
@@ -247,9 +239,7 @@ go get github.com/gin-gonic/gin
 ```
 
 **Prevention:**
-- Keep dependencies in sync with code
 - Use lock files (package-lock.json, Pipfile.lock)
-- Test build locally first
 
 ---
 
@@ -298,7 +288,7 @@ query_render_postgres(
 1. DATABASE_URL not set
 2. Wrong connection string format
 3. Database not provisioned
-4. SSL settings incorrect
+4. Wrong SSL settings
 5. Connection timeout too short
 
 **Fix Strategy:**
@@ -312,13 +302,14 @@ envVars:
       property: connectionString
 ```
 
-**Step 2:** Enable SSL if needed (Node.js example)
+**Step 2:** Prefer internal Database URL (private network, same region). External URL needs SSL with cert verification on (add `ca: <provider CA>` if not publicly trusted; libpq: `sslmode=verify-full`). Never `rejectUnauthorized: false`.
 ```javascript
 const { Pool } = require('pg');
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  // External URL only; internal URL needs no SSL
   ssl: process.env.NODE_ENV === 'production' ? {
-    rejectUnauthorized: false
+    rejectUnauthorized: true
   } : false
 });
 ```
@@ -401,7 +392,7 @@ get_metrics(
 )
 ```
 
-**Description:** Service doesn't respond to health checks within timeout period.
+**Description:** Service doesn't answer health checks within timeout.
 
 **Patterns to Match:**
 - `Health check timeout`
@@ -410,11 +401,11 @@ get_metrics(
 - `GET / returned status 404`
 
 **Root Causes:**
-1. No health check endpoint implemented
+1. No health check endpoint
 2. App not binding to correct port
-3. Slow application startup
-4. Health check path incorrect
-5. Application crashes during startup
+3. Slow app startup
+4. Wrong health check path
+5. App crashes during startup
 
 **Fix Strategy:**
 
@@ -441,7 +432,7 @@ healthCheckPath: /health
 
 **Step 3:** Ensure fast startup
 - Move slow initialization to after server start
-- Use lazy loading for heavy operations
+- Lazy-load heavy operations
 
 ---
 
@@ -472,7 +463,7 @@ get_metrics(
 )
 ```
 
-**Description:** Application exceeds available memory.
+**Description:** App exceeds available memory.
 
 **Patterns to Match:**
 - `JavaScript heap out of memory`
@@ -482,8 +473,8 @@ get_metrics(
 - `cannot allocate memory`
 
 **Root Causes:**
-1. Memory leak in application
-2. Processing too much data at once
+1. Memory leak in app
+2. Too much data processed at once
 3. Free tier limit (512 MB) exceeded
 4. Large dependency tree
 5. No garbage collection optimization
@@ -516,7 +507,7 @@ for chunk in pd.read_csv('large_file.csv', chunksize=1000):
 
 ### 8. UNCAUGHT_EXCEPTION
 
-**Description:** Unhandled error crashes the application.
+**Description:** Unhandled error crashes app.
 
 **Patterns to Match:**
 - `UnhandledPromiseRejectionWarning`
@@ -569,7 +560,7 @@ except Exception as e:
 
 ### 9. BUILD_TIMEOUT
 
-**Description:** Build takes longer than allowed time.
+**Description:** Build exceeds allowed time.
 
 **Patterns to Match:**
 - `Build timed out after 15 minutes`
@@ -678,7 +669,7 @@ node_modules
 3. Migration dependencies missing
 4. Database locked
 
-**Fix Strategy:**
+**Fix Strategy:** Commands that change a deployed database's schema or migration history (`migrate`, `--fake-initial`, `migrate deploy`): confirm with user first.
 
 **Django:**
 ```bash
@@ -693,13 +684,13 @@ python manage.py migrate --fake-initial
 ```bash
 # Check schema exists
 bundle exec rails db:migrate:status
-
-# Reset if needed (CAUTION: data loss)
-bundle exec rails db:reset
 ```
+Fix migration history instead of resetting. Never `rails db:reset` a deployed database (drops all data); local dev only, or after backup and explicit user approval.
 
 **Prisma:**
 ```bash
+export CHECKPOINT_DISABLE=1 PRISMA_DISABLE_TELEMETRY=1  # Prisma CLI telemetry is on by default
+
 # Deploy migrations
 npx prisma migrate deploy
 
@@ -713,7 +704,7 @@ npx prisma generate
 
 ### 12. PERMISSION_DENIED
 
-**Description:** Application doesn't have permission to access resource.
+**Description:** App lacks permission to access resource.
 
 **Patterns to Match:**
 - `EACCES: permission denied`
@@ -721,9 +712,9 @@ npx prisma generate
 - `PermissionError: [Errno 13] Permission denied`
 
 **Root Causes:**
-1. Trying to write to read-only filesystem
+1. Writing to read-only filesystem
 2. Wrong file permissions
-3. Trying to bind to privileged port (<1024)
+3. Binding to privileged port (<1024)
 
 **Fix Strategy:**
 
@@ -787,7 +778,7 @@ go 1.21
 
 ### 14. DISK_SPACE_EXCEEDED
 
-**Description:** Running out of disk space during build or runtime.
+**Description:** Disk space runs out during build or runtime.
 
 **Patterns to Match:**
 - `No space left on device`
@@ -796,7 +787,7 @@ go 1.21
 
 **Root Causes:**
 1. Large build artifacts
-2. Log files growing too large
+2. Log files too large
 3. Too many dependencies
 
 **Fix Strategy:**
@@ -806,8 +797,8 @@ go 1.21
 buildCommand: npm ci && npm run build && npm prune --omit=dev
 ```
 
-**Remove unnecessary files** (part of the Render `buildCommand`, which runs in Render's build
-environment; never run this in a local checkout, where it deletes the repo history and sources):
+**Remove unnecessary files** (part of Render `buildCommand`, which runs in Render's build
+environment; never run this in a local checkout, where it deletes repo history and sources):
 ```yaml
 buildCommand: npm ci && npm run build && npm prune --omit=dev && rm -rf tests/ docs/
 ```
@@ -818,7 +809,7 @@ buildCommand: npm ci && npm run build && npm prune --omit=dev && rm -rf tests/ d
 
 ### 15. EXTERNAL_API_TIMEOUT
 
-**Description:** External API calls timing out.
+**Description:** External API calls time out.
 
 **Patterns to Match:**
 - `ETIMEDOUT`
@@ -874,12 +865,10 @@ const api = axios.create({
 
 ## Exit Code Reference
 
-Common exit codes and their meanings:
-
 | Exit Code | Signal | Meaning | Common Cause |
 |-----------|--------|---------|--------------|
 | 0 | - | Success | Normal termination |
-| 1 | - | General error | Application error, uncaught exception |
+| 1 | - | General error | App error, uncaught exception |
 | 2 | - | Misuse | Invalid arguments, bad command usage |
 | 126 | - | Cannot execute | Permission denied |
 | 127 | - | Not found | Command or binary not found |
@@ -889,11 +878,11 @@ Common exit codes and their meanings:
 | 139 | SIGSEGV (11) | Segmentation fault | Memory access violation |
 | 143 | SIGTERM (15) | Terminated | Graceful shutdown request |
 
-**Note:** Exit codes 128+N indicate the process was terminated by signal N. For example, 137 = 128 + 9 (SIGKILL).
+**Note:** Exit codes 128+N mean process was terminated by signal N. Example: 137 = 128 + 9 (SIGKILL).
 
 ## Next Steps
 
 After identifying error pattern:
-1. Review [troubleshooting.md](troubleshooting.md) for detailed fix procedures
-2. Review [log-analysis.md](log-analysis.md) for log reading tips
+1. See [troubleshooting.md](troubleshooting.md) for detailed fix procedures
+2. See [log-analysis.md](log-analysis.md) for log reading tips
 3. Apply fix and monitor deployment

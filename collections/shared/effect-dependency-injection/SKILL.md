@@ -3,7 +3,6 @@ name: effect-dependency-injection
 user-invocable: false
 description: "Effect-TS v3: define services with Context.Tag classes or Effect.Service, build them with Layer (succeed/effect/scoped), compose and provide layers, and swap implementations for tests or environments. Use when an effect has a non-never R channel or you are wiring an Effect application's dependency graph."
 allowed-tools:
-  - Bash
   - Read
   - Write
   - Edit
@@ -12,25 +11,25 @@ allowed-tools:
 # Effect Dependency Injection
 
 > **Version:** targets `effect` 3.x (examples checked against 3.22). Effect 4
-> replaces `Context.Tag`/`Effect.Service` with `Context.Service`; check
+> replaces `Context.Tag`/`Effect.Service` with `Context.Service`. Check
 > `effect` in package.json before copying.
 
-The `R` in `Effect<A, E, R>` lists the services an effect needs. A **tag**
-identifies a service; a **layer** (`Layer<ROut, E, RIn>`) is a recipe that
-builds `ROut` from `RIn`. You provide layers once at the edge; until then the
-compiler refuses to run an effect whose `R` is not `never`.
+`R` in `Effect<A, E, R>` lists services an effect needs. A **tag** identifies
+a service. A **layer** (`Layer<ROut, E, RIn>`) builds `ROut` from `RIn`.
+Provide layers once at the edge; until then compiler refuses to run an effect
+whose `R` is not `never`.
 
 ## Choosing how to define a service
 
 | Situation | Use |
 | --- | --- |
-| Interface with several implementations (live, test, in-memory) defined separately | `class X extends Context.Tag("X")<X, Shape>() {}` + layers |
-| One canonical implementation that is constructed from other services | `class X extends Effect.Service<X>()("X", { effect, dependencies })` |
-| Value with a sensible default that callers may override (feature flag, log level) | `Context.Reference` |
-| Library code that must not use classes, or legacy code | `Context.GenericTag<Shape>("X")` (older style; prefer the class forms) |
+| Several separately defined implementations (live, test, in-memory) | `class X extends Context.Tag("X")<X, Shape>() {}` + layers |
+| One canonical implementation built from other services | `class X extends Effect.Service<X>()("X", { effect, dependencies })` |
+| Overridable default value (feature flag, log level) | `Context.Reference` |
+| Library code that must not use classes, or legacy code | `Context.GenericTag<Shape>("X")` (older style; prefer class forms) |
 
-Tag keys must be globally unique strings; use a package-qualified name
-(`"@app/UserRepo"`) in libraries.
+Tag keys must be globally unique. In libraries, use package-qualified names
+(`"@app/UserRepo"`).
 
 ## Context.Tag + Layer
 
@@ -72,7 +71,7 @@ const UserRepoLive = Layer.effect(
   UserRepo,
   Effect.gen(function* () {
     const { dbUrl } = yield* AppConfig // dependency becomes RIn
-    yield* Effect.log(`connecting to ${dbUrl}`)
+    yield* Effect.log(`connecting to ${new URL(dbUrl).host}`) // never log full URL (may hold password)
     const rows = new Map<string, User>()
     return UserRepo.of({
       findById: (id) => Effect.succeed(Option.fromNullable(rows.get(id))),
@@ -90,14 +89,10 @@ const main = rename("1", "Ada").pipe(Effect.provide(MainLive))
 // Effect<boolean, DbError, never>  -> Effect.runPromise(main)
 ```
 
-Keep the service shape free of requirements (`R = never` on its methods):
-dependencies belong in the layer that builds it, not in each method's type.
-
 ## Effect.Service (one canonical implementation)
 
-`Effect.Service` defines the tag and its default layer together. The class
-gets a `Default` layer (with `dependencies` already provided) and
-`DefaultWithoutDependencies`.
+`Effect.Service` defines tag and default layer together. Class gets
+`Default` layer (with `dependencies` provided) and `DefaultWithoutDependencies`.
 
 ```typescript
 import { Effect, Layer } from "effect"
@@ -127,19 +122,19 @@ const testGreeter = Greeter.greet("Ada").pipe(
 )
 ```
 
-Instances of an `Effect.Service` class are created with `new X(impl)`, which
-is how you build fakes for `Layer.succeed`. Use `scoped:` instead of
-`effect:` when construction acquires resources (see below).
+`new X(impl)` creates an `Effect.Service` instance; build fakes for
+`Layer.succeed` with it. Use `scoped:` instead of `effect:` when construction
+acquires resources (see below).
 
 ## Constructors for layers
 
 | Constructor | When |
 | --- | --- |
-| `Layer.succeed(Tag, impl)` | implementation is a plain value |
+| `Layer.succeed(Tag, impl)` | plain value |
 | `Layer.sync(Tag, () => impl)` | lazy, synchronous construction |
-| `Layer.effect(Tag, effect)` | construction needs other services or async work |
-| `Layer.scoped(Tag, effect)` | construction acquires a resource that must be released (pool, connection, subscription) |
-| `Layer.unwrapEffect(effect)` | choose a layer at runtime (env var, config) |
+| `Layer.effect(Tag, effect)` | needs other services or async work |
+| `Layer.scoped(Tag, effect)` | acquires resource that must be released (pool, connection, subscription) |
+| `Layer.unwrapEffect(effect)` | pick layer at runtime (env var, config) |
 | `Layer.function(In, Out, f)` | derive one service from another |
 
 ```typescript
@@ -177,9 +172,9 @@ const DbAuto = Layer.unwrapEffect(
 
 | Operator | Result |
 | --- | --- |
-| `Layer.merge(a, b)` / `Layer.mergeAll(...)` | outputs of both; inputs of both |
-| `outer.pipe(Layer.provide(inner))` | feeds `inner`'s outputs into `outer`'s inputs; output is only `outer`'s |
-| `outer.pipe(Layer.provideMerge(inner))` | same, but output also includes `inner`'s services |
+| `Layer.merge(a, b)` / `Layer.mergeAll(...)` | both outputs; both inputs |
+| `outer.pipe(Layer.provide(inner))` | feeds `inner`'s outputs into `outer`'s inputs; outputs only `outer`'s |
+| `outer.pipe(Layer.provideMerge(inner))` | same, plus `inner`'s services in output |
 
 ```typescript
 import { Context, Effect, Layer } from "effect"
@@ -208,17 +203,16 @@ const AppWithAll = CLive.pipe(
 const notWired = Layer.mergeAll(CLive, BLive)
 ```
 
-Build one `MainLive` layer per entry point and provide it once. If the type
-still shows a requirement, the error message names the missing service.
+Build one `MainLive` layer per entry point, provided once. If type still
+shows a requirement, error message names missing service.
 
-**Memoization:** a layer value is built once per `Effect.provide` even if it
-appears in several branches of the graph (layers are compared by reference).
-Calling a function that returns a *new* layer each time defeats this; define
-layers as constants. Use `Layer.fresh(layer)` when you really want a second
-instance.
+**Memoization:** a layer value builds once per `Effect.provide`, even across
+several graph branches (compared by reference). Function returning *new* layer
+per call defeats this; define layers as constants. Use `Layer.fresh(layer)`
+for a second instance.
 
-**Do not** call `Effect.provide` deep inside library functions: each call
-builds the layer again (new pool, new connections). Provide at the edge.
+**Do not** call `Effect.provide` deep inside library functions. Each call
+rebuilds layer (new pool, new connections). Provide at the edge.
 
 ## Integrating with non-Effect frameworks
 
@@ -265,33 +259,33 @@ const debugLevel = level.pipe(Effect.provideService(LogLevelRef, "debug"))
 
 ## GenericTag (legacy)
 
-`Context.GenericTag<Shape>("Key")` creates a tag without a class. It still
-works in v3 and appears in older code and docs, but the class form gives a
-nominal type, `Tag.of(...)`, and better error messages. When editing such
-code, migrate opportunistically: `const X = Context.GenericTag<XShape>("X")`
-becomes `class X extends Context.Tag("X")<X, XShape>() {}`, and call sites
-(`yield* X`, `Layer.succeed(X, ...)`) do not change.
+`Context.GenericTag<Shape>("Key")` creates a tag without a class. Still works
+in v3, common in older code and docs. Class form gives nominal type,
+`Tag.of(...)`, better error messages. Migrate opportunistically when editing:
+`const X = Context.GenericTag<XShape>("X")` becomes
+`class X extends Context.Tag("X")<X, XShape>() {}`. Call sites (`yield* X`,
+`Layer.succeed(X, ...)`) do not change.
 
 ## Pitfalls
 
-- Service methods whose types include `R`: the requirement leaks to every
-  caller. Resolve dependencies when building the layer instead.
-- Reusing a tag key string for two different tags: they collide at runtime.
+- Service methods with `R` in their types: requirement leaks to every caller.
+  Resolve dependencies in the layer instead.
+- Same tag key string on two different tags: they collide at runtime.
 - Creating layers inside functions or per request: destroys memoization and
   re-opens resources.
 - `Layer.provide` vs `provideMerge` confusion: if a service "disappears" from
-  the output type, you used `provide` where you meant `provideMerge`.
-- Circular service dependencies: split the shared part into its own service.
-- Heavy work in `Layer.effect` without a scope (sockets, timers): use
-  `Layer.scoped` with `acquireRelease` so shutdown is clean.
+  output type, you used `provide` instead of `provideMerge`.
+- Circular service dependencies: split shared part into own service.
+- Heavy work in `Layer.effect` without scope (sockets, timers): use
+  `Layer.scoped` with `acquireRelease` for clean shutdown.
 
 ## Done when
 
-- Every service has a class tag (or `Effect.Service`) with a single live layer
-  and, where tests need it, a test layer.
-- There is one composed `MainLive` per entry point, provided once; `R` is
-  `never` at `run*` / `ManagedRuntime`.
-- Resources acquired in layers are released on shutdown (`Layer.scoped`,
+- Every service has class tag (or `Effect.Service`), one live layer, and a
+  test layer where tests need it.
+- One composed `MainLive` per entry point, provided once. `R` is `never` at
+  `run*` / `ManagedRuntime`.
+- Layer resources released on shutdown (`Layer.scoped`,
   `runtime.dispose()`).
 
 ## Related skills

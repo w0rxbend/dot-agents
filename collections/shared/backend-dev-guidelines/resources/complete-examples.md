@@ -1,7 +1,5 @@
 # Complete Examples - Full Working Code
 
-Real-world examples showing complete implementation patterns.
-
 ## Table of Contents
 
 - [Complete Controller Example](#complete-controller-example)
@@ -452,12 +450,6 @@ export class PostService {
 }
 ```
 
-**Result:**
-- Route: 8 lines (was 200+)
-- Controller: 25 lines
-- Service: 40 lines
-- **Testable, maintainable, reusable!**
-
 ---
 
 ## End-to-End Feature Example
@@ -507,92 +499,7 @@ export const updateUserSchema = z.object({
 });
 ```
 
-**3. Repository:**
-```typescript
-// repositories/UserRepository.ts
-export class UserRepository {
-    async findById(id: string): Promise<User | null> {
-        return PrismaService.main.user.findUnique({
-            where: { id },
-            include: { profile: true },
-        });
-    }
-
-    async create(data: Prisma.UserCreateInput): Promise<User> {
-        return PrismaService.main.user.create({
-            data,
-            include: { profile: true },
-        });
-    }
-}
-```
-
-**4. Service:**
-```typescript
-// services/userService.ts
-export class UserService {
-    private userRepository: UserRepository;
-
-    constructor() {
-        this.userRepository = new UserRepository();
-    }
-
-    async create(data: CreateUserDTO): Promise<User> {
-        const existing = await this.userRepository.findByEmail(data.email);
-        if (existing) {
-            throw new ConflictError('Email already exists');
-        }
-
-        return await this.userRepository.create({
-            email: data.email,
-            profile: {
-                create: {
-                    firstName: data.firstName,
-                    lastName: data.lastName,
-                    age: data.age,
-                },
-            },
-        });
-    }
-}
-```
-
-**5. Controller:**
-```typescript
-// controllers/UserController.ts
-export class UserController extends BaseController {
-    private userService: UserService;
-
-    constructor() {
-        super();
-        this.userService = new UserService();
-    }
-
-    async createUser(req: Request, res: Response): Promise<void> {
-        try {
-            const validated = createUserSchema.parse(req.body);
-            const user = await this.userService.create(validated);
-            this.handleSuccess(res, user, 'User created', 201);
-        } catch (error) {
-            this.handleError(error, res, 'createUser');
-        }
-    }
-}
-```
-
-**6. Routes:**
-```typescript
-// routes/userRoutes.ts
-const router = Router();
-const controller = new UserController();
-
-router.post('/',
-    SSOMiddlewareClient.verifyLoginStatus,
-    async (req, res) => controller.createUser(req, res)
-);
-
-export default router;
-```
+**3-6. Repository, service, controller, routes:** as in [Complete Repository](#complete-repository), [Complete Service with DI](#complete-service-with-di), [Complete Controller Example](#complete-controller-example) and [Complete Route File](#complete-route-file) above.
 
 **7. Register in app.ts:**
 ```typescript

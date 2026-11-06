@@ -1,10 +1,8 @@
 # Decorations and Visual Polish
 
-Decorations are mobjects that annotate, highlight, or frame other mobjects. They turn a technically correct animation into a visually polished one.
-
 ## SurroundingRectangle
 
-Draws a rectangle around any mobject. The go-to for highlighting:
+Go-to for highlighting:
 
 ```python
 highlight = SurroundingRectangle(
@@ -31,7 +29,7 @@ self.play(Create(box), FadeIn(label))
 
 ## BackgroundRectangle
 
-Semi-transparent background behind text for readability over complex scenes:
+Semi-transparent background behind text, for readability over complex scenes:
 
 ```python
 bg = BackgroundRectangle(equation, fill_opacity=0.7, buff=0.2, color=BLACK)
@@ -41,11 +39,11 @@ self.play(FadeIn(bg), Write(equation))
 label.set_stroke(BLACK, width=5, background=True)
 ```
 
-The `set_stroke(background=True)` approach is cleaner for text labels over graphs/diagrams.
+`set_stroke(background=True)` is cleaner for text labels over graphs/diagrams.
 
 ## Brace and BraceLabel
 
-Curly braces that annotate sections of a diagram or equation:
+Curly braces that annotate sections of diagram or equation:
 
 ```python
 brace = Brace(equation[2:4], DOWN, color=YELLOW)
@@ -54,19 +52,6 @@ self.play(GrowFromCenter(brace), FadeIn(brace_label))
 
 # Between two specific points
 brace = BraceBetweenPoints(point_a, point_b, direction=UP)
-```
-
-### Brace placement
-
-```python
-# Below a group
-Brace(group, DOWN)
-# Above a group
-Brace(group, UP)
-# Left of a group
-Brace(group, LEFT)
-# Right of a group
-Brace(group, RIGHT)
 ```
 
 ## Arrows for Annotation
@@ -194,9 +179,9 @@ self.play(FadeOut(brace), FadeOut(label))
 
 ### The annotation lifecycle
 
-Annotations should follow a rhythm:
-1. **Appear** — draw attention (Create, GrowFromCenter)
-2. **Hold** — viewer reads and understands (self.wait)
-3. **Disappear** — clear the stage for the next thing (FadeOut)
+Annotations follow a rhythm:
+1. **Appear**: draw attention (Create, GrowFromCenter)
+2. **Hold**: viewer reads and understands (self.wait)
+3. **Disappear**: clear stage for next thing (FadeOut)
 
-Never leave annotations on screen indefinitely — they become visual noise once their purpose is served.
+Never leave annotations on screen once their purpose is served.

@@ -10,7 +10,8 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
  * Install: npm install react-pdf pdfjs-dist
  */
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+// Bundle worker locally; no runtime third-party script
+pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
 export function PDFViewer({ file }: { file: string }) {
   const [numPages, setNumPages] = useState<number>(0);

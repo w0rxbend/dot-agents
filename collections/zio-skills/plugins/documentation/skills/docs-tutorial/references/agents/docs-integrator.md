@@ -2,39 +2,34 @@
 
 <!-- Copied from the zio-skills documentation plugin's agents/docs-integrator.md, which is not installed here. -->
 
-Purpose: Wires a new documentation page into the ZIO documentation site: sidebars.js, index.md, cross-references, and build verification. Use after mdoc passes.
+Purpose: Wires new documentation page into ZIO documentation site: sidebars.js, index.md, cross-references, build verification. Use after mdoc passes.
 
-How to use: start a fresh general-purpose subagent (it must not share the caller's conversation) and put this whole file, from the next paragraph on, at the top of its prompt, followed by the task-specific prompt. If subagents are unavailable, the caller does this step itself following this brief, as a separate pass.
+How to use: start fresh general-purpose subagent (must not share caller's conversation). Put this whole file, from next paragraph on, atop its prompt, then task-specific prompt. If subagents unavailable, caller does step itself per this brief, as separate pass.
 
 ---
 
-You wire a new documentation page into the ZIO documentation site.
+You wire new documentation page into ZIO documentation site.
 
-The prompt names the target category (e.g. "Guides" for a tutorial, "Reference" for a reference page)
-and the cross-reference direction appropriate to the page's kind. Use them below.
+Prompt names target category (e.g. "Guides" for a tutorial, "Reference" for a reference page) and cross-reference direction for page's kind. Use both below.
 
 Procedure:
-1. sidebars.js — the git-tracked one, found with `git ls-files "*sidebars.js"`: add the page id under
-   the category named in the prompt (create the category if missing).
+1. sidebars.js (git-tracked one, found with `git ls-files "*sidebars.js"`): add page id under
+   prompt's category (create category if missing).
    ✅ the path `git ls-files` prints (`docs/sidebars.js`, `website/sidebars.js`)
    ❌ `website/docs/sidebars.js` — mdoc output, gitignored, so an edit there ships nothing
    Verify it still parses: `node -e "require('<its path>')"`.
-2. docs/index.md: add a link to the page under that category's heading (create it if missing).
+2. docs/index.md: add page link under that category's heading (create heading if missing).
 3. Cross-reference: add at least two "See also" links between this page and related pages
-   (find candidates with `grep -rl "<TypeName>" docs/`), in the direction the prompt describes.
+   (find candidates with `grep -rl "<TypeName>" docs/`), in direction prompt describes.
 4. Verify links and code: `sbt "docs/mdoc --in <file> --out website/<file>"` (one pair per touched
-   file, never unscoped `sbt docs/mdoc`); zero [error] lines (fix "Unknown link" / "Reference not
-   found"). On a bare "mdoc failed" stack trace, run the `sbt "last <scope>"` it suggests.
-5. Full build gate: run the site build (`yarn run build`, else npm/pnpm equivalent) piped through
+   file, never unscoped `sbt docs/mdoc`). Need zero [error] lines (fix "Unknown link" / "Reference
+   not found"). On bare "mdoc failed" stack trace, run `sbt "last <scope>"` it suggests.
+5. Full build gate: run site build (`yarn run build`, else npm/pnpm equivalent) piped through
    `tail -40`. On failure: clean `website/docs`, run ONE full unscoped `sbt docs/mdoc` (fills every
-   `website/docs` page so all sidebar ids resolve — the one sanctioned unscoped mdoc, see
-   mdoc-conventions), retry the build once.
+   `website/docs` page so all sidebar ids resolve; only sanctioned unscoped mdoc, see
+   mdoc-conventions), retry build once.
 
-**Never create a page to make a link or the build resolve.** A link whose target does not exist is
-removed, not manufactured: a stub page is unreviewed content that ships, and it takes the name the real
-page will want. If the prompt asks you to link somewhere that does not exist, say so and link what does.
+**Never create a page to make a link or the build resolve.** Remove link whose target does not exist; never manufacture target. Stub page is unreviewed content that ships, and takes name real page will want. If asked to link somewhere that does not exist, say so; link what does.
 ✅ drop the link, report the gap ❌ write `<Type>.md` containing "full documentation coming soon"
 
-Done when the build passes, or — after that retry — the only failures are pre-existing pages you
-did not touch (name them). Fix only what your changes broke; never delete a sibling's sidebar entry
-and never document a sibling module to force green. Report what you changed.
+Done when build passes, or, after that retry, only failures are pre-existing pages you did not touch (name them). Fix only what your changes broke. Never delete sibling's sidebar entry; never document sibling module to force green. Report changes.

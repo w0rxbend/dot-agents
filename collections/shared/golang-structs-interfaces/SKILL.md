@@ -14,14 +14,14 @@ metadata:
       bins:
         - go
     install: []
-allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(golangci-lint:*) Bash(git:*) Agent AskUserQuestion
+allowed-tools: Read Edit Write Glob Grep Bash(go build:*) Bash(go vet:*) Bash(go test:*) Bash(go doc:*) Bash(golangci-lint run:*) Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git show:*) Agent AskUserQuestion
 paths:
   - "**/*.go"
 ---
 
-**Persona:** You are a Go type system designer. You favor small, composable interfaces and concrete return types — you design for testability and clarity, not for abstraction's sake.
+**Persona:** Go type system designer. Favor small, composable interfaces and concrete return types. Design for testability and clarity, not for abstraction's sake.
 
-> **Community default.** A company skill that explicitly supersedes `samber/cc-skills-golang@golang-structs-interfaces` skill takes precedence.
+> **Community default.** Company skill that explicitly supersedes `samber/cc-skills-golang@golang-structs-interfaces` skill takes precedence.
 
 # Go Structs & Interfaces
 
@@ -31,7 +31,7 @@ paths:
 
 > "The bigger the interface, the weaker the abstraction." — Go Proverbs
 
-Interfaces SHOULD have 1-3 methods. Small interfaces are easier to implement, mock, and compose. If you need a larger contract, compose it from small interfaces:
+Interfaces SHOULD have 1-3 methods. Build larger contracts from small interfaces:
 
 → See `samber/cc-skills-golang@golang-naming` skill for interface naming conventions (method + "-er" suffix, canonical names)
 
@@ -51,21 +51,9 @@ type ReadWriter interface {
 }
 ```
 
-Compose larger interfaces from smaller ones:
-
-```go
-type ReadWriteCloser interface {
-    io.Reader
-    io.Writer
-    io.Closer
-}
-```
-
 ### Define Interfaces Where They're Consumed
 
-Interfaces Belong to Consumers.
-
-Interfaces MUST be defined where consumed, not where implemented. This keeps the consumer in control of the contract and avoids importing a package just for its interface.
+Interfaces MUST be defined where consumed, not where implemented. Keeps consumer in control of contract; avoids importing a package just for its interface.
 
 ```go
 // package notification — defines only what it needs
@@ -78,11 +66,11 @@ type Service struct {
 }
 ```
 
-The `email` package exports a concrete `Client` struct — it doesn't need to know about `Sender`.
+`email` package exports concrete `Client` struct and need not know about `Sender`.
 
 ### Accept Interfaces, Return Structs
 
-Functions SHOULD accept interface parameters for flexibility and return concrete types for clarity. Callers get full access to the returned type's fields and methods; consumers upstream can still assign the result to an interface variable if needed.
+Functions SHOULD accept interface parameters (flexibility) and return concrete types (clarity). Callers get full access to returned type's fields and methods; upstream can still assign result to interface variable.
 
 ```go
 // Good — accepts interface, returns concrete
@@ -96,7 +84,7 @@ func NewService(store UserStore) ServiceInterface { ... }
 
 > "Don't design with interfaces, discover them."
 
-An interface written before a second implementation exists is a guess about which methods will vary — and the guess is usually wrong, so the abstraction has to be reshaped anyway. Meanwhile it costs a layer of indirection that hides the concrete type from readers and tooling. Start with concrete types; extract an interface once a second consumer, a second implementation, or a test mock demands it.
+Start concrete. Extract interface once second consumer, second implementation, or test mock demands it.
 
 ```go
 // Bad — premature interface with a single implementation
@@ -111,7 +99,7 @@ type UserRepository struct { db *sql.DB }
 
 ## Make the Zero Value Useful
 
-Design structs so they work without explicit initialization. A well-designed zero value reduces constructor boilerplate and prevents nil-related bugs:
+Structs should work without explicit initialization:
 
 ```go
 // Good — zero value is ready to use
@@ -137,7 +125,7 @@ func (r *Registry) Register(name string, item Item) {
 
 ## Avoid `any` / `interface{}` When a Specific Type Will Do
 
-Since Go 1.18+, MUST prefer generics over `any` for type-safe operations. Use `any` only at true boundaries where the type is genuinely unknown (e.g., JSON decoding, reflection):
+Since Go 1.18+, MUST prefer generics over `any` for type-safe operations. Use `any` only at true boundaries where type is unknown (e.g., JSON decoding, reflection):
 
 ```go
 // Bad — loses type safety
@@ -160,29 +148,29 @@ func Contains[T comparable](slice []T, target T) bool { ... }
 | `Marshaler`   | `encoding/json` | `MarshalJSON() ([]byte, error)`       |
 | `Unmarshaler` | `encoding/json` | `UnmarshalJSON([]byte) error`         |
 
-Canonical method signatures MUST be honored — if your type has a `String()` method, it must match `fmt.Stringer`. Don't invent `ToString()` or `ReadData()`.
+Canonical method signatures MUST be honored: `String()` method must match `fmt.Stringer`. Do not invent `ToString()` or `ReadData()`.
 
 ## Compile-Time Interface Check
 
-Verify a type implements an interface at compile time with a blank identifier assignment. Place it near the type definition:
+Verify interface satisfaction at compile time with blank identifier assignment, near type definition:
 
 ```go
 var _ io.ReadWriter = (*MyBuffer)(nil)
 ```
 
-This costs nothing at runtime. If `MyBuffer` ever stops satisfying `io.ReadWriter`, the build fails immediately.
+Zero runtime cost. If `MyBuffer` stops satisfying `io.ReadWriter`, build fails.
 
 ## Type Assertions & Type Switches
 
-Type assertions MUST use the comma-ok form (`s, ok := val.(string)`) — the single-value form panics on a type mismatch instead of branching. Use a type switch to dispatch on the dynamic type, and an assertion to a small optional interface (`if f, ok := w.(Flusher); ok`) to exploit richer implementations without widening the declared parameter type.
+Type assertions MUST use comma-ok form (`s, ok := val.(string)`). Single-value form panics on mismatch instead of branching. Use type switch to dispatch on dynamic type. Assert to small optional interface (`if f, ok := w.(Flusher); ok`) to exploit richer implementations without widening declared parameter type.
 
-→ See [Type Assertions & Type Switches](references/type-assertions.md) for type switch ordering, nil cases, and the optional-behavior pattern.
+→ See [Type Assertions & Type Switches](references/type-assertions.md) for type switch ordering, nil cases, optional-behavior pattern.
 
 ## Struct & Interface Embedding
 
 ### Struct Embedding
 
-Embedding promotes the inner type's methods and fields to the outer type — composition, not inheritance:
+Embedding promotes inner type's methods and fields to outer type. Composition, not inheritance:
 
 ```go
 type Logger struct {
@@ -199,14 +187,14 @@ s := Server{Logger: Logger{slog.Default()}, addr: ":8080"}
 s.Info("starting", "addr", s.addr)
 ```
 
-The receiver of promoted methods is the _inner_ type, not the outer. The outer type can override by defining its own method with the same name.
+Promoted methods' receiver is the _inner_ type, not outer. Outer type overrides by defining same-name method.
 
 ### When to Embed vs Named Field
 
 | Use | When |
 | --- | --- |
-| **Embed** | You want to promote the full API of the inner type — the outer type "is a" enhanced version |
-| **Named field** | You only need the inner type internally — the outer type "has a" dependency |
+| **Embed** | Promote full API of inner type. Outer type "is a" enhanced version |
+| **Named field** | Need inner type only internally. Outer type "has a" dependency |
 
 ```go
 // Embed — Server exposes all http.Handler methods
@@ -222,79 +210,43 @@ type Server struct {
 
 ## Dependency Injection via Interfaces
 
-Accept dependencies as interfaces in constructors. This decouples components and makes testing straightforward:
-
-```go
-type UserStore interface {
-    FindByID(ctx context.Context, id string) (*User, error)
-}
-
-type UserService struct {
-    store UserStore
-}
-
-func NewUserService(store UserStore) *UserService {
-    return &UserService{store: store}
-}
-```
-
-In tests, pass a mock or stub that satisfies `UserStore` — no real database needed.
+Accept dependencies as interfaces in constructors (see `NewService(store UserStore) *Service` above). Decouples components. In tests, pass mock or stub satisfying `UserStore`; no real database needed.
 
 ## Struct Field Tags
 
-Exported fields in serialized structs MUST have field tags — without one, the encoder falls back to the Go field name, so renaming a field silently changes the wire format:
+Exported fields in serialized structs MUST have field tags. Without tag, encoder uses Go field name; renaming field silently changes wire format.
 
-```go
-type Order struct {
-    ID        string    `json:"id"         db:"id"`
-    Total     float64   `json:"total"      db:"total"`
-    CreatedAt time.Time `json:"created_at" db:"created_at"`
-    Internal  string    `json:"-"          db:"-"`
-}
-```
-
-→ See [Struct Fields: Tags and Copy Safety](references/struct-fields.md) for the full tag directive table, the `omitempty` vs `omitzero` trap, and `go vet` diagnostics.
+→ See [Struct Fields: Tags and Copy Safety](references/struct-fields.md) for full tag directive table, `omitempty` vs `omitzero` trap, `go vet` diagnostics.
 
 ## Pointer vs Value Receivers
 
 | Use pointer `(s *Server)` | Use value `(s Server)` |
 | --- | --- |
-| Method modifies the receiver | Receiver is small and immutable |
-| Receiver contains `sync.Mutex` or similar | Receiver is a basic type (int, string) |
-| Receiver is a large struct | Method is a read-only accessor |
-| Consistency: if any method uses a pointer, all should | Map and function values (already reference types) |
+| Method modifies receiver | Receiver is small and immutable |
+| Receiver contains `sync.Mutex` or similar | Receiver is basic type (int, string) |
+| Receiver is large struct | Method is read-only accessor |
+| Consistency: if any method uses pointer, all should | Map and function values (already reference types) |
 
-Receiver type MUST be consistent across all methods of a type — if one method uses a pointer receiver, all methods should.
+Receiver type MUST be consistent across all methods of a type: one pointer receiver means all pointer receivers.
 
 ## Preventing Struct Copies with `noCopy`
 
-A struct holding a mutex, a channel, or internal pointers breaks when copied: the copy duplicates the lock state, so two goroutines guard two different mutexes and the invariant disappears silently. Embed a `noCopy` sentinel so `go vet` reports every value copy, and pass such structs by pointer.
+Struct holding mutex, channel, or internal pointers breaks when copied. Embed `noCopy` sentinel so `go vet` reports every value copy. Pass such structs by pointer.
 
 **Diagnose:** 1- `go vet ./...` — `copylocks` reports value copies of lock-bearing structs
 
-→ See [Struct Fields: Tags and Copy Safety](references/struct-fields.md) for the `noCopy` implementation and how `vet` detects it.
+→ See [Struct Fields: Tags and Copy Safety](references/struct-fields.md) for `noCopy` implementation and how `vet` detects it.
 
 ## Cross-References
 
-- → See `samber/cc-skills-golang@golang-naming` skill for interface naming conventions (Reader, Closer, Stringer)
-- → See `samber/cc-skills-golang@golang-design-patterns` skill for functional options, constructors, and builder patterns
+- → See `samber/cc-skills-golang@golang-design-patterns` skill for functional options, constructors, builder patterns
 - → See `samber/cc-skills-golang@golang-dependency-injection` skill for DI patterns using interfaces
 - → See `samber/cc-skills-golang@golang-code-style` skill for value vs pointer function parameters (distinct from receivers)
-- → See `samber/cc-skills-golang@golang-gopls` skill for safe rename and the `implementInterface` code action — renaming a method or receiver that participates in interface satisfaction updates every call site and refuses a rename that would silently break the interface, which grep/sed cannot detect
+- → See `samber/cc-skills-golang@golang-gopls` skill for safe rename and `implementInterface` code action. gopls rename updates every call site of a method or receiver in interface satisfaction. It refuses renames that would silently break the interface, which grep/sed cannot detect
 
 ## Common Mistakes
 
 | Mistake | Fix |
 | --- | --- |
 | Large interfaces (5+ methods) | Split into focused 1-3 method interfaces, compose if needed |
-| Defining interfaces in the implementor package | Define where consumed |
-| Returning interfaces from constructors | Return concrete types |
-| Bare type assertions without comma-ok | Always use `v, ok := x.(T)` |
-| Embedding when you only need a few methods | Use a named field and delegate explicitly |
-| Missing field tags on serialized structs | Tag all exported fields in marshaled types |
-| Mixing pointer and value receivers on a type | Pick one and be consistent |
-| Forgetting compile-time interface check | Add `var _ Interface = (*Type)(nil)` |
-| Using `ToString()` instead of `String()` | Honor canonical method names |
-| Premature interface with a single implementation | Start concrete, extract interface when needed |
-| Nil map/slice in zero value struct | Use lazy initialization in methods |
-| Using `any` for type-safe operations | Use generics (`[T comparable]`) instead |
+| Embedding when only a few methods are needed | Use named field, delegate explicitly |

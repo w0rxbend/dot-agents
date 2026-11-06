@@ -6,7 +6,7 @@ tags: idiom, typescript, immutability, const-assertions
 
 ## Use const Assertions and readonly for Immutability
 
-Const assertions (`as const`) and `readonly` modifiers signal intent and prevent accidental mutations. They also enable TypeScript to infer literal types instead of widened types, which improves type safety and enables better autocomplete.
+Const assertions (`as const`) and `readonly` signal intent and block accidental mutation. TypeScript then infers literal types, not widened ones.
 
 **Incorrect (mutable by default, widened types):**
 
@@ -27,7 +27,7 @@ function processItems(items: string[]) {
 }
 ```
 
-**Correct (immutable with precise types):**
+**Correct (immutable, precise types):**
 
 ```typescript
 // Type is readonly ["admin", "user", "guest"]
@@ -49,13 +49,12 @@ function processItems(items: readonly string[]): string[] {
 
 ### When NOT to Use
 
-- Arrays or objects that genuinely need mutation for performance
-- Loop counters and accumulator variables
-- Builder patterns that rely on mutation
+- Arrays or objects genuinely needing mutation for performance
+- Loop counters and accumulators
+- Builder patterns relying on mutation
 
 ### Benefits
 
 - Literal type inference enables exhaustive switch checks
-- `readonly` in function parameters documents non-mutation
 - Catches accidental `.push()`, `.pop()`, assignment at compile time
-- Enables deriving union types from const arrays/objects
+- Derives union types from const arrays/objects

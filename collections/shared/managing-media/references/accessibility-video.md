@@ -1,7 +1,5 @@
 # Video Accessibility
 
-Captions, transcripts, audio descriptions, and keyboard controls for accessible video.
-
 ## Captions (Required)
 
 ```html
@@ -59,10 +57,9 @@ In this video, we'll cover...
 ## Best Practices
 
 1. **Captions required** - WCAG Level A
-2. **Transcript provided** - Full text alternative
-3. **Audio descriptions** - For visual-only content
-4. **Keyboard controls** - All functions accessible
-5. **No autoplay** - Let users control
+2. **Audio descriptions** - For visual-only content
+3. **Keyboard controls** - All functions accessible
+4. **No autoplay** - User-controlled
 
 ## Resources
 

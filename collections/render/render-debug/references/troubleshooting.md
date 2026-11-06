@@ -1,26 +1,16 @@
 # Render Troubleshooting Guide
 
-Systematic debugging procedures and fix strategies for common Render deployment issues.
-
 ## General Debugging Process
-
-### The 5-Step Debugging Method
-
-1. **Identify** - What's failing? (Build, deploy, runtime?)
-2. **Locate** - Where's the error? (Logs, error messages)
-3. **Diagnose** - Why is it failing? (Root cause)
-4. **Fix** - Apply appropriate solution
-5. **Verify** - Test the fix works
 
 ### Debug Priority Checklist
 
-When facing deployment issues, check in this order:
+Check in this order:
 
-- [ ] Environment variables (Most common)
-- [ ] Port binding (Second most common)
+- [ ] Environment variables (most common)
+- [ ] Port binding (second most common)
 - [ ] Dependencies installed correctly
 - [ ] Database connections configured
-- [ ] Build command successful
+- [ ] Build command succeeds
 - [ ] Start command correct
 - [ ] Health check endpoint exists
 - [ ] Resource limits (memory, CPU)
@@ -32,21 +22,18 @@ When facing deployment issues, check in this order:
 **Symptoms:**
 - `ReferenceError: DATABASE_URL is not defined`
 - `KeyError: 'API_KEY'`
-- Service crashes immediately after start
+- Service crashes right after start
 
 **Diagnosis Steps:**
 
-1. Check logs for variable name:
+1. Find variable name in logs:
 ```bash
 render logs -r <service-id> --level error -o json | grep "not defined"
 ```
 
-2. List current environment variables:
-```bash
-# In Dashboard or render.yaml
-```
+2. List current environment variables (Dashboard or render.yaml)
 
-3. Identify which variable is missing
+3. Identify missing variable
 
 **Fix Procedure:**
 
@@ -84,19 +71,19 @@ envVars:
     value: production
 ```
 
-**Step 2:** Commit and push
+**Step 2:** Commit and push after user confirms (push auto-deploys)
 ```bash
 git add render.yaml
 git commit -m "Add missing environment variable: DATABASE_URL"
 git push origin main
 ```
 
-**Step 3:** If using `sync: false`, instruct user:
-1. Go to Dashboard: `https://dashboard.render.com/web/[service]/env`
-2. Fill in the secret value
+**Step 3:** If using `sync: false`, tell user (never ask them to paste secret into chat):
+1. Open Dashboard: `https://dashboard.render.com/web/[service]/env`
+2. Fill in secret value
 3. Click "Save Changes"
 
-**Step 4:** Redeploy
+**Step 4:** Redeploy (after user confirms)
 ```bash
 render deploys create <service-id> --wait
 ```
@@ -116,18 +103,18 @@ render logs -r <service-id> --tail -o text
 **Symptoms:**
 - `EADDRINUSE: address already in use`
 - `Health check timeout`
-- Service starts but doesn't receive traffic
+- Service starts but gets no traffic
 
 **Diagnosis Steps:**
 
-1. Check if app hardcodes port:
+1. Check for hardcoded port:
 ```bash
 # Look for hardcoded ports in code
 grep -r "listen(3000" .
 grep -r "port.*=" . | grep -v "process.env"
 ```
 
-2. Check if binding to localhost:
+2. Check for localhost binding:
 ```bash
 grep -r "localhost" .
 grep -r "127.0.0.1" .
@@ -211,13 +198,13 @@ render logs -r <service-id> --tail -o text
 
 **Diagnosis Steps:**
 
-1. Check if DATABASE_URL is set:
+1. Check DATABASE_URL is set:
 ```bash
 # Look in render.yaml
 grep "DATABASE_URL" render.yaml
 ```
 
-2. Verify database is provisioned:
+2. Verify database provisioned:
 ```bash
 render services -o json
 # Look for database service
@@ -241,7 +228,7 @@ databases:
     plan: free
 ```
 
-**Step 2:** Configure SSL if needed
+**Step 2:** Configure SSL if needed. Prefer internal Database URL (private network, same region). External URL: keep cert verification on (add `ca: <provider CA>` if not publicly trusted; libpq `sslmode=verify-full`). Never `rejectUnauthorized: false`.
 
 **Node.js / pg:**
 ```javascript
@@ -249,8 +236,9 @@ const { Pool } = require('pg');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  // External URL only; internal URL needs no SSL
   ssl: process.env.NODE_ENV === 'production' ? {
-    rejectUnauthorized: false
+    rejectUnauthorized: true
   } : false
 });
 ```
@@ -260,8 +248,9 @@ const pool = new Pool({
 import psycopg2
 
 conn = psycopg2.connect(
-    os.environ['DATABASE_URL'],
-    sslmode='require'
+    os.environ['DATABASE_URL'],  # external URL only
+    sslmode='verify-full',
+    sslrootcert='system'  # libpq 16+; or provider CA file path
 )
 ```
 
@@ -376,8 +365,8 @@ buildCommand: npm ci --prefer-offline && npm run build
 
 **Diagnosis Steps:**
 
-1. Check if app is binding to correct port
-2. Check if health check endpoint exists
+1. Check app binds correct port
+2. Check health check endpoint exists
 3. Check startup time
 
 **Fix Procedure:**
@@ -423,7 +412,7 @@ healthCheckPath: /health
 
 **Step 3:** Optimize startup time
 
-Move slow operations after server start:
+Run slow operations after server starts:
 ```javascript
 // Start server first
 const server = app.listen(PORT, '0.0.0.0', () => {
@@ -456,7 +445,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
 **Immediate Fix (Node.js):**
 
-Increase heap size (if on paid plan):
+Raise heap size (if on paid plan):
 ```yaml
 envVars:
   - key: NODE_OPTIONS
@@ -513,7 +502,7 @@ for (let i = 0; i < data.length; i += 1000) {
 render logs -r <service-id> --level error -o json
 ```
 
-2. Look for uncaught errors:
+2. Find uncaught errors:
 - Unhandled Promise rejections
 - Uncaught exceptions
 - Fatal errors
@@ -586,33 +575,22 @@ Deployment Failed?
 
 Before asking for help, verify:
 
-- [ ] All environment variables are declared in render.yaml
+- [ ] All environment variables declared in render.yaml
 - [ ] Secrets have `sync: false` and are filled in Dashboard
 - [ ] App binds to `process.env.PORT` (or equivalent)
 - [ ] App binds to `0.0.0.0` (not localhost)
-- [ ] Build command is non-interactive
-- [ ] Dependencies are in package.json/requirements.txt
-- [ ] DATABASE_URL is set if using database
+- [ ] Build command non-interactive
+- [ ] Dependencies in package.json/requirements.txt
+- [ ] DATABASE_URL set if using database
 - [ ] /health endpoint exists (if using health checks)
 - [ ] Local build works (`npm ci && npm run build`)
-- [ ] Start command is correct
-
-## Quick Fixes Reference
-
-| Problem | Quick Fix |
-|---------|-----------|
-| Missing env var | Add to render.yaml envVars |
-| Port binding | Use `process.env.PORT` + `0.0.0.0` |
-| Database connection | Add DATABASE_URL with `fromDatabase` |
-| Missing dependency | Add to package.json/requirements.txt |
-| Build timeout | Optimize build, use `npm ci` |
-| Health check timeout | Add `/health` endpoint |
-| OOM | Optimize memory or upgrade plan |
-| Uncaught exception | Add error handlers |
+- [ ] Start command correct
 
 ## Advanced Troubleshooting
 
 ### Enable Debug Logging
+
+Temporary only, with user confirmation: verbose/dev-mode logs can leak secrets and stack traces. Revert after debugging.
 
 **Node.js:**
 ```yaml
@@ -634,12 +612,12 @@ npm ci && npm run build && npm start
 
 ### Check Render Status
 
-Sometimes issues are platform-wide:
+Issue may be platform-wide:
 - https://status.render.com
 
 ## Getting Help
 
-If stuck after trying these steps:
+If still stuck after these steps:
 
 1. **Gather information:**
    - Service ID
@@ -653,11 +631,3 @@ If stuck after trying these steps:
 3. **Community support:**
    - Render Community Forum
    - Discord server
-
-## Next Steps
-
-After fixing issues:
-- Monitor service health in Dashboard
-- Set up alerts for failures
-- Document any custom configuration
-- Consider implementing monitoring/observability

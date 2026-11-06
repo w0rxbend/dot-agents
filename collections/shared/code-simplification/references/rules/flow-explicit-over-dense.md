@@ -6,7 +6,7 @@ tags: flow, readability, explicit, dense-code, maintenance
 
 ## Prefer Explicit Control Flow Over Dense Expressions
 
-Dense one-liners optimize for code golf, not comprehension. When multiple operations are chained or combined into a single expression, readers must mentally unpack each step. Explicit code may take more lines, but each line does one obvious thing. Future maintainers (including yourself) will thank you.
+Dense one-liners optimize for code golf, not comprehension. Operations chained into one expression force readers to unpack each step. Explicit code may take more lines, but each line does one obvious thing.
 
 **Incorrect (dense chained operations):**
 
@@ -14,7 +14,7 @@ Dense one-liners optimize for code golf, not comprehension. When multiple operat
 const result = data.filter(x => x.active).map(x => x.value).reduce((a, b) => a + b, 0) / data.filter(x => x.active).length || 0;
 ```
 
-**Correct (explicit steps with meaningful names):**
+**Correct (explicit named steps):**
 
 ```typescript
 const activeItems = data.filter(item => item.active);
@@ -42,7 +42,7 @@ const hasActiveSubscription =
 const canProceed = isVerifiedUser && (isAdmin || hasActiveSubscription);
 ```
 
-**Incorrect (clever short-circuit abuse):**
+**Incorrect (short-circuit abuse):**
 
 ```typescript
 function updateUser(id: string, data: Partial<User>) {
@@ -88,7 +88,7 @@ function updateUser(id: string, data: Partial<User>) {
 const items = [...(showArchived ? archivedItems : []), ...activeItems.filter(i => !i.hidden), ...(includeDeleted && deletedItems || [])].sort((a, b) => a.date - b.date).slice(0, limit);
 ```
 
-**Correct (step-by-step array construction):**
+**Correct (step-by-step array building):**
 
 ```typescript
 const items: Item[] = [];
@@ -107,14 +107,6 @@ if (includeDeleted && deletedItems) {
 items.sort((a, b) => a.date - b.date);
 const limitedItems = items.slice(0, limit);
 ```
-
-### Benefits
-
-- Each line can be understood independently
-- Intermediate values can be logged/inspected during debugging
-- Modifications don't require understanding entire expression
-- Variable names serve as documentation
-- Easier to add error handling at specific steps
 
 ### When NOT to Apply
 

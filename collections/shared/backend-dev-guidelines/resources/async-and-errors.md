@@ -1,7 +1,5 @@
 # Async Patterns and Error Handling
 
-Complete guide to async/await patterns and custom error handling.
-
 ## Table of Contents
 
 - [Async/Await Best Practices](#asyncawait-best-practices)

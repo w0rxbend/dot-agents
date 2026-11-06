@@ -1,10 +1,8 @@
 # uber-go/dig + uber-go/fx — Reflection-Based DI
 
-`dig` is the low-level DI container; `fx` is the full application framework built on top. Powerful but uses reflection — errors appear at startup, not compile time.
+`dig`: low-level DI container. `fx`: full application framework built on top. Powerful but reflection-based: errors appear at startup, not compile time.
 
 - Docs: [github.com/uber-go/dig](https://github.com/uber-go/dig) | [uber-go.github.io/fx](https://uber-go.github.io/fx/)
-
-Before writing dig/fx code, refer to the library's official documentation for up-to-date API signatures and examples.
 
 ## Table of Contents
 
@@ -62,10 +60,10 @@ container.Provide(func(p DatabaseParams) *UserService {
 
 ### dig Tradeoffs
 
-- Uses reflection — type mismatches are runtime errors, not compile errors
+- Reflection: type mismatches are runtime errors, not compile errors
 - `dig.In` and `dig.Out` structs add boilerplate for complex graphs
 - No built-in lifecycle management
-- Powerful grouping with `dig.Group` for collecting multiple implementations
+- Powerful grouping: `dig.Group` collects multiple implementations
 
 ## fx — Full Application Framework
 
@@ -144,11 +142,10 @@ func TestUserService(t *testing.T) {
 
 ### fx Tradeoffs
 
-- Full application framework — manages startup, shutdown, and signal handling
-- Reflection-based — errors at startup, not compile time
-- Steep learning curve — `fx.In`, `fx.Out`, `fx.Annotate`, `fx.Decorate`
+- Full application framework: manages startup, shutdown, signal handling
+- Steep learning curve: `fx.In`, `fx.Out`, `fx.Annotate`, `fx.Decorate`
 - Built-in lifecycle (OnStart/OnStop hooks)
-- Heavyweight — pulls in the full fx framework
-- `fxtest` package for testing, but requires starting/stopping the app
+- Heavyweight: pulls in full fx framework
+- `fxtest` package for testing, but requires starting/stopping app
 
-fx lifecycle hooks MUST be used for start/stop — register `OnStart`/`OnStop` via `fx.Lifecycle`. fx modules SHOULD group related providers — use `fx.Module` to organize by domain.
+fx lifecycle hooks MUST be used for start/stop: register `OnStart`/`OnStop` via `fx.Lifecycle`. fx modules SHOULD group related providers: organize by domain with `fx.Module`.

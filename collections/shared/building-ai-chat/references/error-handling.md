@@ -15,7 +15,7 @@
 
 ### Clear Refusal Communication
 
-Explain why AI cannot help with specific requests:
+Explain why AI cannot help:
 
 ```tsx
 interface RefusalResponse {
@@ -192,7 +192,7 @@ function SoftRefusal({ originalRequest, issue }) {
 
 ### Uncertainty Indicators
 
-Show when AI might be less confident:
+Show when AI is less confident:
 
 ```tsx
 function UncertaintyIndicator({ confidence, message }) {
@@ -240,8 +240,6 @@ function UncertaintyIndicator({ confidence, message }) {
 ```
 
 ### Citation Requests
-
-Enable users to request sources:
 
 ```tsx
 function CitationSupport({ message, onRequestCitations }) {
@@ -524,8 +522,6 @@ function ContextLimitError({ currentTokens, maxTokens, onResolve }) {
 
 ### Connection Error Handling
 
-Handle various network failures:
-
 ```tsx
 function NetworkErrorHandler({ error, onRetry }) {
   const [retryCount, setRetryCount] = useState(0);
@@ -627,8 +623,6 @@ function NetworkErrorHandler({ error, onRetry }) {
 
 ### Offline Mode
 
-Handle offline scenarios gracefully:
-
 ```tsx
 function OfflineMode({ isOnline, pendingMessages, onReconnect }) {
   const [showQueue, setShowQueue] = useState(false);
@@ -685,8 +679,6 @@ function OfflineMode({ isOnline, pendingMessages, onReconnect }) {
 ## Model Availability
 
 ### Model Selection with Fallback
-
-Handle model unavailability:
 
 ```tsx
 function ModelSelector({ preferredModel, availableModels, onModelChange }) {
@@ -766,8 +758,6 @@ function ModelSelector({ preferredModel, availableModels, onModelChange }) {
 ## Timeout Handling
 
 ### Request Timeout Management
-
-Handle long-running requests:
 
 ```tsx
 function TimeoutHandler({ request, timeout = 30000, onCancel, onExtend }) {
@@ -860,7 +850,7 @@ function TimeoutHandler({ request, timeout = 30000, onCancel, onExtend }) {
 
 ### Feature Degradation Strategy
 
-Maintain functionality during partial failures:
+Keep working during partial failures:
 
 ```tsx
 function DegradedModeHandler({ degradedFeatures, onDismiss }) {
@@ -913,7 +903,7 @@ function DegradedModeHandler({ degradedFeatures, onDismiss }) {
 
 ### Error Recovery Suggestions
 
-Provide actionable recovery steps:
+Give actionable recovery steps:
 
 ```tsx
 function ErrorRecovery({ error, onAction }) {
@@ -985,13 +975,6 @@ function ErrorRecovery({ error, onAction }) {
 
 ## Best Practices Summary
 
-1. **Clear communication** - Explain errors in user-friendly terms
-2. **Actionable solutions** - Always provide next steps
-3. **Graceful degradation** - Maintain core functionality
-4. **Automatic retry** - With exponential backoff
-5. **Offline support** - Queue messages when disconnected
-6. **Uncertainty signals** - Show when AI might be wrong
-7. **Educate users** - Explain why errors occur
-8. **Progressive disclosure** - Technical details in expandable sections
-9. **Recovery paths** - Multiple ways to resolve issues
-10. **Maintain trust** - Acknowledge limitations honestly
+1. **Actionable solutions** - Always give next steps
+2. **Educate users** - Explain why errors occur
+3. **Progressive disclosure** - Technical details in expandable sections

@@ -39,12 +39,12 @@
 
 ## sqlc (Recommended)
 
-**Key Feature:** Generates type-safe Go code from SQL queries.
+**Key Feature:** generates type-safe Go code from SQL queries.
 
 ### Installation
 
 ```bash
-go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.31.1  # pinned; bump deliberately
 ```
 
 ### Configuration
@@ -291,13 +291,6 @@ func main() {
 }
 ```
 
-**Why sqlc?**
-- Type-safe generated code
-- SQL-first (full SQL control)
-- Zero runtime overhead
-- Easy to understand (just Go code)
-- Excellent for PostgreSQL
-
 ## GORM (Rapid Development)
 
 ### Installation
@@ -379,16 +372,7 @@ func main() {
 }
 ```
 
-**Why GORM?**
-- Rapid development
-- Active Record pattern
-- Auto-migrations
-- Association handling
-- Large community
-
 ## pgx (PostgreSQL Driver)
-
-High-performance PostgreSQL driver.
 
 ### Installation
 
@@ -450,17 +434,11 @@ func main() {
 }
 ```
 
-**Why pgx?**
-- Best PostgreSQL performance
-- Low-level control
-- Connection pooling built-in
-- PostgreSQL-specific features
-
 ## Comparison
 
 ### Choose sqlc When:
 - Want type safety from SQL
-- Prefer SQL-first approach
+- Prefer SQL-first
 - Need generated code
 - PostgreSQL/MySQL/SQLite
 
@@ -522,13 +500,13 @@ func GetUser(ctx context.Context, queries *db.Queries, id int32) (db.User, error
 
 ```bash
 # Install golang-migrate
-go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.20.1
 
 # Create migration
 migrate create -ext sql -dir migrations -seq add_users
 
-# Run migrations
-migrate -path migrations -database "postgresql://..." up
+# Run migrations (URL from env, not inline)
+migrate -path migrations -database "$DATABASE_URL" up
 ```
 
 ```sql

@@ -1,6 +1,6 @@
 # Software Graph Evidence
 
-Use Software Graph evidence as the primary source of truth. Prefer deterministic identifiers over prose names.
+Software Graph evidence is primary source of truth. Prefer deterministic identifiers over prose names.
 
 Evidence fields to capture:
 
@@ -10,6 +10,6 @@ Evidence fields to capture:
 - edge type and direction
 - source span when present
 - diagnostic codes when relevant
-- confidence and reason for confidence
+- confidence and its reason
 
-Do not infer relationships that are absent from the graph. You may make a clearly labeled inference only after stating the graph evidence that supports it.
+Do not infer relationships absent from graph. Clearly labeled inference is allowed only after stating supporting graph evidence.

@@ -1,8 +1,5 @@
 # CSS Logical Properties Reference
 
-**Complete guide to CSS logical properties for RTL/i18n support**
-
-
 ## Table of Contents
 
 - [Why Logical Properties?](#why-logical-properties)
@@ -52,16 +49,16 @@
 
 ## Core Concepts
 
-**Inline Axis** = Direction of text flow
-- LTR (English): Horizontal (left → right)
-- RTL (Arabic): Horizontal (right → left)
-- Vertical (Japanese): Vertical (top → bottom)
+**Inline Axis**: direction of text flow
+- LTR (English): horizontal (left → right)
+- RTL (Arabic): horizontal (right → left)
+- Vertical (Japanese): vertical (top → bottom)
 
-**Block Axis** = Direction of block stacking
-- Horizontal languages: Vertical (top → bottom)
+**Block Axis**: direction of block stacking
+- Horizontal languages: vertical (top → bottom)
 
-**Start** = Beginning of flow (left in LTR, right in RTL)
-**End** = End of flow (right in LTR, left in RTL)
+**Start**: beginning of flow (left in LTR, right in RTL)
+**End**: end of flow (right in LTR, left in RTL)
 
 ---
 
@@ -123,15 +120,6 @@ border-inline-start-style: dashed;
 | `right` | `inset-inline-end` | ✅ Yes |
 | `top` | `inset-block-start` | ❌ No |
 | `bottom` | `inset-block-end` | ❌ No |
-
-**Usage:**
-```css
-.dropdown {
-  position: absolute;
-  inset-inline-start: 0;  /* Left in LTR, right in RTL */
-  inset-block-start: 100%; /* Below element */
-}
-```
 
 ### Text Alignment
 
@@ -206,13 +194,13 @@ border-inline-start-style: dashed;
 ## Browser Support
 
 **Excellent support (2025):**
-- Chrome/Edge: Since version 69 (2018)
-- Firefox: Since version 41 (2015)
-- Safari: Since version 12.1 (2019)
+- Chrome/Edge: since version 69 (2018)
+- Firefox: since version 41 (2015)
+- Safari: since version 12.1 (2019)
 
 **Coverage:** >95% of global users
 
-**Fallback (if needed for very old browsers):**
+**Fallback (if very old browsers need it):**
 ```css
 /* Fallback */
 margin-left: 16px;
@@ -237,7 +225,7 @@ margin-inline-start: 16px;
 
 ### Visual Testing Checklist
 
-When switching to RTL, verify:
+After switching to RTL, verify:
 - [ ] Text alignment flips (left → right)
 - [ ] Padding/margins flip
 - [ ] Borders flip (left border → right border)
@@ -310,4 +298,4 @@ When switching to RTL, verify:
 
 ---
 
-**Always use logical properties in design tokens for automatic RTL support!**
+**Always use logical properties in design tokens for automatic RTL support.**

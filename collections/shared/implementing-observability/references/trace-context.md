@@ -1,7 +1,5 @@
 # Trace Context Propagation Patterns
 
-Complete guide for propagating trace context across services, background jobs, and message queues.
-
 ## Table of Contents
 
 - [Context Propagation Fundamentals](#context-propagation-fundamentals)
@@ -17,9 +15,9 @@ Complete guide for propagating trace context across services, background jobs, a
 
 ### What is Trace Context?
 
-**Trace context** consists of:
-- `trace_id`: Unique identifier for the entire request flow (128-bit)
-- `span_id`: Unique identifier for the current operation (64-bit)
+**Trace context** has:
+- `trace_id`: Unique ID for whole request flow (128-bit)
+- `span_id`: Unique ID for current operation (64-bit)
 - `trace_flags`: Sampling and other flags (8-bit)
 
 **W3C Trace Context Standard** (HTTP header):
@@ -32,9 +30,9 @@ traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
 
 ### Automatic Propagation
 
-OpenTelemetry SDKs automatically propagate context via:
+OpenTelemetry SDKs propagate context automatically via:
 - **HTTP headers**: `traceparent`, `tracestate`
-- **gRPC metadata**: Same headers in metadata
+- **gRPC metadata**: Same headers
 - **Message attributes**: Injected into message headers/properties
 
 ---
@@ -546,20 +544,7 @@ async function getFromCache(key: string): Promise<string | null> {
 
 ### Python → Rust
 
-**Python Service (Upstream)**:
-
-```python
-import httpx
-from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
-
-HTTPXClientInstrumentor().instrument()
-
-async def call_rust_service():
-    async with httpx.AsyncClient() as client:
-        # Automatically injects W3C Trace Context headers
-        response = await client.get("http://rust-service:3000/api/process")
-        return response.json()
-```
+**Python Service (Upstream)**: instrumented httpx client, same as Python Service A above; injects W3C Trace Context headers automatically.
 
 **Rust Service (Downstream)**:
 
@@ -588,24 +573,7 @@ async fn process_handler() -> &'static str {
 
 ### Go → TypeScript
 
-**Go Service (Upstream)**:
-
-```go
-import (
-    "net/http"
-    "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-)
-
-func callTypeScriptService(ctx context.Context) (string, error) {
-    client := &http.Client{
-        Transport: otelhttp.NewTransport(http.DefaultTransport),
-    }
-
-    req, _ := http.NewRequestWithContext(ctx, "GET", "http://ts-service:3000/api/data", nil)
-    resp, err := client.Do(req)
-    // W3C Trace Context automatically injected
-}
-```
+**Go Service (Upstream)**: `otelhttp.NewTransport` client, same as Go Service A above; injects W3C Trace Context automatically.
 
 **TypeScript Service (Downstream)**:
 
@@ -633,7 +601,9 @@ app.get('/api/data', (req, res) => {
 
 ## Baggage Propagation
 
-**Use baggage to propagate custom context** (user_id, tenant_id, etc.):
+**Propagate custom context with baggage** (user_id, tenant_id, etc.):
+
+Baggage rides in plain headers on every outbound call, third-party APIs included, and inbound baggage is client-forgeable: no PII or secrets, never use it for authorization.
 
 ### Python
 
@@ -713,22 +683,21 @@ print("Injected headers:", carrier)
 
 1. **Use auto-instrumentation first** - Manual propagation is error-prone
 2. **Always propagate in async contexts** - Use `.instrument()` (Rust) or context managers (Python)
-3. **Test cross-service traces** - Verify end-to-end trace visibility
-4. **Use baggage sparingly** - High cardinality data bloats headers
-5. **Monitor propagation failures** - Alert on orphaned spans (no parent)
-6. **Version compatibility** - W3C Trace Context is backwards compatible
+3. **Use baggage sparingly** - High-cardinality data bloats headers
+4. **Monitor propagation failures** - Alert on orphaned spans (no parent)
+5. **Version compatibility** - W3C Trace Context is backwards compatible
 
 ---
 
 ## Troubleshooting
 
-**Traces appear disconnected (no parent-child relationship)**:
-- Verify auto-instrumentation is enabled on both services
+**Traces disconnected (no parent-child relationship)**:
+- Check auto-instrumentation enabled on both services
 - Check HTTP client propagates `traceparent` header
-- Ensure server extracts `traceparent` from headers
+- Check server extracts `traceparent` from headers
 
 **Baggage not propagating**:
-- Verify W3C Baggage propagator is configured
+- Check W3C Baggage propagator configured
 - Check header size limits (default: 8KB)
 - Reduce baggage cardinality
 

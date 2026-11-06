@@ -4,7 +4,7 @@
 
 ### Step Zero — Disable FES
 
-The Friendly Error System (FES) adds massive overhead — up to 10x slowdown. Disable it in every production sketch:
+Friendly Error System (FES) adds massive overhead, up to 10x slowdown. Disable in every production sketch:
 
 ```javascript
 // BEFORE any p5 code
@@ -15,7 +15,7 @@ p5.disableFriendlyErrors = true;
 
 ### Step One — pixelDensity(1)
 
-Retina/HiDPI displays default to 2x or 3x density, multiplying pixel count by 4-9x:
+Retina/HiDPI displays default to 2x or 3x density, multiplying pixel count 4-9x:
 
 ```javascript
 function setup() {
@@ -26,7 +26,7 @@ function setup() {
 
 ### Use Math.* in Hot Loops
 
-p5's `sin()`, `cos()`, `random()`, `min()`, `max()`, `abs()` are wrapper functions with overhead. In hot loops (thousands of iterations per frame), use native `Math.*`:
+p5's `sin()`, `cos()`, `random()`, `min()`, `max()`, `abs()` are wrappers with overhead. In hot loops (thousands of iterations per frame), use native `Math.*`:
 
 ```javascript
 // SLOW — p5 wrappers
@@ -43,21 +43,21 @@ for (let p of particles) {
 }
 ```
 
-Use `magSq()` instead of `mag()` for distance comparisons — avoids expensive `sqrt()`.
+Use `magSq()` instead of `mag()` for distance comparisons. Avoids expensive `sqrt()`.
 
 ### Diagnosis
 
 Open Chrome DevTools > Performance tab > Record while sketch runs.
 
 Common bottlenecks:
-1. **FES enabled** — 10x overhead on every p5 function call
+1. **FES enabled** — 10x overhead on every p5 call
 2. **pixelDensity > 1** — 4x pixel count, 4x slower
 3. **Too many draw calls** — thousands of `ellipse()`, `rect()` per frame
 4. **Large canvas + pixel operations** — `loadPixels()`/`updatePixels()` on 4K canvas
-5. **Unoptimized particle systems** — checking all-vs-all distances (O(n^2))
-6. **Memory leaks** — creating objects every frame without cleanup
-7. **Shader compilation** — calling `createShader()` in `draw()` instead of `setup()`
-8. **console.log() in draw()** — DOM write per frame, destroys performance
+5. **Unoptimized particle systems** — all-vs-all distance checks (O(n^2))
+6. **Memory leaks** — new objects every frame without cleanup
+7. **Shader compilation** — `createShader()` in `draw()` instead of `setup()`
+8. **console.log() in draw()** — DOM write per frame, kills performance
 9. **DOM manipulation in draw()** — layout thrashing (400-500x slower than canvas ops)
 
 ### Solutions
@@ -182,7 +182,7 @@ if (frameCount % 5 === 0) {
 
 ### Per-Pixel Rendering Budgets
 
-Pixel-level operations (`loadPixels()` loops) are the most expensive common pattern. Budget depends on canvas size and computation per pixel.
+Pixel-level operations (`loadPixels()` loops) are most expensive common pattern. Budget depends on canvas size and per-pixel computation.
 
 | Canvas | Pixels | Simple noise (1 call) | fBM (4 octave) | Domain warp (3-layer fBM) |
 |--------|--------|----------------------|----------------|--------------------------|
@@ -214,7 +214,7 @@ for (let y = 0; y < H; y += step) {
 updatePixels();
 ```
 
-Step=2 gives 4x speedup. Step=3 gives 9x. Visible at 1080p but acceptable for video (motion hides it).
+Step=2 gives 4x speedup. Step=3 gives 9x. Visible at 1080p, acceptable for video (motion hides it).
 
 ## Common Mistakes
 
@@ -398,19 +398,6 @@ function draw() {
 }
 ```
 
-### 13. Not disabling FES in production
-
-```javascript
-// BAD: every p5 function call has error-checking overhead (up to 10x slower)
-function setup() { createCanvas(800, 800); }
-
-// GOOD: disable before any p5 code
-p5.disableFriendlyErrors = true;
-function setup() { createCanvas(800, 800); }
-
-// ALSO GOOD: use p5.min.js (FES stripped from minified build)
-```
-
 ## Browser Compatibility
 
 ### Safari Issues
@@ -425,16 +412,16 @@ function setup() { createCanvas(800, 800); }
 
 ### Mobile Issues
 - Touch events need `return false` to prevent scroll
-- `devicePixelRatio` can be 2x or 3x — use `pixelDensity(1)` for performance
+- `devicePixelRatio` can be 2x or 3x. Use `pixelDensity(1)` for performance
 - Smaller canvas recommended (720p or less)
-- Audio requires explicit user gesture to start
+- Audio needs explicit user gesture to start
 
 ## CORS Issues
 
 ```javascript
 // Loading images/fonts from external URLs requires CORS headers
 // Local files need a server:
-// python3 -m http.server 8080
+// python3 -m http.server --bind 127.0.0.1 8080
 
 // Or use a CORS proxy for external resources (not recommended for production)
 ```
@@ -442,8 +429,8 @@ function setup() { createCanvas(800, 800); }
 ## Memory Leaks
 
 ### Symptoms
-- Framerate degrading over time
-- Browser tab memory growing unbounded
+- Framerate degrades over time
+- Browser tab memory grows unbounded
 - Page becomes unresponsive after minutes
 
 ### Common Causes

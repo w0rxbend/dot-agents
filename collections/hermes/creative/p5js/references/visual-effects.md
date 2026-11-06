@@ -18,7 +18,7 @@ let v = noise(x * 0.005, y * 0.005);
 let v = noise(x * 0.005, y * 0.005, frameCount * 0.005);
 ```
 
-The scale factor (0.005 etc.) is critical:
+Scale factor (0.005 etc.) is critical:
 - `0.001` — very smooth, large features
 - `0.005` — smooth, medium features
 - `0.01` — standard generative art scale
@@ -27,7 +27,7 @@ The scale factor (0.005 etc.) is critical:
 
 ### Fractal Brownian Motion (fBM)
 
-Layered noise octaves for natural-looking texture. Each octave adds detail at smaller scale.
+Layered noise octaves give natural-looking texture. Each octave adds detail at smaller scale.
 
 ```javascript
 function fbm(x, y, octaves = 6, lacunarity = 2.0, gain = 0.5) {
@@ -65,7 +65,7 @@ function domainWarp(x, y, scale, strength, time) {
 
 ### Curl Noise
 
-Divergence-free noise field. Particles following curl noise never converge or diverge — they flow in smooth, swirling patterns.
+Divergence-free noise field. Particles following curl noise never converge or diverge. They flow in smooth, swirling patterns.
 
 ```javascript
 function curlNoise(x, y, scale, time) {
@@ -82,7 +82,7 @@ function curlNoise(x, y, scale, time) {
 
 ## Flow Fields
 
-A grid of vectors that steer particles. The foundational generative art technique.
+Vector grid that steers particles.
 
 ```javascript
 class FlowField {
@@ -410,7 +410,7 @@ function draw() {
 
 ### Bloom / Glow (Post-Processing)
 
-Downsample the scene to a small buffer, blur it, overlay additively. Creates soft glow around bright areas. This is the standard generative art bloom technique.
+Downsample scene to small buffer, blur it, overlay additively. Creates soft glow around bright areas.
 
 ```javascript
 let scene, bloomBuf;
@@ -450,11 +450,11 @@ function draw() {
 - Tint alpha (40-120, controls glow intensity)
 - Update bloom every N frames to save perf: `if (frameCount % 2 === 0) { ... }`
 
-**Common mistake:** Forgetting `blendMode(BLEND)` after the ADD pass — everything drawn after will be additive.
+**Common mistake:** Forgetting `blendMode(BLEND)` after ADD pass. Everything drawn after stays additive.
 
 ### Trail Buffer Brightness
 
-Trail accumulation via `createGraphics()` + semi-transparent fade rect is the standard technique for particle trails, but **trails are always dimmer than you expect**. The fade rect's alpha compounds multiplicatively every frame.
+Trail accumulation via `createGraphics()` + semi-transparent fade rect is standard for particle trails, but **trails are always dimmer than you expect**. Fade rect's alpha compounds multiplicatively every frame.
 
 ```javascript
 // The fade rect alpha controls trail length AND brightness:
@@ -468,10 +468,10 @@ trailBuf.rect(0, 0, width, height);
 // alpha=80 → very short trails, crisp
 ```
 
-**The trap:** You set alpha=5 for long trails, but particle strokes at alpha=30 are invisible because they fade before accumulating enough density. Either:
+**The trap:** You set alpha=5 for long trails, but particle strokes at alpha=30 stay invisible. They fade before accumulating enough density. Either:
 - **Boost stroke alpha** to 80-150 (not the intuitive 20-40)
 - **Reduce fade alpha** but accept shorter trails
-- **Use additive blending** for the strokes: bright particles accumulate, dim ones stay dark
+- **Use additive blending** for strokes: bright particles accumulate, dim ones stay dark
 
 ```javascript
 // WRONG: low fade + low stroke = invisible
@@ -624,7 +624,7 @@ lsys.draw(4, radians(25));
 
 ### Circle Packing
 
-Fill a space with non-overlapping circles of varying size.
+Fill space with non-overlapping circles of varying size.
 
 ```javascript
 class PackedCircle {
@@ -754,7 +754,7 @@ function deJongAttractor(a, b, c, d, iterations) {
 
 ### Poisson Disk Sampling
 
-Even distribution that looks natural — better than pure random for placing elements.
+Even, natural-looking distribution. Better than pure random for placing elements.
 
 ```javascript
 function poissonDiskSampling(r, k = 30) {
@@ -819,10 +819,11 @@ function poissonDiskSampling(r, k = 30) {
 
 ### p5.brush — Natural Media
 
-Hand-drawn, organic aesthetics. Watercolor, charcoal, pen, marker. Requires **p5.js 2.x + WEBGL**.
+Hand-drawn, organic aesthetics. Watercolor, charcoal, pen, marker. Requires **p5.js 2.x + WEBGL**. Pin it: use `p5.brush@3.0.0`, not `@latest`.
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/p5.brush@latest/dist/p5.brush.js"></script>
+<!-- SRI = p5.brush@3.0.0 build; any other build is blocked -->
+<script src="https://cdn.jsdelivr.net/npm/p5.brush@latest/dist/p5.brush.js" integrity="sha384-vrDWhnwNGI5wYGdZLcEeiI7o1ThTTvdFlYdLKq7CJaomf+aR2C/rBr860U8BvKz3" crossorigin="anonymous"></script>
 ```
 
 ```javascript
@@ -859,10 +860,11 @@ function draw() {
 
 ### CCapture.js — Deterministic Video Capture
 
-Records canvas at fixed framerate regardless of actual render speed. Essential for complex generative art.
+Records canvas at fixed framerate regardless of real render speed.
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/ccapture.js-npmfixed/build/CCapture.all.min.js"></script>
+<!-- SRI = ccapture.js-npmfixed@1.1.0 build -->
+<script src="https://cdn.jsdelivr.net/npm/ccapture.js-npmfixed/build/CCapture.all.min.js" integrity="sha384-64SYlLdyj7TO3whmVmWdUWICvj+G0n7Pg170UIB4/3Zfhsvt77ZfoynTDhHhN1Ks" crossorigin="anonymous"></script>
 ```
 
 ```javascript

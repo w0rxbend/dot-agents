@@ -3,28 +3,30 @@ name: python-async-patterns
 user-invocable: false
 description: Write and debug asyncio code on Python 3.11+ - TaskGroup structured concurrency, asyncio.timeout, cancellation, queues, semaphores, async context managers/iterators, and offloading blocking or CPU work with to_thread/executors. Use for async Python code; use python-patterns for sync-vs-async architecture choices.
 allowed-tools:
-  - Bash
+  - "Bash(pytest:*)"
+  - "Bash(python -m pytest:*)"
+  - "Bash(uv run pytest:*)"
   - Read
 ---
 
 # Python Async Patterns
 
-Use asyncio for I/O-bound concurrency. Check the project's minimum Python
-(`requires-python` in `pyproject.toml`) first: `asyncio.TaskGroup` and
-`asyncio.timeout()` need 3.11+. On 3.8-3.10 use the fallbacks noted below, or
-`anyio` if the project already depends on it.
+Use asyncio for I/O-bound concurrency. Check minimum Python first
+(`requires-python` in `pyproject.toml`): `asyncio.TaskGroup` and
+`asyncio.timeout()` need 3.11+. On 3.8-3.10 use fallbacks below, or `anyio` if
+already a dependency.
 
 ## Decision Table
 
 | Need | Use (3.11+) | Pre-3.11 fallback |
 |------|-------------|-------------------|
-| Run a program | `asyncio.run(main())` | same (3.7+) |
+| Run program | `asyncio.run(main())` | same (3.7+) |
 | Run N coroutines, fail fast, no leaks | `async with asyncio.TaskGroup()` | `gather()` + manual cancel |
 | Run N, collect failures individually | `gather(..., return_exceptions=True)` | same |
-| First result wins / progress as they finish | `asyncio.wait(FIRST_COMPLETED)` / `as_completed` | same |
-| Deadline on a block of code | `async with asyncio.timeout(s)` | `asyncio.wait_for(coro, s)` |
+| First result wins / progress as each finishes | `asyncio.wait(FIRST_COMPLETED)` / `as_completed` | same |
+| Deadline on code block | `async with asyncio.timeout(s)` | `asyncio.wait_for(coro, s)` |
 | Limit concurrency | `asyncio.Semaphore(n)` | same |
-| Call a blocking function | `await asyncio.to_thread(fn, *args)` (3.9+) | `loop.run_in_executor(None, ...)` |
+| Call blocking function | `await asyncio.to_thread(fn, *args)` (3.9+) | `loop.run_in_executor(None, ...)` |
 | CPU-bound work | `ProcessPoolExecutor` via `loop.run_in_executor` | same |
 | Producer/consumer | `asyncio.Queue` (+ `Queue.shutdown()` on 3.13+) | sentinels |
 
@@ -43,14 +45,10 @@ async def main() -> None:
 asyncio.run(main())  # the only entry point you normally need
 ```
 
-Calling `fetch(url)` without `await` only creates a coroutine object; nothing runs.
-
 ## Structured Concurrency with TaskGroup
 
-A `TaskGroup` owns its tasks: the `async with` block does not exit until every
-task has finished. If one task raises, the group cancels the others and raises
-an `ExceptionGroup`. No task can outlive the block, so nothing leaks and no
-error is silently dropped.
+`TaskGroup` owns its tasks: `async with` exits only after every task finishes.
+If one task raises, group cancels others and raises `ExceptionGroup`.
 
 ```python
 import asyncio
@@ -79,15 +77,14 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
-Choose between the multi-task APIs:
+Multi-task APIs:
 
-- `TaskGroup`: default for "do these together". It fails fast and cancels the
-  rest.
+- `TaskGroup`: default for "do these together". Fails fast, cancels rest.
 - `gather(*coros, return_exceptions=True)`: when partial success is acceptable
-  and you inspect each result. Without `return_exceptions`, `gather` propagates
-  the first error but **does not cancel** the other tasks.
-- `asyncio.wait` / `as_completed`: races and incremental processing. Always
-  cancel and await the leftovers.
+  and you inspect each result. Without `return_exceptions`, `gather` propagates first error
+  but **does not cancel** other tasks.
+- `asyncio.wait` / `as_completed`: races, incremental processing. Always cancel
+  and await leftovers.
 
 ```python
 async def first_successful(urls: list[str]) -> str:
@@ -103,9 +100,9 @@ async def first_successful(urls: list[str]) -> str:
 
 ### Background tasks
 
-`asyncio.create_task()` outside a TaskGroup creates an unowned task. The event
-loop keeps only a weak reference to it, so keep a strong reference or it can be
-garbage-collected mid-run. Its exceptions surface only when it is awaited.
+`asyncio.create_task()` outside TaskGroup makes unowned task. Event loop holds
+only weak reference. Keep strong reference, or task can be garbage-collected
+mid-run. Its exceptions surface only on await.
 
 ```python
 background: set[asyncio.Task[None]] = set()
@@ -116,8 +113,8 @@ def spawn(coro) -> None:
     task.add_done_callback(background.discard)
 ```
 
-Prefer a long-lived `TaskGroup` (for example in an app lifespan handler) over
-loose tasks.
+Prefer long-lived `TaskGroup` (for example in app lifespan handler) over loose
+tasks.
 
 ## Timeouts and Cancellation
 
@@ -139,7 +136,7 @@ async def main() -> None:
         print("timed out")
 ```
 
-Cancellation is delivered as `asyncio.CancelledError` at the next `await`:
+Cancellation arrives as `asyncio.CancelledError` at next `await`:
 
 ```python
 async def worker() -> None:
@@ -151,11 +148,11 @@ async def worker() -> None:
         raise                   # always re-raise; swallowing it breaks TaskGroup and timeout()
 ```
 
-- Never use a bare `except:` or `except BaseException:` that swallows
-  `CancelledError` (it subclasses `BaseException` since 3.8).
-- Use `asyncio.shield()` only for work that must finish even if the caller is
-  cancelled, and still bound it with a timeout.
-- `task.cancel()` only requests cancellation; `await` the task to know it is done.
+- Never use bare `except:` or `except BaseException:` that swallows
+  `CancelledError` (subclasses `BaseException` since 3.8).
+- Use `asyncio.shield()` only for work that must finish even if caller is
+  cancelled. Still bound it with timeout.
+- `task.cancel()` only requests cancellation. `await` task to confirm done.
 
 ## Bounding Concurrency
 
@@ -179,11 +176,11 @@ async def fetch_all(urls: list[str], limit: int = 10) -> list[str]:
 ```
 
 Reuse one client/session (httpx `AsyncClient` or aiohttp `ClientSession`) per
-application, not per request. Spawning thousands of tasks is fine; opening
-thousands of sockets at once is not, so the semaphore is the limit that matters.
+application, not per request. Thousands of tasks: fine. Thousands of sockets
+at once: not fine. Semaphore is the limit that matters.
 
-Use `asyncio.Lock` only to protect state across an `await`. Code with no
-`await` between read and write is already atomic with respect to other tasks.
+Use `asyncio.Lock` only to protect state across `await`. Code with no `await`
+between read and write is already atomic relative to other tasks.
 
 ## Producer / Consumer with Queue
 
@@ -218,7 +215,7 @@ asyncio.run(main())
 ```
 
 On 3.13+, `queue.shutdown()` makes waiting `get()` calls raise
-`asyncio.QueueShutDown`, which replaces sentinel values and manual cancellation.
+`asyncio.QueueShutDown`, replacing sentinels and manual cancellation.
 
 ## Async Context Managers and Iterators
 
@@ -247,13 +244,13 @@ async def main() -> None:
             ...
 ```
 
-Use `contextlib.AsyncExitStack` to manage a dynamic number of async resources.
-If you stop iterating an async generator early, close it explicitly with
-`contextlib.aclosing(gen)` (3.10+) so its `finally` runs promptly.
+Use `contextlib.AsyncExitStack` for dynamic number of async resources. Stopping
+async generator early: close it with `contextlib.aclosing(gen)` (3.10+) so its
+`finally` runs promptly.
 
 ## Blocking and CPU-bound Work
 
-The event loop runs one thing at a time. Any blocking call (`time.sleep`,
+Event loop runs one thing at a time. Any blocking call (`time.sleep`,
 `requests`, sync DB drivers, large JSON parsing, file hashing) stalls every task.
 
 ```python
@@ -277,21 +274,21 @@ if __name__ == "__main__":   # required for ProcessPoolExecutor with spawn start
     asyncio.run(main())
 ```
 
-- Threads help with blocking I/O; for CPU-bound Python code they do not
-  (the GIL), except on free-threaded builds. Use processes for CPU work.
-- Arguments and results crossing a process pool must be picklable.
+- Threads help blocking I/O, not CPU-bound Python code (GIL), except on
+  free-threaded builds. Use processes for CPU work.
+- Process pool arguments and results must be picklable.
 
 ## Legacy and Embedding: Manual Loop Management
 
-Application code should not create, set, or fetch event loops. Use
-`asyncio.run()` at the entry point and `asyncio.get_running_loop()` inside
-coroutines. `asyncio.get_event_loop()` without a running loop is deprecated and
-warns or fails on current Python versions.
+Do not create, set or fetch event loops in application code. Use
+`asyncio.run()` at entry point, `asyncio.get_running_loop()` inside coroutines.
+`asyncio.get_event_loop()` without running loop is deprecated; warns or fails on
+current Python versions.
 
-Touch loops directly only when embedding asyncio in a host that owns the thread
-(GUI toolkits, plugin hosts, tests of the loop itself). There, prefer
-`asyncio.Runner` (3.11+) over hand-written `new_event_loop` /
-`run_until_complete` / `close` sequences:
+Touch loops directly only when embedding asyncio in host owning the thread (GUI
+toolkits, plugin hosts, tests of loop itself). There, prefer `asyncio.Runner`
+(3.11+) over hand-written `new_event_loop` / `run_until_complete` / `close`
+sequences:
 
 ```python
 with asyncio.Runner() as runner:
@@ -299,39 +296,33 @@ with asyncio.Runner() as runner:
     runner.run(serve())
 ```
 
-To submit work to a loop running in another thread, use
-`asyncio.run_coroutine_threadsafe(coro, loop)` and wait on the returned
+Submit work to loop in another thread with
+`asyncio.run_coroutine_threadsafe(coro, loop)`; wait on returned
 `concurrent.futures.Future`.
 
 ## Debugging
 
-- Run with `PYTHONASYNCIODEBUG=1` or `asyncio.run(main(), debug=True)` to log
-  never-awaited coroutines and callbacks that block the loop for more than 100 ms.
-- "Task exception was never retrieved" means an unowned task failed; move it into
-  a TaskGroup or await it.
-- "Task was destroyed but it is pending" usually means the task had no strong
-  reference or the loop closed first.
-- Test with `pytest-asyncio` or anyio's pytest plugin; see `pytest-fixtures` for
-  async fixtures.
+- `PYTHONASYNCIODEBUG=1` or `asyncio.run(main(), debug=True)` logs
+  never-awaited coroutines and callbacks blocking loop for more than 100 ms.
+- "Task exception was never retrieved": unowned task failed. Move it into
+  TaskGroup or await it.
+- "Task was destroyed but it is pending": usually no strong reference, or loop
+  closed first.
+- Test with `pytest-asyncio` or anyio's pytest plugin. Async fixtures: see
+  `pytest-fixtures`.
 
 ## Common Pitfalls
 
-- Forgetting `await` (the coroutine never runs; a `RuntimeWarning` appears).
-- Blocking calls inside `async def` (`time.sleep`, `requests`, sync drivers).
-- `gather()` without `return_exceptions` and assuming siblings were cancelled.
-- Swallowing `CancelledError`, or a bare `except:` around awaits.
-- Unbounded fan-out: thousands of simultaneous connections with no semaphore.
-- Fire-and-forget `create_task` without keeping a reference.
-- Creating a new HTTP client per request.
-- Forgetting `task_done()` after `queue.get()`, so `queue.join()` hangs.
+- Forgetting `await` (coroutine never runs; `RuntimeWarning` appears).
+- Missing `task_done()` after `queue.get()`, so `queue.join()` hangs.
 
 ## Done When
 
-- No unowned tasks: concurrent work runs in a `TaskGroup` (or is explicitly
-  reaped), and every network call has a timeout.
-- Blocking and CPU work is offloaded; running with `debug=True` shows no slow
-  callbacks or never-awaited coroutines.
-- Cancellation was exercised (timeout or Ctrl-C) and cleanup ran.
+- No unowned tasks: concurrent work runs in `TaskGroup` (or explicitly
+  reaped). Every network call has timeout.
+- Blocking and CPU work offloaded. `debug=True` run shows no slow callbacks or
+  never-awaited coroutines.
+- Cancellation exercised (timeout or Ctrl-C); cleanup ran.
 
 ## Resources
 

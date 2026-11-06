@@ -10,14 +10,14 @@
 |---------|---------|
 | **Cloud IAM** | Identity and access management |
 | **Identity Platform** | Customer identity (CIAM) |
-| **Cloud Identity** | Workforce identity management |
+| **Cloud Identity** | Workforce identity |
 
 #### Detection & Response
 
 | Service | Purpose |
 |---------|---------|
 | **Security Command Center** | Unified security and risk dashboard |
-| **Chronicle** | SIEM and threat intelligence platform |
+| **Chronicle** | SIEM and threat intelligence |
 | **Event Threat Detection** | Real-time threat detection |
 
 #### Network Security
@@ -32,7 +32,7 @@
 
 | Service | Purpose |
 |---------|---------|
-| **Cloud KMS** | Key management service |
+| **Cloud KMS** | Key management |
 | **Secret Manager** | Secrets management |
 | **Cloud DLP** | Data loss prevention |
 
@@ -66,6 +66,6 @@ Organization (example.com)
 **Key Patterns:**
 
 - **Organization Policies:** Enforce constraints at org/folder level
-- **Shared VPC:** Centralized network management
+- **Shared VPC:** Central network management
 - **Security Command Center:** Organization-wide security posture
 - **VPC Service Controls:** Protect sensitive projects from data exfiltration

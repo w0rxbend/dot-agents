@@ -1,7 +1,5 @@
 # Structured Logging with OpenTelemetry Context
 
-Complete guide for structured logging with trace context injection across Python, Rust, Go, and TypeScript.
-
 ## Table of Contents
 
 - [Why Structured Logging](#why-structured-logging)
@@ -20,12 +18,6 @@ Complete guide for structured logging with trace context injection across Python
 2025-12-02 10:15:23 INFO User 12345 logged in from 192.168.1.100
 ```
 
-**Problems**:
-- String parsing required to extract fields
-- No standard format
-- Cannot correlate with traces
-- Difficult to query
-
 **Structured logging (GOOD)**:
 ```json
 {
@@ -40,11 +32,7 @@ Complete guide for structured logging with trace context injection across Python
 }
 ```
 
-**Benefits**:
-- Machine-readable (JSON)
-- Easy to query in Loki: `{service="auth-service"} | json | user_id=12345`
-- Trace correlation via trace_id
-- Consistent field names
+Loki query: `{service="auth-service"} | json | user_id=12345`
 
 ---
 
@@ -131,7 +119,7 @@ async def get_user(user_id: int):
 
 ### Context Binding
 
-**Bind context for entire request scope**:
+**Bind context for whole request scope**:
 
 ```python
 from contextvars import ContextVar
@@ -266,9 +254,8 @@ async fn get_user(user_id: u64, db_pool: &PgPool) -> Result<User, AppError> {
 ```
 
 **Key Features**:
-- `#[instrument]` automatically creates a span
-- All `info!`, `warn!`, `error!` logs inside the function inherit trace context
-- Zero boilerplate for trace context injection
+- `#[instrument]` creates span automatically
+- All `info!`, `warn!`, `error!` logs inside function inherit trace context
 
 ### Manual Spans
 
@@ -611,7 +598,7 @@ return JSONResponse(
 )
 ```
 
-**Frontend can now reference trace_id when reporting bugs**:
+**Frontend can cite trace_id in bug reports**:
 ```typescript
 console.error('API error, trace_id:', response.trace_id);
 // User reports: "Error occurred, trace_id: 4bf92f3577b34da6a3ce929d0e0e4736"
@@ -631,10 +618,10 @@ console.error('API error, trace_id:', response.trace_id);
 ### Pattern 3: Jump from Trace to Logs in Grafana
 
 **In Grafana Tempo**:
-1. View trace for request
+1. View request trace
 2. Click "Logs for this span" button
-3. Grafana automatically queries Loki with trace_id filter
-4. See all logs correlated with the trace
+3. Grafana queries Loki with trace_id filter automatically
+4. See all logs correlated with trace
 
 **Configure in Grafana datasource**:
 ```yaml
@@ -655,7 +642,9 @@ datasources:
 
 ### Pattern 4: Baggage Propagation
 
-**Use OpenTelemetry Baggage to propagate user context**:
+**Propagate user context with OpenTelemetry Baggage**:
+
+Baggage rides in plain headers on every outbound call, third-party APIs included, and inbound baggage is client-forgeable: no PII or secrets, never use it for authorization. Prefer opaque ids.
 
 ```python
 from opentelemetry import baggage, context
@@ -684,19 +673,13 @@ logger.info("processing", user_id=user_id)
 | **Go**     | slog | Custom handler | High | ⭐⭐⭐ | Context.Value |
 | **TypeScript** | pino | Mixin function | High | ⭐⭐⭐⭐ | Child loggers |
 
-**Recommendation by Language**:
-- **Python**: structlog (most flexible, extensive ecosystem)
-- **Rust**: tracing (zero-boilerplate, native async)
-- **Go**: slog (stdlib, no dependencies, fast)
-- **TypeScript**: pino (fastest Node.js logger)
-
 ---
 
 ## Best Practices
 
-1. **Always inject trace context** - Every log should include trace_id when available
+1. **Always inject trace context** - Every log carries trace_id when available
 2. **Use structured fields** - JSON format, consistent field names
-3. **Bind request context** - User ID, request ID should be in all logs
+3. **Bind request context** - User ID, request ID in all logs
 4. **Redact sensitive data** - Never log passwords, tokens, API keys
 5. **Use log levels appropriately**:
    - DEBUG: Development only
@@ -704,21 +687,21 @@ logger.info("processing", user_id=user_id)
    - WARN: Recoverable errors
    - ERROR: Unrecoverable errors
 6. **Include error stack traces** - Use exc_info=True (Python) or error formatting
-7. **Test log correlation** - Verify trace_id appears in both logs and traces
+7. **Test log correlation** - Verify trace_id appears in logs and traces
 
 ---
 
 ## Troubleshooting
 
 **Trace context not appearing in logs**:
-- Verify OpenTelemetry SDK is initialized BEFORE logger
-- Check that logger configuration includes OTel processor/mixin
-- Ensure logs are emitted within a span context
+- Initialize OpenTelemetry SDK BEFORE logger
+- Check logger configuration includes OTel processor/mixin
+- Emit logs inside span context
 
 **JSON logs not parsing in Loki**:
-- Verify JSON is valid (use `jq` to test)
-- Check Loki pipeline configuration for JSON parsing
-- Ensure timestamp field is ISO 8601 format
+- Validate JSON (test with `jq`)
+- Check Loki pipeline configuration parses JSON
+- Use ISO 8601 for timestamp field
 
 **Performance degradation**:
 - Disable DEBUG logs in production

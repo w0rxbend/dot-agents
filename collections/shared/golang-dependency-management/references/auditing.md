@@ -2,17 +2,17 @@
 
 ## Test-Only vs Binary Dependencies
 
-Go's `go.mod` does **not** distinguish between test-only and production dependencies. All modules appear together, with `// indirect` marking transitive dependencies.
+`go.mod` does **not** separate test-only from production dependencies. All modules appear together; `// indirect` marks transitive ones.
 
 ### What Gets Included in Your Binary
 
-- `*_test.go` files are **never** compiled by `go build` — only by `go test`
-- Packages imported only by test files are not linked into the final binary
-- However, their modules still appear in `go.mod`
+- `*_test.go` files are **never** compiled by `go build`, only by `go test`
+- Packages imported only by tests are not linked into final binary
+- Their modules still appear in `go.mod`
 
 ### Module Graph Pruning (Go 1.17+)
 
-With `go 1.17` or higher in `go.mod`, Go prunes the module graph: transitive dependencies needed only for tests of other modules are excluded from the build graph. This reduces `go.mod` size and avoids downloading unnecessary modules.
+With `go 1.17` or higher in `go.mod`, Go prunes module graph: transitive dependencies needed only by other modules' tests drop out of build graph.
 
 ### Upgrading With or Without Test Dependencies
 
@@ -23,11 +23,11 @@ go get -u -t ./...    # Upgrade deps, INCLUDING test-only deps
 
 ### Impact on Binary Size
 
-To check whether a large dependency is actually linked into your binary (vs. only used in tests), use `goweight` or `go-size-analyzer` — if the package doesn't appear in the binary breakdown, it's test-only and not contributing to binary size.
+To see whether large dependency is linked or only used in tests, run `goweight` or `go-size-analyzer`. If absent from binary breakdown, it is test-only and adds no size.
 
 ## Vulnerability Scanning with govulncheck
 
-`govulncheck` reports known vulnerabilities that affect your code. It uses static analysis to narrow reports to vulnerabilities in code paths your project actually calls — unlike generic CVE scanners that flag every dependency regardless of usage.
+`govulncheck` reports known vulnerabilities affecting your code. Static analysis limits reports to code paths your project calls; generic CVE scanners flag every dependency regardless of usage.
 
 ```bash
 # Scan source code (most common)
@@ -45,13 +45,13 @@ govulncheck -format json ./...
 govulncheck -test ./...
 ```
 
-Output shows the vulnerability ID, affected module, fixed version, and the call trace from your code to the vulnerable function. If a vulnerability exists in a dependency but your code never calls the affected function, `govulncheck` does not flag it.
+Output: vulnerability ID, affected module, fixed version, call trace from your code to vulnerable function.
 
-For CI pipeline integration, see the `samber/cc-skills-golang@golang-continuous-integration` skill.
+CI integration: see `samber/cc-skills-golang@golang-continuous-integration` skill.
 
 ## Tracking Outdated Dependencies with go-mod-outdated
 
-`psampaz/go-mod-outdated` lists outdated direct dependencies with available updates.
+`psampaz/go-mod-outdated` lists direct dependencies with available updates.
 
 ```bash
 # Show outdated direct dependencies with available updates
@@ -64,18 +64,18 @@ go list -u -m -json all | go-mod-outdated -update -direct -ci
 go list -u -m -json all | go-mod-outdated -update -direct -style markdown
 ```
 
-Output columns: MODULE, CURRENT version, WANTED (latest minor/patch), LATEST (latest overall), and VALID TIMESTAMPS (warns if an "update" is chronologically older than current).
+Output columns: MODULE, CURRENT version, WANTED (latest minor/patch), LATEST (latest overall), VALID TIMESTAMPS (warns if "update" is chronologically older than current).
 
 ## Analyzing Dependency Size with goweight
 
-`jondot/goweight` lists every package linked into the binary sorted by size contribution. It helps identify bloated dependencies and evaluate whether a lighter alternative exists.
+`jondot/goweight` lists every package linked into binary, sorted by size.
 
 ```bash
 goweight          # Sort by size
 goweight --json   # JSON output for CI tracking
 ```
 
-**Modern alternative**: [go-size-analyzer](https://github.com/Zxilly/go-size-analyzer) (`gsa`) supports ELF, Mach-O, PE, and WebAssembly formats with interactive HTML/SVG visualization:
+**Modern alternative**: [go-size-analyzer](https://github.com/Zxilly/go-size-analyzer) (`gsa`) supports ELF, Mach-O, PE, WebAssembly; interactive HTML/SVG visualization:
 
 ```bash
 go get -tool github.com/Zxilly/go-size-analyzer/cmd/gsa@latest

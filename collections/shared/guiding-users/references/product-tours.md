@@ -1,8 +1,5 @@
 # Product Tours: Step-by-Step Walkthroughs
 
-**Purpose:** This document provides detailed patterns for implementing product tours that guide users through key features with sequential spotlights and modal overlays.
-
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -48,15 +45,15 @@
 
 ## Overview
 
-Product tours are step-by-step walkthroughs that introduce users to your product's core functionality through a series of focused interactions. Each step highlights a specific UI element and explains its purpose or usage.
+Product tours are step-by-step walkthroughs that introduce core product functionality through focused interactions. Each step highlights one UI element and explains its purpose or usage.
 
 ## When to Use Product Tours
 
 **Appropriate scenarios:**
 - First-time user onboarding
 - Major UI/UX redesigns
-- Complex interfaces with multiple features
-- Feature-rich applications requiring guided introduction
+- Complex interfaces with many features
+- Feature-rich apps needing guided introduction
 - B2B SaaS products with learning curves
 
 **Not appropriate for:**
@@ -69,9 +66,9 @@ Product tours are step-by-step walkthroughs that introduce users to your product
 
 ### 1. Spotlight/Beacon
 - Highlights target UI element
-- Uses overlay to dim surrounding content
+- Overlay dims surrounding content
 - Arrow or pointer to specific element
-- Adjusts position based on element location
+- Position adjusts to element location
 
 ### 2. Modal/Tooltip Content
 - Concise title (4-8 words)
@@ -96,13 +93,12 @@ Product tours are step-by-step walkthroughs that introduce users to your product
 
 **Optimal tour length:**
 - 3-5 steps: Ideal for most products
-- 5-7 steps: Maximum before fatigue sets in
+- 5-7 steps: Maximum before fatigue
 - 7+ steps: Split into multiple tours or make optional
 
 **Step duration:**
-- Each step should take 5-15 seconds to read/understand
+- Each step: 5-15 seconds to read/understand
 - Total tour: 1-3 minutes maximum
-- Respect user time and attention
 
 ### Content Guidelines
 
@@ -127,13 +123,8 @@ Product tours are step-by-step walkthroughs that introduce users to your product
 **Spotlight placement:**
 - Default: Center or near highlighted element
 - Adjust for screen edges and scrolling
-- Ensure no overlap with critical UI
+- No overlap with critical UI
 - Mobile: Often bottom or top sheet
-
-**Arrow/pointer:**
-- Points directly at target element
-- Adjusts based on available space
-- Clear visual connection
 
 ## Implementation Patterns
 
@@ -225,7 +216,7 @@ You can restart it anytime from the Help menu.
 
 **On final step:**
 - Congratulatory message
-- Clear indication of completion
+- Clear completion signal
 - Next steps or call-to-action
 - Optional: Achievement badge or gamification
 
@@ -278,16 +269,16 @@ You've completed the tour. Ready to [Primary Action]?
 
 **Respect `prefers-reduced-motion`:**
 - Disable spotlight animations
-- Use instant transitions instead of slides
+- Instant transitions instead of slides
 - Remove pulsing beacon effects
-- Maintain functionality without motion
+- Keep functionality without motion
 
 ## Timing and Triggering
 
 ### When to Show
 
 **First-time users:**
-- Immediately after signup/login
+- Right after signup/login
 - After account setup completion
 - When dashboard/main view loads
 
@@ -307,7 +298,7 @@ You've completed the tour. Ready to [Primary Action]?
 **User signals for tour:**
 - Inactivity for X seconds (hesitation)
 - Multiple page views without action
-- Clicking on help or "?" icons
+- Clicking help or "?" icons
 - Explicit "Show me how" requests
 
 ## Analytics and Optimization
@@ -477,25 +468,16 @@ function restartTour() {
 
 ### Mistakes to Avoid
 
-❌ **Too many steps**: >7 steps overwhelms users
-❌ **Too much text**: Long paragraphs lose attention
-❌ **No skip option**: Forces users through tour
-❌ **Repeating every session**: Annoys returning users
 ❌ **Blocking all interaction**: Prevents exploration
 ❌ **Generic content**: Not specific to user context
 ❌ **Poor mobile experience**: Desktop-only tours
-❌ **Missing accessibility**: Keyboard/screen reader gaps
 
 ### Solutions
 
-✅ **Limit to 3-5 key steps**: Focus on core value
-✅ **Use concise copy**: 1-2 sentences per step
-✅ **Always allow skip**: Respect user agency
 ✅ **Remember completion**: localStorage or backend
 ✅ **Allow interaction**: Use beacons, not just modals
 ✅ **Personalize**: Conditional steps based on user
 ✅ **Mobile-responsive**: Test on all screen sizes
-✅ **Full keyboard support**: Tab, Enter, Escape
 
 ## Related Patterns
 
@@ -503,14 +485,9 @@ function restartTour() {
 - **Interactive Tutorials**: Task-based guided learning
 - **Contextual Tooltips**: Just-in-time help
 - **Checklists**: Track multi-step completion
-- **Help Panels**: Comprehensive documentation
+- **Help Panels**: Full documentation
 
 ## References
 
 - WAI-ARIA Authoring Practices: https://www.w3.org/WAI/ARIA/apg/
 - react-joyride Documentation: https://docs.react-joyride.com/
-- User Onboarding Best Practices: Industry standards and research
-
----
-
-*Keep tours short, skippable, and focused on delivering core value quickly.*

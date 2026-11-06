@@ -1,6 +1,5 @@
 # Media Accessibility Patterns
 
-
 ## Table of Contents
 
 - [WCAG 2.1 Requirements for Media](#wcag-21-requirements-for-media)
@@ -50,7 +49,7 @@
 - Audio-only and video-only alternatives
 - Captions for prerecorded video
 - Audio descriptions or alternative
-- Keyboard accessible controls
+- Keyboard-accessible controls
 
 ### Level AA (Recommended)
 - Captions for live video
@@ -96,14 +95,14 @@
 Overlays and text on images:
 - Normal text: 4.5:1 minimum
 - Large text (18pt+): 3:1 minimum
-- Use semi-transparent backgrounds for text overlays
+- Semi-transparent backgrounds behind text overlays
 
 ## Video
 
 ### Captions
 
 **Requirements:**
-- Synchronized with audio
+- Synced with audio
 - Identify speakers
 - Include sound effects
 - Readable font size
@@ -132,7 +131,7 @@ WEBVTT
 
 ### Transcripts
 
-Provide full text alternative:
+Full text alternative with:
 - All dialogue
 - Sound effects
 - Visual information
@@ -174,7 +173,7 @@ Essential shortcuts:
 
 ### Transcripts Required
 
-Provide text alternative for all audio:
+Text alternative for all audio:
 ```html
 <audio controls>
   <source src="podcast.mp3" type="audio/mpeg">
@@ -204,7 +203,7 @@ For deaf/hard of hearing:
 ### Controls
 
 - Large hit areas (44x44px minimum)
-- Keyboard accessible
+- Keyboard-accessible
 - Clear focus indicators
 - Screen reader announcements
 
@@ -258,17 +257,17 @@ For deaf/hard of hearing:
 
 ### Keyboard Navigation
 
-- **Arrow keys** - Navigate between images
+- **Arrow keys** - Move between images
 - **Enter** - Open lightbox
 - **ESC** - Close lightbox
-- **Tab** - Navigate controls
+- **Tab** - Move through controls
 
 ### Focus Management
 
 Lightbox pattern:
 1. Save focus before opening
 2. Move focus to first control
-3. Trap focus within lightbox
+3. Trap focus in lightbox
 4. Restore focus on close
 
 ### Screen Reader Support
@@ -300,9 +299,9 @@ Lightbox pattern:
 
 ### Accessible PDFs
 
-Ensure source PDFs are accessible:
+Source PDFs must be accessible:
 - Tagged PDF structure
-- Reading order defined
+- Defined reading order
 - Alt text for images
 - Form labels
 - Table headers
@@ -310,9 +309,9 @@ Ensure source PDFs are accessible:
 ### Viewer Controls
 
 - Keyboard navigation between pages
-- Search function keyboard accessible
-- Zoom controls accessible
-- Download button labeled
+- Keyboard-accessible search
+- Accessible zoom controls
+- Labeled download button
 
 ### Screen Reader Announcements
 
@@ -325,17 +324,17 @@ Ensure source PDFs are accessible:
 ## Testing Checklist
 
 ### Images
-- [ ] Alt text provided for all meaningful images
-- [ ] Empty alt for decorative images
-- [ ] Complex images have long descriptions
-- [ ] Text on images has sufficient contrast
+- [ ] Alt text on all meaningful images
+- [ ] Empty alt on decorative images
+- [ ] Long descriptions on complex images
+- [ ] Sufficient contrast for text on images
 
 ### Video
 - [ ] Captions available
 - [ ] Audio descriptions provided (if needed)
 - [ ] Transcript available
 - [ ] Keyboard controls work
-- [ ] No auto-play or can be paused
+- [ ] No auto-play, or it can be paused
 
 ### Audio
 - [ ] Transcript provided
@@ -345,7 +344,7 @@ Ensure source PDFs are accessible:
 
 ### Upload
 - [ ] File input labeled
-- [ ] Drag-drop keyboard accessible
+- [ ] Drag-drop keyboard-accessible
 - [ ] Progress announced
 - [ ] Errors announced
 - [ ] Success confirmed
@@ -361,10 +360,10 @@ Ensure source PDFs are accessible:
 ### Automated Testing
 ```bash
 # axe-core scan of a rendered page (or use @axe-core/playwright inside E2E tests)
-npx @axe-core/cli https://example.com
+npx @axe-core/cli@4.14.0 https://example.com
 ```
 
-Automated scans catch missing alt text, unlabeled controls and some ARIA errors; they cannot judge caption or transcript quality, so keep the manual checks below.
+Automated scans catch missing alt text, unlabeled controls and some ARIA errors. They cannot judge caption or transcript quality, so keep manual checks below.
 
 ### Manual Testing
 - Keyboard-only navigation
@@ -380,6 +379,6 @@ Automated scans catch missing alt text, unlabeled controls and some ARIA errors;
 - [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
 
 ## See Also
-- `accessibility-images.md` - Image-specific patterns
-- `accessibility-video.md` - Video-specific patterns
-- `accessibility-audio.md` - Audio-specific patterns
+- `accessibility-images.md` - Image patterns
+- `accessibility-video.md` - Video patterns
+- `accessibility-audio.md` - Audio patterns

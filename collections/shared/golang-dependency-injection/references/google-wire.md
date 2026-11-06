@@ -1,10 +1,8 @@
 # google/wire — Compile-Time Code Generation
 
-Wire uses code generation to resolve the dependency graph at compile time. Type-safe, but requires a build step.
+Wire resolves dependency graph at compile time via code generation. Type-safe, needs build step.
 
 - Docs: [github.com/google/wire](https://github.com/google/wire) | [User Guide](https://github.com/google/wire/blob/main/docs/guide.md)
-
-Before writing Wire code, refer to the library's official documentation for up-to-date API signatures and examples.
 
 ## Provider Definitions
 
@@ -69,7 +67,7 @@ func InitializeApp() (*App, error) {
 
 ## Testing
 
-Wire generates plain constructors, so testing uses manual injection — no container to clone:
+Wire generates plain constructors, so tests use manual injection; no container to clone:
 
 ```go
 func TestUserService(t *testing.T) {
@@ -81,12 +79,12 @@ func TestUserService(t *testing.T) {
 
 ## Tradeoffs
 
-- Errors caught at compile time (codegen fails if graph is incomplete)
-- Requires running `wire ./...` after every dependency change
-- No lazy loading — all dependencies created eagerly
+- Compile-time errors (codegen fails if graph incomplete)
+- Rerun `wire ./...` after every dependency change
+- No lazy loading: all dependencies created eagerly
 - No built-in lifecycle management (health checks, shutdown)
-- No runtime container — wire generates plain Go constructor calls
-- Interface bindings require explicit `wire.Bind` declarations
-- Generated files (`wire_gen.go`) must be committed and kept in sync
+- No runtime container: wire generates plain Go constructor calls
+- Interface bindings need explicit `wire.Bind` declarations
+- Generated files (`wire_gen.go`) must be committed, kept in sync
 
-Wire injectors MUST use `//go:build wireinject` build constraint. Generated `wire_gen.go` MUST NOT be edited manually — always regenerate with `wire ./...`.
+Wire injectors MUST use `//go:build wireinject` build constraint. Generated `wire_gen.go` MUST NOT be edited manually; always regenerate with `wire ./...`.

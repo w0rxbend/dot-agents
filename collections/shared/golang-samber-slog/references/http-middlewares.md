@@ -1,7 +1,5 @@
 # HTTP Middlewares
 
-All samber/slog HTTP middlewares share a consistent pattern and configuration structure.
-
 ## Table of Contents
 
 - [Shared Config Fields](#shared-config-fields)
@@ -16,13 +14,13 @@ All samber/slog HTTP middlewares share a consistent pattern and configuration st
 
 ## Shared Config Fields
 
-Every middleware provides a `Config` struct with these common fields:
+Every middleware's `Config` struct has these common fields:
 
 | Field | Type | Default | Purpose |
 | --- | --- | --- | --- |
-| `DefaultLevel` | `slog.Level` | `slog.LevelInfo` | Log level for 2xx/3xx responses |
-| `ClientErrorLevel` | `slog.Level` | `slog.LevelWarn` | Log level for 4xx responses |
-| `ServerErrorLevel` | `slog.Level` | `slog.LevelError` | Log level for 5xx responses |
+| `DefaultLevel` | `slog.Level` | `slog.LevelInfo` | Level for 2xx/3xx responses |
+| `ClientErrorLevel` | `slog.Level` | `slog.LevelWarn` | Level for 4xx responses |
+| `ServerErrorLevel` | `slog.Level` | `slog.LevelError` | Level for 5xx responses |
 | `WithUserAgent` | `bool` | `false` | Include `User-Agent` header |
 | `WithRequestID` | `bool` | `false` | Include request ID |
 | `WithRequestBody` | `bool` | `false` | Include request body (capped) |
@@ -40,9 +38,11 @@ Every middleware provides a `Config` struct with these common fields:
 - `HiddenRequestHeaders` / `HiddenResponseHeaders` — headers to redact
 - `TraceIDKey` / `SpanIDKey` — context key names for OpenTelemetry
 
+Bodies and headers often carry passwords, tokens, PII. Keep body/header logging off unless redacted: hide `Authorization`/`Cookie` via `HiddenRequestHeaders`, scrub bodies with a PII formatter.
+
 ## Default Log Fields
 
-All middlewares emit these fields by default: `method`, `path`, `status`, `latency`, `request-length`, `response-length`.
+All middlewares emit by default: `method`, `path`, `status`, `latency`, `request-length`, `response-length`.
 
 ## Gin — `slog-gin`
 
@@ -58,7 +58,6 @@ router.Use(sloggin.NewWithConfig(logger, sloggin.Config{
     DefaultLevel:     slog.LevelInfo,
     ClientErrorLevel: slog.LevelWarn,
     ServerErrorLevel: slog.LevelError,
-    WithRequestBody:  true,
     WithUserAgent:    true,
     Filters: []sloggin.Filter{
         sloggin.IgnorePath("/health", "/metrics"),
@@ -86,7 +85,6 @@ e.Use(slogecho.NewWithConfig(logger, slogecho.Config{
     DefaultLevel:     slog.LevelInfo,
     ClientErrorLevel: slog.LevelWarn,
     ServerErrorLevel: slog.LevelError,
-    WithRequestBody:  true,
     Filters: []slogecho.Filter{
         slogecho.IgnoreStatus(404),
         slogecho.IgnorePath("/health"),
@@ -113,7 +111,6 @@ app.Use(slogfiber.NewWithConfig(logger, slogfiber.Config{
     DefaultLevel:     slog.LevelInfo,
     ClientErrorLevel: slog.LevelWarn,
     ServerErrorLevel: slog.LevelError,
-    WithRequestBody:  true,
     Filters: []slogfiber.Filter{
         slogfiber.IgnorePath("/health"),
         slogfiber.IgnoreStatus(404),
@@ -142,7 +139,6 @@ router.Use(slogchi.NewWithConfig(logger, slogchi.Config{
     DefaultLevel:     slog.LevelInfo,
     ClientErrorLevel: slog.LevelWarn,
     ServerErrorLevel: slog.LevelError,
-    WithRequestBody:  true,
     Filters: []slogchi.Filter{
         slogchi.IgnorePath("/health", "/ready"),
         slogchi.IgnoreStatus(401, 404),
@@ -168,7 +164,7 @@ http.ListenAndServe(":8080", handler)
 
 ## Filters
 
-All middlewares support the same filter functions:
+All middlewares share these filter functions:
 
 ```go
 sloggin.IgnorePath("/health", "/metrics")     // exact path match
@@ -183,7 +179,7 @@ sloggin.Accept(func(c *gin.Context) bool {
 
 ## Logger Grouping
 
-Wrap the logger with `WithGroup("http")` to namespace all middleware attributes under an `http` group:
+Wrap logger with `WithGroup("http")` to nest all middleware attributes under `http` group:
 
 ```go
 router.Use(sloggin.New(logger.WithGroup("http")))

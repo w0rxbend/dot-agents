@@ -1,7 +1,5 @@
 # Azure Well-Architected Framework Implementation
 
-Implementation guide for the five pillars of Azure Well-Architected Framework.
-
 ## Table of Contents
 
 1. [Cost Optimization](#cost-optimization)
@@ -13,8 +11,6 @@ Implementation guide for the five pillars of Azure Well-Architected Framework.
 ---
 
 ## Cost Optimization
-
-**Maximize value delivered within budget constraints**
 
 ### Reserved Instances Strategy
 
@@ -97,7 +93,7 @@ resource vmAutoshutdown 'Microsoft.DevTestLab/schedules@2018-09-15' = {
 }
 ```
 
-**Savings:** ~65% for dev/test resources (off 18 hours/day + weekends)
+**Savings:** ~65% on dev/test (off 18 hours/day + weekends)
 
 **3. Cost Budgets and Alerts**
 
@@ -137,24 +133,20 @@ resource budget 'Microsoft.Consumption/budgets@2023-11-01' = {
 ### Cost Optimization Checklist
 
 - [ ] Tag all resources (Environment, Owner, CostCenter)
-- [ ] Purchase Reserved Instances for predictable workloads
-- [ ] Enable auto-scaling (scale down during off-hours)
+- [ ] Buy Reserved Instances for predictable workloads
+- [ ] Enable auto-scaling (scale down off-hours)
 - [ ] Use Spot VMs for fault-tolerant batch jobs
-- [ ] Implement storage lifecycle policies
+- [ ] Add storage lifecycle policies
 - [ ] Right-size VMs (review Azure Advisor recommendations)
 - [ ] Delete unused resources (unattached disks, orphaned IPs)
 - [ ] Set budgets and cost alerts
-- [ ] Review monthly cost reports
+- [ ] Review cost reports monthly
 
 ---
 
 ## Operational Excellence
 
-**Run reliable, manageable systems at scale**
-
 ### Azure Policy for Governance
-
-**Common Policy Patterns:**
 
 ```bicep
 // Require tags on all resources
@@ -227,15 +219,13 @@ resource enforceTlsPolicy 'Microsoft.Authorization/policyDefinitions@2021-06-01'
 
 ### Template Specs and Deployment Stacks for Repeatable Environments
 
-Azure Blueprints is deprecated; use Template Specs (versioned templates) deployed as Deployment Stacks.
+Azure Blueprints deprecated. Use Template Specs (versioned templates), deployed as Deployment Stacks.
 
 **Components:**
 - Resource Groups
 - Policy Assignments
 - Role Assignments
 - Bicep/ARM templates published as Template Specs
-
-**Use Case:** Deploy compliant production environments in minutes
 
 ### Infrastructure as Code Best Practices
 
@@ -256,8 +246,13 @@ infrastructure/
     └── governance.bicep       # Azure Policy definitions
 ```
 
-**Deployment:**
+**Deployment:** preview with `what-if`, confirm with user, then create.
 ```bash
+export AZURE_CORE_COLLECT_TELEMETRY=false  # Azure CLI telemetry is on by default
+az deployment sub what-if \
+  --location eastus \
+  --template-file main.bicep \
+  --parameters parameters/production.json
 az deployment sub create \
   --location eastus \
   --template-file main.bicep \
@@ -267,8 +262,6 @@ az deployment sub create \
 ---
 
 ## Performance Efficiency
-
-**Scale to meet demand efficiently**
 
 ### Autoscaling Patterns
 
@@ -341,9 +334,9 @@ resource redis 'Microsoft.Cache/redis@2023-08-01' = {
 ```
 
 **Cache Patterns:**
-- **Cache-Aside:** Application manages cache (most common)
-- **Read-Through:** Cache fetches from database automatically
-- **Write-Behind:** Cache writes to database asynchronously
+- **Cache-Aside:** app manages cache (most common)
+- **Read-Through:** cache fetches from database automatically
+- **Write-Behind:** cache writes to database asynchronously
 
 ### CDN for Static Content
 
@@ -379,8 +372,6 @@ resource endpoint 'Microsoft.Cdn/profiles/endpoints@2023-05-01' = {
 ---
 
 ## Reliability
-
-**Recover from failures and meet availability commitments**
 
 ### Availability Zones
 
@@ -508,14 +499,12 @@ resource backupPolicy 'Microsoft.RecoveryServices/vaults/backupPolicies@2023-01-
 ```
 
 **RPO/RTO Targets:**
-- **RPO (Recovery Point Objective):** How much data loss acceptable (e.g., 1 hour)
-- **RTO (Recovery Time Objective):** How long to restore (e.g., 4 hours)
+- **RPO (Recovery Point Objective):** acceptable data loss (e.g., 1 hour)
+- **RTO (Recovery Time Objective):** time to restore (e.g., 4 hours)
 
 ---
 
 ## Security
-
-**Protect data, systems, and assets**
 
 ### Managed Identity Pattern
 
@@ -632,12 +621,6 @@ resource defenderDatabases 'Microsoft.Security/pricings@2023-01-01' = {
 }
 ```
 
-**Features:**
-- Vulnerability scanning
-- Just-In-Time VM access
-- Adaptive application controls
-- Security alerts and recommendations
-
 ### Network Security Groups
 
 **Micro-Segmentation:**
@@ -684,29 +667,25 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-05-01' = {
 ## Pillar Implementation Checklist
 
 ### Cost Optimization
-- [ ] Tag all resources
-- [ ] Purchase Reserved Instances
-- [ ] Implement lifecycle policies
-- [ ] Set budgets and alerts
-- [ ] Right-size resources
+See [Cost Optimization Checklist](#cost-optimization-checklist).
 
 ### Operational Excellence
 - [ ] Deploy Azure Policy
 - [ ] Use Infrastructure as Code
-- [ ] Implement CI/CD
+- [ ] Set up CI/CD
 - [ ] Enable diagnostics logging
 - [ ] Document runbooks
 
 ### Performance Efficiency
 - [ ] Configure autoscaling
-- [ ] Implement caching
+- [ ] Add caching
 - [ ] Use CDN for static content
 - [ ] Monitor performance metrics
-- [ ] Conduct load testing
+- [ ] Run load tests
 
 ### Reliability
 - [ ] Deploy across Availability Zones
-- [ ] Implement health checks
+- [ ] Add health checks
 - [ ] Configure backup policies
 - [ ] Test disaster recovery
 - [ ] Define SLAs
@@ -715,9 +694,9 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-05-01' = {
 - [ ] Enable Managed Identity
 - [ ] Use Private Endpoints
 - [ ] Enable Microsoft Defender
-- [ ] Implement RBAC
+- [ ] Use RBAC
 - [ ] Encrypt data at rest and in transit
 
 ---
 
-**Use Azure Advisor for personalized recommendations across all five pillars.**
+**Use Azure Advisor for personalized recommendations on all five pillars.**

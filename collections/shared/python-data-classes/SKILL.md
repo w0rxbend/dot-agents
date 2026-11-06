@@ -3,18 +3,19 @@ name: python-data-classes
 user-invocable: false
 description: Choose and write Python data models with dataclasses, attrs or Pydantic v2 - field options, frozen/slots/kw_only, validation, serialization and conversion. Use when defining or refactoring model classes; use python-type-system for general annotations.
 allowed-tools:
-  - Bash
+  - "Bash(mypy:*)"
+  - "Bash(pyright:*)"
+  - "Bash(python -m mypy:*)"
+  - "Bash(pytest:*)"
+  - "Bash(python -m pytest:*)"
   - Read
 ---
 
 # Python Data Classes
 
-Master Python data modeling using dataclasses, attrs, and Pydantic for
-creating clean, type-safe data structures with validation and serialization.
-
 ## dataclasses Module
 
-**Basic dataclass usage:**
+**Basic usage:**
 
 ```python
 from dataclasses import dataclass
@@ -39,31 +40,9 @@ print(user)
 print(user.name)  # Alice
 ```
 
-**dataclass with methods:**
-
-```python
-from dataclasses import dataclass
-
-@dataclass
-class Point:
-    x: float
-    y: float
-
-    def distance_from_origin(self) -> float:
-        return (self.x ** 2 + self.y ** 2) ** 0.5
-
-    def move(self, dx: float, dy: float) -> "Point":
-        return Point(self.x + dx, self.y + dy)
-
-point = Point(3.0, 4.0)
-print(point.distance_from_origin())  # 5.0
-new_point = point.move(1.0, 1.0)
-print(new_point)  # Point(x=4.0, y=5.0)
-```
-
 ## dataclass Parameters
 
-**Controlling dataclass behavior:**
+**Control behavior:**
 
 ```python
 from dataclasses import dataclass, field
@@ -101,7 +80,7 @@ config = Config(host="localhost", port=8080)
 
 ## Field Configuration
 
-**Using field() for advanced configuration:**
+**field() for advanced configuration:**
 
 ```python
 import itertools
@@ -135,27 +114,7 @@ product = Product(name="Widget", price=9.99)
 print(product.id)  # 1, then 2, 3, ... (use uuid.uuid4() for global ids)
 ```
 
-**Computed fields:**
-
-```python
-from dataclasses import dataclass, field
-
-@dataclass
-class Rectangle:
-    width: float
-    height: float
-    area: float = field(init=False)
-
-    def __post_init__(self) -> None:
-        self.area = self.width * self.height
-
-rect = Rectangle(10, 20)
-print(rect.area)  # 200.0
-```
-
 ## Inheritance
-
-**Dataclass inheritance:**
 
 ```python
 from dataclasses import dataclass
@@ -177,7 +136,7 @@ print(dog)
 
 ## Conversion Methods
 
-**Converting to/from dictionaries:**
+**To/from dictionaries:**
 
 ```python
 from dataclasses import dataclass, asdict, astuple
@@ -207,26 +166,10 @@ bob = User(**data)
 
 ## attrs Library
 
-**Using attrs for enhanced features:**
+**attrs for extra features:**
 
 ```bash
 pip install attrs
-```
-
-**Basic attrs usage:**
-
-```python
-import attrs
-
-@attrs.define
-class User:
-    id: int
-    name: str
-    email: str
-    is_active: bool = True
-
-user = User(1, "Alice", "alice@example.com")
-print(user)
 ```
 
 **attrs validators:**
@@ -536,10 +479,9 @@ print(event.model_dump())
 
 **When to use dataclasses:**
 
-- Simple data containers with type hints
-- Part of standard library (no dependencies)
+- Simple typed data containers
+- Standard library (no dependencies)
 - Basic validation not required
-- No third-party dependency allowed
 - Immutability with frozen=True
 
 **When to use attrs:**
@@ -562,7 +504,7 @@ print(event.model_dump())
 
 - Mutable defaults always go through `default_factory` (dataclasses/attrs) or
   `Field(default_factory=...)` (Pydantic).
-- Validate at trust boundaries (API input, files, env) with Pydantic; use plain
+- Validate at trust boundaries (API input, files, env) with Pydantic. Use plain
   dataclasses or attrs for internal, already-trusted data.
 - Prefer `frozen=True` (and `slots=True` on 3.10+) for value objects.
 
@@ -585,6 +527,7 @@ class QueryBuilder:
         return self
 
     def where(self, condition: str) -> Self:
+        # Trusted SQL fragments only; pass user values as driver bind params.
         self._where.append(condition)
         return self
 
@@ -630,22 +573,21 @@ settings = Settings()
 
 ## Common Pitfalls
 
-- `x: list = []` on a dataclass raises `ValueError: mutable default`; on a plain
+- `x: list = []` on dataclass raises `ValueError: mutable default`. On plain
   class it silently shares one list across instances.
 - Pydantic v1 idioms (`class Config:`, `Field(env=...)`, `.dict()`,
-  `@validator`) still appear in examples online; in v2 use `model_config`,
+  `@validator`) still appear in online examples. In v2 use `model_config`,
   `validation_alias`, `.model_dump()` and `@field_validator`.
-- `EmailStr` needs `pydantic[email]`; `BaseSettings` needs `pydantic-settings`.
 
 ## Done when
 
-- Every model imports and instantiates in a quick REPL or test with valid data,
-  and invalid data raises the expected `ValidationError`/`TypeError`.
-- `python -W error::DeprecationWarning` runs the model module without Pydantic
+- Every model imports and instantiates with valid data in quick REPL or test.
+  Invalid data raises expected `ValidationError`/`TypeError`.
+- `python -W error::DeprecationWarning` runs model module without Pydantic
   deprecation warnings (no v1-style config left).
 - Round-trip holds where serialization matters:
   `Model.model_validate(m.model_dump()) == m` (or `asdict`/constructor for dataclasses).
-- A type checker (mypy/pyright) passes on the model module.
+- Type checker (mypy/pyright) passes on model module.
 
 ## Resources
 

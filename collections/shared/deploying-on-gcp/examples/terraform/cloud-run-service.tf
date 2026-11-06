@@ -299,7 +299,8 @@ output "latest_revision" {
 
 # Example usage:
 #
-# 1. Initialize Terraform:
+# 1. Initialize Terraform (opt out of HashiCorp checkpoint, which sends version/OS/anonymous ID by default):
+#    export CHECKPOINT_DISABLE=1
 #    terraform init
 #
 # 2. Plan the deployment:
@@ -308,8 +309,8 @@ output "latest_revision" {
 # 3. Apply the configuration:
 #    terraform apply -var="project_id=my-project" -var="container_image=us-central1-docker.pkg.dev/my-project/my-repo/api:v1"
 #
-# 4. For public access:
+# 4. For public access [PUBLIC] (confirm with user first):
 #    terraform apply -var="project_id=my-project" -var="container_image=us-central1-docker.pkg.dev/my-project/my-repo/api:v1" -var="allow_public_access=true"
 #
-# 5. Destroy resources:
+# 5. Destroy resources [DESTRUCTIVE] (confirm exact project with user first; never -auto-approve):
 #    terraform destroy -var="project_id=my-project" -var="container_image=us-central1-docker.pkg.dev/my-project/my-repo/api:v1"

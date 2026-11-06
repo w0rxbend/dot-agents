@@ -2,7 +2,7 @@
 
 ## LaTeX Errors
 
-**Missing raw string** (the #1 error):
+**Missing raw string** (#1 error):
 ```python
 # WRONG: MathTex("\\frac{1}{2}")  -- \\f is form-feed
 # RIGHT: MathTex(r"\frac{1}{2}")
@@ -23,7 +23,7 @@ MathTex(r"\mathscr{L}", tex_template=tex_template)
 
 **Error:** `TypeError: Only values of type VMobject can be added as submobjects of VGroup`
 
-**Cause:** `Text()` objects are `Mobject`, not `VMobject`. Mixing `Text` with shapes in a `VGroup` fails on Manim CE v0.20+.
+**Cause:** `Text()` is `Mobject`, not `VMobject`. Mixing `Text` with shapes in `VGroup` fails on Manim CE v0.20+.
 
 ```python
 # WRONG: Text is not a VMobject
@@ -39,7 +39,7 @@ shapes = VGroup(circle, square, arrow)
 equations = VGroup(MathTex(r"a"), MathTex(r"b"))
 ```
 
-**Rule:** If the group contains any `Text()`, use `Group`. If it's all shapes or all `MathTex`, `VGroup` is fine.
+**Rule:** If group contains any `Text()`, use `Group`. If all shapes or all `MathTex`, `VGroup` is fine.
 
 **FadeOut everything:** Always use `Group(*self.mobjects)`, not `VGroup(*self.mobjects)`:
 ```python
@@ -50,7 +50,7 @@ self.play(FadeOut(Group(*self.mobjects)))  # safe for mixed types
 
 **Error:** `NotImplementedError: Please override in a child class.`
 
-**Cause:** `Group.save_state()` and `Group.restore()` are not implemented in Manim CE v0.20+. Only `VGroup` and individual `Mobject` subclasses support save/restore.
+**Cause:** `Group.save_state()` and `Group.restore()` not implemented in Manim CE v0.20+. Only `VGroup` and individual `Mobject` subclasses support save/restore.
 
 ```python
 # WRONG: Group doesn't support save_state
@@ -70,7 +70,7 @@ self.play(Restore(circle))
 
 **Error:** `TypeError: Mobject.__init__() got an unexpected keyword argument 'letter_spacing'`
 
-**Cause:** `Text()` does not accept `letter_spacing`. Manim uses Pango for text rendering and does not expose kerning controls on `Text()`.
+**Cause:** `Text()` does not accept `letter_spacing`. Manim renders text with Pango and does not expose kerning controls on `Text()`.
 
 ```python
 # WRONG
@@ -89,7 +89,7 @@ MarkupText('<span letter_spacing="6000">HERMES</span>', font_size=18)
 # RIGHT: self.play(Create(circle)); self.play(circle.animate.set_color(RED))
 ```
 
-**Transform confusion** -- after Transform(A, B), A is on screen, B is not. Use ReplacementTransform if you want B.
+**Transform confusion** -- after Transform(A, B), A is on screen, B is not. Want B? Use ReplacementTransform.
 
 **Duplicate animation** -- same mobject twice in one play():
 ```python
@@ -108,7 +108,7 @@ mob.resume_updating()
 
 **Blurry output**: Using -ql (480p). Switch to -qm/-qh for final.
 
-**Slow render**: Use -ql during development. Reduce Surface resolution. Shorter self.wait().
+**Slow render**: Use -ql while developing. Reduce Surface resolution. Shorter self.wait().
 
 **Stale output**: `manim -ql --disable_caching script.py Scene`
 
@@ -128,8 +128,8 @@ mob.resume_updating()
 
 ## Debugging Strategy
 
-1. Render a still: `manim -ql -s script.py Scene` -- instant layout check
-2. Isolate the broken scene -- render only that one
+1. Render still: `manim -ql -s script.py Scene` -- instant layout check
+2. Isolate broken scene -- render only that one
 3. Replace `self.play()` with `self.add()` to see final state instantly
 4. Print positions: `print(mob.get_center())`
 5. Clear cache: delete `media/` directory

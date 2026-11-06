@@ -289,6 +289,15 @@ def attach_quote(path: Path, source_id: int, quote: str, evidence: str) -> dict[
     return entry
 
 
+# Titles/URLs come from fetched pages (untrusted).  In BibTeX they are compiled
+# by LaTeX, so a title like ``\input{~/.ssh/id_rsa}`` would execute.  Drop
+# backslashes and braces from titles, escape the rest; percent-encode them and
+# ``^`` (``^^5c`` is TeX for backslash) in URLs.
+_TEX_TITLE = str.maketrans({"\\": None, "{": None, "}": None, "%": r"\%", "$": r"\$",
+                            "&": r"\&", "#": r"\#", "_": r"\_", "^": r"\^{}", "~": r"\~{}"})
+_TEX_URL = str.maketrans({"\\": "%5C", "{": "%7B", "}": "%7D", "^": "%5E"})
+
+
 def render_sources(
     sources: list[dict[str, Any]],
     style: str = "markdown",
@@ -302,10 +311,11 @@ def render_sources(
     if style == "bibtex":
         for s in picked:
             key = f"source{s['id']}"
-            title = s.get("title") or s["url"]
+            url = s["url"].translate(_TEX_URL)
+            title = (s.get("title") or url).translate(_TEX_TITLE)
             lines.append(
                 "@misc{%s,\n  title = {%s},\n  howpublished = {\\url{%s}},\n  note = {Accessed %s}\n}"
-                % (key, title, s["url"], s.get("accessed", ""))
+                % (key, title, url, str(s.get("accessed", "")).translate(_TEX_TITLE))
             )
         return "\n".join(lines)
     if style == "footnotes":

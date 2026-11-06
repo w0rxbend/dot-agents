@@ -34,6 +34,7 @@ lgtm-docker-compose/
 ## Quick Start
 
 ```bash
+# Set GRAFANA_ADMIN_PASSWORD in a gitignored .env first
 # Start all services
 docker-compose up -d
 
@@ -49,7 +50,9 @@ docker-compose down
 
 ## Access Points
 
-- **Grafana UI:** http://localhost:3000 (admin/admin)
+All ports bind 127.0.0.1 only.
+
+- **Grafana UI:** http://localhost:3000 (admin / `GRAFANA_ADMIN_PASSWORD`)
 - **Loki API:** http://localhost:3100
 - **Tempo API:** http://localhost:3200
 - **Mimir API:** http://localhost:9009
@@ -58,70 +61,7 @@ docker-compose down
 
 ## docker-compose.yml
 
-```yaml
-version: '3.8'
-
-services:
-  # OpenTelemetry Collector
-  alloy:
-    image: grafana/alloy:latest
-    ports:
-      - "4317:4317"  # OTLP gRPC
-      - "4318:4318"  # OTLP HTTP
-    volumes:
-      - ./alloy/config.alloy:/etc/alloy/config.alloy
-    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
-
-  # Loki (Logs)
-  loki:
-    image: grafana/loki:latest
-    ports:
-      - "3100:3100"
-    volumes:
-      - ./loki/loki-config.yaml:/etc/loki/local-config.yaml
-      - loki-data:/loki
-    command: -config.file=/etc/loki/local-config.yaml
-
-  # Tempo (Traces)
-  tempo:
-    image: grafana/tempo:latest
-    ports:
-      - "3200:3200"  # Tempo API
-      - "4317"       # OTLP gRPC
-    volumes:
-      - ./tempo/tempo-config.yaml:/etc/tempo.yaml
-      - tempo-data:/var/tempo
-    command: -config.file=/etc/tempo.yaml
-
-  # Mimir (Metrics)
-  mimir:
-    image: grafana/mimir:latest
-    ports:
-      - "9009:9009"
-    volumes:
-      - ./mimir/mimir-config.yaml:/etc/mimir.yaml
-      - mimir-data:/data
-    command: -config.file=/etc/mimir.yaml
-
-  # Grafana (UI)
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
-      - grafana-data:/var/lib/grafana
-
-volumes:
-  loki-data:
-  tempo-data:
-  mimir-data:
-  grafana-data:
-```
+Use the bundled `docker-compose.yml`: pinned images (never `:latest`), ports on 127.0.0.1, anonymous auth off, admin password from `.env`, usage reporting to Grafana Labs off. Keep these in any copy.
 
 ## Pre-configured Datasources
 

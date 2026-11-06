@@ -1,7 +1,5 @@
 # Injection Security Rules
 
-Injection vulnerabilities allow attackers to execute arbitrary code, queries, or commands.
-
 **Rules:**
 
 1. SQL queries MUST use parameterized placeholders — NEVER concatenate user input.
@@ -29,8 +27,6 @@ Injection vulnerabilities allow attackers to execute arbitrary code, queries, or
 - [CWE References](#cwe-references)
 
 ## SQL Injection — Critical
-
-Building SQL queries by concatenating user input. Always use prepared statements with placeholders.
 
 **Bad:**
 
@@ -132,13 +128,11 @@ rows, err := db.Query(query, args...)
 
 ### Prefer `sqlx` or `pgx` over raw `database/sql`
 
-Libraries like `sqlx` and `pgx` provide safer ergonomics (named parameters, `IN` clause expansion, struct scanning) while still using prepared statements under the hood. They reduce the temptation to fall back to string concatenation for complex queries.
+`sqlx` and `pgx` give safer ergonomics (named parameters, `IN` clause expansion, struct scanning), still using prepared statements underneath. Less temptation to concatenate strings for complex queries.
 
 ---
 
 ## XPath Injection — High
-
-XPath injection allows manipulation of XML data queries.
 
 **Bad:**
 
@@ -158,8 +152,6 @@ xpathQuery := fmt.Sprintf("//user[@id='%d']", userID)
 ---
 
 ## Code Injection — Critical
-
-Generating code from unvalidated user input.
 
 **Bad:**
 
@@ -181,8 +173,6 @@ if !allowedResources[resourceName] {
 
 ## Command Injection — Critical
 
-Passing unvalidated input to shell commands.
-
 **Bad:**
 
 ```go
@@ -192,19 +182,16 @@ cmd := exec.Command("sh", "-c", "rm -f /tmp/"+filename) // DON'T
 **Good:**
 
 ```go
-cmd := exec.Command("rm", "-f", filepath.Join("/tmp", filename))
-
-// Better: validate filename
-if filepath.Base(filename) != filename {
+// Validate first: bare file name only, else "../etc/x" escapes /tmp
+if !filepath.IsLocal(filename) || filepath.Base(filename) != filename {
     return errors.New("invalid filename")
 }
+cmd := exec.Command("rm", "-f", filepath.Join("/tmp", filename))
 ```
 
 ---
 
 ## Template Injection — High
-
-Using untrusted input in templates.
 
 **Bad:**
 
@@ -228,8 +215,6 @@ t.Execute(w, data)
 
 ## Cross-Site Scripting (XSS) — High
 
-XSS allows attackers to execute malicious scripts.
-
 **Bad:**
 
 ```go
@@ -248,8 +233,6 @@ t.Execute(w, data) // Auto-escapes
 
 ## HTML Tag Injection — High
 
-Injecting HTML tags through unvalidated input.
-
 **Bad:**
 
 ```go
@@ -267,8 +250,6 @@ fmt.Fprintf(w, "<div>Welcome, %s!</div>", escaped)
 ---
 
 ## Server-Side Request Forgery (SSRF) — High
-
-Forcing the server to make requests to unintended endpoints.
 
 **Bad:**
 
@@ -295,11 +276,13 @@ if strings.Contains(u.Hostname(), "metadata.") {
 }
 ```
 
+Hostname checks alone miss DNS rebinding and redirects: prefer a host allowlist, check resolved IPs at dial time (`net.Dialer.Control`), and re-validate each redirect (`http.Client.CheckRedirect`).
+
 ---
 
 ## Unsafe Deserialization — Critical
 
-Deserializing untrusted input can lead to resource exhaustion, type confusion, or unsafe object construction.
+Deserializing untrusted input can cause resource exhaustion, type confusion, or unsafe object construction.
 
 **Bad:**
 

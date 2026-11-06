@@ -32,8 +32,9 @@ spec:
   # Wait for resources to be ready
   wait: true
 
-  # Force apply on conflicts
-  force: true
+  # Opt-in only: force recreates resources on immutable-field conflicts
+  # (downtime; data loss for some resources)
+  # force: true
 
   # Health checks for critical resources
   healthChecks:

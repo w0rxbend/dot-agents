@@ -1,25 +1,9 @@
 # Lua Tables Patterns
 
-## Introduction
-
-Tables are Lua's sole compound data structure, serving as arrays, dictionaries,
-objects, modules, and more. This versatility makes tables fundamental to Lua
-programming, enabling implementations of virtually any data structure through
-creative use of table features and metatables.
-
-Tables use associative arrays that can be indexed with any Lua value except nil
-and NaN. Array-like tables use consecutive integer indices starting from 1,
-while dictionary-like tables use arbitrary keys. Metatables enable operator
-overloading and advanced behaviors.
-
-This skill covers table fundamentals, array and dictionary patterns, metatables,
-object-oriented programming, common data structures, performance optimization,
-and idiomatic table manipulation techniques.
-
 ## Table Fundamentals
 
-Tables combine arrays and hash maps into a single versatile data structure with
-1-based indexing.
+One structure combines array and hash map, with 1-based indexing. Keys can be
+any Lua value except nil and NaN.
 
 ```lua
 -- Empty table creation
@@ -130,13 +114,7 @@ table.sort(people, function(a, b)
 end)
 ```
 
-Tables efficiently combine arrays and hash tables, with the implementation
-automatically optimizing storage based on usage patterns.
-
 ## Array Patterns
-
-Lua arrays use 1-based indexing and provide efficient sequential access through
-the array part of tables.
 
 ```lua
 -- Creating arrays
@@ -285,13 +263,7 @@ function intersection(a, b)
 end
 ```
 
-Use arrays for sequential data with numeric indices, leveraging Lua's
-optimizations for consecutive integer keys.
-
 ## Dictionary and Set Patterns
-
-Dictionary tables use arbitrary keys for fast lookups, while sets use keys with
-true values.
 
 ```lua
 -- Dictionary creation
@@ -445,13 +417,9 @@ function OrderedDict.pairs(dict)
 end
 ```
 
-Dictionaries provide O(1) average-case lookups and enable flexible key-value
-storage patterns.
+Dictionary lookups are O(1) average case.
 
 ## Metatables and Metamethods
-
-Metatables enable operator overloading, property access control, and custom
-behaviors through metamethods.
 
 ```lua
 -- Basic metatable
@@ -599,13 +567,7 @@ function tracked_table()
 end
 ```
 
-Metatables enable powerful metaprogramming patterns and domain-specific
-languages in Lua.
-
 ## Object-Oriented Patterns
-
-Lua supports multiple OOP approaches through tables and metatables, from simple
-prototypes to class-based systems.
 
 ```lua
 -- Prototype-based OOP
@@ -778,12 +740,10 @@ function calculate_area(shape)
 end
 ```
 
-Choose OOP patterns based on needs: prototypes for simple hierarchies, classes
-for structured systems, closures for encapsulation.
+Pick by need: prototypes for simple hierarchies, classes for structured
+systems, closures for encapsulation.
 
 ## Common Data Structures
-
-Implement classic data structures using tables for specific algorithmic needs.
 
 ```lua
 -- Stack
@@ -1001,82 +961,51 @@ function Graph.neighbors(graph, vertex)
 end
 ```
 
-Implement data structures as needed for specific algorithmic requirements
-rather than using them universally.
+Build these only when an algorithm needs them, not universally.
 
 ## Best Practices
 
-1. **Use local variables** for tables to improve performance and avoid global
-   namespace pollution
+1. **Use local variables** for tables: faster, no global namespace pollution
 
-2. **Pre-allocate tables** only where the runtime supports it (LuaJIT
+2. **Pre-allocate tables** only where runtime supports it (LuaJIT
    `table.new`, C `lua_createtable`) and profiling shows reallocation matters
 
-3. **Prefer ipairs for arrays** and pairs for dictionaries to match iteration
-   semantics
+3. **Prefer ipairs for arrays**, pairs for dictionaries
 
-4. **Use metatables sparingly** as they add overhead; reserve for when needed
+4. **Use metatables sparingly**: they add overhead
 
-5. **Avoid holes in arrays** (nil values) as they break length operator and
-   iteration
-
-6. **Prefer `t[#t + 1] = v`** (or a local count) over `table.insert` in hot
+5. **Prefer `t[#t + 1] = v`** (or local count) over `table.insert` in hot
    loops; measure before micro-optimizing
 
-7. **Use rawget and rawset** to bypass metamethods when building metatables
+6. **Use rawget and rawset** to bypass metamethods when building metatables
 
-8. **Prefer weak tables** for caches to allow garbage collection of unused
-   entries
+7. **Prefer weak tables** for caches so unused entries get garbage-collected
 
-9. **Document table structure** in comments for complex nested tables
-
-10. **Use consistent key types** to avoid confusion between string and numeric
-    keys
+8. **Use consistent key types** so string and numeric keys do not get
+   confused
 
 ## Common Pitfalls
 
-1. **Forgetting 1-based indexing** causes off-by-one errors when translating
-   from other languages
+1. **Forgetting 1-based indexing**: off-by-one errors when porting from other
+   languages
 
-2. **Using # on dictionaries** returns incorrect length as it only counts array
-   part
+2. **Using # on dictionaries**: wrong length; counts only array part
 
-3. **Creating holes in arrays** with nil values breaks length operator and
-   ipairs
+3. **Creating holes in arrays** with nil breaks length operator and ipairs
 
-4. **Not checking for nil keys** in dictionaries leads to missed values
+4. **Not checking for nil keys** in dictionaries: missed values
 
-5. **Mutating tables during iteration** causes unpredictable behavior and
-   missing elements
+5. **Mutating tables during iteration**: unpredictable behavior, missing
+   elements
 
-6. **Overusing metatables** adds performance overhead without clear benefits
+6. **Confusing . and : syntax** in method calls: wrong self parameter
 
-7. **Confusing . and : syntax** for method calls causes incorrect self parameter
+7. **Not handling empty tables** in recursive functions: infinite loops
 
-8. **Not handling empty tables** in recursive functions causes infinite loops
+8. **Using tables as boolean**: empty tables are truthy in Lua
 
-9. **Using tables as boolean** since empty tables are truthy in Lua
-
-10. **Shallow copying nested tables** leaves references to nested structures
-
-## When to Use This Skill
-
-Apply table patterns throughout Lua development as tables are the primary data
-structure.
-
-Use arrays for ordered collections with numeric indices and sequential access
-patterns.
-
-Leverage dictionaries for key-value storage, lookups, and mapping between values.
-
-Apply metatables when implementing operator overloading, property access control,
-or DSLs.
-
-Implement OOP patterns when building complex systems requiring encapsulation and
-inheritance.
-
-Use custom data structures when specific algorithmic properties are needed beyond
-basic tables.
+9. **Shallow copying nested tables** leaves shared references to nested
+   structures
 
 ## Resources
 

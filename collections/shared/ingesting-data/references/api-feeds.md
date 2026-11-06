@@ -95,8 +95,8 @@ for await (const batch of fetchWithPagination("https://api.example.com/items")) 
 ### Python (FastAPI)
 ```python
 from fastapi import FastAPI, Request, HTTPException
-import hmac
-import hashlib
+import os
+import stripe
 
 app = FastAPI()
 
@@ -105,11 +105,13 @@ async def stripe_webhook(request: Request):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
 
-    # Verify signature
-    if not verify_stripe_signature(payload, sig_header):
+    # Verify signature + timestamp tolerance (replay) with the SDK, not hand-rolled HMAC
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, os.environ["STRIPE_WEBHOOK_SECRET"]
+        )
+    except (ValueError, stripe.SignatureVerificationError):
         raise HTTPException(status_code=400, detail="Invalid signature")
-
-    event = await request.json()
 
     # Idempotency check
     if await is_processed(event["id"]):
@@ -120,19 +122,6 @@ async def stripe_webhook(request: Request):
     await mark_processed(event["id"])
 
     return {"status": "ok"}
-
-def verify_stripe_signature(payload: bytes, sig_header: str) -> bool:
-    secret = os.environ["STRIPE_WEBHOOK_SECRET"]
-    timestamp, signature = parse_stripe_header(sig_header)
-
-    signed_payload = f"{timestamp}.{payload.decode()}"
-    expected = hmac.new(
-        secret.encode(),
-        signed_payload.encode(),
-        hashlib.sha256
-    ).hexdigest()
-
-    return hmac.compare_digest(signature, expected)
 ```
 
 ### TypeScript (Hono)
@@ -151,7 +140,10 @@ app.post("/webhooks/github", async (c) => {
     .update(payload)
     .digest("hex")}`;
 
-  if (!timingSafeEqual(Buffer.from(signature!), Buffer.from(expected))) {
+  // Missing header or length mismatch would make timingSafeEqual throw
+  const sig = Buffer.from(signature ?? "");
+  const exp = Buffer.from(expected);
+  if (sig.length !== exp.length || !timingSafeEqual(sig, exp)) {
     return c.json({ error: "Invalid signature" }, 401);
   }
 
@@ -218,8 +210,8 @@ async def fetch_with_retry(url: str):
 
 ## Best Practices
 
-1. **Always use idempotency keys** - Prevent duplicate processing
-2. **Verify webhook signatures** - Security is critical
-3. **Implement cursor-based pagination** - More reliable than offset
-4. **Store raw payloads** - Debug and replay capability
-5. **Use exponential backoff** - Be a good API citizen
+1. **Always use idempotency keys** - prevent duplicate processing
+2. **Verify webhook signatures** - security-critical
+3. **Use cursor-based pagination** - more reliable than offset
+4. **Store raw payloads** - enables debugging and replay
+5. **Use exponential backoff** - spares the API provider

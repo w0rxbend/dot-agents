@@ -5,26 +5,22 @@ description: Implements media and file management components including file uplo
 
 # Managing Media & Files
 
-## Purpose
-
-This skill provides systematic patterns for implementing media and file management components across all formats (images, videos, audio, documents). It covers upload workflows, display patterns, player controls, optimization strategies, and accessibility requirements to ensure performant, accessible, and user-friendly media experiences.
-
 ## When to Use
 
-Activate this skill when:
-- Implementing file upload (single, multiple, drag-and-drop)
-- Building image galleries, carousels, or lightboxes
-- Creating video or audio players
-- Displaying PDF or document viewers
-- Optimizing media for performance (responsive images, lazy loading)
-- Handling large file uploads (chunked, resumable)
-- Integrating cloud storage (S3, Cloudinary)
-- Implementing media accessibility (alt text, captions, transcripts)
-- Designing empty states for missing media
+Use when:
+- File upload (single, multiple, drag-and-drop)
+- Image galleries, carousels or lightboxes
+- Video or audio players
+- PDF or document viewers
+- Media performance optimization (responsive images, lazy loading)
+- Large file uploads (chunked, resumable)
+- Cloud storage integration (S3, Cloudinary)
+- Media accessibility (alt text, captions, transcripts)
+- Empty states for missing media
 
 ## Quick Decision Framework
 
-Select implementation based on media type and requirements:
+Pick implementation by media type and requirements:
 
 ```
 Images                  → Gallery pattern + lazy loading + responsive srcset
@@ -36,17 +32,17 @@ File Upload (>10MB)     → Chunked upload with progress + resume
 Multiple Files          → Queue management + parallel uploads
 ```
 
-For detailed selection criteria, reference `references/implementation-guide.md`.
+Detailed selection criteria: `references/implementation-guide.md`.
 
 ## File Upload Patterns
 
 ### Basic Upload (<10MB)
 
-For small files with simple requirements:
+Small files, simple requirements:
 - Drag-and-drop zone with visual feedback
-- Click to browse fallback
+- Click-to-browse fallback
 - File type and size validation
-- Preview thumbnails for images
+- Image preview thumbnails
 - Progress indicator
 - Reference `references/upload-patterns.md`
 
@@ -54,7 +50,7 @@ Example: `examples/basic-upload.tsx`
 
 ### Advanced Upload (>10MB)
 
-For large files requiring reliability:
+Large files needing reliability:
 - Chunked uploads (resume on failure)
 - Parallel uploads for multiple files
 - Upload queue management
@@ -66,11 +62,11 @@ Example: `examples/chunked-upload.tsx`
 
 ### Image-Specific Upload
 
-For image files with editing requirements:
+Images needing editing:
 - Crop and rotate tools
 - Client-side resize before upload
-- Format conversion (PNG → WebP)
-- Alt text input field (accessibility)
+- Format conversion (PNG to WebP)
+- Alt text input (accessibility)
 - Reference `references/image-upload.md`
 
 Example: `examples/image-upload-crop.tsx`
@@ -79,7 +75,7 @@ Example: `examples/image-upload-crop.tsx`
 
 ### Image Gallery
 
-For collections of images:
+Image collections:
 - Grid or masonry layout
 - Lazy loading (native or custom)
 - Lightbox on click
@@ -92,10 +88,10 @@ Example: `examples/image-gallery.tsx`
 
 ### Carousel/Slider
 
-For sequential image display:
+Sequential image display:
 - Auto-play (optional, pausable for accessibility)
 - Dot or thumbnail navigation
-- Touch/swipe support
+- Touch/swipe
 - ARIA roles for accessibility
 - Infinite loop option
 - Reference `references/carousel-patterns.md`
@@ -104,24 +100,23 @@ Example: `examples/carousel.tsx`
 
 ### Image Optimization
 
-Essential optimization strategies:
-- Responsive images using `srcset` and `sizes`
+Essential strategies:
+- Responsive images via `srcset` and `sizes`
 - Modern formats (WebP with JPG fallback)
 - Progressive JPEGs
 - Blur-up placeholders
-- CDN integration
 - Reference `references/image-optimization.md`
 
 ## Video Components
 
 ### Video Player
 
-For custom video playback:
-- Custom controls or native
+Custom video playback:
+- Custom or native controls
 - Play/pause, volume, fullscreen
 - Captions/subtitles (VTT format)
 - Playback speed control
-- Picture-in-picture support
+- Picture-in-picture
 - Keyboard shortcuts
 - Reference `references/video-player.md`
 
@@ -129,22 +124,21 @@ Example: `examples/video-player.tsx`
 
 ### Video Optimization
 
-Performance strategies for video:
+Performance strategies:
 - Adaptive streaming (HLS, DASH)
 - Thumbnail preview on hover
-- Lazy loading off-screen videos
+- Lazy-load off-screen videos
 - Preload strategies (`metadata`, `auto`, `none`)
-- Multiple quality levels
 - Reference `references/video-optimization.md`
 
 ## Audio Components
 
 ### Audio Player
 
-For audio playback:
+Audio playback:
 - Play/pause, seek, volume controls
 - Waveform visualization (optional)
-- Playlist support
+- Playlists
 - Download option
 - Playback speed control
 - Visual indicators for accessibility
@@ -156,7 +150,7 @@ Example: `examples/audio-player.tsx`
 
 ### PDF Viewer
 
-For PDF document display:
+PDF display:
 - Page navigation (prev/next, jump to page)
 - Zoom in/out controls
 - Text search within document
@@ -168,9 +162,9 @@ Example: `examples/pdf-viewer.tsx`
 
 ### Office Document Preview
 
-For DOCX, XLSX, PPTX files:
-- Read-only preview or editable
-- Cloud-based rendering (Google Docs Viewer, Office Online)
+DOCX, XLSX, PPTX files:
+- Read-only or editable preview
+- Cloud rendering (Google Docs Viewer, Office Online; file goes to Google/Microsoft, so not for confidential docs)
 - Local rendering (limited support)
 - Download option
 - Reference `references/office-viewer.md`
@@ -179,13 +173,14 @@ For DOCX, XLSX, PPTX files:
 
 ### File Size Guidelines
 
-Validate client-side before upload:
+Validate client-side before upload (UX only; server re-checks):
 - Images: <5MB recommended
 - Videos: <100MB for web, larger for cloud
 - Audio: <10MB
 - Documents: <25MB
-- Provide clear error messages
+- Give clear error messages
 - Suggest compression tools
+- Enforce size, count and type on server or in presign conditions (sniff magic bytes, not browser MIME); reject or sanitize SVG; serve uploads from separate origin with `X-Content-Type-Options: nosniff`
 
 ### Image Optimization Checklist
 
@@ -197,37 +192,32 @@ python scripts/optimize_images.py --input image.jpg --output optimized/ --format
 Strategies:
 - Compress before upload (client or server)
 - Generate multiple sizes (thumbnails, medium, large)
-- Use responsive `srcset` for device targeting
 - Convert to modern formats (WebP, AVIF)
 - Serve via CDN with edge caching
 
-Reference `references/performance-optimization.md` for complete guide.
+Full guide: `references/performance-optimization.md`.
 
 ### Video Optimization Checklist
 
 Strategies:
 - Transcode to multiple qualities (360p, 720p, 1080p)
-- Implement adaptive bitrate streaming
 - Use CDN with edge caching
-- Lazy load videos outside viewport
 - Provide poster images
 
 ## Accessibility Requirements
 
 ### Images
 
-Essential patterns:
 - Alt text required for meaningful images
 - Empty alt (`alt=""`) for decorative images
-- Use `<figure>` and `<figcaption>` for context
-- Sufficient color contrast for overlays
+- `<figure>` and `<figcaption>` for context
+- Enough color contrast for overlays
 - Reference `references/accessibility-images.md`
 
 ### Videos
 
-Essential patterns:
 - Captions/subtitles for all speech
-- Transcript link provided
+- Transcript link
 - Keyboard controls (space, arrows, M for mute)
 - Pause auto-play (WCAG requirement)
 - Audio description track (if applicable)
@@ -235,34 +225,33 @@ Essential patterns:
 
 ### Audio
 
-Essential patterns:
 - Transcripts available
 - Visual indicators (playing, paused, volume)
 - Keyboard controls
 - ARIA labels for controls
 - Reference `references/accessibility-audio.md`
 
-Verify with real tooling: run axe-core (for example `@axe-core/playwright` or `npx @axe-core/cli <url>`) against the rendered page, and check captions, transcripts and keyboard control by hand.
+Verify with real tooling: run axe-core (for example `@axe-core/playwright` or `npx @axe-core/cli@4.14.0 <url>`) against rendered page. Check captions, transcripts and keyboard control by hand.
 
-For complete requirements, reference `references/accessibility-patterns.md`.
+Complete requirements: `references/accessibility-patterns.md`.
 
 ## Library Recommendations
 
 ### Image Gallery: react-image-gallery
 
 Best for feature-complete galleries:
-- Mobile swipe support
+- Mobile swipe
 - Fullscreen mode
 - Thumbnail navigation
-- Lazy loading built-in
-- Responsive out of the box
+- Built-in lazy loading
+- Responsive out of box
 
 ```bash
 npm install react-image-gallery
 ```
 
-See `examples/gallery-react-image.tsx` for implementation.
-Reference `/xiaolin/react-image-gallery` for documentation.
+Implementation: `examples/gallery-react-image.tsx`.
+Docs: `/xiaolin/react-image-gallery`.
 
 **Alternative:** LightGallery (more features, larger bundle)
 
@@ -272,21 +261,21 @@ Best for custom video players:
 - Plugin ecosystem
 - HLS and DASH support
 - Accessible controls
-- Theming support
+- Theming
 - Extensive documentation
 
 ```bash
 npm install video.js
 ```
 
-See `examples/video-js-player.tsx` for implementation.
+Implementation: `examples/video-js-player.tsx`.
 
 ### Audio: wavesurfer.js
 
 Best for waveform visualization:
 - Beautiful waveform display
 - Timeline interactions
-- Plugin support
+- Plugins
 - Responsive
 - Lightweight
 
@@ -294,13 +283,13 @@ Best for waveform visualization:
 npm install wavesurfer.js
 ```
 
-See `examples/audio-waveform.tsx` for implementation.
+Implementation: `examples/audio-waveform.tsx`.
 
 ### PDF: react-pdf
 
 Best for PDF rendering in React:
 - Page-by-page rendering
-- Text selection support
+- Text selection
 - Annotation layer (links, form fields) via `renderAnnotationLayer`
 - Worker-based for performance
 
@@ -308,21 +297,21 @@ Best for PDF rendering in React:
 npm install react-pdf
 ```
 
-See `examples/pdf-react.tsx` for implementation.
+Implementation: `examples/pdf-react.tsx`.
 
-For detailed comparison, reference `references/library-comparison.md`.
+Detailed comparison: `references/library-comparison.md`.
 
 ## Design Token Integration
 
-Style media components with design tokens (see the `theming-components` skill):
+Style media components with design tokens (see `theming-components` skill):
 - Color tokens for backgrounds, overlays, controls
 - Spacing tokens for padding and gaps
 - Border tokens for thumbnails and containers
 - Shadow tokens for elevation
 - Motion tokens for animations
 
-Supports light, dark, high-contrast, and custom themes.
-Reference the `theming-components` skill for theme switching.
+Supports light, dark, high-contrast and custom themes.
+Theme switching: `theming-components` skill.
 
 Example token usage:
 ```css
@@ -349,11 +338,11 @@ Example token usage:
 
 Four responsive approaches:
 1. **Grid layout** - CSS Grid with auto-fit columns
-2. **Masonry layout** - Pinterest-style with variable heights
+2. **Masonry layout** - Pinterest-style, variable heights
 3. **Carousel** - Single image on mobile, multiple on desktop
 4. **Stack** - Vertical list on mobile, grid on desktop
 
-See `examples/responsive-gallery.tsx` for implementations.
+Implementations: `examples/responsive-gallery.tsx`.
 
 ### Video Players
 
@@ -364,7 +353,7 @@ Responsive considerations:
 - Picture-in-picture for multitasking
 - Touch-friendly controls (larger hit areas)
 
-Reference `references/responsive-media.md` for patterns.
+Patterns: `references/responsive-media.md`.
 
 ## Cloud Storage Integration
 
@@ -377,12 +366,12 @@ For AWS S3, Cloudinary, etc.:
 4. Display uploaded media
 
 Benefits:
-- Reduces server load
+- Less server load
 - Faster uploads (direct to CDN)
 - No file size limits on your server
 
-See `examples/s3-direct-upload.tsx` for implementation.
-Reference `references/cloud-storage.md` for setup.
+Implementation: `examples/s3-direct-upload.tsx`.
+Setup: `references/cloud-storage.md`.
 
 ## Testing Tools
 
@@ -392,27 +381,7 @@ Generate mock media:
 python scripts/generate_mock_images.py --count 50 --width 1600 --height 900 --output ./mock-images
 ```
 
-Validate media accessibility: Verify with real tooling: run axe-core (for example `@axe-core/playwright` or `npx @axe-core/cli <url>`) against the rendered page, and check captions, transcripts and keyboard control by hand.
-
-Analyze performance with Lighthouse or WebPageTest (image weight, LCP, lazy-loading) rather than a custom script.
-
-## Working Examples
-
-Start with the example matching the requirements:
-
-```
-basic-upload.tsx              # Simple drag-drop upload
-chunked-upload.tsx            # Large file upload with resume
-image-upload-crop.tsx         # Image upload with cropping
-image-gallery.tsx             # Grid gallery with lightbox
-carousel.tsx                  # Image carousel/slider
-video-player.tsx              # Custom video player
-audio-player.tsx              # Audio player with controls
-audio-waveform.tsx            # Audio with waveform visualization
-pdf-viewer.tsx                # PDF document viewer
-s3-direct-upload.tsx          # Direct upload to S3
-responsive-gallery.tsx        # Responsive image gallery patterns
-```
+Analyze performance with Lighthouse or WebPageTest (image weight, LCP, lazy-loading), not a custom script.
 
 ## Resources
 
@@ -420,26 +389,12 @@ responsive-gallery.tsx        # Responsive image gallery patterns
 - `scripts/optimize_images.py` - Batch resize and convert (WebP/AVIF/JPEG/PNG) with srcset output; requires Pillow
 - `scripts/generate_mock_images.py` - Test image generation; requires Pillow
 
-### References (Detailed Documentation)
-- `references/upload-patterns.md` - File upload implementations
-- `references/gallery-patterns.md` - Image gallery designs
-- `references/video-player.md` - Video player features
-- `references/audio-player.md` - Audio player patterns
-- `references/pdf-viewer.md` - Document viewer setup
-- `references/accessibility-patterns.md` - Media accessibility
-- `references/performance-optimization.md` - Optimization strategies
-- `references/cloud-storage.md` - Cloud integration guides
-- `references/library-comparison.md` - Library analysis
-
-### Examples (Implementation Code)
-- See `examples/` directory for working implementations
-
 ### Assets (Templates and Configs)
 - `assets/upload-config.json` - Upload constraints and settings
 
 ## Cross-Skill Integration
 
-This skill works with other component skills:
+Pairs with other component skills:
 
 - **Forms**: File input fields, validation, submission
 - **Feedback**: Upload progress, success/error messages
@@ -449,12 +404,11 @@ This skill works with other component skills:
 
 ## Next Steps
 
-1. Identify the media type (images, video, audio, documents)
+1. Identify media type (images, video, audio, documents)
 2. Determine upload requirements (size, quantity, editing)
 3. Choose display pattern (gallery, carousel, player, viewer)
-4. Select library or implement custom solution
+4. Pick library or build custom solution
 5. Implement accessibility requirements
 6. Apply optimization strategies
 7. Test performance and responsive behavior
-8. Integrate with cloud storage (optional)
-
+8. Integrate cloud storage (optional)

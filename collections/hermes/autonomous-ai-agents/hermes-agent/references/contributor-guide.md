@@ -25,13 +25,13 @@ hermes-agent/
 └── website/              # Docusaurus docs site
 ```
 
-Config: `~/.hermes/config.yaml` (settings), `~/.hermes/.env` (API keys) — both under `$HERMES_HOME` when it is set.
+Config: `~/.hermes/config.yaml` (settings), `~/.hermes/.env` (API keys). Both under `$HERMES_HOME` when set.
 
 ### Adding a Tool
 
-Two files. Auto-discovery imports any `tools/*.py` with a top-level
-`registry.register()` call, but a tool is only *exposed* to an agent once
-its name appears in a toolset.
+Two files. Auto-discovery imports any `tools/*.py` with top-level
+`registry.register()` call. Agent sees tool only once its name is in a
+toolset.
 
 **1. Create `tools/your_tool.py`:**
 ```python
@@ -55,12 +55,11 @@ registry.register(
 )
 ```
 
-**2. Wire it into a toolset in `toolsets.py`** — add the name to
-`_HERMES_CORE_TOOLS` (every platform) or to a specific toolset.
+**2. Wire it into a toolset in `toolsets.py`**: add name to
+`_HERMES_CORE_TOOLS` (every platform) or to specific toolset.
 
-All handlers must return JSON strings. Use `get_hermes_home()` for paths,
-never hardcode `~/.hermes`. For custom/local-only tools, write a plugin in
-`~/.hermes/plugins/` instead of editing core — see the developer docs.
+All handlers must return JSON strings. Custom/local-only tools: write plugin in
+`~/.hermes/plugins/` instead of editing core (see developer docs).
 
 ### Adding a Slash Command
 
@@ -68,7 +67,7 @@ never hardcode `~/.hermes`. For custom/local-only tools, write a plugin in
 2. Add handler in `cli.py` → `process_command()`
 3. (Optional) Add gateway handler in `gateway/run.py`
 
-All consumers (help text, autocomplete, Telegram menu, Slack mapping) derive from the central registry automatically.
+Help text, autocomplete, Telegram menu, Slack mapping all derive from central registry automatically.
 
 ### Agent Loop (High Level)
 
@@ -84,9 +83,9 @@ run_conversation():
 
 ### Testing
 
-Use `scripts/run_tests.sh` for CI parity. It clears credentials, sets
-`TZ=UTC`, and runs each test file in a separate subprocess through
-`scripts/run_tests_parallel.py` on every platform. It does not use xdist.
+Use `scripts/run_tests.sh` for CI parity: clears credentials, sets
+`TZ=UTC`, runs each test file in own subprocess via
+`scripts/run_tests_parallel.py` on every platform. No xdist.
 
 ```bash
 scripts/run_tests.sh                          # full suite
@@ -95,30 +94,30 @@ scripts/run_tests.sh tests/tools/test_x.py    # one file
 scripts/run_tests.sh -v --tb=long             # pass-through pytest flags
 ```
 
-- Tests auto-redirect `HERMES_HOME` to temp dirs — never touch real `~/.hermes/`.
-- Prepare Python through the PM developer workflow before building a test environment.
+- Tests auto-redirect `HERMES_HOME` to temp dirs; never touch real `~/.hermes/`.
+- Prepare Python via PM developer workflow before building test environment.
 - Run `python -m pm.build_env --source . --out .venv --group dev --group test`.
-  The output must not exist. Stop its processes and intentionally remove only
-  that disposable environment before regeneration.
-- The runner probes repository `.venv`, `venv`, and the standard source-install
-  venv before falling back to `HERMES_PYTHON`. Each candidate must contain pytest.
-- **Windows:** run the same wrapper through Git Bash. See `references/windows-quirks.md`.
-- After editing `pyproject.toml`, run `hermes pm lock`, re-source `./activate`, and
+  Output must not exist. Before regenerating, stop its processes and
+  intentionally remove only that disposable environment.
+- Runner probes repository `.venv`, `venv`, standard source-install venv,
+  then falls back to `HERMES_PYTHON`. Each candidate must contain pytest.
+- **Windows:** same wrapper via Git Bash. See `references/windows-quirks.md`.
+- After editing `pyproject.toml`: run `hermes pm lock`, re-source `./activate`,
   commit `pyproject.toml` with `uv.lock`.
   Do not mutate Hermes environments with raw pip or uv commands.
 
-Host-specific tests run on the real host. Use one `@pytest.mark.platforms(...)`
-marker per test, such as `@pytest.mark.platforms("windows", arch="arm64")`.
-Do not fake the host by patching `sys.platform` or platform probes.
+Host-specific tests run on real host. One `@pytest.mark.platforms(...)`
+marker per test, e.g. `@pytest.mark.platforms("windows", arch="arm64")`.
+Do not fake host by patching `sys.platform` or platform probes.
 
 ### System prompt's execution-environment block
 
-Factual host/backend guidance (OS, `$HOME`, cwd, terminal backend, shell)
-is emitted by `agent/prompt_builder.py::build_environment_hints()`. The key
-invariant for prompt authors: with a **remote** terminal backend
-(`docker, singularity, modal, daytona, ssh, managed_modal`), host info is
-suppressed and *every* file tool runs inside the backend container — the
-prompt must never describe the host the agent can't touch.
+`agent/prompt_builder.py::build_environment_hints()` emits factual
+host/backend guidance (OS, `$HOME`, cwd, terminal backend, shell). Key
+invariant for prompt authors: with **remote** terminal backend
+(`docker, singularity, modal, daytona, ssh, managed_modal`), host info
+suppressed and *every* file tool runs inside backend container. Prompt
+must never describe host agent can't touch.
 
 ### Commit Conventions
 
@@ -132,8 +131,8 @@ Types: `fix:`, `feat:`, `refactor:`, `docs:`, `chore:`
 
 ### Key Rules
 
-- **Never break prompt caching** — don't change context, tools, or system prompt mid-conversation
-- **Message role alternation** — never two assistant or two user messages in a row
-- Use `get_hermes_home()` from `hermes_constants` for all paths (profile-safe)
-- Config values go in `config.yaml`, secrets go in `.env`
-- New tools need a `check_fn` so they only appear when requirements are met
+- **Never break prompt caching**: don't change context, tools, or system prompt mid-conversation
+- **Message role alternation**: never two assistant or two user messages in a row
+- `get_hermes_home()` from `hermes_constants` for all paths (profile-safe); never hardcode `~/.hermes`
+- Config values go in `config.yaml`, secrets in `.env`
+- New tools need `check_fn` so they appear only when requirements met

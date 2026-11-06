@@ -14,7 +14,7 @@ prerequisites:
 
 # Apple Reminders
 
-Use `remindctl` to manage Apple Reminders directly from the terminal. Tasks sync across all Apple devices via iCloud.
+`remindctl` manages Apple Reminders from terminal. Tasks sync across all Apple devices via iCloud.
 
 ## Prerequisites
 
@@ -26,16 +26,15 @@ Use `remindctl` to manage Apple Reminders directly from the terminal. Tasks sync
 ## When to Use
 
 - User mentions "reminder" or "Reminders app"
-- Creating personal to-dos with due dates that sync to iOS
+- Personal to-dos with due dates that sync to iOS
 - Managing Apple Reminders lists
-- User wants tasks to appear on their iPhone/iPad
+- User wants tasks on their iPhone/iPad
 
 ## When NOT to Use
 
-- Scheduling agent alerts → use the cronjob tool instead
-- Calendar events → use Apple Calendar or Google Calendar
-- Project task management → use GitHub Issues, Notion, etc.
-- If user says "remind me" but means an agent alert → clarify first
+- Scheduling agent alerts: use cronjob tool instead
+- Calendar events: use Apple Calendar or Google Calendar
+- Project task management: use GitHub Issues, Notion, etc.
 
 ## Quick Reference
 
@@ -57,7 +56,7 @@ remindctl 2026-01-04         # Specific date
 remindctl list               # List all lists
 remindctl list Work          # Show specific list
 remindctl list Projects --create    # Create list
-remindctl list Work --delete        # Delete list
+remindctl list Work --delete        # Delete list + its reminders (rule 4)
 ```
 
 ### Create Reminders
@@ -72,22 +71,22 @@ remindctl add --title "Meeting prep" --due "2026-02-15 09:00"
 
 `--due` and `--alarm` are different fields:
 
-- `--due` sets the reminder's due date/time.
-- `--alarm` sets the EventKit alarm/notification trigger. Timed due reminders may default to an alarm at the due time, but pass `--alarm` explicitly when the user asks for an earlier nudge.
+- `--due` sets reminder due date/time.
+- `--alarm` sets EventKit alarm/notification trigger. Timed due reminders may default to alarm at due time. Pass `--alarm` explicitly when user asks for earlier nudge.
 
-For a reminder due at 2:00 PM with a notification 30 minutes earlier:
+For reminder due at 2:00 PM with notification 30 minutes earlier:
 
 ```bash
 remindctl add --title "Hairdresser" --due "2026-05-15 14:00" --alarm "2026-05-15 13:30"
 ```
 
-To edit an existing reminder:
+To edit existing reminder:
 
 ```bash
 remindctl edit 87354 --due "2026-05-15 14:00" --alarm "2026-05-15 13:30"
 ```
 
-The Reminders UI may show or group the item by the alarm time because that is when the notification fires. Verify with JSON instead of assuming the due time moved:
+Reminders UI may show or group item by alarm time, because notification fires then. Verify with JSON; do not assume due time moved:
 
 ```bash
 remindctl today --json
@@ -98,13 +97,13 @@ Expected shape:
 - `dueDate`: actual due time
 - `alarmDate`: notification / early nudge time
 
-Apple's public `EKReminder` docs list only reminder-specific properties. Alarm support comes from inherited `EKCalendarItem` behavior exposed by remindctl's `--alarm` flag.
+Apple's public `EKReminder` docs list only reminder-specific properties. Alarm support comes from inherited `EKCalendarItem` behavior, exposed by remindctl's `--alarm` flag.
 
 ### Complete / Delete
 
 ```bash
 remindctl complete 1 2 3          # Complete by ID
-remindctl delete 4A83 --force     # Delete by ID
+remindctl delete 4A83 --force     # Delete by ID (rule 4; --force skips CLI prompt)
 ```
 
 ### Output Formats
@@ -128,3 +127,4 @@ Accepted by `--due` and date filters:
 1. When user says "remind me", clarify: Apple Reminders (syncs to phone) vs agent cronjob alert
 2. Always confirm reminder content and due date before creating
 3. Use `--json` for programmatic parsing
+4. Before `delete` or `list <name> --delete`, show the reminder(s) or list with item count and get explicit user confirmation. Deletions sync to every device via iCloud.

@@ -25,6 +25,10 @@
  *   --wait <ms>       Wait before first capture (default: 2000)
  *   --selector <sel>  Canvas CSS selector (default: canvas)
  *
+ * The sketch dir is served on 127.0.0.1 (dotfiles and paths outside it are
+ * refused). Chrome sandbox stays on except as root; P5_NO_SANDBOX=1 forces
+ * it off, for trusted sketches only.
+ *
  * Examples:
  *   node export-frames.js sketch.html --frames 1                     # single PNG
  *   node export-frames.js sketch.html --frames 300 --fps 30          # 10s at 30fps
@@ -43,6 +47,37 @@
 const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
+
+const MIME = {
+  '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript',
+  '.css': 'text/css', '.json': 'application/json', '.csv': 'text/csv',
+  '.txt': 'text/plain', '.glsl': 'text/plain', '.frag': 'text/plain', '.vert': 'text/plain',
+  '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif',
+  '.webp': 'image/webp', '.svg': 'image/svg+xml', '.otf': 'font/otf', '.ttf': 'font/ttf',
+  '.woff': 'font/woff', '.woff2': 'font/woff2', '.mp3': 'audio/mpeg', '.wav': 'audio/wav',
+  '.ogg': 'audio/ogg',
+};
+
+// Static server for the sketch dir on loopback: no file:// access flags needed.
+function serveDir(root) {
+  const realRoot = fs.realpathSync(root);
+  const prefix = realRoot.endsWith(path.sep) ? realRoot : realRoot + path.sep;
+  const server = http.createServer((req, res) => {
+    const notFound = () => { res.writeHead(404); res.end(); };
+    let rel, file;
+    try { rel = decodeURIComponent(new URL(req.url, 'http://127.0.0.1').pathname); } catch { return notFound(); }
+    if (rel.split(/[\\/]/).some(seg => seg.startsWith('.'))) return notFound();
+    try { file = fs.realpathSync(path.join(realRoot, rel)); } catch { return notFound(); }
+    if (!file.startsWith(prefix) || !fs.statSync(file).isFile()) return notFound();
+    res.writeHead(200, { 'Content-Type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream' });
+    fs.createReadStream(file).on('error', () => res.destroy()).pipe(res);
+  });
+  return new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', () => resolve(server));
+  });
+}
 
 // Parse CLI arguments
 function parseArgs() {
@@ -95,15 +130,18 @@ async function main() {
   console.log(`Resolution: ${opts.width}x${opts.height}`);
   console.log(`Output: ${opts.output}/`);
 
+  // Chrome cannot sandbox as root (e.g. in a container); elsewhere keep it on.
+  const noSandbox = process.env.P5_NO_SANDBOX === '1' ||
+    (typeof process.getuid === 'function' && process.getuid() === 0);
+  if (noSandbox) console.log('Chrome sandbox: off (root or P5_NO_SANDBOX=1)');
+
+  const server = await serveDir(path.dirname(inputPath));
   const browser = await puppeteer.launch({
     headless: 'new',
     args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
+      ...(noSandbox ? ['--no-sandbox', '--disable-setuid-sandbox'] : []),
       '--disable-gpu',
       '--disable-dev-shm-usage',
-      '--disable-web-security',
-      '--allow-file-access-from-files',
     ],
   });
 
@@ -115,9 +153,9 @@ async function main() {
     deviceScaleFactor: 1,
   });
 
-  // Navigate to sketch
-  const fileUrl = `file://${inputPath}`;
-  await page.goto(fileUrl, { waitUntil: 'networkidle0', timeout: 30000 });
+  // Navigate to sketch over the loopback server
+  const sketchUrl = `http://127.0.0.1:${server.address().port}/${encodeURIComponent(path.basename(inputPath))}`;
+  await page.goto(sketchUrl, { waitUntil: 'networkidle0', timeout: 30000 });
 
   // Wait for canvas to appear
   await page.waitForSelector(opts.selector, { timeout: 10000 });
@@ -171,9 +209,13 @@ async function main() {
 
   console.log('\n  Done.');
   await browser.close();
+  server.close();
 }
 
 main().catch(err => {
   console.error('Error:', err.message);
+  if (/sandbox/i.test(err.message)) {
+    console.error('Chrome sandbox unavailable. For trusted sketches only: P5_NO_SANDBOX=1 node export-frames.js ...');
+  }
   process.exit(1);
 });

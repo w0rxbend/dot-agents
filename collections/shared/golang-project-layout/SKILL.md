@@ -14,36 +14,36 @@ metadata:
       bins:
         - go
     install: []
-allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(golangci-lint:*) Bash(git:*) Agent AskUserQuestion
+allowed-tools: Read Edit Write Glob Grep Bash(go version:*) Bash(go mod init:*) Bash(go work init:*) Bash(go work use:*) Bash(go build:*) Bash(go test:*) Bash(go vet:*) Bash(gofmt:*) Bash(golangci-lint run:*) Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git show:*) Agent AskUserQuestion
 ---
 
-**Persona:** You are a Go project architect. You right-size structure to the problem — a script stays flat, a service gets layers only when justified by actual complexity.
+**Persona:** Go project architect. Right-size structure to problem: scripts stay flat; services get layers only when real complexity justifies them.
 
-**Decisions:** Reuse the user's architecture/DI choices and existing repository conventions. For a small new project, start with the simplest adequate structure and manual wiring. Ask only when an unresolved architecture or DI choice materially affects the requested result.
+**Decisions:** Reuse user's architecture/DI choices and repository conventions. Small new project: simplest adequate structure, manual wiring. Ask only when unresolved architecture or DI choice materially changes requested result.
 
 # Go Project Layout
 
 ## Architecture Decision: Ask First
 
-When starting a new project, select a structure from its actual responsibilities and the user's established choices. Clarify an unresolved high-impact architecture choice when necessary. A 100-line CLI tool does not need layers or a DI library.
+New project: pick structure from its actual responsibilities. 100-line CLI tool needs no layers or DI library.
 
-→ See `samber/cc-skills-golang@golang-design-patterns` skill for detailed architecture guides with file trees and code examples.
+→ See `samber/cc-skills-golang@golang-design-patterns` skill for architecture guides with file trees and code examples.
 
 ## Dependency Injection: Ask Next
 
-Use the established DI approach. For a small new project, manual constructor wiring is often sufficient; select a library only for concrete lifecycle or composition needs, or when requested. The choice affects how services are wired, how lifecycle (health checks, graceful shutdown) is managed, and how the project is structured. See the `samber/cc-skills-golang@golang-dependency-injection` skill for a full comparison and decision table.
+Pick library only for concrete lifecycle or composition needs, or on request. See `samber/cc-skills-golang@golang-dependency-injection` skill for full comparison and decision table.
 
 ## 12-Factor App
 
-For applications (services, APIs, workers), follow [12-Factor App](https://12factor.net/) conventions: config via environment variables, logs to stdout, stateless processes, graceful shutdown, backing services as attached resources, and admin tasks as one-off commands (e.g., `cmd/migrate/`).
+Applications (services, APIs, workers) follow [12-Factor App](https://12factor.net/): config via environment variables, logs to stdout, stateless processes, graceful shutdown, backing services as attached resources, admin tasks as one-off commands (e.g., `cmd/migrate/`).
 
 ## Quick Start: Choose Your Project Type
 
 | Project Type | Use When | Key Directories |
 | --- | --- | --- |
-| **CLI Tool** | Building a command-line application | `cmd/{name}/`, `internal/`, optional `pkg/` |
-| **Library** | Creating reusable code for others | packages at the module root (the official go.dev layout), `internal/` for private code; `pkg/` is an optional convention |
-| **Service** | HTTP API, microservice, or web app | `cmd/{service}/`, `internal/`, `api/`, `web/` |
+| **CLI Tool** | Command-line application | `cmd/{name}/`, `internal/`, optional `pkg/` |
+| **Library** | Reusable code for others | packages at module root (official go.dev layout), `internal/` for private code; `pkg/` optional convention |
+| **Service** | HTTP API, microservice or web app | `cmd/{service}/`, `internal/`, `api/`, `web/` |
 | **Monorepo** | Multiple related packages/modules | `go.work`, separate modules per package |
 | **Workspace** | Developing multiple local modules | `go.work`, replace directives |
 
@@ -51,11 +51,11 @@ For applications (services, APIs, workers), follow [12-Factor App](https://12fac
 
 ### Module Name (go.mod)
 
-Your module path in `go.mod` should:
+Module path in `go.mod`:
 
-- Preserve an existing module path exactly, including case, vanity domains, and semantic-import major-version suffixes.
-- For a new module, choose its canonical published import path (commonly `github.com/owner/repository`).
-- Confirm fork/replace directives and consumers before changing a module identity. Naming preferences do not justify a breaking import-path rename.
+- Preserve existing module path exactly: case, vanity domains, semantic-import major-version suffixes.
+- New module: use its canonical published import path (commonly `github.com/owner/repository`).
+- Confirm fork/replace directives and consumers before changing module identity. Naming preferences never justify breaking import-path rename.
 
 **Examples:**
 
@@ -72,57 +72,54 @@ module utils
 
 ### Package Naming
 
-Packages MUST be lowercase, singular, and match their directory name. → See `samber/cc-skills-golang@golang-naming` skill for complete package naming conventions and examples.
+Packages MUST be lowercase, singular, matching directory name. → See `samber/cc-skills-golang@golang-naming` skill for complete package naming conventions and examples.
 
 ## Directory Layout
 
-Keep `main` packages minimal — parse flags, wire dependencies, call `Run()`. A single-binary module may keep `main` at the module root (as go.dev/doc/modules/layout allows); with several binaries, put each under `cmd/{name}/`. Business logic belongs in `internal/` or importable packages. Use `internal/` for non-exported packages, `pkg/` only when code is useful to external consumers.
+Keep `main` packages minimal: parse flags, wire dependencies, call `Run()`. Single-binary module may keep `main` at module root (go.dev/doc/modules/layout allows it). Several binaries: each under `cmd/{name}/`. Business logic goes in `internal/` or importable packages. `internal/` for non-exported packages; `pkg/` only when code is useful to external consumers.
 
-See [directory layout examples](references/directory-layouts.md) for universal, small project, and library layouts, plus common mistakes.
+See [directory layout examples](references/directory-layouts.md): universal, small project and library layouts, common mistakes.
 
 ## Essential Configuration Files
 
-Every Go project should include at the root:
+Every Go project root should include:
 
 - **Makefile** — build automation. See [Makefile template](assets/Makefile)
-- **.gitignore** — git ignore patterns. Copy the [.gitignore template](assets/gitignore) to `.gitignore`
-- **.golangci.yml** — linter config. See the `samber/cc-skills-golang@golang-lint` skill for the recommended configuration
+- **.gitignore** — git ignore patterns. Copy [.gitignore template](assets/gitignore) to `.gitignore`
+- **.golangci.yml** — linter config. See `samber/cc-skills-golang@golang-lint` skill for recommended configuration
 
-For application configuration with Cobra + Viper, see [config reference](references/config.md).
+Application configuration with Cobra + Viper: see [config reference](references/config.md).
 
 ## Tests, Benchmarks, and Examples
 
-Co-locate `_test.go` files with the code they test. Use `testdata/` for fixtures. See [testing layout](references/testing-layout.md) for file naming, placement, and organization details.
+Co-locate `_test.go` files with code under test. Fixtures go in `testdata/`. See [testing layout](references/testing-layout.md) for file naming, placement, organization.
 
 ## Go Workspaces
 
-Use `go.work` when developing multiple related modules in a monorepo. See [workspaces](references/workspaces.md) for setup, structure, and commands.
+Use `go.work` for multiple related modules in monorepo. See [workspaces](references/workspaces.md) for setup, structure, commands.
 
 ## Initialization Checklist
 
-When starting a new Go project:
+New Go project:
 
 - [ ] Confirm preferred software architecture (clean, hexagonal, DDD, flat, etc.)
 - [ ] Confirm preferred DI approach — see `samber/cc-skills-golang@golang-dependency-injection` skill
 - [ ] Decide project type (CLI, library, service, monorepo)
-- [ ] Right-size the structure to the project scope
+- [ ] Right-size structure to project scope
 - [ ] Choose module name (matches repo URL, lowercase, hyphens)
-- [ ] Run `go version` to detect the current go version
+- [ ] Run `go version` to detect current go version
 - [ ] Run `go mod init github.com/user/project-name`
 - [ ] Create `cmd/{name}/main.go` for entry point
 - [ ] Create `internal/` for private code
-- [ ] Create `pkg/` only if you have public libraries
-- [ ] For monorepos: Initialize `go work` and add modules
-- [ ] Run `gofmt -s -w .` to ensure formatting
+- [ ] Create `pkg/` only for public libraries
+- [ ] Monorepos: initialize `go work`, add modules
+- [ ] Run `gofmt -s -w .` for formatting
 - [ ] Add `.gitignore` with `/vendor/` and binary patterns
-- [ ] Update agent-config guidance only if requested; preserve existing discovery policies and use the Go routing skill's Configure mode for that task.
+- [ ] Update agent-config guidance only if requested. Preserve existing discovery policies; use Go routing skill's Configure mode for it.
 
 ## Related Skills
 
-- → See `samber/cc-skills-golang@golang-cli` skill for CLI tool structure and Cobra/Viper patterns.
-- → See `samber/cc-skills-golang@golang-dependency-injection` skill for DI approach comparison and wiring.
-- → See `samber/cc-skills-golang@golang-lint` skill for golangci-lint configuration.
+- → See `samber/cc-skills-golang@golang-cli` skill for CLI tool structure, Cobra/Viper patterns.
 - → See `samber/cc-skills-golang@golang-continuous-integration` skill for CI/CD pipeline setup.
-- → See `samber/cc-skills-golang@golang-design-patterns` skill for architectural patterns.
-- → See `samber/cc-skills-golang@golang-refactoring` skill for safely moving or splitting existing code into the layout above via type-alias gradual code repair and staged PRs, without a big-bang break.
-- → See `samber/cc-skills-golang@golang-how-to` skill's Configure mode for the always-load directive and optional `## Required Go skills` block written to the project's agent-config file (CLAUDE.md, AGENTS.md, or equivalent).
+- → See `samber/cc-skills-golang@golang-refactoring` skill to move or split existing code into this layout safely: type-alias gradual code repair, staged PRs, no big-bang break.
+- → See `samber/cc-skills-golang@golang-how-to` skill's Configure mode for always-load directive and optional `## Required Go skills` block in project's agent-config file (CLAUDE.md, AGENTS.md or equivalent).

@@ -5,11 +5,9 @@ description: "Design client libraries (SDKs) for an API: client/resource layout,
 
 # SDK Design
 
-Design client libraries (SDKs) with excellent developer experience through intuitive APIs, robust error handling, automatic retries, and consistent patterns across programming languages.
-
 ## When to Use This Skill
 
-Use when building a client library for a REST API, creating internal service SDKs, implementing retry logic with exponential backoff, handling authentication patterns, creating typed error hierarchies, implementing pagination with async iterators, or designing streaming APIs for real-time data.
+Use when building REST API client library or internal service SDK, adding retries with exponential backoff, handling auth, typing error hierarchies, paginating with async iterators, or designing streaming APIs for real-time data.
 
 ## Core Architecture Patterns
 
@@ -24,6 +22,8 @@ Client (config: API key, base URL, retries, timeout)
 │   └─ list() (with pagination)
 └─ Top-Level Methods (convenience)
 ```
+
+Resource methods URL-encode path parameters (`encodeURIComponent(id)`, `urllib.parse.quote(id, safe='')`, `url.PathEscape(id)`) so an id like `../admin` cannot reach another endpoint with the client's credentials.
 
 **Resource-Based (Stripe style):**
 
@@ -43,15 +43,11 @@ await client.send(new PutObjectCommand({ Bucket: '...' }))
 
 Use for APIs >100 methods. Prioritizes bundle size and tree-shaking.
 
-For detailed architectural guidance, see `references/architecture-patterns.md`.
+Detailed architecture guidance: `references/architecture-patterns.md`.
 
 ## Language-Specific Patterns
 
 ### TypeScript: Async-Only
-
-```typescript
-const user = await client.users.create({ email: 'user@example.com' })
-```
 
 All methods return Promises. Avoid callbacks.
 
@@ -67,7 +63,7 @@ async_client = AsyncAPIClient(api_key='sk_test_...')
 user = await async_client.users.create(email='user@example.com')
 ```
 
-Provide both clients. Users choose based on architecture.
+Ship both clients.
 
 ### Go: Sync with Context
 
@@ -86,7 +82,7 @@ Use context.Context for timeout and cancellation.
 const client = new APIClient({ apiKey: process.env.API_KEY })
 ```
 
-Store keys in environment variables, never hardcode.
+Store keys in environment variables or config files. Never hardcode.
 
 ### OAuth Token Refresh
 
@@ -99,7 +95,7 @@ const client = new APIClient({
 })
 ```
 
-SDK automatically refreshes tokens before expiry.
+SDK refreshes tokens automatically before expiry.
 
 ### Bearer Token Per-Request
 
@@ -111,9 +107,11 @@ await client.users.list({
 
 Use for multi-tenant applications.
 
-See `references/authentication.md` for OAuth flows, JWT handling, and credential providers.
+See `references/authentication.md` for OAuth flows, JWT handling, credential providers.
 
 ## Retry and Backoff
+
+Every SDK needs automatic retries for transient errors.
 
 ### Exponential Backoff with Jitter
 
@@ -163,7 +161,7 @@ if (error.status === 429) {
 
 Respect `Retry-After` header on 429 responses.
 
-See `references/retry-backoff.md` for jitter strategies, circuit breakers, and idempotency keys.
+See `references/retry-backoff.md` for jitter strategies, circuit breakers, idempotency keys.
 
 ## Error Handling
 
@@ -211,9 +209,9 @@ try {
 }
 ```
 
-Include request ID in all errors for debugging.
+Include request ID, status code, error type in every error for debugging.
 
-See `references/error-handling.md` for user-friendly messages, validation errors, and debugging support.
+See `references/error-handling.md` for user-friendly messages, validation errors, debugging support.
 
 ## Pagination
 
@@ -234,7 +232,7 @@ async for user in client.users.list(limit=100):
     print(user.id, user.email)
 ```
 
-SDK automatically fetches next page.
+SDK fetches next page automatically.
 
 ### Implementation
 
@@ -269,7 +267,7 @@ while (true) {
 }
 ```
 
-Provide both automatic and manual options.
+Offer both automatic and manual options.
 
 See `references/pagination.md` for cursor vs. offset pagination and Go channel patterns.
 
@@ -320,7 +318,7 @@ for await (const chunk of client.posts.stream({ prompt: 'Write a story' })) {
 
 ## Idempotency Keys
 
-Prevent duplicate operations during retries. Generate the key **once per logical call, before the retry loop**, and reuse it on every retry attempt; a fresh key per attempt defeats server-side deduplication.
+Prevent duplicate operations during retries. Generate key **once per logical call, before the retry loop**. Reuse it on every retry attempt. Fresh key per attempt defeats server-side deduplication.
 
 ```typescript
 import { randomUUID } from 'crypto'
@@ -336,8 +334,6 @@ await client.charges.create(
 )
 ```
 
-Server deduplicates requests by key.
-
 ## Versioning
 
 ### Semantic Versioning
@@ -347,6 +343,8 @@ Server deduplicates requests by key.
 - `1.0.0` → `1.0.1`: Bug fixes (safe)
 
 ### Deprecation Warnings
+
+Deprecate before removing.
 
 ```typescript
 function deprecated(message: string, since: string) {
@@ -397,7 +395,7 @@ class APIClient {
 }
 ```
 
-Provide sensible defaults, require only apiKey.
+Give sensible defaults. Require only apiKey.
 
 ## Quick Reference Tables
 
@@ -428,15 +426,6 @@ Provide sensible defaults, require only apiKey.
 
 ## Reference Documentation
 
-**Architecture:**
-- `references/architecture-patterns.md` - Resource vs. command organization
-
-**Core Patterns:**
-- `references/authentication.md` - OAuth, token refresh, credential providers
-- `references/retry-backoff.md` - Exponential backoff, jitter, circuit breakers
-- `references/error-handling.md` - Error hierarchies, debugging support
-- `references/pagination.md` - Cursor vs. offset, async iterators
-- `references/versioning.md` - SemVer, deprecation strategies
 - `references/testing-sdks.md` - Unit testing, mocking, integration tests
 
 ## Code Examples
@@ -472,24 +461,8 @@ Study these production SDKs:
 **Go:**
 - AWS SDK Go v2 (`github.com/aws/aws-sdk-go-v2`): Context, middleware
 
-## Common Pitfalls
-
-Avoid these mistakes:
-
-1. **No Retry Logic** - All SDKs need automatic retries for transient errors
-2. **Poor Error Messages** - Include request ID, status code, error type
-3. **No Pagination** - Implement automatic pagination with async iterators
-4. **Hardcoded Credentials** - Use environment variables or config files
-5. **Missing Idempotency** - Add idempotency keys to prevent duplicate operations
-6. **Ignoring Rate Limits** - Respect `Retry-After` header on 429 responses
-7. **Breaking Changes** - Use SemVer, deprecate before removing
-
 ## Integration with Other Skills
 
-- **designing-apis**: The API contract the SDK wraps (error codes → error classes, pagination, idempotency)
+- **designing-apis**: API contract the SDK wraps (error codes → error classes, pagination, idempotency)
 - **building-clis**: CLIs wrap SDKs for command-line access
 - **testing-strategies**: Test SDKs with mocked HTTP, retry scenarios
-
-## Next Steps
-
-Review language-specific examples for implementation details. Study references for deep dives on specific patterns. Examine best-in-class SDKs (Stripe, AWS, OpenAI) for inspiration.

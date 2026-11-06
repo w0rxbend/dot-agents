@@ -7,7 +7,7 @@ tags: build, immutability, runtime, deployment
 
 ## Never Modify Code at Runtime - Changes Require New Release
 
-Code changes cannot be made at runtime because there is no way to propagate those changes back to the build stage. Any fix, feature, or update requires going through the full build-release-run pipeline. This ensures every change is tracked, tested, and reproducible.
+Never change code at runtime: changes cannot propagate back to build stage. Every fix, feature or update goes through full build-release-run pipeline, so each change is tracked, tested, reproducible.
 
 **Incorrect (runtime modifications):**
 
@@ -84,11 +84,5 @@ kubectl set image deployment/myapp app=myapp:v103-hotfix
 git checkout main
 git cherry-pick abc123
 ```
-
-**Benefits:**
-- Every change is in version control
-- All changes are tested before deployment
-- Any server can be rebuilt from scratch
-- Rollback is always possible
 
 Reference: [The Twelve-Factor App - Build, Release, Run](https://12factor.net/build-release-run)

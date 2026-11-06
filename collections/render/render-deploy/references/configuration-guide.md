@@ -1,12 +1,10 @@
 # Render Configuration Guide
 
-Common configuration patterns, best practices, and troubleshooting for Render deployments.
-
 ## Environment Variables
 
 ### Required vs Optional Variables
 
-**Always declare ALL environment variables in render.yaml**, even if values are provided by user later.
+**Always declare ALL environment variables in render.yaml**, even if user provides values later.
 
 **Three categories:**
 
@@ -42,25 +40,6 @@ envVars:
 ```
 
 ### Database Connection Patterns
-
-**PostgreSQL:**
-```yaml
-envVars:
-  - key: DATABASE_URL
-    fromDatabase:
-      name: postgres
-      property: connectionString
-```
-
-**Redis:**
-```yaml
-envVars:
-  - key: REDIS_URL
-    fromService:
-      name: redis
-      type: keyvalue
-      property: connectionString
-```
 
 **Multiple databases:**
 ```yaml
@@ -145,11 +124,10 @@ services:
 
 **CRITICAL:** Web services must bind to `0.0.0.0:$PORT`
 
-**Why this matters:**
 - Render sets `PORT` environment variable (default: 10000)
 - Services must bind to `0.0.0.0` (not `localhost` or `127.0.0.1`)
 - Health checks fail if port binding is incorrect
-- Deployment will fail or service won't receive traffic
+- Deploy fails or service gets no traffic
 
 ### Code Examples by Language
 
@@ -181,8 +159,9 @@ if __name__ == '__main__':
 
 In `settings.py`:
 ```python
-# Django runs on port specified by environment
-ALLOWED_HOSTS = ['*']
+import os
+# e.g. my-app.onrender.com (see assets/python-django.yaml); never ['*']
+ALLOWED_HOSTS = os.environ['DJANGO_ALLOWED_HOSTS'].split(',')
 ```
 
 Start command in render.yaml:
@@ -261,7 +240,7 @@ async fn main() -> std::io::Result<()> {
 
 ### Non-Interactive Flags
 
-**Always use non-interactive flags** to prevent builds from hanging waiting for input.
+**Always use non-interactive flags** so builds never hang waiting for input.
 
 **npm (Node.js):**
 ```yaml
@@ -311,7 +290,7 @@ buildCommand: bundle install && bundle exec rails assets:precompile
 **If builds timeout:**
 1. Optimize dependencies (remove unused packages)
 2. Use build caching
-3. Consider pre-building in CI/CD
+3. Pre-build in CI/CD
 4. Upgrade to paid tier for longer timeouts
 
 ---
@@ -322,7 +301,7 @@ buildCommand: bundle install && bundle exec rails assets:precompile
 
 **Use internal URLs for better performance:**
 
-Use `fromDatabase` to populate an environment variable with the database's internal connection string.
+`fromDatabase` fills environment variable with database's internal connection string.
 
 ```yaml
 envVars:
@@ -332,11 +311,6 @@ envVars:
       property: connectionString
 ```
 
-**Benefits:**
-- Lower latency (same data center)
-- No external bandwidth charges
-- Automatic internal DNS
-
 ### Connection Pooling
 
 **Node.js / PostgreSQL:**
@@ -344,8 +318,8 @@ envVars:
 const { Pool } = require('pg');
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  connectionString: process.env.DATABASE_URL, // internal URL (private network)
+  // External URL: ssl: true (add `ca` if cert not publicly trusted); never rejectUnauthorized: false
   max: 20, // Maximum pool size
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
@@ -390,7 +364,7 @@ buildCommand: bundle install && bundle exec rails db:migrate
 
 **Node.js / Prisma:**
 ```yaml
-buildCommand: npm ci && npx prisma migrate deploy
+buildCommand: npm ci && CHECKPOINT_DISABLE=1 npx prisma migrate deploy  # opt out of Prisma CLI telemetry
 ```
 
 ---
@@ -409,19 +383,9 @@ buildCommand: npm ci && npx prisma migrate deploy
 
 ### Resource Limits
 
-**Memory (512 MB):**
-- Monitor memory usage in logs
-- Optimize for memory-constrained environments
-- Use lightweight dependencies
-
-**CPU (0.5 cores):**
-- Suitable for low-traffic applications
-- Consider upgrading for higher traffic
-
 **Spin Down (Free services):**
 - Services spin down after 15 minutes of inactivity
 - First request after spin down takes ~30 seconds (cold start)
-- Upgrade to paid tier for always-on services
 
 ### When to Upgrade
 
@@ -481,10 +445,7 @@ services:
     healthCheckPath: /health
 ```
 
-**Benefits:**
-- Faster deployment detection
-- Better monitoring
-- Automatic restart on health check failures
+Gives faster deploy detection and automatic restart on health check failures.
 
 ---
 
@@ -494,35 +455,19 @@ services:
 
 **Symptom:** Service crashes with "undefined variable" errors
 
-**Solution:** Add all required env vars to render.yaml:
-```yaml
-envVars:
-  - key: DATABASE_URL
-    fromDatabase:
-      name: postgres
-      property: connectionString
-  - key: JWT_SECRET
-    sync: false  # User fills in Dashboard
-```
+**Solution:** Add all required env vars to render.yaml (secrets with `sync: false`).
 
 ### Issue 2: Port Binding Errors
 
 **Symptom:** `EADDRINUSE` or health check timeout errors
 
-**Solution:** Ensure app binds to `0.0.0.0:$PORT`:
-```javascript
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0');
-```
+**Solution:** Bind app to `0.0.0.0:$PORT`.
 
 ### Issue 3: Build Hangs
 
 **Symptom:** Build times out after 15 minutes
 
-**Solution:** Use non-interactive build commands:
-```yaml
-buildCommand: npm ci  # NOT npm install
-```
+**Solution:** Use non-interactive build commands (`npm ci`, not `npm install`).
 
 ### Issue 4: Database Connection Fails
 
@@ -550,7 +495,7 @@ routes:
 **Symptom:** Service crashes with `JavaScript heap out of memory`
 
 **Solutions:**
-1. Optimize application memory usage
+1. Optimize app memory usage
 2. Reduce dependency size
 3. Upgrade to higher plan with more RAM
 
@@ -573,7 +518,6 @@ routes:
 
 **Start Commands:**
 - [ ] Command starts HTTP server correctly
-- [ ] Server binds to correct port
 
 **Health Checks:**
 - [ ] `/health` endpoint implemented
@@ -581,12 +525,12 @@ routes:
 
 **Database:**
 - [ ] Connection pooling configured
-- [ ] Using the connection string supplied by `fromDatabase`
+- [ ] Uses connection string from `fromDatabase`
 - [ ] SSL enabled if needed
 
 **Plans:**
-- [ ] Using `plan: free` by default where available (not for workers, cron jobs or private services)
-- [ ] Documented upgrade path for users
+- [ ] `plan: free` by default where available (not for workers, cron jobs or private services)
+- [ ] Upgrade path documented for users
 
 **Git Repository:**
 - [ ] render.yaml committed to repository

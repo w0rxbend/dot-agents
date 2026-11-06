@@ -1,7 +1,5 @@
 # Firestore Complete Guide
 
-Firebase/GCP Firestore real-time sync, security rules, and mobile-first patterns.
-
 ## Table of Contents
 
 - [Core Concepts](#core-concepts)
@@ -12,8 +10,6 @@ Firebase/GCP Firestore real-time sync, security rules, and mobile-first patterns
 - [Offline Support](#offline-support)
 - [Performance Best Practices](#performance-best-practices)
 
----
-
 ## Core Concepts
 
 ### Firestore vs Realtime Database
@@ -21,20 +17,10 @@ Firebase/GCP Firestore real-time sync, security rules, and mobile-first patterns
 | Feature | Firestore | Realtime Database |
 |---------|-----------|-------------------|
 | **Data Model** | Collections & documents | JSON tree |
-| **Queries** | Rich queries, indexes | Limited queries |
+| **Queries** | Rich queries, indexes | Limited |
 | **Scaling** | Automatic | Manual sharding |
 | **Offline** | Full offline support | Limited |
 | **Pricing** | Per operation | Per GB downloaded |
-
-### Key Features
-
-- **Real-time sync**: Live updates across all clients
-- **Offline-first**: Local cache, auto-sync when online
-- **Security rules**: Declarative access control
-- **Atomic operations**: Batched writes, transactions
-- **Automatic indexing**: Composite indexes for queries
-
----
 
 ## Data Model
 
@@ -82,8 +68,6 @@ users (collection)
 - Max size: 1 MB
 - Max depth: 20 levels
 - Max field name: 1,500 bytes
-
----
 
 ## Real-Time Listeners
 
@@ -160,8 +144,6 @@ onSnapshot(collection(db, 'orders'), (snapshot) => {
 })
 ```
 
----
-
 ## Security Rules
 
 ### Basic Rules Structure
@@ -182,10 +164,11 @@ service cloud.firestore {
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 1. Public read, authenticated write
+    // 1. Public read, admin write. Anyone can sign up, so
+    //    request.auth != null alone never protects shared data.
     match /products/{productId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if request.auth != null && request.auth.token.admin == true;
     }
 
     // 2. User can only access their own data
@@ -274,8 +257,6 @@ service cloud.firestore {
 }
 ```
 
----
-
 ## Queries
 
 ### Basic Queries
@@ -350,7 +331,7 @@ const next = query(
 
 ### Composite Indexes
 
-Firestore automatically creates indexes for simple queries. Composite indexes required for:
+Firestore auto-creates indexes for simple queries. Composite indexes needed for:
 - Multiple inequality filters
 - Inequality + orderBy on different fields
 - OR queries
@@ -366,10 +347,8 @@ const q = query(
 
 **Create index via Firebase Console or CLI:**
 ```bash
-firebase deploy --only firestore:indexes
+firebase deploy --only firestore:indexes   # changes the live project; confirm project with user first
 ```
-
----
 
 ## CRUD Operations
 
@@ -460,8 +439,6 @@ await updateDoc(doc(db, 'users', 'user123'), {
 })
 ```
 
----
-
 ## Transactions and Batches
 
 ### Transactions (Atomic Reads and Writes)
@@ -504,8 +481,6 @@ batch.delete(doc(db, 'users', 'user3'))
 await batch.commit()
 ```
 
----
-
 ## Offline Support
 
 ### Enable Offline Persistence
@@ -538,8 +513,6 @@ await addDoc(collection(db, 'orders'), {
 })
 // If offline, write is queued and will sync when online
 ```
-
----
 
 ## Performance Best Practices
 
@@ -606,8 +579,6 @@ await addDoc(collection(db, 'posts'), {
 })
 ```
 
----
-
 ## Mobile Integration (React Native)
 
 ```typescript
@@ -653,6 +624,4 @@ function OrdersScreen({ userId }) {
 }
 ```
 
----
-
-This guide covers Firestore real-time patterns and mobile-first architecture. For complete React implementation, see `../examples/firestore-react/`.
+Full React implementation: `../examples/firestore-react/`.

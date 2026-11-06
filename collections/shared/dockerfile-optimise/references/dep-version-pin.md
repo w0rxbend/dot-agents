@@ -7,7 +7,7 @@ tags: dep, version-pinning, reproducibility, deterministic
 
 ## Pin Package Versions for Reproducibility
 
-Unpinned packages resolve to whatever version is current at build time. A new major or minor release of a system dependency can introduce breaking API changes, binary incompatibilities, or subtle behaviour differences without any change to your Dockerfile. Pinning versions ensures that every build produces the same result regardless of when it runs.
+Unpinned packages resolve to whatever version is current at build time. New major or minor release of system dependency can bring breaking API changes, binary incompatibilities or subtle behaviour differences, with no Dockerfile change. Pinned versions give same result on every build.
 
 **Incorrect (unpinned, non-deterministic installs):**
 
@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 ```
 
-(Installs whatever version the Ubuntu mirror resolves today. A build on Monday may get `nginx 1.24` while the same Dockerfile on Friday gets `nginx 1.26` after an archive update — silently breaking reverse-proxy configuration.)
+(Installs whatever Ubuntu mirror resolves today. Monday build may get `nginx 1.24`; Friday build gets `nginx 1.26` after archive update, silently breaking reverse-proxy configuration.)
 
 **Correct (pinned to exact versions):**
 
@@ -35,8 +35,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 ```
 
-(Pins each package to an exact version. Builds are reproducible across machines and time, and upstream updates cannot silently break your image. Use `docker run --rm ubuntu:24.04 apt-cache policy <package>` to discover available versions for your base image.)
-
 ### pip — use a locked requirements file
 
 **Incorrect (loose constraints allow version drift):**
@@ -48,7 +46,7 @@ sqlalchemy
 requests
 ```
 
-(Every build may resolve to a different combination of versions. A breaking release of `sqlalchemy` can fail your application without any code change.)
+(Each build may resolve different versions. Breaking `sqlalchemy` release can fail application with no code change.)
 
 **Correct (exact versions pinned):**
 
@@ -59,16 +57,16 @@ sqlalchemy==2.0.29
 requests==2.31.0
 ```
 
-(Use `pip freeze > requirements.txt` or a tool like `pip-compile` to generate exact pins. Every build installs the identical dependency tree.)
+(Generate pins with `pip freeze > requirements.txt` or `pip-compile`.)
 
 ### Discovering Available Versions
 
-To find available versions for apt packages in your target base image, run:
+Find available apt package versions in target base image:
 
 ```bash
 docker run --rm ubuntu:24.04 apt-cache policy nginx
 ```
 
-Version availability varies by distribution release. Always verify against the specific base image you are using.
+Availability varies by distribution release. Always verify against your specific base image.
 
 Reference: [Building best practices](https://docs.docker.com/build/building/best-practices/)

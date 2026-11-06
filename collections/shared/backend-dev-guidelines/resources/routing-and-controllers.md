@@ -1,7 +1,5 @@
 # Routing and Controllers - Best Practices
 
-Complete guide to clean route definitions and controller patterns.
-
 ## Table of Contents
 
 - [Routes: Routing Only](#routes-routing-only)
@@ -18,17 +16,17 @@ Complete guide to clean route definitions and controller patterns.
 
 ### The Golden Rule
 
-**Routes should ONLY:**
-- ✅ Define route paths
-- ✅ Register middleware
-- ✅ Delegate to controllers
+**Routes ONLY:**
+- Define route paths
+- Register middleware
+- Delegate to controllers
 
-**Routes should NEVER:**
-- ❌ Contain business logic
-- ❌ Access database directly
-- ❌ Implement validation logic (use Zod + controller)
-- ❌ Format complex responses
-- ❌ Handle complex error scenarios
+**Routes NEVER:**
+- Contain business logic
+- Access database directly
+- Implement validation logic (use Zod + controller)
+- Format complex responses
+- Handle complex error scenarios
 
 ### Clean Route Pattern
 
@@ -64,25 +62,11 @@ router.put('/:id',
 export default router;
 ```
 
-**Key Points:**
-- Each route: method, path, middleware chain, controller delegation
-- No try-catch needed (controller handles errors)
-- Clean, readable, maintainable
-- Easy to see all endpoints at a glance
+No try-catch needed in routes (controller handles errors).
 
 ---
 
 ## BaseController Pattern
-
-### Why BaseController?
-
-**Benefits:**
-- Consistent error handling across all controllers
-- Automatic Sentry integration
-- Standardized response formats
-- Reusable helper methods
-- Performance tracking utilities
-- Logging and breadcrumb helpers
 
 ### BaseController Pattern (Template)
 
@@ -293,13 +277,6 @@ export class UserController extends BaseController {
 }
 ```
 
-**Benefits:**
-- Consistent error handling
-- Automatic Sentry integration
-- Performance tracking
-- Clean, readable code
-- Easy to test
-
 ---
 
 ## Good Examples
@@ -308,38 +285,7 @@ export class UserController extends BaseController {
 
 **File:** `/email/src/routes/notificationRoutes.ts`
 
-```typescript
-import { Router } from 'express';
-import { NotificationController } from '../controllers/NotificationController';
-import { SSOMiddlewareClient } from '../middleware/SSOMiddleware';
-
-const router = Router();
-const controller = new NotificationController();
-
-// ✅ EXCELLENT: Clean delegation
-router.get('/',
-    SSOMiddlewareClient.verifyLoginStatus,
-    async (req, res) => controller.getNotifications(req, res)
-);
-
-router.post('/',
-    SSOMiddlewareClient.verifyLoginStatus,
-    async (req, res) => controller.createNotification(req, res)
-);
-
-router.put('/:id/read',
-    SSOMiddlewareClient.verifyLoginStatus,
-    async (req, res) => controller.markAsRead(req, res)
-);
-
-export default router;
-```
-
-**What Makes This Excellent:**
-- Zero business logic in routes
-- Clear middleware chain
-- Consistent pattern
-- Easy to understand
+Same shape as [Clean Route Pattern](#clean-route-pattern): `SSOMiddlewareClient.verifyLoginStatus` then controller delegation, zero business logic in routes.
 
 ### Example 2: Proxy Routes with Validation (Good ✅)
 
@@ -368,12 +314,6 @@ router.post('/',
     }
 );
 ```
-
-**What Makes This Good:**
-- Zod validation
-- Delegates to service
-- Proper HTTP status codes
-- Error handling
 
 **Could Be Better:**
 - Move validation to controller
@@ -438,14 +378,6 @@ router.post('/:formID/submit', async (req: Request, res: Response) => {
     }
 });
 ```
-
-**Why This Is Terrible:**
-- 200+ lines of business logic
-- Hard to test (requires HTTP mocking)
-- Hard to reuse (tied to route)
-- Mixed responsibilities
-- Difficult to debug
-- Performance tracking difficult
 
 ### How to Refactor (Step-by-Step)
 
@@ -545,7 +477,6 @@ router.post('/',
 - Route: 8 lines (was 200+)
 - Controller: 25 lines (request handling)
 - Service: 50 lines (business logic)
-- Testable, reusable, maintainable!
 
 ---
 
@@ -564,30 +495,6 @@ async createUser(req: Request, res: Response): Promise<void> {
         // - Sets appropriate status code
         // - Returns formatted error response
         this.handleError(error, res, 'createUser');
-    }
-}
-```
-
-### Custom Error Status Codes
-
-```typescript
-async getUser(req: Request, res: Response): Promise<void> {
-    try {
-        const user = await this.userService.findById(req.params.id);
-
-        if (!user) {
-            // Custom 404 status
-            return this.handleError(
-                new Error('User not found'),
-                res,
-                'getUser',
-                404  // Custom status code
-            );
-        }
-
-        this.handleSuccess(res, user);
-    } catch (error) {
-        this.handleError(error, res, 'getUser');
     }
 }
 ```
@@ -655,13 +562,13 @@ this.handleError(new ForbiddenError('No permission'), res, 'operation', 403);
 ### Identify Routes Needing Refactoring
 
 **Red Flags:**
-- Route file > 100 lines
+- Route file over 100 lines
 - Multiple try-catch blocks in one route
 - Direct database access (Prisma calls)
 - Complex business logic (if statements, loops)
 - Permission checks in routes
 
-**Check your routes:**
+**Check routes:**
 ```bash
 # Find large route files
 wc -l form/src/routes/*.ts | sort -n

@@ -1,6 +1,6 @@
 # Dockerfile patterns for Render
 
-These templates assume **linux/amd64**, **BuildKit**, and that the app listens on **`0.0.0.0:$PORT`** (Render injects `PORT`). Use **multi-stage** builds, **minimal** final images, and a **non-root** user where practical. Prefer **`exec`** in the entrypoint chain so PID 1 receives **SIGTERM** for graceful shutdown.
+Templates assume linux/amd64, BuildKit, app on `0.0.0.0:$PORT` (Render injects `PORT`). Use multi-stage builds, minimal final images, non-root user where practical. Prefer `exec` in entrypoint chain so PID 1 gets SIGTERM (graceful shutdown).
 
 ---
 
@@ -30,7 +30,7 @@ USER nodejs
 CMD ["node", "dist/server.js"]
 ```
 
-Adjust `build` output paths and start file for your framework. For graceful shutdown, avoid wrapping Node in a shell unless you end with `exec node ...`.
+Adjust `build` output paths and start file per framework. For graceful shutdown, avoid wrapping Node in shell unless it ends with `exec node ...`.
 
 ---
 
@@ -59,7 +59,7 @@ EXPOSE $PORT
 CMD ["sh", "-c", "exec gunicorn -b 0.0.0.0:${PORT} myapp.wsgi:application"]
 ```
 
-Swap Gunicorn/uvicorn and module paths for ASGI or Flask. Use **`exec`** in `CMD` so the worker is PID 1.
+For ASGI or Flask, swap Gunicorn/uvicorn and module paths. Keep `exec` in `CMD` so worker is PID 1.
 
 ---
 
@@ -85,7 +85,7 @@ EXPOSE $PORT
 ENTRYPOINT ["/app/server"]
 ```
 
-`scratch` is an option if you do not need CA certs or shell; add certs and `USER 65534` patterns as needed.
+`scratch` works if you need no CA certs or shell. Add certs and `USER 65534` patterns as needed.
 
 ---
 
@@ -117,7 +117,7 @@ EXPOSE $PORT
 CMD ["sh", "-c", "exec bundle exec puma -b tcp://0.0.0.0:${PORT}"]
 ```
 
-Add native packages your gems require in the **runner** stage only.
+Add native packages gems need in runner stage only.
 
 ---
 
@@ -144,13 +144,13 @@ EXPOSE $PORT
 ENTRYPOINT ["/app/myapp"]
 ```
 
-For static binaries with no TLS needs, **`scratch`** plus copied CA bundle is possible; **debian-slim** is simpler when linking OpenSSL or libc.
+Static binaries with no TLS needs can use `scratch` plus copied CA bundle. debian-slim is simpler when linking OpenSSL or libc.
 
 ---
 
 ## Static site (build frontend, serve with Caddy or nginx)
 
-**Caddy** (simple config, automatic HTTPS is not used on Render the same way; you still bind `$PORT`):
+**Caddy** (simple config; automatic HTTPS not used same way on Render; still bind `$PORT`):
 
 ```dockerfile
 # syntax=docker/dockerfile:1
@@ -176,13 +176,13 @@ USER caddy
 CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
 ```
 
-**nginx** variant: copy `dist` to `/usr/share/nginx/html`, templated `nginx.conf` with `listen $PORT` via `envsubst` at container start, or a fixed `listen 10000` matching `PORT`. Keep the final stage minimal and run **nginx** as non-root where possible (official image docs vary by tag).
+**nginx** variant: copy `dist` to `/usr/share/nginx/html`. Template `nginx.conf` with `listen $PORT` via `envsubst` at container start, or use fixed `listen 10000` matching `PORT`. Run nginx non-root where possible (official image docs vary by tag).
 
 ---
 
 ## Cross-cutting practices
 
-- **Signals:** use `exec` in shell wrappers so the application process is PID 1, or a minimal init only if you understand the tradeoffs.
+- **Signals:** use `exec` in shell wrappers so app process is PID 1, or minimal init only if you understand tradeoffs.
 - **Non-root:** set `USER` after `COPY` and `chown`.
-- **Layers:** combine `RUN` steps that share the same cache epoch when it does not hurt readability; split when it improves cache hits for dependencies.
-- **Secrets:** never `ARG` for tokens; use runtime env or BuildKit `--mount=type=secret` for build-time only.
+- **Layers:** combine `RUN` steps sharing cache epoch unless readability suffers. Split when it improves dependency cache hits.
+- **Secrets:** never `ARG` for tokens. Use runtime env, or BuildKit `--mount=type=secret` for build-time only.

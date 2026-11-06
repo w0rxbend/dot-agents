@@ -1,7 +1,5 @@
 # Recipes — uber-go/fx
 
-End-to-end examples that go beyond the SKILL.md basics. Each recipe is self-contained and shows a real wiring problem.
-
 ## Table of Contents
 
 - [Full HTTP service with database, metrics, and graceful shutdown](#full-http-service-with-database-metrics-and-graceful-shutdown)
@@ -185,11 +183,11 @@ func (w *Worker) run() {
 }
 ```
 
-The worker honors the stop context — under a 30-second `fx.StopTimeout` it has 30 seconds to drain. Beyond that, fx reports the timeout and the process exits.
+Worker honors stop context. Under 30-second `fx.StopTimeout` it has 30 seconds to drain. Beyond that, fx reports timeout and process exits.
 
 ## Multiple implementations of the same interface
 
-Use named annotations + `fx.As` to register two `Cache` implementations and inject them by name:
+Use named annotations and `fx.As` to register two `Cache` implementations and inject them by name:
 
 ```go
 fx.Provide(
@@ -236,7 +234,7 @@ func NewAPIClient(cfg *Config, p struct {
 }
 ```
 
-`fx.Supply` makes pre-built values first-class graph members. It is shorter and clearer than `fx.Provide(func() *Config { return cfg })`.
+`fx.Supply` makes pre-built values first-class graph members. Shorter and clearer than `fx.Provide(func() *Config { return cfg })`.
 
 ## Module-scoped decorator
 
@@ -257,7 +255,7 @@ var APIModule = fx.Module("api",
 )
 ```
 
-The two modules see different loggers — there is no shared mutation of the parent value.
+Two modules see different loggers. No shared mutation of parent value.
 
 ## Optional dependency for tracing
 
@@ -280,11 +278,11 @@ func NewServer(p ServerParams) *Server {
 }
 ```
 
-Reach for `optional` only when the dependency is genuinely optional. A missing core service hidden behind `optional` becomes a nil-pointer panic at first use.
+Use `optional` only when dependency is genuinely optional. Missing core service hidden behind `optional` becomes nil-pointer panic at first use.
 
 ## Manual lifecycle for embedding fx in a CLI
 
-When fx is one component inside a larger program (a CLI tool, a test runner), drive Start/Stop yourself instead of calling `Run()`:
+When fx is one component inside larger program (CLI tool, test runner), drive Start/Stop yourself instead of calling `Run()`:
 
 ```go
 func runFxApp(parent context.Context) error {
@@ -313,7 +311,7 @@ func runFxApp(parent context.Context) error {
 }
 ```
 
-`app.Err()` validates wiring without starting — useful for `--check` style flags.
+`app.Err()` validates wiring without starting. Useful for `--check` style flags.
 
 ## Custom event logger that filters noise
 
@@ -339,4 +337,4 @@ fx.New(
 )
 ```
 
-In production, filtering provide/decorate noise leaves only lifecycle (start/stop) events and errors — much easier to audit.
+In production, filtering provide/decorate noise leaves only lifecycle (start/stop) events and errors.

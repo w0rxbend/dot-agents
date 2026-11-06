@@ -1,6 +1,6 @@
 # Code Comments
 
-→ See `samber/cc-skills-golang@golang-naming` skill for naming conventions that reduce the need for comments.
+→ See `samber/cc-skills-golang@golang-naming` skill for naming conventions that reduce need for comments.
 
 ## Table of Contents
 
@@ -26,14 +26,14 @@
 
 ### Why, Not What
 
-The most common mistake in doc comments is restating the code. The code already tells the reader _what_ happens — comments SHOULD explain why, not what:
+Most common doc-comment mistake: restating code. Code already tells reader _what_ happens. Comments SHOULD explain why, not what:
 
-- **Why** this function exists (its purpose in the system)
+- **Why** function exists (purpose in system)
 - **When** to use it (and when not to)
 - **What constraints** apply (preconditions, thread safety, performance)
 - **What can go wrong** (error cases, panics, edge cases)
 
-Bad — restates the code:
+Bad — restates code:
 
 ```go
 // GetUser gets a user by ID.
@@ -56,16 +56,16 @@ func GetUser(id string) (*User, error) {
 
 | Anti-pattern | Example | Fix |
 | --- | --- | --- |
-| Pure paraphrase | `// GetUser gets a user` on `func GetUser()` — starts with the name (required by godoc) but adds nothing | After the name, add _when_ to use it, constraints, and what can go wrong |
-| Signature restatement | `// Returns a string and an error` | Document _which_ error and _why_ — the signature already shows types |
-| Marketing vocabulary | `seamlessly`, `powerful`, `robust`, `enterprise-grade` | Remove — state facts instead |
-| Invented rationale | `// designed to improve scalability` | Only document what the code actually does |
-| Groundless future claims | `// supports future extensibility` | Remove or back it with an interface or configuration |
-| Hollow filler | `// It's worth noting that...`, `// As mentioned above` | Cut — restate the fact directly if it matters |
+| Pure paraphrase | `// GetUser gets a user` on `func GetUser()` — starts with name (required by godoc) but adds nothing | After name, add _when_ to use it, constraints, what can go wrong |
+| Signature restatement | `// Returns a string and an error` | Document _which_ error and _why_; signature already shows types |
+| Marketing vocabulary | `seamlessly`, `powerful`, `robust`, `enterprise-grade` | Remove; state facts instead |
+| Invented rationale | `// designed to improve scalability` | Only document what code actually does |
+| Groundless future claims | `// supports future extensibility` | Remove, or back it with interface or configuration |
+| Hollow filler | `// It's worth noting that...`, `// As mentioned above` | Cut; restate fact directly if it matters |
 
 ### Format
 
-Every doc comment MUST start with the function/method name followed by a verb phrase. This is how godoc renders it in package indexes.
+Every doc comment MUST start with function/method name followed by verb phrase. godoc renders it this way in package indexes.
 
 ```go
 // FuncName verb-phrase describing what it does.
@@ -73,7 +73,7 @@ Every doc comment MUST start with the function/method name followed by a verb ph
 
 ### Full Comment Template
 
-Standard Go style is plain prose, as in the standard library; prefer that. Use this sectioned structure only when the repository already documents functions this way, and omit sections that don't apply (e.g., no Parameters section for zero-arg functions). Prefer `ExampleXxx` test functions over long inline examples. Focus on the "why" — don't restate what the code already makes obvious:
+Standard Go style is plain prose, as in standard library; prefer that. Use this sectioned structure only when repository already documents functions this way. Omit sections that don't apply (e.g., no Parameters section for zero-arg functions). Prefer `ExampleXxx` test functions over long inline examples:
 
 ```go
 // FuncName summarizes what this function does in one sentence.
@@ -112,15 +112,15 @@ func FuncName(paramName Type, anotherParam Type) (ResultType, error) {
 | Exported types and interfaces | Always |
 | Exported constants and variables | Always |
 | Complex internal functions | Yes — algorithms, non-obvious logic |
-| Simple internal helpers | Optional — only if the name isn't self-explanatory |
+| Simple internal helpers | Optional — only if name isn't self-explanatory |
 | Test functions | No |
 | Getters/setters with no logic | Brief one-liner is enough |
 
-`TODO` comments SHOULD include a tracking issue reference when one exists (e.g., `// TODO(#123): ...`). For informal notes, `// TODO(username): ...` or plain `// TODO: ...` is acceptable.
+`TODO` comments SHOULD include tracking issue reference when one exists (e.g., `// TODO(#123): ...`). For informal notes, `// TODO(username): ...` or plain `// TODO: ...` is acceptable.
 
 ### Error Cases and Limitations
 
-Document every error a function can return, and any edge cases or limitations:
+Document every error function can return, plus edge cases and limitations:
 
 ```go
 // Parse parses a duration string such as "300ms", "1.5h", or "2h45m".
@@ -140,7 +140,7 @@ func Parse(s string) (time.Duration, error) {
 
 ### Deprecated Functions
 
-Use the `Deprecated:` marker. godoc renders this with special styling:
+Use `Deprecated:` marker. godoc renders it with special styling:
 
 ```go
 // OldFunc does something.
@@ -151,7 +151,7 @@ func OldFunc() {}
 
 ### Interface Documentation
 
-Document the interface itself and each method. Explain the contract that implementations must satisfy:
+Document interface itself and each method. Explain contract implementations must satisfy:
 
 ```go
 // Store defines a persistent key-value storage backend.
@@ -193,7 +193,7 @@ func (s *Server) Close() error {
 
 ### Inline Code Examples in Comments
 
-Indent code examples by one tab in doc comments. godoc renders these as formatted code blocks:
+In doc comments, indent code examples by one tab. godoc renders them as formatted code blocks:
 
 ```go
 // Transform applies a function to each element of a slice and returns
@@ -209,7 +209,7 @@ func Transform[T any, U any](slice []T, fn func(T) U) []U {
 
 ### Playground Links
 
-Add a `Play:` line linking to a runnable Go Playground example of a public library. Use a Go Playground integration to create and share playground URLs when one is available:
+Add `Play:` line linking to runnable Go Playground example of public library. Use Go Playground integration, when available, to create and share playground URLs:
 
 ```go
 // Map applies a function to each element of a slice.
@@ -229,10 +229,10 @@ func Map[T any, U any](s []T, fn func(T) U) []U {
 
 ### Package Comment
 
-Every package should have a doc comment. Place it in one of these locations:
+Every package should have doc comment, in one of these locations:
 
-1. **At the top of the main `.go` file** — for small packages with one or two files
-2. **In a dedicated `doc.go` file** — for packages with many files
+1. **At top of main `.go` file** — for small packages with one or two files
+2. **In dedicated `doc.go` file** — for packages with many files
 
 ```go
 // Package httputil provides HTTP utility functions for request parsing,
@@ -243,7 +243,7 @@ Every package should have a doc comment. Place it in one of these locations:
 package httputil
 ```
 
-Use `doc.go` when the package has 3+ files or the package comment is longer than ~10 lines:
+Use `doc.go` when package has 3+ files or package comment exceeds ~10 lines:
 
 ```go
 // Package auth implements authentication and authorization for the API server.
@@ -268,7 +268,7 @@ package auth
 
 ### File-Level Description
 
-For files that implement a specific algorithm, feature, or contain complex logic, add a descriptive comment block below the imports. This is a macro description — explain **why** this file or package exists, what problem it solves, and what design choices were made. Use ASCII art to describe complex flows or architectures. Don't describe what each line does:
+For files implementing specific algorithm or feature, or containing complex logic, add descriptive comment block below imports. Macro description: explain **why** file or package exists, what problem it solves, what design choices were made. Use ASCII art for complex flows or architectures. Don't describe what each line does:
 
 ```go
 package scheduler
@@ -322,10 +322,10 @@ type Scheduler struct {
 
 | Scenario | Add description? |
 | --- | --- |
-| File implements an algorithm (sorting, scheduling, tree traversal) | Yes |
-| File contains a complex state machine or protocol | Yes |
+| File implements algorithm (sorting, scheduling, tree traversal) | Yes |
+| File contains complex state machine or protocol | Yes |
 | File has 200+ lines of related logic | Yes |
-| File is a simple CRUD handler or data model | No |
+| File is simple CRUD handler or data model | No |
 | File name already explains everything (`json_parser.go`) | Only if non-obvious |
 
 ### Godoc Headings in Comments

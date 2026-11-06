@@ -13,7 +13,7 @@
 
 ### Overview
 
-Optimized for analytical queries and business intelligence. Organizes data into fact tables (metrics) and dimension tables (context).
+Optimized for analytical queries and BI. Organizes data into fact tables (metrics) and dimension tables (context).
 
 ### Star Schema Design Process
 
@@ -82,7 +82,7 @@ WHERE CustomerID = 12345;
 -- Old value lost, no history
 ```
 
-**Use When:** History doesn't matter (typo corrections, insignificant changes)
+**Use When:** History doesn't matter (typo corrections, minor changes)
 
 ---
 
@@ -108,7 +108,7 @@ SELECT * FROM DimCustomer
 WHERE '2025-03-15' BETWEEN EffectiveDate AND EndDate;
 ```
 
-**Use When:** Full history is critical (customer address, product pricing, employee roles)
+**Use When:** Full history critical (customer address, product pricing, employee roles)
 
 ---
 
@@ -145,7 +145,7 @@ CREATE TABLE DimCustomer (
 -- All rows show current segment, but history preserved
 ```
 
-**Use When:** Need both point-in-time history and current value for all historical rows
+**Use When:** Need point-in-time history and current value on all historical rows
 
 ### When to Use Dimensional Modeling
 
@@ -153,7 +153,7 @@ CREATE TABLE DimCustomer (
 - Business intelligence and reporting
 - Known query patterns (dashboards, KPIs)
 - Historical trend analysis
-- User-friendly for SQL analysts
+- Friendly for SQL analysts
 - BI tools (Tableau, Power BI, Looker)
 
 **Trade-Offs:**
@@ -162,7 +162,7 @@ CREATE TABLE DimCustomer (
 - ✅ Optimized for BI tools
 - ❌ Inflexible to schema changes
 - ❌ Denormalization creates redundancy
-- ❌ Requires upfront modeling effort
+- ❌ Needs upfront modeling effort
 
 ---
 
@@ -170,13 +170,13 @@ CREATE TABLE DimCustomer (
 
 ### Overview
 
-Eliminate redundancy and ensure data integrity through normalization (3NF, BCNF). Designed for transactional systems (OLTP).
+Removes redundancy and enforces data integrity through normalization (3NF, BCNF). Built for transactional systems (OLTP).
 
 ### Normal Forms
 
 **1st Normal Form (1NF):**
 - Atomic values (no repeating groups)
-- Each column contains single value
+- Each column holds single value
 
 **2nd Normal Form (2NF):**
 - 1NF + No partial dependencies
@@ -227,8 +227,8 @@ Categories Table
 
 **Ideal Scenarios:**
 - Transactional systems (OLTP)
-- Data with frequent updates
-- Strong consistency requirements
+- Frequently updated data
+- Strong consistency needs
 - Source systems feeding data warehouse
 
 **Trade-Offs:**
@@ -237,7 +237,7 @@ Categories Table
 - ✅ Flexible to changes
 - ❌ Complex joins slow analytical queries
 - ❌ Not intuitive for business users
-- ❌ Poor performance for BI
+- ❌ Poor BI performance
 
 ---
 
@@ -245,7 +245,7 @@ Categories Table
 
 ### Overview
 
-Flexible, auditable, scalable model for enterprise data warehouses. Designed for compliance, multi-source integration, and agile requirements.
+Flexible, auditable, scalable model for enterprise data warehouses. Built for compliance, multi-source integration and agile requirements.
 
 ### Core Structures
 
@@ -322,7 +322,7 @@ JOIN SatProduct sp ON hp.ProductHashKey = sp.ProductHashKey
 **Ideal Scenarios:**
 - Compliance requirements (full audit trail)
 - Multiple source systems with overlapping data
-- Agile warehousing (requirements change frequently)
+- Agile warehousing (requirements change often)
 - Long-term historical archive
 
 **Trade-Offs:**
@@ -330,7 +330,7 @@ JOIN SatProduct sp ON hp.ProductHashKey = sp.ProductHashKey
 - ✅ Complete audit trail
 - ✅ Parallel loading (hubs, links, satellites independent)
 - ❌ Complex queries (many joins)
-- ❌ Requires data mart layer for BI
+- ❌ Needs data mart layer for BI
 - ❌ Storage overhead
 
 ---
@@ -339,7 +339,7 @@ JOIN SatProduct sp ON hp.ProductHashKey = sp.ProductHashKey
 
 ### Overview
 
-Single table with hundreds of pre-joined columns. Optimized for columnar storage and query performance.
+Single table with hundreds of pre-joined columns. Optimized for columnar storage and query speed.
 
 ### Example: Customer Feature Table (ML)
 
@@ -449,7 +449,7 @@ GROUP BY segment;
 **Trade-Offs:**
 - ✅ Fastest analytical queries (no joins)
 - ✅ Simple for users (one table)
-- ✅ Efficient in columnar storage (only read needed columns)
+- ✅ Efficient in columnar storage (reads only needed columns)
 - ❌ Significant redundancy
 - ❌ Large storage footprint
 - ❌ Update complexity (many columns to maintain)
@@ -502,4 +502,4 @@ Transactional Database (3NF)
   → BI Tools
 ```
 
-**Benefits:** Classic separation of transactional and analytical workloads
+**Benefits:** Classic split of transactional and analytical workloads

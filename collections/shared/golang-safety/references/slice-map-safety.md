@@ -19,7 +19,7 @@
 
 ### Pre-Go 1.22: shared loop variable
 
-NEVER store pointers to loop variables in Go < 1.22 — capture by value. Before Go 1.22, the range loop variable was reused across iterations. Capturing it in a closure or storing its address caused all references to point to the final value:
+NEVER store pointers to loop variables in Go < 1.22; capture by value. Before Go 1.22, range loop variable was reused across iterations. Capturing it in closure or storing its address made all references point to final value:
 
 ```go
 // ✗ Bad (pre-1.22) — all goroutines see the last value of v
@@ -40,11 +40,11 @@ for _, v := range []string{"a", "b", "c"} {
 
 ### Go 1.22+: per-iteration scoping
 
-Go 1.22 changed loop variable semantics — each iteration creates a new variable, so the closure bug no longer occurs. However, the old behavior applies if your module targets `go 1.21` or earlier in `go.mod` — check your `go.mod` version.
+Go 1.22 changed loop variable semantics: each iteration creates new variable, so closure bug no longer occurs. Old behavior still applies if module targets `go 1.21` or earlier in `go.mod`. Check `go.mod` version.
 
 ## Storing Pointer to Loop Variable
 
-The same pre-1.22 issue applies to storing `&v`:
+Same pre-1.22 issue applies to storing `&v`:
 
 ```go
 // ✗ Bad (pre-1.22) — all pointers point to the same address
@@ -62,11 +62,11 @@ for i := range items {
 }
 ```
 
-In Go 1.22+, `&item` is safe because each iteration has its own `item`. But taking `&items[i]` is still clearer and avoids a copy.
+In Go 1.22+, `&item` is safe because each iteration has own `item`. Taking `&items[i]` is still clearer and avoids copy.
 
 ## Slice Header vs Backing Array
 
-A slice is a 3-word struct: `{pointer, length, capacity}`. Multiple slices can share the same backing array:
+Slice is 3-word struct: `{pointer, length, capacity}`. Multiple slices can share same backing array:
 
 ```
 a := make([]int, 3, 5)
@@ -86,11 +86,11 @@ b := a[1:2]
    │ (points to a[1])
 ```
 
-This is why `append(a, x)` can affect `b` if `a` has spare capacity. Use the full slice expression `a[:len(a):len(a)]` to set cap == len and force a new allocation on append.
+So `append(a, x)` can affect `b` if `a` has spare capacity. Use full slice expression `a[:len(a):len(a)]` to set cap == len and force new allocation on append.
 
 ## Subslice Retains Full Backing Array
 
-Subslice retention: MUST use `slices.Clone` or `copy` when keeping a small slice from a large backing array. Slicing a large slice for a small piece prevents GC of the entire backing array:
+Subslice retention: MUST use `slices.Clone` or `copy` when keeping small slice from large backing array. Slicing large slice for small piece prevents GC of entire backing array:
 
 ```go
 // ✗ Bad — small keeps the entire 1MB array alive
@@ -128,11 +128,11 @@ clone := slices.Clone(original)
 clone := maps.Clone(original)
 ```
 
-These are the preferred way to make defensive copies. They are clearer than manual `make` + `copy` and handle nil inputs correctly (returning nil, not an empty collection).
+Preferred way to make defensive copies. Handle nil inputs correctly (return nil, not empty collection).
 
 ## Map Iteration Order
 
-Map iteration order MUST NOT be depended upon — it is randomized by the runtime:
+Map iteration order MUST NOT be depended upon. Runtime randomizes it:
 
 ```go
 // ✗ Bad — output order changes between runs
@@ -165,7 +165,7 @@ for k, v := range m {
 
 ### Slices — needs care
 
-Deleting from a slice during iteration requires index management:
+Deleting from slice during iteration needs index management:
 
 ```go
 // ✗ Bad — skips elements after deletion
@@ -188,7 +188,7 @@ items = slices.DeleteFunc(items, shouldDelete)
 
 ## Comparing Slices and Maps
 
-Slice/map comparison MUST use `slices.Equal`/`maps.Equal` (Go 1.21+), NEVER `==` (which doesn't compile for slices). Use standard library helpers:
+Slice/map comparison MUST use `slices.Equal`/`maps.Equal` (Go 1.21+), NEVER `==` (doesn't compile for slices):
 
 ```go
 import (

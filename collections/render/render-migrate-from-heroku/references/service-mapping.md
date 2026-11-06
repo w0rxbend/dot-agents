@@ -1,12 +1,8 @@
 # Heroku → Render Service Mapping
 
-## How to Use This Reference
-
-Look up the Heroku plan from `ps_list` (dyno size) or `list_addons` (add-on plan slug) and use the corresponding Render plan in the Blueprint or MCP creation call. If the Heroku plan is unknown, use the fallback default.
-
 ## Compute (Dynos → Services)
 
-Match by RAM to avoid out-of-memory issues. Worker and cron dynos use the same size mapping as web dynos.
+Match by RAM to avoid out-of-memory issues. Worker and cron dynos use same size mapping as web dynos.
 
 | Heroku dyno | Heroku RAM | Heroku $/mo | Render `plan` value | Render RAM | Render $/mo |
 |---|---|---|---|---|---|
@@ -23,22 +19,18 @@ Match by RAM to avoid out-of-memory issues. Worker and cron dynos use the same s
 **Fallback default:** `starter` (when Heroku dyno size is unknown)
 
 **Notes:**
-- Worker dynos on Heroku can be any size (Standard-1X, Performance-M, etc.) — use the same mapping based on the dyno size reported by `ps_list`
-- Cron jobs use the same mapping — Render cron plans match web/worker plans
-- Performance-L-RAM has 4 CPU (half of Pro Ultra's 8 CPU). For non-enterprise customers, default to `pro ultra`. Enterprise customers may negotiate custom pricing (~$356) with Render for a closer CPU match.
-- For Performance-XL and Performance-2XL, instruct the user to [contact Render](https://render.com/contact) for custom sizing. The estimates above (~$712, ~$1,426) are based on proportional custom pricing and may vary.
-- Enterprise contracts change per-dyno pricing — the "units per dyno" multiplier varies (e.g., Performance-M = 8 units, Performance-L = 16 units of a Standard-1X). Heroku prices above reflect pay-as-you-go rates.
+- Performance-L-RAM has 4 CPU (half of Pro Ultra's 8 CPU). For non-enterprise customers, default to `pro ultra`. Enterprise customers may negotiate custom pricing (~$356) with Render for closer CPU match.
+- For Performance-XL and Performance-2XL, instruct user to [contact Render](https://render.com/contact) for custom sizing. Estimates above (~$712, ~$1,426) assume proportional custom pricing; may vary.
+- Enterprise contracts change per-dyno pricing; "units per dyno" multiplier varies (e.g., Performance-M = 8 units, Performance-L = 16 units of a Standard-1X). Heroku prices above reflect pay-as-you-go rates.
 
 ## Postgres (Heroku Postgres → Render Postgres)
 
-Heroku has deprecated Mini and Basic plans. Current tiers are Essential, Standard, and Premium.
+Heroku deprecated Mini and Basic plans. Current tiers: Essential, Standard, Premium.
 
 Render has three Postgres tiers:
 - **Basic** — entry-level, for development and low-traffic apps
 - **Pro** — balanced CPU-to-RAM ratio (1:4), for production workloads
 - **Accelerated** — memory-optimized CPU-to-RAM ratio (1:8), for high-performance and memory-intensive workloads
-
-Map Heroku Essential → Render Basic. For Standard and Premium, both map to the **same Render plan per tier** — Standard as a single instance, Premium with HA enabled (doubling the Render cost). Tiers 0 and 2 map to Render Pro; tiers 3 through 9 map to Render Accelerated.
 
 ### Essential and legacy plans → Render Basic
 
@@ -52,7 +44,7 @@ Map Heroku Essential → Render Basic. For Standard and Premium, both map to the
 
 ### Standard and Premium plans → Render Pro / Accelerated
 
-Heroku Standard and Premium share the same tier numbering (X-0 through X-9) with identical vCPU, RAM, and storage specs. The difference is that **Premium includes HA by default**. On Render, both map to the same plan — enable HA on Render to match Premium (which doubles the Render base price for a separate replica).
+Heroku Standard and Premium share tier numbering (X-0 through X-9) with identical vCPU, RAM and storage specs. Difference: **Premium includes HA by default**. On Render both map to same plan; enable HA to match Premium (doubles Render base price for a separate replica).
 
 | Heroku tier | Heroku Standard $/mo | Heroku Premium $/mo | vCPU | RAM | Storage | Render `plan` value | Render `diskSizeGB` | Render $/mo | Render HA $/mo |
 |---|---|---|---|---|---|---|---|---|---|
@@ -66,15 +58,15 @@ Heroku Standard and Premium share the same tier numbering (X-0 through X-9) with
 | X-8 | $4,500 | $8,500 | 64 | 488 GB | 3 TB | `accelerated-512gb` | 3072 | $6,000 + storage | $12,000 + storage |
 | X-9 | $5,800 | $11,000 | 96 | 768 GB | 4 TB | `accelerated-768gb` | 4096 | $9,000 + storage | $18,000 + storage |
 
-**How to read the tier number:** The add-on plan slug from `list_addons` looks like `heroku-postgresql:standard-0` or `heroku-postgresql:premium-4` — the number after the hyphen is the tier (X-0, X-4, etc.). Both Standard-4 and Premium-4 map to the same Render plan (`accelerated-32gb`); Premium just needs HA enabled.
+**How to read the tier number:** `list_addons` slug looks like `heroku-postgresql:standard-0` or `heroku-postgresql:premium-4`; number after hyphen is tier (X-0, X-4, etc.). Standard-4 and Premium-4 both map to `accelerated-32gb`; Premium also needs HA enabled.
 
-**HA pricing note:** Heroku Premium pricing includes HA by default. To match this on Render, enable HA in the Dashboard or Blueprint, which adds a standby replica at the same cost as the primary (effectively 2x). This significantly impacts pricing competitiveness on larger instances — present both the single-instance and HA costs to the user so they can make an informed decision.
+**HA pricing note:** HA hurts price competitiveness on larger instances. Present both single-instance and HA costs so user can decide.
 
 ### Disk sizing
 
-On Render, storage is billed separately at **$0.30/GB/month** and configured via the `diskSizeGB` field in the Blueprint. Storage is provisioned in **5 GB increments** (minimum 1 GB) and **cannot be scaled down** once provisioned.
+Render bills storage separately at **$0.30/GB/month**, set via Blueprint `diskSizeGB` field. Storage is provisioned in **5 GB increments** (minimum 1 GB) and **cannot be scaled down** once provisioned.
 
-**Heuristic:** Carry over the Heroku disk size as the `diskSizeGB` value. Since `diskSizeGB` must be 1 or a multiple of 5, round up to the nearest valid value.
+**Heuristic:** Carry over Heroku disk size as `diskSizeGB`. Value must be 1 or a multiple of 5; round up to nearest valid value.
 
 **Disclaimer to present to the user:** Heroku bundles a fixed storage allocation with each plan (e.g., Standard-4 includes 768 GB). On Render, compute and storage are billed separately — compute is the plan price above, and storage is $0.30/GB/month in 5 GB increments. Storage cannot be scaled down once provisioned, so right-size based on actual usage rather than the Heroku allocation. Check your current disk usage with `heroku pg:info` (look for `Data Size`) — if your actual data is much smaller than the allocated disk, start with a smaller `diskSizeGB` to save on storage costs. You can always expand later from the Render Dashboard.
 
@@ -83,11 +75,11 @@ On Render, storage is billed separately at **$0.30/GB/month** and configured via
 **Notes:**
 - Render Pro and Accelerated both support HA (enable separately in Dashboard or Blueprint)
 - For databases beyond tier X-9, contact Render support
-- Get actual disk usage from `pg_info` (`Data Size` field) to inform the `diskSizeGB` recommendation
+- Base `diskSizeGB` recommendation on actual disk usage from `pg_info` (`Data Size` field)
 
 ## Key Value (Heroku Redis / Key-Value Store → Render Key Value)
 
-Heroku has rebranded Redis as "Key-Value Store" (Valkey-based). Heroku Redis plans use non-sequential numbering (0, 1, 2, 3, 5, 7, 9, 10, 12, 14). Match by the exact plan number from `list_addons`.
+Heroku rebranded Redis as "Key-Value Store" (Valkey-based). Plans use non-sequential numbering (0, 1, 2, 3, 5, 7, 9, 10, 12, 14). Match by exact plan number from `list_addons`.
 
 | Heroku plan | Heroku memory | Heroku connections | Heroku $/mo | Render `plan` value | Render RAM | Render connections | Render $/mo |
 |---|---|---|---|---|---|---|---|
@@ -106,11 +98,10 @@ Heroku has rebranded Redis as "Key-Value Store" (Valkey-based). Heroku Redis pla
 **Fallback default:** `starter` (when Heroku Redis plan is unknown)
 
 **Notes:**
-- Redis pricing heavily favors Render — most tiers cost significantly less on Render than the Heroku equivalent.
-- The add-on plan slug from `list_addons` looks like `heroku-redis:mini` or `heroku-redis:premium-0` — use the part after the colon to look up the mapping. Plans 4, 6, 8, 11, and 13 do not exist on Heroku.
-- Render Key Value requires `ipAllowList` in the Blueprint (use `0.0.0.0/0` for public access)
+- `list_addons` slug looks like `heroku-redis:mini` or `heroku-redis:premium-0`; look up part after colon.
+- Render Key Value requires `ipAllowList` in Blueprint (default `[]`, internal only; list specific CIDRs only if user confirms external access is needed)
 - Neither Heroku nor Render supports Redis HA.
-- For Premium-10 and above, instruct the user to [contact Render](https://render.com/contact) for custom sizing.
+- For Premium-10 and above, instruct user to [contact Render](https://render.com/contact) for custom sizing.
 
 ## Runtime Mapping
 
@@ -134,15 +125,15 @@ Heroku has rebranded Redis as "Key-Value Store" (Valkey-based). Heroku Redis pla
 
 ## Not Directly Mappable (Manual)
 
-These Heroku features require manual alternatives on Render:
+These Heroku features need manual Render alternatives:
 - **Heroku Pipelines** → Use Render Preview Environments + manual promotion
 - **Review Apps** → Render Pull Request Previews
 - **Heroku Add-ons Marketplace** → Find equivalent third-party services
 - **Heroku ACM (SSL)** → Render auto-provisions TLS for custom domains
 - **Private Spaces** → Contact Render for private networking options
 - **Heroku Kafka** → Not supported on Render. Recommend cloud providers (Confluent Cloud, AWS MSK, etc.)
-- **Hirefire** → Not supported on Render. Recommend Render's native [horizontal autoscaling](https://render.com/docs/scaling) or JudoScale (which is supported).
-- **Bandwidth** → Heroku allows ~2 TB/app/month (rarely enforced). Render bandwidth varies by workspace plan: 100 GB (Hobby), 500 GB (Professional), 1 TB (Organization). Additional bandwidth is billed at $0.10/GB.
+- **Hirefire** → Not supported on Render. Recommend Render's native [horizontal autoscaling](https://render.com/docs/scaling) or JudoScale (supported).
+- **Bandwidth** → Heroku allows ~2 TB/app/month (rarely enforced). Render bandwidth varies by workspace plan: 100 GB (Hobby), 500 GB (Professional), 1 TB (Organization). Extra bandwidth: $0.10/GB.
 
 ## Environment Variables to Filter
 

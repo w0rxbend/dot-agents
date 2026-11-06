@@ -7,7 +7,7 @@ tags: code, architecture, microservices, modularity
 
 ## Enforce One-to-One Correlation Between Codebase and Application
 
-Each application must have exactly one codebase. If you have multiple codebases, you have a distributed system where each component is its own app. If multiple apps share the same code, factor out the shared functionality into libraries.
+Each app must have exactly one codebase. Multiple codebases make a distributed system, each component its own app. If apps share code, factor it into libraries.
 
 **Incorrect (multiple apps sharing one codebase):**
 
@@ -44,12 +44,7 @@ github.com/company/shared-utils     # Published as npm/pip package
 ```
 
 **When NOT to use this pattern:**
-- During initial prototyping when boundaries are unclear
-- Monorepos are acceptable if each app has independent build/deploy pipelines
-
-**Benefits:**
-- Each app can be deployed independently
-- Different apps can use different versions of shared code
-- Teams can work in parallel without blocking each other
+- Initial prototyping, while boundaries are unclear
+- Monorepos acceptable if each app has independent build/deploy pipelines
 
 Reference: [The Twelve-Factor App - Codebase](https://12factor.net/codebase)

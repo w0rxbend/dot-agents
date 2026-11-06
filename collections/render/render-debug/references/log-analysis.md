@@ -1,25 +1,19 @@
 # Render Log Analysis Guide
 
-How to read, interpret, and analyze Render logs to identify deployment and runtime issues.
-
 ## Understanding Render Logs
 
 ### Log Types
 
-Render provides different log types for different purposes:
-
 1. **Deploy Logs** - Build and deployment process
-2. **Runtime Logs** - Application output after deployment
+2. **Runtime Logs** - App output after deployment
 3. **System Logs** - Render platform events
 
 ### Log Levels
 
-Logs are categorized by severity:
-
-- **error** - Critical errors requiring attention
-- **warn** - Warning messages (potential issues)
+- **error** - Critical errors needing attention
+- **warn** - Warnings (potential issues)
 - **info** - Informational messages
-- **debug** - Detailed debugging information
+- **debug** - Detailed debugging info
 
 ## CLI Commands for Logs
 
@@ -64,7 +58,7 @@ render logs -r <service-id> --type deploy --level error --limit 100 -o json
 
 ## Reading Deploy Logs
 
-Deploy logs show the build and deployment process. Read them **sequentially** from top to bottom.
+Deploy logs show build and deployment process. Read **sequentially**, top to bottom.
 
 ### Typical Deploy Log Structure
 
@@ -124,7 +118,7 @@ Server listening on port 10000
 Look for:
 - Server startup messages
 - Port binding confirmation
-- Error messages during startup
+- Errors during startup
 
 **3. Health Check Results:**
 ```
@@ -139,8 +133,6 @@ Look for:
 - `Health check passed` - Success
 
 ## Reading Runtime Logs
-
-Runtime logs show application output after successful deployment.
 
 ### Understanding Runtime Log Entries
 
@@ -207,16 +199,11 @@ Error: Cannot find module 'express'
     at Object.<anonymous> (/app/server.js:1:17)  ← YOUR CODE
 ```
 
-The first line with `/app/` is usually your code.
+First line with `/app/` is usually your code.
 
 ### Stack Trace Analysis
 
-**Reading stack traces:**
-
-1. **Error message** - Top line describes the error
-2. **Stack frames** - Lines below show call path
-3. **File locations** - Look for paths starting with `/app/`
-4. **Line numbers** - Shows exact line in your code
+Top line: error message. Lines below: call path. Paths starting with `/app/` plus line numbers show exact line in your code.
 
 **Example:**
 ```
@@ -226,7 +213,7 @@ ReferenceError: DATABASE_URL is not defined
     at Object.<anonymous> (/app/server.js:50:1)  ← App entry point
 ```
 
-**Action:** Open `/app/database.js` line 15 to see the issue.
+**Action:** Open `/app/database.js` line 15 to see issue.
 
 ## Common Log Patterns by Error Type
 
@@ -292,13 +279,13 @@ FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memor
 ### What to Focus On
 
 **For Build Failures:**
-1. Look at build command output
+1. Read build command output
 2. Find first error in build logs
 3. Check dependency installation section
 4. Review compilation errors
 
 **For Runtime Failures:**
-1. Look at start command output
+1. Read start command output
 2. Check first few seconds of runtime logs
 3. Look for startup errors
 4. Check health check section
@@ -314,15 +301,11 @@ FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memor
 
 ### 1. Start with Error-Level Logs
 
-```bash
-render logs -r <service-id> --level error -o json
-```
-
-This filters out noise and shows only critical issues.
+`--level error` filters out noise. Shows only critical issues.
 
 ### 2. Use JSON Output for Parsing
 
-JSON format is easier to search and parse programmatically:
+JSON easier to search and parse programmatically:
 
 ```bash
 render logs -r <service-id> -o json | grep "DATABASE_URL"
@@ -330,17 +313,11 @@ render logs -r <service-id> -o json | grep "DATABASE_URL"
 
 ### 3. Limit Output
 
-Don't retrieve all logs at once:
-
-```bash
-render logs -r <service-id> --limit 200 -o json
-```
-
-Most errors appear in recent logs.
+Do not fetch all logs at once; use `--limit 200`. Most errors appear in recent logs.
 
 ### 4. Focus on Deployment Logs First
 
-If deployment failed, deploy logs contain the error:
+If deployment failed, deploy logs contain error:
 
 ```bash
 render logs -r <service-id> --type deploy --level error -o json
@@ -348,22 +325,7 @@ render logs -r <service-id> --type deploy --level error -o json
 
 ### 5. Use Real-Time Streaming
 
-Watch logs as deployment happens:
-
-```bash
-render logs -r <service-id> --tail -o text
-```
-
-### 6. Search for Specific Patterns
-
-Look for common error keywords:
-- "Error:"
-- "Exception"
-- "failed"
-- "timeout"
-- "refused"
-- "undefined"
-- "not found"
+Watch logs during deployment with `--tail -o text`.
 
 ## Troubleshooting Workflow
 
@@ -383,13 +345,13 @@ render logs -r <service-id> --level error -o json --limit 100
 render logs -r <service-id> --limit 500 -o json
 ```
 
-Read logs around the error for context.
+Read logs around error for context.
 
 **Step 4:** Match to error pattern
-Refer to [error-patterns.md](error-patterns.md) for known patterns.
+See [error-patterns.md](error-patterns.md) for known patterns.
 
 **Step 5:** Apply fix
-Refer to [troubleshooting.md](troubleshooting.md) for fix procedures.
+See [troubleshooting.md](troubleshooting.md) for fix procedures.
 
 ## Log Examples
 
@@ -437,25 +399,6 @@ Deploy failed
 ```
 
 ## Quick Reference
-
-### Log Commands Cheat Sheet
-
-```bash
-# Error logs only
-render logs -r <id> --level error -o json
-
-# Deploy logs
-render logs -r <id> --type deploy -o json
-
-# Stream logs
-render logs -r <id> --tail -o text
-
-# Recent logs
-render logs -r <id> --limit 200 -o json
-
-# All options combined
-render logs -r <id> --type deploy --level error --limit 100 -o json
-```
 
 ### Error Keywords to Search For
 

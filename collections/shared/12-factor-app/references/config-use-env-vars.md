@@ -7,7 +7,7 @@ tags: config, environment-variables, deployment, security
 
 ## Store Configuration in Environment Variables
 
-The twelve-factor app stores config in environment variables. Env vars are easy to change between deploys without code changes, unlikely to be accidentally committed to the repo, and are a language-agnostic standard supported by all operating systems and cloud platforms.
+Env vars change per deploy without code changes and rarely get committed by accident. Language-agnostic standard on every OS and cloud platform.
 
 **Incorrect (config files not in version control):**
 
@@ -56,9 +56,7 @@ env:
 ```
 
 **Benefits:**
-- Every platform supports environment variables
-- Credentials never touch the filesystem
-- Easy to rotate: change the env var, restart the app
+- Easy to rotate: change env var, restart app
 - Works with secret management tools (Vault, AWS Secrets Manager)
 
 Reference: [The Twelve-Factor App - Config](https://12factor.net/config)

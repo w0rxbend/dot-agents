@@ -1,6 +1,6 @@
 # Hermes CLI Reference
 
-Live sources when anything looks stale: `hermes --help`, `hermes <command> --help`,
+Live sources if anything looks stale: `hermes --help`, `hermes <command> --help`,
 https://hermes-agent.nousresearch.com/docs/reference/cli-commands
 
 ### Global Flags
@@ -35,7 +35,7 @@ hermes chat [flags]
   --max-turns N             Cap tool-calling iterations
   --source TAG              Session source tag (default: cli)
 ```
-(plus the global flags above)
+(plus global flags above)
 
 ### Configuration
 
@@ -55,7 +55,7 @@ hermes status [--all]       Component status
 hermes tools [list|enable NAME|disable NAME]   Per-platform toolsets (curses UI with no args)
 
 hermes skills list|browse|search QUERY|inspect ID
-hermes skills install ID    Hub identifier OR a direct https://…/SKILL.md URL
+hermes skills install ID    Hub identifier OR a direct https://…/SKILL.md URL (inspect/review third-party skills first)
 hermes skills config        Enable/disable skills per platform
 hermes skills check|update|uninstall|publish PATH
 hermes skills tap add REPO  Add a GitHub repo as a skill source
@@ -78,7 +78,7 @@ Details (transport, tool discovery, catalog): `references/native-mcp.md`.
 hermes gateway run|install|start|stop|restart|status|setup
 ```
 
-20+ platforms: Telegram, Discord, Slack, WhatsApp (Baileys + Business Cloud API), iMessage (Photon — `hermes photon setup`), Signal, Email, SMS, Matrix, Mattermost, Teams, LINE, SimpleX, ntfy, Google Chat, Home Assistant, DingTalk, Feishu, WeCom, Weixin, API Server, Webhooks. Open WebUI connects via the API Server adapter. Most adapters ship under `plugins/platforms/`.
+20+ platforms: Telegram, Discord, Slack, WhatsApp (Baileys + Business Cloud API), iMessage (Photon — `hermes photon setup`), Signal, Email, SMS, Matrix, Mattermost, Teams, LINE, SimpleX, ntfy, Google Chat, Home Assistant, DingTalk, Feishu, WeCom, Weixin, API Server, Webhooks. Open WebUI connects via API Server adapter. Most adapters ship under `plugins/platforms/`.
 Docs: https://hermes-agent.nousresearch.com/docs/user-guide/messaging/
 
 ### Sessions
@@ -111,7 +111,7 @@ hermes auth                 Interactive credential manager
 hermes auth add [PROVIDER]  Add OAuth or API-key credential (nous, openai-codex, qwen-oauth, …)
 hermes auth list|remove P IDX|reset PROVIDER|status
 ```
-Multiple credentials per provider form a pool that rotates automatically and skips exhausted keys.
+Multiple credentials per provider form auto-rotating pool; exhausted keys skipped.
 
 ### Other
 
@@ -136,7 +136,7 @@ hermes completion bash|zsh|fish
 hermes update / uninstall / claw migrate
 ```
 
-Plugin- and provider-supplied subcommands (e.g. `hermes photon setup`) only appear once their plugin is installed/active.
+Plugin- and provider-supplied subcommands (e.g. `hermes photon setup`) appear only once their plugin is installed/active.
 
 ### Where to Find Things
 

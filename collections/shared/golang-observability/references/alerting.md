@@ -1,6 +1,6 @@
 # Alerting
 
-> See [metrics.md](metrics.md) for multi-window burn-rate SLO alerting and PromQL patterns for application metrics.
+> Multi-window burn-rate SLO alerting and PromQL patterns for application metrics: see [metrics.md](metrics.md).
 
 ## Table of Contents
 
@@ -16,18 +16,18 @@
 
 ## The Four Golden Signals
 
-Alert on what matters to users. Google's SRE book defines four golden signals — every Go service SHOULD have alerts covering all four:
+Every Go service SHOULD alert on all four golden signals from Google's SRE book:
 
 | Signal | What it measures | Example metric | Alert trigger |
 | --- | --- | --- | --- |
-| **Latency** | Time to serve a request | `http_request_duration_seconds` (Histogram) | P99 > 2s for 5 minutes |
-| **Traffic** | Demand on the system | `http_requests_total` (Counter) | Zero requests for 10 minutes |
+| **Latency** | Time to serve request | `http_request_duration_seconds` (Histogram) | P99 > 2s for 5 minutes |
+| **Traffic** | Demand on system | `http_requests_total` (Counter) | Zero requests for 10 minutes |
 | **Errors** | Rate of failed requests | `http_requests_total{status=~"5.."}` (Counter) | Error ratio > 1% for 5 minutes |
-| **Saturation** | How full the system is | `db_connections_active / db_connections_max` | Pool > 90% saturated for 5 minutes |
+| **Saturation** | How full system is | `db_connections_active / db_connections_max` | Pool > 90% saturated for 5 minutes |
 
 ## Awesome Prometheus Alerts
 
-[awesome-prometheus-alerts](https://samber.github.io/awesome-prometheus-alerts/) is a curated collection of ~500 ready-to-use Prometheus alerting rules. This collection serves as a starting point for infrastructure and dependency alerting.
+[awesome-prometheus-alerts](https://samber.github.io/awesome-prometheus-alerts/): ~500 curated, ready-to-use Prometheus alerting rules. Starting point for infrastructure and dependency alerting.
 
 ### Categories
 
@@ -42,15 +42,15 @@ Alert on what matters to users. Google's SRE book defines four golden signals �
 
 ### How to Use It
 
-The rules are organized by technology. Each rule is a ready-to-use Prometheus alerting rule in YAML format with customizable threshold values and `for:` durations.
+Rules grouped by technology. Each is ready-to-use Prometheus YAML with customizable thresholds and `for:` durations.
 
-1. **Find by technology** — locate the relevant database, message broker, or infrastructure component
-2. **Adapt the YAML rule** — adjust threshold values (`> 0.01`, `> 100`, etc.) and the `for:` duration to match your SLOs and traffic patterns
-3. **Place in Prometheus config** — add to the `prometheus/rules/` directory
+1. **Find by technology** — locate relevant database, message broker or infrastructure component
+2. **Adapt the YAML rule** — tune thresholds (`> 0.01`, `> 100`, etc.) and `for:` duration to your SLOs and traffic patterns
+3. **Place in Prometheus config** — add to `prometheus/rules/` directory
 
 ### Integration Example
 
-Prometheus loads alerting rules from YAML files referenced in its config. After copying rules from awesome-prometheus-alerts, place them in your rules directory:
+Prometheus loads alerting rules from YAML files its config references. Put copied rules in your rules directory:
 
 ```yaml
 # prometheus/rules/postgresql.yml
@@ -85,16 +85,11 @@ rule_files:
 
 ### Workflow for New Dependencies
 
-When adding a new infrastructure dependency (database, cache, message broker, reverse proxy) to a Go service:
-
-1. [awesome-prometheus-alerts](https://samber.github.io/awesome-prometheus-alerts/) has alert rules organized by technology
-2. Adapt the relevant alert rules and thresholds to your environment
-3. Verify the exporter is deployed (e.g., `postgres_exporter`, `redis_exporter`) — the alerts depend on metrics from these exporters
-4. Add the rules to your `prometheus/rules/` directory
+When adding infrastructure dependency (database, cache, message broker, reverse proxy) to Go service, follow steps above and verify exporter is deployed (e.g., `postgres_exporter`, `redis_exporter`) before adding rules. Alerts depend on exporter metrics.
 
 ## Go Runtime Alerts
 
-The Prometheus Go client automatically exposes runtime metrics. Alert on these to catch resource leaks and GC pressure before they impact users.
+Prometheus Go client exposes runtime metrics automatically. Alert on them to catch resource leaks and GC pressure before users notice.
 
 ```yaml
 # prometheus/rules/go-runtime.yml
@@ -145,20 +140,18 @@ groups:
 
 ## Alert Severity Levels
 
-Use two severity levels to separate "wake someone up" from "look at it tomorrow":
+Two severity levels: "wake someone up" vs "look at it tomorrow":
 
 | Severity | Action | `for:` duration | Example |
 | --- | --- | --- | --- |
 | **critical** | Page on-call | 2-5 minutes | Service down, error rate > 5%, data loss risk |
 | **warning** | Create ticket | 10-30 minutes | P99 latency high, connection pool > 80%, goroutine leak |
 
-The `for:` duration controls how long a condition must be true before the alert fires. Short durations catch fast incidents but risk false positives from transient spikes. Long durations reduce noise but delay response.
+`for:` sets how long condition must hold before alert fires. Short durations catch fast incidents but risk false positives from transient spikes. Long durations cut noise but delay response.
 
 **Guidelines:**
 
-- Critical alerts: `for: 2m` to `for: 5m` — fast detection, wake someone up
-- Warning alerts: `for: 10m` to `for: 30m` — confirmed trend, create a ticket
-- NEVER set `for: 0m` on non-binary alerts — one bad scrape triggers a false page
+- NEVER set `for: 0m` on non-binary alerts — one bad scrape triggers false page
 - Binary alerts (service up/down) can use `for: 0m` or `for: 1m`
 
 ## Common Mistakes
@@ -184,15 +177,4 @@ The `for:` duration controls how long a condition must be true before the alert 
 - alert: HighLatency
   expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) > 2
   for: 5m
-```
-
-```yaml
-# Bad -- alerting on raw gauge without trend analysis (flaps constantly)
-- alert: HighQueueDepth
-  expr: myapp_queue_messages_pending > 1000
-
-# Good -- alert on sustained growth trend
-- alert: HighQueueDepth
-  expr: myapp_queue_messages_pending > 1000
-  for: 10m
 ```

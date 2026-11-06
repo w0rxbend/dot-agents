@@ -1,9 +1,7 @@
 # Blameless Post-Mortems Guide
 
-
 ## Table of Contents
 
-- [Overview](#overview)
 - [Core Philosophy](#core-philosophy)
   - [Blameless Culture Tenets](#blameless-culture-tenets)
 - [Post-Mortem Process](#post-mortem-process)
@@ -45,35 +43,29 @@
   - [Team Norms](#team-norms)
 - [Further Reading](#further-reading)
 
-## Overview
-
-Blameless post-mortems transform incidents from failures into learning opportunities. Focus on systemic improvements rather than individual blame to build psychological safety and organizational resilience.
-
 ## Core Philosophy
 
 ### Blameless Culture Tenets
 
 **1. Assume Good Intentions**
 
-Everyone made the best decision with the information available at the time. No one comes to work intending to break things.
+Everyone made best decision with information available at the time. No one comes to work intending to break things.
 
 **2. Focus on Systems, Not People**
 
-Humans are not root causes. Systems that allow human error are root causes. Ask "How did the system fail?" not "Who failed?"
+Humans are not root causes. Systems that allow human error are. Ask "How did the system fail?" not "Who failed?"
 
 **3. Psychological Safety**
 
-Create an environment where honesty is rewarded. Engineers must feel safe admitting mistakes without fear of punishment.
+Reward honesty. Engineers must feel safe admitting mistakes without fear of punishment.
 
 **4. Learning Opportunity**
 
-Incidents are gifts of organizational knowledge. Each incident reveals gaps in processes, tools, or training.
+Incidents are gifts of organizational knowledge. Each reveals gaps in processes, tools or training.
 
 **5. No Punishment for Mistakes**
 
-Punishment discourages honesty and prevents learning. Exception: Willful negligence or malicious behavior (extremely rare).
-
----
+Punishment discourages honesty and blocks learning. Exception: willful negligence or malicious behavior (extremely rare).
 
 ## Post-Mortem Process
 
@@ -86,9 +78,9 @@ Punishment discourages honesty and prevents learning. Exception: Willful neglige
 
 **Pre-Meeting (Before Post-Mortem Meeting):**
 - Scribe shares incident timeline
-- IC drafts initial post-mortem document
+- IC drafts post-mortem document
 - SMEs gather supporting data (logs, metrics, screenshots)
-- Distribute draft to attendees 24 hours before meeting
+- Send draft to attendees 24 hours before meeting
 
 **Post-Mortem Meeting (60-90 minutes):**
 - Facilitator walks through timeline
@@ -99,18 +91,16 @@ Punishment discourages honesty and prevents learning. Exception: Willful neglige
 **Post-Meeting:**
 - Finalize post-mortem document
 - Distribute to engineering, product, support, leadership
-- Add to knowledge base for searchability
+- Add to knowledge base for search
 - Track action items in sprint planning
-
----
 
 ## Post-Mortem Meeting Facilitation
 
 ### Facilitator Role
 
-**Why Not IC:** IC may be defensive about decisions made. Neutral facilitator keeps discussion blameless and productive.
+**Why Not IC:** IC may be defensive about own decisions. Neutral facilitator keeps discussion blameless and productive.
 
-**Facilitator Selection:** Senior engineer, SRE, engineering manager (someone trusted by team, skilled in group facilitation).
+**Facilitator Selection:** Senior engineer, SRE, engineering manager (trusted by team, skilled in group facilitation).
 
 ### Meeting Structure
 
@@ -121,53 +111,31 @@ Facilitator sets tone:
 
 **2. Timeline Review (15 minutes)**
 
-Scribe or IC walks through timeline chronologically:
+Scribe or IC walks through timeline in order:
 - What happened and when
 - Who was involved
 - What decisions were made
 - What actions were taken
 
-No judgment, just facts. Team asks clarifying questions.
+No judgment, only facts. Team asks clarifying questions.
 
 **3. Root Cause Analysis (20 minutes)**
 
-Facilitator leads 5 Whys or Fishbone diagram exercise to identify root causes.
+Facilitator runs 5 Whys or Fishbone diagram exercise to find root causes.
 
 **Important:** Stop at process or system failures, not at individuals.
 
-Bad example:
-> "Root cause: Alice deployed without testing."
-
-Good example:
-> "Root cause: Deployment process allows production deploys without staging validation."
-
 **4. What Went Well (10 minutes)**
 
-Celebrate effective responses:
-- Fast detection (monitoring alert fired within 2 minutes)
-- Clear IC leadership and delegation
-- Effective communication (status updates every 15 minutes)
-- Quick mitigation (rollback completed in 5 minutes)
-
-Reinforces positive behaviors to repeat.
+Celebrate effective responses. Reinforces positive behaviors to repeat.
 
 **5. What Went Wrong (15 minutes)**
 
-Identify improvement areas (focus on process, tools, training):
-- No pre-deploy validation step
-- Missing monitoring for connection pool saturation
-- Runbook outdated (referenced old database hostname)
-- Communication delay (first status page update 30 minutes in)
-
-Frame as learning opportunities, not mistakes.
+Identify improvement areas (focus on process, tools, training). Frame as learning opportunities, not mistakes.
 
 **6. Action Items (15 minutes)**
 
-Define specific, actionable improvements:
-- ✅ Good: "Add connection pool saturation alert (threshold: 80%), owner: @alice, due: Dec 10"
-- ❌ Bad: "Improve monitoring" (too vague)
-
-Each action item must have:
+Define specific, actionable improvements. Each action item must have:
 - Specific task description
 - Owner (single person)
 - Due date
@@ -181,8 +149,6 @@ Facilitator summarizes:
 - Next steps (document distribution, follow-up tracking)
 
 Thank team for honest participation.
-
----
 
 ## Root Cause Analysis Techniques
 
@@ -214,11 +180,9 @@ Ask "Why?" five times to dig from symptom to root cause.
 - Add auto-scaling rules for connection pool
 - Document dynamic configuration best practices
 
----
-
 ### Fishbone Diagram (Ishikawa)
 
-Categorize contributing factors into:
+Sort contributing factors into:
 - **People:** Training gaps, expertise missing
 - **Process:** Deployment procedure, communication protocol
 - **Technology:** Tool limitations, infrastructure constraints
@@ -243,8 +207,6 @@ Categorize contributing factors into:
 
 All branches contribute to incident. Focus on systemic factors, not individuals.
 
----
-
 ## Post-Mortem Document Template
 
 ### Section 1: Incident Summary
@@ -265,8 +227,6 @@ In 2-3 sentences, describe what happened in plain language.
 
 Example: "On December 3, 2025, our API experienced elevated error rates (15% failure) due to database connection pool exhaustion. Approximately 5,000 customers were unable to complete checkout during the incident."
 ```
-
----
 
 ### Section 2: Timeline
 
@@ -292,11 +252,9 @@ Example: "On December 3, 2025, our API experienced elevated error rates (15% fai
 **Include:**
 - Detection time (first alert or customer report)
 - Key investigation milestones
-- Decisions made by IC
+- IC decisions
 - Mitigation actions
 - Resolution confirmation
-
----
 
 ### Section 3: Root Cause Analysis
 
@@ -327,8 +285,6 @@ Conditions that worsened impact or prevented faster resolution.
 **Root Cause:** Release process lacks traffic spike load testing requirement.
 ```
 
----
-
 ### Section 4: Impact Assessment
 
 **Format:**
@@ -354,8 +310,6 @@ Conditions that worsened impact or prevented faster resolution.
 - **Dependencies:** None (isolated to our infrastructure)
 ```
 
----
-
 ### Section 5: What Went Well
 
 **Format:**
@@ -372,10 +326,6 @@ Celebrate effective responses:
 6. **Documentation:** Real-time timeline maintained by scribe
 ```
 
-Reinforces behaviors to repeat in future incidents.
-
----
-
 ### Section 6: What Went Wrong
 
 **Format:**
@@ -390,10 +340,6 @@ Focus on process, tools, or training gaps (not people):
 4. **Delayed External Communication:** First status page update 30 minutes into incident
 5. **Outdated Runbook:** Database failover runbook referenced old hostname
 ```
-
-Frame as improvement opportunities, not mistakes.
-
----
 
 ### Section 7: Action Items
 
@@ -419,12 +365,9 @@ Frame as improvement opportunities, not mistakes.
 - **Tracked:** Status updated weekly in sprint planning
 
 **Follow-Up:**
-- Review action items in sprint planning
 - Track completion rate (target: >90%)
 - Celebrate completions in team meetings
 - Escalate blocked items to leadership
-
----
 
 ### Section 8: Lessons Learned
 
@@ -441,8 +384,6 @@ Key takeaways for organizational knowledge:
 5. **Runbooks are living documents:** Quarterly review and update cycle needed.
 ```
 
----
-
 ## Facilitation Techniques
 
 ### Keeping Discussion Blameless
@@ -454,16 +395,12 @@ Key takeaways for organizational knowledge:
 Facilitator redirects:
 ✅ "Let's focus on the process. What would have prevented this deploy? Should we add a staging validation step to our deployment checklist?"
 
----
-
 **If Defensiveness Arises:**
 
 Engineer: "I followed the runbook exactly!"
 
 Facilitator validates:
 ✅ "You absolutely did the right thing following the runbook. Let's discuss: Was the runbook accurate? Did it cover this scenario? How can we improve it?"
-
----
 
 **If Discussion Stalls:**
 
@@ -472,13 +409,11 @@ Facilitator uses prompts:
 - "If we could go back in time, what would we change?"
 - "What monitoring or tooling would have helped?"
 
----
-
 ### Encouraging Honest Participation
 
 **Create Psychological Safety:**
 
-Facilitator starts meeting:
+Facilitator opens meeting:
 > "I want to emphasize: Mistakes are learning opportunities. No one will be punished for speaking honestly here. In fact, the more honest we are, the more we learn."
 
 **Acknowledge Difficulty:**
@@ -491,8 +426,6 @@ Facilitator validates emotions:
 When engineer admits gap:
 > "Thank you for that honest assessment. That's exactly the kind of insight we need to improve."
 
----
-
 ## Common Post-Mortem Mistakes
 
 ### Mistake 1: Stopping at Human Error
@@ -501,9 +434,7 @@ When engineer admits gap:
 
 ✅ "Root cause: Deployment process allows untested code to reach production. Recommend: Add mandatory staging validation step."
 
-**Principle:** Humans will make mistakes. Systems should prevent mistakes from causing incidents.
-
----
+**Principle:** Humans will make mistakes. Systems should stop mistakes from causing incidents.
 
 ### Mistake 2: Vague Action Items
 
@@ -513,8 +444,6 @@ When engineer admits gap:
 
 **Principle:** Specific, actionable, owned, dated.
 
----
-
 ### Mistake 3: Too Many Action Items
 
 ❌ 25 action items defined (only 3 completed).
@@ -522,8 +451,6 @@ When engineer admits gap:
 ✅ 5 high-priority action items (4 completed on time).
 
 **Principle:** Focus on high-impact improvements, not exhaustive lists.
-
----
 
 ### Mistake 4: No Follow-Up
 
@@ -533,8 +460,6 @@ When engineer admits gap:
 
 **Principle:** Post-mortems only valuable if action items completed.
 
----
-
 ### Mistake 5: Punishing Honesty
 
 ❌ Engineer admits mistake in post-mortem, receives performance warning.
@@ -542,8 +467,6 @@ When engineer admits gap:
 ✅ Engineer admits gap, team fixes process, engineer thanked for honesty.
 
 **Principle:** Punishment destroys blameless culture. Next incident, no one will be honest.
-
----
 
 ## Post-Mortem Distribution
 
@@ -561,7 +484,7 @@ When engineer admits gap:
 **Support Team:**
 - Customer impact details
 - Expected follow-up questions
-- How to respond to inquiries
+- How to answer inquiries
 
 **Leadership:**
 - Executive summary
@@ -580,12 +503,10 @@ When engineer admits gap:
 See `examples/communication-templates.md` for customer email template.
 
 **Public Post-Mortem (Optional):**
-- Some companies publish redacted post-mortems publicly
+- Some companies publish redacted post-mortems
 - Builds trust through transparency
 - Examples: Cloudflare, GitHub, GitLab
-- Redact: Customer names, internal system details, security-sensitive information
-
----
+- Redact: customer names, internal system details, security-sensitive information
 
 ## Knowledge Base Integration
 
@@ -599,22 +520,18 @@ Store all post-mortems in searchable knowledge base:
 **Search Use Cases:**
 - "Has this happened before?" (search by error message, affected service)
 - "What did we learn about database failovers?" (search by tag)
-- Onboarding: New engineers read past post-mortems to learn systems
-
----
+- Onboarding: new engineers read past post-mortems to learn systems
 
 ### Runbook Updates
 
 After each post-mortem:
 - Update relevant runbooks with new learnings
-- Add new runbooks for novel incident types
+- Add runbooks for novel incident types
 - Archive outdated runbooks
 
 **Example:**
 Post-mortem reveals database failover runbook referenced old hostname.
 Action item: Update runbook with current hostnames, add validation step to verify DNS before promoting replica.
-
----
 
 ## Post-Mortem Metrics
 
@@ -639,8 +556,6 @@ Action item: Update runbook with current hostnames, add validation step to verif
 - Criteria: Blameless tone, specific action items, root cause identified
 - Review: Sample post-mortems quarterly for quality
 
----
-
 ## Blameless Culture Maintenance
 
 ### Leadership Behaviors
@@ -658,22 +573,18 @@ Action item: Update runbook with current hostnames, add validation step to verif
 After action items completed:
 > "Great work on implementing the circuit breaker. This will prevent similar incidents. Thank you for turning this incident into a learning opportunity."
 
----
-
 ### Team Norms
 
 **Incident Retro (Quarterly):**
 - Review post-mortems from past quarter
-- Identify trends (common root causes)
-- Celebrate: Most improved metric (MTTR reduction, action item completion)
+- Spot trends (common root causes)
+- Celebrate: most improved metric (MTTR reduction, action item completion)
 - Discuss: Is our post-mortem process working?
 
 **Blameless Language:**
 - Team commits to blameless language in Slack, meetings, code reviews
 - Correct each other gently when blame language appears
 - Reinforce: "We focus on systems, not people."
-
----
 
 ## Further Reading
 

@@ -7,15 +7,9 @@ allowed-tools: []
 
 # Java Concurrency
 
-Master Java's concurrency utilities including ExecutorService,
-CompletableFuture, locks, and modern virtual threads for building
-high-performance concurrent applications.
-
 ## Thread Basics
 
-Understanding Java threads is fundamental to concurrency.
-
-**Creating and running threads:**
+**Create and run threads:**
 
 ```java
 public class ThreadBasics {
@@ -49,9 +43,7 @@ public class ThreadBasics {
 
 ## ExecutorService
 
-ExecutorService provides thread pool management and task scheduling.
-
-**Basic executor usage:**
+**Basic executor:**
 
 ```java
 import java.util.concurrent.*;
@@ -85,7 +77,7 @@ public class ExecutorBasics {
 }
 ```
 
-**Different executor types:**
+**Executor types:**
 
 ```java
 public class ExecutorTypes {
@@ -158,8 +150,6 @@ public class FutureExample {
 ```
 
 ## CompletableFuture
-
-CompletableFuture enables composable asynchronous programming.
 
 **Basic CompletableFuture:**
 
@@ -323,8 +313,6 @@ public class FutureErrorHandling {
 
 ## Locks and Synchronization
 
-Beyond synchronized blocks, Java provides explicit locks.
-
 **ReentrantLock:**
 
 ```java
@@ -452,8 +440,6 @@ public class BoundedBuffer<T> {
 
 ## CountDownLatch and CyclicBarrier
 
-Coordination utilities for managing thread synchronization.
-
 **CountDownLatch:**
 
 ```java
@@ -549,9 +535,7 @@ public class CyclicBarrierExample {
 
 ## Virtual Threads
 
-Virtual threads enable lightweight concurrency at scale.
-
-**Creating virtual threads:**
+**Create virtual threads:**
 
 ```java
 public class VirtualThreads {
@@ -612,23 +596,22 @@ public class VirtualThreadExecutor {
 
 | Rule | Why |
 |------|-----|
-| Use them for blocking I/O-bound tasks, not CPU-bound work | They add concurrency, not CPU; CPU work still needs a bounded platform pool |
-| Never pool virtual threads | They are cheap to create; create one per task with `newVirtualThreadPerTaskExecutor()` |
-| Limit access to scarce resources with a `Semaphore`, not a small pool | Pool size used to double as a DB/HTTP concurrency limit; with virtual threads that limit disappears |
-| Before JDK 24, avoid blocking inside `synchronized` on hot paths; use `ReentrantLock` | A virtual thread blocking inside `synchronized` pins its carrier thread; JDK 24 (JEP 491) removed most of this pinning. Native frames and some class-initialization paths still pin |
-| Keep `ThreadLocal` values small; prefer `ScopedValue` for per-request context | Millions of threads each holding a large ThreadLocal cache (formatters, buffers) multiply memory |
-| Diagnose pinning with JFR (`jdk.VirtualThreadPinned`) | `-Djdk.tracePinnedThreads` was removed in JDK 24 |
+| Use for blocking I/O-bound tasks, not CPU-bound work | They add concurrency, not CPU; CPU work still needs bounded platform pool |
+| Never pool virtual threads | Cheap to create; create one per task with `newVirtualThreadPerTaskExecutor()` |
+| Limit access to scarce resources with `Semaphore`, not small pool | Pool size once doubled as DB/HTTP concurrency limit; virtual threads remove that limit |
+| Before JDK 24, avoid blocking inside `synchronized` on hot paths; use `ReentrantLock` | Virtual thread blocking inside `synchronized` pins its carrier thread; JDK 24 (JEP 491) removed most such pinning. Native frames and some class-initialization paths still pin |
+| Keep `ThreadLocal` values small; prefer `ScopedValue` for per-request context | Millions of threads, each with large ThreadLocal cache (formatters, buffers), multiply memory |
+| Diagnose pinning with JFR (`jdk.VirtualThreadPinned`) | `-Djdk.tracePinnedThreads` removed in JDK 24 |
 
 **Structured concurrency and scoped values:**
 
-`StructuredTaskScope` treats a group of subtasks as one unit: if one fails,
-the others are cancelled, and none outlive the block. It has been a preview
-API since JDK 21, and its shape changed in JDK 25 (`StructuredTaskScope.open()`
-replaced the `ShutdownOnFailure` subclasses). `ScopedValue` was a preview
-in JDK 21-24 and is final in JDK 25. Check the project's JDK and whether
-`--enable-preview` is acceptable before using either API. Without preview,
-use an `ExecutorService` in try-with-resources and cancel the remaining
-futures on failure.
+`StructuredTaskScope` runs subtasks as one unit: if one fails, others are
+cancelled; none outlive the block. Preview API since JDK 21;
+shape changed in JDK 25 (`StructuredTaskScope.open()` replaced
+`ShutdownOnFailure` subclasses). `ScopedValue` was preview in JDK 21-24,
+final in JDK 25. Before using either, check project JDK and whether
+`--enable-preview` is acceptable. Without preview, use `ExecutorService` in
+try-with-resources and cancel remaining futures on failure.
 
 ```java
 // JDK 25 preview API: compile and run with --enable-preview
@@ -653,8 +636,6 @@ void handle(Request req) {
 ```
 
 ## Atomic Variables
-
-Lock-free thread-safe operations using atomic classes.
 
 **AtomicInteger and friends:**
 
@@ -693,8 +674,6 @@ public class AtomicExample {
 ```
 
 ## Thread-Safe Collections
-
-Concurrent collections for safe multi-threaded access.
 
 **ConcurrentHashMap:**
 
@@ -775,46 +754,25 @@ public class ConcurrentCollections {
 }
 ```
 
-## When to Use This Skill
-
-Use java-concurrency when you need to:
-
-- Execute tasks concurrently with thread pools
-- Perform asynchronous operations with callbacks
-- Coordinate multiple threads with barriers or latches
-- Implement producer-consumer patterns
-- Handle high-concurrency scenarios with virtual threads
-- Protect shared state with locks or atomic operations
-- Process tasks in parallel for better performance
-- Implement timeout and cancellation for long operations
-- Build reactive or event-driven applications
-- Scale applications to handle thousands of concurrent tasks
-
 ## Best Practices
 
-- Use ExecutorService instead of raw threads
-- Always shutdown executors properly
+- Use ExecutorService, not raw threads
 - Prefer CompletableFuture for async operations
-- Use virtual threads for I/O-bound tasks
 - Minimize lock contention and critical sections
-- Use concurrent collections over synchronized collections
-- Handle InterruptedException appropriately
-- Avoid blocking operations in CompletableFuture chains
-- Use try-finally for lock acquisition/release
-- Consider using atomic variables over locks
+- Prefer concurrent collections over synchronized ones
+- Avoid blocking in CompletableFuture chains
+- Use try-finally for lock acquire/release
+- Consider atomic variables over locks
 
 ## Common Pitfalls
 
 - Not shutting down executors (resource leak)
-- Before JDK 24, blocking virtual threads inside synchronized blocks (pins the carrier thread; JEP 491 removed most of this)
-- Deadlocks from incorrect lock ordering
-- Race conditions from improper synchronization
+- Deadlocks from wrong lock ordering
 - Thread pool exhaustion from blocking tasks
 - Ignoring InterruptedException
-- Using too many platform threads (use virtual threads)
+- Too many platform threads (use virtual threads)
 - Not handling CompletableFuture exceptions
-- Excessive lock contention hurting performance
-- Incorrect use of volatile vs atomic vs synchronized
+- Misusing volatile vs atomic vs synchronized
 
 ## Resources
 

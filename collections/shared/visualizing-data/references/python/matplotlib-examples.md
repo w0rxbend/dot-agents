@@ -1,6 +1,6 @@
 # Matplotlib Examples (Python)
 
-Publication-quality static plots using Matplotlib.
+Publication-quality static plots with Matplotlib.
 
 ## Installation
 
@@ -225,4 +225,4 @@ fig.savefig('figure.png', dpi=300, bbox_inches='tight', transparent=True)
 
 ---
 
-**For Seaborn statistical visualizations, see `seaborn-examples.md`**
+**Seaborn statistical visualizations: see `seaborn-examples.md`**

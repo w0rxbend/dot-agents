@@ -1,8 +1,5 @@
 # GCP Cost Optimization Reference
 
-Strategies for reducing Google Cloud Platform costs.
-
-
 ## Table of Contents
 
 - [Compute Cost Optimization](#compute-cost-optimization)
@@ -270,9 +267,9 @@ TABLESAMPLE SYSTEM (1 PERCENT);
 
 ### Capacity Pricing (Editions)
 
-Flat-rate pricing was retired; heavy, steady BigQuery usage uses BigQuery Editions
+Flat-rate pricing is retired. For heavy, steady BigQuery usage, use BigQuery Editions
 (Standard/Enterprise/Enterprise Plus) slot reservations with autoscaling and optional commitments.
-Compare against on-demand per-TB pricing on the current BigQuery pricing page before committing.
+Before committing, compare against on-demand per-TB pricing on current BigQuery pricing page.
 
 ```hcl
 resource "google_bigquery_reservation" "reservation" {
@@ -463,9 +460,9 @@ ORDER BY total_cost DESC;
 - [ ] Use Spot VMs for batch/fault-tolerant workloads
 - [ ] Right-size all resources (use Recommender)
 - [ ] Enable Cloud Run CPU throttling and scale-to-zero
-- [ ] Implement Storage lifecycle policies
+- [ ] Add Storage lifecycle policies
 - [ ] Use partitioned and clustered tables in BigQuery
-- [ ] Stop non-production databases during off-hours
+- [ ] Stop non-production databases off-hours
 - [ ] Enable Cloud CDN for static content
 - [ ] Use Standard network tier where acceptable
 - [ ] Set up budget alerts and anomaly detection

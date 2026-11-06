@@ -1,8 +1,5 @@
 # Theme Switching Guide
 
-**Complete guide to implementing light/dark mode and custom brand themes**
-
-
 ## Table of Contents
 
 - [How Theme Switching Works](#how-theme-switching-works)
@@ -61,7 +58,7 @@ document.documentElement.setAttribute('data-theme', 'dark');
 
 ### 3. All Components Update Automatically
 
-No code changes needed - CSS variables cascade:
+No code changes needed. CSS variables cascade:
 
 ```css
 .button {
@@ -260,38 +257,13 @@ setTheme('acme');
 }
 ```
 
-**JavaScript with manual override:**
-```javascript
-function getInitialTheme() {
-  // 1. Check manual preference
-  const saved = localStorage.getItem('theme');
-  if (saved) return saved;
-
-  // 2. Check system preference
-  if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    return 'dark';
-  }
-
-  // 3. Default
-  return 'light';
-}
-```
-
-**Listen to system changes:**
-```javascript
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-  // Only auto-switch if user hasn't set manual preference
-  if (!localStorage.getItem('theme')) {
-    setTheme(e.matches ? 'dark' : 'light');
-  }
-});
-```
+**JavaScript with manual override:** `getTheme()` and `change` listener in [Vanilla JavaScript](#vanilla-javascript). Order: manual preference, then system preference, then `light` default. Auto-switch on system change only if user hasn't set manual preference.
 
 ---
 
 ## Multi-Theme Selector
 
-**Allow users to choose from multiple themes:**
+**Let users pick from multiple themes:**
 
 ```tsx
 function ThemeSelector() {
@@ -363,7 +335,7 @@ const theme = getCookie('theme') || 'light';
 
 ### Problem
 
-Page loads with default theme, then JavaScript switches to saved theme = visual flash
+Page loads with default theme, then JavaScript switches to saved theme. Result: visual flash.
 
 ### Solution 1: Inline Script (Fastest)
 
@@ -496,4 +468,4 @@ describe('Theme switching', () => {
 
 ---
 
-**Complete theme switching implementation in:** `../examples/theme-switcher.html` (React versions: `../examples/ThemeProvider.tsx`, `../examples/ThemeToggle.tsx`)
+**Full theme switching implementation:** `../examples/theme-switcher.html` (React versions: `../examples/ThemeProvider.tsx`, `../examples/ThemeToggle.tsx`)

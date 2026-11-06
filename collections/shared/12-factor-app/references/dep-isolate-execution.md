@@ -7,7 +7,7 @@ tags: dep, isolation, virtualenv, containers
 
 ## Isolate Dependencies to Prevent System Package Leakage
 
-A twelve-factor app uses a dependency isolation tool during execution to ensure no implicit dependencies "leak in" from the surrounding system. This guarantees the app runs identically regardless of what packages are installed globally.
+Use a dependency isolation tool at execution so no implicit dependencies "leak in" from surrounding system. App runs identically whatever is installed globally.
 
 **Incorrect (relying on system packages):**
 
@@ -54,11 +54,5 @@ COPY . .
 CMD ["python", "app.py"]
 # Container has only declared dependencies, nothing from host
 ```
-
-**Benefits:**
-- App behavior is identical across developer machines, CI, and production
-- Multiple apps on the same machine can use different dependency versions
-- Upgrading system packages never breaks existing apps
-- Security vulnerabilities in system packages don't affect isolated apps
 
 Reference: [The Twelve-Factor App - Dependencies](https://12factor.net/dependencies)

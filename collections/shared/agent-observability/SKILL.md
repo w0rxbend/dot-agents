@@ -18,13 +18,9 @@ metadata:
 
 # Agent Observability
 
-Monitor AI agent behavior with logs, traces, metrics, and cost telemetry. This skill covers the full observability stack for LLM-powered applications: from raw Prometheus counters to Grafana dashboards, OpenTelemetry tracing, structured logging, cost tracking, SLO definition, and PII redaction.
-
----
-
 ## Core Metrics
 
-Define these metrics at the application layer. All examples use the Prometheus client library naming conventions.
+Define these metrics at application layer. Names follow Prometheus client library conventions.
 
 ### Latency
 
@@ -135,11 +131,9 @@ AGENT_ACTIVE_REQUESTS = Gauge(
 )
 ```
 
----
-
 ## OpenTelemetry Integration
 
-Use the OpenTelemetry Python SDK to create traces that capture every step of an agent turn: the top-level request, each LLM call, each tool execution, and retrieval operations.
+Trace every agent-turn step with OpenTelemetry Python SDK: top-level request, each LLM call, each tool execution, retrieval.
 
 ### Setup
 
@@ -158,7 +152,8 @@ def init_tracing(service_name: str, otlp_endpoint: str = "http://localhost:4317"
         "deployment.environment": "production",
     })
     provider = TracerProvider(resource=resource)
-    exporter = OTLPSpanExporter(endpoint=otlp_endpoint, insecure=True)
+    # Scheme picks transport: http:// = plaintext (local collector only); https:// = TLS for remote endpoints
+    exporter = OTLPSpanExporter(endpoint=otlp_endpoint)
     provider.add_span_processor(BatchSpanProcessor(exporter))
     trace.set_tracer_provider(provider)
     return trace.get_tracer(service_name)
@@ -213,7 +208,7 @@ def traced_llm_call(client, messages, model, **kwargs):
             raise
 ```
 
-The `llm.*` attribute names above are illustrative. OpenTelemetry's GenAI semantic conventions define standard names (for example `gen_ai.request.model`, `gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`); they are still evolving, so check the current spec and your backend's expectations, and prefer an existing instrumentation library for your LLM SDK over hand-rolled wrappers when one is available.
+`llm.*` attribute names above are illustrative. OpenTelemetry GenAI semantic conventions define standard names (for example `gen_ai.request.model`, `gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`). Still evolving: check current spec and backend expectations. Prefer existing instrumentation library for your LLM SDK over hand-rolled wrappers when one exists.
 
 ### Tracing Tool Execution
 
@@ -297,39 +292,34 @@ def extract_context_from_request(request_headers: dict):
     return token  # call context.detach(token) when done
 ```
 
----
-
-
 ## More in references/details.md
 
-Read `references/details.md` when you need any of the following; it is one file with these sections:
-structured logging of agent actions, a Grafana agent-overview dashboard, per-model cost calculation and budget alert rules,
-Langfuse / Helicone integration, SLO recording and alert rules (plus a Sloth spec), debugging workflows for slow responses,
-high token usage and tool failures, and an OpenTelemetry span processor for PII redaction.
+Read `references/details.md` (one file) for:
+structured logging of agent actions, Grafana agent-overview dashboard, per-model cost calculation and budget alert rules,
+Langfuse / Helicone integration, SLO recording and alert rules (plus Sloth spec), debugging slow responses,
+high token usage and tool failures, OpenTelemetry span exporter wrapper for PII redaction.
 
 ## When to Use
 
-Apply this skill whenever you operate:
+Apply when operating:
 
-- **Autonomous AI agents** that make multi-step tool calls (e.g., coding agents, support agents, data-pipeline agents).
-- **LLM-backed APIs** serving chat completions, summarisation, or classification behind a REST or gRPC gateway.
-- **RAG pipelines** where a retriever fetches context from a vector store before prompting a model.
-- **Multi-agent orchestrations** (crew-style or graph-based) where several agents collaborate on a single task.
-- **Batch inference jobs** that process thousands of prompts against a model endpoint.
+- **Autonomous AI agents** making multi-step tool calls (coding, support, data-pipeline agents).
+- **LLM-backed APIs** serving chat completions, summarisation or classification behind REST or gRPC gateway.
+- **RAG pipelines** fetching vector-store context before prompting model.
+- **Multi-agent orchestrations** (crew-style or graph-based) where agents collaborate on one task.
+- **Batch inference jobs** running thousands of prompts against model endpoint.
 
-Key signals that you need this skill:
+Signals you need it:
 
-1. You cannot answer "what is p95 latency for agent responses this week?"
-2. You have no per-request cost attribution.
-3. Debugging a bad agent response requires grepping raw application logs.
-4. You have no alerting on token-usage spikes or elevated error rates.
-
----
+1. Cannot answer "what is p95 latency for agent responses this week?"
+2. No per-request cost attribution.
+3. Debugging bad agent response means grepping raw application logs.
+4. No alerting on token-usage spikes or elevated error rates.
 
 ## Limitations
 
-- Prompts, completions and tool arguments routinely contain user data and secrets: do not record them as span attributes or log fields by default; redact (see the PII section in `references/details.md`) and check what actually reaches the backend.
-- Cost figures are estimates from token counts and a pricing table you maintain; reconcile against provider invoices.
-- Keep model and agent names as metric labels only while their sets stay small; never label by user, session or prompt.
+- Prompts, completions and tool arguments often hold user data and secrets. Do not record them as span attributes or log fields by default. Redact (see PII section in `references/details.md`) and check what actually reaches backend.
+- Cost figures are estimates from token counts and your own pricing table. Reconcile against provider invoices.
+- Keep model and agent names as metric labels only while their sets stay small. Never label by user, session or prompt.
 
 > Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT); frontmatter, When to Use/Limitations, and safety boundaries added for upstream compliance. Docs-only import: helper scripts and templates not bundled.

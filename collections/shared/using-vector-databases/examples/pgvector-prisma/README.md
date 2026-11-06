@@ -4,6 +4,7 @@ Requires Node.js 22.12+, PostgreSQL 15+ with pgvector installed, and an OpenAI A
 Prisma CLI, client, and PostgreSQL adapter are pinned together on stable version 7.10.1.
 
 ```sh
+export CHECKPOINT_DISABLE=1  # opt out of Prisma CLI telemetry
 npm ci
 cp .env.example .env
 # Edit DATABASE_URL and OPENAI_API_KEY.

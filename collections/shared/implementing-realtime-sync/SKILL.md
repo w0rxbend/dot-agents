@@ -5,11 +5,9 @@ description: Real-time communication patterns for live updates, collaboration, a
 
 # Real-Time Sync
 
-Implement real-time communication for live updates, collaboration, and presence awareness across applications.
-
 ## When to Use
 
-Use this skill when building:
+Use when building:
 
 - **LLM streaming interfaces** - Stream tokens progressively (ai-chat integration)
 - **Live dashboards** - Push metrics and updates to clients
@@ -19,8 +17,6 @@ Use this skill when building:
 - **Offline-first apps** - Mobile/PWA with sync-on-reconnect
 
 ## Protocol Selection Framework
-
-Choose the transport protocol based on communication pattern:
 
 ### Decision Tree
 
@@ -66,8 +62,6 @@ PEER-TO-PEER MEDIA
 
 ### Pattern 1: LLM Streaming with SSE
 
-Stream LLM tokens progressively to frontend (ai-chat integration).
-
 **Python (FastAPI):**
 ```python
 import json
@@ -93,11 +87,9 @@ es.addEventListener('token', (e) => appendToken(JSON.parse(e.data)))
 es.addEventListener('done', () => es.close())
 ```
 
-Reference `references/sse.md` for full implementations, reconnection, and event ID resumption.
+Full implementations, reconnection and event ID resumption: `references/sse.md`.
 
 ### Pattern 2: WebSocket Chat
-
-Bidirectional communication for chat applications.
 
 **Python (FastAPI):**
 ```python
@@ -123,11 +115,9 @@ async def websocket_endpoint(websocket: WebSocket):
         connections.discard(websocket)
 ```
 
-Reference `references/websockets.md` for multi-language examples, authentication, heartbeats, and scaling.
+Multi-language examples, authentication, heartbeats and scaling: `references/websockets.md`.
 
 ### Pattern 3: Collaborative Editing with CRDTs
-
-Conflict-free multi-user editing using Yjs.
 
 **TypeScript (Yjs):**
 ```typescript
@@ -142,11 +132,9 @@ ytext.observe(event => console.log('Changes:', event.changes))
 ytext.insert(0, 'Hello collaborative world!')
 ```
 
-Reference `references/crdts.md` for conflict resolution, Yjs vs Automerge, and advanced patterns.
+Conflict resolution, Yjs vs Automerge and advanced patterns: `references/crdts.md`.
 
 ### Pattern 4: Presence Awareness
-
-Track online users, cursor positions, and typing indicators.
 
 **Yjs Awareness API:**
 ```typescript
@@ -159,11 +147,11 @@ awareness.on('change', () => {
 })
 ```
 
-Reference `references/presence-patterns.md` for cursor tracking, typing indicators, and online status.
+Cursor tracking, typing indicators and online status: `references/presence-patterns.md`.
 
 ### Pattern 5: Offline Sync (Mobile/PWA)
 
-Queue mutations locally and sync when connection restored.
+Queue mutations locally. Sync when connection restored.
 
 **TypeScript (Yjs + IndexedDB):**
 ```typescript
@@ -179,7 +167,7 @@ wsProvider.on('status', (e) => {
 })
 ```
 
-Reference `references/offline-sync.md` for conflict resolution and sync strategies.
+Conflict resolution and sync strategies: `references/offline-sync.md`.
 
 ## Library Recommendations
 
@@ -229,23 +217,24 @@ Reference `references/offline-sync.md` for conflict resolution and sync strategi
 
 ## Reconnection Strategies
 
-**SSE:** Browser's EventSource reconnects automatically after a fixed delay (set by the server's `retry:` field; any backoff beyond that is browser-specific), resending `Last-Event-ID`.
-**WebSocket:** Implement manual exponential backoff with jitter to prevent thundering herd.
+**SSE:** Browser EventSource reconnects automatically after fixed delay, resending `Last-Event-ID`. Server's `retry:` field sets delay; any backoff beyond that is browser-specific.
+**WebSocket:** Add manual exponential backoff with jitter to prevent thundering herd.
 
-Reference `references/sse.md` and `references/websockets.md` for complete implementation patterns.
+Complete implementation patterns: `references/sse.md` and `references/websockets.md`.
 
 ## Security Patterns
 
-**Authentication:** Use cookie-based (same-origin) or token in Sec-WebSocket-Protocol header.
-**Rate Limiting:** Implement per-user message throttling with sliding window.
+**Authentication:** Cookie-based (same-origin) or token in Sec-WebSocket-Protocol header. Cookie auth needs an Origin allowlist check before `accept()` (blocks cross-site WebSocket hijacking). Use `wss://` outside localhost.
+**Peer data:** Awareness state and relayed messages come from other clients. Render with `textContent`, never `innerHTML`.
+**Rate Limiting:** Per-user message throttling with sliding window.
 
-Reference `references/websockets.md` for authentication and rate limiting implementations.
+Authentication and rate limiting implementations: `references/websockets.md`.
 
 ## Scaling with Redis Pub/Sub
 
-For horizontal scaling, use Redis pub/sub to broadcast messages across multiple backend servers.
+Scale horizontally: broadcast messages across multiple backend servers with Redis pub/sub.
 
-Reference `references/websockets.md` for complete Redis scaling implementation.
+Complete Redis scaling implementation: `references/websockets.md`.
 
 ## Frontend Integration
 
@@ -281,26 +270,12 @@ useEffect(() => {
 }, [docId])
 ```
 
-## Reference Documentation
-
-For detailed implementation patterns, consult:
-
-- `references/sse.md` - SSE protocol, reconnection, event IDs
-- `references/websockets.md` - WebSocket auth, heartbeats, scaling
-- `references/crdts.md` - Yjs vs Automerge, conflict resolution
-- `references/presence-patterns.md` - Cursor tracking, typing indicators
-- `references/offline-sync.md` - Mobile patterns, conflict strategies
-
 ## Example Projects
-
-Working implementations available in:
 
 - `examples/llm-streaming-sse/` - FastAPI SSE for LLM streaming (runnable; mock mode without API keys)
 
-For WebSocket chat and Yjs collaborative editing, see the code in `references/websockets.md` and `references/crdts.md`.
+WebSocket chat and Yjs collaborative editing code: `references/websockets.md` and `references/crdts.md`.
 
 ## Testing Tools
-
-Use scripts to validate implementations:
 
 - `scripts/test_websocket_connection.py` - WebSocket connection testing

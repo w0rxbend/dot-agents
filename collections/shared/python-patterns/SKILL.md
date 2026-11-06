@@ -7,17 +7,17 @@ date_added: "2026-02-27"
 
 # Python Patterns
 
-Decision guide for structuring Python applications. It complements the focused
-skills: `python-async-patterns` (asyncio code), `python-type-system` (annotations
-and checkers), `python-data-classes` (models), `pytest-fixtures` /
+Complements focused skills:
+`python-async-patterns` (asyncio code), `python-type-system` (annotations and
+checkers), `python-data-classes` (models), `pytest-fixtures` /
 `pytest-advanced` (tests).
 
 ## How to Use This Skill
 
-- Inspect the repository first: `pyproject.toml`, lock files, CI config and the
-  framework already in use. An existing choice wins unless migration is requested.
-- Ask for the framework preference when it is unclear and nothing exists yet.
-- Choose async vs sync from the workload, not by habit.
+- Inspect repo first: `pyproject.toml`, lock files, CI config, framework already
+  in use. Existing choice wins unless migration requested.
+- Ask for framework preference when unclear and nothing exists yet.
+- Choose async vs sync from workload, not habit.
 
 ---
 
@@ -48,14 +48,13 @@ What are you building?
 
 | Factor | FastAPI | Django | Flask |
 |--------|---------|--------|-------|
-| **Best for** | APIs, microservices | Full-stack, CMS | Simple, learning |
-| **Async** | Native (ASGI) | Async views (3.1+), async ORM API (4.1+, still runs sync DB drivers in threads) | Native `async def` views (2.0+), but still WSGI: one request per worker; use Quart for full ASGI |
+| **Async** | Native (ASGI) | Async views (3.1+), async ORM API (4.1+; sync DB drivers still run in threads) | Native `async def` views (2.0+), still WSGI: one request per worker; use Quart for full ASGI |
 | **Admin** | Manual | Built-in | Via extensions |
 | **ORM** | Choose your own | Django ORM | Choose your own |
 | **Learning curve** | Low | Medium | Low |
 
 ### Selection Questions to Ask:
-1. Is this API-only or full-stack?
+1. API-only or full-stack?
 2. Need admin interface?
 3. Team familiar with async?
 4. Existing infrastructure?
@@ -100,7 +99,7 @@ Don't:
 |------|---------------|
 | HTTP client | httpx |
 | PostgreSQL | asyncpg |
-| Redis | `redis.asyncio` (redis-py 4.2+; `aioredis` is deprecated and merged into it) |
+| Redis | `redis.asyncio` (redis-py 4.2+; `aioredis` deprecated, merged into it) |
 | File I/O | aiofiles |
 | Database ORM | SQLAlchemy 2.0 async, Tortoise |
 
@@ -108,10 +107,10 @@ Don't:
 
 ## 3. Type Hints and Validation
 
-Type every public function signature and class attribute; let inference handle
-locals. For annotation patterns (unions, generics, `Protocol`, `TypeVar`,
-`ParamSpec`) use the **python-type-system** skill. For Pydantic, dataclasses or
-attrs models, including request/response and settings models, use the
+Type every public function signature and class attribute. Leave locals to
+inference. For annotation patterns (unions, generics, `Protocol`, `TypeVar`,
+`ParamSpec`), use **python-type-system** skill. For Pydantic, dataclasses or
+attrs models, including request/response and settings models, use
 **python-data-classes** skill.
 
 ---
@@ -172,17 +171,17 @@ By feature:
 
 ### Tooling Stance
 
-Keep whatever the repository already uses. For a new project:
+Keep whatever repo already uses. For new project:
 
 | Concern | Default | Notes |
 |---------|---------|-------|
-| Environments, deps, lock | `uv` (`uv init`, `uv add`, `uv lock`, `uv run`) | Commit `uv.lock`; Poetry/PDM/pip-tools are fine if already present |
+| Environments, deps, lock | `uv` (`uv init`, `uv add`, `uv lock`, `uv run`) | Commit `uv.lock`; Poetry/PDM/pip-tools fine if already present |
 | Lint + format | `ruff check` + `ruff format` | Replaces flake8/isort/black in most setups; configure in `pyproject.toml` |
-| Type checking | `mypy --strict` or `pyright` | Pick one as the CI gate; see `python-type-system` |
+| Type checking | `mypy --strict` or `pyright` | Pick one as CI gate; see `python-type-system` |
 | Tests | `pytest` (+ `pytest-asyncio` or `anyio` plugin for async) | See `pytest-fixtures`, `pytest-advanced` |
-| Python version | Declare `requires-python` and test the minimum in CI | Use syntax available at that minimum |
+| Python version | Declare `requires-python`, test minimum in CI | Use syntax available at that minimum |
 
-Run lint, type check and tests in CI with the same commands developers run locally.
+Run lint, type check and tests in CI with same commands developers run locally.
 
 ---
 
@@ -339,9 +338,9 @@ Include:
 
 ## 9. Testing Principles
 
-Use pytest; for fixture design (scopes, factories, `conftest.py`) see the
-**pytest-fixtures** skill, for parametrization, markers and plugins see
-**pytest-advanced** and **pytest-plugins**. The FastAPI-specific part:
+Use pytest. For fixture design (scopes, factories, `conftest.py`), see
+**pytest-fixtures** skill. For parametrization, markers and plugins, see
+**pytest-advanced** and **pytest-plugins**. FastAPI-specific part:
 
 ### Async Testing
 
@@ -359,8 +358,8 @@ async def test_endpoint():
 ```
 
 For sync tests, FastAPI's `TestClient` is simpler. `ASGITransport` does not run
-lifespan events; use `asgi-lifespan`'s `LifespanManager` or `TestClient` as a
-context manager when startup/shutdown hooks matter.
+lifespan events. When startup/shutdown hooks matter, use `asgi-lifespan`'s
+`LifespanManager` or `TestClient` as context manager.
 
 ---
 
@@ -382,24 +381,18 @@ Before implementing:
 
 ### Don't
 - Default to Django for simple APIs (FastAPI may be better)
-- Use sync libraries in async code
-- Skip type hints for public APIs
-- Put business logic in routes/views
 - Ignore N+1 queries
 - Call blocking libraries (requests, sync DB drivers, time.sleep) inside `async def`
-- Mix async and sync carelessly
 
 ### Do
-- Choose framework based on context
 - Ask about async requirements
 - Use Pydantic for validation
 - Separate concerns (routes → services → repos)
-- Test critical paths
 
 ---
 
 ## Done When
 
-- The framework, async model and tooling choice are stated with the reason tied
-  to this project's workload and existing setup.
-- `ruff check`, the type checker and `pytest` pass locally and are wired into CI.
+- Framework, async model and tooling choice stated, with reason tied to this
+  project's workload and existing setup.
+- `ruff check`, type checker and `pytest` pass locally and are wired into CI.

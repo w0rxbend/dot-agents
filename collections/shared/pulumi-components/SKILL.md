@@ -2,16 +2,10 @@
 name: pulumi-components
 user-invocable: false
 description: "Build reusable Pulumi ComponentResources - typed inputs/outputs, child-resource parenting, resource options, packaging and testing of modular cloud infrastructure. Use when authoring shareable Pulumi abstractions; use pulumi-stacks for per-environment configuration."
-allowed-tools: [Bash, Read]
+allowed-tools: [Read, "Bash(pulumi preview:*)"]
 ---
 
 # Pulumi Components
-
-Build reusable infrastructure components with Pulumi to create modular, composable, and maintainable infrastructure.
-
-## Overview
-
-Pulumi ComponentResources allow you to create higher-level abstractions that encapsulate multiple cloud resources into logical units. This enables code reuse, better organization, and more maintainable infrastructure code.
 
 ## Basic ComponentResource
 
@@ -1132,7 +1126,7 @@ export class LambdaFunction extends pulumi.ComponentResource {
 
 ## Testing Components with Mocks
 
-Unit-test a component without touching the cloud by mocking the engine with `pulumi.runtime.setMocks`. Mocks must be installed **before** the module that defines the component is imported.
+Unit-test component without touching cloud: mock engine with `pulumi.runtime.setMocks`. Mocks must be installed **before** importing module that defines component.
 
 ```typescript
 // webserver.test.ts (mocha/jest/vitest; run with your test runner)
@@ -1158,64 +1152,40 @@ describe("WebServer", () => {
 });
 ```
 
-Done when: each component has tests asserting its security-relevant inputs (ports, encryption, public access) and `pulumi preview` on a sample stack shows the expected child resources under the component.
+Done when: each component has tests asserting security-relevant inputs (ports, encryption, public access), and `pulumi preview` on sample stack shows expected child resources under component.
 
 ## Packaging and Sharing Components
 
-- **Same language, in-repo**: export components from a local module (`components/index.ts`) and import them across stacks.
-- **Same language, across repos**: publish as a normal package (npm, PyPI, Go module) with `@pulumi/pulumi` and the provider packages as `peerDependencies`, so consumers control provider versions. Keep the component type token (`custom:web:StaticWebsite`) stable; renaming it changes URNs and forces replacement unless you add `aliases`.
-- **Any language**: package the component as a Pulumi plugin/provider so programs in other languages can use it. The mechanism has changed across Pulumi versions (multi-language component providers, then `pulumi package add` for source-based components in recent releases); follow the current [Packages docs](https://www.pulumi.com/docs/iac/using-pulumi/extending-pulumi/) for your CLI version.
-
-## When to Use This Skill
-
-Use the `pulumi-components` skill when you need to:
-
-- Create reusable infrastructure abstractions
-- Encapsulate multiple resources into logical units
-- Build infrastructure libraries for your organization
-- Implement complex multi-resource patterns
-- Ensure consistent resource configurations
-- Create higher-level infrastructure APIs
-- Share infrastructure code across projects
-- Build opinionated infrastructure templates
-- Manage resource relationships and dependencies
-- Create self-contained infrastructure modules
+- **Same language, in-repo**: export components from local module (`components/index.ts`), import across stacks.
+- **Same language, across repos**: publish as normal package (npm, PyPI, Go module) with `@pulumi/pulumi` and provider packages as `peerDependencies`, so consumers control provider versions. Keep component type token (`custom:web:StaticWebsite`) stable. Renaming it changes URNs and forces replacement unless you add `aliases`.
+- **Any language**: package component as Pulumi plugin/provider so programs in other languages can use it. Mechanism changed across Pulumi versions (multi-language component providers, then `pulumi package add` for source-based components in recent releases). Follow current [Packages docs](https://www.pulumi.com/docs/iac/using-pulumi/extending-pulumi/) for your CLI version.
 
 ## Best Practices
 
-1. **Use Parent Relationships**: Always set `{ parent: this }` on child resources so they nest under the component in the URN/tree and inherit its provider and options
-2. **Register Outputs**: Call `registerOutputs()` at the end of constructor to expose component properties
-3. **Type Safety**: Use TypeScript interfaces for component arguments with clear types
+1. **Use Parent Relationships**: Always set `{ parent: this }` on child resources so they nest under component in URN/tree and inherit its provider and options. If forgotten, children land at stack root without component's provider/options; adding parent later changes their URNs (needs `aliases` to avoid replacement)
+2. **Register Outputs**: Call `registerOutputs()` at end of constructor to expose component properties. Forgetting it prevents output tracking
+3. **Type Safety**: Use TypeScript interfaces with clear types for component arguments
 4. **Input Types**: Use `pulumi.Input<T>` for arguments that can be outputs from other resources
-5. **Naming Convention**: Prefix child resource names with the component name for clarity
-6. **Default Options**: Create a `defaultOpts` object with parent set for all child resources
+5. **Naming Convention**: Prefix child resource names with component name. Unprefixed names can conflict
+6. **Default Options**: Create `defaultOpts` object with parent set for all child resources
 7. **Documentation**: Add JSDoc comments explaining component purpose and usage
-8. **Composition Over Inheritance**: Favor creating components that compose other components
-9. **Single Responsibility**: Each component should encapsulate a single logical infrastructure unit
-10. **Dependencies via Outputs**: Pass resource outputs (e.g. `ns.metadata.name`, `bucket.id`) into dependent resources so Pulumi infers the ordering; add `dependsOn` only when there is an ordering requirement with no data flow
-11. **Resource Groups**: Use tags consistently across all resources in a component
-12. **Error Handling**: Validate inputs in the constructor before creating resources
+8. **Composition Over Inheritance**: Favor components that compose other components
+9. **Single Responsibility**: Each component encapsulates one logical infrastructure unit
+10. **Dependencies via Outputs**: Pass resource outputs (e.g. `ns.metadata.name`, `bucket.id`) into dependent resources so Pulumi infers ordering. Plain strings (namespace name, bucket name) hide the dependency, so Pulumi may create resources in wrong order. Add `dependsOn` only for ordering requirement with no data flow
+11. **Resource Groups**: Tag all resources in component consistently
+12. **Error Handling**: Validate inputs (required args included) in constructor before creating resources, with helpful error messages for invalid configurations
 13. **Immutability**: Avoid modifying component state after construction
-14. **Export Typed Outputs**: Export strongly-typed outputs for use by consumers
-15. **Provider Configuration**: Allow provider configuration to be passed through opts
+14. **Export Typed Outputs**: Export strongly-typed outputs for consumers
+15. **Provider Configuration**: Let callers pass provider configuration through opts
 
 ## Common Pitfalls
 
-1. **Missing Parent**: Forgetting `parent: this` leaves children at stack root, so they do not inherit the component's provider/options and adding a parent later changes their URNs (needs `aliases` to avoid replacement)
-2. **Not Registering Outputs**: Forgetting `registerOutputs()` prevents output tracking
-3. **Incorrect Type URN**: Using wrong format for component type (should be `category:subcategory:Name`)
-4. **Circular Dependencies**: Creating circular references between components
-5. **Improper Output Handling**: Not using `pulumi.Output.apply()` for dependent values
-6. **Hardcoded Values**: Hardcoding values that should be configurable arguments
-7. **Missing Resource Names**: Not prefixing child resource names can cause name conflicts
-8. **Inconsistent Tagging**: Not applying consistent tags across all component resources
-9. **Overly Complex Components**: Creating components that do too much
-10. **Poor Abstraction Level**: Creating components at wrong abstraction level (too high or too low)
-11. **Missing Validation**: Not validating required arguments before resource creation
-12. **State Mutations**: Mutating component state after construction
-13. **Hidden Dependencies**: Passing plain strings (a namespace name, a bucket name) instead of the producing resource's output, so Pulumi sees no dependency and may create resources in the wrong order
-14. **Missing Error Messages**: Not providing helpful error messages for invalid configurations
-15. **Tight Coupling**: Creating components that are too tightly coupled to specific implementations
+1. **Incorrect Type URN**: Wrong component type format (should be `category:subcategory:Name`)
+2. **Circular Dependencies**: Circular references between components
+3. **Improper Output Handling**: Not using `pulumi.Output.apply()` for dependent values
+4. **Hardcoded Values**: Hardcoding values that should be configurable arguments
+5. **Poor Abstraction Level**: Components at wrong abstraction level (too high or too low)
+6. **Tight Coupling**: Components too tightly coupled to specific implementations
 
 ## Resources
 

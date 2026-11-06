@@ -1,7 +1,5 @@
 # Basic Table Patterns
 
-Foundational patterns for HTML tables, simple React tables, and accessibility compliance.
-
 
 ## Table of Contents
 
@@ -159,15 +157,8 @@ function TableSkeleton({ rows = 5, cols = 4 }) {
 ## Best Practices
 
 1. **Use semantic HTML** - `<table>`, `<th>`, `<td>`, not divs
-2. **Add caption** - Describes table purpose
-3. **Scope attributes** - `scope="col"` and `scope="row"`
-4. **Keyboard navigation** - Tab through interactive cells
-5. **Responsive wrapper** - Horizontal scroll on mobile
-6. **Loading states** - Skeleton during fetch
-7. **Empty states** - Clear message when no data
-8. **Stripe rows** - Alternating background colors
-9. **Sticky header** - Header visible during scroll
-10. **ARIA labels** - For screen readers
+2. **Keyboard navigation** - Tab through interactive cells
+3. **Stripe rows** - Alternate background colors
 
 ## Sticky Header
 

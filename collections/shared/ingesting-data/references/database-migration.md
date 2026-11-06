@@ -54,6 +54,8 @@ await migrate(db, { migrationsFolder: "./drizzle" });
 
 ## Bulk Data Migration
 
+Table names in these examples are trusted constants. Never build SQL from external input: allow-list identifiers, bind values as parameters.
+
 ### Python - Table to Table
 ```python
 import polars as pl
@@ -99,7 +101,7 @@ def migrate_with_transform(source_table: str, target_table: str):
     ])
     df = df.drop("deprecated_field")
 
-    # Write
+    # Write ("replace" drops an existing target table: confirm with user first)
     df.write_database(target_table, target, if_table_exists="replace")
 ```
 
@@ -159,6 +161,11 @@ services:
       CONFIG_STORAGE_TOPIC: debezium_config
       OFFSET_STORAGE_TOPIC: debezium_offsets
       STATUS_STORAGE_TOPIC: debezium_status
+      # Resolve ${file:...} secrets in connector configs
+      CONNECT_CONFIG_PROVIDERS: file
+      CONNECT_CONFIG_PROVIDERS_FILE_CLASS: org.apache.kafka.common.config.provider.FileConfigProvider
+    volumes:
+      - ./secrets:/secrets:ro  # git-ignored, never committed
 ```
 
 ```python
@@ -172,7 +179,7 @@ connector_config = {
         "database.hostname": "postgres",
         "database.port": "5432",
         "database.user": "debezium",
-        "database.password": "secret",
+        "database.password": "${file:/secrets/db.properties:password}",  # never a literal: REST API echoes configs
         "database.dbname": "mydb",
         "topic.prefix": "mydb",
         "table.include.list": "public.users,public.orders",

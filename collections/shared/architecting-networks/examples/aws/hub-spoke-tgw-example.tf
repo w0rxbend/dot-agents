@@ -10,6 +10,7 @@
  * - AWS provider configured
  *
  * Usage:
+ * export CHECKPOINT_DISABLE=1  # opt out of Terraform checkpoint phone-home
  * terraform init
  * terraform plan
  * terraform apply

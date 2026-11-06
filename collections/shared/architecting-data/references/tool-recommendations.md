@@ -1,6 +1,5 @@
 # Tool Recommendations
 
-
 ## Table of Contents
 
 - [Research-Validated Tools (Context7, December 2025)](#research-validated-tools-context7-december-2025)
@@ -27,18 +26,17 @@
 **Library ID:** /websites/getdbt
 
 **Use For:**
-- SQL-based transformations in data warehouse/lakehouse
-- Version control for data pipelines (Git integration)
-- Testing and documentation (built-in framework)
+- SQL-based transformations in warehouse/lakehouse
+- Pipeline version control (Git integration)
 - Lineage tracking (automatic DAG generation)
 
 **Key Features:**
 - Models as SQL `SELECT` statements
 - Built-in testing (unique, not_null, relationships, custom tests)
-- Incremental models (only process new data)
+- Incremental models (process only new data)
 - Seeds (CSV files as reference data)
 - Snapshots (track changes over time)
-- Documentation generation (automatic)
+- Automatic documentation generation
 - Multi-warehouse support (Snowflake, BigQuery, Redshift, Databricks)
 
 **Ecosystem Packages:**
@@ -48,14 +46,14 @@
 - `dbt-project-evaluator`: Project quality checks
 
 **Why Recommended:**
-- Industry standard (majority of data teams use dbt)
+- Industry standard (most data teams use dbt)
 - Strong software engineering practices (Git, CI/CD, testing)
-- Extensive documentation and community support
-- Multi-warehouse support avoids lock-in
+- Extensive docs and community support
 
 **Getting Started:**
 ```bash
 pip install dbt-snowflake
+export DBT_SEND_ANONYMOUS_USAGE_STATS=False  # dbt sends usage stats by default
 dbt init my_project
 cd my_project
 dbt run
@@ -76,7 +74,6 @@ dbt test
 - Multi-engine analytics (Spark, Trino, Flink, Presto)
 - ACID transactions on object storage
 - Schema evolution without rewrites
-- Time travel queries
 
 **Key Features:**
 - Hidden partitioning (no partition predicates in queries)
@@ -85,7 +82,6 @@ dbt test
 - Time travel (query historical snapshots)
 - Schema evolution (add/drop/rename columns safely)
 - Metadata management (efficient manifest files)
-- Multi-engine support (best-in-class)
 
 **Ecosystem:**
 - **Apache Polaris:** Open-source catalog (1,224 snippets, High reputation)
@@ -95,7 +91,7 @@ dbt test
 **Why Recommended:**
 - Vendor-neutral (Apache Foundation governance)
 - Broadest multi-engine support (avoid vendor lock-in)
-- Production-ready (Netflix, Apple, Adobe, Airbnb use in production)
+- Production-ready (used in production by Netflix, Apple, Adobe, Airbnb)
 - Best partition evolution support
 
 **Getting Started:**
@@ -119,35 +115,35 @@ TIMESTAMP AS OF '2025-01-01 00:00:00';
 
 ### Tool Comparison Matrix
 
-| Tool | Best For | Trust Score | Cost | Complexity |
-|------|----------|-------------|------|------------|
+| Tool | Best For | Cost | Complexity |
+|------|----------|------|------------|
 | **Ingestion** |
-| Fivetran | Pre-built connectors, low maintenance | N/A | $$$ | Low |
-| Airbyte | Custom connectors, cost-sensitive | N/A | $ (OSS) | Medium |
-| Kafka | Real-time streaming, event-driven | N/A | $$ | High |
+| Fivetran | Pre-built connectors, low maintenance | $$$ | Low |
+| Airbyte | Custom connectors, cost-sensitive | $ (OSS) | Medium |
+| Kafka | Real-time streaming, event-driven | $$ | High |
 | **Storage** |
-| Snowflake | BI/analytics, strong governance | N/A | $$$ | Low |
-| Databricks | ML/data science, Spark-native | N/A | $$ | Medium |
-| BigQuery | Google Cloud, serverless | N/A | $$ | Low |
+| Snowflake | BI/analytics, strong governance | $$$ | Low |
+| Databricks | ML/data science, Spark-native | $$ | Medium |
+| BigQuery | Google Cloud, serverless | $$ | Low |
 | **Transformation** |
-| dbt | SQL-based, analysts, BI-focused | 87.0 | Free (OSS) | Low-Medium |
-| Spark | PySpark, large-scale, ML | N/A | $$ | High |
+| dbt | SQL-based, analysts, BI-focused | Free (OSS) | Low-Medium |
+| Spark | PySpark, large-scale, ML | $$ | High |
 | **Orchestration** |
-| Airflow | Mature, large community | N/A | $ (OSS) | Medium-High |
-| Dagster | Asset-based, modern | N/A | $ (OSS) | Medium |
-| Prefect | Simple, dynamic workflows | N/A | $ (OSS) | Low-Medium |
+| Airflow | Mature, large community | $ (OSS) | Medium-High |
+| Dagster | Asset-based, modern | $ (OSS) | Medium |
+| Prefect | Simple, dynamic workflows | $ (OSS) | Low-Medium |
 | **Table Format** |
-| Apache Iceberg | Multi-engine, vendor-neutral | 79.7 | Free (OSS) | Medium |
-| Delta Lake | Databricks, Spark-optimized | N/A | Free (OSS) | Medium |
-| Apache Hudi | CDC, frequent upserts | N/A | Free (OSS) | Medium-High |
+| Apache Iceberg | Multi-engine, vendor-neutral | Free (OSS) | Medium |
+| Delta Lake | Databricks, Spark-optimized | Free (OSS) | Medium |
+| Apache Hudi | CDC, frequent upserts | Free (OSS) | Medium-High |
 | **Catalog** |
-| DataHub | Open-source, REST API | N/A | Free (OSS) | Medium |
-| Alation | Enterprise, AI-powered | N/A | $$$$ | Low |
-| Collibra | Governance-focused | N/A | $$$$ | Medium |
+| DataHub | Open-source, REST API | Free (OSS) | Medium |
+| Alation | Enterprise, AI-powered | $$$$ | Low |
+| Collibra | Governance-focused | $$$$ | Medium |
 | **Quality** |
-| Great Expectations | Comprehensive, Python | N/A | Free (OSS) | Medium |
-| Soda Core | Simple, YAML-based | N/A | Free (OSS) | Low |
-| dbt Tests | Built-in, SQL-based | N/A | Free | Low |
+| Great Expectations | Comprehensive, Python | Free (OSS) | Medium |
+| Soda Core | Simple, YAML-based | Free (OSS) | Low |
+| dbt Tests | Built-in, SQL-based | Free | Low |
 
 ---
 
@@ -167,8 +163,6 @@ TIMESTAMP AS OF '2025-01-01 00:00:00';
 - **Visualization:** Metabase (open-source) or Looker Studio (free)
 - **Catalog:** DataHub (if needed later)
 
-**Why:** Minimize complexity, leverage managed services, focus on business value.
-
 ---
 
 ### Growth Company (Balanced)
@@ -187,8 +181,6 @@ TIMESTAMP AS OF '2025-01-01 00:00:00';
 - **Quality:** Great Expectations + dbt tests
 - **Table Format:** Apache Iceberg (if lakehouse)
 
-**Why:** Balance convenience and cost; support BI and ML workloads.
-
 ---
 
 ### Enterprise (Full Stack)
@@ -200,7 +192,7 @@ TIMESTAMP AS OF '2025-01-01 00:00:00';
 **Stack:**
 - **Storage:** Snowflake (BI) + Databricks (ML) hybrid
 - **Ingestion:** Fivetran + Custom Airflow DAGs + Kafka
-- **Transformation:** dbt + Spark (for heavy processing)
+- **Transformation:** dbt + Spark (heavy processing)
 - **Orchestration:** Airflow (self-hosted or managed)
 - **Visualization:** Tableau (enterprise license) + custom tools
 - **Catalog:** Alation or Collibra (enterprise features)
@@ -208,8 +200,6 @@ TIMESTAMP AS OF '2025-01-01 00:00:00';
 - **Quality:** Great Expectations + Soda + dbt tests
 - **Table Format:** Apache Iceberg (vendor-neutral)
 - **Lineage:** OpenLineage + Marquez
-
-**Why:** Full-featured stack, mature governance, support for all workloads.
 
 ---
 
@@ -229,14 +219,14 @@ TIMESTAMP AS OF '2025-01-01 00:00:00';
 - ✅ 300+ connectors (community-maintained)
 - ✅ Custom connector SDK (build your own)
 - ✅ Self-hosted or cloud
-- ❌ More maintenance (self-hosted requires ops)
+- ❌ More maintenance (self-hosted needs ops)
 - ❌ Less polished than Fivetran
 
 **Kafka:**
 - ✅ Real-time streaming (millisecond latency)
 - ✅ Event-driven architecture
 - ✅ Highest throughput (millions of events/sec)
-- ❌ High complexity (requires Kafka expertise)
+- ❌ High complexity (needs Kafka expertise)
 - ❌ Operational overhead (cluster management)
 - ❌ Not ideal for batch CDC
 
@@ -255,14 +245,13 @@ TIMESTAMP AS OF '2025-01-01 00:00:00';
 - ✅ Strong governance (RBAC, masking, row-level security)
 - ✅ Multi-cloud (AWS, GCP, Azure)
 - ✅ Zero-maintenance (fully managed)
-- ❌ Expensive for large data volumes
+- ❌ Expensive at large data volumes
 - ❌ Not ideal for ML workloads (limited Python support)
 
 **Databricks:**
 - ✅ Best for ML/data science (Spark-native, notebooks)
 - ✅ Unified analytics (BI + ML)
 - ✅ Lakehouse platform (Delta Lake)
-- ✅ Excellent for Spark workloads
 - ❌ Steeper learning curve
 - ❌ Not as SQL-optimized as Snowflake
 
@@ -286,10 +275,6 @@ TIMESTAMP AS OF '2025-01-01 00:00:00';
 
 **dbt:**
 - ✅ SQL-based (analysts can write transformations)
-- ✅ Version control (Git integration)
-- ✅ Testing framework (built-in)
-- ✅ Documentation generation (automatic)
-- ✅ Incremental models (efficient)
 - ❌ SQL-only (no Python UDFs)
 - ❌ Not ideal for >100TB data
 
@@ -299,7 +284,7 @@ TIMESTAMP AS OF '2025-01-01 00:00:00';
 - ✅ ML integration (MLlib, feature engineering)
 - ✅ Flexible (batch and streaming)
 - ❌ Steep learning curve
-- ❌ Requires data engineers
+- ❌ Needs data engineers
 
 **Recommendation:**
 - Analysts writing transformations → dbt
@@ -320,7 +305,7 @@ TIMESTAMP AS OF '2025-01-01 00:00:00';
 
 **Dagster:**
 - ✅ Asset-based (data pipelines as assets)
-- ✅ Strong testing (unit tests for pipelines)
+- ✅ Strong testing (pipeline unit tests)
 - ✅ Modern design (Python-native)
 - ✅ Better for data products
 - ❌ Smaller community (2019)
@@ -331,7 +316,7 @@ TIMESTAMP AS OF '2025-01-01 00:00:00';
 - ✅ Python-native (Pythonic API)
 - ✅ Hybrid execution (local + cloud)
 - ❌ Smaller community (2018)
-- ❌ Less enterprise features
+- ❌ Fewer enterprise features
 
 **Recommendation:**
 - Mature, complex workflows → Airflow

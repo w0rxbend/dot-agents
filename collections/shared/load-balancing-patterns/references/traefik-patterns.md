@@ -1,8 +1,5 @@
 # Traefik Load Balancing Patterns
 
-Cloud-native edge router with automatic service discovery.
-
-
 ## Table of Contents
 
 - [Docker Provider](#docker-provider)
@@ -23,16 +20,16 @@ services:
   traefik:
     image: traefik:v3.0
     command:
-      - --api.insecure=true
+      - --api.dashboard=true  # route api@internal behind basicAuth/ipAllowList; never --api.insecure or public :8080
       - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro  # root-equivalent; prefer a socket proxy in prod
 
   app:
     image: myapp:latest
@@ -163,4 +160,4 @@ http:
         expression: "NetworkErrorRatio() > 0.30"
 ```
 
-Complete examples in `examples/traefik/` directory.
+Complete examples in `examples/traefik/`.

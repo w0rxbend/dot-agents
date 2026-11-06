@@ -18,40 +18,40 @@ metadata:
 
 # Render Persistent Disks
 
-Persistent disks are high-performance SSDs you attach to a Render service to preserve filesystem changes across deploys and restarts. Without a disk, services have an **ephemeral filesystem**—all local file changes are lost on every deploy.
+Persistent disks: high-performance SSDs attached to Render service. Keep filesystem changes across deploys and restarts. Without disk, services have an **ephemeral filesystem**—all local file changes lost on every deploy.
 
 ## When to Use
 
-- Storing **file uploads**, CMS media, or user-generated content
-- Running a **self-managed database** (MySQL, MongoDB, ClickHouse) on Render
+- Storing **file uploads**, CMS media, user-generated content
+- Running **self-managed database** (MySQL, MongoDB, ClickHouse) on Render
 - Deploying **stateful infrastructure** (Elasticsearch, Kafka, RabbitMQ, Mattermost)
 - Understanding **why scaling is blocked** or **zero-downtime deploys are disabled**
-- **Restoring data** from an automatic disk snapshot
+- **Restoring data** from automatic disk snapshot
 
 For managed databases, prefer **Render Postgres** (render-postgres) or **Key Value** (render-keyvalue) over self-managed alternatives on disk.
 
 ## Critical Constraints
 
-These constraints affect architecture decisions. Understand them **before** attaching a disk:
+Understand these **before** attaching disk:
 
 | Constraint | Impact |
 |------------|--------|
-| **Single instance only** | Cannot scale horizontally (`numInstances` must be 1, autoscaling not available) |
-| **No zero-downtime deploys** | Old instance stops before new instance starts (brief downtime on each deploy) |
-| **Runtime access only** | Disk is not available during `buildCommand` or `preDeployCommand` (those run on separate compute) |
-| **Not accessible from other services** | Only the attached service can read/write the disk |
-| **Not available on cron jobs** | Attach to a web service, private service, or background worker instead |
+| **Single instance only** | Cannot scale horizontally (`numInstances` must be 1, no autoscaling) |
+| **No zero-downtime deploys** | Old instance stops before new one starts (brief downtime each deploy) |
+| **Runtime access only** | Disk not available during `buildCommand` or `preDeployCommand` (those run on separate compute) — move logic to start command |
+| **Not accessible from other services** | Only attached service can read/write disk |
+| **Not available on cron jobs** | Attach to web service, private service, or background worker instead |
 | **Not available on one-off jobs** | One-off jobs run on separate compute without disk access |
-| **Can increase size, cannot decrease** | Start small and grow as needed |
+| **Can increase size, cannot decrease** | Start small, grow as needed |
 
 ## Setup
 
 ### Dashboard
 
-1. Go to your service's **Disks** page
-2. Set the **mount path** (absolute path where persistent data is stored)
-3. Choose a **size** in GB
-4. Click **Add disk** — triggers a new deploy
+1. Go to service's **Disks** page
+2. Set **mount path** (absolute path for persistent data)
+3. Choose **size** in GB
+4. Click **Add disk** — triggers new deploy
 
 ### Blueprint
 
@@ -72,7 +72,7 @@ services:
 
 ## Mount Path
 
-Only files written **under the mount path** are preserved. Everything else remains ephemeral.
+Only files written **under mount path** persist. Everything else stays ephemeral.
 
 | Runtime | Source code path | Example mount path |
 |---------|------------------|--------------------|
@@ -84,17 +84,17 @@ Only files written **under the mount path** are preserved. Everything else remai
 
 Cannot mount at: `/`, `/opt`, `/opt/render`, `/opt/render/project`, `/opt/render/project/src`, `/home`, `/home/render`, `/etc`, `/etc/secrets`.
 
-Subdirectories of these paths are fine (e.g. `/opt/render/project/src/uploads`).
+Subdirectories of these paths fine (e.g. `/opt/render/project/src/uploads`).
 
 ## Snapshots
 
-- Render creates an **automatic snapshot every 24 hours**
-- Snapshots are available for **at least 7 days**
-- Restore from the service's **Disks** page in the Dashboard
-- **Full restore only** — you cannot restore individual files
-- **Destructive** — all changes after the snapshot are lost
+- Render creates **automatic snapshot every 24 hours**
+- Snapshots kept **at least 7 days**
+- Restore from service's **Disks** page in Dashboard
+- **Full restore only** — cannot restore individual files
+- **Destructive** — all changes after snapshot lost
 
-**Do not restore snapshots for custom database recovery.** Use database-native backup tools (mysqldump, mongodump) instead—disk snapshots may capture a corrupted database state.
+**Do not restore snapshots for custom database recovery.** Use database-native backup tools (mysqldump, mongodump) instead. Disk snapshots may capture corrupted database state.
 
 ## File Transfers
 
@@ -108,7 +108,7 @@ scp -s YOUR_SERVICE@ssh.YOUR_REGION.render.com:/mount/path/file ./local-file
 scp -s ./local-file YOUR_SERVICE@ssh.YOUR_REGION.render.com:/mount/path/file
 ```
 
-Requires SSH access enabled for the service.
+Requires SSH access enabled for service.
 
 ### Magic-Wormhole
 
@@ -128,18 +128,8 @@ wormhole receive
 |---------|-------------|------------|-------|
 | WordPress / Ghost / CMS | Web Service | `/var/data` or `/app/content` | Media uploads, SQLite |
 | Self-managed MySQL | Private Service | `/var/lib/mysql` | Use mysqldump for backups, not disk snapshots |
-| File upload API | Web Service | `/opt/render/project/src/uploads` | Single instance constraint |
+| File upload API | Web Service | `/opt/render/project/src/uploads` | Single-instance constraint |
 | Elasticsearch | Private Service | `/usr/share/elasticsearch/data` | Stateful search infrastructure |
-
-## Common Mistakes
-
-| Mistake | Fix |
-|---------|-----|
-| Expecting horizontal scaling with a disk | Not possible — disk services are single-instance only |
-| Mounting at a disallowed path | Use a subdirectory (e.g. `/opt/render/project/src/uploads` not `/opt/render/project/src`) |
-| Reading disk during build or pre-deploy | These run on separate compute — move logic to the start command |
-| Restoring disk snapshot for a database | Use database-native backups instead |
-| Starting with a large disk size | Start small — you can increase but never decrease |
 
 ## References
 

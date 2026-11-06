@@ -1,8 +1,5 @@
 # Visualization Selection Matrix
 
-Complete decision trees and quick reference tables for choosing the right visualization type.
-
-
 ## Table of Contents
 
 - [By Data Story (Quick Reference)](#by-data-story-quick-reference)
@@ -21,7 +18,7 @@ Complete decision trees and quick reference tables for choosing the right visual
 | **Compare categories** | Bar Chart | Lollipop Chart | Emphasize differences, save space |
 | **Show trend over time** | Line Chart | Area Chart | Emphasize magnitude/volume |
 | **Part-to-whole** | Stacked Bar | Treemap | Hierarchical data |
-| **Distribution shape** | Histogram | Violin Plot | Show full distribution, not just bins |
+| **Distribution shape** | Histogram | Violin Plot | Full distribution, not just bins |
 | **Correlation** | Scatter Plot | Hexbin Plot | >1000 points (reduce overplotting) |
 | **Flow/transformation** | Sankey Diagram | Chord Diagram | Circular relationships |
 | **Ranking changes** | Slope Graph | Bump Chart | More than 2 time points |
@@ -148,7 +145,7 @@ Show outliers?
 |----------|-----------------|-----------------|-------|
 | **Executive/C-Suite** | Simple, clear | Bar, line, slope graphs. Heavy annotation. One insight per chart. | Complex charts, jargon, small text |
 | **General Public** | Familiar types | Bar, line, pie (<6 slices). Clear labels. Strong narrative. | Novel chart types, technical terms |
-| **Data Analysts** | Moderate-Complex | Any chart type. Interactive. Access to raw data. | Oversimplification |
+| **Data Analysts** | Moderate-Complex | Any chart type. Interactive. Raw data access. | Oversimplification |
 | **Scientists** | Complex, rigorous | Violin, box, scatter with CI. Methodological transparency. | Decorative elements |
 | **Domain Experts** | Specialized OK | Candlestick (finance), Gantt (PM). Assume domain knowledge. | Explaining basics |
 
@@ -160,19 +157,19 @@ Show outliers?
 |-------------|-----------------|----------------|-------|
 | <100 | SVG (standard) | Recharts, Plotly | Fast, crisp, scalable |
 | 100-1,000 | SVG optimized | Recharts, D3.js | Good performance |
-| 1K-10K | SVG or Canvas | D3.js (Canvas) | Canvas for better perf |
+| 1K-10K | SVG or Canvas | D3.js (Canvas) | Canvas performs better |
 | 10K-100K | Canvas | D3.js (Canvas), Plotly WebGL | Required for smooth interaction |
 | >100K | Server aggregation | Backend → Simple viz | Aggregate before sending to client |
 
 **Canvas vs SVG:**
-- **SVG**: Crisp, scalable, accessible, but slow with many elements
-- **Canvas**: Fast, handles 10K+ points, but less accessible (rasterized)
+- **SVG**: Crisp, scalable, accessible; slow with many elements
+- **Canvas**: Fast, handles 10K+ points; less accessible (rasterized)
 
 ---
 
 ## Chart Type Index (Alphabetical)
 
-Quick lookup for specific chart types:
+Quick lookup by chart type:
 
 - **Area Chart** - Trend (magnitude emphasis)
 - **Bar Chart** - Comparison (categorical)
@@ -212,4 +209,4 @@ Quick lookup for specific chart types:
 
 ---
 
-*Use this matrix to quickly identify appropriate visualizations. For detailed implementation guidance, accessibility patterns, and code examples, reference the language-specific directories.*
+*For implementation guidance, accessibility patterns and code examples, see language-specific directories.*

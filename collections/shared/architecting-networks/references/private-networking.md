@@ -1,7 +1,5 @@
 # Private Networking
 
-Private connectivity to cloud services without traversing the public internet.
-
 ## VPC Endpoints (AWS)
 
 ### Gateway Endpoints (Free)
@@ -11,7 +9,7 @@ Private connectivity to cloud services without traversing the public internet.
 - DynamoDB
 
 **Use When:**
-- Accessing S3 or DynamoDB from private subnets
+- S3 or DynamoDB access from private subnets
 - Avoiding NAT Gateway data processing charges
 
 ### Interface Endpoints (AWS PrivateLink)
@@ -23,16 +21,16 @@ Private connectivity to cloud services without traversing the public internet.
 - Third-party SaaS applications
 
 **Use When:**
-- Accessing AWS services from private subnets
-- Security requirement: No public internet access
-- Cost optimization: High-volume S3/DynamoDB access
+- AWS service access from private subnets
+- Security requirement: no public internet access
+- Cost optimization: high-volume S3/DynamoDB access
 
 ## Private Service Connect (GCP)
 
 **Purpose:** Private access to Google APIs and services
 
 **Use When:**
-- Accessing Google services without external IP
+- Google services access without external IP
 - Compliance requires private connectivity
 
 ## Private Link (Azure)

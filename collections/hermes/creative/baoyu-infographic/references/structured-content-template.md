@@ -1,30 +1,22 @@
 # Structured Content Template
 
-Template for generating structured infographic content that informs the visual designer.
-
-## Purpose
-
-This document bridges content analysis and visual design:
-- Transforms source material into designer-ready format
-- Organizes learning objectives into visual sections
-- Preserves all source data verbatim
-- Separates content from design instructions
+Template for structured infographic content that informs visual designer.
 
 ## Instructional Design Process
 
 ### Phase 1: High-Level Outline
 
-1. **Title**: Capture the essence in a compelling headline
+1. **Title**: Capture essence in compelling headline
 2. **Overview**: Brief description (1-2 sentences)
-3. **Learning Objectives**: List what the viewer will understand
+3. **Learning Objectives**: List what viewer will understand
 
 ### Phase 2: Section Development
 
 For each learning objective:
 
-1. **Key Concept**: One-sentence summary of the section
+1. **Key Concept**: One-sentence section summary
 2. **Content**: Points extracted verbatim from source
-3. **Visual Element**: What should be shown visually
+3. **Visual Element**: What to show visually
 4. **Text Labels**: Exact text for headlines, subheads, labels
 
 ### Phase 3: Data Integrity Check
@@ -233,12 +225,12 @@ Extracted from user's steering prompt:
 
 Before finalizing structured content:
 
-- [ ] Title captures the main message
-- [ ] Learning objectives are clear and measurable
+- [ ] Title captures main message
+- [ ] Learning objectives clear and measurable
 - [ ] Each section maps to an objective
-- [ ] All content is verbatim from source
-- [ ] Visual elements are clearly described
-- [ ] Text labels are specified exactly
-- [ ] Data points are collected and verified
-- [ ] Design instructions are separated
-- [ ] No new information has been added
+- [ ] All content verbatim from source
+- [ ] Visual elements clearly described
+- [ ] Text labels specified exactly
+- [ ] Data points collected and verified
+- [ ] Design instructions separated
+- [ ] No new information added

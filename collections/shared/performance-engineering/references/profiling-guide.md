@@ -15,64 +15,22 @@
 
 ## Profiling Fundamentals
 
-### What is Profiling?
-
-Profiling measures where a program spends time and resources. Unlike load testing (which tests system behavior under load), profiling provides detailed insights into code execution.
-
-**Key questions profiling answers:**
-- Which functions use the most CPU time?
-- Where are memory allocations happening?
-- What's causing slow I/O operations?
-- Which code paths are hot (frequently executed)?
-
 ### Profiling vs. Load Testing
 
 | Aspect | Load Testing | Profiling |
 |--------|--------------|-----------|
-| **Purpose** | Validate system capacity | Identify code-level bottlenecks |
+| **Purpose** | Validate system capacity | Find code-level bottlenecks |
 | **Scope** | System-level (throughput, latency) | Function-level (CPU, memory, I/O) |
 | **Output** | Metrics (RPS, p95 latency) | Flamegraphs, call stacks |
-| **When** | Before launch, regression testing | After identifying slow performance |
+| **When** | Before launch, regression testing | After spotting slow performance |
 | **Tool Examples** | k6, Locust | pprof, py-spy, Chrome DevTools |
 
-**Workflow:** Load test identifies slow endpoints → Profiling identifies which functions cause slowness.
-
-### Profiling Types
-
-#### CPU Profiling
-Measures where program spends CPU cycles.
-
-**When to use:**
-- High CPU usage (>70%)
-- Slow response times with low I/O wait
-- Hot path optimization
-
-**Output:** Functions ranked by CPU time consumed.
-
-#### Memory Profiling
-Tracks memory allocations and heap usage.
-
-**When to use:**
-- Memory usage growing over time
-- Out-of-memory errors
-- High garbage collection overhead
-
-**Output:** Allocation sites, heap snapshots, memory growth trends.
-
-#### I/O Profiling
-Identifies slow database queries, network calls, filesystem operations.
-
-**When to use:**
-- High I/O wait time
-- Slow response times with low CPU usage
-- Database connection exhaustion
-
-**Output:** Query execution times, network latency, file I/O throughput.
+**Workflow:** Load test finds slow endpoints. Profiling finds which functions cause slowness.
 
 ### Sampling vs. Instrumentation Profiling
 
 **Sampling Profiling (py-spy, pprof):**
-- Periodically samples program state (every 10ms)
+- Samples program state periodically (every 10ms)
 - Low overhead (~1-5%)
 - Production-safe
 - May miss short-lived functions
@@ -83,7 +41,7 @@ Identifies slow database queries, network calls, filesystem operations.
 - More accurate
 - Not recommended for production
 
-**Recommendation:** Use sampling profilers (py-spy, pprof) in production, instrumentation profilers in development.
+**Recommendation:** Sampling profilers (py-spy, pprof) in production; instrumentation profilers in development.
 
 ---
 
@@ -93,22 +51,14 @@ Identifies slow database queries, network calls, filesystem operations.
 
 **Symptoms:**
 - High CPU usage (>70% sustained)
-- Slow response times with low I/O wait
+- Slow responses with low I/O wait
 - High load average
-- Users reporting slow application
+- Users report slowness
 
 **Not CPU-bound if:**
 - CPU usage < 50%
 - High I/O wait time
 - Slow database queries
-
-### CPU Profiling Process
-
-1. **Reproduce slow behavior:** Load test or real traffic
-2. **Start CPU profiler:** Capture profile for 30-60 seconds
-3. **Analyze profile:** Identify hot functions (top 20% using 80% CPU)
-4. **Optimize hot paths:** Focus on most expensive functions
-5. **Re-profile:** Validate improvement
 
 ### Python CPU Profiling
 
@@ -133,11 +83,6 @@ py-spy record -o profile.svg -- python app.py
 # Flamegraph output (open in browser)
 py-spy record -o profile.svg --format speedscope --pid <PID>
 ```
-
-**Interpreting output:**
-- Flamegraph shows call stack (bottom = callers, top = callees)
-- Wider bars = more CPU time
-- Look for wide bars (hot functions)
 
 #### cProfile (Instrumentation Profiler)
 
@@ -167,7 +112,7 @@ ncalls  tottime  percall  cumtime  percall filename:lineno(function)
 ```
 
 - **ncalls:** Number of calls
-- **tottime:** Total time in function (excluding subcalls)
+- **tottime:** Time in function (excluding subcalls)
 - **cumtime:** Cumulative time (including subcalls)
 - **percall:** Time per call
 
@@ -261,25 +206,16 @@ node --inspect app.js
 npm install -g clinic
 ```
 
-**Usage:**
+**Usage** (`NO_INSIGHT=1` stops clinic's Google Analytics usage reports, sent by default in non-interactive runs):
 ```bash
 # CPU profiling
-clinic doctor -- node app.js
+NO_INSIGHT=1 clinic doctor -- node app.js
 
 # Flamegraph
-clinic flame -- node app.js
+NO_INSIGHT=1 clinic flame -- node app.js
 
 # Interactive HTML report generated
 ```
-
-### CPU Profiling Best Practices
-
-- Profile under realistic load (not idle)
-- Profile for 30-60 seconds (capture representative sample)
-- Focus on hot paths (top 20% of functions)
-- Optimize biggest bottlenecks first (Amdahl's Law)
-- Avoid premature optimization (profile before optimizing)
-- Re-profile after changes (validate improvement)
 
 ---
 
@@ -288,15 +224,15 @@ clinic flame -- node app.js
 ### When to Memory Profile
 
 **Symptoms:**
-- Memory usage growing over time
+- Memory growing over time
 - Out-of-memory errors (OOM)
 - High garbage collection (GC) overhead
 - Swap usage increasing
-- Application restarts due to memory
+- Restarts due to memory
 
 **Memory leak indicators:**
-- Memory usage grows linearly with time
-- Memory doesn't decrease after load reduction
+- Memory grows linearly with time
+- Memory doesn't drop after load reduction
 - GC cannot reclaim memory
 
 ### Python Memory Profiling
@@ -431,7 +367,7 @@ fmt.Printf("NumGC = %v\n", m.NumGC)
 3. Take snapshot
 4. Perform actions (allocate memory)
 5. Take another snapshot
-6. Compare snapshots (identify retained objects)
+6. Compare snapshots (find retained objects)
 
 **Node.js:**
 ```bash
@@ -441,19 +377,13 @@ node --inspect app.js
 # Memory tab → Heap snapshot
 ```
 
-**Finding leaks:**
-- Compare snapshots before/after operations
-- Look for objects retained unexpectedly
-- Check for event listeners not removed
-- Identify closures holding references
-
 #### clinic.js Heap Profiling
 
 ```bash
 npm install -g clinic
 
 # Memory profiling
-clinic heapprofiler -- node app.js
+NO_INSIGHT=1 clinic heapprofiler -- node app.js
 
 # Interactive report
 ```
@@ -462,8 +392,8 @@ clinic heapprofiler -- node app.js
 
 - Take snapshots at different times (compare growth)
 - Run soak tests to detect leaks (24+ hours)
-- Focus on objects retained unexpectedly
-- Check for common leak patterns:
+- Focus on unexpectedly retained objects
+- Check common leak patterns:
   - Event listeners not removed
   - Timers not cleared (setInterval)
   - Closures holding large references
@@ -478,7 +408,7 @@ clinic heapprofiler -- node app.js
 ### When to I/O Profile
 
 **Symptoms:**
-- Slow response times with low CPU usage
+- Slow responses with low CPU usage
 - High I/O wait time
 - Database connection pool exhaustion
 - Slow database queries
@@ -513,7 +443,7 @@ MIDDLEWARE = [
 
 **Usage:**
 - View SQL queries in web UI
-- Identify N+1 queries
+- Find N+1 queries
 - Analyze query execution time
 - View query EXPLAIN plans
 
@@ -596,7 +526,7 @@ go tool pprof block.prof
 ### I/O Profiling Best Practices
 
 - Profile under realistic load (I/O issues show under concurrency)
-- Identify N+1 queries (common in ORMs)
+- Find N+1 queries (common in ORMs)
 - Use database query logs (enable slow query log)
 - Analyze query EXPLAIN plans
 - Check connection pool size (exhaustion = queuing)
@@ -610,7 +540,7 @@ go tool pprof block.prof
 ### Standard Process
 
 1. **Observe Symptoms**
-   - Metrics: High CPU, memory growth, slow response times
+   - Metrics: High CPU, memory growth, slow responses
    - Logs: Errors, warnings, slow queries
    - User reports: Slow pages, timeouts
 
@@ -627,10 +557,10 @@ go tool pprof block.prof
 4. **Run Profiler Under Load**
    - Reproduce production conditions
    - Use load testing tools (k6, Locust)
-   - Capture profile for 30-60 seconds
+   - Capture 30-60 seconds
 
 5. **Analyze Profile**
-   - Flamegraph: Identify hot paths
+   - Flamegraph: Find hot paths
    - Call tree: Find expensive call chains
    - Top functions: Focus on biggest offenders
 
@@ -658,9 +588,9 @@ go tool pprof block.prof
 ### What is a Flamegraph?
 
 Flamegraphs visualize profiling data:
-- X-axis: Width represents time spent (wider = more time)
+- X-axis: Width = time spent (wider = more time)
 - Y-axis: Call stack depth (bottom = root, top = leaves)
-- Color: Typically random (no meaning, just visual aid)
+- Color: Usually random; carries no meaning, visual aid only
 
 ### Reading Flamegraphs
 
@@ -694,8 +624,8 @@ Flamegraphs visualize profiling data:
 │      caller (100%)          │
 └─────────────────────────────┘
 ```
-- Indicates overhead (function call cost)
-- Consider inlining or batching
+- Signals function-call overhead
+- Try inlining or batching
 
 **Tall tower (deep call stack):**
 ```
@@ -708,14 +638,14 @@ Flamegraphs visualize profiling data:
 │  root  │
 ```
 - Deep recursion or abstraction layers
-- Consider flattening call stack
+- Try flattening call stack
 
 ### Optimization Priority
 
 1. **Widest bars:** Most CPU time, highest impact
 2. **Unexpected functions:** Shouldn't be hot (caching?)
-3. **Repeated patterns:** Same function called multiple times (batch?)
-4. **External calls:** Database, network (can they be reduced?)
+3. **Repeated patterns:** Same function called many times (batch?)
+4. **External calls:** Database, network (reduce them?)
 
 ---
 
@@ -725,12 +655,12 @@ Flamegraphs visualize profiling data:
 
 **Safe in production:**
 - Sampling profilers (py-spy, pprof) - Low overhead (~1-5%)
-- Short profiling sessions (30-60 seconds)
-- Profiling subset of instances (not all at once)
+- Short sessions (30-60 seconds)
+- Subset of instances (canary profiling; not all at once)
 
 **Avoid in production:**
 - Instrumentation profilers (cProfile) - High overhead
-- Long profiling sessions (hours) - Resource usage
+- Long sessions (hours) - Resource usage
 - Profiling all instances simultaneously
 
 ### Continuous Profiling
@@ -770,12 +700,10 @@ pyroscope.Start(pyroscope.Config{
 ### Production Profiling Best Practices
 
 - Use sampling profilers only (low overhead)
-- Profile for short durations (30-60 seconds)
-- Profile subset of instances (canary profiling)
 - Correlate with monitoring (metrics, logs)
 - Store profiles for historical analysis
 - Compare profiles before/after deployments
-- Set up alerts for performance regressions
+- Alert on performance regressions
 
 ---
 
@@ -821,20 +749,17 @@ pyroscope.Start(pyroscope.Config{
 
 - [ ] Define hypothesis (CPU? Memory? I/O?)
 - [ ] Reproduce slow behavior (load test or real traffic)
-- [ ] Choose appropriate profiler
-- [ ] Ensure safe for production (if profiling prod)
+- [ ] Choose profiler; confirm production-safe (if profiling prod)
 
 ### During Profiling
 
-- [ ] Profile under realistic load
-- [ ] Capture 30-60 seconds
+- [ ] Profile under realistic load, 30-60 seconds
 - [ ] Monitor overhead (CPU, memory impact)
 - [ ] Save profile output
 
 ### After Profiling
 
-- [ ] Analyze flamegraph or stats
-- [ ] Identify hot spots (top 20% functions)
+- [ ] Analyze flamegraph or stats; find hot spots (top 20% functions)
 - [ ] Prioritize optimizations (biggest impact first)
 - [ ] Document findings
 - [ ] Re-profile after optimizations (validate improvement)

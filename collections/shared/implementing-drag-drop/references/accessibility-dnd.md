@@ -12,20 +12,16 @@
 
 ### The Accessibility Challenge
 
-Drag-and-drop is inherently visual and mouse-centric, creating barriers for:
-- Keyboard-only users
-- Screen reader users
-- Users with motor disabilities
-- Touch device users with assistive tech
+Drag-and-drop is visual and mouse-centric. Creates barriers for keyboard-only users, screen reader users, users with motor disabilities, touch device users with assistive tech.
 
 ### Universal Design Approach
 
 **Always provide:**
 1. Full keyboard navigation
-2. Clear announcements for screen readers
-3. Alternative UI methods (buttons, forms)
+2. Clear screen reader announcements
+3. Alternative UI (buttons, forms)
 4. Visual feedback for all states
-5. Sufficient time for interactions
+5. Enough time for interactions
 
 ## Keyboard Navigation
 
@@ -211,7 +207,7 @@ const announcements: Announcements = {
 
 ### Move Buttons Pattern
 
-Provide explicit move buttons as an alternative to drag-and-drop.
+Offer explicit move buttons as alternative to drag-and-drop.
 
 ```tsx
 function AccessibleListItem({ item, index, onMove, totalItems }) {
@@ -258,7 +254,7 @@ function AccessibleListItem({ item, index, onMove, totalItems }) {
 
 ### Context Menu Pattern
 
-Right-click or long-press menu for reordering.
+Right-click or long-press menu to reorder.
 
 ```tsx
 function ContextMenuReorder({ item, onAction }) {
@@ -453,7 +449,7 @@ test('drag and drop is keyboard accessible', async () => {
 ### Screen Reader Testing Tools
 
 **Windows:**
-- NVDA (free, recommended for testing)
+- NVDA (free, recommended)
 - JAWS (commercial, widely used)
 
 **macOS:**
@@ -495,20 +491,17 @@ echo "✅ Accessibility check complete"
 ## Best Practices Summary
 
 ### Do's
-- ✅ Provide full keyboard navigation
-- ✅ Include clear screen reader announcements
-- ✅ Offer alternative UI methods
-- ✅ Test with actual assistive technology
-- ✅ Document keyboard shortcuts
-- ✅ Use semantic HTML and ARIA correctly
+- Test with real assistive technology
+- Document keyboard shortcuts
+- Use semantic HTML and ARIA correctly
 
 ### Don'ts
-- ❌ Rely solely on drag-and-drop
-- ❌ Hide important functionality behind drag
-- ❌ Forget escape key handling
-- ❌ Ignore focus management
-- ❌ Skip screen reader testing
-- ❌ Use placeholder text as labels
+- Never rely only on drag-and-drop
+- Never hide important functionality behind drag
+- Never forget Escape key handling
+- Never ignore focus management
+- Never skip screen reader testing
+- Never use placeholder text as labels
 
 ### Quick Implementation Checklist
 

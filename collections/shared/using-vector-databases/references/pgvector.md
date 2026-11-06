@@ -3,7 +3,6 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [When to Use pgvector](#when-to-use-pgvector)
   - [Ideal For:](#ideal-for)
   - [Not Ideal For:](#not-ideal-for)
@@ -28,7 +27,6 @@
   - [Relational Filtering](#relational-filtering)
 - [Batch Operations](#batch-operations)
   - [Bulk Insert](#bulk-insert)
-  - [Batch Search](#batch-search)
 - [Hybrid Search with pg_search](#hybrid-search-with-pg_search)
 - [Performance Optimization](#performance-optimization)
   - [Query Tuning](#query-tuning)
@@ -40,8 +38,6 @@
   - [Monitor Performance](#monitor-performance)
 - [Common Patterns](#common-patterns)
   - [Multi-Tenant RAG](#multi-tenant-rag)
-  - [Versioned Documentation](#versioned-documentation)
-  - [Code Search](#code-search)
 - [Migration from Other Vector DBs](#migration-from-other-vector-dbs)
   - [From Qdrant to pgvector](#from-qdrant-to-pgvector)
 - [Limitations](#limitations)
@@ -52,24 +48,20 @@
 - [Production Checklist](#production-checklist)
 - [Additional Resources](#additional-resources)
 
-## Overview
-
-pgvector is an open-source PostgreSQL extension for vector similarity search. It enables vector operations within your existing PostgreSQL database without requiring additional infrastructure.
-
 ## When to Use pgvector
 
 ### Ideal For:
-- **Already using PostgreSQL** - No new infrastructure required
-- **<10M vectors** - Performance is good up to this scale
-- **Tight budget** - Leverage existing PostgreSQL servers
-- **Simple use cases** - Basic similarity search with limited filtering
+- **Already using PostgreSQL** - No new infrastructure
+- **<10M vectors** - Performs well up to this scale
+- **Tight budget** - Reuses existing PostgreSQL servers
+- **Simple use cases** - Basic similarity search, limited filtering
 - **Relational + vector hybrid** - Join vector search with relational data
 
 ### Not Ideal For:
 - **>10M vectors** - Performance degrades significantly
 - **Complex metadata filtering** - Slower than specialized vector DBs
-- **High-throughput search** - Limited compared to Qdrant/Milvus
-- **Hybrid search** - No built-in BM25, requires extensions (pg_search)
+- **High-throughput search** - Limited versus Qdrant/Milvus
+- **Hybrid search** - No built-in BM25; needs extensions (pg_search)
 
 ## Installation
 
@@ -94,7 +86,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: vectordb
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"  # dev password: localhost only
     volumes:
       - pgdata:/var/lib/postgresql/data
 
@@ -105,7 +97,7 @@ volumes:
 ### Managed Services
 - **Supabase** - Built-in pgvector support
 - **Neon** - Serverless PostgreSQL with pgvector
-- **AWS RDS** - pgvector available on PostgreSQL 15+
+- **AWS RDS** - pgvector on PostgreSQL 15+
 - **Google Cloud SQL** - pgvector available
 - **Azure Database for PostgreSQL** - pgvector available
 
@@ -169,8 +161,6 @@ results = cur.fetchall()
 
 ## Distance Metrics
 
-pgvector supports three distance metrics:
-
 ```python
 # L2 distance (Euclidean)
 cur.execute(
@@ -193,8 +183,8 @@ cur.execute(
 
 **Which to use?**
 - **Cosine (`<=>`)** - Most common for embeddings (OpenAI, Voyage, etc.)
-- **L2 (`<->`)** - When vectors are not normalized
-- **Inner product (`<#>`)** - For normalized vectors, equivalent to cosine
+- **L2 (`<->`)** - Vectors not normalized
+- **Inner product (`<#>`)** - Normalized vectors; equivalent to cosine
 
 ## Indexing for Performance
 
@@ -215,9 +205,9 @@ WITH (lists = 100);
 ```
 
 **Lists parameter:**
-- Formula: `lists = rows / 1000` (for 1M rows, use lists=1000)
-- Trade-off: More lists = faster search, less accurate
-- Recommendation: Start with `lists = sqrt(rows)`
+- Formula: `lists = rows / 1000` (1M rows: lists=1000)
+- Trade-off: more lists give faster search, less accuracy
+- Recommendation: start with `lists = sqrt(rows)`
 
 ### HNSW Index (Better Performance)
 
@@ -234,8 +224,8 @@ WITH (m = 16, ef_construction = 64);
 ```
 
 **HNSW parameters:**
-- **m:** Edges per node (default: 16, higher = better recall, more memory)
-- **ef_construction:** Index build quality (default: 64, higher = better index)
+- **m:** Edges per node (default: 16; higher gives better recall, more memory)
+- **ef_construction:** Index build quality (default: 64; higher gives better index)
 
 ### Index Comparison
 
@@ -392,25 +382,6 @@ execute_values(
 )
 ```
 
-### Batch Search
-
-```python
-# Search with multiple vectors
-query_vectors = [embedding1, embedding2, embedding3]
-
-for query_vector in query_vectors:
-    cur.execute(
-        """
-        SELECT id, content, embedding <=> %s AS distance
-        FROM documents
-        ORDER BY embedding <=> %s
-        LIMIT 5
-        """,
-        (query_vector, query_vector)
-    )
-    results = cur.fetchall()
-```
-
 ## Hybrid Search with pg_search
 
 Install pg_search extension for BM25 keyword search:
@@ -550,29 +521,6 @@ LIMIT 5;
 -- Partition by organization for better performance
 ```
 
-### Versioned Documentation
-
-```sql
--- Filter by version
-SELECT id, content, embedding <=> %s AS distance
-FROM documents
-WHERE metadata->>'product_version' = 'v2.0'
-ORDER BY embedding <=> %s
-LIMIT 5;
-```
-
-### Code Search
-
-```sql
--- Filter by programming language
-SELECT id, content, embedding <=> %s AS distance
-FROM documents
-WHERE metadata->>'content_type' = 'code'
-  AND metadata->>'language' = 'python'
-ORDER BY embedding <=> %s
-LIMIT 5;
-```
-
 ## Migration from Other Vector DBs
 
 ### From Qdrant to pgvector
@@ -616,28 +564,25 @@ conn.commit()
 ## Limitations
 
 ### Scale Limits
-- **Performance degrades** beyond 10M vectors
-- **Memory requirements** increase linearly with vector count
+- **Memory requirements** grow linearly with vector count
 - **Index build time** can be slow for large datasets
 
 ### Filtering Performance
-- **JSONB queries** are slower than specialized vector DBs
-- **Complex filters** can bypass index usage
-- **Pre-filtering** may not leverage index
+- **Complex filters** can bypass index
+- **Pre-filtering** may not use index
 
 ### Feature Gaps
-- **No built-in hybrid search** (requires pg_search)
 - **No distributed clustering** (single-node only)
-- **Limited query optimization** compared to Qdrant/Milvus
+- **Limited query optimization** versus Qdrant/Milvus
 
 ## When to Migrate Away
 
 Consider migrating to Qdrant/Milvus/Pinecone if:
 - Vector count exceeds 10M
 - Need complex metadata filtering at scale
-- Require hybrid search (vector + BM25) out of the box
+- Need hybrid search (vector + BM25) out of the box
 - Need distributed/clustered deployment
-- Search latency becomes unacceptable (>100ms p95)
+- Search latency unacceptable (>100ms p95)
 
 ## Production Checklist
 

@@ -1,18 +1,6 @@
 # Azure Security Architecture Reference
 
-Reference security patterns and best practices.
-
-## Table of Contents
-
-1. [Defense-in-Depth](#defense-in-depth)
-2. [Zero Trust Architecture](#zero-trust-architecture)
-3. [Microsoft Defender for Cloud](#microsoft-defender-for-cloud)
-
----
-
 ## Defense-in-Depth
-
-Multi-layered security approach protecting data and resources at every level.
 
 ### Security Layers
 
@@ -39,8 +27,6 @@ Multi-layered security approach protecting data and resources at every level.
 ---
 
 ## Microsoft Defender for Cloud
-
-Unified security management and threat protection.
 
 ### Key Features
 

@@ -1,9 +1,5 @@
 # REST Design Principles
 
-## Overview
-
-REST (Representational State Transfer) is an architectural style for designing networked applications. This guide covers resource modeling, HTTP method semantics, status codes, and best practices.
-
 ## Table of Contents
 
 - [Resource Modeling](#resource-modeling)
@@ -18,7 +14,7 @@ REST (Representational State Transfer) is an architectural style for designing n
 
 ### Resources as Nouns
 
-Use nouns (not verbs) for resource names:
+Name resources with nouns (not verbs):
 
 **Good:**
 ```
@@ -41,7 +37,7 @@ POST /createUser
 
 ### Nested Resources
 
-Use nested paths to show relationships:
+Nested paths show relationships:
 
 ```
 /users/123/posts           # Posts belonging to user 123
@@ -49,12 +45,12 @@ Use nested paths to show relationships:
 /posts/456/comments        # Comments on post 456
 ```
 
-**Limit nesting depth:** Generally no more than 2-3 levels deep.
+**Limit nesting depth:** generally no more than 2-3 levels.
 
 ### Resource Naming Conventions
 
-- Use lowercase letters
-- Use hyphens (not underscores) for multi-word names
+- Lowercase letters
+- Hyphens (not underscores) for multi-word names
 - Plural nouns for collections
 - Avoid file extensions (.json, .xml)
 
@@ -120,7 +116,7 @@ Content-Type: application/json
 
 ### PUT - Update/Replace Resource
 
-**Purpose:** Update entire resource or create if doesn't exist
+**Purpose:** Update entire resource, or create it if missing
 **Safe:** No
 **Idempotent:** Yes (multiple identical requests = same result)
 
@@ -139,7 +135,7 @@ Content-Type: application/json
 - 200 OK with updated resource
 - 201 Created if resource was created
 
-**Important:** PUT replaces the ENTIRE resource. All fields must be provided.
+**Important:** PUT replaces ENTIRE resource. Client must send all fields.
 
 ### PATCH - Partial Update
 
@@ -196,16 +192,16 @@ DELETE /users/123
 |------|---------|-------|
 | 200 OK | Request succeeded | GET, PUT, PATCH responses |
 | 201 Created | Resource created | POST responses, include Location header |
-| 202 Accepted | Request accepted for processing | Async operations |
-| 204 No Content | Success with no response body | DELETE, PATCH responses |
+| 202 Accepted | Accepted for processing | Async operations |
+| 204 No Content | Success, no response body | DELETE, PATCH responses |
 
 ### 3xx Redirection
 
 | Code | Meaning | Usage |
 |------|---------|-------|
 | 301 Moved Permanently | Resource permanently moved | Deprecated endpoints |
-| 302 Found | Temporary redirect | Rarely used in APIs |
-| 304 Not Modified | Resource not modified (caching) | Conditional GET requests |
+| 302 Found | Temporary redirect | Rare in APIs |
+| 304 Not Modified | Not modified (caching) | Conditional GET requests |
 
 ### 4xx Client Errors
 
@@ -216,7 +212,7 @@ DELETE /users/123
 | 403 Forbidden | Authenticated but not authorized | Permission denied |
 | 404 Not Found | Resource doesn't exist | Invalid resource ID |
 | 405 Method Not Allowed | HTTP method not supported | POST to read-only resource |
-| 409 Conflict | Request conflicts with current state | Duplicate resource, version conflict |
+| 409 Conflict | Conflicts with current state | Duplicate resource, version conflict |
 | 422 Unprocessable Entity | Validation errors | Semantic validation failures |
 | 429 Too Many Requests | Rate limit exceeded | Rate limiting |
 
@@ -251,11 +247,11 @@ GET /api/users
 Accept: application/vnd.myapi-v2+json
 ```
 
-**Recommendation:** Use URI versioning for simplicity and clarity.
+**Recommendation:** Use URI versioning. Simplest and clearest.
 
 ### Filtering
 
-Use query parameters for filtering collections:
+Filter collections with query parameters:
 
 ```
 GET /users?role=admin
@@ -275,7 +271,7 @@ GET /users?sort=name,created_at    # Multiple fields
 
 ### Pagination
 
-See `pagination-patterns.md` for detailed pagination strategies.
+See `pagination-patterns.md` for pagination strategies.
 
 **Cursor-Based (Recommended):**
 ```
@@ -290,7 +286,7 @@ GET /users?offset=20&limit=20
 
 ### Field Selection (Sparse Fieldsets)
 
-Allow clients to request specific fields:
+Let clients request specific fields:
 
 ```
 GET /users?fields=id,name,email
@@ -358,25 +354,11 @@ Content-Type: image/jpeg
 }
 ```
 
-**Error Response (RFC 7807 Problem Details):**
-```json
-{
-  "type": "https://example.com/errors/validation-error",
-  "title": "Validation Error",
-  "status": 422,
-  "detail": "Email format is invalid",
-  "instance": "/users",
-  "errors": {
-    "email": ["Must be a valid email address"]
-  }
-}
-```
-
 ## Error Handling
 
 ### RFC 7807 Problem Details
 
-Use standardized error format:
+Use standard error format:
 
 ```json
 {
@@ -391,12 +373,12 @@ Use standardized error format:
 ```
 
 **Fields:**
-- `type`: URI identifying the problem type
+- `type`: URI identifying problem type
 - `title`: Short, human-readable summary
 - `status`: HTTP status code
 - `detail`: Explanation specific to this occurrence
 - `instance`: URI identifying this specific occurrence
-- Additional fields allowed for extra context
+- Extra fields allowed for more context
 
 ### Validation Errors
 
@@ -439,7 +421,7 @@ async def create_user(user: UserCreate):
 
 ## HATEOAS
 
-Hypermedia as the Engine of Application State (HATEOAS) provides links to related resources.
+Hypermedia as the Engine of Application State (HATEOAS) puts links to related resources in responses.
 
 **Example Response:**
 ```json
@@ -472,30 +454,22 @@ Hypermedia as the Engine of Application State (HATEOAS) provides links to relate
 - Server can change URLs without breaking clients
 
 **Drawbacks:**
-- Increases response size
+- Larger responses
 - Not widely adopted
-- Requires client support
+- Needs client support
 
-**Recommendation:** Implement HATEOAS for public APIs where discoverability is important. Skip for internal APIs where clients know the structure.
+**Recommendation:** Use HATEOAS for public APIs where discoverability matters. Skip for internal APIs where clients know structure.
 
 ## Best Practices Summary
 
-1. **Use nouns for resources:** `/users`, not `/getUsers`
-2. **Plural collections:** `/users`, not `/user`
-3. **Use HTTP methods semantically:** GET for read, POST for create, etc.
-4. **Return appropriate status codes:** 201 for created, 404 for not found
-5. **Version your API:** `/api/v1/users`
-6. **Use cursor pagination:** For production-scale collections
-7. **Provide clear error messages:** RFC 7807 Problem Details format
-8. **Include timestamps:** `created_at`, `updated_at` on resources
-9. **Use JSON:** Most widely supported format
-10. **Document with OpenAPI:** Auto-generate when possible (FastAPI, Hono)
+1. **Include timestamps:** `created_at`, `updated_at` on resources
+2. **Document with OpenAPI:** Auto-generate when possible (FastAPI, Hono)
 
 ## Performance Optimization
 
 **Connection Pooling:**
 - Reuse database connections
-- Configure appropriate pool size
+- Tune pool size
 
 **Caching:**
 - Use HTTP caching headers (ETag, Cache-Control)
@@ -503,17 +477,15 @@ Hypermedia as the Engine of Application State (HATEOAS) provides links to relate
 - See `caching-patterns.md` for details
 
 **Rate Limiting:**
-- Implement per-user or per-IP rate limits
+- Per-user or per-IP rate limits
 - See `rate-limiting-strategies.md` for patterns
 
 **Compression:**
-- Enable gzip/brotli compression for responses
-- Reduces bandwidth, improves response times
+- Enable gzip/brotli response compression
 
 **Database Optimization:**
 - Index frequently queried fields
-- Optimize N+1 queries
-- Use database connection pooling
+- Fix N+1 queries
 
 ## Security Considerations
 
@@ -530,7 +502,7 @@ Hypermedia as the Engine of Application State (HATEOAS) provides links to relate
 **Input Validation:**
 - Validate all input (never trust client)
 - Use schema validation (Pydantic, Zod)
-- Sanitize to prevent injection attacks
+- Sanitize against injection attacks
 
 **HTTPS:**
 - Always use HTTPS in production
@@ -540,4 +512,4 @@ Hypermedia as the Engine of Application State (HATEOAS) provides links to relate
 - Configure allowed origins
 - Don't use `*` for production APIs
 
-See auth-security skill for comprehensive security patterns.
+See auth-security skill for full security patterns.

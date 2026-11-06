@@ -2,13 +2,13 @@
 name: pylint-checkers
 user-invocable: false
 description: Understand Pylint's built-in checkers and optional extensions, and write, register, and test custom checkers on astroid ASTs. Use when enforcing a project-specific rule Pylint lacks, building a Pylint plugin, or interpreting which checker emits a message.
-allowed-tools: [Read, Write, Edit, Bash, Glob, Grep]
+allowed-tools: [Read, Write, Edit, Glob, Grep, "Bash(pylint:*)", "Bash(python -m pylint:*)", "Bash(pytest:*)", "Bash(python -m pytest:*)"]
 ---
 
 # Pylint checkers
 
-Configuration lives in `pylint-configuration`; CI wiring in `pylint-integration`.
-Before writing a checker, confirm the rule is not already available:
+Configuration lives in `pylint-configuration`, CI wiring in `pylint-integration`.
+Before writing checker, confirm rule not already available:
 
 ```bash
 pylint --list-msgs | grep -i <keyword>        # all messages, including disabled ones
@@ -16,15 +16,15 @@ pylint --list-extensions                       # optional built-in plugins
 pylint --help-msg=<symbol>                     # which checker emits a message, and why
 ```
 
-Also check whether Ruff, a framework plugin (`pylint-django`, `pylint-pytest`), or a
-type checker already enforces the rule more cheaply.
+Check whether Ruff, framework plugin (`pylint-django`, `pylint-pytest`) or type
+checker already enforces rule more cheaply.
 
 ## How checkers work
 
-- Pylint parses each module with **astroid**, an AST with inference
-  (`node.infer()`, `node.inferred()`), then walks it.
-- A checker declares messages and implements `visit_<nodename>` / `leave_<nodename>`
-  methods; node names are lowercased astroid class names (`visit_call`,
+- Pylint parses each module with **astroid**, AST with inference
+  (`node.infer()`, `node.inferred()`), then walks tree.
+- Checker declares messages and implements `visit_<nodename>` / `leave_<nodename>`
+  methods. Node names are lowercased astroid class names (`visit_call`,
   `visit_functiondef`, `visit_importfrom`).
 - Base classes: `BaseChecker` (AST), `BaseRawFileChecker` (raw file bytes),
   `BaseTokenChecker` (tokens; formatting-style rules).
@@ -89,15 +89,15 @@ def register(linter: PyLinter) -> None:
 
 Rules of thumb:
 - Message tuple is `(template, symbol, description)`; `args=` fills `%s` placeholders.
-- Choose an ID prefix and number range not used by Pylint or other loaded plugins
-  (check `--list-msgs`). Users will refer to the **symbol**, so make it descriptive.
-- Use inference (as above) so aliased imports (`from datetime import datetime as dt`)
-  are caught and unrelated objects with a `now` method are not. Always handle
-  `InferenceError`; inference yields `Uninferable` on dynamic code.
-- Check qualified names by printing what astroid actually infers on the target
-  Python version; stdlib modules can resolve to private implementation modules.
+- Pick ID prefix and number range not used by Pylint or other loaded plugins
+  (check `--list-msgs`). Users refer to **symbol**, so make it descriptive.
+- Use inference (as above) to catch aliased imports (`from datetime import datetime as dt`)
+  and skip unrelated objects with `now` method. Always handle
+  `InferenceError`. Inference yields `Uninferable` on dynamic code.
+- Check qualified names by printing what astroid infers on target Python version.
+  Stdlib modules can resolve to private implementation modules.
 - Prefer false negatives over false positives; noisy checkers get disabled.
-- Add `options = (("option-name", {...}),)` for configurable thresholds; read them via
+- Add `options = (("option-name", {...}),)` for configurable thresholds. Read via
   `self.linter.config.option_name`.
 - Keep checkers stateless across modules, or reset state in `open()` / `close()`.
 
@@ -110,8 +110,8 @@ load-plugins = ["naive_datetime"]
 init-hook = "import sys; sys.path.append('tools/pylint_plugins')"
 ```
 
-Prefer packaging the plugin (even as a local path dependency) over `init-hook`, so
-editors and CI import it the same way. Verify with
+Prefer packaging plugin (even as local path dependency) over `init-hook`, so
+editors and CI import it same way. Verify:
 `pylint --load-plugins=naive_datetime --list-msgs | grep naive-datetime-now`.
 
 ## Testing
@@ -150,10 +150,10 @@ class TestNaiveDatetimeChecker(pylint.testutils.CheckerTestCase):
             self.checker.visit_call(call)
 ```
 
-- `#@` marks the node `extract_node` returns.
-- Test the negative cases that matter: aliased imports, a local object with its own
+- `#@` marks node `extract_node` returns.
+- Test negative cases that matter: aliased imports, local object with own
   `now()` method, positional `tz`.
-- Finish with an end-to-end run on a fixture file:
+- Finish with end-to-end run on fixture file:
   `pylint --load-plugins=naive_datetime --disable=all --enable=naive-datetime-now fixtures/`.
 
 ## Useful built-in extensions
@@ -162,18 +162,18 @@ Enable via `load-plugins = ["pylint.extensions.<name>"]`:
 
 | Extension | Adds |
 | --- | --- |
-| `docparams` | docstring parameters/raises/returns must match the signature |
+| `docparams` | docstring parameters/raises/returns must match signature |
 | `mccabe` | `too-complex` cyclomatic complexity |
 | `code_style` | `consider-using-tuple`, assignment-expression suggestions |
-| `typing` | modern typing syntax suggestions for the configured `py-version` |
+| `typing` | modern typing syntax suggestions for configured `py-version` |
 | `broad_try_clause` | `try` blocks with too many statements |
 | `no_self_use` | methods that could be functions or static methods |
-| `redefined_variable_type` | a variable reassigned to a different type |
+| `redefined_variable_type` | variable reassigned to different type |
 | `magic_value` | comparisons against unexplained literals |
 
 ## Done when
 
-- The checker has unit tests for positive and key negative cases, and an end-to-end
-  run on real project code produces no unexpected findings.
-- The plugin loads identically in CI, pre-commit, and editors.
-- The message symbol and rationale are documented where the team configures Pylint.
+- Checker has unit tests for positive and key negative cases. End-to-end run on
+  real project code produces no unexpected findings.
+- Plugin loads identically in CI, pre-commit and editors.
+- Message symbol and rationale documented where team configures Pylint.

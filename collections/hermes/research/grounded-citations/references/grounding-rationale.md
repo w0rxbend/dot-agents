@@ -1,64 +1,60 @@
 # Why numbered ledger ids (grounding research basis)
 
-Design notes for anyone changing the citation instructions or the ledger
-mechanics. The wording in SKILL.md is not arbitrary.
+Design notes for anyone changing citation instructions or ledger mechanics.
+SKILL.md wording is not arbitrary.
 
 ## The structural trick
 
-Hallucinated citations happen when a model reconstructs a URL from memory. If
-the only thing the model has to emit is a small integer it was handed at
-retrieval time, there is nothing to reconstruct — a wrong id is detectable
-(it's not in the ledger) and a wrong URL is impossible (the model never types
-one; `render` does). This is the property Perplexity's product relies on, and
-it's why the ledger, not the prose, owns the URL.
+Hallucinated citations come from model reconstructing URL from memory. If
+model only emits small integer handed over at retrieval, nothing is left to
+reconstruct. Wrong id is detectable (not in ledger); wrong URL is impossible
+(model never types one, `render` does). Perplexity's product relies on this
+property; hence ledger, not prose, owns URL.
 
-Consequence: **register at retrieval, render mechanically.** Any workflow that
-lets the model type a URL into the Sources block gives the guarantee back.
+Consequence: **register at retrieval, render mechanically.** Any workflow
+letting model type URL into Sources block loses the guarantee.
 
 ## Cite while writing, not after
 
-ALCE (arXiv:2305.14627) evaluates attribution for LLM answers and finds that
-generating citations during composition, from numbered retrieved snippets,
-produces materially better attribution than post-hoc citation insertion.
-Post-hoc attribution invites the model to find a source that plausibly matches
-a sentence it already wrote — which is exactly how a citation ends up
-supporting something the page doesn't say.
+ALCE (arXiv:2305.14627) evaluates attribution for LLM answers: citing during
+composition, from numbered retrieved snippets, gives materially better
+attribution than post-hoc insertion. Post-hoc attribution invites model to
+find a source plausibly matching an already-written sentence. That is exactly
+how citations end up supporting what the page doesn't say.
 
-Hence: cite per supported sentence, in-line, as the sentence is written. Never
-a citation dump at the end of a paragraph or document.
+Hence: cite per supported sentence, in-line, while writing. Never a citation
+dump at end of paragraph or document.
 
 ## Verbatim quotes ground claims
 
 WebGPT (arXiv:2112.09332) collects verbatim quotes at browse time and composes
-answers from them. The practical rule for this skill: when a claim carries a
-figure, date, name, or quantity, take it from the source's own words rather
-than paraphrasing from a summary of a summary. Each summarization hop is a
-chance for a number to drift.
+answers from them. Rule here: figures, dates, names, quantities come from
+source's own words, not paraphrase of a summary of a summary. Each
+summarization hop lets a number drift.
 
 ## Formatting conventions
 
-From Perplexity's leaked system prompts (jujumilk3/leaked-system-prompts) — the
-conventions are worth copying because they're the ones users have been trained
-to read:
+From Perplexity's leaked system prompts (jujumilk3/leaked-system-prompts).
+Worth copying: users are trained to read these conventions.
 
-- Marker directly after the terminal punctuation, no space: `water.[1]`
-- Each id in its own brackets: `[1][2]`, not `[1, 2]`
-- At most 3 ids per sentence — beyond that the citation stops identifying which
+- Marker directly after terminal punctuation, no space: `water.[1]`
+- Each id in own brackets: `[1][2]`, not `[1, 2]`
+- At most 3 ids per sentence; beyond that, citation stops identifying which
   source carries the claim
 - Never cite a source not actually consulted
 - Query classes that shouldn't be cited (translation, creative writing, casual
-  chat) are exempted by instruction, not by a separate classifier
+  chat) are exempted by instruction, not by separate classifier
 
-Perplexity forbids raw URLs in the answer because its UI renders source cards.
-Hermes has no such UI layer in chat or in a written file, so this skill renders
-the id → URL list explicitly instead.
+Perplexity forbids raw URLs in answers because its UI renders source cards.
+Hermes has no such UI layer in chat or written files, so this skill renders
+id → URL list explicitly.
 
 ## Related in-tree implementation
 
-`tools/web_tools.py` grew an in-process version of this idea (a `url -> [n]`
-registry plus citation guidance attached to tool results) in PR #44833. That
-path grounds ad-hoc web answers automatically when it lands. This skill is the
-portable half: it works with any retrieval source (browser, curl, CLIs, local
-PDFs) and it persists the ledger to disk so multi-turn, multi-file, and
-multi-subagent work keeps stable ids. The two can coexist — the ledger is the
-source of truth for anything written to a file.
+`tools/web_tools.py` grew an in-process version of this idea in PR #44833:
+`url -> [n]` registry plus citation guidance attached to tool results. Once
+landed, that path grounds ad-hoc web answers automatically. This skill is the
+portable half: works with any retrieval source (browser, curl, CLIs, local
+PDFs) and persists ledger to disk, so multi-turn, multi-file and
+multi-subagent work keeps stable ids. Both can coexist; ledger is source of
+truth for anything written to a file.

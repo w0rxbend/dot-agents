@@ -1,12 +1,12 @@
 ## Retrieve the live GPT-6 prompting guidance
 
-Use already-callable official documentation search and fetch, or immediately use official-domain web search and fetch, to retrieve the live GPT-6 prompting guidance from:
+Get live GPT-6 prompting guidance via already-callable official docs search and fetch, or immediately via official-domain web search and fetch, from:
 
 https://developers.openai.com/api/docs/guides/latest-model/gpt-6-astra.md#prompting-best-practices
 
-Read only the `## Prompting best practices` section, stopping at the next H2 heading. The URL anchor points to the section visually, but a documentation fetch may return the full page, so explicitly extract only that section.
+Read only `## Prompting best practices` section; stop at next H2 heading. URL anchor points to section visually, but docs fetch may return full page. Extract only that section explicitly.
 
-Treat the live section as the canonical model-specific prompting guidance. Use the local copy below only when live guidance is unavailable. Keep it identical to the page's `## Prompting best practices` section when refreshing this reference.
+Live section is canonical model-specific prompting guidance. Use local copy below only when live guidance is unavailable. When refreshing this reference, keep it identical to page's `## Prompting best practices` section.
 
 ## Prompting best practices
 

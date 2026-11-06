@@ -1,8 +1,5 @@
 # Spacing System
 
-Complete spacing token reference for the design system.
-
-
 ## Table of Contents
 
 - [Base Scale](#base-scale)
@@ -20,7 +17,7 @@ Complete spacing token reference for the design system.
 
 ## Base Scale
 
-4px base unit with consistent multipliers:
+4px base unit, consistent multipliers:
 
 ```css
 /* Primitive Scale */
@@ -131,7 +128,6 @@ margin-inline-end: var(--spacing-lg);
 
 ### Consistent Rhythm
 
-- Use the scale consistently
 - Don't use arbitrary values (e.g., 13px, 17px)
 - Prefer semantic tokens over primitive values
 
@@ -142,6 +138,5 @@ margin-inline-end: var(--spacing-lg);
 
 ### Visual Hierarchy
 
-- Larger spacing = higher importance separation
 - Group related items with smaller spacing
 - Separate sections with larger spacing

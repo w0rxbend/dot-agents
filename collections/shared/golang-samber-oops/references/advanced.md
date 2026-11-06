@@ -2,7 +2,7 @@
 
 ## Assertions
 
-Use assertions for invariant checks (carefully — assertions panic):
+Use assertions for invariant checks (carefully: assertions panic):
 
 ```go
 func ProcessPayment(amount int) error {
@@ -16,7 +16,7 @@ func ProcessPayment(amount int) error {
 }
 ```
 
-Assertions should be rare in Go. Use them only for truly impossible states that indicate a bug.
+Assertions should be rare in Go. Use only for impossible states that indicate a bug.
 
 ## Configuration
 
@@ -29,7 +29,7 @@ oops.Local = loc                      // set timezone for error timestamps
 
 ## Logger integration
 
-`samber/oops` works with any logger. The error struct provides methods for extracting structured data:
+`samber/oops` works with any logger. Error struct provides methods to extract structured data:
 
 ```go
 oopsErr := err.(oops.OopsError)

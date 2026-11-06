@@ -2,7 +2,7 @@
 
 ## SIEM (Security Information & Event Management)
 
-**Purpose:** Centralize log aggregation, correlation, and alerting
+**Purpose:** Centralize log aggregation, correlation, alerting
 
 **Leading Platforms:**
 - Splunk Enterprise Security
@@ -13,9 +13,9 @@
 **Architecture:**
 1. Log Collection: Ingest from all sources
 2. Normalization: Standardize log formats
-3. Correlation: Apply rules to detect patterns
+3. Correlation: Rules detect patterns
 4. Alerting: Notify SOC team
-5. Investigation: Search and visualization
+5. Investigation: Search, visualization
 
 ## SOAR (Security Orchestration, Automation & Response)
 
@@ -37,11 +37,11 @@
 
 **Purpose:** ML-based anomaly detection
 
-**Use Cases:**
-- Account compromise detection
-- Insider threat detection
-- Data exfiltration detection
-- Lateral movement detection
+**Detects:**
+- Account compromise
+- Insider threats
+- Data exfiltration
+- Lateral movement
 
 ### Threat Intelligence
 

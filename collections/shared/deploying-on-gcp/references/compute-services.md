@@ -1,7 +1,5 @@
 # GCP Compute Services Reference
 
-Detailed patterns and configurations for Google Cloud Platform compute services.
-
 ## Table of Contents
 
 1. [Cloud Run (Serverless Containers)](#cloud-run-serverless-containers)
@@ -19,19 +17,17 @@ Detailed patterns and configurations for Google Cloud Platform compute services.
 
 **Ideal For:**
 - Stateless HTTP services and APIs
-- Microservices architecture
+- Microservices
 - Variable or unpredictable traffic
-- Services that should scale to zero when idle
-- Quick deployment without infrastructure management
+- Services that scale to zero when idle
+- Fast deploys without managing infrastructure
 
 **Not Ideal For:**
 - Long-running jobs (use Cloud Run Jobs)
-- Stateful applications (use GKE or Compute Engine)
-- Applications requiring persistent connections (use GKE)
+- Stateful apps (use GKE or Compute Engine)
+- Apps needing persistent connections (use GKE)
 
 ### Cloud Run Configuration
-
-**Terraform Example:**
 
 ```hcl
 resource "google_cloud_run_service" "api" {
@@ -54,7 +50,7 @@ resource "google_cloud_run_service" "api" {
         # Environment variables
         env {
           name  = "DATABASE_URL"
-          value = "postgresql://..."
+          value = "postgresql://..."  # no password here; put credentials in Secret Manager (below)
         }
 
         # Secret from Secret Manager
@@ -155,7 +151,7 @@ resource "google_cloud_run_service_iam_member" "auth" {
 
 ### Cloud Run Jobs
 
-For batch processing and scheduled tasks:
+Batch processing and scheduled tasks:
 
 ```hcl
 resource "google_cloud_run_v2_job" "batch_processor" {
@@ -214,10 +210,10 @@ resource "google_cloud_scheduler_job" "trigger" {
 
 **Ideal For:**
 - Complex multi-service orchestration
-- Stateful applications (databases, caches)
-- Applications requiring persistent connections
+- Stateful apps (databases, caches)
+- Apps needing persistent connections
 - Existing Kubernetes deployments
-- Advanced networking requirements
+- Advanced networking needs
 - Multi-tenant platforms
 
 **Not Ideal For:**
@@ -232,7 +228,7 @@ resource "google_cloud_scheduler_job" "trigger" {
 | **Cost Model** | Pay per pod resources | Pay for nodes |
 | **Configuration** | Opinionated, secure defaults | Full customization |
 | **Scaling** | Automatic | Manual or cluster autoscaler |
-| **Best For** | Most workloads | Advanced customization needs |
+| **Best For** | Most workloads | Advanced customization |
 
 ### GKE Autopilot Configuration
 
@@ -483,11 +479,11 @@ kubectl annotate serviceaccount KSA_NAME \
 - Event-driven processing (Cloud Storage, Pub/Sub, Firestore triggers)
 - Lightweight HTTP endpoints
 - Single-purpose functions
-- Integration glue between GCP services
+- Glue between GCP services
 
 **Not Ideal For:**
 - Long-running tasks (10-minute max for gen2)
-- Complex application logic (use Cloud Run)
+- Complex app logic (use Cloud Run)
 - Stateful operations
 
 ### Cloud Functions Gen2 (Recommended)
@@ -528,8 +524,9 @@ resource "google_cloudfunctions2_function" "http_function" {
     available_memory   = "256Mi"
     timeout_seconds    = 60
 
+    # Non-secret config only; secrets go in secret_environment_variables
     environment_variables = {
-      API_KEY = "value"
+      LOG_LEVEL = "info"
     }
 
     # Secret from Secret Manager
@@ -616,8 +613,8 @@ resource "google_cloudfunctions2_function" "storage_function" {
 **Ideal For:**
 - Full OS control required
 - GPU/TPU workloads
-- Windows applications
-- Legacy application lift-and-shift
+- Windows apps
+- Legacy app lift-and-shift
 - Custom kernel or networking
 
 **Not Ideal For:**
@@ -645,10 +642,7 @@ resource "google_compute_instance_template" "web" {
     network    = google_compute_network.main.id
     subnetwork = google_compute_subnetwork.private.id
 
-    # No external IP (use Cloud NAT)
-    access_config {
-      network_tier = "PREMIUM"
-    }
+    # No external IP: omit access_config; use Cloud NAT for egress
   }
 
   metadata_startup_script = file("startup.sh")
@@ -720,13 +714,13 @@ resource "google_compute_region_autoscaler" "web" {
 ### When to Use App Engine
 
 **Ideal For:**
-- Simple web applications
+- Simple web apps
 - Quick prototyping
-- Legacy App Engine applications
-- No infrastructure management desired
+- Legacy App Engine apps
+- No infrastructure management wanted
 
 **Not Ideal For:**
-- New projects (Cloud Run is preferred)
+- New projects (prefer Cloud Run)
 - Need containerization (use Cloud Run)
 - Complex orchestration (use GKE)
 
@@ -747,8 +741,8 @@ automatic_scaling:
   max_pending_latency: automatic
   max_concurrent_requests: 50
 
-env_variables:
-  API_KEY: "value"
+env_variables:  # committed with source: non-secret only; read API keys from Secret Manager at runtime
+  LOG_LEVEL: "info"
 
 handlers:
 - url: /static
@@ -797,4 +791,4 @@ Need to run application in GCP?
 └─ Need full OS control? → YES → Compute Engine
 ```
 
-**Recommendation:** Start with Cloud Run for most HTTP services. Move to GKE only if you need Kubernetes-specific features or complex orchestration.
+**Recommendation:** Start with Cloud Run for most HTTP services. Move to GKE only for Kubernetes-specific features or complex orchestration.

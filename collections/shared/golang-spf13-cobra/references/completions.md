@@ -1,6 +1,6 @@
 # Cobra Shell Completions Reference
 
-Cobra generates shell completion scripts for bash, zsh, fish, and PowerShell automatically. Subcommand names and flag names are completed for free. You add completions for flag values and positional arguments.
+Cobra auto-generates shell completion scripts for bash, zsh, fish, and PowerShell. Subcommand and flag names complete for free. Add own completions for flag values and positional args.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ Cobra generates shell completion scripts for bash, zsh, fish, and PowerShell aut
 
 ## Built-in completion command
 
-Cobra registers a `completion` subcommand automatically:
+Cobra registers `completion` subcommand automatically:
 
 ```bash
 myapp completion bash   # generate bash script
@@ -29,20 +29,20 @@ myapp completion zsh > "${fpath[1]}/_myapp"
 
 ## ShellCompDirective
 
-The `ShellCompDirective` controls shell behavior after your completion function returns:
+`ShellCompDirective` controls shell behavior after completion function returns:
 
 | Directive | Meaning |
 | --- | --- |
-| `ShellCompDirectiveDefault` | Fall back to file completion after your results |
+| `ShellCompDirectiveDefault` | Fall back to file completion after results |
 | `ShellCompDirectiveNoFileComp` | Disable file completion fallback |
-| `ShellCompDirectiveNoSpace` | Don't add a space after the completion |
+| `ShellCompDirectiveNoSpace` | Don't add space after completion |
 | `ShellCompDirectiveFilterFileExt(exts)` | Only show files with given extensions |
 | `ShellCompDirectiveFilterDirs(dirs)` | Only show directories |
-| `ShellCompDirectiveError` | Signal an error (show no completions) |
+| `ShellCompDirectiveError` | Signal error (show no completions) |
 
 Combine with bitwise OR: `cobra.ShellCompDirectiveNoFileComp | cobra.ShellCompDirectiveNoSpace`.
 
-Use `ShellCompDirectiveNoFileComp` whenever your list is exhaustive — it prevents the shell from appending irrelevant files.
+Use `ShellCompDirectiveNoFileComp` whenever list is exhaustive — stops shell appending irrelevant files.
 
 ## Static arg completions
 
@@ -73,7 +73,7 @@ var getCmd = &cobra.Command{
 }
 ```
 
-`toComplete` is the prefix the user has typed so far — filter your results by it for responsive completions.
+`toComplete` is prefix user typed so far — filter results by it for responsive completions.
 
 ## Flag value completions
 
@@ -93,11 +93,11 @@ func init() {
 }
 ```
 
-Descriptions after `\t` are shown in zsh and fish menus.
+Descriptions after `\t` show in zsh and fish menus.
 
 ## Completion annotations
 
-Mark a flag to complete as a file or directory:
+Mark flag to complete as file or directory:
 
 ```go
 cmd.Flags().String("config", "", "config file")
@@ -120,7 +120,7 @@ func TestCompletion(t *testing.T) {
 }
 ```
 
-`__complete` is cobra's internal completion request verb. Pass the partial args as additional arguments.
+`__complete` is cobra's internal completion request verb. Pass partial args as extra arguments.
 
 ## Disabling the completion command
 

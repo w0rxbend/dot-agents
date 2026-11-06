@@ -2,14 +2,15 @@ version: '3.8'
 
 services:
   qdrant:
-    image: qdrant/qdrant:latest
-    ports:
-      - "6333:6333"  # REST API
-      - "6334:6334"  # gRPC API
+    image: qdrant/qdrant:v1.19.2  # pinned; matches qdrant-client 1.19
+    ports:  # localhost only: Qdrant has no auth by default
+      - "127.0.0.1:6333:6333"  # REST API
+      - "127.0.0.1:6334:6334"  # gRPC API
     volumes:
       - qdrant_storage:/qdrant/storage:z
     environment:
       - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__TELEMETRY_DISABLED=true  # opt out of usage telemetry
     restart: unless-stopped
 
 volumes:

@@ -54,7 +54,7 @@ curl http://localhost:8000/api/error
 
 ### 5. View in Grafana
 
-1. Navigate to http://localhost:3000 (login: admin/admin)
+1. Navigate to http://localhost:3000 (login: admin / `GRAFANA_ADMIN_PASSWORD` from `.env`)
 2. Go to Explore → Tempo
 3. Search for `service.name="fastapi-example"`
 4. Click on a trace to see spans and timing
@@ -200,7 +200,7 @@ curl http://localhost:8000/api/external
 
 ```bash
 # Install hey
-go install github.com/rakyll/hey@latest
+go install github.com/rakyll/hey@v0.1.5
 
 # Generate load
 hey -n 1000 -c 10 http://localhost:8000/api/users/123

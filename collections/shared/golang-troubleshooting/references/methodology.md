@@ -1,6 +1,6 @@
 # General Debugging Methodology
 
-For any bug, follow this systematic process:
+For any bug, follow this process:
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@ For any bug, follow this systematic process:
 
 ## Step 1: Understand Expected vs Actual
 
-Before touching code, articulate clearly:
+Before touching code, state clearly:
 
 - What **should** happen?
 - What **actually** happens?
@@ -52,11 +52,11 @@ go vet ./...
 golangci-lint run ./...
 ```
 
-Run `golangci-lint` early in your debugging workflow. It catches unchecked errors, suspicious constructs, and many other issues that are easy to miss by reading code. See the `samber/cc-skills-golang@golang-lint` skill for configuration and usage.
+Run `golangci-lint` early: catches unchecked errors, suspicious constructs, other issues easy to miss when reading code. See `samber/cc-skills-golang@golang-lint` skill for configuration and usage.
 
 ## Step 3: Isolate the Problem
 
-Narrow the scope before investigating deeper:
+Narrow scope before investigating deeper:
 
 ```bash
 # Does a single test fail?
@@ -72,14 +72,14 @@ go build ./pkg/suspect/...
 go test -count=10 -run TestSuspect ./pkg/...
 ```
 
-Write more tests if you suspect missing test cases or need to test something in different conditions.
+Write more tests if you suspect missing test cases or need to test under different conditions.
 
 ## Step 4: Check External Dependencies
 
-Sometimes the bug is not in your code. Before diving deeper, verify that external components behave as expected:
+Sometimes bug is not in your code. Before diving deeper, verify external components behave as expected:
 
 ```bash
-# Reproduce an API call outside your app
+# Reproduce an API call outside your app (staging or read-only; confirm mutating calls with user)
 curl -v -X POST https://api.example.com/endpoint \
   -H "Content-Type: application/json" \
   -d '{"key": "value"}'
@@ -103,9 +103,8 @@ rabbitmqctl list_queues
 # Check certificate validity
 openssl s_client -connect api.example.com:443 -brief
 
-# Verify environment variables and config
-env | grep DATABASE
-env | grep API_KEY
+# Verify environment variables exist (names only; never print secret values)
+env | cut -d= -f1 | grep -E 'DATABASE|API_KEY'
 ```
 
 **Common external causes:**
@@ -124,7 +123,7 @@ env | grep API_KEY
 - Proxy or load balancer misconfiguration (wrong backend, sticky sessions, health check)
 - Disk full or read-only filesystem
 - File permissions changed
-- OOM killer terminated a dependency (database, cache, sidecar)
+- OOM killer terminated dependency (database, cache, sidecar)
 - Docker/K8s: wrong image tag, missing env var, resource limits, liveness probe misconfigured
 - Third-party SDK or library upgrade with breaking behavioral change
 - Locale, timezone, or encoding mismatch between systems
@@ -134,9 +133,9 @@ env | grep API_KEY
 
 ## Step 5: Check Observability Tools
 
-Production debugging MUST start with observability data. The project may already use observability tools that have the answer — look for imports or dependencies like `prometheus`, `opentelemetry`, `datadog`, `sentry`, `elastic/apm` in the codebase. Even if you don't see them in code, the developer may have them deployed separately.
+Production debugging MUST start with observability data. Project may already have observability tools with the answer. Look in codebase for imports or dependencies like `prometheus`, `opentelemetry`, `datadog`, `sentry`, `elastic/apm`. Even if absent from code, developer may deploy them separately.
 
-If the information is missing, **ask the user** what monitoring and observability tools they use. Common stacks:
+If information is missing, **ask the user** which monitoring and observability tools they use. Common stacks:
 
 - **Prometheus + Grafana** — Dashboards may show error rate spikes, latency changes, resource saturation. Query examples:
 
@@ -148,7 +147,7 @@ If the information is missing, **ask the user** what monitoring and observabilit
   rate(go_gc_duration_seconds_sum[5m])                    # GC pressure
   ```
 
-- **Datadog** — APM traces, error tracking, and infrastructure metrics are available. Query examples:
+- **Datadog** — APM traces, error tracking, infrastructure metrics. Query examples:
 
   ```
   avg:trace.http.request.duration{service:myapp} by {resource_name}
@@ -156,43 +155,41 @@ If the information is missing, **ask the user** what monitoring and observabilit
   avg:runtime.go.num_goroutine{service:myapp}
   ```
 
-- **Sentry** — Captured exceptions, breadcrumbs, and error grouping are available. Sentry often captures the full stack trace and context of the first occurrence.
-- **ELK (Elasticsearch + Logstash + Kibana)** — Structured logs can be searched for error patterns:
+- **Sentry** — Captured exceptions, breadcrumbs, error grouping. Often has full stack trace and context of first occurrence.
+- **ELK (Elasticsearch + Logstash + Kibana)** — Search structured logs for error patterns:
 
   ```
   level:error AND service:myapp AND @timestamp:[now-1h TO now]
   ```
 
-- **OpenTelemetry / Jaeger / Zipkin** — Distributed traces show latency breakdowns across services, failed spans, and propagation issues.
+- **OpenTelemetry / Jaeger / Zipkin** — Distributed traces show latency breakdowns across services, failed spans, propagation issues.
 
-If the user has an MCP server for any of these tools (Datadog MCP, Grafana MCP, etc.), interactive queries may be available through it.
+If user has MCP server for any of these tools (Datadog MCP, Grafana MCP, etc.), interactive queries may be available through it.
 
 ## Step 6: Compare with Working Code
 
-Before forming a hypothesis, find similar code that **works**:
+Before forming hypothesis, find similar code that **works**:
 
-- Search the codebase for analogous functionality that doesn't have the bug
-- Read the working reference implementation **completely** — don't skim
-- List **every difference** between the working code and the broken code
-- Check: are the dependencies the same? The config? The initialization order? The error handling?
-
-Often the bug becomes obvious when you see what the working version does differently.
+- Search codebase for analogous functionality without the bug
+- Read working reference implementation **completely** — don't skim
+- List **every difference** between working and broken code
+- Check: same dependencies? Config? Initialization order? Error handling?
 
 ## Step 7: Form a Hypothesis and Test It
 
-- Form a **single, specific** hypothesis with clear reasoning
-- Add targeted logging or a focused test
+- Form **single, specific** hypothesis with clear reasoning
+- Add targeted logging or focused test
 - Change **one thing**, observe, confirm or reject
-- If the hypothesis was wrong, **revert the change** — don't stack fixes on top of failed attempts
+- If hypothesis was wrong, **revert the change** — don't stack fixes on failed attempts
 
 ## Step 8: Trace to Root Cause
 
-When the symptom appears deep in the call stack, don't fix where the error surfaces. Trace backward:
+When symptom appears deep in call stack, don't fix where error surfaces. Trace backward:
 
-1. **Find the immediate cause** — what line panics or returns the wrong value?
-2. **Ask "what called this?"** — trace one level up the call chain
-3. **Keep tracing** — repeat until you find where the invalid data **originated**, not where it was **consumed**
-4. **Fix at the source** — the fix belongs where the bad value was created, not where it caused a crash
+1. **Find the immediate cause** — what line panics or returns wrong value?
+2. **Ask "what called this?"** — trace one level up call chain
+3. **Keep tracing** — repeat until you find where invalid data **originated**, not where it was **consumed**
+4. **Fix at the source** — fix belongs where bad value was created, not where it caused crash
 
 ```go
 // Example: panic in handler — but the bug is in the constructor
@@ -226,25 +223,25 @@ func suspectFunction(val string) {
 
 ## Step 9: Fix and Verify
 
-- Fix the root cause, not the symptom
-- The failing test from step 1 should now pass
-- Run the full test suite to check for regressions
+- Fix root cause, not symptom
+- Failing test from step 1 should now pass
+- Run full test suite to check for regressions
 
 ## Step 10: Defense-in-Depth
 
-After fixing a bug, ask: "How do I make this bug structurally impossible?" A single fix at one layer can be bypassed by different code paths or future refactoring. Add validation at multiple layers:
+After fixing bug, ask: "How do I make this bug structurally impossible?" Add validation at multiple layers:
 
 1. **Entry point** — reject invalid input at public API boundaries (`New*` constructors, exported functions)
-2. **Business logic** — assert preconditions inside internal functions that receive the data
+2. **Business logic** — assert preconditions inside internal functions receiving the data
 3. **Runtime guards** — use build tags or env checks to catch dangerous operations in tests (e.g., refuse writes outside temp dirs)
-4. **Observability** — add structured logging or metrics so the same class of bug is instantly visible if it recurs
+4. **Observability** — add structured logging or metrics so same bug class is instantly visible if it recurs
 
-Not every fix needs all four layers — use judgment. But when a bug could cause data loss, corruption, or security issues, multi-layer defense is worth the cost.
+Not every fix needs all four layers; use judgment. When bug could cause data loss, corruption, or security issues, multi-layer defense is worth the cost.
 
 ## When You're Stuck: Escalation Protocol
 
-If your fix doesn't work:
+If fix doesn't work:
 
-- **< 3 failed attempts:** Return to Step 1. You misidentified the root cause. Gather more evidence.
-- **>= 3 failed attempts:** Stop fixing. The problem is likely architectural, not a simple bug. Step back and question your assumptions about how the system works. Ask: "Is the design fundamentally sound, or am I patching a broken abstraction?"
-- **Each fix reveals a new problem:** You're chasing symptoms, not the root cause. See the Red Flags section in [SKILL.md](../SKILL.md).
+- **< 3 failed attempts:** Return to Step 1. Root cause was misidentified. Gather more evidence.
+- **>= 3 failed attempts:** Stop fixing. Problem is likely architectural, not a simple bug. Step back, question assumptions about how system works. Ask: "Is the design fundamentally sound, or am I patching a broken abstraction?"
+- **Each fix reveals a new problem:** Chasing symptoms, not root cause. See Red Flags section in [SKILL.md](../SKILL.md).

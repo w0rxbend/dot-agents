@@ -18,7 +18,7 @@
 
 ## What RUM Is
 
-Backend observability (logs, metrics, traces, profiles) tells you how your **system** behaves. RUM tells you how your **users** experience it. While frontend SDKs capture browser-side signals, the Go backend plays a critical role: tracking server-side business events, feeding Customer Data Platforms, and correlating user sessions with backend traces.
+Backend observability (logs, metrics, traces, profiles) shows how your **system** behaves. RUM shows how your **users** experience it. Frontend SDKs capture browser-side signals. Go backend still plays critical role: tracks server-side business events, feeds Customer Data Platforms, correlates user sessions with backend traces.
 
 ## RUM Capabilities
 
@@ -30,7 +30,7 @@ Backend observability (logs, metrics, traces, profiles) tells you how your **sys
 
 ## Identity Key: Use `user_id`, Never Email
 
-The distinct_id (identity key) used across all RUM tracking MUST be your internal, immutable `user_id`. NEVER use email addresses.
+distinct_id (identity key) for all RUM tracking MUST be your internal, immutable `user_id`. NEVER use email addresses.
 
 ```go
 // ✗ Bad — email is mutable, PII, and breaks analytics when users change it
@@ -48,20 +48,18 @@ posthogClient.Enqueue(posthog.Capture{
 
 **Why email is a bad identity key:**
 
-- **Mutable** — users change their email. Events before and after the change appear as two different users, breaking funnels, retention analysis, and cohort tracking.
-- **PII** — using email as the identity key means every event, session recording, and analytics query contains personally identifiable information. This complicates GDPR/CCPA compliance — you can't anonymize analytics without losing user identity.
-- **Non-unique across systems** — the same email might belong to different accounts in different services or environments.
-- **Leaks into third-party systems** — the distinct_id is sent to your analytics platform (PostHog, Segment, etc.). If it's an email, you've shared PII with every vendor in your analytics pipeline.
+- **Mutable** — users change email. Events before and after split into two users, breaking funnels, retention analysis and cohort tracking.
+- **PII** — every event, session recording and analytics query then holds personally identifiable information. Complicates GDPR/CCPA compliance: you can't anonymize analytics without losing user identity.
+- **Non-unique across systems** — same email may belong to different accounts across services or environments.
+- **Leaks into third-party systems** — distinct_id goes to your analytics platform (PostHog, Segment, etc.). Email there means PII shared with every vendor in your analytics pipeline.
 
-Use `user_id` as the identity key everywhere: PostHog `DistinctId`, Segment `UserId`, Amplitude `user_id`. Store email as a user property if needed for display, never as the primary key.
+Use `user_id` as identity key everywhere: PostHog `DistinctId`, Segment `UserId`, Amplitude `user_id`. Store email as user property if needed for display, never as primary key.
 
 ## Backend Role in RUM
 
-The Go backend tracks server-side events, correlates sessions with traces, and feeds data into CDPs.
-
 ### 1. Server-Side Event Tracking
 
-When critical business events happen server-side (payment completed, subscription upgraded, email sent), track them from Go so they appear in the same analytics pipeline as frontend events.
+Track critical server-side business events (payment completed, subscription upgraded, email sent) from Go, so they land in same analytics pipeline as frontend events.
 
 ```go
 import "github.com/posthog/posthog-go"
@@ -99,7 +97,7 @@ func (s *OrderService) Complete(ctx context.Context, order Order) error {
 
 ### 2. Connecting Frontend Sessions to Backend Traces
 
-Pass the frontend session ID or distinct ID through HTTP headers so backend traces can be correlated with RUM sessions. When a user reports "the page was slow," you can find their session recording AND the backend trace for the same request.
+Pass frontend session ID or distinct ID in HTTP headers to correlate backend traces with RUM sessions. When user reports "the page was slow," you find their session recording AND backend trace for same request.
 
 ```go
 func TracingMiddleware(next http.Handler) http.Handler {
@@ -124,7 +122,7 @@ func TracingMiddleware(next http.Handler) http.Handler {
 
 ### 3. CDP Event Ingestion
 
-If you use a Customer Data Platform (Segment, RudderStack), the Go backend sends events through the CDP's server-side SDK. The CDP unifies these with frontend events into a single user profile.
+With Customer Data Platform (Segment, RudderStack), Go backend sends events via CDP's server-side SDK. CDP merges them with frontend events into single user profile.
 
 ```go
 import "github.com/segmentio/analytics-go/v3"
@@ -161,11 +159,11 @@ func (s *UserService) Upgrade(ctx context.Context, userID string, plan string) e
 
 ## GDPR and CCPA Compliance
 
-RUM collects user behavior data — clicks, page views, session recordings. This triggers privacy regulation requirements. Compliance is not optional; violations carry heavy fines (GDPR: up to 4% of global revenue, CCPA: $7,500 per intentional violation).
+RUM collects user behavior data (clicks, page views, session recordings), so privacy regulations apply. Compliance is not optional. Violations carry heavy fines (GDPR: up to 4% of global revenue, CCPA: $7,500 per intentional violation).
 
 ### Consent Management
 
-GDPR/CCPA consent SHOULD be obtained before loading RUM SDKs or sending tracking events. This applies to both frontend scripts and server-side event tracking.
+GDPR/CCPA consent SHOULD be obtained before loading RUM SDKs or sending tracking events. Covers both frontend scripts and server-side event tracking.
 
 ```go
 // Server-side: check consent before tracking
@@ -190,13 +188,17 @@ func (s *OrderService) Complete(ctx context.Context, order Order) error {
 
 ### Data Subject Rights Endpoints
 
-GDPR and CCPA require you to let users access, export, and delete their data. Implement API endpoints that propagate these requests to all systems that hold user data — your database, your analytics platform, your CDP.
+GDPR and CCPA require letting users access, export and delete their data. Implement API endpoints that propagate these requests to every system holding user data: database, analytics platform, CDP. Authorize every request: only the authenticated owner of `:id` (or an admin) may export or delete, else 403.
 
 ```go
 // DELETE /api/users/:id/data — GDPR Article 17 "Right to Erasure"
 func (h *PrivacyHandler) HandleDataDeletion(w http.ResponseWriter, r *http.Request) {
     ctx := r.Context()
     userID := chi.URLParam(r, "id")
+    if !auth.CanAccessUser(ctx, userID) { // caller must be this user or an admin
+        http.Error(w, "forbidden", http.StatusForbidden)
+        return
+    }
 
     // 1. Delete from your database
     if err := h.userRepo.DeleteAllData(ctx, userID); err != nil {
@@ -223,6 +225,10 @@ func (h *PrivacyHandler) HandleDataDeletion(w http.ResponseWriter, r *http.Reque
 func (h *PrivacyHandler) HandleDataExport(w http.ResponseWriter, r *http.Request) {
     ctx := r.Context()
     userID := chi.URLParam(r, "id")
+    if !auth.CanAccessUser(ctx, userID) { // caller must be this user or an admin
+        http.Error(w, "forbidden", http.StatusForbidden)
+        return
+    }
 
     export, err := h.userRepo.ExportAllData(ctx, userID)
     if err != nil {
@@ -238,15 +244,15 @@ func (h *PrivacyHandler) HandleDataExport(w http.ResponseWriter, r *http.Request
 
 ### Privacy Checklist
 
-- [ ] **Consent before tracking** — no analytics scripts load and no server-side events fire until the user consents
-- [ ] **Consent + cookie banner** — clear opt-in (not pre-checked boxes), separate consent for analytics vs marketing vs functional (frontend responsibility, but backend must respect the consent flag)
-- [ ] **Data minimization** — only collect what you need, never track PII in analytics events
+- [ ] **Consent before tracking** — no analytics scripts load and no server-side events fire until user consents
+- [ ] **Consent + cookie banner** — clear opt-in (not pre-checked boxes), separate consent for analytics vs marketing vs functional (frontend job, but backend must respect consent flag)
+- [ ] **Data minimization** — collect only what you need, never track PII in analytics events
 - [ ] **Data retention policy** — auto-delete old analytics data (e.g., 2 years for aggregated analytics)
 - [ ] **Data subject rights** — endpoints for data export (right of access) and deletion (right to erasure)
 - [ ] **Data processing agreements** — signed DPAs with all third-party analytics/CDP vendors
-- [ ] **Privacy policy** — lists all RUM tools, what data they collect, and how long it's retained
-- [ ] **Identity key is not PII** — use `user_id`, not email, as the distinct_id across all platforms
-- [ ] **Self-hosted option** — consider self-hosting (PostHog, Matomo) to keep data in your infrastructure and simplify compliance
+- [ ] **Privacy policy** — lists all RUM tools, data they collect, retention period
+- [ ] **Identity key is not PII** — use `user_id`, not email, as distinct_id across all platforms
+- [ ] **Self-hosted option** — consider self-hosting (PostHog, Matomo): keeps data in your infrastructure, simplifies compliance
 
 ## Self-Hosted vs SaaS
 
@@ -258,17 +264,17 @@ func (h *PrivacyHandler) HandleDataExport(w http.ResponseWriter, r *http.Request
 | **Maintenance** | You manage upgrades, scaling, backups | Vendor handles everything |
 | **Features** | Catching up but improving fast | Often more polished and feature-rich |
 
-For EU-focused products or strict data residency requirements, self-hosting PostHog is the pragmatic choice — it eliminates most GDPR concerns around cross-border data transfer.
+For EU-focused products or strict data residency requirements, self-hosting PostHog is pragmatic choice. Removes most GDPR concerns around cross-border data transfer.
 
 ## Cost of RUM
 
 RUM costs scale with **event volume**:
 
-- **Event-based pricing** — every page view, click, and custom event counts. A busy SaaS app can generate millions of events/month per user segment.
-- **CDP costs** — CDPs charge per tracked user and per event. Segment at scale can cost more than your entire backend infrastructure.
+- **Event-based pricing** — every page view, click and custom event counts. Busy SaaS app can produce millions of events/month per user segment.
+- **CDP costs** — CDPs charge per tracked user and per event. Segment at scale can cost more than your whole backend infrastructure.
 
 **Mitigation:**
 
-- Use server-side event filtering to drop low-value events before they reach the analytics platform
-- Self-host where possible to convert per-event pricing into fixed infrastructure cost
+- Filter events server-side to drop low-value ones before they reach analytics platform
+- Self-host where possible: per-event pricing becomes fixed infrastructure cost
 - Set data retention limits on aggregated analytics

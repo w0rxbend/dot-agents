@@ -7,9 +7,9 @@ tags: scale, process-types, workloads, architecture
 
 ## Assign Workloads to Appropriate Process Types
 
-Architect your application with distinct process types for different workloads. Web processes handle HTTP requests. Worker processes handle background jobs. Clock processes handle scheduled tasks. Each type can be tuned and scaled for its specific workload.
+Give each workload distinct process type. Web processes handle HTTP requests. Worker processes handle background jobs. Clock processes handle scheduled tasks. Tune and scale each type for its workload.
 
-**Incorrect (single process type handles all workloads):**
+**Incorrect (one process type handles all workloads):**
 
 ```python
 # Everything in one process
@@ -36,17 +36,7 @@ app.run()
 # Can't scale web and workers independently
 ```
 
-**Correct (distinct process types for each workload):**
-
-```yaml
-# Procfile with distinct process types
-web: gunicorn api:app --workers 4 --timeout 30
-worker: celery -A tasks worker -Q default,high_priority
-worker_slow: celery -A tasks worker -Q slow_jobs --concurrency 2
-scheduler: celery -A tasks beat
-```
-
-**Process type patterns:
+**Correct (distinct process type per workload):**
 
 ```yaml
 # Procfile with distinct process types
@@ -147,11 +137,5 @@ metadata:
 spec:
   replicas: 1  # Only one scheduler
 ```
-
-**Benefits:**
-- Tune each process type for its workload
-- Scale independently based on demand signals
-- Separate monitoring and alerting per type
-- Resource limits appropriate per workload
 
 Reference: [The Twelve-Factor App - Concurrency](https://12factor.net/concurrency)

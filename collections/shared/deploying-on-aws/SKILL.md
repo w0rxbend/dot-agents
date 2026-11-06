@@ -5,24 +5,18 @@ description: "Select AWS services and reference architectures - compute (Lambda,
 
 # AWS Patterns
 
-## Purpose
-
-This skill provides decision frameworks and implementation patterns for Amazon Web Services. Navigate AWS's 200+ services through proven selection criteria, architectural patterns, and Well-Architected Framework principles. Focus on practical service selection, cost-aware design, and modern 2025 patterns including Lambda SnapStart, EventBridge Pipes, and S3 Express One Zone.
-
-Use this skill when designing AWS solutions, selecting services for specific workloads, implementing serverless or container architectures, or optimizing existing AWS infrastructure for cost, performance, and reliability.
-
 ## When to Use This Skill
 
-Invoke this skill when:
+Invoke when:
 
-- Choosing between Lambda, Fargate, ECS, EKS, or EC2 for compute workloads
-- Selecting database services (RDS, Aurora, DynamoDB) based on access patterns
-- Designing VPC architecture for multi-tier applications
+- Choosing compute: Lambda, Fargate, ECS, EKS or EC2
+- Selecting databases (RDS, Aurora, DynamoDB) by access pattern
+- Designing VPCs for multi-tier applications
 - Implementing serverless patterns with API Gateway and Lambda
 - Building container-based microservices on ECS or EKS
 - Applying AWS Well-Architected Framework to designs
-- Optimizing AWS costs while maintaining performance
-- Implementing security best practices (IAM, KMS, encryption)
+- Optimizing AWS costs while keeping performance
+- Applying security best practices (IAM, KMS, encryption)
 
 ## Core Service Selection Frameworks
 
@@ -61,7 +55,7 @@ Special Requirements:
 | Batch Jobs | Lambda or Fargate Spot | Request/spot pricing | Cost efficiency |
 | Long-Running | EC2 Reserved Instances | 30-60% savings | Predictable cost |
 
-For detailed service comparisons including cost examples, performance characteristics, and use case guidance, see `references/compute-services.md`.
+See `references/compute-services.md` for service comparisons, cost examples, performance characteristics and use-case guidance.
 
 ### Database Service Selection
 
@@ -75,7 +69,7 @@ For detailed service comparisons including cost examples, performance characteri
 | Document Storage | JSON/BSON | DynamoDB | Flexibility vs. MongoDB compat |
 | Caching | In-Memory | ElastiCache Redis | Speed + durability |
 | Analytics (OLAP) | Columnar | Redshift/Athena | Dedicated vs. serverless |
-| Time-Series | Timestamped | Timestream for InfluxDB | Purpose-built (Timestream for LiveAnalytics is closed to new customers) |
+| Time-Series | Timestamped | Timestream for InfluxDB | Purpose-built (Timestream for LiveAnalytics closed to new customers) |
 
 **Query Complexity Guide:**
 
@@ -84,7 +78,7 @@ For detailed service comparisons including cost examples, performance characteri
 - **Complex Analytics:** Redshift (dedicated) or Athena (serverless, query S3)
 - **Real-Time Streams:** DynamoDB Streams + Lambda
 
-For storage class selection, cost comparisons, and migration patterns, see `references/database-services.md`.
+See `references/database-services.md` for RDS, Aurora, DynamoDB and ElastiCache comparison, storage class selection, cost comparisons and migration patterns.
 
 ### Storage Service Selection
 
@@ -116,7 +110,7 @@ File Protocol Required:
 
 **Recommendation:** Use S3 for 80%+ of storage needs. Use EFS/FSx only when shared file access is required.
 
-For S3 storage classes, EBS volume types, and lifecycle policy examples, see `references/storage-services.md`.
+See `references/storage-services.md` for S3 storage classes, EBS volume types, EFS/FSx selection and lifecycle policy examples.
 
 ## Serverless Architecture Patterns
 
@@ -130,9 +124,9 @@ Client → API Gateway (HTTP API) → Lambda → DynamoDB
 ```
 
 **Use When:**
-- Building RESTful APIs with CRUD operations
+- RESTful APIs with CRUD operations
 - Variable or unpredictable traffic
-- Minimal operational overhead desired
+- Minimal operational overhead wanted
 - Pay-per-request cost model acceptable
 
 **Cost Estimate (1M requests/month):**
@@ -143,11 +137,11 @@ Client → API Gateway (HTTP API) → Lambda → DynamoDB
 
 **Key Components:**
 - API Gateway HTTP API (cheaper than REST API)
-- Lambda with appropriate memory allocation (1024MB typically optimal)
+- Lambda with right memory allocation (1024MB typically optimal)
 - DynamoDB on-demand billing (for variable traffic)
 - CloudWatch Logs for debugging
 
-A minimal CloudFormation version is in `examples/cloudformation/lambda-api.yaml`.
+Minimal CloudFormation version: `examples/cloudformation/lambda-api.yaml`.
 
 ### Pattern 2: Event-Driven Processing (EventBridge + Lambda + SQS)
 
@@ -160,16 +154,14 @@ S3 Upload → EventBridge Rule → Lambda (process) → DynamoDB (metadata)
 
 **Use When:**
 - Asynchronous file processing
-- Decoupled microservices communication
+- Decoupled microservice communication
 - Fan-out patterns (one event, multiple consumers)
-- Need retry logic and dead-letter queues
+- Retry logic and dead-letter queues needed
 
 **Key Features (2025):**
-- **EventBridge Pipes:** Simplified source → filter → enrichment → target
-- **Lambda Response Streaming:** Stream responses beyond the 6 MB buffered limit (check current Lambda quotas for the streaming maximum)
 - **Step Functions Distributed Map:** Process millions of items in parallel
 
-See `references/serverless-patterns.md` for additional patterns including Step Functions orchestration, API Gateway WebSockets, and Lambda SnapStart configuration.
+See `references/serverless-patterns.md` for more patterns: Step Functions orchestration, API Gateway WebSockets, Lambda SnapStart configuration.
 
 ## Container Architecture Patterns
 
@@ -192,7 +184,7 @@ ALB → ECS Service (Fargate tasks) → RDS Aurora
 - Application Load Balancer (path-based routing)
 - ECS Cluster with Fargate launch type
 - Task definitions (CPU, memory, container image)
-- Auto-scaling based on CPU/memory or custom metrics
+- Auto-scaling on CPU/memory or custom metrics
 - Service Connect for built-in service mesh
 
 **Cost Model (2 vCPU, 4GB RAM, 24/7):**
@@ -204,14 +196,12 @@ ALB → ECS Service (Fargate tasks) → RDS Aurora
 ### Pattern 2: EKS (Kubernetes on AWS)
 
 **Use When:**
-- Kubernetes expertise exists in team
+- Team has Kubernetes expertise
 - Multi-cloud or hybrid cloud strategy
-- Need Kubernetes ecosystem (Helm, Operators, Istio)
-- Complex workload orchestration requirements
+- Kubernetes ecosystem needed (Helm, Operators, Istio)
+- Complex workload orchestration
 
 **Key Features (2025):**
-- **EKS Auto Mode:** Fully managed node lifecycle
-- **EKS Pod Identities:** Simplified IAM (replaces IRSA)
 - **EKS Hybrid Nodes:** Run on-premises nodes
 
 **Cost Considerations:**
@@ -219,7 +209,7 @@ ALB → ECS Service (Fargate tasks) → RDS Aurora
 - Worker nodes: Fargate or EC2 pricing
 - Use EKS on Fargate for simplicity, EC2 for cost optimization
 
-For ECS task definitions, EKS cluster setup with CDK/Terraform, and service mesh patterns, see `references/container-patterns.md`.
+See `references/container-patterns.md` for ECS task definitions, ECS Service Connect, EKS Pod Identities, EKS cluster setup with CDK/Terraform and service mesh patterns.
 
 ## Networking Essentials
 
@@ -240,7 +230,7 @@ Per Availability Zone (deploy across 3 AZs):
 - Use /16 for VPC CIDR (65,536 IPs for growth)
 - Use /24 for subnet CIDRs (256 IPs, 251 usable)
 - Deploy across minimum 2 AZs (3 recommended) for high availability
-- Use Security Groups (stateful) for instance-level firewall
+- Use Security Groups (stateful) as instance-level firewall
 - Enable VPC Flow Logs for troubleshooting
 
 ### Load Balancing
@@ -257,9 +247,9 @@ Per Availability Zone (deploy across 3 AZs):
 - Path-based routing: `/api` → backend, `/web` → frontend
 - Host-based routing: `api.example.com`, `web.example.com`
 - WebSocket and gRPC support
-- Integration with Lambda (serverless backends)
+- Lambda integration (serverless backends)
 
-For CloudFront CDN patterns, Route 53 routing policies, and VPC peering configurations, see `references/networking.md`.
+See `references/networking.md` for VPC design, load balancing, CloudFront CDN patterns, Route 53 routing policies and VPC peering configurations.
 
 ## Security Best Practices
 
@@ -280,10 +270,10 @@ For CloudFront CDN patterns, Route 53 routing policies, and VPC peering configur
 
 **Core Practices:**
 - Use IAM roles (not users) for applications
-- Implement least privilege (grant minimum permissions needed)
+- Apply least privilege (minimum permissions needed)
 - Enable MFA for privileged users
-- Use IAM Access Analyzer to validate policies
-- Leverage AWS Organizations SCPs for guardrails
+- Validate policies with IAM Access Analyzer
+- Use AWS Organizations SCPs for guardrails
 
 ### Data Protection
 
@@ -301,49 +291,11 @@ For CloudFront CDN patterns, Route 53 routing policies, and VPC peering configur
 - **Parameter Store:** Application configuration (free tier available)
 - **KMS:** Encryption key management (customer-managed keys)
 
-For WAF rules, GuardDuty configuration, and network security patterns, see `references/security.md`.
+See `references/security.md` for IAM patterns, KMS, Secrets Manager, WAF rules, GuardDuty configuration and network security patterns.
 
 ## AWS Well-Architected Framework
 
-### Six Pillars Overview
-
-**1. Operational Excellence**
-- Infrastructure as code (CDK, Terraform, CloudFormation)
-- Automated deployments (CI/CD pipelines)
-- Observability (CloudWatch Logs, Metrics, X-Ray)
-- Runbooks and playbooks for common operations
-
-**2. Security**
-- Strong identity foundation (IAM roles and policies)
-- Defense in depth (Security Groups, NACLs, WAF)
-- Data protection (encryption at rest and in transit)
-- Detective controls (CloudTrail, GuardDuty, Security Hub)
-
-**3. Reliability**
-- Multi-AZ deployments (RDS Multi-AZ, Aurora replicas)
-- Auto-scaling (EC2 ASG, ECS Service Auto Scaling)
-- Backup and recovery (automated snapshots, cross-region)
-- Chaos engineering (Fault Injection Simulator)
-
-**4. Performance Efficiency**
-- Right-size resources (use Compute Optimizer)
-- Use managed services (reduce operational overhead)
-- Caching strategies (CloudFront, ElastiCache, DAX)
-- Monitor and optimize continuously
-
-**5. Cost Optimization**
-- Right-sizing compute (match capacity to demand)
-- Pricing models (Reserved Instances, Savings Plans, Spot)
-- Storage optimization (S3 Intelligent-Tiering, lifecycle policies)
-- Cost monitoring (Cost Explorer, Budgets, Trusted Advisor)
-
-**6. Sustainability (added 2021)**
-- Use Graviton processors (60% less energy, 25% better performance)
-- Optimize workload placement (renewable energy regions)
-- Storage efficiency (delete unused data, compression)
-- Software optimization (efficient code, async processing)
-
-For detailed pillar implementation guides, architectural review checklists, and Well-Architected Tool integration, see `references/well-architected.md`.
+Six pillars: Operational Excellence, Security, Reliability, Performance Efficiency, Cost Optimization, Sustainability (added 2021). See `references/well-architected.md` for pillar implementation guides, architectural review checklists and Well-Architected Tool integration.
 
 ## Infrastructure as Code
 
@@ -361,7 +313,7 @@ For detailed pillar implementation guides, architectural review checklists, and 
 
 **CloudFormation:**
 - **Language:** YAML or JSON
-- **Best For:** Native AWS integration, no additional tools
+- **Best For:** Native AWS integration, no extra tools
 - **Key Benefit:** AWS service support on day 1
 - **Example:** `examples/cloudformation/lambda-api.yaml`
 
@@ -370,14 +322,17 @@ For detailed pillar implementation guides, architectural review checklists, and 
 ```bash
 # Install CDK CLI
 npm install -g aws-cdk
+export CDK_DISABLE_CLI_TELEMETRY=true  # CLI telemetry on by default since 2.1100.0
 
 # Initialize new project
 cdk init app --language=typescript
 npm install
+cdk cli-telemetry --disable  # persist opt-out for this app (env var is per shell)
 
 # Deploy infrastructure
 cdk bootstrap  # One-time setup
-cdk deploy
+cdk diff       # Review changes
+cdk deploy --no-version-reporting  # also drops CDK usage metadata
 ```
 
 ### Terraform Quick Start
@@ -396,7 +351,9 @@ terraform plan
 terraform apply
 ```
 
-For complete working examples with VPC networking, multi-tier applications, and event-driven architectures, see the `examples/` directory.
+**Gate:** show `cdk diff` / `terraform plan` to the user and get explicit approval before `cdk bootstrap`, `cdk deploy` or `terraform apply`. Never use `-auto-approve` or `--require-approval never`.
+
+See `examples/` for working examples: VPC networking, multi-tier applications, event-driven architectures.
 
 ## Cost Optimization Strategies
 
@@ -405,7 +362,7 @@ For complete working examples with VPC networking, multi-tier applications, and 
 **Right-Sizing:**
 - Use AWS Compute Optimizer for EC2/Lambda recommendations
 - Monitor CloudWatch metrics (CPU, memory utilization)
-- Start conservatively, scale based on actual usage
+- Start conservatively, scale on actual usage
 
 **Pricing Models:**
 
@@ -455,7 +412,6 @@ CloudFront (CDN)
       → S3 (file storage)
 ```
 
-
 ### Containerized Microservices
 
 ```
@@ -466,8 +422,6 @@ Route 53 (DNS)
         → RDS Aurora (database)
         → ElastiCache Redis (cache)
 ```
-
-See `references/container-patterns.md` for ECS Fargate service details.
 
 ### Event-Driven Data Pipeline
 
@@ -503,36 +457,18 @@ See `references/serverless-patterns.md` for EventBridge and Firehose patterns.
 
 **Secrets Management:**
 - Use this skill for Secrets Manager/Parameter Store setup and rotation
-- Use hashicorp-vault when a cloud-agnostic secrets store is required
+- Use hashicorp-vault when cloud-agnostic secrets store is required
 
 **CI/CD Integration:**
 - Use this skill for CodePipeline infrastructure
-- Use building-ci-pipelines skill for pipeline configuration
-
-## Reference Documentation
-
-### Detailed Guides
-
-- **Compute Services:** `references/compute-services.md` - Lambda, Fargate, ECS, EKS, EC2 deep dive
-- **Database Services:** `references/database-services.md` - RDS, Aurora, DynamoDB, ElastiCache comparison
-- **Storage Services:** `references/storage-services.md` - S3 classes, EBS types, EFS/FSx selection
-- **Networking:** `references/networking.md` - VPC design, load balancing, CloudFront, Route 53
-- **Security:** `references/security.md` - IAM patterns, KMS, Secrets Manager, WAF
-- **Serverless Patterns:** `references/serverless-patterns.md` - Advanced Lambda, Step Functions, EventBridge
-- **Container Patterns:** `references/container-patterns.md` - ECS Service Connect, EKS Pod Identities
-- **Well-Architected:** `references/well-architected.md` - Six pillars implementation guide
-
-### Working Examples
-
-- **CloudFormation Example:** `examples/cloudformation/lambda-api.yaml` - Lambda behind an HTTP API
-
+- Use building-ci-pipelines for pipeline configuration
 
 ## Notable AWS Features (verify current status before relying on them)
 
 **Recent Innovations to Consider:**
 
 - **Lambda SnapStart:** Near-instant cold starts for Java functions
-- **Lambda Response Streaming:** Stream responses beyond the 6 MB buffered limit (check current Lambda quotas for the streaming maximum)
+- **Lambda Response Streaming:** Stream responses beyond 6 MB buffered limit (check current Lambda quotas for streaming maximum)
 - **EventBridge Pipes:** Simplified event processing (source → filter → enrichment → target)
 - **S3 Express One Zone:** 10x faster S3, single-digit millisecond latency
 - **ECS Service Connect:** Built-in service mesh for ECS
@@ -549,25 +485,23 @@ See `references/serverless-patterns.md` for EventBridge and Firehose patterns.
 **Before choosing a service, answer:**
 
 1. **Traffic Pattern:** Predictable or variable? (affects compute choice)
-2. **Data Model:** Relational, key-value, document, or graph? (affects database choice)
-3. **Access Pattern:** Frequent, infrequent, or archive? (affects storage class)
-4. **Latency Requirements:** Milliseconds, seconds, or minutes acceptable?
+2. **Data Model:** Relational, key-value, document or graph? (affects database choice)
+3. **Access Pattern:** Frequent, infrequent or archive? (affects storage class)
+4. **Latency Requirements:** Milliseconds, seconds or minutes acceptable?
 5. **Scaling Needs:** Vertical (bigger instances) or horizontal (more instances)?
 6. **Operational Overhead:** Prefer managed services or need control?
-7. **Cost Sensitivity:** Optimize for cost, performance, or balance?
+7. **Cost Sensitivity:** Optimize for cost, performance or balance?
 8. **Compliance Requirements:** Data residency, encryption, audit logging needed?
-
-**Then consult the relevant decision framework in this skill or detailed references.**
 
 ## Getting Started
 
 **For New AWS Projects:**
 
-1. Define architecture using Well-Architected Framework pillars
-2. Choose compute service using decision tree (Lambda/Fargate/ECS/EKS/EC2)
-3. Select database based on access patterns and data model
+1. Define architecture with Well-Architected Framework pillars
+2. Choose compute service with decision tree (Lambda/Fargate/ECS/EKS/EC2)
+3. Select database by access patterns and data model
 4. Design VPC with 3-tier subnet architecture
-5. Implement IaC using CDK or Terraform (see examples/)
+5. Implement IaC with CDK or Terraform (see examples/)
 6. Apply security best practices (IAM, encryption, logging)
 7. Set up monitoring and cost tracking
 
@@ -579,4 +513,3 @@ See `references/serverless-patterns.md` for EventBridge and Firehose patterns.
 4. Migrate to modern services (EC2 → Fargate, RDS → Aurora)
 5. Improve security posture (enable GuardDuty, implement least privilege)
 6. Automate with IaC (reverse-engineer to Terraform or CDK)
-

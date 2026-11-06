@@ -63,9 +63,9 @@
 1. **Use Roles, Not Users** for applications
 2. **Enable MFA** for privileged users
 3. **Use IAM Access Analyzer** to validate policies
-4. **Implement Permission Boundaries** for maximum permissions
-5. **Rotate Credentials** regularly (90 days)
-6. **Use AWS Organizations SCPs** for guardrails
+4. **Use Permission Boundaries** to cap maximum permissions
+5. **Rotate Credentials** every 90 days
+6. **Use AWS Organizations SCPs** as guardrails
 
 ### IAM Roles for Common Services
 
@@ -109,8 +109,6 @@
 
 **Server-Side Encryption (SSE):**
 - S3: SSE-S3 (free), SSE-KMS ($1/month key + API costs)
-- EBS: Encrypted by default (recommended)
-- RDS: Enable at creation
 
 **Client-Side Encryption:**
 - Encrypt before sending to AWS
@@ -121,7 +119,6 @@
 
 - $0.03 per 10,000 requests
 - Free tier: AWS managed keys
-- Monitor usage for high-volume applications
 
 ---
 
@@ -145,7 +142,7 @@
 **Parameter Store:**
 - Application configuration
 - Non-rotating secrets
-- Cost-sensitive scenarios
+- Cost-sensitive cases
 
 ### Automatic Rotation Example
 
@@ -211,7 +208,7 @@
 
 ## GuardDuty (Threat Detection)
 
-**Purpose:** Intelligent threat detection using ML
+**Purpose:** ML-based threat detection
 
 **Data Sources:**
 - VPC Flow Logs
@@ -225,19 +222,19 @@
 
 **Use Cases:**
 - Detect compromised instances
-- Identify reconnaissance attempts
+- Spot reconnaissance attempts
 - Find unauthorized access
 
 ---
 
 ## Security Hub
 
-**Purpose:** Centralized security dashboard, compliance checks
+**Purpose:** Central security dashboard, compliance checks
 
 **Features:**
 - CIS AWS Foundations Benchmark
 - PCI DSS compliance
-- Integration with GuardDuty, Inspector, Macie
+- Integrates with GuardDuty, Inspector, Macie
 
 **Cost:**
 - Security checks: $0.001 per check
@@ -278,7 +275,7 @@ Outbound:
 
 **Cost:**
 - $0.50 per GB ingested to CloudWatch Logs
-- Can send to S3 for cheaper storage ($0.023/GB)
+- Send to S3 for cheaper storage ($0.023/GB)
 
 **Analysis Tools:**
 - CloudWatch Insights for queries
@@ -292,25 +289,25 @@ Outbound:
 ### Data at Rest
 
 - [ ] S3: SSE-S3 or SSE-KMS enabled
-- [ ] EBS: Encryption by default enabled
-- [ ] RDS: Encryption enabled at creation
-- [ ] DynamoDB: Encryption enabled (free)
-- [ ] EFS: Encryption enabled
-- [ ] ElastiCache: At-rest encryption (Redis only)
+- [ ] EBS: encryption by default enabled
+- [ ] RDS: encryption enabled at creation
+- [ ] DynamoDB: encryption enabled (free)
+- [ ] EFS: encryption enabled
+- [ ] ElastiCache: at-rest encryption (Redis only)
 
 ### Data in Transit
 
 - [ ] ALB/NLB: HTTPS listeners with TLS 1.2+
 - [ ] CloudFront: HTTPS required
-- [ ] RDS: Force SSL connections
+- [ ] RDS: force SSL connections
 - [ ] DynamoDB: HTTPS API calls
-- [ ] S3: Bucket policies require HTTPS
+- [ ] S3: bucket policies require HTTPS
 
 ### Key Management
 
 - [ ] Use AWS KMS for customer-managed keys
 - [ ] Enable automatic key rotation (365 days)
-- [ ] Use key policies for access control
+- [ ] Control access with key policies
 - [ ] Monitor KMS API usage (CloudTrail)
 
 ---
@@ -319,7 +316,7 @@ Outbound:
 
 ### AWS Artifact
 
-**Purpose:** Access compliance reports (SOC, PCI, ISO, HIPAA)
+**Purpose:** Compliance reports (SOC, PCI, ISO, HIPAA)
 
 **Available Reports:**
 - SOC 1, 2, 3
@@ -332,10 +329,10 @@ Outbound:
 **Purpose:** Resource inventory, configuration compliance
 
 **Rules Examples:**
-- encrypted-volumes: All EBS volumes encrypted
-- s3-bucket-public-read-prohibited: No public S3 buckets
+- encrypted-volumes: all EBS volumes encrypted
+- s3-bucket-public-read-prohibited: no public S3 buckets
 - rds-multi-az-enabled: RDS instances Multi-AZ
-- iam-password-policy: Strong password requirements
+- iam-password-policy: strong password requirements
 
 **Cost:**
 - $0.003 per configuration item
@@ -356,8 +353,8 @@ Outbound:
 - Log file integrity validation
 
 **Cost:**
-- First copy of management events: Free
-- S3 storage: Standard S3 rates
+- First copy of management events: free
+- S3 storage: standard S3 rates
 - CloudWatch Logs integration: $0.50/GB
 
 ### Security Automation
@@ -366,11 +363,11 @@ Outbound:
 
 1. Config Rule detects non-compliant resource
 2. EventBridge triggers Lambda
-3. Lambda remediates (e.g., enable encryption)
-4. SNS notification sent
+3. Lambda remediates (e.g., enables encryption)
+4. SNS sends notification
 
 **Common Automations:**
 - Revoke overly permissive security groups
 - Enable encryption on new resources
-- Delete public S3 buckets
+- Enable S3 Block Public Access on public buckets (alert; never auto-delete data)
 - Rotate IAM access keys >90 days old

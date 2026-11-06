@@ -11,7 +11,7 @@ Dependencies:
 Usage:
     collector = EvidenceCollector()
     evidence = collector.collect_encryption_evidence()
-    collector.store_evidence(evidence)
+    collector.store_evidence(evidence, bucket="compliance-evidence", expected_owner="111122223333")
 """
 
 import boto3
@@ -73,18 +73,20 @@ class EvidenceCollector:
                         })
                         evidence["status"] = "FAIL"
         except Exception as e:
+            evidence["status"] = "ERROR"  # fail closed: incomplete check is never PASS
             evidence["error"] = str(e)
 
         return evidence
 
-    def store_evidence(self, evidence: Dict[str, Any]):
-        """Store evidence in S3"""
+    def store_evidence(self, evidence: Dict[str, Any], bucket: str, expected_owner: str):
+        """Store evidence in S3; expected_owner = account ID that must own the bucket"""
         date_path = datetime.utcnow().strftime("%Y/%m/%d")
         key = f"evidence/{date_path}/{evidence['control_id']}-{evidence['timestamp']}.json"
 
         s3.put_object(
-            Bucket="compliance-evidence",
+            Bucket=bucket,
             Key=key,
             Body=json.dumps(evidence, indent=2),
-            ServerSideEncryption='aws:kms'
+            ServerSideEncryption='aws:kms',
+            ExpectedBucketOwner=expected_owner,
         )

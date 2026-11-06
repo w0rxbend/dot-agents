@@ -5,37 +5,35 @@ description: When distributing traffic across multiple servers or regions, use t
 
 # Load Balancing Patterns
 
-Distribute traffic across infrastructure using the appropriate load balancing approach, from simple round-robin to global multi-region failover.
-
 ## When to Use This Skill
 
-Use load-balancing-patterns when:
-- Distributing traffic across multiple application servers
-- Implementing high availability and failover
-- Routing traffic based on URLs, headers, or geographic location
+Use when:
+- Spreading traffic across multiple application servers
+- Adding high availability and failover
+- Routing traffic by URL, header or geographic location
 - Managing session persistence across stateless backends
-- Deploying applications to Kubernetes clusters
+- Deploying to Kubernetes clusters
 - Configuring global traffic management across regions
-- Implementing zero-downtime deployments (blue-green, canary)
-- Selecting between cloud-managed and self-managed load balancers
+- Running zero-downtime deployments (blue-green, canary)
+- Choosing between cloud-managed and self-managed load balancers
 
 ## Core Load Balancing Concepts
 
 ### Layer 4 vs Layer 7
 
 **Layer 4 (L4) - Transport Layer:**
-- Routes based on IP address and port (TCP/UDP packets)
+- Routes by IP address and port (TCP/UDP packets)
 - No application data inspection, lower latency, higher throughput
-- Protocol agnostic, preserves client IP addresses
+- Protocol agnostic, preserves client IP
 - Use for: Database connections, video streaming, gaming, financial transactions, non-HTTP protocols
 
 **Layer 7 (L7) - Application Layer:**
-- Routes based on HTTP URLs, headers, cookies, request body
+- Routes by HTTP URL, headers, cookies, request body
 - Full application data visibility, SSL/TLS termination, caching, WAF integration
-- Content-based routing capabilities
+- Content-based routing
 - Use for: Web applications, REST APIs, microservices, GraphQL endpoints, complex routing logic
 
-For detailed comparison including performance benchmarks and hybrid approaches, see `references/l4-vs-l7-comparison.md`.
+Full comparison, benchmarks, hybrid approaches: see `references/l4-vs-l7-comparison.md`.
 
 ### Load Balancing Algorithms
 
@@ -50,20 +48,20 @@ For detailed comparison including performance benchmarks and hybrid approaches, 
 
 ### Health Check Types
 
-**Shallow (Liveness):** Is the process alive?
+**Shallow (Liveness):** Is process alive?
 - Endpoint: `/health/live` or `/live`
 - Returns: 200 if process running
 - Use for: Process monitoring, container health
 
-**Deep (Readiness):** Can the service handle requests?
+**Deep (Readiness):** Can service handle requests?
 - Endpoint: `/health/ready` or `/ready`
 - Validates: Database, cache, external API connectivity
 - Use for: Load balancer routing decisions
 
-**Health Check Hysteresis:** Different thresholds for marking up vs down to prevent flapping
+**Health Check Hysteresis:** Separate thresholds for marking up and down. Prevents flapping.
 - Example: 3 failures to mark down, 2 successes to mark up
 
-For complete health check implementation patterns, see `references/health-check-strategies.md`.
+Implementation patterns: see `references/health-check-strategies.md`.
 
 ## Cloud Load Balancers
 
@@ -95,7 +93,7 @@ For complete health check implementation patterns, see `references/health-check-
 **Load Balancer (L4):** Basic and Standard SKUs, health probes, HA ports
 **Traffic Manager (Global):** DNS-based routing (priority, weighted, performance, geographic)
 
-For complete cloud provider configurations and Terraform examples, see `references/cloud-load-balancers.md`.
+Provider configurations and Terraform examples: see `references/cloud-load-balancers.md`.
 
 ## Self-Managed Load Balancers
 
@@ -132,7 +130,7 @@ server {
 }
 ```
 
-For complete NGINX patterns and advanced configurations, see `references/nginx-patterns.md`.
+Advanced NGINX patterns: see `references/nginx-patterns.md`.
 
 ### HAProxy
 
@@ -141,7 +139,7 @@ For complete NGINX patterns and advanced configurations, see `references/nginx-p
 **Capabilities:**
 - Highest raw throughput, lowest memory footprint
 - 10+ load balancing algorithms
-- Sophisticated health checks (HTTP, TCP, Redis, MySQL, etc.)
+- Advanced health checks (HTTP, TCP, Redis, MySQL, etc.)
 - Cookie or IP-based persistence
 
 **Basic configuration:**
@@ -157,19 +155,19 @@ backend web_servers
     server web2 192.168.1.102:8080 check
 ```
 
-For complete HAProxy patterns, see `references/haproxy-patterns.md`.
+HAProxy patterns: see `references/haproxy-patterns.md`.
 
 ### Envoy
 
 **Best for:** Microservices, Kubernetes, service mesh integration
 
 **Capabilities:**
-- Cloud-native design with dynamic configuration (xDS APIs)
+- Cloud-native, dynamic configuration (xDS APIs)
 - Circuit breakers, retries, timeouts
 - Advanced health checks (TCP, HTTP, gRPC)
-- Excellent observability
+- Strong observability
 
-For complete Envoy patterns, see `references/envoy-patterns.md`.
+Envoy patterns: see `references/envoy-patterns.md`.
 
 ### Traefik
 
@@ -181,7 +179,7 @@ For complete Envoy patterns, see `references/envoy-patterns.md`.
 - Built-in Let's Encrypt support
 - Middleware system (auth, rate limiting)
 
-For complete Traefik patterns, see `references/traefik-patterns.md`.
+Traefik patterns: see `references/traefik-patterns.md`.
 
 ## Kubernetes Ingress Controllers
 
@@ -197,7 +195,7 @@ For complete Traefik patterns, see `references/traefik-patterns.md`.
 | **Kong** | API-heavy apps | JWT auth, rate limiting, plugins |
 | **Cloud Provider** | Single-cloud | Native cloud integration |
 
-The community `ingress-nginx` controller (the one that reads `nginx.ingress.kubernetes.io/*` annotations) has been retired by Kubernetes SIG Network, with best-effort maintenance ending in March 2026. F5's NGINX Ingress Controller is a different product with different annotations (`nginx.org/*`). For new clusters, prefer the Gateway API. See `examples/kubernetes/gateway-api.yaml`.
+Kubernetes SIG Network retired community `ingress-nginx` controller (reads `nginx.ingress.kubernetes.io/*` annotations). Best-effort maintenance ending in March 2026. F5's NGINX Ingress Controller is separate product with different annotations (`nginx.org/*`). New clusters: prefer Gateway API, see `examples/kubernetes/gateway-api.yaml`.
 
 ### Basic Ingress Example (community ingress-nginx, for existing clusters)
 
@@ -235,25 +233,25 @@ spec:
               number: 80
 ```
 
-For complete Kubernetes ingress examples and Gateway API patterns, see `references/kubernetes-ingress.md`.
+More ingress examples and Gateway API patterns: see `references/kubernetes-ingress.md`.
 
 ## Session Persistence
 
 ### Sticky Sessions (Use Sparingly)
 
-**Cookie-Based:** Load balancer sets cookie to track server affinity
+**Cookie-Based:** Load balancer sets cookie tracking server affinity
 - Accurate routing, works with NAT/proxies
 - HTTP only, adds cookie overhead
 
-**IP Hash:** Hash client IP to select backend server
+**IP Hash:** Hash client IP to pick backend server
 - No cookie required, works for non-HTTP
 - Poor distribution with NAT/proxies
 
-**Drawbacks:** Uneven load distribution, session lost on server failure, complicates scaling
+**Drawbacks:** Uneven load, session lost on server failure, harder scaling
 
 ### Shared Session Store (Recommended)
 
-Architecture: Stateless application servers + centralized session storage (Redis, Memcached)
+Stateless application servers plus centralized session store (Redis, Memcached).
 
 **Benefits:**
 - No sticky sessions needed
@@ -263,28 +261,28 @@ Architecture: Stateless application servers + centralized session storage (Redis
 
 ### Client-Side Tokens (Best for APIs)
 
-JWT (JSON Web Tokens): Server generates signed token, client stores and sends with requests
+JWT (JSON Web Tokens): server signs token, client stores it and sends it with each request.
 
 **Benefits:**
 - Fully stateless servers
 - Perfect load balancing
 - No session storage needed
 
-For complete session management patterns and code examples, see `references/session-persistence.md`.
+Session patterns and code examples: see `references/session-persistence.md`.
 
 ## Global Load Balancing
 
 ### GeoDNS Routing
 
-Route users to nearest server based on geographic location:
-- DNS returns different IPs based on client location
+Route users to nearest server by geographic location:
+- DNS returns different IPs per client location
 - Reduces latency, supports compliance and regional content
 - Implementation: AWS Route 53, GCP Cloud DNS, Azure Traffic Manager
 
 ### Multi-Region Failover
 
 Primary/secondary region configuration:
-- Health checks determine primary region health
+- Health checks judge primary region health
 - Automatic DNS failover to secondary
 - Transparent to clients
 
@@ -295,7 +293,7 @@ Combine load balancing with CDN:
 - CDN caches content globally
 - Origin load balancing for cache misses
 
-For complete global load balancing examples with Terraform, see `references/global-load-balancing.md`.
+Terraform examples: see `references/global-load-balancing.md`.
 
 ## Decision Frameworks
 
@@ -304,13 +302,13 @@ For complete global load balancing examples with Terraform, see `references/glob
 Choose **L4** when:
 - Protocol is TCP/UDP (not HTTP)
 - Ultra-low latency critical (<1ms)
-- High throughput required (millions RPS)
-- Client source IP preservation needed
+- High throughput needed (millions RPS)
+- Client source IP must be preserved
 
 Choose **L7** when:
 - Protocol is HTTP/HTTPS
 - Content-based routing needed (URL, headers)
-- SSL termination required
+- SSL termination needed
 - WAF integration needed
 - Microservices architecture
 
@@ -318,16 +316,16 @@ Choose **L7** when:
 
 Choose **Cloud-Managed** when:
 - Single cloud deployment
-- Auto-scaling required
+- Auto-scaling needed
 - Team lacks load balancer expertise
 - Managed service preferred
 
 Choose **Self-Managed** when:
 - Multi-cloud or hybrid deployment
-- Advanced routing requirements
-- Cost optimization important
+- Advanced routing needs
+- Cost optimization matters
 - Full control needed
-- Vendor lock-in avoidance
+- Avoiding vendor lock-in
 
 ### Self-Managed Selection
 
@@ -338,7 +336,7 @@ Choose **Self-Managed** when:
 
 ## Configuration Examples
 
-Complete working examples available in `examples/` directory:
+Working examples in `examples/`:
 
 **Cloud Providers:**
 - `examples/aws/alb-terraform.tf` - AWS ALB with path-based routing
@@ -359,7 +357,7 @@ Complete working examples available in `examples/` directory:
 
 ### Key Metrics
 
-**Throughput:** Requests per second, bytes transferred, connection rate
+**Throughput:** RPS, bytes transferred, connection rate
 **Latency:** Request duration (p50, p95, p99), backend response time, SSL handshake time
 **Errors:** HTTP error rates (4xx, 5xx), backend connection failures, health check failures
 **Resource Utilization:** CPU, memory, active connections, connection queue depth
@@ -367,7 +365,7 @@ Complete working examples available in `examples/` directory:
 
 ### Load Balancer Logs
 
-Enable access logs for request/response details, client IPs, response times, error tracking
+Enable access logs: request/response details, client IPs, response times, error tracking
 - **AWS ALB:** Store in S3, analyze with Athena
 - **NGINX:** Custom log format, ship to centralized logging
 - **HAProxy:** Syslog integration, structured logging
@@ -376,28 +374,28 @@ Enable access logs for request/response details, client IPs, response times, err
 
 ### Uneven Load Distribution
 
-**Symptoms:** One server receives disproportionate traffic
+**Symptoms:** One server gets disproportionate traffic
 **Causes:** Sticky sessions with few clients, IP hash with NAT concentration, long-lived connections
-**Solutions:** Switch to least connections, disable sticky sessions, implement connection draining
+**Solutions:** Switch to least connections, disable sticky sessions, add connection draining
 
 ### Health Check Flapping
 
-**Symptoms:** Servers rapidly transition between healthy/unhealthy
+**Symptoms:** Servers flip rapidly between healthy and unhealthy
 **Causes:** Health check timeout too short, threshold too low, network instability
-**Solutions:** Increase interval and timeout, implement hysteresis (separate healthy/unhealthy thresholds), keep LB checks shallow (process readiness, not shared dependencies like the database, which would mark every backend down at once)
+**Solutions:** Increase interval and timeout. Add hysteresis (separate healthy/unhealthy thresholds). Keep LB checks shallow: process readiness, not shared dependencies like the database. A shared-dependency check would mark every backend down at once.
 
 ### Session Loss After Failover
 
 **Symptoms:** Users logged out when server fails
 **Causes:** Sticky sessions without replication, in-memory sessions
-**Solutions:** Implement shared session store (Redis), use client-side tokens (JWT)
+**Solutions:** Add shared session store (Redis), use client-side tokens (JWT)
 
 ## Integration Points
 
 **Related Skills:**
-- `pulumi-stacks` / `pulumi-components` - Deploy load balancers as infrastructure code
-- `operating-kubernetes` - Gateway API and ingress operations for K8s traffic management
-- `architecting-networks` - Network design and topology for load balancing
+- `pulumi-stacks` / `pulumi-components` - Load balancers as infrastructure code
+- `operating-kubernetes` - Gateway API and ingress operations in clusters
+- `architecting-networks` - Network design and topology
 - `deploying-applications` - Blue-green and canary deployments via load balancers
 - `observability-and-instrumentation` - Load balancer metrics, access logs, distributed tracing
 - `security-hardening` - WAF integration, rate limiting, DDoS protection
@@ -417,17 +415,6 @@ Enable access logs for request/response details, client IPs, response times, err
 | Multi-cloud portable | NGINX or HAProxy |
 | Global distribution | CloudFlare, AWS Global Accelerator |
 
-### Algorithm Selection
-
-| Traffic Pattern | Algorithm |
-|-----------------|-----------|
-| Stateless, similar servers | Round Robin |
-| Stateless, different capacity | Weighted Round Robin |
-| Long-lived connections | Least Connections |
-| Performance-sensitive | Least Response Time |
-| Session persistence needed | IP Hash or Cookie |
-| Varying server load | Resource-Based |
-
 ### Health Check Configuration
 
 | Service Type | Check Type | Interval | Timeout |
@@ -437,9 +424,3 @@ Enable access logs for request/response details, client IPs, response times, err
 | Database | TCP connect | 5s | 2s |
 | Critical service | HTTP deep check | 5s | 3s |
 | Background worker | HTTP /live | 30s | 5s |
-
-## Summary
-
-Load balancing is essential for distributing traffic, ensuring high availability, and enabling horizontal scaling. Choose L4 for raw performance and non-HTTP protocols, L7 for intelligent content-based routing. Prefer cloud-managed load balancers for simplicity and auto-scaling, self-managed for multi-cloud portability and advanced features. Implement proper health checks with hysteresis, avoid sticky sessions when possible, and monitor key metrics continuously.
-
-For deployment patterns, see examples in `examples/aws/`, `examples/nginx/`, `examples/kubernetes/`, and other provider directories.

@@ -1,8 +1,5 @@
 # Secret Management Integration
 
-Secure secret handling in GitOps workflows.
-
-
 ## Table of Contents
 
 - [Sealed Secrets](#sealed-secrets)
@@ -32,13 +29,13 @@ brew install kubeseal
 ### Create Sealed Secret
 
 ```bash
-# Create secret
-kubectl create secret generic mysecret \
-  --from-literal=password=mypassword \
-  --dry-run=client -o yaml > secret.yaml
-
-# Seal the secret
-kubeseal -f secret.yaml -w sealedsecret.yaml
+# Create and seal in one pipe: value read from stdin (not shell history or
+# process args), no plaintext secret.yaml left in the working tree
+read -rs PASSWORD
+printf '%s' "$PASSWORD" | kubectl create secret generic mysecret -n myapp \
+  --from-file=password=/dev/stdin \
+  --dry-run=client -o yaml | kubeseal -o yaml > sealedsecret.yaml
+unset PASSWORD
 
 # Commit sealed secret to Git
 git add sealedsecret.yaml
@@ -65,13 +62,13 @@ spec:
 ```bash
 helm repo add external-secrets https://charts.external-secrets.io
 helm install external-secrets external-secrets/external-secrets \
-  -n external-secrets-system --create-namespace
+  --version 2.14.0 -n external-secrets-system --create-namespace
 ```
 
 ### Vault SecretStore
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: SecretStore
 metadata:
   name: vault-backend
@@ -91,7 +88,7 @@ spec:
 ### ExternalSecret
 
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: myapp-secrets
@@ -126,8 +123,9 @@ brew install sops
 # Install age for encryption
 brew install age
 
-# Generate age key
-age-keygen -o key.txt
+# Generate age key outside the repo; never commit it
+mkdir -p ~/.config/sops/age
+age-keygen -o ~/.config/sops/age/keys.txt
 ```
 
 ### Encrypt File with SOPS
@@ -144,11 +142,12 @@ stringData:
 ```
 
 ```bash
-# Encrypt with age
-sops --encrypt --age $(cat key.txt.pub) secrets/prod-secrets.yaml > secrets/prod-secrets.enc.yaml
+# Encrypt in place with the age public key, so no plaintext copy remains;
+# never commit the file before it is encrypted
+sops --encrypt --in-place --age "$(age-keygen -y ~/.config/sops/age/keys.txt)" secrets/prod-secrets.yaml
 
 # Commit encrypted file
-git add secrets/prod-secrets.enc.yaml
+git add secrets/prod-secrets.yaml
 ```
 
 ### Flux SOPS Integration
@@ -170,15 +169,11 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: sops-age
-  namespace: flux-system
-stringData:
-  age.agekey: |
-    # created: 2025-01-01T00:00:00Z
-    # public key: age1...
-    AGE-SECRET-KEY-1...
+```
+
+The decryption key must never live in Git. Create the `sops-age` secret out of band:
+
+```bash
+kubectl create secret generic sops-age -n flux-system \
+  --from-file=age.agekey=$HOME/.config/sops/age/keys.txt
 ```

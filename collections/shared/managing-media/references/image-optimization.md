@@ -1,8 +1,5 @@
 # Image Optimization Guide
 
-Reduce file sizes and improve load times with responsive images, modern formats, and lazy loading.
-
-
 ## Table of Contents
 
 - [Modern Image Formats](#modern-image-formats)
@@ -101,14 +98,11 @@ const cloudflareUrl = (imageId: string, variant: string) =>
 
 ## Best Practices
 
-1. **Use WebP/AVIF** - 30-50% smaller than JPEG
-2. **Responsive images** - srcset for different screen sizes
-3. **Lazy loading** - Below-the-fold images
-4. **Compress before upload** - Client-side optimization
-5. **CDN delivery** - Global edge caching
-6. **Placeholder** - Blur or solid color while loading
-7. **Alt text** - Always include for accessibility
-8. **Dimensions** - Prevent layout shift
+1. **Lazy loading** - Below-the-fold images
+2. **CDN delivery** - Global edge caching
+3. **Placeholder** - Blur or solid color while loading
+4. **Alt text** - Always include for accessibility
+5. **Dimensions** - Set them to prevent layout shift
 
 ## Tools
 

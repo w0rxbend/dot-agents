@@ -1,8 +1,5 @@
 # MongoDB Performance Optimization
 
-Query optimization, index strategies, and production tuning for document databases.
-
-
 ## Table of Contents
 
 - [Query Optimization](#query-optimization)
@@ -60,7 +57,7 @@ db.orders.explain("executionStats").find({ status: "pending" })
 
 ### 2. Covered Queries
 
-Query entirely satisfied by index (no document fetch):
+Index alone answers query (no document fetch):
 
 ```javascript
 db.users.createIndex({ userId: 1, email: 1, name: 1 })
@@ -274,28 +271,20 @@ db.collection.insertOne(doc, {
 
 ## Best Practices
 
-1. **Indexes for all queries** - Avoid collection scans
-2. **Explain every query** - Verify index usage
-3. **Connection pooling** - Reuse connections
-4. **Batch operations** - Use bulkWrite, insertMany
-5. **Monitor slow queries** - Set profiling level
-6. **Limit document size** - <1MB for performance
-7. **Project only needed** - Don't fetch unused fields
-8. **Use covered queries** - Index-only access
-9. **Pagination** - Use cursor-based, not offset
-10. **Regular maintenance** - Monitor index usage, rebuild if needed
+1. **Batch operations** - Use bulkWrite, insertMany
+2. **Regular maintenance** - Monitor index usage, rebuild if needed
 
 ## Performance Checklist
 
-- [ ] All queries have supporting indexes
+- [ ] Every query has supporting index
 - [ ] Index usage verified with explain()
 - [ ] Slow query profiling enabled (>100ms)
-- [ ] Connection pool sized appropriately
-- [ ] Bulk operations used for batch inserts
+- [ ] Connection pool sized for workload
+- [ ] Bulk operations for batch inserts
 - [ ] Documents <1MB (ideally <100KB)
 - [ ] Projections used (not fetching all fields)
-- [ ] Pagination implemented (cursor-based)
-- [ ] Read preference configured for replicas
+- [ ] Cursor-based pagination (not offset)
+- [ ] Read preference set for replicas
 - [ ] WiredTiger cache sized correctly
 
 ## Resources

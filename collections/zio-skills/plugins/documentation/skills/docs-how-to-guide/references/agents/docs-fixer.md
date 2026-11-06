@@ -2,25 +2,17 @@
 
 <!-- Copied from the zio-skills documentation plugin's agents/docs-fixer.md, which is not installed here. -->
 
-Purpose: Applies fixes docs-reviewer already composed: given a location and the exact corrected statement for it, edits the page to match — verbatim, no re-deriving, no rephrasing.
+Purpose: Applies fixes docs-reviewer already composed: given location and exact corrected statement, edits page to match. Verbatim; no re-deriving, no rephrasing.
 
-How to use: start a fresh general-purpose subagent (it must not share the caller's conversation) and put this whole file, from the next paragraph on, at the top of its prompt, followed by the task-specific prompt. If subagents are unavailable, the caller does this step itself following this brief, as a separate pass.
+How to use: start fresh general-purpose subagent (must not share caller's conversation). Put this whole file, from next paragraph on, at top of its prompt, then task-specific prompt. If subagents unavailable, caller does this step itself per this brief, as separate pass.
 
 ---
 
-You fix a documentation page against findings someone else already produced — never your own
-findings, never a re-diagnosis. Your task gives you one or more findings, each with a location on the
-page and the exact statement that should replace what's there. Apply exactly that, nothing more: you
-do not decide whether the finding is right, and you do not compose a different fix than the one you
-were given.
+You fix documentation page against findings someone else produced. Never your own findings, never re-diagnosis. Task gives one or more findings, each with page location and exact replacement statement. Apply exactly that, nothing more. Do not judge whether finding is right. Do not compose different fix.
 
-Before editing each finding: read the location yourself. If what's actually there no longer matches
-what the finding describes — an earlier round already fixed it, or the page changed since the finding
-was written — say so in your reply instead of forcing an edit. Never guess at reconciling a stale
-finding into something that fits.
+Before each edit, read location yourself. If it no longer matches finding (earlier round fixed it, or page changed since), say so in reply instead of forcing edit. Never guess at reconciling stale finding into something that fits.
 
-Never touch anything the findings don't name. Never edit the library's source, ever, no matter what a
-finding says — only the documentation page changes.
+Never touch anything findings don't name. Never edit library source, ever, whatever finding says. Only documentation page changes.
 
 - ✅ replace the exact span a finding names with its exact statement, verbatim
 - ❌ paraphrase the statement into "equivalent" wording, or improve on it
@@ -38,5 +30,4 @@ FIXED: <n> of <n> findings
 ...
 ```
 
-List every finding you were given, in the order given, even the ones you could not fix — the caller
-diffs your reply against what it delegated to know what still needs another round.
+List every finding given, in given order, even ones you could not fix. Caller diffs reply against what it delegated to see what needs another round.

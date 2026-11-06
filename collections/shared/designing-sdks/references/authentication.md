@@ -1,7 +1,5 @@
 # Authentication Patterns for SDKs
 
-Comprehensive guide to handling authentication in client libraries, from simple API keys to complex OAuth flows.
-
 ## Table of Contents
 
 1. [API Key Authentication](#api-key-authentication)
@@ -123,7 +121,7 @@ const url = `${baseURL}${path}?api_key=${apiKey}`
 ```
 
 **Rationale:**
-- Headers are more secure (not logged by proxies)
+- Headers more secure (not logged by proxies)
 - Headers don't appear in browser history
 - Query parameters may be cached
 
@@ -316,7 +314,7 @@ class OAuthClient:
 
 ### Pattern: Per-Request Token
 
-For multi-tenant applications where each request uses a different user token.
+For multi-tenant applications where each request uses different user token.
 
 **TypeScript:**
 
@@ -443,7 +441,7 @@ class JWTClient {
   }
 }
 
-// Usage with local storage
+// Usage with local storage (demo only; production refresh tokens go in HttpOnly cookies, see Token Storage)
 const client = new JWTClient({
   getAccessToken: () => localStorage.getItem('accessToken') || '',
   getRefreshToken: () => localStorage.getItem('refreshToken') || '',
@@ -657,7 +655,7 @@ await client.request('tenant-b', 'GET', '/users')
    ```
 
 4. **Rotate Credentials**
-   - Support credential rotation without downtime
+   - Support rotation without downtime
    - Accept both old and new credentials during rotation period
 
 ### Error Handling
@@ -680,14 +678,11 @@ if (response.status === 401) {
 
 ### Token Storage
 
-**Browser (Web Storage API):**
+**Browser:** any XSS can read Web Storage. Keep refresh tokens out of JS: server sets them as `HttpOnly; Secure; SameSite` cookies. Hold short-lived access tokens in memory (sessionStorage at most).
 
 ```typescript
-// Use sessionStorage for sensitive tokens (cleared on tab close)
+// Access token only; never put refresh tokens in localStorage/sessionStorage
 sessionStorage.setItem('accessToken', token)
-
-// Use localStorage for less sensitive tokens (persistent)
-localStorage.setItem('refreshToken', token)
 ```
 
 **Node.js (Keychain):**

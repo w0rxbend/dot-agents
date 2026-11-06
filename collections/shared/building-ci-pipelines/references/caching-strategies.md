@@ -1,7 +1,5 @@
 # Caching Strategies for CI Pipelines
 
-Comprehensive guide to caching strategies for faster CI/CD pipelines across multiple platforms.
-
 ## Table of Contents
 
 1. [Cache Fundamentals](#cache-fundamentals)
@@ -57,7 +55,7 @@ key: build-${{ github.sha }}
 
 ### Cache Restore Keys
 
-Provide fallback keys:
+Give fallback keys:
 ```yaml
 key: ${{ runner.os }}-deps-${{ hashFiles('**/package-lock.json') }}
 restore-keys: |
@@ -241,11 +239,6 @@ COPY --from=deps /app/node_modules ./node_modules
 CMD ["node", "dist/index.js"]
 ```
 
-**Layer reuse:**
-- Layer 1: Base image (rarely changes)
-- Layer 2: Dependencies (changes when package.json changes)
-- Layer 3: Source code (changes frequently)
-
 ### GitHub Actions Docker Cache
 
 ```yaml
@@ -273,6 +266,7 @@ CMD ["node", "dist/index.js"]
 
 **Setup:**
 ```bash
+npx turbo telemetry disable  # turbo telemetry is on by default
 npx turbo login
 npx turbo link
 ```
@@ -284,12 +278,8 @@ npx turbo link
   env:
     TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
     TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+    TURBO_TELEMETRY_DISABLED: 1  # turbo telemetry is on by default
 ```
-
-**Benefits:**
-- Shared across team and CI
-- 70-90% cache hit rate
-- Zero configuration after setup
 
 ### Nx Cloud
 
@@ -305,11 +295,6 @@ npx nx connect-to-nx-cloud
   env:
     NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 ```
-
-**Features:**
-- Distributed task execution
-- Smart cache invalidation
-- Performance analytics
 
 ## Multi-Layer Strategies
 
@@ -357,21 +342,11 @@ env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
 ```
 
-**Result:** 90%+ cache hit rate across all layers
-
 ## Cache Invalidation
 
 ### When to Invalidate
 
-**Dependency changes:**
-```yaml
-key: deps-${{ hashFiles('**/package-lock.json') }}
-```
-
-**Source code changes:**
-```yaml
-key: build-${{ hashFiles('src/**/*.ts') }}
-```
+**Dependency changes** (lock file hash) and **source code changes** (source hash): see `deps-` and `build-` keys in [Cache Key Design](#cache-key-design).
 
 **Configuration changes:**
 ```yaml
@@ -381,16 +356,13 @@ key: config-${{ hashFiles('tsconfig.json', 'vite.config.ts') }}
 ### Manual Invalidation
 
 **GitHub Actions:**
-Delete cache via API:
+Delete cache via API (confirm cache ID with user first):
 ```bash
-gh api repos/{owner}/{repo}/actions/caches/{cache_id} --method DELETE
+GH_TELEMETRY=false gh api repos/{owner}/{repo}/actions/caches/{cache_id} --method DELETE
 ```
 
 **GitLab CI:**
-Clear project cache:
-```bash
-curl --request POST "https://gitlab.com/api/v4/projects/{id}/jobs/{job_id}/erase"
-```
+Build > Pipelines > **Clear runner caches**, or bump cache key prefix (see [Stale Cache](#stale-cache)). Not `jobs/{job_id}/erase`: that permanently deletes job log and artifacts.
 
 ### Time-Based Invalidation
 
@@ -400,47 +372,18 @@ restore-keys: |
   cache-${{ runner.os }}-
 ```
 
-Uses run number as cache key, falls back to previous runs.
-
-## Performance Benchmarks
-
-### Node.js Project (50 packages)
-
-**No caching:**
-- npm install: 3 minutes
-- Build: 5 minutes
-- Total: 8 minutes
-
-**With dependency caching:**
-- npm ci (cache hit): 30 seconds
-- Build: 5 minutes
-- Total: 5.5 minutes (31% faster)
-
-**With dependency + build caching:**
-- npm ci (cache hit): 30 seconds
-- Build (partial cache): 2 minutes
-- Total: 2.5 minutes (69% faster)
-
-**With Turborepo remote cache:**
-- npm ci (cache hit): 30 seconds
-- Build (full cache): 10 seconds
-- Total: 40 seconds (92% faster)
+Run number is cache key; falls back to previous runs.
 
 ## Best Practices
 
 **DO:**
-- Use hash-based cache keys
-- Provide restore-keys for fallback
 - Cache dependencies separately from builds
 - Use remote caching for monorepos
 - Monitor cache hit rates
 
 **DON'T:**
-- Use generic cache keys (e.g., "cache")
 - Cache sensitive data
-- Exceed 10GB limit (GitHub Actions)
 - Cache generated files in git
-- Forget to invalidate on config changes
 
 ## Troubleshooting
 
@@ -459,10 +402,10 @@ key: build-${{ hashFiles('src/**') }}
 
 Check cache size:
 ```bash
-gh api repos/{owner}/{repo}/actions/cache/usage
+GH_TELEMETRY=false gh api repos/{owner}/{repo}/actions/cache/usage
 ```
 
-Reduce cache size:
+Shrink cache:
 ```yaml
 # Only cache necessary files
 path: |
@@ -477,4 +420,4 @@ Force cache refresh:
 key: v2-deps-${{ hashFiles('package-lock.json') }}
 ```
 
-Increment version prefix to invalidate old caches.
+Bump version prefix to invalidate old caches.

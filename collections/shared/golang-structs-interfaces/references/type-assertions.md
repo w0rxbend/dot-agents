@@ -2,7 +2,7 @@
 
 ## Safe Type Assertion
 
-Type assertions MUST use the comma-ok form. The single-value form panics when the dynamic type does not match, turning a recoverable branch into a crash:
+Type assertions MUST use comma-ok form. Single-value form panics when dynamic type does not match, turning recoverable branch into crash:
 
 ```go
 // Good — safe
@@ -17,7 +17,7 @@ s := val.(string)
 
 ## Type Switch
 
-Discover the dynamic type of an interface value:
+Discover interface value's dynamic type:
 
 ```go
 switch v := val.(type) {
@@ -32,13 +32,13 @@ default:
 }
 ```
 
-Cases are evaluated in order, so put concrete types before interface types — a concrete type listed after an interface it satisfies is unreachable.
+Cases evaluate in order: put concrete types before interface types. Concrete type after an interface it satisfies is unreachable.
 
-A `nil` interface value matches `case nil`, not `default`. Add that case explicitly when nil is a valid input, otherwise it silently falls through to the `default` branch and gets reported as an unexpected type.
+`nil` interface value matches `case nil`, not `default`. Add that case explicitly when nil is valid input. Otherwise nil silently falls to `default` and gets reported as unexpected type.
 
 ## Optional Behavior with Type Assertions
 
-Check if a value supports additional capabilities without requiring them upfront. This keeps the declared parameter type minimal while still exploiting richer implementations:
+Check for extra capabilities without requiring them upfront. Declared parameter type stays minimal; richer implementations still exploited:
 
 ```go
 type Flusher interface {
@@ -57,14 +57,14 @@ func writeData(w io.Writer, data []byte) error {
 }
 ```
 
-This pattern is used extensively in the standard library (e.g., `http.Flusher`, `io.ReaderFrom`, `io.WriterTo`).
+Standard library uses this pattern widely (e.g., `http.Flusher`, `io.ReaderFrom`, `io.WriterTo`).
 
 ## Asserting to an Interface, not a Concrete Type
 
-Assert to the smallest interface that carries the behavior you need rather than to a concrete type. Asserting to `*os.File` binds the code to one implementation; asserting to `interface{ Sync() error }` accepts every type that can do the job.
+Assert to smallest interface carrying needed behavior, not concrete type. Asserting to `*os.File` binds code to one implementation; asserting to `interface{ Sync() error }` accepts every type that can do the job.
 
 ## Errors
 
-Error inspection has dedicated helpers — `errors.As` walks the wrap chain, a plain type assertion does not. A bare `err.(*MyError)` misses an error that was wrapped with `%w` anywhere up the stack.
+Error inspection has dedicated helpers: `errors.As` walks wrap chain, plain type assertion does not. Bare `err.(*MyError)` misses error wrapped with `%w` anywhere up the stack.
 
 → See `samber/cc-skills-golang@golang-error-handling` skill for error wrapping and inspection.

@@ -23,9 +23,7 @@
 
 ## Overview
 
-This matrix demonstrates how to implement security controls once and satisfy multiple compliance frameworks simultaneously. Each control maps to specific requirements across SOC 2, HIPAA, PCI-DSS 4.0, GDPR, and ISO 27001.
-
-**Strategy:** Tag infrastructure resources with applicable control IDs, implement the control once, and automatically generate evidence for all mapped frameworks.
+**Strategy:** Tag infrastructure resources with applicable control IDs. Implement each control once. Generate evidence automatically for all mapped frameworks.
 
 ## Complete Control Mapping
 
@@ -33,9 +31,9 @@ This matrix demonstrates how to implement security controls once and satisfy mul
 
 | Control | Description | SOC 2 | HIPAA | PCI-DSS 4.0 | GDPR | ISO 27001 | Implementation |
 |---------|-------------|-------|-------|-------------|------|-----------|----------------|
-| **MFA-001** | Multi-factor authentication for all privileged access | CC6.1 | §164.312(d) | Req 8.3 | Art 32(1) | A.9.4.2 | AWS IAM MFA, Okta, Auth0 |
+| **MFA-001** | MFA for all privileged access | CC6.1 | §164.312(d) | Req 8.3 | Art 32(1) | A.9.4.2 | AWS IAM MFA, Okta, Auth0 |
 | **RBAC-001** | Role-based access control with least privilege | CC6.2 | §164.312(a)(2)(i) | Req 7.1 | Art 32(1) | A.9.2.3 | AWS IAM Roles, K8s RBAC |
-| **ACCESS-001** | Least privilege principle enforcement | CC6.3 | §164.308(a)(3)(ii)(B) | Req 7.1.2 | Art 25 | A.9.2.3 | Policy-based access control |
+| **ACCESS-001** | Least privilege enforcement | CC6.3 | §164.308(a)(3)(ii)(B) | Req 7.1.2 | Art 25 | A.9.2.3 | Policy-based access control |
 | **ACCESS-002** | Quarterly access reviews and recertification | CC6.1 | §164.308(a)(3)(ii)(C) | Req 8.2.4 | Art 32(1) | A.9.2.5 | Automated access audits |
 | **PWD-001** | Strong password policy | CC6.1 | §164.308(a)(5)(ii)(D) | Req 8.3.6 | Art 32(1) | A.9.4.3 | 12+ chars, complexity, no reuse |
 | **SESSION-001** | Session management and timeouts | CC6.1 | §164.312(a)(2)(iii) | Req 8.2.8 | Art 32(1) | A.9.4.2 | Idle timeout, re-authentication |
@@ -174,7 +172,7 @@ def collect_control_evidence(control_id):
 
 ## Control Implementation Priority
 
-Implement controls in this order for maximum framework coverage:
+Implement in this order for maximum framework coverage:
 
 **Phase 1 (Weeks 1-4): Foundation**
 1. ENC-001, ENC-002 - Encryption (satisfies all frameworks)
@@ -206,7 +204,6 @@ Implement controls in this order for maximum framework coverage:
 **ISO 27001:** 40 controls mapped
 
 **Unified Implementation:** 45 unique controls (vs 187 if implemented separately)
-**Efficiency Gain:** 76% reduction in implementation effort
 
 ## Control Testing Frequency
 
@@ -220,11 +217,11 @@ Implement controls in this order for maximum framework coverage:
 | Penetration Testing | Annual | Annual | Annual | Annual |
 | Disaster Recovery | Annual | Annual | Annual | Annual |
 
-**Note:** These frequencies are suggested internal cadences. SOC 2 does not mandate monthly testing; auditors sample evidence across the observation period.
+**Note:** Frequencies are suggested internal cadences. SOC 2 does not mandate monthly testing. Auditors sample evidence across observation period.
 
 ## Cross-Framework Dependencies
 
-Some controls depend on others being implemented first:
+Some controls need others implemented first:
 
 ```
 ENC-001 (Encryption at Rest)
@@ -263,5 +260,3 @@ def test_enc001_encryption_at_rest(terraform_plan):
     violations = check_control("ENC-001", terraform_plan)
     assert not violations, f"ENC-001 violations: {violations}"
 ```
-
-This unified approach ensures consistent control implementation across all frameworks while minimizing duplication and audit burden.

@@ -1416,7 +1416,7 @@
       },
       {
         "id": "53.2",
-        "text": "Shows the GitHub Action configuration with bobheadxi/gobenchdata@v1"
+        "text": "Shows the GitHub Action configuration with bobheadxi/gobenchdata pinned to a commit SHA (v1.3.1)"
       },
       {
         "id": "53.3",

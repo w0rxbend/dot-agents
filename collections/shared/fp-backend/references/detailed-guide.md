@@ -4,7 +4,7 @@
 
 ### ReaderTaskEither (RTE)
 
-The `ReaderTaskEither<R, E, A>` type is the backbone of functional backend development:
+`ReaderTaskEither<R, E, A>`:
 - **R** (Reader): Dependencies/environment (database, config, logger)
 - **E** (Either left): Error type
 - **A** (Either right): Success value

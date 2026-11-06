@@ -5,19 +5,19 @@ description: "Post a comment on a ClickUp task through a connected ClickUp MCP s
 
 # ClickUp: Comment on a Task
 
-Usage: `/comment <task-id> [comment text]`. The task ID may be written `#ABC123` or `ABC123`.
+Usage: `/comment <task-id> [comment text]`. Task ID: `#ABC123` or `ABC123`.
 
 ## Preconditions
 
-- A ClickUp MCP server or tool must be connected in this session. Check your available tools for ClickUp task-lookup and add-comment operations.
-- If none is connected, stop. Tell the user that ClickUp is not connected and how to connect it (for example, by authenticating the ClickUp plugin or MCP server in their client), and offer to draft the comment text instead. Never call the ClickUp API with guessed credentials or URLs.
-- Take parameter names from the connected tool's schema. Do not assume them.
+- ClickUp MCP server or tool must be connected this session. Check available tools for ClickUp task-lookup and add-comment operations.
+- If none connected, stop. Say ClickUp is not connected and how to connect it (e.g. authenticate ClickUp plugin or MCP server in client). Offer to draft comment text instead. Never call ClickUp API with guessed credentials or URLs.
+- Take parameter names from connected tool's schema. Do not assume them.
 
 ## Procedure
 
-1. **Parse** the task ID (strip a leading `#`) and any comment text. If no text was given, ask for it; multi-line text is fine.
-2. **Resolve the task** with the connected tool's task lookup. Teams may use ClickUp custom task IDs (such as `ABC-123`) as well as internal IDs, so use the lookup option for custom IDs if the tool has one. Confirm that exactly one task matches. If none or several match, report that and ask for the correct ID or the task URL.
-3. **Confirm before writing.** Posting is visible to other people and can notify them. Show the user:
+1. **Parse** task ID (strip leading `#`) and comment text. If no text given, ask. Multi-line fine.
+2. **Resolve the task** with tool's task lookup. Teams may use ClickUp custom task IDs (such as `ABC-123`) besides internal IDs. Use tool's custom-ID lookup option if it has one. Confirm exactly one match. None or several: report, ask for correct ID or task URL.
+3. **Confirm before writing.** Posting is visible to others and can notify them. Show:
 
    ```
    Task:    <task name> (<id>), <status>, <list>
@@ -27,24 +27,24 @@ Usage: `/comment <task-id> [comment text]`. The task ID may be written `#ABC123`
    Post this comment? (yes/no)
    ```
 
-   Post only after an explicit yes. A comment that the user dictated word for word in this turn, with a clear instruction to post it, counts as confirmed. Still show the resolved task name.
-4. **Post** with the connected tool's add-comment operation. Pass the notify-all option only if the user asked to notify all followers.
-5. **Report** "Comment posted to <task name>" with the task URL from the tool's response. If the tool returns a comment ID, include it.
+   Post only after explicit yes. Exception: comment the user dictated word for word this turn, with clear instruction to post, counts as confirmed. Still show resolved task name.
+4. **Post** with tool's add-comment operation. Pass notify-all option only if user asked to notify all followers.
+5. **Report** "Comment posted to <task name>" with task URL from tool's response. Include comment ID if returned.
 
 ## Formatting
 
-ClickUp comments generally render Markdown (bold, italic, inline code, code blocks, lists, links). If the comment is long, offer to structure it with a short summary line first. Keep task mentions and links as the user wrote them.
+ClickUp comments generally render Markdown (bold, italic, inline code, code blocks, lists, links). For long comment, offer to structure it with short summary line first. Keep task mentions and links as user wrote them.
 
 ## Errors
 
 | Situation | Action |
 |---|---|
-| Tool missing or unauthenticated (401/403) | Stop, report it, and suggest reconnecting. Keep the drafted text so the user can retry. |
-| Task not found (404) or ambiguous | Ask for the task URL or the correct ID. Do not post to a near match. |
-| Rate limited (429) or transient error | Retry once after a short wait, then report. Never post duplicates; if a retry outcome is unclear, check the task's comments first. |
-| Comment rejected (too long, bad content) | Report the tool's message and offer a shortened version. |
+| Tool missing or unauthenticated (401/403) | Stop, report, suggest reconnecting. Keep draft so user can retry. |
+| Task not found (404) or ambiguous | Ask for task URL or correct ID. Do not post to near match. |
+| Rate limited (429) or transient error | Retry once after short wait, then report. Never post duplicates. If retry outcome unclear, check task comments first. |
+| Comment rejected (too long, bad content) | Report tool message, offer shortened version. |
 
 ## Done When
 
-- The user saw the resolved task and approved the text, and the comment was posted exactly once.
-- The reply includes the task name and URL (and the comment ID if available), or a clear failure reason with no partial writes.
+- User saw resolved task and approved text. Comment posted exactly once.
+- Reply has task name and URL (plus comment ID if available), or clear failure reason with no partial writes.

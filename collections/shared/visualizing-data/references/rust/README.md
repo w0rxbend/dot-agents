@@ -1,7 +1,5 @@
 # Rust Data Visualization (Future Implementation)
 
-This directory will contain Rust-specific visualization guidance and examples.
-
 ## Planned Libraries
 
 **Primary:**
@@ -9,7 +7,7 @@ This directory will contain Rust-specific visualization guidance and examples.
 - **egui_plot** - Immediate mode plotting for egui
 
 **Research When Needed:**
-Use `../../RESEARCH_GUIDE.md` to research Rust visualization crates.
+Research Rust visualization crates with `../../RESEARCH_GUIDE.md`.
 
 ---
 

@@ -1,6 +1,6 @@
 # Single-host monitoring stack (Prometheus, Grafana, Loki, Alloy)
 
-Read this when adding metrics and log collection to a Compose deployment. Pin every image to a release you have checked; the `${...:?}` variables force that.
+Read when adding metrics and log collection to Compose deployment. Pin every image to checked release; `${...:?}` variables force that. Grafana, Loki and Alloy send usage stats to Grafana Labs by default; settings below turn that off.
 
 ```yaml
 services:
@@ -28,6 +28,9 @@ services:
     restart: unless-stopped
     environment:
       GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_password
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
     secrets: [grafana_password]
     volumes:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
@@ -58,7 +61,7 @@ services:
   loki:
     image: grafana/loki:${LOKI_VERSION:?pin loki}
     restart: unless-stopped
-    command: -config.file=/etc/loki/config.yaml
+    command: -config.file=/etc/loki/config.yaml -reporting.enabled=false
     volumes:
       - ./monitoring/loki.yaml:/etc/loki/config.yaml:ro
       - loki-data:/loki
@@ -69,6 +72,7 @@ services:
     restart: unless-stopped
     command:
       - run
+      - --disable-reporting
       - --server.http.listen-addr=0.0.0.0:12345
       - --storage.path=/var/lib/alloy/data
       - /etc/alloy/config.alloy
@@ -103,7 +107,7 @@ scrape_configs:
       - targets: ["cadvisor:8080"]               # same Compose network
 ```
 
-node-exporter listens on port 9100 of every host interface. Block that port from outside with the host firewall, or add `--web.listen-address=<bridge-gateway-ip>:9100` to its command, since Docker's published-port rules do not apply to host-network containers.
+node-exporter listens on port 9100 of every host interface. Block that port from outside with host firewall, or add `--web.listen-address=<bridge-gateway-ip>:9100` to its command. Docker's published-port rules do not apply to host-network containers.
 
 ## `monitoring/config.alloy`
 
@@ -139,10 +143,10 @@ loki.write "default" {
 }
 ```
 
-Component names and arguments can change between Alloy releases; check the docs for the pinned version, and run `alloy fmt` on the file to validate syntax.
+Component names and arguments can change between Alloy releases. Check docs for pinned version; run `alloy fmt` on file to validate syntax.
 
 ## Verify
 
 - Prometheus targets page shows node-exporter, cAdvisor and app targets as UP.
 - In Grafana Explore, `{service="api"}` returns recent log lines from Loki.
-- An alert rule fires when a test container is stopped.
+- Alert rule fires when test container is stopped.

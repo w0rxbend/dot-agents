@@ -333,7 +333,8 @@ function HighlightText({ text, highlight }: HighlightTextProps) {
     return <span>{text}</span>;
   }
 
-  const regex = new RegExp(`(${highlight})`, 'gi');
+  const escaped = highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escaped})`, 'gi');
   const parts = text.split(regex);
 
   return (

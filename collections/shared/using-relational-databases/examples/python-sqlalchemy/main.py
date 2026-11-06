@@ -27,7 +27,7 @@ engine = create_async_engine(
     max_overflow=10,        # Extra connections under load
     pool_pre_ping=True,     # Verify connection before use
     pool_recycle=3600,      # Recycle connections after 1 hour
-    echo=True               # Log SQL queries (disable in production)
+    echo=os.getenv("SQL_ECHO") == "1"  # Dev only: logs SQL with bound params (PII)
 )
 
 async_session = async_sessionmaker(engine, expire_on_commit=False)

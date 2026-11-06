@@ -7,7 +7,7 @@ tags: dep, lockfile, reproducibility, ci-cd
 
 ## Use Lockfiles for Deterministic Dependency Resolution
 
-While a manifest declares acceptable version ranges, a lockfile pins exact versions including all transitive dependencies. This ensures that `pip install` today produces identical results to `pip install` six months from now.
+Manifest declares acceptable version ranges; lockfile pins exact versions, all transitive dependencies included. `pip install` today matches `pip install` six months from now.
 
 **Incorrect (version ranges without lockfile):**
 
@@ -57,15 +57,9 @@ pip install -r requirements.lock
 # All environments are identical
 ```
 
-**When to update the lockfile:**
-- When intentionally upgrading dependencies
-- When adding new dependencies
-- As part of regular security update cycles
-
-**Benefits:**
-- Yesterday's build == Today's build == Tomorrow's build
-- Security patches can be precisely tracked
-- Debugging is easier when you know exact versions
-- Rollbacks restore exact dependency state
+**When to update lockfile:**
+- Intentionally upgrading dependencies
+- Adding new dependencies
+- Regular security update cycles
 
 Reference: [The Twelve-Factor App - Dependencies](https://12factor.net/dependencies)

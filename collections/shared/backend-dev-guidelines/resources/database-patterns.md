@@ -1,7 +1,5 @@
 # Database Patterns - Prisma Best Practices
 
-Complete guide to database access patterns using Prisma in backend microservices.
-
 ## Table of Contents
 
 - [PrismaService Usage](#prismaservice-usage)
@@ -42,13 +40,13 @@ const user = await PrismaService.main.user.findUnique({ where: { id } });
 
 ✅ **Use repositories when:**
 - Complex queries with joins/includes
-- Query used in multiple places
-- Need caching layer
-- Want to mock for testing
+- Query reused in several places
+- Caching layer needed
+- Mocking for tests
 
 ❌ **Skip repositories for:**
 - Simple one-off queries
-- Prototyping (can refactor later)
+- Prototyping (refactor later)
 
 ### Repository Template
 
@@ -77,16 +75,6 @@ export class UserRepository {
 ---
 
 ## Transaction Patterns
-
-### Simple Transaction
-
-```typescript
-const result = await PrismaService.main.$transaction(async (tx) => {
-    const user = await tx.user.create({ data: userData });
-    const profile = await tx.userProfile.create({ data: { userId: user.id } });
-    return { user, profile };
-});
-```
 
 ### Interactive Transaction
 

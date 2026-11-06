@@ -4,7 +4,7 @@
  * Demonstrates: Long-duration stability testing to detect memory leaks
  *
  * Usage:
- *   k6 run soak-test.js
+ *   k6 run --no-usage-report soak-test.js
  *
  * Scenario:
  *   - Ramp up to 50 users over 5 minutes

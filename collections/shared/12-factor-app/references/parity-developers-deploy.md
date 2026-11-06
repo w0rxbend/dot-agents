@@ -7,7 +7,7 @@ tags: parity, devops, deployment, ownership
 
 ## Involve Developers in Deployment to Minimize Personnel Gap
 
-In a twelve-factor workflow, developers who write code are closely involved in deploying it and watching its behavior in production. The traditional wall between "dev" and "ops" creates a personnel gap that slows feedback and obscures problems.
+In twelve-factor workflow, developers who write code stay closely involved in deploying it and watching it in production. Traditional wall between "dev" and "ops" creates personnel gap.
 
 **Incorrect (separated dev and ops):**
 
@@ -65,6 +65,8 @@ jobs:
 # No special ops knowledge required
 ```
 
+Harden: pin actions to a full commit SHA, set `permissions: contents: read`, store `DEPLOY_TOKEN` as a secret of a protected `production` environment limited to `main`.
+
 **Developer access to production:**
 
 ```bash
@@ -99,11 +101,5 @@ git push origin main  # Triggers CI/CD
 # All actions logged and auditable
 # No gatekeeping, just guardrails
 ```
-
-**Benefits:**
-- Faster feedback loops
-- Developers understand production behavior
-- Issues resolved quickly by people with context
-- Shared responsibility improves quality
 
 Reference: [The Twelve-Factor App - Dev/prod parity](https://12factor.net/dev-prod-parity)

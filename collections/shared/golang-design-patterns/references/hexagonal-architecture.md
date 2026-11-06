@@ -16,17 +16,17 @@
 
 ## When to Use
 
-Apply hexagonal architecture when a service interacts with multiple external systems (databases, APIs, message queues, caches) and you want the domain logic fully decoupled from all of them. Particularly effective when the same business logic needs multiple entry points (HTTP, gRPC, CLI, message consumer). Do NOT use for simple CRUD apps or libraries.
+Use when service talks to multiple external systems (databases, APIs, message queues, caches) and domain logic should be fully decoupled from all. Most effective when same business logic needs multiple entry points (HTTP, gRPC, CLI, message consumer). Do NOT use for simple CRUD apps or libraries.
 
 ## Core Concepts
 
 - **Domain** — Business logic and types. No external dependencies.
-- **Ports** — Interfaces that define how the domain interacts with the outside world.
-  - **Primary (driving) ports**: How the outside world calls into the domain (e.g., `OrderService` interface).
-  - **Secondary (driven) ports**: How the domain calls out to infrastructure (e.g., `OrderRepository`, `PaymentGateway` interfaces).
+- **Ports** — Interfaces defining how domain interacts with outside world.
+  - **Primary (driving) ports**: how outside world calls into domain (e.g., `OrderService` interface).
+  - **Secondary (driven) ports**: how domain calls out to infrastructure (e.g., `OrderRepository`, `PaymentGateway` interfaces).
 - **Adapters** — Concrete implementations of ports.
-  - **Primary adapters**: HTTP handlers, gRPC servers, CLI commands — they call primary ports.
-  - **Secondary adapters**: PostgreSQL repository, Stripe client, Redis cache — they implement secondary ports.
+  - **Primary adapters**: HTTP handlers, gRPC servers, CLI commands — call primary ports.
+  - **Secondary adapters**: PostgreSQL repository, Stripe client, Redis cache — implement secondary ports.
 
 ## Project Structure
 
@@ -201,7 +201,7 @@ func (r *OrderRepo) FindByID(ctx context.Context, id string) (*domain.Order, err
 
 ## Multiple Entry Points
 
-The hexagonal approach shines when the same `OrderService` is called from different primary adapters — HTTP for external clients, gRPC for internal services, a message consumer for async events. Each adapter is wired in its own `cmd/` entry point.
+Hexagonal shines when same `OrderService` is called from different primary adapters — HTTP for external clients, gRPC for internal services, message consumer for async events. Each adapter is wired in its own `cmd/` entry point.
 
 ## Wiring
 

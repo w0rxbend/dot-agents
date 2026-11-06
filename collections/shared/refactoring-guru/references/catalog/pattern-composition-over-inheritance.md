@@ -6,9 +6,9 @@ tags: pattern, composition, inheritance, flexibility
 
 ## Prefer Composition Over Inheritance
 
-Inheritance creates tight coupling and can lead to fragile base class problems. Compose objects by combining behaviors at runtime.
+Inheritance couples tightly and can cause fragile base class problems. Compose objects by combining behaviors at runtime.
 
-**Incorrect (inheritance hierarchy for behavior combinations):**
+**Incorrect (one subclass per behavior combination):**
 
 ```typescript
 class Animal {
@@ -34,7 +34,7 @@ class Duck extends FlyingSwimmingAnimal {}
 // FlyingWalkingAnimal, SwimmingWalkingAnimal, FlyingSwimmingWalkingAnimal...
 ```
 
-**Correct (composition of behaviors):**
+**Correct (composed behaviors):**
 
 ```typescript
 interface Behavior {
@@ -85,9 +85,9 @@ penguin.addBehavior(new WalkingBehavior())
 // Behaviors can even be changed at runtime
 ```
 
-**When inheritance is appropriate:**
-- True "is-a" relationship with LSP compliance
-- Behavior rarely changes between subclasses
+**When inheritance fits:**
+- True "is-a" relationship, LSP-compliant
+- Behavior rarely varies between subclasses
 - Framework requires it (React class components, etc.)
 
 Reference: [Composition Over Inheritance](https://en.wikipedia.org/wiki/Composition_over_inheritance)

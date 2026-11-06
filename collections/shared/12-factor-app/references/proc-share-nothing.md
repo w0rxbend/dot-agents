@@ -7,9 +7,9 @@ tags: proc, share-nothing, isolation, scaling
 
 ## Design Processes to Share Nothing with Each Other
 
-Each process in a twelve-factor app operates independently. Processes don't share memory, filesystem, or communicate directly. All coordination happens through backing services. This share-nothing architecture enables reliable horizontal scaling.
+Each twelve-factor process runs independently: no shared memory, no shared filesystem, no direct communication. Coordinate only through backing services. Share-nothing enables reliable horizontal scaling.
 
-**Incorrect (processes sharing resources):**
+**Incorrect (processes share resources):**
 
 ```python
 # Shared memory via mmap or shared dict
@@ -75,11 +75,5 @@ def notify_workers(message):
     # Any worker subscribed to queue receives message
     # Works regardless of number of workers or their locations
 ```
-
-**Benefits:**
-- Add/remove processes without coordination
-- Process crashes don't affect other processes
-- Geographic distribution becomes possible
-- No single point of failure from shared resource
 
 Reference: [The Twelve-Factor App - Processes](https://12factor.net/processes)

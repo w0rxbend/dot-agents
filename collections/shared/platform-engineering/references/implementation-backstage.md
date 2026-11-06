@@ -21,7 +21,7 @@
 
 **Production Environment:**
 - Kubernetes cluster (EKS, GKE, AKS, or self-managed)
-- PostgreSQL database (managed or self-hosted)
+- PostgreSQL (managed or self-hosted)
 - Object storage for TechDocs (S3, GCS, Azure Blob)
 - Authentication provider (GitHub, GitLab, Okta, Azure AD)
 
@@ -29,7 +29,7 @@
 
 **Minimum Team:**
 - 1-2 platform engineers (Backstage setup and customization)
-- 1 frontend engineer (optional, for custom plugins/UI)
+- 1 frontend engineer (optional, custom plugins/UI)
 
 **Recommended Team:**
 - 1 platform lead (strategy, roadmap)
@@ -42,7 +42,7 @@
 
 ```bash
 # Create new Backstage app
-npx @backstage/create-app@latest
+npx @backstage/create-app@0.9.3  # pinned; bump to a reviewed release
 
 # Follow prompts
 App name: my-platform
@@ -131,7 +131,7 @@ techdocs:
 ### Authentication Setup (GitHub)
 
 1. Create GitHub OAuth App:
-   - Go to GitHub Settings → Developer settings → OAuth Apps → New OAuth App
+   - Open GitHub Settings → Developer settings → OAuth Apps → New OAuth App
    - Homepage URL: `http://localhost:3000`
    - Callback URL: `http://localhost:7007/api/auth/github/handler/frame`
 
@@ -165,7 +165,7 @@ createdb backstage
 export POSTGRES_HOST=localhost
 export POSTGRES_PORT=5432
 export POSTGRES_USER=backstage
-export POSTGRES_PASSWORD=secure-password
+read -rs POSTGRES_PASSWORD && export POSTGRES_PASSWORD  # prompt, keeps it out of shell history; or load from secret manager
 ```
 
 ## Creating the First Golden Path
@@ -246,6 +246,7 @@ spec:
         description: ${{ parameters.description }}
         repoUrl: github.com?owner=my-org&repo=${{ parameters.name }}
         defaultBranch: main
+        repoVisibility: internal  # action default is public
 
     - id: register
       name: Register in Catalog
@@ -427,10 +428,11 @@ metadata:
 kubectl create namespace backstage
 ```
 
-**Create PostgreSQL (using Helm):**
+**Create PostgreSQL (Helm):**
 ```bash
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm install postgres bitnami/postgresql \
+  --version <reviewed-chart-version> \
   --namespace backstage \
   --set auth.database=backstage \
   --set auth.username=backstage
@@ -439,7 +441,8 @@ helm install postgres bitnami/postgresql \
 **Build Docker image:**
 ```dockerfile
 # packages/backend/Dockerfile
-FROM node:18-bullseye-slim
+# Supported LTS base; pin by @sha256 digest in prod
+FROM node:22-slim
 WORKDIR /app
 
 # Copy package files
@@ -452,6 +455,7 @@ RUN yarn install --frozen-lockfile --production --network-timeout 300000
 # Copy backend code
 COPY packages/backend/dist ./packages/backend/dist
 
+USER node
 CMD ["node", "packages/backend"]
 EXPOSE 7007
 ```
@@ -580,7 +584,7 @@ async function main() {
 }
 ```
 
-**ServiceMonitor (for Prometheus Operator):**
+**ServiceMonitor (Prometheus Operator):**
 ```yaml
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor

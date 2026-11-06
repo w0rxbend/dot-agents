@@ -1,12 +1,8 @@
 # Complete Examples
 
-Full working examples combining all modern patterns: React.FC, lazy loading, Suspense, useSuspenseQuery, styling, routing, and error handling.
-
 ---
 
 ## Example 1: Complete Modern Component
-
-Combines: React.FC, useSuspenseQuery, cache-first, useCallback, styling, error handling
 
 ```typescript
 /**
@@ -156,7 +152,7 @@ export default UserProfile;
 
 ## Example 2: Complete Feature Structure
 
-Real example based on `features/posts/`:
+Real example, based on `features/posts/`:
 
 ```
 features/
@@ -532,18 +528,13 @@ export const UserDashboard: React.FC = () => {
 export default UserDashboard;
 ```
 
-**Benefits:**
-- Each section loads independently
-- User sees partial content sooner
-- Better perceived performance
-
 ---
 
 ## Example 7: Cache-First Strategy Implementation
 
-> Project-specific example: it assumes list data cached under a `posts-v2` "grid" query. Adapt or skip it if your app has no such list query.
+> Project-specific: assumes list data cached under a `posts-v2` "grid" query. Adapt or skip if your app has no such list query.
 
-Complete example based on useSuspensePost.ts:
+Based on useSuspensePost.ts:
 
 ```typescript
 import { useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
@@ -590,12 +581,6 @@ export function useSuspensePost(blogId: number, postId: number) {
     });
 }
 ```
-
-**Why this pattern:**
-- Checks grid cache before API
-- Instant data if user came from grid
-- Falls back to API if not cached
-- Configurable cache times
 
 ---
 
@@ -860,15 +845,9 @@ export const useToggleUserStatus = () => {
 
 ## Summary
 
-**Key Takeaways:**
+- **Routing**: folder-based, with lazy loading
+- **Error Handling**: useMuiSnackbar + mutation onError + error boundaries for queries
+- **Performance**: useMemo, useCallback, React.memo, debouncing
+- **Styling**: inline <100 lines, sx prop, MUI v7 syntax
 
-1. **Component Pattern**: React.FC + lazy + Suspense + useSuspenseQuery
-2. **Feature Structure**: Organized subdirectories (api/, components/, hooks/, etc.)
-3. **Routing**: Folder-based with lazy loading
-4. **Data Fetching**: useSuspenseQuery (optionally seeded from a list query)
-5. **Forms**: React Hook Form + Zod validation
-6. **Error Handling**: useMuiSnackbar + mutation onError + error boundaries for queries
-7. **Performance**: useMemo, useCallback, React.memo, debouncing
-8. **Styling**: Inline <100 lines, sx prop, MUI v7 syntax
-
-**See other resources for detailed explanations of each pattern.**
+**See other resources for detail on each pattern.**

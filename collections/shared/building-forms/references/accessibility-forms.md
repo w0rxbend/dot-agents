@@ -1,13 +1,7 @@
 # Form Accessibility: WCAG 2.1 AA Compliance
 
-**Comprehensive guide to creating accessible forms that comply with Web Content Accessibility Guidelines (WCAG) 2.1 Level AA.**
-
-
 ## Table of Contents
 
-- [Why Form Accessibility Matters](#why-form-accessibility-matters)
-- [WCAG 2.1 Level AA Requirements](#wcag-21-level-aa-requirements)
-  - [Four Principles (POUR)](#four-principles-pour)
 - [Essential Accessibility Patterns](#essential-accessibility-patterns)
   - [1. Labels and Instructions](#1-labels-and-instructions)
   - [2. Keyboard Navigation](#2-keyboard-navigation)
@@ -21,38 +15,8 @@
   - [Manual Testing](#manual-testing)
 - [Common Accessibility Anti-Patterns](#common-accessibility-anti-patterns)
   - [What NOT to Do](#what-not-to-do)
-- [Accessibility Quick Reference](#accessibility-quick-reference)
 - [Resources](#resources)
 - [Next Steps](#next-steps)
-
-## Why Form Accessibility Matters
-
-**Impact:**
-- **15% of global population** has some form of disability
-- **Legal requirement** in many jurisdictions (ADA, Section 508, EAA)
-- **Better UX for everyone** (clear labels, logical flow, error handling)
-- **SEO benefits** (semantic HTML, proper structure)
-
-**Common Barriers:**
-- Missing or hidden labels
-- Poor keyboard navigation
-- Insufficient color contrast
-- Inaccessible error messages
-- Complex forms without guidance
-- Time limits without warnings
-
----
-
-## WCAG 2.1 Level AA Requirements
-
-### Four Principles (POUR)
-
-1. **Perceivable** - Information must be presentable to users in ways they can perceive
-2. **Operable** - Interface components must be operable
-3. **Understandable** - Information and operation must be understandable
-4. **Robust** - Content must be robust enough for assistive technologies
-
----
 
 ## Essential Accessibility Patterns
 
@@ -84,9 +48,9 @@
 
 **Best Practices:**
 - ✅ Use explicit `<label>` with `for` attribute pointing to input `id`
-- ✅ Labels must be visible and persistent (not just placeholders)
-- ✅ Labels should be descriptive ("Email address" not "Input")
-- ❌ Never use placeholder as sole label (disappears when user types)
+- ✅ Keep labels visible and persistent (not only placeholders)
+- ✅ Make labels descriptive ("Email address" not "Input")
+- ❌ Never use placeholder as sole label (disappears on typing)
 - ❌ Don't hide labels visually unless using `aria-label`
 
 ---
@@ -116,12 +80,11 @@
 ```
 
 **Best Practices:**
-- ✅ Use text or symbol ("*", "(required)") not just color
-- ✅ Include `required` attribute on input
-- ✅ Include `aria-required="true"` for screen readers
-- ✅ Provide legend explaining indicator meaning
-- ❌ Don't rely solely on color (red label text)
-- ❌ Don't rely solely on asterisk without explanation
+- ✅ Use text or symbol ("*", "(required)"), not only color
+- ✅ Add `required` attribute to input
+- ✅ Add `aria-required="true"` for screen readers
+- ✅ Add legend explaining indicator meaning
+- ❌ Don't rely on color alone (red label text)
 
 ---
 
@@ -144,11 +107,10 @@
 ```
 
 **Best Practices:**
-- ✅ Use `aria-describedby` to associate help text with input
-- ✅ Show help text before user interacts (don't hide in tooltip)
-- ✅ Place help text between label and input or directly after input
-- ✅ Use clear, concise language
-- ❌ Don't rely on hover-only tooltips (keyboard users can't access)
+- ✅ Use `aria-describedby` to link help text to input
+- ✅ Show help text before interaction (don't hide in tooltip)
+- ✅ Place help text between label and input, or right after input
+- ❌ Don't rely on hover-only tooltips (keyboard users can't reach them)
 
 ---
 
@@ -184,11 +146,9 @@
 
 **Best Practices:**
 - ✅ Rely on natural tab order (DOM order)
-- ✅ Only use positive `tabindex` when necessary
 - ✅ Use `tabindex="0"` to add custom elements to tab order
-- ✅ Use `tabindex="-1"` to remove from tab order (but still focusable programmatically)
+- ✅ Use `tabindex="-1"` to remove from tab order (still focusable programmatically)
 - ❌ Don't use `tabindex` > 0 unless absolutely necessary (breaks natural order)
-- ❌ Don't create keyboard traps
 
 ---
 
@@ -225,7 +185,7 @@ input:focus {
 ```
 
 **Best Practices:**
-- ✅ Always have visible focus indicator
+- ✅ Always show visible focus indicator
 - ✅ Minimum 2px thickness, high contrast
 - ✅ Consistent across all form elements
 - ✅ Test with keyboard navigation (Tab key)
@@ -240,8 +200,8 @@ input:focus {
 
 | Key | Action | Context |
 |-----|--------|---------|
-| **Tab** | Move to next element | All forms |
-| **Shift + Tab** | Move to previous element | All forms |
+| **Tab** | Next element | All forms |
+| **Shift + Tab** | Previous element | All forms |
 | **Enter** | Submit form | Text inputs, buttons |
 | **Space** | Toggle checkbox/radio | Checkboxes, radios, buttons |
 | **Arrow keys** | Navigate options | Radio groups, select, custom components |
@@ -296,8 +256,6 @@ input:focus {
 - ✅ Use `aria-invalid="true"` when field has error
 - ✅ Use `aria-describedby` to link error message to input
 - ✅ Use `role="alert"` or `aria-live="polite"` for dynamic errors
-- ✅ Error messages must be clear and specific
-- ❌ Don't rely on color alone to indicate error
 - ❌ Don't use generic messages ("Invalid input")
 
 ---
@@ -328,9 +286,8 @@ input:focus {
 **Best Practices:**
 - ✅ Explain what's wrong
 - ✅ Explain how to fix it
-- ✅ Provide example if applicable
+- ✅ Give example if applicable
 - ✅ Use constructive, helpful tone
-- ❌ Don't just say "Error" or "Invalid"
 
 ---
 
@@ -364,7 +321,7 @@ input:focus {
 - ✅ Place error summary at top of form
 - ✅ Make summary focusable (`tabindex="-1"`)
 - ✅ Move focus to summary on submit with errors
-- ✅ Link each error to corresponding field (`href="#field-id"`)
+- ✅ Link each error to its field (`href="#field-id"`)
 - ✅ Use `role="alert"` for screen reader announcement
 
 ---
@@ -397,14 +354,11 @@ input:focus {
 **ARIA Live Regions:**
 - `aria-live="polite"` - Announce when user is idle (recommended for errors)
 - `aria-live="assertive"` - Announce immediately (use sparingly, critical errors only)
-- `aria-atomic="true"` - Read entire message, not just changes
+- `aria-atomic="true"` - Read whole message, not only changes
 - `role="alert"` - Equivalent to `aria-live="assertive"`
 
 **Best Practices:**
-- ✅ Use `aria-live="polite"` for most validation messages
-- ✅ Use `aria-atomic="true"` to ensure full message is read
-- ✅ Update message content dynamically (don't add/remove element)
-- ❌ Don't overuse `aria-live="assertive"` (disruptive)
+- ✅ Update message content in place (don't add/remove element)
 
 ---
 
@@ -413,12 +367,12 @@ input:focus {
 #### Essential ARIA Attributes
 
 **`aria-required`**
-- **Purpose:** Indicates field is required
+- **Purpose:** Marks field as required
 - **Usage:** `<input aria-required="true" required />`
 - **Note:** Use with native `required` attribute
 
 **`aria-invalid`**
-- **Purpose:** Indicates field has validation error
+- **Purpose:** Marks field as having validation error
 - **Usage:** `<input aria-invalid="true" />` (when error exists)
 - **Note:** Set to `"false"` or remove when valid
 
@@ -428,7 +382,7 @@ input:focus {
 - **Note:** Can reference multiple IDs (space-separated)
 
 **`aria-labelledby`**
-- **Purpose:** Labels input by referencing another element
+- **Purpose:** Labels input via another element
 - **Usage:** `<input aria-labelledby="heading" />`
 - **Note:** Use when label is not a `<label>` element
 
@@ -440,7 +394,7 @@ input:focus {
 **`role="alert"`**
 - **Purpose:** Important, time-sensitive message
 - **Usage:** `<p role="alert">Error: Email required</p>`
-- **Note:** Automatically announces to screen readers
+- **Note:** Screen readers announce it automatically
 
 **`aria-live`**
 - **Purpose:** Announces dynamic content changes
@@ -518,9 +472,7 @@ input:focus {
 - Focus indicators: 3:1 against background
 
 **Testing Tools:**
-- WebAIM Contrast Checker: https://webaim.org/resources/contrastchecker/
 - Chrome DevTools: Lighthouse audit, Color contrast inspection
-- Browser extensions: WAVE, axe DevTools
 
 **Examples:**
 ```css
@@ -567,11 +519,11 @@ input:focus {
 ```
 
 **Best Practices:**
-- ✅ Use text labels in addition to color
-- ✅ Use icons (✓, ❌) in addition to color
+- ✅ Use text labels alongside color
+- ✅ Use icons (✓, ❌) alongside color
 - ✅ Use border styles (solid, dashed) to differentiate
 - ✅ Use `aria-invalid` for screen readers
-- ❌ Don't indicate error/success by color alone
+- ❌ Don't signal error/success by color alone
 
 ---
 
@@ -602,11 +554,6 @@ input:focus {
   <button type="submit">Search</button>
 </form>
 ```
-
-**Benefits:**
-- Screen readers can navigate by landmarks
-- Users can skip to form quickly
-- Better structure and semantics
 
 ---
 
@@ -686,7 +633,7 @@ When user focuses input inside fieldset:
 ```
 
 **Best Practices:**
-- ✅ Indicate current step with `aria-current="step"`
+- ✅ Mark current step with `aria-current="step"`
 - ✅ Announce step changes with `aria-live`
 - ✅ Show total steps and current position
 - ✅ Allow back navigation to previous steps
@@ -701,9 +648,8 @@ When user focuses input inside fieldset:
 
 **Guideline:**
 - Warn user before time expires
-- Allow user to extend time
-- Provide at least 20 seconds warning
-- Allow user to turn off time limit
+- Give at least 20 seconds warning
+- Let user turn off time limit
 
 **Pattern:**
 ```html
@@ -716,7 +662,6 @@ When user focuses input inside fieldset:
 
 **Best Practices:**
 - ✅ Avoid time limits when possible
-- ✅ Warn user before expiration
 - ✅ Allow extension (at least 10 times initial)
 - ✅ Save draft/autosave to prevent data loss
 - ❌ Don't use time limits for security (unless required)
@@ -756,11 +701,11 @@ When user focuses input inside fieldset:
 ```
 
 **Best Practices:**
-- ✅ Autosave periodically (every 30-60 seconds)
-- ✅ Save on blur for each field
-- ✅ Warn before navigation if unsaved changes
-- ✅ Provide visual "saved" indicator
-- ✅ Allow user to resume later
+- ✅ Autosave every 30-60 seconds
+- ✅ Save each field on blur
+- ✅ Warn before navigation if changes are unsaved
+- ✅ Show visual "saved" indicator
+- ✅ Let user resume later
 
 ---
 
@@ -771,12 +716,12 @@ When user focuses input inside fieldset:
 - [ ] **Lighthouse** (Chrome DevTools) - Accessibility audit
 - [ ] **axe DevTools** - Browser extension for detailed WCAG checks
 - [ ] **WAVE** - Web accessibility evaluation tool
-- [ ] **Pa11y** - Automated accessibility testing CLI tool
+- [ ] **Pa11y** - CLI for automated accessibility testing
 
 ### Manual Testing
 
 #### Keyboard Navigation
-- [ ] Tab through entire form (logical order)
+- [ ] Tab through whole form (logical order)
 - [ ] All inputs reachable by keyboard
 - [ ] Focus indicators visible on all elements
 - [ ] Enter key submits form from any input
@@ -789,8 +734,8 @@ When user focuses input inside fieldset:
 - [ ] Test with JAWS (Windows - commercial)
 - [ ] Test with VoiceOver (macOS/iOS - built-in)
 - [ ] All labels announced correctly
-- [ ] Help text announced with `aria-describedby`
-- [ ] Errors announced with `aria-live` or `role="alert"`
+- [ ] Help text announced via `aria-describedby`
+- [ ] Errors announced via `aria-live` or `role="alert"`
 - [ ] Required fields indicated
 - [ ] Fieldset legends announced
 - [ ] Form landmarks navigable
@@ -801,16 +746,16 @@ When user focuses input inside fieldset:
 - [ ] Error not indicated by color alone
 - [ ] Required not indicated by color alone
 - [ ] Focus indicators visible (not outline: none)
-- [ ] Text resizable to 200% without loss of content
+- [ ] Text resizable to 200% without content loss
 - [ ] Form usable at 400% zoom (WCAG 1.4.10)
 
 #### Error Handling
 - [ ] Clear error messages (what's wrong, how to fix)
-- [ ] Errors associated with inputs (`aria-describedby`)
+- [ ] Errors linked to inputs (`aria-describedby`)
 - [ ] Error summary at top of form
 - [ ] Focus moves to error summary on submit
 - [ ] `aria-invalid="true"` on fields with errors
-- [ ] Errors announced by screen reader
+- [ ] Screen reader announces errors
 
 ---
 
@@ -826,47 +771,6 @@ When user focuses input inside fieldset:
 <!-- ✅ PROPER LABEL -->
 <label for="email">Email address</label>
 <input type="email" id="email" placeholder="name@example.com" />
-```
-
-❌ **Removing focus outline without replacement**
-```css
-/* ❌ REMOVES KEYBOARD ACCESSIBILITY */
-input:focus {
-  outline: none;
-}
-
-/* ✅ PROVIDE ALTERNATIVE FOCUS INDICATOR */
-input:focus {
-  outline: 2px solid #0066cc;
-  outline-offset: 2px;
-}
-```
-
-❌ **Color-only error indicators**
-```html
-<!-- ❌ ERROR SHOWN ONLY BY RED BORDER -->
-<input style="border: 2px solid red;" />
-
-<!-- ✅ ERROR WITH TEXT AND ARIA -->
-<input
-  style="border: 2px solid red;"
-  aria-invalid="true"
-  aria-describedby="error"
-/>
-<p id="error">Email is required</p>
-```
-
-❌ **Unlabeled required fields**
-```html
-<!-- ❌ REQUIRED ONLY BY RED ASTERISK -->
-<label style="color: red;">Email *</label>
-<input type="email" required />
-
-<!-- ✅ REQUIRED WITH TEXT AND ARIA -->
-<label for="email">
-  Email <span aria-label="required">*</span>
-</label>
-<input type="email" id="email" required aria-required="true" />
 ```
 
 ❌ **Keyboard traps**
@@ -886,24 +790,6 @@ input:focus {
   <button type="submit">Submit</button>
 </div>
 ```
-
----
-
-## Accessibility Quick Reference
-
-| Requirement | WCAG Level | Implementation |
-|-------------|------------|----------------|
-| All inputs have labels | A (3.3.2) | `<label for="id">` or `aria-label` |
-| Required fields indicated | A (1.4.1) | Text/symbol, not color alone |
-| Keyboard accessible | A (2.1.1) | Logical tab order, no traps |
-| Focus visible | AA (2.4.7) | Visible outline or custom indicator |
-| Error identification | A (3.3.1) | `aria-invalid`, `aria-describedby` |
-| Error suggestions | AA (3.3.3) | Clear, actionable error messages |
-| Color contrast | AA (1.4.3) | 4.5:1 text, 3:1 UI components |
-| Not color alone | A (1.4.1) | Use text, icons, patterns |
-| Status messages | AA (4.1.3) | `aria-live` or `role="alert"` |
-| Form landmarks | A (1.3.1) | `<form>` or `role="form"` |
-| Fieldset/legend | A (1.3.1) | Group related inputs |
 
 ---
 
@@ -929,7 +815,7 @@ input:focus {
 
 ## Next Steps
 
-After ensuring accessibility:
+Once form is accessible:
 - Apply UX best practices → `ux-patterns.md`
 - Implement validation patterns → `validation-concepts.md`
 - Choose language implementation:

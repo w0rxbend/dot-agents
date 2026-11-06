@@ -31,8 +31,8 @@ Internet → ALB (Application Load Balancer)
 ```
 
 **Use When:**
-- Building containerized web applications
-- Need auto-scaling without managing servers
+- Containerized web applications
+- Auto-scaling without managing servers
 - Docker-based deployment workflow
 - Team lacks Kubernetes expertise
 
@@ -127,10 +127,10 @@ SQS Queue → ECS Service (Fargate tasks)
 ```
 
 **Use When:**
-- Processing background jobs (image processing, report generation)
-- Need auto-scaling based on queue depth
+- Background jobs (image processing, report generation)
+- Auto-scaling on queue depth
 - Variable workload patterns
-- Prefer containers over Lambda (>15 min runtime, >10GB memory)
+- Containers preferred over Lambda (>15 min runtime, >10GB memory)
 
 **Task Definition Differences:**
 ```yaml
@@ -180,7 +180,7 @@ ScalingPolicy:
 
 ### Scheduled Task Pattern
 
-**Pattern:** Run containerized cron jobs using EventBridge.
+**Pattern:** Containerized cron jobs triggered by EventBridge.
 
 **Architecture:**
 ```
@@ -191,8 +191,8 @@ EventBridge Rule (schedule) → ECS Task (Fargate)
 
 **Use When:**
 - Scheduled batch processing
-- Need more than 15 minutes runtime (Lambda limit)
-- Require more than 10 GB memory
+- Runtime over 15 minutes (Lambda limit)
+- More than 10 GB memory
 - Complex dependencies or large Docker images
 
 **EventBridge Rule:**
@@ -217,10 +217,9 @@ ScheduledRule:
 ```
 
 **Benefits over Lambda:**
-- No 15-minute timeout
 - Up to 120 GB memory (Fargate)
 - More familiar Docker ecosystem
-- Can use same image as production service
+- Same image as production service
 
 ## EKS Cluster Patterns
 
@@ -242,9 +241,9 @@ EKS Control Plane (AWS-managed)
 
 **Use When:**
 - Team has Kubernetes expertise
-- Need Kubernetes ecosystem (Helm, Operators, Istio)
+- Kubernetes ecosystem needed (Helm, Operators, Istio)
 - Multi-cloud or hybrid cloud strategy
-- Complex orchestration requirements
+- Complex orchestration
 - Migrating from on-premises Kubernetes
 
 **Cluster Configuration:**
@@ -345,13 +344,13 @@ FargateProfile:
 
 ### EKS Auto Mode (2024+ Feature)
 
-**Pattern:** Fully managed node lifecycle, auto-scaling, and upgrades.
+**Pattern:** Fully managed node lifecycle, auto-scaling, upgrades.
 
 **Use When:**
-- Want maximum automation
-- Minimize operational overhead
-- Acceptable with AWS-managed node pools
-- Cost is less critical than simplicity
+- Maximum automation wanted
+- Minimal operational overhead
+- AWS-managed node pools acceptable
+- Simplicity matters more than cost
 
 **Configuration:**
 ```yaml
@@ -371,7 +370,7 @@ EKSCluster:
 
 **Cost Impact:**
 - ~10-15% higher than self-managed nodes
-- Savings from reduced operational overhead
+- Savings from lower operational overhead
 - Automatic spot instance usage
 
 ### Multi-Tenant EKS Pattern
@@ -379,8 +378,8 @@ EKSCluster:
 **Pattern:** Isolated namespaces with resource quotas and network policies.
 
 **Use When:**
-- Multiple teams or applications sharing cluster
-- Need cost efficiency (shared control plane)
+- Multiple teams or applications share cluster
+- Cost efficiency (shared control plane)
 - Strong isolation requirements
 - Centralized cluster management
 
@@ -517,7 +516,7 @@ roleRef:
 
 ### Fargate Spot
 
-**Pattern:** Run fault-tolerant tasks at 70% discount.
+**Pattern:** Fault-tolerant tasks at 70% discount.
 
 **Use When:**
 - Batch processing jobs
@@ -539,9 +538,9 @@ Service:
 
 **Interruption Handling:**
 - 2-minute warning before interruption
-- Listen for SIGTERM signal
-- Gracefully finish current work
-- Task automatically restarted
+- Handle SIGTERM signal
+- Finish current work gracefully
+- Task restarts automatically
 
 **Python Example:**
 ```python
@@ -620,15 +619,6 @@ TargetGroup:
 ### Environment Variables vs Secrets
 
 **Environment Variables (Plain Text):**
-```yaml
-Environment:
-  - Name: NODE_ENV
-    Value: production
-  - Name: LOG_LEVEL
-    Value: info
-  - Name: API_ENDPOINT
-    Value: https://api.example.com
-```
 
 **Use For:**
 - Non-sensitive configuration
@@ -662,8 +652,8 @@ Secrets:
       "ssm:GetParameters"
     ],
     "Resource": [
-      "arn:aws:secretsmanager:us-east-1:123456789012:secret:*",
-      "arn:aws:ssm:us-east-1:123456789012:parameter/*"
+      "arn:aws:secretsmanager:us-east-1:123456789012:secret:db-pass-*",
+      "arn:aws:ssm:us-east-1:123456789012:parameter/api-key"
     ]
   }]
 }
@@ -688,10 +678,12 @@ LogConfiguration:
   LogDriver: awsfirelens
   Options:
     Name: datadog
-    apikey: !Ref DatadogApiKey
     dd_service: my-service
     dd_source: ecs
     dd_tags: env:production,team:platform
+  SecretOptions:  # API key from Secrets Manager; Options are plain text in the task definition
+    - Name: apikey
+      ValueFrom: !Ref DatadogApiKeySecretArn
 ```
 
 **Supported Destinations:**
@@ -848,7 +840,7 @@ TargetTrackingScalingPolicyConfiguration:
 ### Step Scaling (Advanced)
 
 **Use When:**
-- Need different scaling behavior at different thresholds
+- Different scaling behavior per threshold
 - Complex scaling logic
 - Multiple alarm thresholds
 
@@ -875,7 +867,7 @@ ScalingPolicy:
 
 **Use When:**
 - Predictable traffic patterns (business hours)
-- Batch processing at specific times
+- Batch processing at set times
 - Cost optimization (scale down at night)
 
 **Configuration:**
@@ -900,9 +892,9 @@ ScheduledAction2:
 ### Built-In Service Mesh (2023+ Feature)
 
 **Use When:**
-- Need service-to-service communication
-- Want observability without code changes
-- Require retry logic and circuit breaking
+- Service-to-service communication
+- Observability without code changes
+- Retry logic and circuit breaking required
 - Avoid complexity of Istio or App Mesh
 
 **Architecture:**
@@ -955,16 +947,9 @@ Service:
 ### Simplified IAM for Pods (2024+ Feature)
 
 **Use When:**
-- Running applications on EKS
-- Need AWS service access from pods
-- Want simpler configuration than IRSA
-
-**Old Way (IRSA - IAM Roles for Service Accounts):**
-```yaml
-# Complex OIDC provider setup required
-# Per-namespace service account annotations
-# Trust relationship with OIDC provider
-```
+- Applications run on EKS
+- Pods need AWS service access
+- Simpler configuration than IRSA wanted
 
 **New Way (Pod Identities):**
 ```yaml
@@ -1048,7 +1033,7 @@ Repository:
 **Best Practices:**
 - Scan all images before deployment
 - Block deployments with critical vulnerabilities
-- Regularly rebuild base images
+- Rebuild base images regularly
 - Use minimal base images (alpine, distroless)
 
 ### Runtime Security
@@ -1064,9 +1049,7 @@ ContainerDefinitions:
         ReadOnly: false
 
 Volumes:
-  - Name: tmp
-    Host:
-      SourcePath: /tmp
+  - Name: tmp  # task-scoped scratch volume; never mount host /tmp
 ```
 
 **Drop Capabilities (Kubernetes):**
@@ -1205,9 +1188,9 @@ LaunchTemplate:
 ### Task-Level Optimization
 
 **Right-Sizing:**
-- Monitor CloudWatch metrics weekly
-- Reduce over-provisioned resources
-- Use Compute Optimizer recommendations
+- Check CloudWatch metrics weekly
+- Trim over-provisioned resources
+- Follow Compute Optimizer recommendations
 
 **Reduce Data Transfer:**
 - Use VPC endpoints (avoid NAT Gateway costs)
@@ -1229,7 +1212,7 @@ LaunchTemplate:
 
 ### Don't: Use Latest Tag
 
-**Problem:** Unpredictable deployments, difficult rollbacks.
+**Problem:** Unpredictable deployments, hard rollbacks.
 
 **Solution:** Use immutable tags (commit SHA, semantic versions).
 
@@ -1252,13 +1235,13 @@ Image: my-app:commit-abc123
 
 **Problem:** No high availability, downtime during deployments.
 
-**Solution:** Run minimum 2 replicas across multiple AZs.
+**Solution:** Run at least 2 replicas across multiple AZs.
 
 ### Don't: Ignore Resource Limits
 
 **Problem:** Resource starvation, OOM kills, cascading failures.
 
-**Solution:** Set appropriate CPU and memory limits.
+**Solution:** Set CPU and memory limits.
 
 ```yaml
 # Kubernetes
@@ -1273,7 +1256,7 @@ resources:
 
 ### Don't: Use Default VPC
 
-**Problem:** No subnet segmentation, poor security posture.
+**Problem:** No subnet segmentation, weak security posture.
 
 **Solution:** Create custom VPC with private subnets.
 
@@ -1281,17 +1264,10 @@ resources:
 
 **Problem:** Traffic sent to unhealthy tasks, user-facing errors.
 
-**Solution:** Implement comprehensive health checks.
+**Solution:** Add comprehensive health checks.
 
 ### Don't: Ignore Deployment Circuit Breakers
 
-**Problem:** Bad deployments can take down entire service.
+**Problem:** Bad deployment can take down whole service.
 
 **Solution:** Enable circuit breakers with automatic rollback.
-
-```yaml
-DeploymentConfiguration:
-  DeploymentCircuitBreaker:
-    Enable: true
-    Rollback: true
-```

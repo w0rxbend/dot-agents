@@ -1,8 +1,5 @@
 # NGINX Load Balancing Patterns
 
-Complete guide to NGINX and NGINX Plus load balancing configurations.
-
-
 ## Table of Contents
 
 - [Basic HTTP Load Balancing](#basic-http-load-balancing)
@@ -53,14 +50,6 @@ server {
 
 ### Load Balancing Algorithms
 
-**Round Robin (default):**
-```nginx
-upstream backend {
-    server backend1:8080;
-    server backend2:8080;
-}
-```
-
 **Least Connections:**
 ```nginx
 upstream backend {
@@ -110,10 +99,10 @@ upstream backend {
 
 **Parameters:**
 - `weight=n`: Server weight (default: 1)
-- `max_fails=n`: Failed attempts before marking server down
-- `fail_timeout=time`: Time server marked down after max_fails
+- `max_fails=n`: Failed attempts before server marked down
+- `fail_timeout=time`: How long server stays down after max_fails
 - `backup`: Backup server (used when primaries unavailable)
-- `down`: Permanently mark server as unavailable
+- `down`: Mark server permanently unavailable
 
 ## Health Checks
 
@@ -232,7 +221,7 @@ server {
 
 ### Slow Start (NGINX Plus)
 
-Gradually increase traffic to newly added or recovered servers:
+Ramp traffic gradually to new or recovered servers:
 
 ```nginx
 upstream backend {
@@ -265,7 +254,7 @@ location / {
 
 ## Complete Configuration Example
 
-See `examples/nginx/http-load-balancing.conf` for a production-ready configuration with:
+Production-ready configuration in `examples/nginx/http-load-balancing.conf`, with:
 - Multiple upstream pools
 - SSL termination
 - Health checks

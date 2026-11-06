@@ -12,7 +12,7 @@
 
 ## The global state problem
 
-The top-level `viper.*` functions operate on a global `*viper.Viper` instance shared across all tests in the same process. Tests that call `viper.SetConfigFile`, `viper.Set`, or `viper.ReadInConfig` pollute this global state, causing flaky test ordering.
+Top-level `viper.*` functions share one global `*viper.Viper` across all tests in process. Tests calling `viper.SetConfigFile`, `viper.Set`, or `viper.ReadInConfig` pollute it; test ordering turns flaky.
 
 ```go
 // ✗ Bad — sets global state that affects later tests
@@ -43,7 +43,7 @@ func TestDefaultPort(t *testing.T) {
 
 ## Injecting viper into your app
 
-For test isolation to work, your application code must accept a `*viper.Viper` instead of calling the global functions directly:
+Test isolation requires app code to accept `*viper.Viper`, not call global functions directly:
 
 ```go
 // ✓ Good — accepts a viper instance
@@ -85,11 +85,11 @@ func TestReadConfig(t *testing.T) {
 }
 ```
 
-Use `testdata/` for config files. Go test tooling sets the working directory to the package directory, so relative paths work reliably.
+Keep config files in `testdata/`. Go test tooling sets working directory to package directory, so relative paths work reliably.
 
 ## t.Setenv interactions
 
-`t.Setenv` sets an env var for the duration of a test and restores it on cleanup. Combined with `viper.New()` + `AutomaticEnv`, this lets you test env var binding without global pollution:
+`t.Setenv` sets env var for test duration, restores it on cleanup. Combined with `viper.New()` + `AutomaticEnv`, lets you test env binding without global pollution:
 
 ```go
 func TestEnvBinding(t *testing.T) {
@@ -106,17 +106,17 @@ func TestEnvBinding(t *testing.T) {
 
 ## viper.Reset() — use with caution
 
-`viper.Reset()` resets the global viper instance to its zero state. It is rarely the right solution:
+`viper.Reset()` resets global instance to zero state. Rarely right fix:
 
-- It affects all code running concurrently that also uses the global viper.
-- It does not stop any active `WatchConfig` goroutines.
-- Using it in `TestMain` or `t.Cleanup` makes tests order-dependent.
+- Affects all concurrent code also using global viper.
+- Does not stop active `WatchConfig` goroutines.
+- In `TestMain` or `t.Cleanup`, makes tests order-dependent.
 
-Prefer `viper.New()` per test. Reserve `Reset()` for tools that call into viper-based libraries and must restore state between runs.
+Prefer `viper.New()` per test. Reserve `Reset()` for tools that call viper-based libraries and must restore state between runs.
 
 ## Snapshot and restore pattern
 
-When you cannot refactor to inject `*viper.Viper` and must use the global:
+When you cannot refactor to inject `*viper.Viper` and must use global:
 
 ```go
 func snapshotViper() map[string]interface{} {
@@ -139,4 +139,4 @@ func TestWithGlobalViper(t *testing.T) {
 }
 ```
 
-This approach is fragile — `AllSettings()` only captures the resolved values, not the binding state (defaults, env bindings, etc.). Prefer injection.
+Fragile: `AllSettings()` captures only resolved values, not binding state (defaults, env bindings, etc.). Prefer injection.

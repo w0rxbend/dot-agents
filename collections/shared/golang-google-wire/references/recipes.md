@@ -1,7 +1,5 @@
 # Recipes — google/wire
 
-End-to-end examples. Each recipe is self-contained.
-
 ## Table of Contents
 
 - [HTTP Server with Postgres and Redis](#http-server-with-postgres-and-redis)
@@ -12,7 +10,7 @@ End-to-end examples. Each recipe is self-contained.
 
 ## HTTP Server with Postgres and Redis
 
-A typical service: parsed config → DB (with cleanup) → Redis (with cleanup) → repo → service → HTTP server.
+Typical service: parsed config → DB (with cleanup) → Redis (with cleanup) → repo → service → HTTP server.
 
 ```
 myapp/
@@ -143,7 +141,7 @@ func main() {
 
 ## Multiple Build Variants (Prod vs Dev)
 
-Use separate injector files with `//go:build` constraints to select different provider sets at build time.
+Use separate injector files with `//go:build` constraints to select provider sets at build time.
 
 ```go
 // wire_prod.go
@@ -167,14 +165,14 @@ func InitApp() (*App, func(), error) {
 }
 ```
 
-Use `-output_file_prefix` to write separate output files — both commands would otherwise overwrite the same `wire_gen.go`:
+Use `-output_file_prefix` to write separate output files. Otherwise both commands overwrite same `wire_gen.go`:
 
 ```bash
 wire -tags dev -output_file_prefix=wire_gen_dev gen .
 wire -output_file_prefix=wire_gen_prod gen .
 ```
 
-Add build constraints to the generated files so only one compiles per build:
+Add build constraints to generated files so only one compiles per build:
 
 ```go
 // wire_gen_prod.go — add at the top (after wire writes it)
@@ -184,11 +182,9 @@ Add build constraints to the generated files so only one compiles per build:
 //go:build dev
 ```
 
-Commit both generated files. At build time, only the matching file is compiled.
+Commit both generated files. At build time, only matching file compiles.
 
 ## Cleanup-Heavy Graph
-
-When several providers need shutdown coordination, wire's reverse-order cleanup is essential.
 
 ```go
 // Providers return (T, func(), error)
@@ -210,11 +206,9 @@ func NewTracerProvider(exp *otlptrace.Exporter) (*trace.TracerProvider, func(), 
 }
 ```
 
-Wire generates shutdown in reverse: `TracerProvider` → `OTelExporter` → `DBPool`. Each cleanup runs before its dependencies shut down — guaranteeing in-flight spans are flushed before the exporter closes.
+Wire generates shutdown in reverse: `TracerProvider` → `OTelExporter` → `DBPool`. Each cleanup runs before its dependencies shut down, so in-flight spans flush before exporter closes.
 
 ## Embedding Wire in a CLI
-
-Wire produces a struct, not an app framework. You control the lifecycle:
 
 ```go
 // wire.go
@@ -248,7 +242,7 @@ func runServe(cfg *Config) error {
 }
 ```
 
-Unlike `fx.Run()`, wire does not manage the lifecycle loop. Implement signal handling and graceful shutdown explicitly. This is a feature for CLI tools that spin up short-lived services and need precise control over the shutdown sequence.
+Unlike `fx.Run()`, wire does not manage lifecycle loop. Implement signal handling and graceful shutdown explicitly.
 
 ## Passing External Values to Wire
 
@@ -269,4 +263,4 @@ if err != nil { log.Fatal(err) }
 app, cleanup, err := InitApp(cfg)
 ```
 
-The parameter `cfg *Config` satisfies any downstream provider that requests `*Config` — no `wire.Value` or extra set entry needed.
+Parameter `cfg *Config` satisfies any downstream provider requesting `*Config`. No `wire.Value` or extra set entry needed.

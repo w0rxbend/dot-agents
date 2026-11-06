@@ -2,9 +2,9 @@
 
 ## Core Concept
 
-An animation is a Python object that computes intermediate visual states of a mobject over time. Animations are objects passed to `self.play()`, not functions.
+Animations are objects passed to `self.play()`, not functions.
 
-`run_time` controls seconds (default: 1). Always specify it explicitly for important animations.
+`run_time` controls seconds (default: 1). Always set it explicitly for important animations.
 
 ## Creation Animations
 
@@ -41,7 +41,7 @@ eq2 = MathTex(r"a^2 + b^2 = c^2")
 self.play(TransformMatchingTex(eq1, eq2))
 ```
 
-**Critical**: After `Transform(A, B)`, variable `A` references the on-screen mobject. Variable `B` is NOT on screen. Use `ReplacementTransform` when you want to work with `B` afterwards.
+**Critical**: After `Transform(A, B)`, variable `A` references the on-screen mobject. Variable `B` is NOT on screen. Use `ReplacementTransform` to work with `B` afterwards.
 
 ## The .animate Syntax
 
@@ -73,7 +73,7 @@ self.play(Rotate(square, angle=PI / 2, about_point=ORIGIN), run_time=1.5)
 self.play(Rotating(gear, angle=TAU, run_time=4, rate_func=linear))
 ```
 
-`MoveAlongPath` takes any `VMobject` as the path — use `Arc`, `CubicBezier`, `Line`, or a custom `VMobject`. Position is computed via `path.point_from_proportion()`.
+`MoveAlongPath` takes any `VMobject` as path: `Arc`, `CubicBezier`, `Line`, or custom `VMobject`. Position comes from `path.point_from_proportion()`.
 
 ## Emphasis Animations
 
@@ -148,7 +148,7 @@ self.wait(0.3)
 
 ## Reactive Mobjects: always_redraw()
 
-Rebuild a mobject from scratch every frame — essential when its geometry depends on other animated objects:
+Rebuilds mobject from scratch every frame. Essential when its geometry depends on other animated objects:
 
 ```python
 # Brace that follows a resizing square
@@ -163,14 +163,14 @@ h_line = always_redraw(lambda: axes.get_horizontal_line(dot.get_left()))
 label = always_redraw(lambda: Text("here", font_size=20).next_to(dot, UP, buff=0.2))
 ```
 
-Note: `always_redraw` recreates the mobject every frame. For simple property tracking, use `add_updater` instead (cheaper):
+For simple property tracking, use `add_updater` instead (cheaper):
 ```python
 label.add_updater(lambda m: m.next_to(dot, UP))
 ```
 
 ## TracedPath — Trajectory Tracing
 
-Draw the path a point has traveled:
+Draws path a point has traveled:
 
 ```python
 dot = Dot(color=YELLOW)
@@ -187,7 +187,7 @@ Use cases: gradient descent paths, planetary orbits, function tracing, particle 
 
 ## FadeTransform — Smoother Cross-Fades
 
-`Transform` morphs shapes through ugly intermediate warping. `FadeTransform` cross-fades with position matching — use it when source and target look different:
+`Transform` morphs shapes through ugly intermediate warping. `FadeTransform` cross-fades with position matching:
 
 ```python
 # UGLY: Transform warps circle into square through a blob
@@ -204,11 +204,9 @@ self.play(TransformFromCopy(source, target))
 # source stays on screen, a copy morphs into target
 ```
 
-**Recommendation:** Use `FadeTransform` as default for dissimilar shapes. Use `Transform`/`ReplacementTransform` only for similar shapes (circle→ellipse, equation→equation).
+**Recommendation:** Use `FadeTransform` as default for dissimilar shapes. Use `Transform`/`ReplacementTransform` only for similar shapes (circle to ellipse, equation to equation).
 
 ## ApplyMatrix — Linear Transformation Visualization
-
-Animate a matrix transformation on mobjects:
 
 ```python
 # Apply a 2x2 matrix to a grid
@@ -219,11 +217,11 @@ self.play(ApplyMatrix(matrix, number_plane), run_time=2)
 self.play(ApplyMatrix([[0, -1], [1, 0]], square))  # 90-degree rotation
 ```
 
-Pairs with `LinearTransformationScene` — see `camera-and-3d.md`.
+Pairs with `LinearTransformationScene`. See `camera-and-3d.md`.
 
 ## squish_rate_func — Time-Window Staggering
 
-Compress any rate function into a time window within an animation. Enables overlapping stagger without `LaggedStart`:
+Compresses any rate function into a time window within an animation:
 
 ```python
 self.play(
@@ -234,7 +232,7 @@ self.play(
 )
 ```
 
-More precise than `LaggedStart` when you need exact overlap control.
+More precise than `LaggedStart` for exact overlap control.
 
 ## Additional Rate Functions
 
@@ -259,7 +257,7 @@ self.play(FadeIn(mob, rate_func=not_quite_there(0.7)))
 
 ## ShowIncreasingSubsets / ShowSubmobjectsOneByOne
 
-Reveal group members progressively — ideal for algorithm visualization:
+Reveal group members progressively. Ideal for algorithm visualization:
 
 ```python
 # Reveal array elements one at a time
@@ -272,7 +270,7 @@ self.play(ShowSubmobjectsOneByOne(code_lines), run_time=4)
 
 ## ShowPassingFlash
 
-A flash of light travels along a path:
+Flash of light travels along a path:
 
 ```python
 # Flash traveling along a curve

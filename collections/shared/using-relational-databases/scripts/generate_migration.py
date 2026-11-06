@@ -12,6 +12,7 @@ Usage:
 """
 
 import argparse
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -138,6 +139,9 @@ UPDATE {table} SET {new_column} = {column} WHERE {new_column} IS NULL;
 """,
 }
 
+# Plain SQL identifiers (optional schema prefix): blocks path traversal and SQL injection
+IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$")
+
 
 def generate_migration(operation: str, args: argparse.Namespace):
     """Generate migration file for the specified operation."""
@@ -145,6 +149,12 @@ def generate_migration(operation: str, args: argparse.Namespace):
         print(f"Error: Unknown operation '{operation}'")
         print(f"Available operations: {', '.join(TEMPLATES.keys())}")
         sys.exit(1)
+
+    for field in ("table", "column", "new_column", "ref_table"):
+        value = getattr(args, field)
+        if value is not None and not IDENTIFIER.match(value):
+            print(f"Error: Invalid {field} name '{value}' (use letters, digits, underscore)")
+            sys.exit(1)
 
     template = TEMPLATES[operation]
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")

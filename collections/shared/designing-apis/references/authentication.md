@@ -1,8 +1,5 @@
 # API Authentication and Authorization
 
-Security design patterns for OAuth 2.0, API keys, and scope-based authorization.
-
-
 ## Table of Contents
 
 - [OAuth 2.0 Flows](#oauth-20-flows)
@@ -27,7 +24,6 @@ Security design patterns for OAuth 2.0, API keys, and scope-based authorization.
   - [Implementation](#implementation)
 - [Best Practices Checklist](#best-practices-checklist)
   - [OAuth 2.0](#oauth-20)
-  - [API Keys](#api-keys)
   - [Authorization](#authorization)
   - [Security](#security)
 
@@ -38,11 +34,11 @@ Security design patterns for OAuth 2.0, API keys, and scope-based authorization.
 **Use Case:** Web applications with server-side backend
 
 **Flow:**
-1. User clicks "Login" → Redirect to authorization server
+1. User clicks "Login", gets redirected to authorization server
 2. User authenticates and grants permission
 3. Authorization server redirects with authorization code
 4. Backend exchanges code for access token (with client secret)
-5. Backend uses access token to call API
+5. Backend calls API with access token
 
 **Example:**
 
@@ -87,11 +83,6 @@ Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 ### Client Credentials Flow (Service-to-Service)
 
 **Use Case:** Backend services, cron jobs, automated processes
-
-**Flow:**
-1. Service authenticates with client ID and secret
-2. Receives access token
-3. Uses token for API requests
 
 **Example:**
 
@@ -161,11 +152,11 @@ Authorization: Bearer sk_live_abc123xyz456
 GET /api/v1/users?api_key=sk_live_abc123xyz456
 ```
 
-Reason: Query params appear in logs, browser history, referrer headers
+Reason: query params appear in logs, browser history, referrer headers
 
 ### API Key Format
 
-Use prefixed keys for identification:
+Prefix keys for identification:
 ```
 sk_live_abc123xyz456789     (live/production)
 sk_test_xyz789abc123456     (test/sandbox)
@@ -219,12 +210,12 @@ if (valid) {
 
 ### API Key Best Practices
 
-- [ ] Use prefixes for environment identification
+- [ ] Prefix keys to identify environment
 - [ ] Store hashed keys only
 - [ ] Support multiple keys per user
 - [ ] Track last-used timestamp
 - [ ] Allow key rotation without downtime
-- [ ] Implement key expiration
+- [ ] Expire keys
 - [ ] Log key usage for security audit
 
 ## Scope-Based Authorization
@@ -379,33 +370,24 @@ app.use((req, res, next) => {
 ## Best Practices Checklist
 
 ### OAuth 2.0
-- [ ] Use authorization code flow for web apps
-- [ ] Use client credentials for service-to-service
+- [ ] Authorization code flow for web apps
+- [ ] Client credentials for service-to-service
 - [ ] Store client secrets securely
-- [ ] Implement token refresh
-- [ ] Use PKCE for mobile/SPA
+- [ ] Support token refresh
+- [ ] PKCE for mobile/SPA
 - [ ] Validate redirect URIs
 - [ ] Use state parameter to prevent CSRF
 
-### API Keys
-- [ ] Use header-based keys (not query params)
-- [ ] Store hashed keys only
-- [ ] Use prefixes for identification
-- [ ] Support key rotation
-- [ ] Track last-used timestamps
-- [ ] Implement key expiration
-- [ ] Allow multiple keys per user
-
 ### Authorization
-- [ ] Use scope-based permissions
-- [ ] Implement principle of least privilege
+- [ ] Scope-based permissions
+- [ ] Least privilege
 - [ ] Check scopes on every request
 - [ ] Return clear 403 errors
 - [ ] Document required scopes per endpoint
 
 ### Security
-- [ ] Use HTTPS everywhere
-- [ ] Implement CORS correctly
+- [ ] HTTPS everywhere
+- [ ] Configure CORS correctly
 - [ ] Set security headers
 - [ ] Rate limit authentication attempts
 - [ ] Log authentication events

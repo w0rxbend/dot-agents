@@ -110,7 +110,8 @@ new_token = jwt.encode(payload, 'secret', algorithm='HS256')
 
 ```bash
 # JWT 测试
-pip install jwt-tool pyjwt
+# jwt_tool 不在 PyPI（`jwt-tool` 名称未注册，勿 pip 安装）；从官方 GitHub 仓库 ticarpi/jwt_tool 获取固定 tag（如 v2.3.0），审阅后再运行
+pip install pyjwt
 
 # OAuth 测试
 # Burp Suite + OAuth Scanner 扩展

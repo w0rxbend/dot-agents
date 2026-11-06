@@ -7,25 +7,7 @@ allowed-tools: []
 
 # Kotlin Coroutines
 
-## Introduction
-
-Kotlin coroutines provide a powerful framework for asynchronous programming that
-is lightweight, expressive, and built on structured concurrency principles.
-Coroutines enable writing asynchronous code that looks and behaves like
-sequential code, eliminating callback hell and improving readability.
-
-Unlike threads, coroutines are extremely lightweight—millions can run on limited
-resources. The coroutine framework includes suspend functions for non-blocking
-operations, builders for launching work, Flow for reactive streams, and
-comprehensive cancellation and exception handling mechanisms.
-
-This skill covers coroutine fundamentals, builders, contexts, Flow, channels,
-and production patterns for Android development and server-side Kotlin.
-
 ## Suspend Functions
-
-Suspend functions are the building blocks of coroutines, enabling non-blocking
-operations that can be paused and resumed without blocking threads.
 
 ```kotlin
 // Basic suspend function
@@ -124,13 +106,10 @@ suspend fun updateUI(user: User) {
 }
 ```
 
-Suspend functions are marked with the `suspend` modifier and can only be called
-from other suspend functions or coroutines, ensuring proper context.
+Mark with `suspend` modifier. Callable only from other suspend functions or
+coroutines.
 
 ## Coroutine Builders
-
-Coroutine builders launch coroutines with different lifecycle and result
-handling semantics, enabling structured and unstructured concurrency.
 
 ```kotlin
 // launch: fire-and-forget child of a scope you own (viewModelScope,
@@ -213,17 +192,13 @@ class SyncService(
 }
 ```
 
-Never use `GlobalScope`: it has no owner, so its coroutines leak, ignore
-cancellation of the caller, and cannot be awaited in tests. If work must outlive
-a screen or request, inject an application-level `CoroutineScope` instead.
+Never use `GlobalScope`: no owner, so its coroutines leak, ignore caller
+cancellation, cannot be awaited in tests. If work must outlive a screen or
+request, inject application-level `CoroutineScope` instead.
 
-Structured concurrency with `coroutineScope` ensures child coroutines complete
-before the scope exits, preventing leaks and ensuring proper cleanup.
+`coroutineScope` waits for children before exiting: no leaks, proper cleanup.
 
 ## Coroutine Context and Dispatchers
-
-Coroutine context defines the execution environment including dispatcher, job,
-exception handler, and coroutine name for debugging.
 
 ```kotlin
 // Dispatchers for thread pools
@@ -308,13 +283,9 @@ suspend fun customContextExample() {
 }
 ```
 
-Dispatchers determine which thread pool executes the coroutine. Context
-elements are inherited by child coroutines and can be overridden.
+Child coroutines inherit all context elements (not only dispatcher); can override them.
 
 ## Flow for Reactive Streams
-
-Flow represents a cold stream of values that are computed on demand, providing
-reactive programming capabilities with backpressure and transformation operators.
 
 ```kotlin
 // Basic Flow
@@ -455,13 +426,12 @@ fun channelFlowExample() = channelFlow {
 }
 ```
 
-Flow is cold—it doesn't execute until collected. StateFlow holds state,
-SharedFlow broadcasts events, and channelFlow enables concurrent emissions.
+Flow is cold: does not run until collected. StateFlow holds state, SharedFlow
+broadcasts events, channelFlow allows concurrent emissions.
 
 ## Channels for Communication
 
-Channels provide communication primitives for sending and receiving values
-between coroutines, similar to BlockingQueue but suspending.
+Channels pass values between coroutines. Like BlockingQueue, but suspending.
 
 ```kotlin
 // Basic channel usage
@@ -566,13 +536,9 @@ suspend fun selectExample() = coroutineScope {
 }
 ```
 
-Channels enable fan-out (multiple consumers), fan-in (multiple producers), and
-pipeline patterns for concurrent data processing.
+Patterns: fan-out (multiple consumers), fan-in (multiple producers), pipelines.
 
 ## Cancellation and Exception Handling
-
-Coroutines support cooperative cancellation and structured exception handling to
-ensure proper resource cleanup and error propagation.
 
 ```kotlin
 // Basic cancellation
@@ -694,13 +660,13 @@ suspend fun errorHandling() {
 }
 ```
 
-Cancellation is cooperative—coroutines must check `isActive` or call suspending
+Cancellation is cooperative: coroutines must check `isActive` or call suspending
 functions. Exception handling respects structured concurrency boundaries.
 
 ## Testing Coroutines
 
-Use `kotlinx-coroutines-test`. `runTest` runs on virtual time (delays are
-skipped), waits for child coroutines, and rethrows their uncaught failures.
+Use `kotlinx-coroutines-test`. `runTest` runs on virtual time (delays skipped),
+waits for child coroutines, rethrows their uncaught failures.
 
 ```kotlin
 class UserRepository(
@@ -731,102 +697,70 @@ fun retriesAfterDelay() = runTest {
 }
 ```
 
-- Inject dispatchers; never hard-code `Dispatchers.IO` (including in `flowOn`)
-  where a test must control time - work on a real dispatcher runs on real time. For code that uses `Dispatchers.Main`, call
-  `Dispatchers.setMain(StandardTestDispatcher())` in setup and `resetMain()` in
-  teardown.
+- Inject dispatchers. Never hard-code `Dispatchers.IO` (including in `flowOn`)
+  where test must control time: work on real dispatcher runs on real time. For
+  code using `Dispatchers.Main`, call `Dispatchers.setMain(StandardTestDispatcher())`
+  in setup and `resetMain()` in teardown.
 - `TestCoroutineDispatcher`, `TestCoroutineScope` and `runBlockingTest` are
-  deprecated; migrate to `runTest` with `StandardTestDispatcher` /
+  deprecated. Migrate to `runTest` with `StandardTestDispatcher` or
   `UnconfinedTestDispatcher`.
-- If a test hangs, look for a dispatcher that is not tied to `testScheduler` or
-  an infinite collector launched in the test scope instead of `backgroundScope`.
+- If test hangs, look for dispatcher not tied to `testScheduler`, or infinite
+  collector launched in test scope instead of `backgroundScope`.
 
 ## Best Practices
 
-1. **Use structured concurrency with scopes** to ensure coroutines are properly
-   managed and cancelled when no longer needed
+1. **Flow over callbacks** for reactive streams: backpressure, operators,
+   structured lifecycle
 
-2. **Choose appropriate dispatchers** for the work type: IO for blocking
-   operations, Default for CPU work, Main for UI updates
+2. **supervisorScope for independent operations**: one failure does not cancel
+   unrelated coroutines
 
-3. **Handle cancellation cooperatively** by checking isActive in loops and using
-   suspending functions that support cancellation
+3. **withContext for dispatcher switching**, not new coroutines. Keeps
+   structure, cuts overhead.
 
-4. **Prefer Flow over callbacks** for reactive streams to gain backpressure,
-   operators, and structured lifecycle management
+4. **Handle exceptions explicitly** (try-catch or CoroutineExceptionHandler). No
+   silent failures.
 
-5. **Use supervisorScope for independent operations** to prevent one failure
-   from cancelling unrelated coroutines
-
-6. **Do not use GlobalScope**; inject an application-level `CoroutineScope`
-   for work that must outlive a screen or request
-
-7. **Apply withContext for dispatcher switching** instead of launching new
-   coroutines to maintain structure and reduce overhead
-
-8. **Handle exceptions explicitly** with try-catch or CoroutineExceptionHandler
-   to prevent silent failures
-
-9. **Use StateFlow for state** and SharedFlow for events to provide observable
-   streams with proper lifecycle awareness
-
-10. **Test coroutines with `runTest`** and injected `StandardTestDispatcher`s
-    to control virtual time and get deterministic execution
-
-11. **Avoid using volatile for synchronization of coroutines** running on multi-threaded dispatchers.
-    This can cause shared mutable state problems. Prefer Atomic types or synchronization structures like Mutex.withLock.
+5. **Avoid volatile for coroutine synchronization** on multi-threaded
+   dispatchers: causes shared mutable state problems. Prefer Atomic types or
+   synchronization structures like Mutex.withLock.
 
 ## Common Pitfalls
 
-1. **Using GlobalScope for scoped work** causes memory leaks when coroutines
-   outlive their relevant context like activities or view models
+1. **Blocking inside coroutines** (Thread.sleep, blocking I/O): defeats purpose,
+   can exhaust thread pools
 
-2. **Blocking inside coroutines** with Thread.sleep or blocking I/O defeats the
-   purpose and can exhaust thread pools
+2. **Catching CancellationException** without rethrowing: breaks cancellation
+   propagation in structured concurrency
 
-3. **Not handling cancellation** in long-running loops causes coroutines to
-   continue executing after cancellation
+3. **delay(0) to yield** does not work: `delay` returns immediately for
+   non-positive duration without suspending. Call `yield()` instead.
 
-4. **Forgetting suspend modifier** on functions that call other suspend
-   functions causes compilation errors
+4. **Too many coroutines**: degrades performance. Batch or throttle when
+   possible.
 
-5. **Catching CancellationException** and not rethrowing it prevents proper
-   cancellation propagation in structured concurrency
-
-6. **Using delay(0) to yield** does not work: `delay` returns immediately for a
-   non-positive duration without suspending, so call `yield()` for cooperative
-   multitasking
-
-7. **Creating too many coroutines unnecessarily** can degrade performance; batch
-   or throttle operations when possible
-
-8. **Not using withContext for dispatcher switching** and instead launching
-   unnecessary child coroutines adds complexity
-
-9. **Assuming immediate execution** after launch; coroutines may not start until
+5. **Assuming immediate execution** after launch: coroutine may not start until
    dispatcher has capacity
 
-10. **Mixing callbacks and coroutines incorrectly** without proper bridging
-    creates race conditions and leaks
+6. **Mixing callbacks and coroutines** without proper bridging: race conditions
+   and leaks
 
 ## When to Use This Skill
 
-Use Kotlin coroutines when building Android applications for asynchronous
-operations like network calls, database queries, or any I/O-bound work that
-should not block the main thread.
+Android apps: network calls, database queries, any I/O-bound work that should
+not block main thread.
 
-Apply coroutines in server-side Kotlin applications with Ktor, Spring Boot or Quarkus for
-handling concurrent requests efficiently without thread-per-request overhead.
+Server-side Kotlin with Ktor, Spring Boot or Quarkus: concurrent requests without
+thread-per-request overhead.
 
-Employ Flow for reactive streams in MVVM architecture, replacing LiveData or
-RxJava for state management and event propagation with lifecycle awareness.
+Flow for reactive streams in MVVM, replacing LiveData or RxJava for state and
+lifecycle-aware events.
 
-Leverage structured concurrency for coordinating multiple async operations,
-ensuring proper cancellation when navigating away from screens or closing
-connections.
+Structured concurrency to coordinate async operations, cancelling when
+navigating away from screens or closing connections.
 
-Use channels for producer-consumer patterns, pipelines, or any scenario
-requiring explicit communication between concurrent coroutines.
+Channels for producer-consumer patterns, pipelines, explicit communication
+between concurrent coroutines.
 
 ## Resources
 

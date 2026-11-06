@@ -1,208 +1,203 @@
 # Desktop App Plugins — UI Panes, Commands, Widgets
 
-Write plugins for the Hermes desktop app: statusbar items, layout panes,
-command-palette commands, keybinds, routes, and themes. A plugin is a single
-plain-JavaScript ESM file the app loads at runtime — no build step, no repo
-changes. A plugin can also talk to its own Python backend namespace
-(`ctx.rest`/`ctx.socket` → `/api/plugins/<id>`); the general Python plugin
-system (`~/.hermes/plugins/`) is otherwise documented separately.
+Plugins for Hermes desktop app: statusbar items, layout panes,
+command-palette commands, keybinds, routes, themes. Each plugin is one
+plain-JavaScript ESM file loaded at runtime. No build step, no repo
+changes. Plugin can talk to own Python backend namespace
+(`ctx.rest`/`ctx.socket` → `/api/plugins/<id>`). General Python plugin
+system (`~/.hermes/plugins/`) documented separately.
 
-There are TWO on-disk doors, same contract and hot reload:
+TWO on-disk doors, same contract and hot reload:
 
 - `$HERMES_HOME/desktop-plugins/<id>/plugin.js` — standalone desktop plugin.
   Loads enabled by default.
-- `$HERMES_HOME/plugins/<id>/desktop/plugin.js` — the desktop HALF of a
-  unified agent-plugin package: the same folder that carries the Python
-  plugin (`plugin.yaml`) and its `dashboard/plugin_api.py` backend ships its
-  desktop UI beside them, so one feature installs/uninstalls as one folder.
-  The Electron shell copies that half into `desktop-plugins/<id>/` (with a
-  `.hermes-package.json` marker) — the ONLY root the renderer loads from — so
-  the pane is app-level and does not come and go with the selected profile.
-  This half is OPT-IN: it inventories in Capabilities → Plugins but stays off
-  until the user toggles it (matching the Python half's `plugins.enabled`
-  gate). Tell the user to flip it on after installing — don't debug a
-  "plugin not appearing" report before checking that toggle.
+- `$HERMES_HOME/plugins/<id>/desktop/plugin.js` — desktop HALF of unified
+  agent-plugin package. Folder holding Python plugin (`plugin.yaml`) and
+  its `dashboard/plugin_api.py` backend also ships desktop UI, so one
+  feature installs/uninstalls as one folder. Electron shell copies that half
+  into `desktop-plugins/<id>/` (with `.hermes-package.json` marker), the
+  ONLY root renderer loads from. Pane is therefore app-level, not tied to
+  selected profile.
+  This half is OPT-IN: listed in Capabilities → Plugins but off until user
+  toggles it (matches Python half's `plugins.enabled` gate). Tell user to
+  flip it on after install. Check that toggle before debugging any "plugin
+  not appearing" report.
 
 Full human reference (every export, area payloads, backend, security):
 `website/docs/developer-guide/desktop-plugin-sdk.md`.
 
 ## When to Use
 
-- The user asks for a new desktop UI element (a pane, a statusbar widget, a
-  dashboard, a command) without modifying the app itself.
-- You want to surface data you compute (via gateway RPC) inside the app.
+- User asks for new desktop UI element (pane, statusbar widget, dashboard,
+  command) without modifying app itself.
+- Surface data you compute (via gateway RPC) inside app.
 
 ## Prerequisites
 
-- The Hermes desktop app (it loads plugins; the CLI/gateway alone does not).
+- Hermes desktop app (loads plugins; CLI/gateway alone does not).
 - Write access to `$HERMES_HOME/desktop-plugins/` (usually
   `~/.hermes/desktop-plugins/`).
 
 ## How to Run
 
 1. Create `$HERMES_HOME/desktop-plugins/<name>/plugin.js` from
-   `templates/plugin.js` (in this skill directory) — that's
-   `~/.hermes/...` by default, or `~/.hermes/profiles/<profile>/...` under a
-   named profile. Keep `<name>` equal to the plugin `id`.
-2. The desktop app watches that directory: the plugin loads within a few
-   seconds of the file landing, and every later save hot-reloads it in
-   place. No reload step. (Fallback if it doesn't appear: ⌘K →
-   **Reload desktop plugins**.)
-3. If loading fails the app shows a toast naming the error — fix the file
-   and save again.
+   `templates/plugin.js` (in this skill directory). Default
+   `~/.hermes/...`; under named profile `~/.hermes/profiles/<profile>/...`.
+2. App watches that directory: plugin loads within a few seconds of file
+   landing; every later save hot-reloads in place. No reload step.
+   (Fallback if missing: ⌘K → **Reload desktop plugins**.)
+3. Load failure shows toast naming error. Fix file, save again.
 
 ## Quick Reference
 
-The ONLY import surface is `@hermes/plugin-sdk` (plus `react` /
-`react/jsx-runtime`, which resolve to the app's own React — write UI with
-`jsx()` calls, not JSX syntax; the file is not compiled).
+ONLY import surface: `@hermes/plugin-sdk` (plus `react` /
+`react/jsx-runtime`, resolving to app's own React).
 
 - `host.state.*` — readonly reactive atoms: `activeSessionId`, `busy`,
   `awaitingResponse`, `busyBySession`, `cwd`, `gateway` (socket state, not
-  turn-busy), `model`, `profile`, `viewport`, plus the tile-aware focused
-  session atoms: `focusedSessionId` (runtime id — key for `session.*` RPC),
-  `focusedStoredSessionId` (durable id — navigation / list matching),
-  `focusedSessionProfile` (owner profile of the focused chat — prefer over
-  `profile` for per-bot/profile readouts; `profile` is the gateway socket's
-  home, which does not move with tab focus), and
-  `focusedUsage` (live streamed `UsageStats` of the focused session, no RPC
-  needed). `busy` is true while the focused chat is working after a send
-  (thinking and streaming). `awaitingResponse` is true until the first
-  assistant payload. `busyBySession` maps runtime session id → mid-turn,
-  for rosters that watch every session. Prefer the focused atoms for any
-  readout that should follow the user between tiles. Read with `.get()`
-  in handlers,
+  turn-busy), `model`, `profile`, `viewport`, plus tile-aware focused
+  session atoms: `focusedSessionId` (runtime id; key for `session.*` RPC),
+  `focusedStoredSessionId` (durable id; navigation / list matching),
+  `focusedSessionProfile` (owner profile of focused chat; prefer over
+  `profile` for per-bot/profile readouts, since `profile` is gateway
+  socket's home and does not move with tab focus), and
+  `focusedUsage` (live streamed `UsageStats` of focused session, no RPC
+  needed). `busy`: true while focused chat works after a send (thinking
+  and streaming). `awaitingResponse`: true until first assistant payload.
+  `busyBySession`: runtime session id → mid-turn, for rosters watching
+  every session. Readouts that should follow user between tiles: use
+  focused atoms. Read with `.get()` in handlers,
   `useValue(atom)` in components.
 - `host.request(method, params)` — gateway JSON-RPC (sessions, config,
-  skills, cron — everything the app uses).
-- `host.onEvent(type, fn)` — live gateway events (`'*'` for all). Returns a
+  skills, cron: everything app uses).
+- `host.onEvent(type, fn)` — live gateway events (`'*'` for all). Returns
   disposer.
 - `host.notify({ kind, message })`, `host.navigate(path)`, `host.logs(...)`,
   `host.status()`, `haptic('tap')`.
 - `ctx.register({ id, area, order?, render?, data? })` — contribute UI.
   Key areas: `'statusBar.right'`/`'statusBar.left'` (chips),
-  `'panes'` (layout zones — set `title` and
-  `data: { placement, dock?, width?, height? }`; the pane auto-joins a
-  matching zone), `PALETTE_AREA` (⌘K commands), `KEYBINDS_AREA` (rebindable
-  actions), `THEMES_AREA` (`data` is a full `DesktopTheme`).
-- THEMES: registering one only lists it in the picker. Select it with
-  `useTheme().setTheme(name)` from a component, or `requestTheme(name)` from a
-  callback with no component around it (a gateway event, a socket handler).
-  `requestTheme` returns `false` for a name that doesn't resolve and leaves the
-  appearance alone, so use it as the availability check instead of coercing the
-  user back to the default skin.
-- Pane placement: `placement: 'left'|'right'|'bottom'|'main'` is the
-  semantic role — the pane stacks (tabs) with existing panes of that role.
-  To land on a specific EDGE instead, add `dock: { pane, pos }` — the same
-  gesture as dragging onto a pane's drop chip. `pane` is any pane id
-  (`workspace` is the main thread; also `sessions`, `terminal`, `files`,
-  `review`, `logs`), `pos` is `'top'|'bottom'|'left'|'right'|'center'`.
-  E.g. "below the conversation" = `dock: { pane: 'workspace', pos: 'bottom' }`
-  — declare a `height` (e.g. `'200px'`) so it doesn't take half the zone.
+  `'panes'` (layout zones; set `title` and
+  `data: { placement, dock?, width?, height? }`, pane auto-joins matching
+  zone), `PALETTE_AREA` (⌘K commands), `KEYBINDS_AREA` (rebindable
+  actions), `THEMES_AREA` (`data` is full `DesktopTheme`).
+- THEMES: registering one only lists it in picker. Select with
+  `useTheme().setTheme(name)` from component, or `requestTheme(name)` from
+  callback with no component (gateway event, socket handler).
+  `requestTheme` returns `false` for unresolved name and leaves appearance
+  alone; use it as availability check instead of forcing user back to
+  default skin.
+- Pane placement: `placement: 'left'|'right'|'bottom'|'main'` is semantic
+  role; pane stacks (tabs) with existing panes of that role. For specific
+  EDGE, add `dock: { pane, pos }` (same as dragging onto pane's drop chip).
+  `pane`: any pane id (`workspace` is main thread; also `sessions`,
+  `terminal`, `files`, `review`, `logs`). `pos`:
+  `'top'|'bottom'|'left'|'right'|'center'`.
+  E.g. "below the conversation" = `dock: { pane: 'workspace', pos: 'bottom' }`.
+  Declare `height` (e.g. `'200px'`) so it doesn't take half the zone.
 - Full PAGES: register `area: ROUTES_AREA` with `data: { path: '/my-page' }`
-  and a `render` — the page mounts in the workspace (main) pane like any
-  built-in view. Make it reachable with a sidebar nav row:
+  and `render`. Page mounts in workspace (main) pane like built-in views.
+  Reach it via sidebar nav row:
   `ctx.register({ id: 'nav', area: SIDEBAR_NAV_AREA, data: { path: '/my-page', label: 'My Page', codicon: 'project' } })`
-  (renders below Artifacts, lights up at the route) — and/or a
+  (renders below Artifacts, lights up at route), and/or
   `PALETTE_AREA` command calling `host.navigate('/my-page')`.
 - TRANSCRIPT directives: register `area: TRANSCRIPT_DIRECTIVE_AREA` with
-  `data: { name: 'task', render: ({ attrs, streaming }) => jsx(...) }` and
-  the assistant can render your component inline in a chat message by
-  emitting `::task{id="BB-12"}` alone on its own line. Attrs are untrusted
-  `key="value"` strings — validate them. Unclaimed/malformed directives fall
-  back to plain text; core's own `::preview{file="…"}` is the reference.
-  After registering one, TELL the model it exists (a bundled skill or the
-  user's instructions) — it won't discover the name on its own.
+  `data: { name: 'task', render: ({ attrs, streaming }) => jsx(...) }`.
+  Assistant then renders your component inline in chat message when it
+  emits `::task{id="BB-12"}` alone on its own line. Attrs are untrusted
+  `key="value"` strings; validate. Unclaimed/malformed directives fall back
+  to plain text. Reference: core's own `::preview{file="…"}`.
+  After registering, TELL model it exists (bundled skill or user's
+  instructions); it won't discover the name itself.
 - `ctx.storage.get/set/remove` — persistence namespaced to your plugin.
-- `ctx.os` — the curated OS door, attributed to your plugin:
+- `ctx.os` — curated OS door, attributed to your plugin:
   `ctx.os.notify({ title, body?, silent?, icon?, activate?, onActivate?, actions? })`
-  posts a native OS notification. Fires only while the user is away from Hermes
-  (use `host.notify` for the in-app toast); gated by Settings ▸ Notifications ▸
-  "Plugin notifications" and throttled per plugin — reserve it for genuinely
-  notable events. `activate` accepts a plugin deep link
-  (`hermes://index-network/intent/1`), a hash path (`/index-network/intent/1`),
-  or `{ path, params }` — same resolver as OS deep links. Action buttons may
-  set their own `activate` or an `onAction`
-  callback (renderer-only; only the action id crosses IPC).
+  posts native OS notification. Fires only while user is away from Hermes
+  (in-app toast: `host.notify`). Gated by Settings ▸ Notifications ▸
+  "Plugin notifications", throttled per plugin; reserve for genuinely
+  notable events. `activate` accepts plugin deep link
+  (`hermes://index-network/intent/1`), hash path (`/index-network/intent/1`),
+  or `{ path, params }` (same resolver as OS deep links). Action buttons may
+  set own `activate` or `onAction`
+  callback (renderer-only; only action id crosses IPC).
   `ctx.os.openExternal(url)`, `ctx.os.revealPath(path)`, and
-  `ctx.os.writeClipboard(text)` resolve `false` (never throw) when the
-  capability isn't available.
-- `ctx.i18n.register({ en, ja, ... })` — ship your OWN locale bundles, scoped
-  to your plugin (never edit core `en.ts`). Values are literal strings or
-  interpolator functions; nested trees are addressed by dot-path. Read them
-  reactively in components with `usePluginI18n(id)` returning `t('key', ...args)`
-  (re-renders on a locale switch), or via `ctx.i18n.t` in handlers/stores.
-  Resolution follows the app's active locale, then your `en`, then the raw key.
-- Data: `useQuery`/`useMutation`/`useQueryClient`/`queryClient` (the app's ONE
-  React Query client — cache, dedupe, `refetchInterval`, invalidate like core;
-  never hand-roll a poll loop), plus `atom`/`computed` for plugin-local state.
-- Backend: if the plugin ships a Python `plugin_api.py` (under
-  `~/.hermes/plugins/<id>/dashboard/`, manifest `"api": "plugin_api.py"`), reach
-  it with `ctx.rest('/path', { method?, body?, timeoutMs? })` and its live twin
-  `ctx.socket('/events', onMessage)` — both scoped to `/api/plugins/<id>` by
-  construction (traversal rejected). `ctx.socket` is a **no-op on OAuth
-  remotes**, so always keep a polling fallback. The Python backend is imported
-  only when the plugin is in `plugins.enabled` in `config.yaml` (separate from
-  the in-app enable toggle). For gateway-wide data use `host.request` /
+  `ctx.os.writeClipboard(text)` resolve `false` (never throw) when
+  capability unavailable.
+- `ctx.i18n.register({ en, ja, ... })` — ship OWN locale bundles, scoped
+  to your plugin (never edit core `en.ts`). Values: literal strings or
+  interpolator functions; nested trees addressed by dot-path. Read
+  reactively in components via `usePluginI18n(id)` returning `t('key', ...args)`
+  (re-renders on locale switch), or `ctx.i18n.t` in handlers/stores.
+  Resolution: app's active locale, then your `en`, then raw key.
+- Data: `useQuery`/`useMutation`/`useQueryClient`/`queryClient` (app's ONE
+  React Query client: cache, dedupe, `refetchInterval`, invalidate like core;
+  never hand-roll poll loop), plus `atom`/`computed` for plugin-local state.
+- Backend: if plugin ships Python `plugin_api.py` (under
+  `~/.hermes/plugins/<id>/dashboard/`, manifest `"api": "plugin_api.py"`), call
+  it with `ctx.rest('/path', { method?, body?, timeoutMs? })` and live twin
+  `ctx.socket('/events', onMessage)`. Both scoped to `/api/plugins/<id>` by
+  construction (traversal rejected). `ctx.socket` is **no-op on OAuth
+  remotes**; always keep polling fallback. Python backend imported
+  only when plugin is in `plugins.enabled` in `config.yaml` (separate from
+  in-app enable toggle). Gateway-wide data: use `host.request` /
   `host.onEvent` instead.
 - `Contribute` (mount-scoped): render `jsx(Contribute, { area, id, children })`
-  inside a component so page-owned chrome (e.g. a titlebar control in
-  `TITLEBAR_AREAS.center`) leaves when the page unmounts — `ctx.register` is for
+  inside component so page-owned chrome (e.g. titlebar control in
+  `TITLEBAR_AREAS.center`) leaves on page unmount. `ctx.register` is for
   permanent contributions.
-- `defaultEnabled: false` on the default export ships an opt-in plugin: it
-  inventories in Settings → Plugins, off until the user flips it on.
+- `defaultEnabled: false` on default export ships opt-in plugin: listed in
+  Settings → Plugins, off until user flips it on.
 - Users manage plugins in Settings → Plugins (enable/disable live, reveal
-  folder). A disabled plugin stays disabled across restarts — don't fight
-  it; the user turned you off.
-- UI: the app's design language, importable directly — `Button`, `Input`,
+  folder). Disabled plugin stays disabled across restarts. Don't fight it;
+  user turned you off.
+- UI: app's design language, importable directly: `Button`, `Input`,
   `Textarea`, `Select*`, `Switch`, `Checkbox`, `SegmentedControl`, `Tabs*`,
   `Dialog*`, `ConfirmDialog`, `DropdownMenu*`, `ContextMenu*`, `Popover*`,
   `Tip`/`Tooltip*`, `Badge`, `Kbd`/`KbdGroup`, `SearchField`, `ScrollArea`,
   `Separator`, `Skeleton`, `GlyphSpinner`, `EmptyState`, `ErrorState`,
   `CopyButton`, `StatusDot`, `LogView`, `Codicon`, `DecodeText`, plus `cn`
-  and `icons.*`. Prefer these over hand-rolled elements so the plugin looks
-  native; style with theme vars, never hardcoded colors.
+  and `icons.*`. Prefer these over hand-rolled elements so plugin looks
+  native.
 
 ## Procedure
 
-1. Pick a short kebab-case `id`; the folder name must match.
-2. Start from `templates/plugin.js`; keep the default export shape
+1. Pick short kebab-case `id`; folder name must match.
+2. Keep `templates/plugin.js` default export shape
    (`{ id, name, register(ctx) }`).
-3. For a pane, register `area: 'panes'` with a `placement` hint and a
-   `render` returning your component — the app places it into a sensible
-   zone automatically; the user can drag it anywhere afterwards.
+3. For pane, register `area: 'panes'` with `placement` hint and `render`
+   returning your component. App places it in sensible zone automatically;
+   user can drag it anywhere afterwards.
 4. Fetch data with `host.request` and/or subscribe with `host.onEvent`;
    never poll faster than a few seconds.
-5. Write the file with your file tools, then ask the user to run
+5. Write file with your file tools, then ask user to run
    **Reload desktop plugins** from ⌘K.
 
 ## Pitfalls
 
 - NEVER hardcode colors or backgrounds (`#000`, `black`, `rgb(...)`). Panes
-  already sit on the app's editor background — leave the background alone
-  and use theme variables for everything else: `var(--ui-text-secondary)`,
+  already sit on app's editor background: leave it alone. Use theme
+  variables for everything else: `var(--ui-text-secondary)`,
   `var(--ui-text-quaternary)`, `var(--ui-stroke-secondary)`,
-  `var(--ui-accent)`. For canvas drawing, resolve them once with
+  `var(--ui-accent)`. For canvas drawing, resolve once with
   `getComputedStyle(canvas).getPropertyValue('--ui-accent')`.
-- Reference only what you imported — a component you forgot to import
-  (e.g. `StatusDot`) is a ReferenceError at render. Double-check every
-  identifier in your `jsx()` calls appears in the import line.
-- Canvas panes MUST track their container with a `ResizeObserver` and
-  re-size the canvas (width/height attributes, not just CSS) — panes resize
-  constantly (sash drags, layout switches); a mount-time-only size leaves
-  blank space or blurry scaling.
-- JSX syntax will not parse — the file loads uncompiled. Use
+- Reference only what you imported. Missing import (e.g. `StatusDot`) is
+  ReferenceError at render. Check every identifier in `jsx()` calls
+  appears in import line.
+- Canvas panes MUST track container with `ResizeObserver` and re-size
+  canvas (width/height attributes, not just CSS). Panes resize constantly
+  (sash drags, layout switches); mount-time-only size leaves blank space or
+  blurry scaling.
+- JSX syntax will not parse; file loads uncompiled. Use
   `jsx('div', { children: ... })` from `react/jsx-runtime`.
 - Do not import anything except `@hermes/plugin-sdk`, `react`, and
   `react/jsx-runtime`; other specifiers fail to resolve.
 - Handlers must read state imperatively (`$atom.get()`), never from render
-  closures — rapid events will otherwise see stale values.
-- Keep components small; subscribe (`useValue`) only in the leaf that
-  renders the value.
+  closures. Otherwise rapid events see stale values.
+- Keep components small; subscribe (`useValue`) only in leaf rendering
+  the value.
 
 ## Verification
 
-- The plugin's UI appears after **Reload desktop plugins**.
-- No error toast ("Plugin <name> failed to load") appears; if it does, the
-  message names the failure — fix and reload.
-- For panes: the new zone is visible and draggable like any core pane.
+- Plugin UI appears after **Reload desktop plugins**.
+- No error toast ("Plugin <name> failed to load"). If one appears, message
+  names failure; fix and reload.
+- Panes: new zone visible and draggable like any core pane.

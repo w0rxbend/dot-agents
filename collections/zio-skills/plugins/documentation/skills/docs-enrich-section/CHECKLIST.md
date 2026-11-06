@@ -1,39 +1,35 @@
 # Enrich Section — Review Checklist
 
-Use after expanding a thin section to confirm the enrichment actually made it more useful, not merely longer.
-
 ## Diagnosis Was Correct
 
-- [ ] The section was genuinely thin per `SKILL.md` Signals (signature + toy example, no motivation)
-- [ ] The section's purpose was not "API reference" only — readers need *why*, not just *what*
-- [ ] The enrichment was needed; not just rewriting prose for taste
+- [ ] Section genuinely thin per `SKILL.md` Signals (signature + toy example, no motivation)
+- [ ] Purpose not "API reference" only: readers need *why*, not only *what*
+- [ ] Enrichment needed, not a rewrite for taste
 
 ## Five-Part Expansion Pattern Applied
 
-- [ ] **Motivation** paragraph: states the problem this API solves
-- [ ] **Naive approach** (when applicable): shows what readers might try without this API and why it falls short
-- [ ] **Realistic example**: a use-case-grounded example, not a toy
-- [ ] **Common Mistakes / Pitfalls**: addresses at least one non-obvious behaviour readers will hit
-- [ ] **Cross-references**: links to related sections / types where the API composes
-
-If a part is intentionally omitted (e.g., no naive approach because the API has no precursor), say so in the section so a future reader doesn't think it's missing by accident.
+- [ ] **Motivation** paragraph: states problem API solves
+- [ ] **Naive approach** (when applicable): what readers might try without this API, why it falls short
+- [ ] **Realistic example**: use-case-grounded, not toy
+- [ ] **Common Mistakes / Pitfalls**: covers at least one non-obvious behaviour readers will hit
+- [ ] **Cross-references**: links to related sections / types API composes with
 
 ## Content Quality
 
 - [ ] No filler ("It's worth noting that…", "Importantly…", "As we can see…")
-- [ ] Every code block is preceded by a prose sentence ending in `:`
-- [ ] Examples are concrete (real types, real values), not `Foo`/`Bar`/`x`/`y`
-- [ ] The section now answers: "When would I reach for this?"
+- [ ] Every code block preceded by prose sentence ending in `:`
+- [ ] Examples concrete (real types, real values), not `Foo`/`Bar`/`x`/`y`
+- [ ] Section now answers: "When would I reach for this?"
 
 ## Technical Accuracy
 
-- [ ] Every signature matches the source code
+- [ ] Every signature matches source code
 - [ ] Every example uses correct mdoc modifiers and would compile
-- [ ] All imports are complete in every code block
+- [ ] Imports complete in every code block
 
 ## Compliance Checks (Mandatory Gates)
 
-Paths: `<docs-mdoc-conventions-skill-dir>` is the directory of the `docs-mdoc-conventions` skill from the same zio-skills set (installed next to this one, e.g. as `zio-skills--docs-mdoc-conventions`); `<docs-writing-style-skill-dir>` is the directory of the `docs-writing-style` skill from the same zio-skills set (installed next to this one, e.g. as `zio-skills--docs-writing-style`).
+Paths: `<docs-mdoc-conventions-skill-dir>` is the `docs-mdoc-conventions` skill directory; `<docs-writing-style-skill-dir>` is the `docs-writing-style` skill directory. Both come from same zio-skills set, installed next to this one (e.g. as `zio-skills--docs-mdoc-conventions`, `zio-skills--docs-writing-style`).
 
 - [ ] `bash <docs-writing-style-skill-dir>/check-docs-style.sh <doc-file>` → exit 0
 - [ ] `bash <docs-mdoc-conventions-skill-dir>/check-mdoc-conventions.sh <doc-file>` → exit 0
@@ -41,11 +37,11 @@ Paths: `<docs-mdoc-conventions-skill-dir>` is the directory of the `docs-mdoc-co
 
 ## Avoid Bloat
 
-- [ ] The section is longer than before, but not gratuitously so — if it doubled in length, every paragraph earns its place
-- [ ] No content was added that belongs in a different section type (don't put Construction examples in an Advanced Usage subsection)
-- [ ] No information was duplicated from another section in the same document
+- [ ] Longer than before, not gratuitously: if doubled, every paragraph earns its place
+- [ ] No content belonging to different section type (don't put Construction examples in an Advanced Usage subsection)
+- [ ] No information duplicated from another section of same document
 
 ## Commit
 
-- [ ] One commit per enriched section (don't bundle multiple unrelated enrichments)
-- [ ] Commit message names the section and the doc file (e.g., "docs(chunk): enrich Construction with motivation and pitfalls")
+- [ ] One commit per enriched section (don't bundle unrelated enrichments)
+- [ ] Commit message names section and doc file (e.g., "docs(chunk): enrich Construction with motivation and pitfalls")

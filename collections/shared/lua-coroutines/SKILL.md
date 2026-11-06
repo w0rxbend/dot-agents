@@ -7,25 +7,9 @@ allowed-tools: []
 
 # Lua Coroutines
 
-## Introduction
-
-Coroutines in Lua provide cooperative multitasking, enabling functions to
-suspend and resume execution. Unlike threads, coroutines don't run in parallel
-but yield control explicitly, making them simpler to reason about while enabling
-powerful asynchronous patterns without callback complexity.
-
-Coroutines are first-class values in Lua, created from functions and managed
-through the coroutine library. They maintain their own stack, local variables,
-and instruction pointer, allowing suspension at any point and resumption later.
-This enables elegant implementations of generators, iterators, and state machines.
-
-This skill covers coroutine basics, yielding and resuming with values, generators
-and iterators, producer-consumer patterns, asynchronous I/O simulation, state
-machines, error handling, and practical coroutine patterns.
-
 ## Version differences
 
-Identify the runtime first (`print(_VERSION, jit and jit.version)`); Neovim,
+Identify runtime first (`print(_VERSION, jit and jit.version)`). Neovim,
 OpenResty and LÖVE run LuaJIT.
 
 | Behavior | Lua 5.1 | LuaJIT 2.x | Lua 5.2 / 5.3 / 5.4 |
@@ -34,9 +18,9 @@ OpenResty and LÖVE run LuaJIT.
 | `coroutine.isyieldable()` | absent | 2.1: available (2.0: absent) | 5.3+ |
 | Yield across `pcall`/`xpcall` | error ("attempt to yield across metamethod/C-call boundary") | allowed | allowed |
 | Yield from metamethods and `for` iterators | not allowed | allowed | allowed |
-| Yield from callbacks invoked by C library functions (e.g. `table.sort` comparator, `string.gsub` replacement function) | not allowed | not allowed | not allowed (those functions have no continuation) |
-| Yield through C functions | not possible | not possible | possible when the C function uses `lua_callk` / `lua_pcallk` / `lua_yieldk` continuations |
-| `coroutine.close(co)` | absent | absent | 5.4: closes a suspended/dead coroutine and runs pending `<close>` variables |
+| Yield from callbacks called by C library functions (e.g. `table.sort` comparator, `string.gsub` replacement function) | not allowed | not allowed | not allowed (those functions have no continuation) |
+| Yield through C functions | not possible | not possible | possible when C function uses `lua_callk` / `lua_pcallk` / `lua_yieldk` continuations |
+| `coroutine.close(co)` | absent | absent | 5.4: closes suspended/dead coroutine, runs pending `<close>` variables |
 | `table.unpack` | use global `unpack` | use global `unpack` | `table.unpack` |
 
 Portable "am I in a coroutine?" check:
@@ -50,9 +34,6 @@ end
 ```
 
 ## Coroutine Fundamentals
-
-Coroutines enable functions to pause and resume execution, providing cooperative
-multitasking without thread complexity.
 
 ```lua
 -- Creating a coroutine
@@ -176,13 +157,7 @@ if not success then
 end
 ```
 
-Coroutines enable cooperative multitasking where functions explicitly yield
-control rather than being preempted.
-
 ## Generators and Iterators
-
-Coroutines elegantly implement generators and custom iterators for lazy
-evaluation and infinite sequences.
 
 ```lua
 -- Simple generator
@@ -361,13 +336,7 @@ local function lines(filename)
 end
 ```
 
-Generators enable lazy evaluation and infinite sequences with clean, readable
-syntax.
-
 ## Producer-Consumer Pattern
-
-Coroutines elegantly implement producer-consumer patterns without explicit
-queues or callbacks.
 
 ```lua
 -- Basic producer-consumer
@@ -528,13 +497,7 @@ end)
 Scheduler.run(sched)
 ```
 
-Producer-consumer patterns with coroutines eliminate callback complexity and
-provide clear data flow.
-
 ## Asynchronous Patterns
-
-Coroutines enable asynchronous I/O patterns without callbacks, providing
-sequential-looking code for async operations.
 
 ```lua
 -- Async timer simulation
@@ -738,13 +701,7 @@ until coroutine.status(task) == "dead"
 -- Got user: User 1
 ```
 
-Async patterns with coroutines provide sequential code style for asynchronous
-operations without callback nesting.
-
 ## State Machines
-
-Coroutines naturally implement state machines with clean state transitions and
-local state preservation.
 
 ```lua
 -- Connection state machine
@@ -927,93 +884,57 @@ local dialog = dialog_tree({
 })
 ```
 
-State machines with coroutines maintain state naturally without complex state
-tracking structures.
-
 ## Best Practices
 
-1. **Use coroutine.wrap for iterators** as it provides simpler interface without
+1. **Use coroutine.wrap for iterators and generators**: simpler interface, no
    status checking
 
-2. **Check coroutine.resume return values** to handle errors and detect
+2. **Check coroutine.resume return values** to catch errors and detect
    completion
 
-3. **Do not yield through C functions** unless they use continuations
-   (`lua_callk`/`lua_pcallk`/`lua_yieldk`, Lua 5.2+); in 5.1 even `pcall`
-   blocks a yield
+3. **Pass data through yield and resume**, not global or upvalue variables
 
-4. **Pass data through yield and resume** rather than using global or upvalue
-   variables
+4. **Use coroutine.status** to check coroutine is not dead before resuming
 
-5. **Use coroutine.status** to check if coroutine is dead before resuming
+5. **Implement proper cleanup** in coroutines, with pcall for error handling
 
-6. **Create generators with coroutine.wrap** for clean iteration syntax
+6. **Avoid nested coroutine.resume** calls. They complicate control flow
 
-7. **Implement proper cleanup** in coroutines using pcall for error handling
-
-8. **Avoid nested coroutine.resume** calls as they complicate control flow
-
-9. **Use `coroutine.isyieldable()` (5.3+) or the `in_coroutine()` shim** to
+7. **Use `coroutine.isyieldable()` (5.3+) or the `in_coroutine()` shim** to
    check execution context before yielding
 
-10. **Document yield points** clearly to help readers understand suspension
-    points
+8. **Document yield points** so readers see where code suspends
 
 ## Common Pitfalls
 
-1. **Yielding from main thread** causes errors as main is not a coroutine
+1. **Yielding from main thread** errors. Main is not a coroutine
 
-2. **Not checking resume success** misses errors thrown inside coroutines
-
-3. **Keeping references to abandoned suspended coroutines** keeps their whole
-   stack alive; drop the reference (and on 5.4 call `coroutine.close` so
+2. **Keeping references to abandoned suspended coroutines** keeps their whole
+   stack alive. Drop the reference (on 5.4 also call `coroutine.close` so
    `<close>` resources run)
 
-4. **Yielding across a C call boundary** fails in Lua 5.1 everywhere (including
-   inside `pcall`) and in 5.2+ whenever the C function was not written with
+3. **Yielding across a C call boundary** fails in Lua 5.1 everywhere (including
+   inside `pcall`), and in 5.2+ whenever the C function lacks
    `lua_callk`/`lua_pcallk`/`lua_yieldk` continuations
 
-5. **Assuming coroutines are threads** leads to race condition concerns that
+4. **Assuming coroutines are threads** creates race-condition worries that
    don't exist
 
-6. **Not handling coroutine completion** causes errors when resuming dead
-   coroutines
+5. **Overusing coroutines for simple iteration** adds complexity without benefit
 
-7. **Overusing coroutines for simple iteration** adds complexity without benefits
+6. **Mixing coroutine.create and wrap** interfaces causes confusion
 
-8. **Mixing coroutine.create and wrap** interfaces causes confusion
-
-9. **Forgetting to resume coroutines** in schedulers leaves tasks suspended
+7. **Forgetting to resume coroutines** in schedulers leaves tasks suspended
    forever
 
-10. **Passing wrong number of arguments** to resume causes unexpected behavior
-
-## When to Use This Skill
-
-Apply coroutines for cooperative multitasking where explicit control flow is
-beneficial.
-
-Use generators and iterators when implementing lazy evaluation or infinite
-sequences.
-
-Leverage coroutines for async I/O patterns to avoid callback complexity and
-maintain sequential code style.
-
-Implement state machines with coroutines for game AI, parsers, or protocol
-handlers.
-
-Use producer-consumer patterns when processing data through transformation
-pipelines.
-
-Apply coroutine-based schedulers for managing multiple concurrent operations
-cooperatively.
+8. **Passing wrong number of arguments** to resume causes unexpected behavior
 
 ## Done when
 
-- The target runtime is named and the code avoids features it lacks
-  (`coroutine.close`, `isyieldable`, `table.unpack` on 5.1/LuaJIT).
-- Every `coroutine.resume` result is checked, and errors are re-raised or
-  logged with `debug.traceback(co, err)`.
+- Target runtime named. Code avoids features it lacks (`coroutine.close`,
+  `isyieldable`, `table.unpack` on 5.1/LuaJIT).
+- Every `coroutine.resume` result checked. Errors re-raised or logged with
+  `debug.traceback(co, err)`.
 - No yield passes through a C function without continuations (sort
   comparators, `gsub` callbacks, 5.1 `pcall`).
 

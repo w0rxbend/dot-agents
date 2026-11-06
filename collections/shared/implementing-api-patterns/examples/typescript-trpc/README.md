@@ -42,6 +42,7 @@ typescript-trpc/
 npm install
 
 # Setup database
+export CHECKPOINT_DISABLE=1 PRISMA_DISABLE_TELEMETRY=1 NEXT_TELEMETRY_DISABLED=1  # Prisma + Next.js CLI telemetry off
 npx prisma migrate dev
 
 # Run dev server

@@ -32,11 +32,11 @@ if err := viper.Unmarshal(&cfg); err != nil {
 
 ## mapstructure tags
 
-Always use `mapstructure` tags. Without them, mapstructure falls back to case-insensitive field name matching, which works for simple cases but silently fails for:
+Always use `mapstructure` tags. Without them, mapstructure falls back to case-insensitive field-name matching: fine for simple cases, silently fails for:
 
-- Nested structs where the outer key uses an underscore (`max_conn` → `MaxConn`)
+- Nested structs where outer key uses underscore (`max_conn` → `MaxConn`)
 - Unexported fields
-- Fields where the Go name does not match the config key
+- Fields whose Go name does not match config key
 
 ```go
 // ✓ Good — explicit and immune to rename surprises
@@ -68,13 +68,13 @@ if err := viper.UnmarshalKey("database", &dbCfg); err != nil {
 }
 ```
 
-Prefer `UnmarshalKey` over `viper.Sub` + `Unmarshal` — fewer nil checks and less boilerplate.
+Prefer `UnmarshalKey` over `viper.Sub` + `Unmarshal`: fewer nil checks, less boilerplate.
 
 ## time.Duration
 
-Viper's `GetDuration` parses duration strings (`"1h30m"`, `"500ms"`) from config files and env vars. When using `Unmarshal`, mapstructure does not know how to decode a duration string into `time.Duration` by default.
+Viper's `GetDuration` parses duration strings (`"1h30m"`, `"500ms"`) from config files and env vars. `Unmarshal` differs: by default mapstructure cannot decode duration string into `time.Duration`.
 
-Register a decode hook:
+Register decode hook:
 
 ```go
 import "github.com/mitchellh/mapstructure"
@@ -124,7 +124,7 @@ type ServerConfig struct {
 }
 ```
 
-Without `,squash`, the base config must be nested under a `baseconfig` key in the config file.
+Without `,squash`, base config must sit under `baseconfig` key in config file.
 
 ## Remain for unknown keys
 
@@ -135,11 +135,11 @@ type Config struct {
 }
 ```
 
-Extra keys from the config file are collected in `Remain` instead of being silently dropped. Useful for forward compatibility.
+Extra config-file keys land in `Remain` instead of being silently dropped. Useful for forward compatibility.
 
 ## Weak decoding
 
-Enable weak type decoding (e.g., string `"true"` → bool `true`) when working with env vars that are always strings:
+Enable weak type decoding (e.g., string `"true"` → bool `true`) for env vars, which are always strings:
 
 ```go
 var cfg Config
@@ -148,4 +148,4 @@ err := viper.Unmarshal(&cfg, func(dc *mapstructure.DecoderConfig) {
 })
 ```
 
-Use with caution — weak decoding can hide bugs where a wrong value type is silently converted.
+Use with caution: weak decoding can hide bugs by silently converting wrong value types.

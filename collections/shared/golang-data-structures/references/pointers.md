@@ -17,7 +17,7 @@
 
 ### Stack vs Heap (Escape Analysis)
 
-Go's compiler decides whether to allocate on the stack or heap. A variable "escapes" to the heap when its lifetime extends beyond the function:
+Go's compiler picks stack or heap. Variable "escapes" to heap when its lifetime outlives function:
 
 ```go
 func noEscape() int {
@@ -31,11 +31,11 @@ func escapes() *int {
 }
 ```
 
-Use `go build -gcflags="-m"` to see escape analysis decisions. Heap allocations add GC pressure — avoid unnecessary escapes in hot paths.
+Use `go build -gcflags="-m"` to see escape analysis decisions. Heap allocations add GC pressure. Avoid unnecessary escapes in hot paths.
 
 ### `new(T)` vs `&T{}`
 
-Both allocate and return a pointer. `&T{}` is preferred because it allows field initialization:
+Both allocate and return pointer. `&T{}` preferred since it allows field initialization:
 
 ```go
 p := new(Point)       // *Point with zero values
@@ -44,11 +44,11 @@ p := &Point{X: 1}     // *Point with initialized fields — preferred
 
 ## `unsafe.Pointer`
 
-`unsafe.Pointer` bypasses Go's type system for FFI and low-level memory manipulation. Only the 6 patterns from the Go spec are safe; any other pattern is undefined behavior.
+`unsafe.Pointer` bypasses Go's type system for FFI and low-level memory manipulation.
 
 ### The 6 Valid Patterns (from the Go spec)
 
-These are the ONLY safe ways to use `unsafe.Pointer`. Any other pattern is undefined behavior.
+These are ONLY safe ways to use `unsafe.Pointer`. Any other pattern is undefined behavior.
 
 **Pattern 1: Convert `*T` to `*U` via `unsafe.Pointer`**
 
@@ -99,11 +99,11 @@ p := unsafe.Pointer(uintptr(unsafe.Pointer(&x)) + offset)
 | `unsafe.SliceData(s)` | Go 1.17 | Get pointer to slice's backing array |
 | `unsafe.StringData(s)` | Go 1.20 | Get pointer to string's backing array |
 
-These are safer than manual `uintptr` arithmetic because they keep values as pointers (visible to GC) throughout.
+Safer than manual `uintptr` arithmetic: values stay pointers (visible to GC) throughout.
 
 ## `weak.Pointer[T]` (Go 1.24+)
 
-A weak pointer holds a reference to an object without preventing garbage collection. When the GC reclaims the object, `Value()` returns `nil`.
+Weak pointer references object without preventing garbage collection. When GC reclaims object, `Value()` returns `nil`.
 
 ```go
 strong := new(MyType)
@@ -125,7 +125,7 @@ if p := w.Value(); p != nil {
 
 Prefer `runtime.AddCleanup` (Go 1.24+) over `runtime.SetFinalizer`:
 
-- Multiple cleanups can be registered per object
-- Cleanup function receives a value, not a pointer to the collected object
-- No risk of resurrecting the object
+- Can register multiple cleanups per object
+- Cleanup function receives value, not pointer to collected object
+- No risk of resurrecting object
 - Works correctly with weak pointers

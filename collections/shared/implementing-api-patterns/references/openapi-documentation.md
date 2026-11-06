@@ -1,9 +1,5 @@
 # OpenAPI Documentation Guide
 
-## Overview
-
-OpenAPI (formerly Swagger) provides a standard way to document REST APIs. This guide covers automatic generation with FastAPI, Hono, Axum, and Gin.
-
 ## Table of Contents
 
 - [OpenAPI 3.1 Basics](#openapi-31-basics)
@@ -76,7 +72,7 @@ components:
 
 ## FastAPI (Automatic)
 
-FastAPI generates OpenAPI automatically from Python type hints.
+FastAPI generates OpenAPI from Python type hints automatically.
 
 ### Zero Configuration
 
@@ -372,7 +368,7 @@ async fn main() {
 ### Installation
 
 ```bash
-go install github.com/swaggo/swag/cmd/swag@latest
+go install github.com/swaggo/swag/cmd/swag@v1.16.6  # pin; bump deliberately
 ```
 
 ### Implementation
@@ -493,8 +489,8 @@ async def custom_swagger_ui_html():
         openapi_url="/openapi.json",
         title=app.title + " - Swagger UI",
         oauth2_redirect_url="/docs/oauth2-redirect",
-        swagger_js_url="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js",
-        swagger_css_url="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css",
+        swagger_js_url="/static/swagger-ui-bundle.js",  # self-hosted, pinned swagger-ui-dist
+        swagger_css_url="/static/swagger-ui.css",
         swagger_ui_parameters={"persistAuthorization": True}
     )
 ```
@@ -509,19 +505,21 @@ async def redoc_html():
     return get_redoc_html(
         openapi_url="/openapi.json",
         title=app.title + " - ReDoc",
-        redoc_js_url="https://unpkg.com/redoc@latest/bundles/redoc.standalone.js",
+        redoc_js_url="/static/redoc.standalone.js",  # self-hosted copy of a pinned, reviewed release
     )
 ```
+
+Docs UI bundles run on your origin and see `persistAuthorization` tokens: self-host them (`app.mount("/static", StaticFiles(directory="static"))`) or pin an exact CDN version; never `@latest`.
 
 ## Best Practices
 
 1. **Use semantic versioning** - Version your API (v1, v2)
-2. **Document all endpoints** - Include descriptions and examples
+2. **Document all endpoints** - Descriptions and examples
 3. **Define schemas** - Reuse schema definitions
 4. **Include examples** - Real-world request/response examples
 5. **Document error responses** - All possible error codes
 6. **Add security schemes** - Document authentication methods
 7. **Tag endpoints** - Group related endpoints
 8. **Include server URLs** - Production, staging, development
-9. **Keep docs in sync** - Auto-generation preferred
+9. **Keep docs in sync** - Prefer auto-generation
 10. **Test with Swagger UI** - Verify docs are usable

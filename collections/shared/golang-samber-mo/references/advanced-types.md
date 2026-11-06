@@ -1,7 +1,5 @@
 # Advanced Types Reference
 
-These types are less commonly used than Option/Result/Either but provide powerful abstractions for specific scenarios.
-
 ## Table of Contents
 
 - [Type Hierarchy](#type-hierarchy)
@@ -35,14 +33,9 @@ IO[T]     (no error)    →     Task[T]     (no error)    → Future[T]
 IOEither[T] (with error) →     TaskEither[T] (with error) → Future[T]
 ```
 
-- **IO** wraps a synchronous side-effecting computation
-- **Task** wraps an asynchronous side-effecting computation (returns a Future)
-- **Future** represents a value that will be available later
-- **Either** variants add error handling capability
-
 ## Future[T] — Asynchronous Values
 
-Represents a value that may not yet be available. Similar to JavaScript's Promise.
+Value that may not be available yet. Like JavaScript's Promise.
 
 ### Constructor
 
@@ -91,7 +84,7 @@ future.Cancel()  // terminates the future chain
 
 ## IO[T] — Synchronous Side Effects
 
-Wraps a function that performs side effects. The computation is lazy — it only runs when `Run()` is called. IO never fails.
+Wraps side-effecting function. Lazy: runs only when `Run()` is called. IO never fails.
 
 ### Variants by Parameter Count
 
@@ -111,7 +104,7 @@ result := io2.Run(1, 2)  // 3
 
 ## IOEither[T] — Synchronous Side Effects with Errors
 
-Like IO but the computation can fail. The callback must return `Either[error, R]`, not `(R, error)`.
+Like IO, but computation can fail. Callback must return `Either[error, R]`, not `(R, error)`.
 
 ```go
 io := mo.NewIOEither(func() mo.Either[error, string] {
@@ -143,7 +136,7 @@ either := io1.Run("config.yaml")  // Either[error, string]
 
 ## Task[T] — Asynchronous Computations
 
-Lazy async computation — `Run()` calls the wrapped function, which returns a `*Future[T]`. Never fails.
+Lazy async computation. `Run()` calls wrapped function, which returns `*Future[T]`. Never fails.
 
 ```go
 task := mo.NewTask(func() *mo.Future[int] {
@@ -157,7 +150,7 @@ future := task.Run()           // executes the function, returns *Future[int]
 value, err := future.Collect() // blocks until done
 ```
 
-Note: `NewTask` accepts `func() *Future[R]` — it wraps a Future-producing function for lazy execution.
+Note: `NewTask` accepts `func() *Future[R]`.
 
 ### From IO
 
@@ -179,7 +172,7 @@ future := task1.Run(21)  // *Future[int] resolving to 42
 
 ## TaskEither[T] — Async Computations with Errors
 
-Like Task but the computation can fail. Combines Task semantics with error handling.
+Like Task, but computation can fail.
 
 ```go
 te := mo.NewTaskEither(func() *mo.Future[string] {
@@ -200,7 +193,7 @@ te := mo.NewTaskEither(func() *mo.Future[string] {
 })
 ```
 
-Note: Like `NewTask`, `NewTaskEither` accepts `func() *Future[R]`. The difference is in the methods available on the returned type — TaskEither provides `Match`, `OrElse`, `ToEither`, and `ToTask`.
+Note: like `NewTask`, `NewTaskEither` accepts `func() *Future[R]`. Difference is methods on returned type: TaskEither provides `Match`, `OrElse`, `ToEither`, `ToTask`.
 
 ### Methods
 
@@ -216,7 +209,7 @@ te.Match(
 
 ## State[S, A] — Stateful Computations
 
-Represents a computation that threads state through a series of operations. The state type S flows through the computation while producing result values of type A.
+Threads state through series of operations. State type S flows through while producing result values of type A.
 
 ### Constructor
 
@@ -253,7 +246,7 @@ _, s := modified.Run(5)  // (_, 10)
 
 ### Chaining State Computations
 
-State is useful for accumulating results while threading context:
+Use State to accumulate results while threading context:
 
 ```go
 // Parse tokens while tracking position
@@ -270,13 +263,13 @@ parseChar := mo.NewState(func(s ParseState) (byte, ParseState) {
 
 ## When to Use Advanced Types
 
-| Type       | Use when...                                                   |
-| ---------- | ------------------------------------------------------------- |
-| Future     | You need async computation with chaining (Then/Catch/Finally) |
-| IO         | You want to defer and compose synchronous side effects        |
-| IOEither   | Deferred side effects that can fail                           |
-| Task       | Deferred async computation (lazy Future)                      |
-| TaskEither | Deferred async computation that can fail                      |
-| State      | Threading state through a series of pure computations         |
+| Type       | Use when...                                          |
+| ---------- | ---------------------------------------------------- |
+| Future     | Async computation with chaining (Then/Catch/Finally) |
+| IO         | Defer and compose synchronous side effects           |
+| IOEither   | Deferred side effects that can fail                  |
+| Task       | Deferred async computation (lazy Future)             |
+| TaskEither | Deferred async computation that can fail             |
+| State      | Threading state through series of pure computations  |
 
-Most Go projects only need **Option**, **Result**, and **Either**. The advanced types are valuable when building functional pipelines or when you want explicit control over when side effects execute.
+Most Go projects only need **Option**, **Result**, **Either**. Advanced types help for functional pipelines or explicit control over when side effects execute.

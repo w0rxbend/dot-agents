@@ -19,7 +19,7 @@ At system boundaries, design interfaces that are easy to mock:
 
 **1. Use dependency injection**
 
-Pass external dependencies in rather than creating them internally:
+Pass external dependencies in; don't create them internally:
 
 ```typescript
 // Easy to mock
@@ -36,7 +36,7 @@ function processPayment(order) {
 
 **2. Prefer SDK-style interfaces over generic fetchers**
 
-Create specific functions for each external operation instead of one generic function with conditional logic:
+One specific function per external operation, not one generic function with conditional logic:
 
 ```typescript
 // GOOD: Each function is independently mockable
@@ -52,8 +52,4 @@ const api = {
 };
 ```
 
-The SDK approach means:
-- Each mock returns one specific shape
-- No conditional logic in test setup
-- Easier to see which endpoints a test exercises
-- Type safety per endpoint
+SDK approach: each mock returns one specific shape, no conditional logic in test setup, easier to see which endpoints a test exercises, type safety per endpoint.

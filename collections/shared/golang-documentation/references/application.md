@@ -15,7 +15,7 @@
 
 ## CLI Help Text
 
-For CLI applications, `--help` output is the primary documentation. CLI tools MUST have comprehensive `--help` text:
+For CLI applications, `--help` output is primary documentation. CLI tools MUST have comprehensive `--help` text:
 
 ```go
 // Use cobra or similar framework for structured help text
@@ -47,7 +47,7 @@ Environment variables:
 
 ## Configuration Documentation
 
-Configuration SHOULD be documented. Document all configuration sources in the README or a dedicated `docs/configuration.md`:
+Configuration SHOULD be documented. Document all sources in README or dedicated `docs/configuration.md`:
 
 ````markdown
 ## Configuration
@@ -99,7 +99,7 @@ docs/
     README.md
 ```
 
-Each design document follows a standard format:
+Each design document uses standard format:
 
 ```markdown
 # Use PostgreSQL as Primary Store
@@ -140,14 +140,14 @@ Use [swaggo/swag](https://github.com/swaggo/swag) to auto-generate OpenAPI docs 
 func GetUser(w http.ResponseWriter, r *http.Request) {
 ```
 
-Generate the spec:
+Generate spec:
 
 ```bash
 go get -tool github.com/swaggo/swag/cmd/swag@latest
 go tool swag init -g cmd/server/main.go -o docs/swagger
 ```
 
-This produces `docs/swagger/swagger.json` and `docs/swagger/swagger.yaml`. Serve with Swagger UI or Redoc.
+Produces `docs/swagger/swagger.json` and `docs/swagger/swagger.yaml`. Serve with Swagger UI or Redoc.
 
 ### Event-Driven — AsyncAPI
 
@@ -173,7 +173,7 @@ channels:
 
 ### gRPC — Protobuf
 
-Protobuf files serve as both code contracts and documentation. Add comments to messages and RPCs:
+Protobuf files are both code contracts and documentation. Comment messages and RPCs:
 
 ```protobuf
 syntax = "proto3";
@@ -207,7 +207,7 @@ buf lint
 buf breaking --against '.git#branch=main'
 ```
 
-For REST+gRPC, use [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) to serve both from the same protobuf definition.
+For REST+gRPC, use [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) to serve both from same protobuf definition.
 
 ### When to Use Each Format
 
@@ -215,7 +215,7 @@ For REST+gRPC, use [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway
 | --- | --- | --- |
 | REST/HTTP with Go handlers | OpenAPI 3.x | swaggo/swag from annotations |
 | REST/HTTP with framework | OpenAPI 3.x | Framework-specific (e.g., huma) |
-| gRPC services | Protobuf | Proto files are the source of truth |
+| gRPC services | Protobuf | Proto files are source of truth |
 | gRPC + REST gateway | Protobuf + OpenAPI | grpc-gateway generates OpenAPI |
 | Message queues / events | AsyncAPI | Manual or code-gen |
 | GraphQL | SDL schema | Schema is the docs |

@@ -1,6 +1,6 @@
 # Resolution and Format Detection
 
-PixiJS's asset resolver can pick the best asset variant for the current device based on pixel density (`@0.5x`, `@1x`, `@2x`) and supported image formats (`avif`, `webp`, `png`). Use resolution and format patterns to serve one asset spec that adapts to retina displays, format support, and bandwidth budgets.
+Resolver picks best asset variant for current device by pixel density (`@0.5x`, `@1x`, `@2x`) and supported formats (`avif`, `webp`, `png`).
 
 ## Quick Start
 
@@ -17,7 +17,7 @@ Assets.add({ alias: "hero", src: "hero@{0.5,1,2}x.{webp,png}" });
 const texture = await Assets.load("hero");
 ```
 
-The resolver expands the pattern to six candidates (`hero@0.5x.webp`, `hero@0.5x.png`, `hero@1x.webp`, ...) and picks the best match based on device pixel ratio and format support.
+Resolver expands pattern to six candidates (`hero@0.5x.webp`, `hero@0.5x.png`, `hero@1x.webp`, ...), picks best match by device pixel ratio and format support.
 
 ## Core Patterns
 
@@ -32,8 +32,8 @@ await Assets.init({
 });
 ```
 
-- `resolution` is a single number (best-match threshold) or array of acceptable resolutions.
-- `format` is ordered by preference. The resolver tries each in turn and uses the first one the browser supports.
+- `resolution`: single number (best-match threshold) or array of acceptable resolutions.
+- `format`: preference order. Resolver tries each, uses first one browser supports.
 
 ### Resolution patterns in src
 
@@ -41,7 +41,7 @@ await Assets.init({
 Assets.add({ alias: "bg", src: "bg@{0.5,1,2}x.png" });
 ```
 
-The resolver expands this to `bg@0.5x.png`, `bg@1x.png`, `bg@2x.png` and picks based on `texturePreference.resolution`. Encoded resolution sets the texture's source resolution automatically, so the sprite's `width` / `height` appear as logical size regardless of the file chosen.
+Expands to `bg@0.5x.png`, `bg@1x.png`, `bg@2x.png`; picks by `texturePreference.resolution`. Encoded resolution sets texture source resolution automatically, so sprite `width` / `height` show logical size whichever file loads.
 
 ### Format patterns in src
 
@@ -49,15 +49,7 @@ The resolver expands this to `bg@0.5x.png`, `bg@1x.png`, `bg@2x.png` and picks b
 Assets.add({ alias: "icon", src: "icon.{avif,webp,png}" });
 ```
 
-Format detection runs once during `Assets.init()`. The resolver learns which formats the browser supports, then picks the highest-preference supported format per load.
-
-### Combined resolution + format
-
-```ts
-Assets.add({ alias: "hero", src: "hero@{0.5,1,2}x.{avif,webp,png}" });
-```
-
-Both patterns can appear in the same `src`. The resolver does a Cartesian product: 3 resolutions × 3 formats = 9 candidates. It picks the best combination based on both preferences.
+Format detection runs once during `Assets.init()`. Resolver learns browser format support, then picks highest-preference supported format per load.
 
 ### Manual resolution override
 
@@ -69,7 +61,7 @@ Assets.add({
 });
 ```
 
-If a file is already at a known resolution but lacks the `@2x` filename suffix, pass `resolution` in `data` to tell the loader. Useful when your tooling doesn't produce suffixed filenames.
+If file is at known resolution but lacks `@2x` filename suffix, pass `resolution` in `data` to tell loader. Useful when tooling doesn't produce suffixed filenames.
 
 ### Custom retina prefix
 
@@ -81,7 +73,7 @@ Resolver.RETINA_PREFIX = /@([0-9\.]+)density/;
 Assets.add({ alias: "hero", src: "hero@{1,2}density.png" });
 ```
 
-Change the resolution filename pattern if your build pipeline uses a different convention. Default is `/@([0-9\.]+)x/`.
+Change filename pattern if build pipeline uses different convention. Default is `/@([0-9\.]+)x/`.
 
 ### Skipping format detection
 
@@ -92,7 +84,7 @@ await Assets.init({
 });
 ```
 
-If you know your target browser supports a specific format, `skipDetections: true` skips the runtime detection (a small init-time saving). Useful for embedded or kiosk deployments where format support is fixed.
+If you know target browser supports a specific format, `skipDetections: true` skips runtime detection (small init-time saving). Useful for embedded or kiosk deployments with fixed format support.
 
 ## Common Mistakes
 
@@ -110,7 +102,7 @@ Correct:
 Assets.add({ alias: "hero", src: "hero@{1,2}x.png" });
 ```
 
-The expansion syntax uses `{}` (like shell brace expansion), not `[]`. Square brackets aren't recognized and the resolver tries to load the literal filename.
+Expansion uses `{}` (like shell brace expansion), not `[]`. Square brackets aren't recognized; resolver tries to load literal filename.
 
 
 ### [MEDIUM] Missing fallback format
@@ -127,12 +119,12 @@ Correct:
 Assets.add({ alias: "hero", src: "hero.{avif,png}" });
 ```
 
-If a browser doesn't support AVIF, the loader fails. Always list at least one fallback format that all target browsers support.
+Browser without AVIF support makes loader fail. Always list at least one fallback format all target browsers support.
 
 
 ### [MEDIUM] Mismatch between spritesheet.json `meta.scale` and actual image
 
-In v8, a spritesheet's `meta.scale` field directly sets the resolution of the atlas texture. If the JSON says `"1"` but the image was exported at 2x, frames render at double the intended size. Verify `meta.scale` matches the actual image resolution; atlas tools like TexturePacker set this automatically.
+In v8, spritesheet `meta.scale` directly sets atlas texture resolution. If JSON says `"1"` but image was exported at 2x, frames render at double intended size. Verify `meta.scale` matches actual image resolution; atlas tools like TexturePacker set it automatically.
 
 
 ## API Reference

@@ -1,8 +1,5 @@
 # Envoy Proxy Load Balancing Patterns
 
-Cloud-native proxy for microservices and service mesh architectures.
-
-
 ## Table of Contents
 
 - [Basic HTTP Load Balancing](#basic-http-load-balancing)
@@ -227,12 +224,12 @@ filter_chains:
 
 ## Dynamic Configuration (xDS)
 
-Envoy supports dynamic configuration via xDS APIs:
+Dynamic configuration through xDS APIs:
 - **EDS:** Endpoint Discovery Service
 - **CDS:** Cluster Discovery Service
 - **RDS:** Route Discovery Service
 - **LDS:** Listener Discovery Service
 
-Used by service meshes like Istio and Consul Connect.
+Service meshes such as Istio and Consul Connect use it.
 
-Complete examples in `examples/envoy/` directory.
+Full examples in `examples/envoy/`.

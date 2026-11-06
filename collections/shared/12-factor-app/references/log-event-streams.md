@@ -7,7 +7,7 @@ tags: log, streams, stdout, observability
 
 ## Treat Logs as Event Streams Not Files
 
-A twelve-factor app produces logs as a stream of time-ordered events, writing unbuffered to stdout. The app never concerns itself with routing or storage of its output stream - that's the responsibility of the execution environment.
+Twelve-factor app produces logs as stream of time-ordered events, written unbuffered to stdout. App never routes or stores its output stream. Execution environment owns that.
 
 **Incorrect (app manages log files):**
 
@@ -111,11 +111,5 @@ services:
     # options:
     #   fluentd-address: "localhost:24224"
 ```
-
-**Benefits:**
-- App code is simple - just write to stdout
-- Same code works in any environment
-- Platform handles aggregation, rotation, shipping
-- Real-time streaming and historical analysis
 
 Reference: [The Twelve-Factor App - Logs](https://12factor.net/logs)

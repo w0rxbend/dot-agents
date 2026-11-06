@@ -4,7 +4,7 @@
 
 ### The Problem with Exceptions
 
-Exceptions are invisible in your types. They break the contract between functions.
+Exceptions are invisible in types; they break function contracts.
 
 ```typescript
 // What this function signature promises:
@@ -20,39 +20,6 @@ function getUser(id: string): User {
 
 // The caller has no idea this can fail
 const user = getUser(id) // Might explode!
-```
-
-You end up with code like this:
-
-```typescript
-// MESSY: try/catch everywhere
-function processOrder(orderId: string) {
-  let order
-  try {
-    order = getOrder(orderId)
-  } catch (e) {
-    console.error('Failed to get order')
-    return null
-  }
-
-  let user
-  try {
-    user = getUser(order.userId)
-  } catch (e) {
-    console.error('Failed to get user')
-    return null
-  }
-
-  let payment
-  try {
-    payment = chargeCard(user.cardId, order.total)
-  } catch (e) {
-    console.error('Payment failed')
-    return null
-  }
-
-  return { order, user, payment }
-}
 ```
 
 ### The Solution: Return Errors as Values
@@ -79,7 +46,7 @@ const result = getUser(id)
 
 ## 2. The Result Pattern (Either)
 
-`Either<E, A>` is simple: it holds either an error (`E`) or a value (`A`).
+`Either<E, A>` holds error (`E`) or value (`A`).
 
 - `Left` = error case
 - `Right` = success case (think "right" as in "correct")
@@ -161,8 +128,6 @@ fromNullable(user)  // Right(user) if exists, Left('not found') if null/undefine
 
 
 ## 3. Chaining Operations That Might Fail
-
-The real power comes from chaining. Each step can fail, but you write it as a clean pipeline.
 
 ### Before: Nested Try/Catch Hell
 
@@ -279,7 +244,7 @@ const process = (id: string): E.Either<ValidationError | DbError, User> =>
 
 ## 4. Collecting Multiple Errors
 
-Sometimes you want ALL errors, not just the first one. Form validation is the classic example.
+Sometimes you want ALL errors, not only first. Classic example: form validation.
 
 ### Before: Collecting Errors Manually
 
@@ -387,10 +352,10 @@ const getFieldError = (errors: FormErrors, field: string): string | undefined =>
 
 ## 5. Async Operations (TaskEither)
 
-For async operations that can fail, use `TaskEither`. It's like `Either` but for promises.
+Fallible async operations: use `TaskEither`. Like `Either`, but for promises.
 
-- `TaskEither<E, A>` = a function that returns `Promise<Either<E, A>>`
-- Lazy: nothing runs until you execute it
+- `TaskEither<E, A>` = function returning `Promise<Either<E, A>>`
+- Lazy: nothing runs until executed
 
 ```typescript
 import * as TE from 'fp-ts/TaskEither'
@@ -479,14 +444,12 @@ pipe(
 
 ### Retries, Fallbacks and Parallel Calls
 
-Retry with backoff, cache-then-API fallbacks, batching and parallel vs sequential execution are async-pipeline concerns: see the fp-async skill (`references/detailed-guide.md`, sections 3-4). The error-modeling rule from this guide still applies there: recover only from error tags you can handle (`TE.orElse` on a specific `_tag`), and let the rest propagate.
+Retry with backoff, cache-then-API fallbacks, batching and parallel vs sequential execution are async-pipeline concerns: see fp-async skill (`references/detailed-guide.md`, sections 3-4). This guide's error-modeling rule still applies there: recover only from error tags you can handle (`TE.orElse` on specific `_tag`). Let rest propagate.
 
 ---
 
 
 ## 6. Converting Between Patterns
-
-Real codebases have throwing functions, nullable values, and promises. Here's how to work with them.
 
 ### From Nullable to Either
 
@@ -543,7 +506,7 @@ const getUserFromDb = (id: string): TE.TaskEither<DbError, User> =>
 
 ### Back to Promise (Escape Hatch)
 
-Sometimes you need a plain Promise for external APIs.
+Use when external APIs need plain Promise.
 
 ```typescript
 import * as TE from 'fp-ts/TaskEither'
@@ -774,14 +737,14 @@ const deleteUsers = (userIds: string[]) =>
 
 | Pattern | Use When | Example |
 |---------|----------|---------|
-| `E.right(value)` | Creating a success | `E.right(42)` |
-| `E.left(error)` | Creating a failure | `E.left('not found')` |
-| `E.tryCatch(fn, onError)` | Wrapping throwing code | `E.tryCatch(() => JSON.parse(s), toError)` |
-| `E.fromNullable(error)` | Converting nullable | `E.fromNullable('missing')(maybeValue)` |
+| `E.right(value)` | Create success | `E.right(42)` |
+| `E.left(error)` | Create failure | `E.left('not found')` |
+| `E.tryCatch(fn, onError)` | Wrap throwing code | `E.tryCatch(() => JSON.parse(s), toError)` |
+| `E.fromNullable(error)` | Convert nullable | `E.fromNullable('missing')(maybeValue)` |
 | `E.map(fn)` | Transform success | `pipe(result, E.map(x => x * 2))` |
 | `E.mapLeft(fn)` | Transform error | `pipe(result, E.mapLeft(addContext))` |
-| `E.flatMap(fn)` | Chain operations (error types are unioned) | `pipe(getA(), E.flatMap(a => getB(a.id)))` |
-| `E.tap(fn)` | Run a fallible check, keep the original value | `pipe(user, E.tap(assertActive))` |
+| `E.flatMap(fn)` | Chain operations (error types unioned) | `pipe(getA(), E.flatMap(a => getB(a.id)))` |
+| `E.tap(fn)` | Run fallible check, keep original value | `pipe(user, E.tap(assertActive))` |
 | `E.fold(onError, onSuccess)` | Handle both cases | `E.fold(showError, showData)` |
 | `E.getOrElse(onError)` | Extract with default | `E.getOrElse(() => 0)` |
 | `E.filterOrElse(pred, onFalse)` | Validate with error | `E.filterOrElse(x => x > 0, () => 'must be positive')` |
@@ -789,21 +752,8 @@ const deleteUsers = (userIds: string[]) =>
 
 ### TaskEither Equivalents
 
-All Either operations have TaskEither equivalents:
+Every Either operation has TaskEither equivalent:
 - `TE.right`, `TE.left`, `TE.tryCatch`
 - `TE.map`, `TE.mapLeft`, `TE.flatMap`, `TE.tap`, `TE.flatMapEither`
 - `TE.fold`, `TE.getOrElse`, `TE.filterOrElse`
 - `TE.orElse` for fallbacks
-
----
-
-
-## Summary
-
-1. **Return errors as values** - Use Either/TaskEither instead of throwing
-2. **Chain with confidence** - `flatMap` stops at the first error automatically
-3. **Collect all errors when needed** - Use validation applicative for forms
-4. **Wrap at boundaries** - Convert throwing/Promise code at the edges
-5. **Match at the end** - Use `fold` to handle both cases when you're ready to act
-
-The payoff: TypeScript tracks your errors, no more forgotten try/catch, clear control flow, and composable error handling.

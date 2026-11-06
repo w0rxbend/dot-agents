@@ -7,9 +7,9 @@ tags: svc, portability, abstraction, services
 
 ## Make No Distinction Between Local and Third-Party Services
 
-The code for a twelve-factor app treats all backing services identically, whether locally-managed (your own PostgreSQL) or third-party (Amazon RDS, Heroku Postgres). The only difference is the connection URL in config - the application code remains unchanged.
+Code treats all backing services identically, locally-managed (your own PostgreSQL) or third-party (Amazon RDS, Heroku Postgres). Only connection URL in config differs.
 
-**Incorrect (code branches for service type):**
+**Incorrect (code branches per service type):**
 
 ```python
 import os
@@ -82,10 +82,5 @@ S3_BUCKET="prod-uploads"
 AWS_ACCESS_KEY_ID="AKIA..."
 AWS_SECRET_ACCESS_KEY="..."
 ```
-
-**Benefits:**
-- Development environment mirrors production behavior
-- Bugs caught in development, not production
-- Easy migration between service providers
 
 Reference: [The Twelve-Factor App - Backing Services](https://12factor.net/backing-services)

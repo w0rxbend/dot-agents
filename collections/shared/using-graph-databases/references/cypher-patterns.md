@@ -1,6 +1,6 @@
 # Cypher Query Patterns Reference
 
-Comprehensive collection of common Cypher query patterns for Neo4j, Memgraph, and Apache AGE.
+Common Cypher query patterns for Neo4j, Memgraph and Apache AGE.
 
 
 ## Table of Contents

@@ -1,7 +1,5 @@
 # Open Table Formats Comparison
 
-Quick comparison of Apache Iceberg, Delta Lake, and Apache Hudi for lakehouse architectures.
-
 ## Feature Matrix
 
 | Feature | Apache Iceberg | Delta Lake | Apache Hudi |
@@ -19,21 +17,21 @@ Quick comparison of Apache Iceberg, Delta Lake, and Apache Hudi for lakehouse ar
 ## Decision Matrix
 
 **Use Apache Iceberg when:**
-- Need multi-engine flexibility (Spark, Trino, Flink)
-- Want vendor neutrality (Apache Foundation)
+- Multi-engine flexibility needed (Spark, Trino, Flink)
+- Vendor neutrality wanted (Apache Foundation)
 - Partition evolution required
 - Future-proof architecture (broadest adoption)
 
 **Use Delta Lake when:**
 - Committed to Databricks ecosystem
-- Primarily Spark-based workflows
+- Mostly Spark-based workflows
 - Excellent streaming + CDC support needed
-- Unity Catalog integration desired
+- Unity Catalog integration wanted
 
 **Use Apache Hudi when:**
-- CDC and upserts are primary workload
+- CDC and upserts are main workload
 - Streaming ingestion dominant
-- Need record-level updates (Merge-on-Read)
+- Record-level updates needed (Merge-on-Read)
 - Cost-optimized incremental processing
 
 ## Recommendation

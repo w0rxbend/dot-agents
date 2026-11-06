@@ -6,10 +6,10 @@ license: MIT
 
 # AirGradient client ecosystem
 
-Identify the transport and application before editing: local device JSON at `/measures/current`, Prometheus `/metrics`, a proxy/history API, and an AQI LED device protocol are different contracts. The Android, GTK, CLI, GNOME, QML, and Solid clients have different lifecycles and persistence. Preserve the selected frontend/runtime rather than scaffolding a generic replacement.
+Identify transport and app before editing. Distinct contracts: local device JSON at `/measures/current`, Prometheus `/metrics`, proxy/history API, AQI LED device protocol. Android, GTK, CLI, GNOME, QML, and Solid clients differ in lifecycle and persistence. Keep chosen frontend/runtime; no generic replacement.
 
-Read [measurements-config.md](references/measurements-config.md) for optional measurements, units, alias precedence, timestamps, and shared JSON updates. Read [lifecycle-observability.md](references/lifecycle-observability.md) for UI polling, monitoring, Prometheus series, and validation boundaries.
+Read [measurements-config.md](references/measurements-config.md) for optional measurements, units, alias precedence, timestamps, shared JSON updates. Read [lifecycle-observability.md](references/lifecycle-observability.md) for UI polling, monitoring, Prometheus series, validation boundaries.
 
-Keep parsing, units, AQI/status calculation, display formatting, networking, and notification decisions separable. Missing or invalid sensor values must remain visibly missing; a failed fetch must not become a fresh zero reading. Verify status/color/label changes against the current project's fixtures and threshold source, without claiming a medical assessment.
+Keep parsing, units, AQI/status calculation, display formatting, networking, notification decisions separable. Missing or invalid sensor values stay visibly missing; failed fetch must not become fresh zero. Check status/color/label changes against current project's fixtures and threshold source. No medical-assessment claims.
 
-Respect local-only intent. Do not add cloud accounts, analytics, proxy dependence, or public exposure as incidental improvements. Use synthetic device addresses and payloads in tests. Follow each repository's actual wrapper, language, and CI gates; Mill is preferred for new JVM builds, while existing Android Gradle projects stay on their chosen build.
+Respect local-only intent: do not add cloud accounts, analytics, proxy dependence, or public exposure as incidental improvements. Use synthetic device addresses and payloads in tests. Follow each repository's real wrapper, language, CI gates. Prefer Mill for new JVM builds; existing Android Gradle projects keep their build.

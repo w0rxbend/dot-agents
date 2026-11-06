@@ -17,7 +17,7 @@
 
 ## Public vs Private Libraries
 
-Not all documentation applies equally. Adapt to your audience:
+Not all docs apply equally. Adapt to audience:
 
 | Documentation | Public Library | Private Library |
 | --- | --- | --- |
@@ -28,21 +28,21 @@ Not all documentation applies equally. Adapt to your audience:
 | `ExampleXxx()` test functions | Recommended | Recommended |
 | Go Playground demos | Recommended | N/A (code not public) |
 | pkg.go.dev / godoc | Primary docs surface | Use `go doc` locally or internal tooling |
-| Documentation website | Large projects | Only if many teams consume the library |
+| Documentation website | Large projects | Only if many teams consume library |
 | Register in Context7/DeepWiki/etc. | Recommended | N/A |
 | llms.txt | Recommended | Optional |
 | CHANGELOG.md | Recommended | Recommended |
 | CONTRIBUTING.md | Recommended | Recommended (internal wiki may suffice) |
 
-**Private libraries** should still have excellent doc comments and examples — teams rotate, people forget, and AI agents need context to help effectively. The main difference is you skip public-facing artifacts (playground, pkg.go.dev, registries).
+**Private libraries** still need excellent doc comments and examples. Main difference: skip public-facing artifacts (playground, pkg.go.dev, registries).
 
 ---
 
 ## Go Playground Demos
 
-Create runnable demos on the Go Playground and link them in doc comments. This lets users try your library without installing anything. Only applicable to public libraries.
+Create runnable demos on Go Playground and link them in doc comments. Only for public libraries.
 
-Add a `Play:` line in the doc comment:
+Add `Play:` line in doc comment:
 
 ```go
 // Map applies fn to each element of the slice and returns a new slice.
@@ -56,21 +56,21 @@ Add a `Play:` line in the doc comment:
 func Map[T any, U any](s []T, fn func(T) U) []U {
 ```
 
-When a Go Playground integration is available, use it to create and share playground URLs. Otherwise, create them manually at <https://go.dev/play/>.
+When Go Playground integration is available, use it to create and share playground URLs. Otherwise create them manually at <https://go.dev/play/>.
 
 Guidelines for playground demos:
 
-- Keep demos self-contained — include all imports and a `main()` function
-- Show the most common use case first
+- Keep demos self-contained — all imports and `main()` function
+- Show most common use case first
 - Show real-world examples
-- Print results so the output is visible when someone clicks "Run"
-- Add comments explaining what each section does
+- Print results so output is visible when someone clicks "Run"
+- Add comments explaining each section
 
 ---
 
 ## Example Test Functions
 
-Libraries MUST have Example test functions for exported APIs. Example functions are executable documentation. They appear in godoc and are verified by `go test`:
+Libraries MUST have Example test functions for exported APIs. Example functions are executable documentation. They appear in godoc and `go test` verifies them:
 
 ```go
 // In map_example_test.go
@@ -101,19 +101,19 @@ func ExampleMap_strings() {
 
 Naming conventions:
 
-- `ExampleFuncName()` — example for a package-level function
-- `ExampleTypeName()` — example for a type
-- `ExampleTypeName_MethodName()` — example for a method
-- `ExampleFuncName_suffix()` — multiple examples for the same function (suffix is lowercase)
-- `Example()` — example for the whole package
+- `ExampleFuncName()` — example for package-level function
+- `ExampleTypeName()` — example for type
+- `ExampleTypeName_MethodName()` — example for method
+- `ExampleFuncName_suffix()` — multiple examples for same function (suffix is lowercase)
+- `Example()` — example for whole package
 
-The `// Output:` comment MUST be included for `go test` to verify the example. Without it, the example compiles but doesn't verify output.
+`// Output:` comment MUST be included for `go test` to verify example. Without it, example compiles but doesn't verify output.
 
 ---
 
 ## Code Examples in Doc Comments
 
-Be generous with examples in doc comments. Show common use cases, edge cases, and error handling:
+Be generous with examples in doc comments. Show common use cases, edge cases, error handling:
 
 ```go
 // NewClient creates a new HTTP client with the given options.
@@ -142,19 +142,19 @@ func NewClient(opts ...Option) *Client {
 
 ## godoc and pkg.go.dev
 
-Your doc comments automatically render on [pkg.go.dev](https://pkg.go.dev) when you tag a release and someone imports your package. This is the primary documentation surface for public Go libraries.
+Doc comments render automatically on [pkg.go.dev](https://pkg.go.dev) when you tag release and someone imports package. Primary documentation surface for public Go libraries.
 
 **How godoc renders comments:**
 
-- First sentence of each doc comment appears in the package index
-- `// Package foo provides...` appears as the package description
+- First sentence of each doc comment appears in package index
+- `// Package foo provides...` appears as package description
 - Code blocks (indented by one tab) render as formatted code
 - `# Heading` syntax (Go 1.19+) creates sections
 - `[Link text]` syntax creates hyperlinks
-- `[Identifier]` links to other symbols in the package
+- `[Identifier]` links to other symbols in package
 - `Deprecated:` marker gets special styling
 
-**For private libraries:** pkg.go.dev won't index private modules. Use `go doc` locally or run `pkgsite` on your internal network. Some teams set up a shared pkgsite instance for internal Go modules.
+**For private libraries:** pkg.go.dev won't index private modules. Use `go doc` locally or run `pkgsite` on internal network. Some teams set up shared pkgsite instance for internal Go modules.
 
 ```bash
 # View docs for a specific symbol
@@ -165,7 +165,7 @@ go doc -all github.com/{owner}/{repo}
 
 # Start a local godoc server
 go get -tool golang.org/x/pkgsite/cmd/pkgsite@latest
-go tool pkgsite -http=:6060
+go tool pkgsite -http=localhost:6060
 # Then open http://localhost:6060
 ```
 
@@ -173,7 +173,7 @@ go tool pkgsite -http=:6060
 
 ## Documentation Website
 
-For larger libraries or frameworks, consider a dedicated documentation website.
+For larger libraries or frameworks, consider dedicated documentation website.
 
 ### Recommended Frameworks
 
@@ -184,7 +184,7 @@ Both can be deployed on Vercel.
 
 ### Recommended Sections
 
-Follow the [Diataxis framework](https://diataxis.fr/) for organizing documentation:
+Organize docs with [Diataxis framework](https://diataxis.fr/):
 
 | Section | Purpose | Example |
 | --- | --- | --- |
@@ -196,15 +196,15 @@ Follow the [Diataxis framework](https://diataxis.fr/) for organizing documentati
 
 ### llms.txt
 
-Add a `llms.txt` file at the repository root to help AI agents understand your project. Copy the template from [templates/llms.txt](../assets/templates/llms.txt).
+Add `llms.txt` file at repository root to help AI agents understand project. Copy template from [templates/llms.txt](../assets/templates/llms.txt).
 
-This is an emerging convention for making projects AI-friendly. Place it alongside your README.
+Place it alongside README.
 
 ### Register for Discoverability
 
-Make your library findable by AI agents and documentation aggregators:
+Make library findable by AI agents and documentation aggregators:
 
-- **Context7** — <https://context7.com> — submit your library for inclusion in AI-accessible documentation
+- **Context7** — <https://context7.com> — submit library for inclusion in AI-accessible documentation
 - **DeepWiki** — <https://deepwiki.com> — auto-generates wiki-style docs from GitHub repos
 - **OpenDeep** — <https://opendeep.wiki> — open documentation platform for AI consumption
 - **zRead** — <https://zread.ai> — developer documentation reader

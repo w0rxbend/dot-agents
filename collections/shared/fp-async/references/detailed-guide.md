@@ -2,39 +2,9 @@
 
 ## 1. Wrapping Promises Safely
 
-### The Problem: Try/Catch Everywhere
+### Wrap Once, Handle Cleanly
 
-```typescript
-// BEFORE: Try/catch hell
-async function getUserData(userId: string) {
-  try {
-    const response = await fetch(`/api/users/${userId}`)
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`)
-    }
-    const user = await response.json()
-
-    try {
-      const posts = await fetch(`/api/users/${userId}/posts`)
-      if (!posts.ok) {
-        throw new Error(`HTTP ${posts.status}`)
-      }
-      const postsData = await posts.json()
-      return { user, posts: postsData }
-    } catch (postsError) {
-      // Now what? Return partial data? Rethrow? Log?
-      console.error('Failed to fetch posts:', postsError)
-      return { user, posts: [] }
-    }
-  } catch (error) {
-    // Lost all context about what failed
-    console.error('Something failed:', error)
-    throw error
-  }
-}
-```
-
-### The Solution: Wrap Once, Handle Cleanly
+`TE.tryCatch` takes two args: (1) async function that might throw, (2) function converting thrown value into your error type.
 
 ```typescript
 import * as TE from 'fp-ts/TaskEither'
@@ -57,19 +27,6 @@ const fetchJson = <T>(url: string): TE.TaskEither<Error, T> =>
 // AFTER: Clean and composable
 const getUser = (userId: string) => fetchJson<User>(`/api/users/${userId}`)
 const getPosts = (userId: string) => fetchJson<Post[]>(`/api/users/${userId}/posts`)
-```
-
-### tryCatch Explained
-
-`TE.tryCatch` takes two things:
-1. An async function that might throw
-2. A function to convert the thrown value into your error type
-
-```typescript
-TE.tryCatch(
-  () => somePromise,           // The async work
-  (thrown) => toError(thrown)  // Convert failures to your error type
-)
 ```
 
 ### Creating Success and Failure Values
@@ -97,72 +54,9 @@ const mustBePositive = TE.fromPredicate(
 
 ## 2. Chaining Async Operations
 
-### The Problem: Callback Hell / Nested Awaits
-
-```typescript
-// BEFORE: Deeply nested, hard to follow
-async function processOrder(orderId: string) {
-  try {
-    const order = await fetchOrder(orderId)
-    if (!order) throw new Error('Order not found')
-
-    try {
-      const user = await fetchUser(order.userId)
-      if (!user) throw new Error('User not found')
-
-      try {
-        const inventory = await checkInventory(order.items)
-        if (!inventory.available) throw new Error('Out of stock')
-
-        try {
-          const payment = await chargePayment(user, order.total)
-          if (!payment.success) throw new Error('Payment failed')
-
-          try {
-            const shipment = await createShipment(order, user)
-            return { order, shipment, payment }
-          } catch (e) {
-            // Refund payment? Log? What's the state now?
-            await refundPayment(payment.id)
-            throw e
-          }
-        } catch (e) {
-          throw e
-        }
-      } catch (e) {
-        throw e
-      }
-    } catch (e) {
-      throw e
-    }
-  } catch (e) {
-    console.error('Order processing failed', e)
-    throw e
-  }
-}
-```
-
-### The Solution: Clean Pipelines with flatMap
-
-```typescript
-// AFTER: Flat, readable pipeline
-const processOrder = (orderId: string) =>
-  pipe(
-    fetchOrder(orderId),
-    TE.flatMap(order => fetchUser(order.userId)),
-    TE.flatMap(user =>
-      pipe(
-        checkInventory(order.items),
-        TE.flatMap(inventory => chargePayment(user, order.total))
-      )
-    ),
-    TE.flatMap(payment => createShipment(order, user, payment))
-  )
-```
-
 ### flatMap vs map
 
-Use `map` when your transformation is synchronous and can't fail:
+Use `map` when transformation is sync and cannot fail:
 
 ```typescript
 pipe(
@@ -171,7 +65,7 @@ pipe(
 )
 ```
 
-Use `flatMap` when your transformation is async or can fail (`chain` is the legacy alias you will see in pre-2.14 code):
+Use `flatMap` when transformation is async or can fail (`chain` is legacy alias found in pre-2.14 code):
 
 ```typescript
 pipe(
@@ -182,7 +76,7 @@ pipe(
 
 ### Building Context with Do Notation
 
-When you need values from multiple steps:
+For values from multiple steps:
 
 ```typescript
 // BEFORE: Have to thread values through manually
@@ -226,14 +120,14 @@ const processOrder = (orderId: string) =>
 ### When to Use Each
 
 **Sequential** (one after another):
-- When each operation depends on the previous result
-- When you need to respect rate limits
-- When order matters
+- Each operation depends on previous result
+- Rate limits must be respected
+- Order matters
 
 **Parallel** (all at once):
-- When operations are independent
-- When you want speed
-- When fetching multiple resources by ID
+- Operations are independent
+- Speed matters
+- Fetching multiple resources by ID
 
 ### Sequential Chaining
 
@@ -295,7 +189,7 @@ const fetchAllUsers = pipe(
 
 ### Parallel with Batch Control
 
-When you need to limit concurrent requests:
+To limit concurrent requests:
 
 ```typescript
 const chunk = <T>(arr: T[], size: number): T[][] => {
@@ -366,21 +260,6 @@ const getConfigRobust = () =>
     fetchRemoteConfig(),
     TE.orElse(() => loadLocalConfig()),
     TE.orElse(() => TE.right(defaultConfig))
-  )
-```
-
-### Conditional Recovery
-
-```typescript
-// Only recover from specific errors
-const fetchUserOrCreate = (userId: string) =>
-  pipe(
-    fetchUser(userId),
-    TE.orElse(error =>
-      error.message.includes('404') || error.message.includes('not found')
-        ? createDefaultUser(userId)
-        : TE.left(error)  // Re-throw other errors
-    )
   )
 ```
 
@@ -619,106 +498,4 @@ const fromBoolean = TE.fromPredicate(
   (x: number) => x > 0,
   () => new Error('Must be positive')
 )
-```
-
----
-
-
-## Quick Reference Card
-
-| What you want | How to do it |
-|---------------|--------------|
-| Wrap a promise | `TE.tryCatch(() => promise, toError)` |
-| Create success | `TE.right(value)` |
-| Create failure | `TE.left(error)` |
-| Transform value | `TE.map(fn)` |
-| Transform error | `TE.mapLeft(fn)` |
-| Chain async ops | `TE.flatMap(fn)` |
-| Run in parallel | `sequenceT(TE.ApplyPar)(te1, te2, te3)` |
-| Array in parallel | `TE.traverseArray(fn)(items)` |
-| Recover from error | `TE.orElse(fn)` |
-| Use default value | `TE.getOrElse(() => T.of(default))` |
-| Handle both cases | `TE.fold(onError, onSuccess)` |
-| Build up context | `TE.Do` + `TE.bind('name', () => te)` |
-| Log without changing | `TE.tap(fn)` |
-| Filter with error | `TE.filterOrElse(pred, toError)` |
-
----
-
-
-## Before/After Summary
-
-### Fetching Data
-
-```typescript
-// BEFORE
-async function getUser(id: string) {
-  try {
-    const res = await fetch(`/api/users/${id}`)
-    if (!res.ok) throw new Error('Not found')
-    return await res.json()
-  } catch (e) {
-    console.error(e)
-    return null
-  }
-}
-
-// AFTER
-const getUser = (id: string) =>
-  TE.tryCatch(
-    async () => {
-      const res = await fetch(`/api/users/${id}`)
-      if (!res.ok) throw new Error('Not found')
-      return res.json()
-    },
-    E.toError
-  )
-```
-
-### Chained Operations
-
-```typescript
-// BEFORE
-async function processOrder(orderId: string) {
-  const order = await fetchOrder(orderId)
-  if (!order) throw new Error('No order')
-  const user = await fetchUser(order.userId)
-  if (!user) throw new Error('No user')
-  const result = await chargePayment(user, order.total)
-  return result
-}
-
-// AFTER
-const processOrder = (orderId: string) =>
-  pipe(
-    TE.Do,
-    TE.bind('order', () => fetchOrder(orderId)),
-    TE.bind('user', ({ order }) => fetchUser(order.userId)),
-    TE.flatMap(({ user, order }) => chargePayment(user, order.total))
-  )
-```
-
-### Error Recovery
-
-```typescript
-// BEFORE
-async function getData(id: string) {
-  try {
-    return await fetchFromApi(id)
-  } catch {
-    try {
-      return await fetchFromCache(id)
-    } catch {
-      return defaultValue
-    }
-  }
-}
-
-// AFTER
-const getData = (id: string) =>
-  pipe(
-    fetchFromApi(id),
-    TE.orElse(() => fetchFromCache(id)),
-    TE.getOrElse(() => T.of(defaultValue))
-  )
 ```

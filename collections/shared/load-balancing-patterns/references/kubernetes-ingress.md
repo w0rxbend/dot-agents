@@ -1,8 +1,5 @@
 # Kubernetes Ingress Controllers
 
-Complete guide to Kubernetes ingress for HTTP load balancing.
-
-
 ## Table of Contents
 
 - [NGINX Ingress Controller](#nginx-ingress-controller)
@@ -18,16 +15,20 @@ Complete guide to Kubernetes ingress for HTTP load balancing.
 
 ## NGINX Ingress Controller
 
-Two different controllers share this name. The community `ingress-nginx` (annotations `nginx.ingress.kubernetes.io/*`, used in the examples below) has been retired, with best-effort maintenance ending in March 2026. F5's NGINX Ingress Controller (Helm repo below) uses `nginx.org/*` annotations and its own CRDs, so the community annotations do not apply to it. For new clusters prefer the Gateway API section.
+Two different controllers share this name. Community `ingress-nginx` (annotations `nginx.ingress.kubernetes.io/*`, used in examples below) is retired, with best-effort maintenance ending in March 2026. F5's NGINX Ingress Controller (Helm repo below) uses `nginx.org/*` annotations and its own CRDs. Community annotations do not apply to it. For new clusters prefer Gateway API section.
 
 ### Installation
 
 ```bash
 helm repo add nginx-stable https://helm.nginx.com/stable
 helm install nginx-ingress nginx-stable/nginx-ingress \
+  --version <reviewed-chart-version> \
   --namespace ingress-nginx \
-  --create-namespace
+  --create-namespace \
+  --set controller.telemetryReporting.enable=false  # telemetry to F5 is on by default
 ```
+
+Pin `--version` to a reviewed chart release (also for Traefik below); verify provenance (`--verify`) where the chart is signed.
 
 ### Basic Ingress
 
@@ -74,6 +75,7 @@ annotations:
 
 ```bash
 helm install traefik traefik/traefik \
+  --version <reviewed-chart-version> \
   --namespace traefik \
   --create-namespace
 ```
@@ -185,4 +187,4 @@ spec:
       periodSeconds: 5
 ```
 
-Complete examples in `examples/kubernetes/` directory.
+Full examples in `examples/kubernetes/`.

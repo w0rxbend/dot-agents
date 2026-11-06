@@ -14,24 +14,25 @@ tools: [claude, cursor, gemini]
 
 ## Overview
 
-Astro is a web framework designed for content-rich websites — blogs, docs, portfolios, marketing sites, and e-commerce. Its core innovation is the **Islands Architecture**: by default, Astro ships zero JavaScript to the browser. Interactive components are selectively hydrated as isolated "islands." Astro supports React, Vue, Svelte, Solid, and other UI frameworks simultaneously in the same project, letting you pick the right tool per component.
+For content-rich sites: blogs, docs, portfolios, marketing, e-commerce. **Islands Architecture**: zero JavaScript shipped to browser by default; interactive components hydrate selectively as isolated "islands." React, Vue, Svelte, Solid and other UI frameworks can mix in one project, picked per component.
 
 ## When to Use This Skill
 
-- Use when building a blog, documentation site, marketing page, or portfolio
-- Use when performance and Core Web Vitals are the top priority
-- Use when the project is content-heavy with Markdown or MDX files
-- Use when you want SSG (static) output with optional SSR for dynamic routes
-- Use when the user asks about `.astro` files, `Astro.props`, content collections, or `client:` directives
+- Blog, documentation site, marketing page or portfolio
+- Performance and Core Web Vitals top priority
+- Content-heavy project with Markdown or MDX files
+- SSG (static) output with optional SSR for dynamic routes
+- Questions about `.astro` files, `Astro.props`, content collections or `client:` directives
 
 ## How It Works
 
 ### Step 1: Project Setup
 
 ```bash
-npm create astro@latest my-site
+npm create astro@5.3.1 my-site   # pinned scaffolder; bump only to a reviewed version
 cd my-site
 npm install
+npx astro telemetry disable      # CLI telemetry on by default; or ASTRO_TELEMETRY_DISABLED=1 per command
 npm run dev
 ```
 
@@ -61,7 +62,7 @@ astro.config.mjs  ← Framework config
 
 ### Step 2: Astro Component Syntax
 
-`.astro` files have a code fence at the top (server-only) and a template below:
+`.astro` file: server-only code fence on top, template below:
 
 ```astro
 ---
@@ -121,7 +122,7 @@ const { Content } = await render(post);
 
 ### Step 4: Content Collections
 
-Content collections give you type-safe access to Markdown and MDX files. This is the Content Layer API (Astro 5+; the legacy `type: 'content'` collections in `src/content/config.ts`, `post.slug` and `post.render()` are gone in current versions):
+Type-safe access to Markdown and MDX files via Content Layer API (Astro 5+; legacy `type: 'content'` collections in `src/content/config.ts`, `post.slug` and `post.render()` gone in current versions):
 
 ```typescript
 // src/content.config.ts
@@ -164,7 +165,7 @@ const posts = (await getCollection('blog'))
 
 ### Step 5: Islands — Selective Hydration
 
-By default, UI framework components render to static HTML with no JS. Use `client:` directives to hydrate:
+UI framework components render to static HTML, no JS, by default. Hydrate with `client:` directives:
 
 ```astro
 ---
@@ -230,7 +231,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 ### Step 7: SSR Mode (On-Demand Rendering)
 
-Enable on-demand rendering by adding an adapter:
+Adapter enables on-demand rendering:
 
 ```javascript
 // astro.config.mjs
@@ -243,7 +244,7 @@ export default defineConfig({
 });
 ```
 
-With `output: 'static'` plus an adapter, opt individual pages or endpoints into on-demand rendering with `export const prerender = false`. With `output: 'server'`, everything renders on demand unless a page sets `export const prerender = true`.
+`output: 'static'` plus adapter: opt individual pages or endpoints into on-demand rendering with `export const prerender = false`. `output: 'server'`: everything renders on demand unless page sets `export const prerender = true`.
 
 ## Examples
 
@@ -328,41 +329,38 @@ import SearchBox from '../components/SearchBox.tsx';
 
 ## Best Practices
 
-- ✅ Keep most components as static `.astro` files — only hydrate what must be interactive
-- ✅ Use content collections for all Markdown/MDX content — you get type safety and auto-validation
-- ✅ Prefer `client:visible` over `client:load` for below-the-fold components to reduce initial JS
-- ✅ Use `import.meta.env` for environment variables — prefix public vars with `PUBLIC_`
-- ✅ Add `<ClientRouter />` from `astro:transitions` (named `<ViewTransitions />` before Astro 5) for smooth page navigation without a full SPA
-- ❌ Don't use `client:load` on every component — this defeats Astro's performance advantage
-- ❌ Don't put secrets in `.astro` frontmatter that gets used in client-facing templates
-- ❌ Don't skip `getStaticPaths` for dynamic routes in static mode — builds will fail
+- ✅ Keep most components static `.astro`; hydrate only what must be interactive
+- ✅ Content collections for all Markdown/MDX: type safety, auto-validation
+- ✅ Prefer `client:visible` over `client:load` below the fold. Less initial JS
+- ✅ `import.meta.env` for environment variables; prefix public vars with `PUBLIC_`
+- ✅ `<ClientRouter />` from `astro:transitions` (named `<ViewTransitions />` before Astro 5): smooth page navigation without full SPA
+- ❌ Don't put secrets in `.astro` frontmatter used in client-facing templates
+- ❌ Don't skip `getStaticPaths` for dynamic routes in static mode — build fails
 
 ## Security & Safety Notes
 
-- Frontmatter code in `.astro` files runs server-side only and is never exposed to the browser.
-- Use `import.meta.env.PUBLIC_*` only for non-sensitive values. Private env vars (no `PUBLIC_` prefix) are never sent to the client.
-- When using SSR mode, validate all `Astro.request` inputs before database queries or API calls.
-- Sanitize any user-supplied content before rendering with `set:html` — it bypasses auto-escaping.
+- `.astro` frontmatter code runs server-side only, never exposed to browser.
+- `import.meta.env.PUBLIC_*` only for non-sensitive values. Private env vars (no `PUBLIC_` prefix) never sent to client.
+- SSR mode: validate all `Astro.request` inputs before database queries or API calls.
+- Sanitize user-supplied content before `set:html` — it bypasses auto-escaping.
+- Existing project too: Astro CLI (`add`, `dev`, `build`) sends usage telemetry by default. Run `npx astro telemetry disable` (machine-wide) or set `ASTRO_TELEMETRY_DISABLED=1` first.
 
 ## Common Pitfalls
 
-- **Problem:** JavaScript from a React/Vue component doesn't run in the browser
-  **Solution:** Add a `client:` directive (`client:load`, `client:visible`, etc.) — without it, components render as static HTML only.
+- **Problem:** `getStaticPaths` data stale after content updates in dev
+  **Solution:** Dev server watches content files. Restart if `src/content.config.ts` changes don't show.
 
-- **Problem:** `getStaticPaths` data is stale after content updates during dev
-  **Solution:** Astro's dev server watches content files — restart if changes to `src/content.config.ts` are not reflected.
+- **Problem:** `Astro.props` typed `any`, no autocomplete
+  **Solution:** Define `Props` interface or type in frontmatter. Astro infers it.
 
-- **Problem:** `Astro.props` type is `any` — no autocomplete
-  **Solution:** Define a `Props` interface or type in the frontmatter and Astro will infer it automatically.
-
-- **Problem:** CSS from a `.astro` component bleeds into other components
-  **Solution:** Styles in `.astro` `<style>` tags are automatically scoped. Use `:global()` only when intentionally targeting children.
+- **Problem:** `.astro` component CSS bleeds into other components
+  **Solution:** `.astro` `<style>` tags are scoped automatically. Use `:global()` only to target children intentionally.
 
 ## Related Skills
 
-- `frontend-ui-engineering` — Component structure, state and accessibility for the interactive islands
-- `frontend-design` — Visual design direction for the site
-- `theming-components` — Design tokens and theming (including Tailwind setups)
+- `frontend-ui-engineering` — Component structure, state, accessibility for islands
+- `frontend-design` — Visual design direction
+- `theming-components` — Design tokens, theming (Tailwind setups too)
 
 ## Limitations
-- Examples target Astro 5 and later (checked against Astro 7). For an Astro 4 project, check its version in `package.json` before applying the content-collection and config snippets.
+- Examples target Astro 5 and later (checked against Astro 7). Astro 4 project: check version in `package.json` before applying content-collection and config snippets.

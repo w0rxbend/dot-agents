@@ -8,7 +8,7 @@
 
 ## Context in HTTP Servers
 
-`http.Request` carries a context that is cancelled when the client disconnects or the request handler returns. MUST use `r.Context()` — NEVER create a new `context.Background()` inside a handler.
+`http.Request` context is cancelled when client disconnects or handler returns. MUST use `r.Context()`. NEVER create new `context.Background()` inside handler.
 
 ```go
 func (h *Handler) GetOrder(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +79,7 @@ func (c *HTTPClient) Do(ctx context.Context, method, url string, body io.Reader)
 
 ## Context in Calls to Other Services
 
-Context MUST be propagated to all HTTP clients and databases using context-aware APIs: `http.NewRequestWithContext`, `QueryContext`, `ExecContext`, and `QueryRowContext`. This ensures that client disconnections cancel all downstream operations.
+Context MUST reach all HTTP clients and databases through context-aware APIs: `http.NewRequestWithContext`, `QueryContext`, `ExecContext`, `QueryRowContext`. Then client disconnect cancels all downstream operations.
 
 ```go
 // ✗ Bad — downstream calls ignore the request context

@@ -20,11 +20,11 @@ High-performance vector search API using Rust, Axum web framework, and Qdrant ve
 ## Setup
 
 ```bash
-# 1. Install Rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+# 1. Install Rust: your OS package manager's rustup/rust package,
+#    or save https://sh.rustup.rs to a file, review it, then run it (never pipe to sh)
 
-# 2. Start Qdrant
-docker run -p 6333:6333 qdrant/qdrant
+# 2. Start Qdrant (pinned, localhost only, telemetry off)
+docker run -p 127.0.0.1:6333:6333 -e QDRANT__TELEMETRY_DISABLED=true qdrant/qdrant:v1.19.2
 
 # 3. Set environment variables
 export OPENAI_API_KEY="your-key"

@@ -1,6 +1,6 @@
 # Background Loading
 
-Background loading lets PixiJS fetch and prepare assets passively while other work happens. Use it to prime the next level while the current one is playing, preload assets during a splash screen, or prepare UI assets during initial load. `backgroundLoad` and `backgroundLoadBundle` are non-blocking and return immediately.
+Fetches and prepares assets passively while other work runs. Use to prime next level during play, preload during splash screen, or prep UI assets during initial load. `backgroundLoad` and `backgroundLoadBundle` are non-blocking and return immediately.
 
 ## Quick Start
 
@@ -15,8 +15,6 @@ playerClicksStart(() => {
 });
 ```
 
-The `backgroundLoadBundle` call starts loading `level1` immediately without blocking. The later `loadBundle` call resolves quickly if background loading finished in the meantime.
-
 ## Core Patterns
 
 ### Background-loading a single asset
@@ -28,7 +26,7 @@ Assets.backgroundLoad("images/level2-assets.png");
 const texture = await Assets.load("images/level2-assets.png");
 ```
 
-Fire-and-forget. Background loading happens one asset at a time to avoid blocking the main thread. When your code later calls `Assets.load(url)` for the same asset, it either resolves immediately (if background work finished) or waits for the already-in-progress load.
+Fire-and-forget. Loads one asset at a time to avoid blocking main thread. Later `Assets.load(url)` for same asset resolves immediately if done, else waits for in-progress load.
 
 ### Background-loading an array
 
@@ -40,7 +38,7 @@ Assets.backgroundLoad([
 ]);
 ```
 
-Queues multiple assets for background loading. They're processed sequentially.
+Queues several assets; processed sequentially.
 
 ### Background-loading a bundle
 
@@ -65,7 +63,7 @@ onPlayClicked(async () => {
 });
 ```
 
-Same idea for bundles. Bundle assets are queued one at a time. Requires the bundle to exist via the manifest or `addBundle`.
+Same for bundles, one asset at a time. Bundle must exist via manifest or `addBundle`.
 
 ### Interrupting background loading
 
@@ -77,11 +75,11 @@ onPlayerDecidedLevel3(async () => {
 });
 ```
 
-Calling `Assets.load()` or `Assets.loadBundle()` interrupts background loading safely. The current background asset finishes, then the explicit load takes priority. Your explicit load resolves normally.
+`Assets.load()` or `Assets.loadBundle()` safely interrupts background loading. Current background asset finishes, then explicit load takes priority and resolves normally.
 
 ### Combining with a progress bar
 
-Background loading has no progress callback; it runs silently. To show a loading bar, use `Assets.loadBundle(name, onProgress)` in the foreground instead. Typical pattern: use background loading for nice-to-have preloads and foreground loading for the bundles you're actually waiting on.
+Typical split: background for nice-to-have preloads, foreground `Assets.loadBundle(name, onProgress)` for bundles you wait on.
 
 ## Common Mistakes
 
@@ -100,7 +98,7 @@ Assets.backgroundLoadBundle("level2");
 // show a spinner or no UI while it runs
 ```
 
-`backgroundLoad` and `backgroundLoadBundle` don't accept progress callbacks. They're silent. For visible progress, use the foreground `Assets.load` / `Assets.loadBundle` with an `onProgress` argument.
+`backgroundLoad` and `backgroundLoadBundle` don't accept progress callbacks. For visible progress, use foreground `Assets.load` / `Assets.loadBundle` with `onProgress`.
 
 
 ### [MEDIUM] Assuming background load completes before next foreground load
@@ -123,12 +121,12 @@ onStart(async () => {
 });
 ```
 
-Background loading is best-effort. If the player hits Start before it finishes, the foreground `loadBundle` still needs to await the remaining work. Always `await` the real load before using the assets.
+Best-effort. If player hits Start first, foreground `loadBundle` still awaits remaining work. Always `await` real load before using assets.
 
 
 ### [MEDIUM] Background-loading assets that are never used
 
-Each queued background load consumes bandwidth and GPU memory. If the player never visits level 2, you've wasted that bandwidth. Background-load only what you're confident will be needed soon.
+Each queued load costs bandwidth and GPU memory, wasted if player never visits level 2. Background-load only assets you're confident are needed soon.
 
 
 ## API Reference

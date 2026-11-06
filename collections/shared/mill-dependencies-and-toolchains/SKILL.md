@@ -6,12 +6,12 @@ license: MIT
 
 # Dependencies and JVM toolchains
 
-Read [dependencies.md](references/dependencies.md) for scopes, artifact suffixes, BOMs, repositories, and resolution failures. Read [toolchains.md](references/toolchains.md) when aligning build/runtime JVMs, compiler targets, and matrix variants.
+Read [dependencies.md](references/dependencies.md) for scopes, artifact suffixes, BOMs, repositories, resolution failures. Read [toolchains.md](references/toolchains.md) for aligning build/runtime JVMs, compiler targets, matrix variants.
 
-Distinguish project `moduleDeps`, module `mvnDeps`, and build-header imports. Tests are separate modules with ordinary dependencies. Use compile-only and runtime-only tasks intentionally, preserving inherited lists when appropriate. A dependency management/BOM convention should not put every library on every module's classpath.
+Distinguish project `moduleDeps`, module `mvnDeps`, build-header imports. Tests are separate modules with ordinary dependencies. Use compile-only/runtime-only tasks deliberately, keeping inherited lists where appropriate. Do not let BOM/dependency-management convention put every library on every module's classpath.
 
-Use the project's pinned versions unless an upgrade is requested. For a new dependency, verify coordinates and a stable version from canonical Maven metadata or the upstream release; do not copy old documentation example versions as current recommendations. Match Scala binary/full/compiler and JS/Native suffixes to the consuming module.
+Keep project's pinned versions unless upgrade requested. New dependency: verify coordinates and stable version from canonical Maven metadata or upstream release. Do not treat old documentation example versions as current. Match Scala binary/full/compiler and JS/Native suffixes to consuming module.
 
-Inspect `showMvnDepsTree`, resolved classpaths, and POM output before forcing/excluding versions. Document why a constraint exists. Keep private repository credentials in environment/configuration inputs and avoid logging their values. A working local cache is insufficient proof that a fresh machine can resolve the project.
+Inspect `showMvnDepsTree`, resolved classpaths, POM output before forcing/excluding versions. Document why each constraint exists. Keep private repository credentials in environment/configuration inputs; avoid logging their values. Working local cache does not prove fresh-machine resolution.
 
-Align compiler targets independently of the JVM running Mill. Preserve lower-runtime libraries when one service uses Java 25/VSS. Verify the assembled application on its advertised runtime and record platform requirements for Native, Spark, Android, and compiler plugins.
+Align compiler targets independently of JVM running Mill. Keep lower-runtime libraries when one service uses Java 25/VSS. Verify assembled application on advertised runtime. Record platform requirements for Native, Spark, Android, compiler plugins.

@@ -1,7 +1,5 @@
 # Render Metrics Interpretation Guide
 
-Comprehensive guide to understanding and acting on Render service metrics.
-
 ## Available Metrics
 
 | Metric | Description | Applicable Resources |
@@ -12,10 +10,10 @@ Comprehensive guide to understanding and acting on Render service metrics.
 | `memory_usage` | Memory utilization | Services, Postgres, KV |
 | `memory_limit` | Memory limit/allocation | Services |
 | `memory_target` | Autoscaling memory target | Services |
-| `http_request_count` | Number of HTTP requests | Services |
+| `http_request_count` | HTTP request count | Services |
 | `http_latency` | Response time (quantile-based) | Services |
 | `bandwidth_usage` | Network bandwidth used | Services |
-| `instance_count` | Number of running instances | Services |
+| `instance_count` | Running instance count | Services |
 | `active_connections` | Database connections | Postgres, KV |
 
 ---
@@ -24,7 +22,7 @@ Comprehensive guide to understanding and acting on Render service metrics.
 
 ### cpu_usage
 
-**What it measures:** Percentage of allocated CPU being used.
+**What it measures:** Percent of allocated CPU in use.
 
 **Healthy ranges by plan:**
 | Plan | Typical Healthy | Warning | Critical |
@@ -37,14 +35,14 @@ Comprehensive guide to understanding and acting on Render service metrics.
 1. Profile code for inefficient operations
 2. Add caching for repeated computations
 3. Optimize database queries
-4. Upgrade to higher plan
+4. Upgrade plan
 5. Enable autoscaling
 
 ### cpu_limit
 
-**What it measures:** Maximum CPU allocated to the service.
+**What it measures:** Maximum CPU allocated to service.
 
-**Use case:** Compare `cpu_usage` to `cpu_limit` to determine if throttling is occurring.
+**Use case:** Compare `cpu_usage` to `cpu_limit` to detect throttling.
 
 **Formula:** `throttle_risk = cpu_usage / cpu_limit`
 - `>0.9` = High throttling risk
@@ -57,7 +55,7 @@ Comprehensive guide to understanding and acting on Render service metrics.
 
 ### memory_usage
 
-**What it measures:** Memory being used by the service in bytes.
+**What it measures:** Memory used by service, in bytes.
 
 **Healthy ranges:**
 | Plan | Memory Limit | Warning Threshold | Critical Threshold |
@@ -90,7 +88,7 @@ Comprehensive guide to understanding and acting on Render service metrics.
 
 ### http_latency
 
-**What it measures:** Response time at a given percentile.
+**What it measures:** Response time at given percentile.
 
 **Common quantiles:**
 - `0.5` (p50/median) - Typical user experience
@@ -107,7 +105,7 @@ Comprehensive guide to understanding and acting on Render service metrics.
 
 **Actions for high latency:**
 1. Add database indexes
-2. Implement caching (Redis/KV)
+2. Add caching (Redis/KV)
 3. Optimize N+1 queries
 4. Use connection pooling
 5. Add CDN for static assets
@@ -115,7 +113,7 @@ Comprehensive guide to understanding and acting on Render service metrics.
 
 ### http_request_count
 
-**What it measures:** Number of HTTP requests received.
+**What it measures:** HTTP requests received.
 
 **Use cases:**
 - Detect traffic spikes
@@ -140,13 +138,13 @@ Target: <0.1% error rate
 
 ### instance_count
 
-**What it measures:** Number of running service instances.
+**What it measures:** Running service instance count.
 
 **Interpreting changes:**
-- Increasing: Autoscaling up (good if traffic increasing)
+- Increasing: Autoscaling up (good if traffic rising)
 - Decreasing: Autoscaling down (cost optimization)
 - Fluctuating: Possible instability or aggressive scaling
-- Stuck at 1: May not have autoscaling enabled
+- Stuck at 1: Autoscaling may not be enabled
 
 **Autoscaling health check:**
 Compare `instance_count` trends with `cpu_usage` and `http_request_count`:
@@ -159,7 +157,7 @@ Compare `instance_count` trends with `cpu_usage` and `http_request_count`:
 
 ### active_connections
 
-**What it measures:** Number of active database connections.
+**What it measures:** Active database connection count.
 
 **Connection limits by plan:**
 | Plan | Max Connections | Warning | Critical |
@@ -170,7 +168,7 @@ Compare `instance_count` trends with `cpu_usage` and `http_request_count`:
 | Pro | 500+ | 400+ | 450+ |
 
 **Actions for high connections:**
-1. Implement connection pooling (PgBouncer)
+1. Add connection pooling (PgBouncer)
 2. Close idle connections
 3. Reduce connection timeouts
 4. Fix connection leaks in code
@@ -178,9 +176,9 @@ Compare `instance_count` trends with `cpu_usage` and `http_request_count`:
 
 ### Database CPU/Memory
 
-Same interpretation as service metrics, but:
-- High CPU often indicates slow queries
-- High memory often indicates large result sets or missing indexes
+Read like service metrics, but:
+- High CPU often means slow queries
+- High memory often means large result sets or missing indexes
 
 ---
 
@@ -192,8 +190,8 @@ Same interpretation as service metrics, but:
 
 **Considerations:**
 - Spikes correlate with large responses or file downloads
-- Sustained high bandwidth may indicate inefficient API design
-- Consider compression (gzip/brotli) to reduce bandwidth
+- Sustained high bandwidth may mean inefficient API design
+- Consider compression (gzip/brotli) to cut bandwidth
 
 **Cost implications:**
 - Render includes bandwidth in plans
@@ -214,7 +212,7 @@ Same interpretation as service metrics, but:
 
 ### Correlating Events
 
-When investigating issues, align metrics with:
+When investigating, align metrics with:
 1. Deploy times (`list_deploys`)
 2. Error log timestamps (`list_logs`)
 3. Traffic patterns (`http_request_count`)

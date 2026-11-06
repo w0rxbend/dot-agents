@@ -18,28 +18,28 @@ tags:
 
 # Async Pipelines with fp-ts TaskEither
 
-`TaskEither<E, A>` is a lazy `() => Promise<Either<E, A>>`. It never rejects; failures travel in `Left`, so the compiler tracks them through every step. This skill is about the *shape of async flows*: ordering, concurrency, retries and recovery. How to design the error types (`_tag` unions, validation, converting throwing code) lives in fp-errors.
+`TaskEither<E, A>` is lazy `() => Promise<Either<E, A>>`. Never rejects. Failures travel in `Left`, so compiler tracks them through every step. This skill covers shape of async flows: ordering, concurrency, retries, recovery. Error type design (`_tag` unions, validation, converting throwing code) lives in fp-errors.
 
-> fp-ts is in maintenance mode and its authors recommend Effect for new projects. Use this skill when the codebase already uses fp-ts; for Effect use effect-core-patterns and effect-concurrency.
+> fp-ts is in maintenance mode; its authors recommend Effect for new projects. Use this skill when codebase already uses fp-ts. For Effect use effect-core-patterns and effect-concurrency.
 
 ## Procedure
 
-1. **Wrap at the boundary, once.** Turn each Promise API into a function returning `TaskEither` with `TE.tryCatch(() => call(), toDomainError)` (or `TE.tryCatchK`). Always pass a thunk so nothing starts early.
-2. **Decide ordering per step** with the table below.
-3. **Compose with `flatMap`.** `TE.flatMap` sequences dependent calls and unions error types. `chain`/`chainW` are legacy aliases (fp-ts 2.14+); write `flatMap`, `tap`, `flatMapEither` in new code.
-4. **Recover deliberately.** Use `TE.orElse` for alternatives, retry only idempotent operations, and recover only from errors you can handle.
-5. **Run at the edge.** Call the task (`await program()`) in the HTTP handler, CLI `main`, or job runner, then `match`/`fold` into a response.
+1. **Wrap at the boundary, once.** Each Promise API becomes function returning `TaskEither` via `TE.tryCatch(() => call(), toDomainError)` (or `TE.tryCatchK`). Always pass thunk so nothing starts early.
+2. **Decide ordering per step** with table below.
+3. **Compose with `flatMap`.** `TE.flatMap` sequences dependent calls, unions error types. `chain`/`chainW` are legacy aliases (fp-ts 2.14+). New code: `flatMap`, `tap`, `flatMapEither`.
+4. **Recover deliberately.** `TE.orElse` for alternatives. Recover only from errors you can handle.
+5. **Run at the edge.** Call task (`await program()`) in HTTP handler, CLI `main` or job runner, then `match`/`fold` into response.
 
 ## Sequential vs parallel
 
 | Situation | Use |
 |---|---|
-| Step needs the previous result | `TE.flatMap`, or `TE.Do` + `TE.bind` to keep earlier values |
+| Step needs previous result | `TE.flatMap`, or `TE.Do` + `TE.bind` to keep earlier values |
 | Independent calls, all required | `TE.Do` + `TE.apS` (uses `ApplyPar`), or `sequenceT(TE.ApplyPar)(a, b, c)` |
-| Same call over a list, unbounded | `TE.traverseArray(f)` (parallel, fails with the first `Left` in array order) |
-| Same call over a list, rate-limited or ordered | `TE.traverseSeqArray(f)` |
-| Bounded concurrency | Chunk the list, `traverseSeqArray` over chunks, `traverseArray` inside each chunk |
-| Keep successes and failures | `T.traverseArray(f)` (each item is an `Either`), then `A.separate` |
+| Same call over list, unbounded | `TE.traverseArray(f)` (parallel, fails with first `Left` in array order) |
+| Same call over list, rate-limited or ordered | `TE.traverseSeqArray(f)` |
+| Bounded concurrency | Chunk list, `traverseSeqArray` over chunks, `traverseArray` inside each chunk |
+| Keep successes and failures | `T.traverseArray(f)` (each item is `Either`), then `A.separate` |
 
 ```typescript
 import { pipe } from 'fp-ts/function'
@@ -98,26 +98,26 @@ const getUser = (id: string) =>
   )
 ```
 
-Retry only operations that are safe to repeat (GET, idempotent writes with an idempotency key). Add jitter and a cap for production backoff, or use a library (`retry-ts` builds on fp-ts) instead of growing this helper.
+Retry only operations safe to repeat (GET, idempotent writes with idempotency key). Production backoff: add jitter and cap, or use library (`retry-ts` builds on fp-ts) instead of growing this helper.
 
 ## References
 
-- [references/taskeither-cheatsheet.md](references/taskeither-cheatsheet.md) - one-page TaskEither operator cheat sheet (create, transform, sequential vs parallel, recover, run) for quick lookups.
-- [references/detailed-guide.md](references/detailed-guide.md) - read the section you need: 1 wrapping Promises, 2 chaining and Do notation, 3 parallel vs sequential and batching, 4 recovery (typed recovery, backoff, defaults), 5 handling results in Express/Hono handlers, 6 common patterns and a quick reference card.
-- [references/real-api-examples.md](references/real-api-examples.md) - complete fetch client, Prisma repository and Node file I/O wrappers; read when building one of those layers.
+- [references/taskeither-cheatsheet.md](references/taskeither-cheatsheet.md) - one-page TaskEither operator cheat sheet (create, transform, sequential vs parallel, recover, run) for quick lookup.
+- [references/detailed-guide.md](references/detailed-guide.md) - read section you need: 1 wrapping Promises, 2 chaining and Do notation, 3 parallel vs sequential and batching, 4 recovery (typed recovery, backoff, defaults), 5 handling results in Express/Hono handlers, 6 common patterns.
+- [references/real-api-examples.md](references/real-api-examples.md) - complete fetch client, Prisma repository, Node file I/O wrappers. Read when building one of those layers.
 - Related skills: fp-errors (error modeling), fp-backend (ReaderTaskEither services and DI).
 
 ## Pitfalls
 
-- Forgetting to invoke the task: `program` does nothing, `program()` runs it.
-- `TE.tryCatch(promise, ...)` with an already-created Promise: the work started before the pipeline and retries reuse the same settled Promise.
-- `throw` inside `TE.map` escapes as a rejected Promise; use `flatMap` + `tryCatch` for code that can throw.
-- `sequenceT(TE.ApplyPar)` for steps that depend on each other's side effects (create user, then profile): use `flatMap`.
+- Forgetting to invoke task: `program` does nothing, `program()` runs it.
+- `TE.tryCatch(promise, ...)` with already-created Promise: work started before pipeline, and retries reuse same settled Promise.
+- `throw` inside `TE.map` escapes as rejected Promise. Use `flatMap` + `tryCatch` for code that can throw.
+- `sequenceT(TE.ApplyPar)` for steps depending on each other's side effects (create user, then profile): use `flatMap`.
 - Mixing `await` inside pipelines: keep `async` only inside `tryCatch` thunks.
 
 ## Done when
 
-- Every Promise boundary is wrapped once with a domain error mapper; no `try/catch` inside pipelines.
-- Ordering choices are explicit (`flatMap`/`bind` vs `apS`/`traverseArray`) and match data dependencies.
-- Retries apply only to retryable, idempotent operations and are bounded.
-- Tests cover a success path and each `Left` tag the handler maps to a response.
+- Every Promise boundary wrapped once with domain error mapper. No `try/catch` inside pipelines.
+- Ordering choices explicit (`flatMap`/`bind` vs `apS`/`traverseArray`) and match data dependencies.
+- Retries bounded, applied only to retryable, idempotent operations.
+- Tests cover success path and each `Left` tag the handler maps to a response.

@@ -212,7 +212,8 @@ def upload():
     return render_template('upload.html', form=form)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Dev server only. Never debug=True on a reachable host: Werkzeug console = code execution.
+    app.run()
 
 # Template example for contact.html
 CONTACT_TEMPLATE = '''

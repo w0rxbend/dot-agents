@@ -1,6 +1,6 @@
 # Caching
 
-Every asset loaded through `Assets` is cached until you explicitly unload it. The cache is a global singleton keyed by the resolved URL, alias, and any bundle identifier. Use the cache to avoid double-loading, retrieve loaded assets synchronously, and reclaim GPU memory when an asset is no longer needed.
+Every asset loaded via `Assets` stays cached until explicitly unloaded. Cache: global singleton keyed by resolved URL, alias, and any bundle identifier.
 
 ## Quick Start
 
@@ -13,7 +13,7 @@ const sprite = new Sprite(cached);
 await Assets.unload("hero.png");
 ```
 
-`Assets.load` adds the asset to the cache; `Assets.get` retrieves it synchronously; `Assets.unload` removes it and releases the underlying GPU resource.
+`Assets.load` caches; `Assets.get` reads synchronously; `Assets.unload` removes and frees underlying GPU resource.
 
 ## Core Patterns
 
@@ -30,7 +30,7 @@ if (hero) {
 }
 ```
 
-`Assets.get(alias)` returns `undefined` if the asset has not been loaded yet. It is synchronous; use it in tight loops or anywhere `await` would be awkward.
+`Assets.get(alias)` returns `undefined` if not loaded yet. Synchronous; use in tight loops or where `await` is awkward.
 
 ### Multiple keys at once
 
@@ -41,7 +41,7 @@ const all = Assets.get(["hero", "enemy", "boss"]);
 const heroTex = all["hero"];
 ```
 
-Passing an array returns an object keyed by alias. Useful for retrieving all the assets a scene needs in one call.
+Array returns object keyed by alias; fetch a scene's assets in one call.
 
 ### Deduping load calls
 
@@ -51,7 +51,7 @@ const tex2 = await Assets.load("hero.png");
 console.log(tex1 === tex2); // true
 ```
 
-Calling `Assets.load` with the same key multiple times returns the same cached result immediately on subsequent calls. Safe to call from multiple async functions concurrently.
+Repeat `Assets.load` with same key returns same cached result immediately. Safe from concurrent async functions.
 
 ### Unloading
 
@@ -60,7 +60,7 @@ sprite.destroy();
 await Assets.unload("hero.png");
 ```
 
-`Assets.unload(id)` removes the asset from the cache, calls `destroy()` on the texture (releasing GPU memory), and removes any loader-specific wrappers. Always destroy or detach display objects that reference the asset before unloading, or you'll hit freed GPU memory.
+`Assets.unload(id)` removes from cache, calls `destroy()` on texture (frees GPU memory), removes loader-specific wrappers.
 
 ### Unloading a bundle
 
@@ -69,7 +69,7 @@ level1Container.destroy({ children: true });
 await Assets.unloadBundle("level1");
 ```
 
-Prefer `unloadBundle` over manually iterating. It has no reference counting: every asset in the bundle is removed from the cache and destroyed, even if another bundle declares the same `src`, and that bundle's alias stays broken until you reload it. Detach anything on the scene that still uses those assets first.
+Prefer `unloadBundle` over manual iteration. No reference counting: every bundle asset is removed and destroyed, even if another bundle declares same `src`. That bundle's alias stays broken until reloaded.
 
 ### Inspecting the cache
 
@@ -82,7 +82,7 @@ if (Cache.has(key)) {
 }
 ```
 
-The low-level `Cache` class backs `Assets.get`. It exposes `has(key)`, `get(key)`, `set(key, value)`, and `remove(key)`. Most code should go through `Assets.get/unload` instead, but direct `Cache` access is useful for diagnostics or custom loader plugins.
+Low-level `Cache` backs `Assets.get`: `has(key)`, `get(key)`, `set(key, value)`, `remove(key)`. Most code should use `Assets.get/unload`; direct `Cache` access suits diagnostics or custom loader plugins.
 
 ## Common Mistakes
 
@@ -103,12 +103,12 @@ const texture = Assets.get("hero.png");
 const sprite = new Sprite(texture);
 ```
 
-`Assets.get` is synchronous and returns `undefined` if the asset hasn't been loaded yet. Always await `Assets.load` first, or use the return value of `Assets.load` directly.
+`Assets.get` is synchronous; returns `undefined` before load. Always await `Assets.load` first, or use its return value.
 
 
 ### [HIGH] Not unloading between levels
 
-Textures stay in the cache indefinitely. A game that loads level after level without calling `Assets.unload` or `Assets.unloadBundle` slowly accumulates GPU memory until it hits browser limits.
+Textures stay cached indefinitely. Loading level after level without `Assets.unload` or `Assets.unloadBundle` piles up GPU memory until browser limits hit.
 
 ```ts
 await Assets.unloadBundle("level1");
@@ -133,7 +133,7 @@ sprite.destroy();
 await Assets.unload("hero.png");
 ```
 
-`Assets.unload` destroys the underlying texture. Any sprite still referencing it will render Texture.EMPTY or crash depending on the backend. Destroy the leaf (or reassign its texture) before unloading.
+`Assets.unload` destroys texture. Sprite still using it renders Texture.EMPTY or crashes, depending on backend. Destroy leaf (or reassign texture) before unloading.
 
 
 ## API Reference
