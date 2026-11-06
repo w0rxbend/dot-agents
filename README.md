@@ -172,19 +172,21 @@ directory and rerun its installer.
 
 ## Maintenance
 
+Maintenance tasks run through [just](https://github.com/casey/just) (`just --list` shows every recipe):
+
 ```sh
-make check                              # validate snapshot, test installer, verify rendered config
-python3 scripts/catalog.py              # regenerate the readable catalog
-python3 scripts/import_skills.py --replace # deliberately refresh from recognized global roots
-python3 scripts/refresh_review.py       # record skills whose tree changed since review
-python3 scripts/refresh_review.py --list   # list the skills that still need review
-python3 scripts/refresh_review.py --mark-reviewed all-changed --note "what was read and why it is fine"
-./install.sh render                     # regenerate install.conf.yaml
+just check                              # validate snapshot, test installer, verify rendered config
+just catalog                            # regenerate the readable catalog
+just import-skills                      # deliberately refresh from recognized global roots
+just refresh-review                     # record skills whose tree changed since review
+just review                             # list the skills that still need review
+just mark-reviewed all-changed "what was read and why it is fine"
+just render                             # regenerate install.conf.yaml
 ```
 
 Each row in `docs/skill-review.json` records the tree `sha256` it was reviewed at. `refresh_review.py`
 carries matching rows forward and marks changed and new skills `reviewed: false` with a `needs_review`
-reason; `validate.py` (and so `make check`) fails until a maintainer has read them and run
+reason; `validate.py` (and so `just check`) fails until a maintainer has read them and run
 `--mark-reviewed` with comma-separated install IDs or `all-changed` plus a `--note`, which is kept in
 the row's `review_log`.
 

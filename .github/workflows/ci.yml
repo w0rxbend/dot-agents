@@ -43,8 +43,11 @@ jobs:
           ./install.sh install --home "$skill_test_home" --agents all
           ./install.sh uninstall --home "$skill_test_home" --agents all
           test -z "$(find "$skill_test_home" -type l)"
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
+        with:
+          just-version: '1.59.0'
       - name: Validate catalog and test installer
-        run: make check
+        run: just check
       - name: Ensure checks did not modify the checkout
         run: test -z "$(git status --porcelain)"
 
