@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-11-07T12:57:34.343346+00:00",
+  "reviewed_at": "2026-11-07T13:02:11.224776+00:00",
   "summary": {
     "baseline_catalog_skills": 501,
     "canonical_entrypoint_files_read": 583,
@@ -7569,7 +7569,7 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "cfe369b1c30fc5888218b23dc758d8b42b3ac3893ab227a69350b4c22676cdda",
+      "sha256": "7d7538f4521623dd2ebde30e603665598ab8ed909bf670eaeb9b01d47544da58",
       "current_entry_sha256": "4888445f2c17f92a8b13cd79582a634516cd60de2438319eef9b0a42ce894ee6",
       "current_entry_words": 819,
       "post_review_changes": [
@@ -7602,6 +7602,11 @@
           "at": "2026-11-07T12:57:34.281976+00:00",
           "from_sha256": "9863252ec24df1a03a04a0a2d8c3e3f188c37c00a574a3e537f0e1584045a6be",
           "tree_sha256": "cfe369b1c30fc5888218b23dc758d8b42b3ac3893ab227a69350b4c22676cdda"
+        },
+        {
+          "at": "2026-11-07T13:02:11.140372+00:00",
+          "from_sha256": "cfe369b1c30fc5888218b23dc758d8b42b3ac3893ab227a69350b4c22676cdda",
+          "tree_sha256": "7d7538f4521623dd2ebde30e603665598ab8ed909bf670eaeb9b01d47544da58"
         }
       ],
       "review_log": [
@@ -7629,6 +7634,11 @@
           "at": "2026-11-07T12:57:34.343197+00:00",
           "note": "Merged upstream dependency bumps from main (#20, #21): example manifests only (pulumi-aws package.json/package-lock.json, fastapi-otel requirements.txt); no skill instructions changed.",
           "sha256": "cfe369b1c30fc5888218b23dc758d8b42b3ac3893ab227a69350b4c22676cdda"
+        },
+        {
+          "at": "2026-11-07T13:02:11.224622+00:00",
+          "note": "Merged bot dependency PRs #22-#26 (example and component npm manifests/lockfiles only; no skill instructions changed). pulumi-aws typescript pinned to ^6.0.3 to satisfy @pulumi/pulumi peer range <7; npm ls --package-lock-only clean for all four touched projects.",
+          "sha256": "7d7538f4521623dd2ebde30e603665598ab8ed909bf670eaeb9b01d47544da58"
         }
       ]
     },
@@ -16526,7 +16536,7 @@
           "long-discovery"
         ]
       },
-      "sha256": "581d4c81f3750534dfea61da211d622846246a3210b921fd2b6e197dde159678",
+      "sha256": "441a8a751ced18b782f0ff147ac7ebc81fded2febfbf35ebc8615118b364b42e",
       "current_entry_sha256": "a61e13e83dbc77aaa0d10bd4594bbb6030e2129817f886dccc7b84e9963bd9c4",
       "current_entry_words": 1323,
       "post_review_changes": [
@@ -16554,6 +16564,11 @@
           "at": "2026-11-06T19:18:18.381401+00:00",
           "from_sha256": "2996e99ae6ff2cd2c3c2e5cf2ed2317eef2d43f78f81ddd898fa35ffc7250227",
           "tree_sha256": "581d4c81f3750534dfea61da211d622846246a3210b921fd2b6e197dde159678"
+        },
+        {
+          "at": "2026-11-07T13:02:11.140665+00:00",
+          "from_sha256": "581d4c81f3750534dfea61da211d622846246a3210b921fd2b6e197dde159678",
+          "tree_sha256": "441a8a751ced18b782f0ff147ac7ebc81fded2febfbf35ebc8615118b364b42e"
         }
       ],
       "review_log": [
@@ -16576,6 +16591,11 @@
           "at": "2026-11-06T19:18:25.800272+00:00",
           "note": "2026-11-06 owner-requested autonomous security hardening (no human in the loop). Reviewed by agents, not read by a human: 7 find rounds (24 batch auditors plus per-category sweeps), a per-skill fixer that verified each finding, then an independent reviewer agent per fixed skill that re-checked every edit, verified new version pins against registries and reverted bad edits (all reviews ok). Mechanical check 0 errors; changed scripts pass py_compile, bash -n and node --check. Includes the fast-uri 3.1.9 lockfile bump for the open Dependabot alert.",
           "sha256": "581d4c81f3750534dfea61da211d622846246a3210b921fd2b6e197dde159678"
+        },
+        {
+          "at": "2026-11-07T13:02:11.224642+00:00",
+          "note": "Merged bot dependency PRs #22-#26 (example and component npm manifests/lockfiles only; no skill instructions changed). pulumi-aws typescript pinned to ^6.0.3 to satisfy @pulumi/pulumi peer range <7; npm ls --package-lock-only clean for all four touched projects.",
+          "sha256": "441a8a751ced18b782f0ff147ac7ebc81fded2febfbf35ebc8615118b364b42e"
         }
       ]
     },
@@ -24399,7 +24419,7 @@
           "long-discovery"
         ]
       },
-      "sha256": "a2bdf48734d4118190e389026ef487b92e13d96b8cd098576b022ab2bd20a700",
+      "sha256": "9d4de4167511d3289874d580a94c005d1f881ce0b6b5ac6dfae86db69228298f",
       "current_entry_sha256": "fde1a9e76caf127fcf82a1fb2b8c3ae7e66dadecd706c7145564b3596452bb81",
       "current_entry_words": 786,
       "post_review_changes": [
@@ -24417,6 +24437,11 @@
           "at": "2026-11-05T13:56:20.046569+00:00",
           "from_sha256": "1138d624f3afbe24103ce473b156fa3f08c2aca2469ff90252dfe92bc695349e",
           "tree_sha256": "a2bdf48734d4118190e389026ef487b92e13d96b8cd098576b022ab2bd20a700"
+        },
+        {
+          "at": "2026-11-07T13:02:11.140971+00:00",
+          "from_sha256": "a2bdf48734d4118190e389026ef487b92e13d96b8cd098576b022ab2bd20a700",
+          "tree_sha256": "9d4de4167511d3289874d580a94c005d1f881ce0b6b5ac6dfae86db69228298f"
         }
       ],
       "review_log": [
@@ -24434,6 +24459,11 @@
           "at": "2026-11-05T13:56:34.996000+00:00",
           "note": "2026-11-05 owner-requested compaction (caveman-compress then ponytail) of SKILL.md and bundled reference markdown. Reviewed by agents, not read by a human: per-unit adversarial verify-and-restore against the pre-rewrite snapshot, an independent second review of every changed SKILL.md (0 high, 2 medium restored), a 30-file random audit (0 high), and a mechanical checker (frontmatter byte-identical, code blocks verbatim, no new URLs, links/anchors/bundled-file pointers intact; 0 errors). mill-testing also carries a pre-existing uncommitted one-line edit from another session.",
           "sha256": "a2bdf48734d4118190e389026ef487b92e13d96b8cd098576b022ab2bd20a700"
+        },
+        {
+          "at": "2026-11-07T13:02:11.224645+00:00",
+          "note": "Merged bot dependency PRs #22-#26 (example and component npm manifests/lockfiles only; no skill instructions changed). pulumi-aws typescript pinned to ^6.0.3 to satisfy @pulumi/pulumi peer range <7; npm ls --package-lock-only clean for all four touched projects.",
+          "sha256": "9d4de4167511d3289874d580a94c005d1f881ce0b6b5ac6dfae86db69228298f"
         }
       ]
     },
@@ -25014,7 +25044,7 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "58ccac44529b0a0f30b9cd7182370c83d1913ec964be0965563162215bb59335",
+      "sha256": "4250998d8f405b360767d67061fc2d3c021b9a03672e39c025300a371bd1af7b",
       "current_entry_sha256": "5fe8117d7c74172e685fcf0d448388d0898273b819a62b254fbe01c9502e58c7",
       "current_entry_words": 1714,
       "post_review_changes": [
@@ -25047,6 +25077,11 @@
           "at": "2026-11-06T19:18:18.391635+00:00",
           "from_sha256": "53ddd5dd82857e7ed5ec517cf59c4f4f088bb7a234436a0bc04aa7f28767cc02",
           "tree_sha256": "58ccac44529b0a0f30b9cd7182370c83d1913ec964be0965563162215bb59335"
+        },
+        {
+          "at": "2026-11-07T13:02:11.141146+00:00",
+          "from_sha256": "58ccac44529b0a0f30b9cd7182370c83d1913ec964be0965563162215bb59335",
+          "tree_sha256": "4250998d8f405b360767d67061fc2d3c021b9a03672e39c025300a371bd1af7b"
         }
       ],
       "review_log": [
@@ -25074,6 +25109,11 @@
           "at": "2026-11-06T19:18:25.800371+00:00",
           "note": "2026-11-06 owner-requested autonomous security hardening (no human in the loop). Reviewed by agents, not read by a human: 7 find rounds (24 batch auditors plus per-category sweeps), a per-skill fixer that verified each finding, then an independent reviewer agent per fixed skill that re-checked every edit, verified new version pins against registries and reverted bad edits (all reviews ok). Mechanical check 0 errors; changed scripts pass py_compile, bash -n and node --check. Includes the fast-uri 3.1.9 lockfile bump for the open Dependabot alert.",
           "sha256": "58ccac44529b0a0f30b9cd7182370c83d1913ec964be0965563162215bb59335"
+        },
+        {
+          "at": "2026-11-07T13:02:11.224647+00:00",
+          "note": "Merged bot dependency PRs #22-#26 (example and component npm manifests/lockfiles only; no skill instructions changed). pulumi-aws typescript pinned to ^6.0.3 to satisfy @pulumi/pulumi peer range <7; npm ls --package-lock-only clean for all four touched projects.",
+          "sha256": "4250998d8f405b360767d67061fc2d3c021b9a03672e39c025300a371bd1af7b"
         }
       ]
     },

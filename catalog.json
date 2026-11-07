@@ -2246,7 +2246,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "cfe369b1c30fc5888218b23dc758d8b42b3ac3893ab227a69350b4c22676cdda",
+      "sha256": "7d7538f4521623dd2ebde30e603665598ab8ed909bf670eaeb9b01d47544da58",
       "local_globs": [
         "~/.agents/skills/deploying-applications"
       ],
@@ -4367,7 +4367,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "581d4c81f3750534dfea61da211d622846246a3210b921fd2b6e197dde159678",
+      "sha256": "441a8a751ced18b782f0ff147ac7ebc81fded2febfbf35ebc8615118b364b42e",
       "local_globs": [
         "~/.agents/skills/implementing-api-patterns"
       ],
@@ -6394,7 +6394,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "a2bdf48734d4118190e389026ef487b92e13d96b8cd098576b022ab2bd20a700",
+      "sha256": "9d4de4167511d3289874d580a94c005d1f881ce0b6b5ac6dfae86db69228298f",
       "local_globs": [
         "~/.agents/skills/theming-components"
       ],
@@ -6536,7 +6536,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "58ccac44529b0a0f30b9cd7182370c83d1913ec964be0965563162215bb59335",
+      "sha256": "4250998d8f405b360767d67061fc2d3c021b9a03672e39c025300a371bd1af7b",
       "local_globs": [
         "~/.agents/skills/using-vector-databases"
       ],

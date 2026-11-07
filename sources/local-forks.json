@@ -3327,13 +3327,16 @@
         "removed unreferenced upstream eval fixture outputs.yaml (contradicted docker-compose-basics; nothing loads it)",
         "2026-11-05 compaction pass: SKILL.md and bundled reference markdown rewritten with caveman-compress rules (prose compressed, payload verbatim), then a ponytail pass (redundant, generic and repeated text cut), then an adversarial verify-and-restore pass against the pre-rewrite snapshot. Frontmatter, code blocks, links and bundled-file pointers checked mechanically.",
         "2026-11-06 security hardening pass: agent audit of every skill (telemetry, unverified remote code, destructive actions without confirmation, secrets handling, disabled security controls, untrusted content, agent permission bypass, bundled script vulnerabilities, CI supply chain); minimal fixes such as confirmation gates, untrusted-data rules, telemetry opt-outs, registry-verified version pins, parameterized SQL, path-traversal guards and narrowed allowed-tools; each fixed skill independently reviewed by a second agent; mechanical check 0 errors; scripts syntax-checked.",
-        "Upstream dependency updates merged from main (#20 npm dependencies in examples/pulumi-aws, #21 opentelemetry-api in examples/fastapi-otel)."
+        "Upstream dependency updates merged from main (#20 npm dependencies in examples/pulumi-aws, #21 opentelemetry-api in examples/fastapi-otel).",
+        "Bot dependency updates merged (#22 fast-uri, #23 typescript-hono, #24 theming-components, #25 pgvector-prisma, #26 pulumi-aws npm batches); pulumi-aws TypeScript pinned to ^6.0.3 because @pulumi/pulumi 3.272.0 declares peer typescript <7."
       ],
       "files": [
         "SKILL.md",
         "examples/k8s-argocd/README.md",
         "examples/pulumi-aws/README.md",
         "examples/pulumi-aws/index.ts",
+        "examples/pulumi-aws/package-lock.json",
+        "examples/pulumi-aws/package.json",
         "references/deployment-strategies.md",
         "references/edge-functions.md",
         "references/gitops-argocd.md",
@@ -4139,7 +4142,8 @@
         "Cursor pagination: int cursor, `is not None` check, order_by(Item.id)",
         "Dropped the stale Strawberry 0.287 pin",
         "2026-11-05 compaction pass: SKILL.md and bundled reference markdown rewritten with caveman-compress rules (prose compressed, payload verbatim), then a ponytail pass (redundant, generic and repeated text cut), then an adversarial verify-and-restore pass against the pre-rewrite snapshot. Frontmatter, code blocks, links and bundled-file pointers checked mechanically.",
-        "2026-11-06 security hardening pass: agent audit of every skill (telemetry, unverified remote code, destructive actions without confirmation, secrets handling, disabled security controls, untrusted content, agent permission bypass, bundled script vulnerabilities, CI supply chain); minimal fixes such as confirmation gates, untrusted-data rules, telemetry opt-outs, registry-verified version pins, parameterized SQL, path-traversal guards and narrowed allowed-tools; each fixed skill independently reviewed by a second agent; mechanical check 0 errors; scripts syntax-checked."
+        "2026-11-06 security hardening pass: agent audit of every skill (telemetry, unverified remote code, destructive actions without confirmation, secrets handling, disabled security controls, untrusted content, agent permission bypass, bundled script vulnerabilities, CI supply chain); minimal fixes such as confirmation gates, untrusted-data rules, telemetry opt-outs, registry-verified version pins, parameterized SQL, path-traversal guards and narrowed allowed-tools; each fixed skill independently reviewed by a second agent; mechanical check 0 errors; scripts syntax-checked.",
+        "Bot dependency updates merged (#22 fast-uri, #23 typescript-hono, #24 theming-components, #25 pgvector-prisma, #26 pulumi-aws npm batches); pulumi-aws TypeScript pinned to ^6.0.3 because @pulumi/pulumi 3.272.0 declares peer typescript <7."
       ],
       "files": [
         "README.md",
@@ -5440,7 +5444,8 @@
         "rag_pipeline.py: LLM_MODEL is required, replacing the retired gpt-4-turbo-preview default. README updated to match.",
         "references/pinecone.md: removed the nonexistent examples/pinecone-python/ entry.",
         "2026-11-05 compaction pass: SKILL.md and bundled reference markdown rewritten with caveman-compress rules (prose compressed, payload verbatim), then a ponytail pass (redundant, generic and repeated text cut), then an adversarial verify-and-restore pass against the pre-rewrite snapshot. Frontmatter, code blocks, links and bundled-file pointers checked mechanically.",
-        "2026-11-06 security hardening pass: agent audit of every skill (telemetry, unverified remote code, destructive actions without confirmation, secrets handling, disabled security controls, untrusted content, agent permission bypass, bundled script vulnerabilities, CI supply chain); minimal fixes such as confirmation gates, untrusted-data rules, telemetry opt-outs, registry-verified version pins, parameterized SQL, path-traversal guards and narrowed allowed-tools; each fixed skill independently reviewed by a second agent; mechanical check 0 errors; scripts syntax-checked."
+        "2026-11-06 security hardening pass: agent audit of every skill (telemetry, unverified remote code, destructive actions without confirmation, secrets handling, disabled security controls, untrusted content, agent permission bypass, bundled script vulnerabilities, CI supply chain); minimal fixes such as confirmation gates, untrusted-data rules, telemetry opt-outs, registry-verified version pins, parameterized SQL, path-traversal guards and narrowed allowed-tools; each fixed skill independently reviewed by a second agent; mechanical check 0 errors; scripts syntax-checked.",
+        "Bot dependency updates merged (#22 fast-uri, #23 typescript-hono, #24 theming-components, #25 pgvector-prisma, #26 pulumi-aws npm batches); pulumi-aws TypeScript pinned to ^6.0.3 because @pulumi/pulumi 3.272.0 declares peer typescript <7."
       ],
       "files": [
         "SKILL.md",
@@ -8190,7 +8195,8 @@
         "Removed the upstream README.md and SKILL_CHAINING_ARCHITECTURE.md, along with their mentions in SKILL.md, references/component-integration.md and package.json files. Also removed the stale design-tokens and data-viz skill references.",
         "Description: dropped 'referenced by ALL component skills', added routing to design-system and frontend-design, and narrowed it to token and theme implementation.",
         "WCAG large-text threshold corrected to >=24px, or >=18.66px bold, in SKILL.md, references/color-system.md and references/accessibility-tokens.md. theme-switching.md now points at the existing theme-switcher.html and the .tsx examples.",
-        "2026-11-05 compaction pass: SKILL.md and bundled reference markdown rewritten with caveman-compress rules (prose compressed, payload verbatim), then a ponytail pass (redundant, generic and repeated text cut), then an adversarial verify-and-restore pass against the pre-rewrite snapshot. Frontmatter, code blocks, links and bundled-file pointers checked mechanically."
+        "2026-11-05 compaction pass: SKILL.md and bundled reference markdown rewritten with caveman-compress rules (prose compressed, payload verbatim), then a ponytail pass (redundant, generic and repeated text cut), then an adversarial verify-and-restore pass against the pre-rewrite snapshot. Frontmatter, code blocks, links and bundled-file pointers checked mechanically.",
+        "Bot dependency updates merged (#22 fast-uri, #23 typescript-hono, #24 theming-components, #25 pgvector-prisma, #26 pulumi-aws npm batches); pulumi-aws TypeScript pinned to ^6.0.3 because @pulumi/pulumi 3.272.0 declares peer typescript <7."
       ],
       "files": [
         "SKILL.md",
