@@ -1,25 +1,6 @@
 # Scala Collections
 
-## Introduction
-
-Scala's collections library is one of its most powerful features, providing a
-rich, unified API for working with sequences, sets, and maps. The library
-emphasizes immutability by default while offering mutable alternatives when
-needed for performance-critical code.
-
-The collections hierarchy distinguishes between immutable and mutable variants,
-with immutable collections being the default. Key collection types include List,
-Vector, Set, Map, Array, and their specialized variants. The library provides
-consistent transformation operations across all collection types.
-
-This skill covers immutable vs mutable collections, sequences (List, Vector,
-Array), sets and maps, collection operations (map, filter, fold), for-comprehensions,
-lazy evaluation, parallel collections, and performance characteristics.
-
 ## Immutable vs Mutable Collections
-
-Immutable collections provide thread safety and predictability, while mutable
-collections offer performance benefits for intensive updates.
 
 ```scala
 // Immutable List (default)
@@ -109,13 +90,10 @@ val updatedUsers = users.map { user =>
 }
 ```
 
-Prefer immutable collections by default for safety and simplicity, using mutable
-collections only when profiling shows performance bottlenecks.
+Default to immutable for thread safety and simplicity. Use mutable only when
+profiling shows bottleneck.
 
 ## Sequences: List, Vector, and Array
-
-Different sequence types offer varying performance characteristics for different
-access patterns.
 
 ```scala
 // List: Linked list, O(1) prepend, O(n) random access
@@ -206,13 +184,7 @@ println(lazyList.toList)
 // ArrayBuffer - Mutable, frequent updates
 ```
 
-Choose List for functional programming, Vector for random access, and Array for
-Java interop or performance-critical code.
-
 ## Sets and Maps
-
-Sets provide unique element storage while maps store key-value pairs, both with
-efficient lookup operations.
 
 ```scala
 // Immutable Set
@@ -326,13 +298,9 @@ val withDefaultFunc = map.withDefault(key => key.length)
 println(withDefaultFunc("Unknown"))  // 7
 ```
 
-Use Sets for uniqueness constraints and fast membership testing, Maps for
-key-value lookups and grouping operations.
-
 ## Collection Transformations
 
-Scala provides rich transformation methods that work consistently across all
-collection types.
+Same transformation methods on all collection types.
 
 ```scala
 // Map: Transform each element
@@ -446,13 +414,7 @@ val concatenated = words.mkString(", ")  // "hello, world, scala"
 val joined = words.mkString("[", ", ", "]")  // "[hello, world, scala]"
 ```
 
-Master these transformations to write expressive, functional data processing
-pipelines with minimal code.
-
 ## For-Comprehensions with Collections
-
-For-comprehensions provide elegant syntax for complex collection operations,
-especially with multiple sequences.
 
 ```scala
 // Basic for-comprehension
@@ -569,13 +531,7 @@ val userTotals = for {
 } yield (user.name, total)
 ```
 
-For-comprehensions make complex collection operations readable and maintainable,
-especially with multiple nested operations.
-
 ## Lazy Evaluation and Views
-
-Lazy evaluation defers computation until results are needed, improving
-performance for large datasets and infinite sequences.
 
 ```scala
 // Views: Lazy collection transformations
@@ -682,22 +638,18 @@ println(s"Eager time: ${eagerTime}ms")
 println(s"Lazy time: ${lazyTime}ms")
 ```
 
-Use views for chaining multiple transformations on large collections to avoid
-intermediate collection creation.
+Use views when chaining several transformations on large collections. Avoids
+intermediate collections.
 
 ## Parallel Collections
 
-Parallel collections automatically distribute operations across multiple threads
-for performance on multi-core systems.
-
-Since Scala 2.13, parallel collections are **not** part of the standard
-library. They live in the separate `org.scala-lang.modules::scala-parallel-collections`
-module (also published for Scala 3), and `.par` needs the
-`CollectionConverters` import shown below. On 2.12 and earlier, `.par` is
-built in and needs no import. Before adding the dependency, consider whether
-the project's effect system (ZIO, Cats Effect, Ox, Futures) already provides
-bounded parallelism (`ZIO.foreachPar`, `parTraverse`, `par`), which is usually
-a better fit for I/O.
+Since Scala 2.13, parallel collections are **not** in standard library. They
+live in separate `org.scala-lang.modules::scala-parallel-collections` module
+(also published for Scala 3). `.par` needs `CollectionConverters` import below.
+On 2.12 and earlier, `.par` is built in, no import. Before adding dependency,
+check whether project's effect system (ZIO, Cats Effect, Ox, Futures) already
+gives bounded parallelism (`ZIO.foreachPar`, `parTraverse`, `par`).
+Effect-system parallelism usually fits I/O better.
 
 ```scala
 import scala.collection.parallel.CollectionConverters._
@@ -772,13 +724,10 @@ val counts = parallelNumbers.aggregate(0)(
 )
 ```
 
-Use parallel collections for CPU-intensive operations on large datasets with
-multiple cores available.
-
 ## Scala 2.13 / Scala 3 Collections Migration Notes
 
-Scala 2.13 redesigned the collections library; Scala 3 uses the 2.13 library
-unchanged. When reading or porting 2.12-era code:
+Scala 2.13 redesigned collections; Scala 3 uses 2.13 library unchanged.
+Reading or porting 2.12-era code:
 
 | 2.12 and earlier | 2.13 / Scala 3 |
 |------------------|----------------|
@@ -789,92 +738,48 @@ unchanged. When reading or porting 2.12-era code:
 | `map.mapValues(f)` / `filterKeys(p)` (lazy, recomputed on every access) | `map.view.mapValues(f).toMap` / `map.view.filterKeys(p).toMap` |
 | `scala.collection.JavaConverters._` | `scala.jdk.CollectionConverters._` |
 | `.par` built in | `scala-parallel-collections` module (see above) |
-| `scala.Seq` = `collection.Seq` | `scala.Seq` = `immutable.Seq`: mutable buffers no longer conform, and arrays convert only through a deprecated copying conversion; call `.toSeq` (copies) or `ArraySeq.unsafeWrapArray` |
+| `scala.Seq` = `collection.Seq` | `scala.Seq` = `immutable.Seq`: mutable buffers no longer conform; arrays convert only through deprecated copying conversion. Call `.toSeq` (copies) or `ArraySeq.unsafeWrapArray` |
 
-For libraries that must cross-build 2.12 and 2.13, the
-`scala-collection-compat` module backports the 2.13 API to 2.12.
+Libraries cross-building 2.12 and 2.13: `scala-collection-compat` module
+backports 2.13 API to 2.12.
 
 ## Best Practices
 
-1. **Prefer immutable collections** by default for thread safety and functional
-   programming benefits
-
-2. **Choose the right collection type** based on access patterns: List for
-   sequential, Vector for random access
-
-3. **Use for-comprehensions** for complex transformations with multiple
+1. **Use for-comprehensions** for complex transformations with multiple
    generators and filters
 
-4. **Apply views for large transformations** to avoid creating intermediate
-   collections
+2. **Use groupBy and partition** to categorize data, not manual filtering
 
-5. **Leverage groupBy and partition** for categorizing data instead of manual
-   filtering
+3. **Use parallel collections** only for large, CPU-intensive operations on
+   multi-core systems, and only after adding separate module on 2.13+
 
-6. **Use parallel collections** only for large, CPU-intensive operations on
-   multi-core systems, and only after adding the separate module on 2.13+
+4. **Avoid size on lazy collections**: forces evaluation of whole sequence
 
-7. **Avoid size on lazy collections** as it forces evaluation of the entire
-   sequence
+5. **Prefer foldLeft over mutable accumulation** to aggregate values
 
-8. **Prefer foldLeft over mutable accumulation** for aggregating values
-   functionally
-
-9. **Use Option instead of null** when working with potentially missing
-   collection elements
-
-10. **Apply consistent transformation patterns** across all collection types for
-    maintainable code
+6. **Use Option instead of null** for possibly missing elements
 
 ## Common Pitfalls
 
-1. **Using List for random access** causes O(n) performance instead of O(1) with
-   Vector
+1. **Using List for random access**: O(n) instead of O(1) with Vector
 
-2. **Forgetting to convert views back** leaves lazy collections that compute on
-   every access
+2. **Forgetting to convert views back**: lazy collections compute on every
+   access
 
-3. **Mutating collections in parallel** causes race conditions and
-   non-deterministic results
+3. **Mutating collections in parallel**: race conditions, non-deterministic
+   results
 
-4. **Not handling empty collections** in reduce operations causes runtime
-   exceptions
+4. **Not handling empty collections** in reduce: runtime exceptions
 
-5. **Using var with immutable collections** defeats the purpose of immutability
+5. **Using var with immutable collections** defeats immutability
 
-6. **Calling head on empty collections** throws exceptions instead of using
-   headOption
+6. **Calling head on empty collections** throws; use headOption
 
-7. **Inefficient string concatenation** in folds should use StringBuilder or
-   mkString
+7. **Inefficient string concatenation** in folds: use StringBuilder or mkString
 
 8. **Not considering memory** with large lazy sequences that retain references
 
-9. **Overusing parallel collections** on small datasets adds overhead without
-   benefits
-
-10. **Mixing mutable and immutable collections** leads to unexpected mutations
-    and bugs
-
-## When to Use This Skill
-
-Apply collection operations throughout Scala development for data transformation
-and processing.
-
-Use immutable collections for concurrent applications and public APIs to ensure
-thread safety.
-
-Leverage for-comprehensions when working with multiple sequences or nested
-structures.
-
-Apply lazy evaluation with views for large datasets or when chaining many
-transformations.
-
-Use parallel collections when processing large datasets with CPU-intensive
-operations on multi-core systems.
-
-Choose specialized collection types (Set, Map, Vector) based on specific access
-patterns and performance requirements.
+9. **Mixing mutable and immutable collections**: unexpected mutations and bugs
 
 ## Resources
 

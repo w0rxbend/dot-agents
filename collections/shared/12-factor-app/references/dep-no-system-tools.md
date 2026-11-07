@@ -7,9 +7,9 @@ tags: dep, system-tools, portability, vendoring
 
 ## Never Rely on Implicit System Tools Being Available
 
-A twelve-factor app does not rely on the implicit existence of any system tools. While tools like ImageMagick, curl, or ffmpeg may exist on many systems, there is no guarantee they will be available in production or that their versions will be compatible.
+Twelve-factor app never relies on implicit system tools. ImageMagick, curl or ffmpeg may exist on many systems. No guarantee they exist in production or that their versions are compatible.
 
-**Incorrect (assuming system tools exist):**
+**Incorrect (assumes system tools exist):**
 
 ```python
 import subprocess
@@ -33,7 +33,7 @@ def fetch_data(url):
     return result.stdout
 ```
 
-**Correct (use language libraries or vendor tools):**
+**Correct (language libraries or vendored tools):**
 
 ```python
 # Use a library instead of shelling out
@@ -63,13 +63,7 @@ RUN apt-get update && apt-get install -y \
     imagemagick \
     && rm -rf /var/lib/apt/lists/*
 
-# Or better: use a base image that includes the tool
-FROM dpokidov/imagemagick:latest
+# Third-party image bundling the tool? Review it, pin by digest (image@sha256:...), never :latest
 ```
-
-**Benefits:**
-- App runs on any system with the language runtime installed
-- No surprises when deploying to new infrastructure
-- Dependency on system tools is explicit in Dockerfile or documented
 
 Reference: [The Twelve-Factor App - Dependencies](https://12factor.net/dependencies)

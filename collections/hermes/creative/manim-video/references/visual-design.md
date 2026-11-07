@@ -2,18 +2,18 @@
 
 ## 12 Core Principles
 
-1. **Geometry Before Algebra** — Show the shape first, the equation second.
+1. **Geometry Before Algebra** — Show shape first, equation second.
 2. **Opacity Layering** — PRIMARY=1.0, CONTEXT=0.4, GRID=0.15. Direct attention through brightness.
 3. **One New Idea Per Scene** — Each scene introduces exactly one concept.
-4. **Spatial Consistency** — Same concept occupies the same screen region throughout.
+4. **Spatial Consistency** — Same concept occupies same screen region throughout.
 5. **Color = Meaning** — Assign colors to concepts, not mobjects. If velocity is blue, it stays blue.
 6. **Progressive Disclosure** — Show simplest version first, add complexity incrementally.
 7. **Transform, Don't Replace** — Use Transform/ReplacementTransform to show connections.
-8. **Breathing Room** — `self.wait(1.5)` minimum after showing something new.
+8. **Breathing Room** — `self.wait(1.5)` minimum after anything new.
 9. **Visual Weight Balance** — Don't cluster everything on one side.
-10. **Consistent Motion Vocabulary** — Pick a small set of animation types and reuse them.
+10. **Consistent Motion Vocabulary** — Pick small set of animation types and reuse them.
 11. **Dark Background, Light Content** — #1C1C1C to #2D2B55 backgrounds maximize contrast.
-12. **Intentional Empty Space** — Leave at least 15% of the frame empty.
+12. **Intentional Empty Space** — Leave at least 15% of frame empty.
 
 ## Layout Templates
 
@@ -38,7 +38,7 @@ Elements appear one at a time, arranged DOWN with aligned_edge=LEFT.
 Best for: algorithms, proofs, step-by-step processes.
 
 ### ANNOTATED_DIAGRAM
-Central diagram with floating labels connected by arrows.
+Central diagram, floating labels connected by arrows.
 Best for: architecture diagrams, annotated figures.
 
 ## Color Palettes
@@ -60,9 +60,7 @@ BG="#0A0A0A"; PRIMARY="#00F5FF"; SECONDARY="#FF00FF"; ACCENT="#39FF14"
 
 ## Font Selection
 
-**Use monospace fonts for all text.** Manim's Pango text renderer produces broken kerning with proportional fonts (Helvetica, Inter, SF Pro, Arial) at all sizes and resolutions. Characters overlap and spacing is inconsistent. This is a fundamental Pango limitation, not a Manim bug.
-
-Monospace fonts have fixed character widths — zero kerning issues by design.
+**Use monospace fonts for all text.** Manim's Pango text renderer breaks kerning with proportional fonts (Helvetica, Inter, SF Pro, Arial) at all sizes and resolutions. Characters overlap, spacing is inconsistent. Fundamental Pango limitation, not a Manim bug.
 
 ### Recommended Fonts
 
@@ -85,7 +83,7 @@ equation = MathTex(r"\nabla L = \frac{\partial L}{\partial w}")
 
 ### When Proportional Fonts Are Acceptable
 
-Large title text (font_size >= 48) with short strings (1-3 words) can use proportional fonts without visible kerning issues. For anything else — labels, descriptions, multi-word text, small sizes — use monospace.
+Large, short titles (font_size >= 48, 1-3 words) can use proportional fonts without visible kerning issues. For anything else (labels, descriptions, multi-word text, small sizes), use monospace.
 
 ### Font Availability
 
@@ -93,7 +91,7 @@ Large title text (font_size >= 48) with short strings (1-3 words) can use propor
 - **Linux**: DejaVu Sans Mono (pre-installed), Liberation Mono
 - **Cross-platform**: JetBrains Mono (install from jetbrains.com)
 
-`"Menlo"` is the safest default — pre-installed on macOS, and Linux systems fall back to DejaVu Sans Mono.
+`"Menlo"` is safest default: pre-installed on macOS, and Linux systems fall back to DejaVu Sans Mono.
 
 ### Fine-Grained Text Control
 
@@ -112,12 +110,12 @@ MarkupText('Red <span foreground="#FF6B6B">warning</span>', font_size=24, font="
 
 ### Minimum Font Size
 
-`font_size=18` is the minimum for readable text at any resolution. Below 18, characters become blurry at `-ql` and barely readable even at `-qh`.
+`font_size=18` is minimum for readable text at any resolution. Below 18, characters blur at `-ql` and are barely readable even at `-qh`.
 
 ## Visual Hierarchy Checklist
 
 For every frame:
-1. What is the ONE thing to look at? (brightest/largest)
+1. Which ONE thing to look at? (brightest/largest)
 2. What is context? (dimmed to 0.3-0.4)
 3. What is structural? (dimmed to 0.15)
 4. Enough empty space? (>15%)

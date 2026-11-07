@@ -18,24 +18,24 @@
 
 ## Overview
 
-The OWASP Top 10 represents the most critical web application security risks. This reference provides detailed mitigation strategies for each risk mapped to security architecture controls.
+OWASP Top 10 lists most critical web application security risks. This reference gives mitigations per risk, mapped to security architecture controls.
 
 ## OWASP Top 10 (2021)
 
 ### A01: Broken Access Control
 
-**Risk Description:** Authorization failures allowing users to access unauthorized data or functionality.
+**Risk Description:** Authorization failures let users access unauthorized data or functions.
 
 **Common Examples:**
-- Insecure Direct Object References (IDOR): Changing URL parameter to access other users' data
+- Insecure Direct Object References (IDOR): changing URL parameter to access other users' data
 - Missing authorization checks on API endpoints
-- Privilege escalation (standard user accessing admin functions)
-- CORS misconfiguration allowing unauthorized origins
+- Privilege escalation (standard user reaches admin functions)
+- CORS misconfiguration allows unauthorized origins
 
 **Architectural Mitigations:**
-- Implement RBAC (role-based access control) or ABAC (attribute-based access control)
+- Use RBAC (role-based access control) or ABAC (attribute-based access control)
 - Deny access by default (explicit allow lists)
-- Authorization checks at every API endpoint
+- Authorization check at every API endpoint
 - Use indirect object references (map session → object, not expose IDs)
 - Log all authorization failures for monitoring
 
@@ -58,32 +58,31 @@ app.get('/api/orders/:id', authenticateUser, async (req, res) => {
 
 ### A02: Cryptographic Failures
 
-**Risk Description:** Failures in cryptography leading to exposure of sensitive data.
+**Risk Description:** Cryptography failures expose sensitive data.
 
 **Common Examples:**
-- Transmitting data in cleartext (HTTP instead of HTTPS)
-- Using weak encryption algorithms (DES, MD5, SHA-1)
-- Storing passwords in plaintext or weak hashing
+- Cleartext transmission (HTTP instead of HTTPS)
+- Weak encryption algorithms (DES, MD5, SHA-1)
+- Passwords stored in plaintext or with weak hashing
 - Hardcoded cryptographic keys
 
 **Architectural Mitigations:**
 - Enforce TLS 1.3 for all data in transit
 - Encrypt all sensitive data at rest (AES-256)
 - Use strong password hashing (Argon2, bcrypt, scrypt)
-- Implement key management system (AWS KMS, Azure Key Vault, HashiCorp Vault)
+- Use key management system (AWS KMS, Azure Key Vault, HashiCorp Vault)
 - Rotate encryption keys regularly
 
 ---
 
 ### A03: Injection
 
-**Risk Description:** Injection flaws (SQL, NoSQL, OS command, LDAP) allowing arbitrary code execution.
+**Risk Description:** Injection flaws (SQL, NoSQL, OS command, LDAP) allow arbitrary code execution.
 
 **Common Examples:**
 - SQL injection via unsanitized user input
 - NoSQL injection in MongoDB queries
-- OS command injection
-- LDAP injection
+- OS command injection, LDAP injection
 
 **Architectural Mitigations:**
 - Use parameterized queries or ORM frameworks
@@ -106,12 +105,12 @@ db.query(query, [userInput], (err, results) => { ... });
 
 ### A04: Insecure Design
 
-**Risk Description:** Missing or ineffective security controls in design phase.
+**Risk Description:** Security controls missing or ineffective at design phase.
 
 **Mitigations:**
-- Conduct threat modeling (STRIDE, PASTA) during design
+- Threat model (STRIDE, PASTA) during design
 - Apply secure design patterns
-- Separation of concerns (business logic separate from presentation)
+- Separation of concerns (business logic apart from presentation)
 - Defense in depth architecture
 - Security requirements in every user story
 
@@ -119,13 +118,13 @@ db.query(query, [userInput], (err, results) => { ... });
 
 ### A05: Security Misconfiguration
 
-**Risk Description:** Insecure default configurations, incomplete setups, verbose errors.
+**Risk Description:** Insecure defaults, incomplete setups, verbose errors.
 
 **Common Examples:**
 - Default admin credentials unchanged
 - Directory listing enabled
 - Unnecessary services running
-- Verbose error messages revealing system details
+- Verbose error messages reveal system details
 - Missing security headers
 
 **Architectural Mitigations:**
@@ -139,7 +138,7 @@ db.query(query, [userInput], (err, results) => { ... });
 
 ### A06: Vulnerable and Outdated Components
 
-**Risk Description:** Using components with known vulnerabilities.
+**Risk Description:** Components with known vulnerabilities in use.
 
 **Architectural Mitigations:**
 - Generate SBOM (Software Bill of Materials)
@@ -158,8 +157,8 @@ db.query(query, [userInput], (err, results) => { ... });
 - Multi-factor authentication (MFA) for all users
 - Strong password policies (length > complexity)
 - Secure session management (HttpOnly, Secure, SameSite flags)
-- Rate limiting on authentication endpoints
-- Account lockout after failed attempts
+- Rate-limit authentication endpoints
+- Lock accounts after failed attempts
 
 ---
 
@@ -177,7 +176,7 @@ db.query(query, [userInput], (err, results) => { ... });
 
 ### A09: Security Logging and Monitoring Failures
 
-**Risk Description:** Insufficient logging and monitoring delays breach detection.
+**Risk Description:** Insufficient logging and monitoring delay breach detection.
 
 **Architectural Mitigations:**
 - Centralized logging (SIEM)

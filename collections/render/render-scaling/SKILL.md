@@ -16,37 +16,35 @@ metadata:
 
 # Render Scaling
 
-This skill covers how to scale **Web Services**, **Private Services**, and **Background Workers** on Render: manual instance counts, **Professional+** autoscaling, plan (instance type) choices, and platform limits. Deeper tables and tuning guidance live under `references/`.
-
 ## When to Use
 
-- Setting or changing **instance count** (Dashboard, CLI, API, or Blueprint)
-- Configuring **autoscaling** (min/max, CPU and memory targets)
-- Choosing **vertical** (plan) vs **horizontal** (more instances) scaling
-- Understanding **constraints** (disks, static sites, cron/workflows, 100-instance cap)
-- **Cost** implications of multi-instance and per-second billing
+- Set or change **instance count** (Dashboard, CLI, API, or Blueprint)
+- Configure **autoscaling** (min/max, CPU and memory targets)
+- Choose **vertical** (plan) vs **horizontal** (more instances) scaling
+- **Constraints** (disks, static sites, cron/workflows, 100-instance cap)
+- **Cost** of multi-instance and per-second billing
 - **Blueprint** fields: `numInstances`, `scaling`, `plan`
 
 ## Manual Scaling
 
-- Set **instance count** from **1 to 100** via the **Dashboard**, **CLI**, or **API**.
-- **All instances share the same instance type** (plan); you cannot mix plans on one service.
-- Changes apply **immediately**: Render **provisions** new instances and **deprovisions** excess capacity as needed.
+- Set **instance count** from **1 to 100** via **Dashboard**, **CLI**, or **API**.
+- **All instances share same instance type** (plan); cannot mix plans on one service.
+- Changes apply **immediately**: Render **provisions** new instances, **deprovisions** excess capacity.
 
 ## Autoscaling
 
-- Available on **Professional and higher** workspaces only.
-- Configure **minimum** and **maximum** instances and targets for **CPU** and/or **memory** utilization (**1–90%** each).
-- **At least one metric must be enabled** (CPU or memory). If **both** CPU and memory autoscaling toggles are **off**, autoscaling is **disabled**.
-- If **both** manual instance settings and autoscaling are configured, **autoscaling wins**—manual count does not override the scaling policy in effect.
+- **Professional and higher** workspaces only.
+- Configure **minimum** and **maximum** instances and **CPU** and/or **memory** utilization targets (**1–90%** each).
+- **At least one metric must be enabled** (CPU or memory). If **both** CPU and memory autoscaling toggles **off**, autoscaling **disabled**.
+- If **both** manual instance settings and autoscaling set, **autoscaling wins**—manual count does not override active policy.
 
 ## Autoscaling Formula
 
-Render computes a candidate instance count from utilization vs target:
+Render computes candidate instance count from utilization vs target:
 
 `new_instances = ceil(current_instances * (current_utilization / target_utilization))`
 
-- When **both** CPU and memory targets are set, the platform uses the **larger** of the two `new_instances` values (the more conservative scale-out).
+- With **both** CPU and memory targets set, platform uses **larger** of the two `new_instances` values (more conservative scale-out).
 
 ## Scaling Constraints
 
@@ -60,11 +58,11 @@ Render computes a candidate instance count from utilization vs target:
 ## Scale-Down Behavior
 
 - **Scale-up** is **immediate** when utilization supports it.
-- **Scale-down** waits **a few minutes** after conditions allow reduction (**spike protection**). This reduces **flapping** from brief load spikes.
+- **Scale-down** waits **a few minutes** after conditions allow reduction (**spike protection**).
 
 ## Instance Types
 
-- In Blueprints, the instance type is the **`plan`** field (e.g. `standard`, `pro`).
+- In Blueprints, instance type is **`plan`** field (e.g. `standard`, `pro`).
 - Options span **free** / **starter** through **standard**, **pro**, **pro_plus**, **pro_max**, **pro_ultra**—each with defined **CPU** and **RAM** (see `references/instance-types.md`).
 
 ### Vertical vs Horizontal
@@ -78,7 +76,7 @@ Render computes a candidate instance count from utilization vs target:
 ## Cost Patterns
 
 - **Per-second billing**; **no separate fee** for scaling actions.
-- You pay roughly for **compute time × number of running instances** (see [Render pricing](https://render.com/pricing) for current rates).
+- Pay roughly **compute time × number of running instances** (see [Render pricing](https://render.com/pricing) for current rates).
 - **Right-size** by monitoring **CPU and memory** utilization (see **render-monitor**).
 
 ## Blueprint Configuration
@@ -105,7 +103,7 @@ scaling:
 plan: standard
 ```
 
-Do not rely on `numInstances` to cap autoscaling when a `scaling` block is present—**autoscaling takes precedence**. Preview behavior for scaling is detailed in `references/autoscaling-guide.md`.
+Do not rely on `numInstances` to cap autoscaling when a `scaling` block is present—**autoscaling takes precedence**. Preview scaling behavior: see `references/autoscaling-guide.md`.
 
 ## References
 

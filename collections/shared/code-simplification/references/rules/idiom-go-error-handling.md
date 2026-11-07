@@ -6,9 +6,9 @@ tags: idiom, go, error-handling, explicit-errors
 
 ## Handle Errors Immediately After the Call
 
-Go's explicit error handling is a feature, not a burden. Always check errors immediately after a function call returns—don't defer error checks or accumulate them. This pattern makes control flow explicit and ensures errors are handled in context where you have the most information.
+Always check errors right after a call returns. Do not defer or accumulate error checks. Add context when propagating.
 
-**Incorrect (deferred or accumulated error checking):**
+**Incorrect (deferred or accumulated error checks):**
 
 ```go
 // Bad: errors accumulate, hard to know which failed
@@ -80,25 +80,6 @@ func processAllFiles(paths []string) error {
 }
 ```
 
-### Wrapping Errors for Context
-
-```go
-// Always add context when propagating
-func LoadConfig(path string) (*Config, error) {
-    data, err := os.ReadFile(path)
-    if err != nil {
-        return nil, fmt.Errorf("load config: %w", err)
-    }
-
-    var cfg Config
-    if err := json.Unmarshal(data, &cfg); err != nil {
-        return nil, fmt.Errorf("parse config %s: %w", path, err)
-    }
-
-    return &cfg, nil
-}
-```
-
 ### When Ignoring Errors is Acceptable
 
 ```go
@@ -113,10 +94,3 @@ func must[T any](v T, err error) T {
     return v
 }
 ```
-
-### Benefits
-
-- Errors handled with full context available
-- Control flow is explicit and linear
-- Error wrapping builds informative stack traces
-- No hidden failures or silent data corruption

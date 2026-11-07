@@ -1,7 +1,5 @@
 # Argument Parsing Patterns
 
-Comprehensive guide to arguments, options, and flags with decision frameworks and multi-language implementations.
-
 ## Table of Contents
 
 - [Core Concepts](#core-concepts)
@@ -17,12 +15,12 @@ Comprehensive guide to arguments, options, and flags with decision frameworks an
 
 **Positional Argument:**
 - Value identified by position, not name
-- Can be required or optional
+- Required or optional
 - Order matters
 - Example: `git commit -m "message"` (message is argument to `-m`)
 
 **Option (Named Parameter):**
-- Named parameter with a value
+- Named parameter with value
 - Identified by flag name (short or long form)
 - Example: `--output file.txt`, `-o file.txt`
 
@@ -37,11 +35,10 @@ Follow POSIX and GNU standards:
 
 **Short Form:**
 - Single dash + single character: `-v`, `-o file.txt`
-- Can be combined: `-vf` = `-v -f`
+- Combinable: `-vf` = `-v -f`
 
 **Long Form:**
 - Double dash + descriptive name: `--verbose`, `--output file.txt`
-- More readable, self-documenting
 
 **Mixed Usage:**
 ```bash
@@ -62,15 +59,13 @@ command --option value -- --file-starting-with-dash.txt
 
 ### 1. Required Positional Arguments
 
-**Use Case:** Primary input that is always needed
+**Use Case:** Primary input, always needed
 
 **Example:**
 ```bash
 convert input.jpg output.png
 # input.jpg and output.png are required positional args
 ```
-
-**Implementation:**
 
 **Python (Typer):**
 ```python
@@ -106,15 +101,13 @@ struct Cli {
 
 ### 2. Optional Positional Arguments
 
-**Use Case:** Input that has a sensible default
+**Use Case:** Input with sensible default
 
 **Example:**
 ```bash
 log show error.log  # Use error.log
 log show            # Use default log file
 ```
-
-**Implementation:**
 
 **Python (Typer):**
 ```python
@@ -150,15 +143,13 @@ struct Cli {
 
 ### 3. Required Options
 
-**Use Case:** Configuration that must be explicitly set
+**Use Case:** Config that must be set explicitly
 
 **Example:**
 ```bash
 deploy --env production
 # --env is required, no default
 ```
-
-**Implementation:**
 
 **Python (Typer):**
 ```python
@@ -196,15 +187,13 @@ struct Cli {
 
 ### 4. Optional Options with Defaults
 
-**Use Case:** Configuration with sensible defaults
+**Use Case:** Config with sensible defaults
 
 **Example:**
 ```bash
 serve --port 8080  # Use 8080
 serve              # Use default port 3000
 ```
-
-**Implementation:**
 
 **Python (Typer):**
 ```python
@@ -241,8 +230,6 @@ build --verbose --dry-run
 # Both flags are present = true
 ```
 
-**Implementation:**
-
 **Python (Typer):**
 ```python
 def build(
@@ -277,7 +264,7 @@ struct Cli {
 
 ### 6. Counting Flags
 
-**Use Case:** Increase level by repetition (e.g., verbosity)
+**Use Case:** Raise level by repetition (e.g., verbosity)
 
 **Example:**
 ```bash
@@ -285,8 +272,6 @@ command -v      # verbosity level 1
 command -vv     # verbosity level 2
 command -vvv    # verbosity level 3
 ```
-
-**Implementation:**
 
 **Python (Typer):**
 ```python
@@ -332,9 +317,9 @@ struct Cli {
 ### Argument Limits
 
 **Best Practices:**
-- **Max 2-3 positional arguments:** More becomes confusing
-- **Use options for 3+ parameters:** Named params are clearer
-- **Limit flags to 10-15:** Too many options overwhelm users
+- **Max 2-3 positional arguments:** more gets confusing
+- **Use options for 3+ parameters:** named params are clearer
+- **Limit flags to 10-15:** too many overwhelm users
 
 **Example of Too Many Positional Args (BAD):**
 ```bash
@@ -528,7 +513,7 @@ struct Cli {
 
 ### Multi-Value Options
 
-**Use Case:** Accept multiple values for an option
+**Use Case:** Accept multiple values for one option
 
 **Example:**
 ```bash
@@ -645,22 +630,17 @@ let verbose = matches.get_flag("verbose");
 ## Best Practices Summary
 
 **Argument Design:**
-- Limit positional arguments to 2-3
-- Use options for most parameters
-- Provide both short and long forms for common flags
-- Use descriptive long-form names
+- Give common flags both short and long forms
 
 **Validation:**
 - Validate early (before processing)
-- Provide helpful error messages with suggestions
+- Give helpful error messages with suggestions
 - Use type system for automatic validation when possible
 
 **Defaults:**
-- Provide sensible defaults
 - Document all defaults in help text
-- Allow environment variables to override defaults
+- Let environment variables override defaults
 
 **Help Text:**
-- Write clear, concise help for each parameter
 - Include examples in command help
 - Document valid ranges and choices

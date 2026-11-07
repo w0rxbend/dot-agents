@@ -1,7 +1,5 @@
 # Video Optimization Guide
 
-Compress, transcode, and deliver video efficiently with adaptive streaming and CDN integration.
-
 ## Video Formats
 
 | Format | Use Case | Browser Support | Compression |
@@ -61,13 +59,11 @@ import MuxPlayer from '@mux/mux-player-react';
 
 ## Best Practices
 
-1. **Multiple resolutions** - 1080p, 720p, 480p
-2. **Adaptive streaming** - HLS/DASH for quality switching
-3. **CDN delivery** - Reduce origin load
-4. **Lazy loading** - Below-the-fold videos
-5. **Poster image** - Thumbnail while loading
-6. **Preload metadata** - Not full video
-7. **Compression** - CRF 23 for H.264
+1. **CDN delivery** - Cuts origin load
+2. **Lazy loading** - Below-the-fold videos
+3. **Poster image** - Thumbnail while loading
+4. **Preload metadata** - Not full video
+5. **Compression** - CRF 23 for H.264
 
 ## Resources
 

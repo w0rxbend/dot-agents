@@ -1,6 +1,7 @@
 """
 MongoDB + FastAPI Example
-Production-ready REST API with async MongoDB integration.
+Demo REST API with async MongoDB integration. Not production-ready: no auth or
+ownership checks; add them before real use.
 """
 
 from fastapi import FastAPI, HTTPException, status
@@ -33,6 +34,12 @@ class UserCreate(BaseModel):
     """User creation request"""
     email: EmailStr
     name: str
+    age: Optional[int] = None
+
+
+class UserUpdate(BaseModel):
+    """Allowed update fields (a raw dict in $set lets callers overwrite any field)"""
+    name: Optional[str] = None
     age: Optional[int] = None
 
 
@@ -128,7 +135,7 @@ async def create_user(user: UserCreate):
                 status_code=status.HTTP_409_CONFLICT,
                 detail="User with this email already exists"
             )
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @app.get("/users/{email}", response_model=UserResponse)
@@ -148,13 +155,14 @@ async def list_users(skip: int = 0, limit: int = 20):
 
 
 @app.put("/users/{email}", response_model=UserResponse)
-async def update_user(email: str, user_update: dict):
+async def update_user(email: str, user_update: UserUpdate):
     """Update user by email"""
-    user_update["updatedAt"] = datetime.utcnow()
+    update = user_update.dict(exclude_unset=True)
+    update["updatedAt"] = datetime.utcnow()
 
     result = await db.users.update_one(
         {"email": email},
-        {"$set": user_update}
+        {"$set": update}
     )
 
     if result.matched_count == 0:
@@ -277,9 +285,10 @@ async def health_check():
         await mongodb_client.admin.command('ping')
         return {"status": "healthy", "database": "connected"}
     except Exception as e:
-        return {"status": "unhealthy", "error": str(e)}
+        print(f"Health check failed: {e!r}")
+        return {"status": "unhealthy"}
 
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)  # no auth: keep demo off the network

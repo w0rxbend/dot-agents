@@ -1,6 +1,6 @@
 # PCI-DSS 4.0 Requirements Reference
 
-Quick reference to PCI DSS v4.0/v4.0.1. Confirm details against the current standard from the PCI Security Standards Council.
+Quick reference to PCI DSS v4.0/v4.0.1. Confirm details against current standard from PCI Security Standards Council.
 
 ## 12 Core Requirements (future-dated v4.0 requirements mandatory after March 31, 2025)
 

@@ -208,7 +208,8 @@ service cloud.firestore {
     // Comments: Nested under posts
     match /posts/{postId}/comments/{commentId} {
       allow read: if true;
-      allow create: if request.auth != null;
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid;
       allow update, delete: if request.auth.uid == resource.data.userId;
     }
 

@@ -1,7 +1,5 @@
 # Diagram Generation Reference
 
-Guide to creating diagrams with Mermaid, PlantUML, and D2.
-
 ## Table of Contents
 
 1. [Mermaid](#mermaid)
@@ -11,19 +9,19 @@ Guide to creating diagrams with Mermaid, PlantUML, and D2.
 
 ## Mermaid
 
-Text-based diagramming tool integrated with GitHub, GitLab, Docusaurus, and MkDocs.
+Text-based diagram tool, integrated with GitHub, GitLab, Docusaurus and MkDocs.
 
 ### Supported Diagram Types
 
 - Flowcharts
-- Sequence diagrams
-- Class diagrams
-- State diagrams
-- Entity-relationship diagrams
+- Sequence
+- Class
+- State
+- Entity-relationship
 - Gantt charts
 - Pie charts
 - Git graphs
-- User journey diagrams
+- User journey
 
 ### Flowchart Example
 
@@ -201,7 +199,7 @@ markdown_extensions:
 
 ## PlantUML
 
-UML diagram tool with comprehensive diagram type support.
+UML diagram tool.
 
 ### Class Diagram
 
@@ -314,7 +312,7 @@ plantuml -tsvg -gui diagram.puml
 
 ## D2
 
-Modern declarative diagramming language.
+Modern declarative diagram language.
 
 ### System Architecture
 
@@ -415,13 +413,12 @@ d2 --watch diagram.d2 diagram.svg
 | **Diagram Types** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
 | **Output Quality** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
 | **Learning Curve** | Low | Medium | Low-Medium |
-| **Best For** | All-purpose | UML diagrams | Architecture |
 
 ### Recommendations
 
 **Use Mermaid for:**
-- GitHub/GitLab documentation
-- Documentation sites (Docusaurus, MkDocs)
+- GitHub/GitLab docs
+- Docs sites (Docusaurus, MkDocs)
 - Quick diagrams
 - Team collaboration (no tools required)
 
@@ -429,7 +426,7 @@ d2 --watch diagram.d2 diagram.svg
 - Formal UML diagrams
 - Complex class diagrams
 - Enterprise architecture
-- When UML compliance is required
+- UML compliance required
 
 **Use D2 for:**
 - System architecture diagrams
@@ -439,13 +436,10 @@ d2 --watch diagram.d2 diagram.svg
 
 ## Best Practices
 
-1. **Keep It Simple**: Don't overcomplicate diagrams
-2. **Use Meaningful Labels**: Clear, descriptive text
-3. **Consistent Style**: Use same tool/style across project
-4. **Version Control**: Store diagram source in git
-5. **Update Regularly**: Keep diagrams in sync with code
-6. **Embed in Docs**: Include diagrams in documentation
-7. **Export SVG**: Vector graphics scale better than PNG
-8. **Add Context**: Explain what diagram shows
-9. **Test Rendering**: Verify diagrams render correctly
-10. **Link to Code**: Reference implementation in diagrams
+1. **Consistent Style**: Same tool and style across project
+2. **Version Control**: Store diagram source in git
+3. **Update Regularly**: Sync diagrams with code
+4. **Export SVG**: Vector scales better than PNG
+5. **Add Context**: Explain what diagram shows
+6. **Test Rendering**: Verify diagrams render correctly
+7. **Link to Code**: Reference implementation in diagrams

@@ -1,30 +1,16 @@
 # WTForms: Flask and Django Form Handling
 
-**WTForms is a flexible forms validation and rendering library for Python. It's the traditional choice for Flask applications and works well with Django alongside Django Forms.**
-
-## Why WTForms?
-
-**Framework Integration:**
-- **Flask-WTF** - Seamless Flask integration with CSRF protection
-- **Django compatibility** - Works alongside Django Forms
-- **Template rendering** - Generates HTML form fields
-- **Validation** - Comprehensive built-in validators
-
-**Features:**
-- **CSRF protection** - Built-in with Flask-WTF
-- **File uploads** - Easy file handling
-- **Localization** - I18n support
-- **Custom validators** - Easy to extend
+**WTForms: flexible Python library for form validation and rendering. Traditional choice for Flask apps. Also works in Django alongside Django Forms. Has I18n support.**
 
 **When to Use:**
-- ✅ Flask applications (primary use case)
+- ✅ Flask apps (primary use case)
 - ✅ Server-rendered forms (Jinja2, Django templates)
-- ✅ Traditional web applications
-- ✅ Need CSRF protection out-of-the-box
+- ✅ Traditional web apps
+- ✅ Need built-in CSRF protection
 
 **When to Use Pydantic Instead:**
-- ✅ FastAPI applications
-- ✅ API-first applications (JSON requests)
+- ✅ FastAPI apps
+- ✅ API-first apps (JSON requests)
 - ✅ Want modern Python type hints
 
 ---
@@ -411,65 +397,6 @@ class RegistrationFormWithReusable(FlaskForm):
 
 ## Advanced Patterns
 
-### Registration Form
-
-```python
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
-from models import User
-
-class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[
-        DataRequired(),
-        Length(min=3, max=20)
-    ])
-
-    email = StringField('Email', validators=[
-        DataRequired(),
-        Email()
-    ])
-
-    password = PasswordField('Password', validators=[
-        DataRequired(),
-        Length(min=8, message='Password must be at least 8 characters')
-    ])
-
-    confirm_password = PasswordField('Confirm Password', validators=[
-        DataRequired(),
-        EqualTo('password', message='Passwords must match')
-    ])
-
-    terms = BooleanField('I accept the terms', validators=[
-        DataRequired(message='You must accept the terms')
-    ])
-
-    submit = SubmitField('Register')
-
-    # Custom validators
-    def validate_username(self, field):
-        if User.query.filter_by(username=field.data).first():
-            raise ValidationError('Username already taken')
-
-        if not field.data.replace('_', '').isalnum():
-            raise ValidationError('Username must be alphanumeric')
-
-    def validate_email(self, field):
-        if User.query.filter_by(email=field.data).first():
-            raise ValidationError('Email already registered')
-
-    def validate_password(self, field):
-        password = field.data
-
-        if not any(char.isupper() for char in password):
-            raise ValidationError('Password must contain uppercase letter')
-
-        if not any(char.isdigit() for char in password):
-            raise ValidationError('Password must contain number')
-```
-
----
-
 ### Profile Edit Form
 
 ```python
@@ -639,42 +566,6 @@ csrf = CSRFProtect(app)
 
 ## Form Rendering (Templates)
 
-### Manual Rendering (Full Control)
-
-```html
-<form method="POST" action="">
-    {{ form.hidden_tag() }}
-
-    <div class="field">
-        {{ form.username.label }}
-        {{ form.username(class="input", placeholder="Enter username") }}
-        {% if form.username.errors %}
-            <ul class="errors">
-                {% for error in form.username.errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    </div>
-
-    <div class="field">
-        {{ form.email.label }}
-        {{ form.email(class="input", type="email") }}
-        {% if form.email.errors %}
-            <ul class="errors">
-                {% for error in form.email.errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    </div>
-
-    {{ form.submit(class="button") }}
-</form>
-```
-
----
-
 ### Macro for Reusable Field Rendering
 
 ```html
@@ -709,7 +600,7 @@ csrf = CSRFProtect(app)
 
 ## Django Integration
 
-WTForms can work alongside Django Forms:
+WTForms works alongside Django Forms:
 
 ```python
 from wtforms import Form, StringField, validators
@@ -732,49 +623,18 @@ def contact(request):
     return render(request, 'contact.html', {'form': form})
 ```
 
-**Note:** For Django, Django Forms is the more natural choice. Use WTForms only if you need specific WTForms features or want consistency with Flask apps.
+**Note:** In Django, Django Forms is more natural. Use WTForms only for specific WTForms features or consistency with Flask apps.
 
 ---
 
 ## Best Practices
 
-1. **Use Flask-WTF for Flask applications**
-   ```python
-   from flask_wtf import FlaskForm  # ✅ Includes CSRF protection
-   ```
-
-2. **Always include CSRF token**
+1. **Always include CSRF token**
    ```html
    {{ form.hidden_tag() }}  <!-- ✅ Includes CSRF token -->
    ```
 
-3. **Validate on submit**
-   ```python
-   if form.validate_on_submit():  # ✅ POST request + valid
-       # Process form
-   ```
-
-4. **Use custom error messages**
-   ```python
-   validators=[
-       DataRequired(message='Field is required'),
-       Email(message='Invalid email address')
-   ]
-   ```
-
-5. **Pre-populate forms for editing**
-   ```python
-   if request.method == 'GET':
-       form.username.data = current_user.username
-   ```
-
-6. **Use macros for consistent rendering**
-   ```html
-   {% from "macros.html" import render_field %}
-   {{ render_field(form.username) }}
-   ```
-
-7. **Secure file uploads**
+2. **Secure file uploads**
    ```python
    from werkzeug.utils import secure_filename
    filename = secure_filename(file.filename)
@@ -784,7 +644,7 @@ def contact(request):
 
 ## Resources
 
-**Official Documentation:**
+**Official Docs:**
 - WTForms: https://wtforms.readthedocs.io/
 - Flask-WTF: https://flask-wtf.readthedocs.io/
 
@@ -802,5 +662,5 @@ def contact(request):
 ## Next Steps
 
 - Pydantic for FastAPI → `pydantic-forms.md`
-- See working examples → `../../examples/python/`
+- Working examples → `../../examples/python/`
 - Validation concepts → `../validation-concepts.md`

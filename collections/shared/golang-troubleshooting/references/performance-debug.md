@@ -2,7 +2,7 @@
 
 ## CPU Profiling
 
-Use pprof CPU profile to capture a 30s sample (see [pprof.md](./pprof.md) for commands), then inspect with `top`, `web`, or `list funcName`.
+Capture 30s sample with pprof CPU profile (see [pprof.md](./pprof.md) for commands). Inspect with `top`, `web`, or `list funcName`.
 
 **Common CPU hogs:**
 
@@ -14,19 +14,19 @@ Use pprof CPU profile to capture a 30s sample (see [pprof.md](./pprof.md) for co
 
 ## Memory Profiling
 
-Use pprof heap profile (see [pprof.md](./pprof.md)). Compare heap snapshots over time with `go tool pprof -base heap1.prof heap2.prof` to find growth. Use escape analysis (see [diagnostic-tools.md](./diagnostic-tools.md)) to find unexpected heap allocations in hot paths.
+Use pprof heap profile (see [pprof.md](./pprof.md)). Find growth by comparing heap snapshots over time with `go tool pprof -base heap1.prof heap2.prof`. Use escape analysis (see [diagnostic-tools.md](./diagnostic-tools.md)) to find unexpected heap allocations in hot paths.
 
 **Common memory leaks:**
 
 1. Unbounded cache without eviction
-2. Growing slices in loops (forgetting to reset)
+2. Growing slices in loops (forgot to reset)
 3. Global maps never cleared
 4. String concatenation in loops (use `strings.Builder`)
 5. Large structs passed by value
 
 ## Lock Contention
 
-**Symptoms:** CPU high but throughput low, latency increases with load, multiple cores don't help.
+**Symptoms:** CPU high but throughput low, latency rises with load, more cores don't help.
 
 **Enable profiling in code:**
 
@@ -39,7 +39,7 @@ Then use pprof mutex and block profiles (see [pprof.md](./pprof.md)).
 
 **Solutions:**
 
-1. Reduce critical section — hold lock for minimal time
+1. Reduce critical section — hold lock minimal time
 2. Sharding — multiple locks for different data
 3. `sync.Map` — for read-heavy workloads
 4. `atomic` — for simple counters

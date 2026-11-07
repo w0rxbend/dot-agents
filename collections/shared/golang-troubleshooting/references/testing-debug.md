@@ -1,6 +1,6 @@
 # Test-Driven Debugging
 
-A failing test MUST be written before fixing a bug. Writing a failing test is often the fastest debugging path. It gives you a reproducible, isolated environment.
+Failing test MUST be written before fixing a bug.
 
 ## Reproduce the Bug in a Test
 
@@ -24,7 +24,7 @@ func TestBugDescription(t *testing.T) {
 
 ## Expand Edge Cases with Table Tests
 
-When debugging, add edge cases to find the boundary of the bug:
+When debugging, add edge cases to find bug's boundary:
 
 ```go
 tests := []struct {
@@ -70,18 +70,18 @@ go test -shuffle=on ./...                # randomize test order (Go 1.17+)
 
 ## Debugging Flaky Tests
 
-Flaky tests (pass sometimes, fail sometimes) are usually caused by one of:
+Flaky tests (pass sometimes, fail sometimes) usually come from one of:
 
 1. **Shared mutable state between tests** — global variables, package-level maps, singletons
    - Fix: reset state in `TestMain` or use `t.Cleanup`
-2. **Test order dependence** — one test sets up state another test relies on
+2. **Test order dependence** — one test sets up state another relies on
    - Diagnose: `go test -run TestSuspect -count=1` (run in isolation)
    - Diagnose: `go test -shuffle=on` (randomize order)
    - Fix: each test must set up its own preconditions
 3. **Timing sensitivity** — `time.Sleep` in tests, race between goroutines
    - Fix: use channels/waitgroups to synchronize, not sleeps
 4. **Port conflicts** — tests binding to fixed ports
-   - Fix: use port `0` and read the assigned port
+   - Fix: use port `0` and read assigned port
 5. **File system pollution** — tests writing to shared temp directories
    - Fix: use `t.TempDir()` for per-test directories
 

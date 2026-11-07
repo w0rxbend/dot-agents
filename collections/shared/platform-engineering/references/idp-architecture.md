@@ -10,8 +10,6 @@
 
 ## Three-Layer Architecture
 
-An Internal Developer Platform consists of three architectural layers that work together to provide a comprehensive developer experience:
-
 ```
 ┌─────────────────────────────────────────────────────────┐
 │         Developer Portal (Frontend Layer)              │
@@ -38,93 +36,89 @@ An Internal Developer Platform consists of three architectural layers that work 
 
 ### Purpose
 
-Provide a unified interface for developers to discover, create, and manage services without needing to understand underlying infrastructure complexity.
+One interface for developers to discover, create and manage services without knowing underlying infrastructure.
 
 ### Core Components
 
 #### 1. Service Catalog
 
-**Function:** Centralized inventory of all software assets with ownership, dependencies, and health status.
-
-**Key Features:**
+**Features:**
 - Software inventory (services, APIs, libraries, data pipelines, ML models)
 - Ownership tracking (teams, individuals, on-call rotation)
-- Dependency mapping (upstream/downstream relationships, service mesh topology)
+- Dependency mapping (upstream/downstream, service mesh topology)
 - Health and SLO status (real-time metrics, historical trends)
-- Documentation links (architecture diagrams, runbooks, API specifications)
+- Documentation links (architecture diagrams, runbooks, API specs)
 - Metadata (tech stack, cloud provider, cost attribution)
 
-**Implementation Examples:**
+**Examples:**
 
 **Backstage Software Catalog:**
 - YAML metadata files in service repositories
 - API for programmatic access
 - Plugins for enrichment (pull deployment status, cost data)
-- Discovery: Automatic scanning of repositories
+- Discovery: automatic repository scanning
 
 **Port Service Catalog:**
-- Entity modeling (define custom entities beyond services)
+- Entity modeling (custom entities beyond services)
 - Blueprints for entity types
-- Scorecard system (track service quality, compliance)
+- Scorecards (track service quality, compliance)
 
 **Cortex Service Catalog:**
-- Compliance scoring (based on best practices)
-- Integration with incident management (PagerDuty, Opsgenie)
+- Compliance scoring against best practices
+- Incident management integration (PagerDuty, Opsgenie)
 - Service health scoring
 
 #### 2. Software Templates / Scaffolders
 
-**Function:** Project initialization with best practices, infrastructure, and CI/CD configurations baked in.
+**Function:** Initialize projects with best practices, infrastructure and CI/CD config baked in.
 
 **Template Components:**
 - Repository structure (monorepo vs. polyrepo, directory layout)
-- Application boilerplate code (framework setup, starter files)
+- App boilerplate (framework setup, starter files)
 - Infrastructure as code (Kubernetes manifests, Terraform modules)
-- CI/CD pipeline configurations (GitHub Actions workflows, GitLab CI YAML)
+- CI/CD pipeline config (GitHub Actions workflows, GitLab CI YAML)
 - Observability instrumentation (Prometheus metrics, structured logging, OpenTelemetry tracing)
-- Security configurations (RBAC, network policies, secrets references)
-- Documentation templates (README, runbooks, architecture diagrams, API docs)
+- Security config (RBAC, network policies, secrets references)
+- Doc templates (README, runbooks, architecture diagrams, API docs)
 
-**Implementation Examples:**
+**Examples:**
 
 **Backstage Scaffolder:**
 - Cookiecutter/Yeoman-style templates
 - Template inputs (service name, tech stack, deployment environment)
-- Actions: Create repository, scaffold code, configure CI/CD, register in catalog
+- Actions: create repository, scaffold code, configure CI/CD, register in catalog
 - Template composition (base template + mixins)
 
 **Humanitec Resource Packs:**
 - Infrastructure abstractions (database, cache, message queue)
 - Cloud-agnostic resource definitions
-- Automatic provisioning on deployment
+- Auto-provisioning on deployment
 
 **Template Versioning:**
 - Version templates (v1.0, v2.0)
-- Migration guides when templates evolve
+- Migration guides when templates change
 - Deprecation notices for old templates
 
 #### 3. Documentation Hub
 
-**Function:** Centralized, searchable, version-controlled documentation.
-
 **Features:**
-- Centralized docs (architecture, tutorials, runbooks, API specs)
+- Central docs (architecture, tutorials, runbooks, API specs)
 - Version-controlled (docs-as-code, Git-backed, PR workflow)
-- Search and discovery (full-text search, tagging, categorization)
+- Search and discovery (full-text, tags, categories)
 - Auto-generated docs (API specs from OpenAPI, dependency graphs)
 - Metrics (doc views, staleness detection)
 
-**Implementation Examples:**
+**Examples:**
 
 **Backstage TechDocs:**
 - Markdown + MkDocs
-- Docs live alongside code in repositories
-- Automatic build and publish on commit
+- Docs live next to code in repositories
+- Auto build and publish on commit
 - Search across all docs
 
 **GitBook / Confluence Integrations:**
 - Embed external docs in portal
-- Single pane of glass for all documentation
+- Single pane of glass for all docs
 
 **Swagger/OpenAPI Integrations:**
 - Auto-generate API docs from specs
@@ -132,20 +126,18 @@ Provide a unified interface for developers to discover, create, and manage servi
 
 #### 4. Workflow Automation
 
-**Function:** Self-service actions for common platform operations.
-
 **Capabilities:**
 - Self-service actions (create environment, deploy service, request database access)
-- Approval workflows (production access requires manager approval)
-- Integration with ticketing (Jira, ServiceNow for non-self-service requests)
+- Approval workflows (production access needs manager approval)
+- Ticketing integration (Jira, ServiceNow for non-self-service requests)
 - ChatOps integrations (Slack, Microsoft Teams for bot-driven workflows)
 
-**Implementation Examples:**
+**Examples:**
 
 **Port Self-Service Actions:**
 - Define actions in UI
-- Trigger via API, portal, or Slack
-- Approval steps configurable
+- Trigger via API, portal or Slack
+- Configurable approval steps
 
 **Backstage Custom Plugins:**
 - React components for custom actions
@@ -153,40 +145,38 @@ Provide a unified interface for developers to discover, create, and manage servi
 - Feedback to user (action status, logs)
 
 **Humanitec Deployment Pipelines:**
-- Deploy to environment with one click
+- One-click deploy to environment
 - Environment diff before deploy
-- Automated rollback on failure
+- Auto rollback on failure
 
 ## Platform Orchestration Layer
 
 ### Purpose
 
-Manage infrastructure provisioning, environment lifecycle, and deployment automation without exposing raw cloud APIs to developers.
+Manage infrastructure provisioning, environment lifecycle and deployment automation without exposing raw cloud APIs to developers.
 
 ### Core Components
 
 #### 1. Infrastructure Orchestration
 
-**Function:** Multi-cloud resource provisioning with platform-agnostic APIs.
-
 **Capabilities:**
 - Multi-cloud resource provisioning (AWS, Azure, GCP, on-prem)
 - Kubernetes cluster management (namespaces, RBAC, network policies, resource quotas)
 - Resource abstraction (developer requests "database", platform provisions RDS/Cloud SQL/etc.)
-- Configuration management (separation of app config vs. infrastructure config)
+- Configuration management (app config separate from infrastructure config)
 
-**Implementation Examples:**
+**Examples:**
 
 **Crossplane:**
 - Universal control plane for Kubernetes
 - Providers for clouds (AWS, Azure, GCP), services (GitHub, Datadog)
-- Compositions: Reusable infrastructure abstractions
+- Compositions: reusable infrastructure abstractions
 - Kubernetes-native (CRDs, controllers)
 
 **Humanitec Platform Orchestrator:**
 - Resource management (databases, caches, message queues)
 - Resource matching (dev uses in-cluster Postgres, prod uses managed RDS)
-- Live Resource Graph: Single source of truth for all resources
+- Live Resource Graph: single source of truth for all resources
 
 **HCP Terraform:**
 - Workspace orchestration (separate state per environment/service)
@@ -195,30 +185,28 @@ Manage infrastructure provisioning, environment lifecycle, and deployment automa
 
 **Pulumi Automation API:**
 - Programmatic infrastructure management
-- Multi-language support (TypeScript, Python, Go)
+- Multi-language (TypeScript, Python, Go)
 - State management and diffs
 
 #### 2. Environment Management
 
-**Function:** Standardized environments with automated provisioning and promotion pipelines.
-
 **Environment Types:**
-- Development: Developer-owned, permissive policies, frequent deployments, auto-cleanup
-- Staging: Pre-production testing, production-like configuration, automated integration tests
-- Production: Strict policies, approval workflows, automated rollback, immutable infrastructure
+- Development: developer-owned, permissive policies, frequent deployments, auto-cleanup
+- Staging: pre-production testing, production-like config, automated integration tests
+- Production: strict policies, approval workflows, automated rollback, immutable infrastructure
 
 **Capabilities:**
 - Ephemeral environments (per-PR preview deployments, on-demand test environments)
 - Environment promotion pipelines (dev → staging → prod, automated or manual)
-- Configuration drift detection (compare actual vs. desired state)
-- Configuration drift remediation (auto-fix or alert)
+- Config drift detection (actual vs. desired state)
+- Config drift remediation (auto-fix or alert)
 
-**Implementation Examples:**
+**Examples:**
 
 **Humanitec Environment Manager:**
 - Environment types with inheritance (base config + overrides)
 - Automatic environment creation
-- Environment diff (see what changes between dev and prod)
+- Environment diff (what changes between dev and prod)
 
 **Kubernetes Namespaces + GitOps:**
 - Namespace per environment
@@ -227,32 +215,30 @@ Manage infrastructure provisioning, environment lifecycle, and deployment automa
 
 **Cloud Provider Environments:**
 - AWS Environments (isolated accounts)
-- Azure Management Groups (hierarchy of subscriptions)
+- Azure Management Groups (subscription hierarchy)
 - GCP Folders (project organization)
 
 #### 3. Deployment Automation
-
-**Function:** GitOps-based continuous delivery with progressive deployment strategies.
 
 **Principles:**
 - GitOps-based continuous delivery (Git as source of truth)
 - Progressive delivery (canary, blue-green, rolling updates)
 - Deployment policies (require approval, automated testing, gradual rollout)
-- Rollback capabilities (automated on failure, manual trigger, retain last N versions)
+- Rollback (automatic on failure, manual trigger, keep last N versions)
 
-**Implementation Examples:**
+**Examples:**
 
 **Argo CD:**
 - GitOps for Kubernetes (declarative desired state in Git)
-- Multi-cluster application management
+- Multi-cluster app management
 - ApplicationSets for templated deployments
 - Sync waves for ordered rollouts
-- Health assessment (check app is actually working, not just deployed)
+- Health assessment (checks app works, not just deployed)
 
 **Flux:**
 - Toolkit approach (composable controllers)
 - Image automation (auto-update image tags in Git)
-- Notification system (alerts to Slack, GitHub, etc.)
+- Notifications (alerts to Slack, GitHub, etc.)
 
 **Humanitec Deployment Pipelines:**
 - Environment-aware deployments
@@ -261,28 +247,26 @@ Manage infrastructure provisioning, environment lifecycle, and deployment automa
 
 **Spinnaker:**
 - Advanced deployment strategies (canary analysis, blue-green, rolling)
-- Multi-cloud support
+- Multi-cloud
 - Pipeline as code (JSON/YAML)
 
 ## Integration Layer
 
 ### Purpose
 
-Connect developer portal with underlying infrastructure, CI/CD, observability, security, and FinOps tools.
+Connect developer portal with underlying infrastructure, CI/CD, observability, security and FinOps tools.
 
 ### Core Components
 
 #### 1. API Gateway / Abstraction Layer
 
-**Function:** Unified API for platform capabilities with authentication and rate limiting.
-
 **Features:**
-- Unified API for platform capabilities (abstract underlying tool complexity)
-- Authentication and authorization (SSO integration, RBAC, API keys)
+- Unified API for platform capabilities (hides underlying tool complexity)
+- Authentication and authorization (SSO, RBAC, API keys)
 - Rate limiting and quotas (prevent abuse, fair usage)
 - API versioning and deprecation (backward compatibility, migration paths)
 
-**Implementation Examples:**
+**Examples:**
 
 **Kubernetes API Server:**
 - Platform-native for Kubernetes resources
@@ -300,18 +284,16 @@ Connect developer portal with underlying infrastructure, CI/CD, observability, s
 
 #### 2. CI/CD Integration
 
-**Function:** Pipeline visibility and control from developer portal.
-
 **Features:**
-- Pipeline status visibility (in-progress, failed, succeeded)
+- Pipeline status (in-progress, failed, succeeded)
 - Trigger builds/deployments from portal
 - Artifact management (container registry, package repositories)
 - Test results and quality gates (unit tests, integration tests, security scans)
 
-**Implementation Examples:**
+**Examples:**
 
 **Backstage CI/CD Plugins:**
-- GitHub Actions plugin (show workflow runs)
+- GitHub Actions plugin (workflow runs)
 - GitLab CI plugin (pipeline status)
 - Jenkins plugin (job history)
 - CircleCI plugin
@@ -327,19 +309,17 @@ Connect developer portal with underlying infrastructure, CI/CD, observability, s
 
 #### 3. Observability Integration
 
-**Function:** Metrics, logs, and traces surfaced in developer portal.
-
 **Features:**
 - Metrics dashboards in portal (per-service, per-team, per-environment)
 - Log aggregation and search (centralized logging, grep/filter)
 - Distributed tracing (request path visualization, latency breakdown)
 - Alerting and on-call management (PagerDuty, Opsgenie integration)
 
-**Implementation Examples:**
+**Examples:**
 
 **Backstage Prometheus/Grafana Plugins:**
 - Embed Grafana dashboards
-- Show Prometheus metrics per service
+- Prometheus metrics per service
 
 **Commercial Observability:**
 - Datadog plugin (APM, logs, metrics in one place)
@@ -349,11 +329,9 @@ Connect developer portal with underlying infrastructure, CI/CD, observability, s
 **OpenTelemetry:**
 - Standard instrumentation across languages
 - Vendor-agnostic telemetry collection
-- Automatic instrumentation in golden paths
+- Auto-instrumentation in golden paths
 
 #### 4. Security Integration
-
-**Function:** Vulnerability scanning, policy enforcement, secrets management.
 
 **Features:**
 - Vulnerability scanning (container images, dependencies, IaC)
@@ -361,10 +339,10 @@ Connect developer portal with underlying infrastructure, CI/CD, observability, s
 - Secrets management (Vault integration, encrypted configs, rotation)
 - Compliance reporting (SOC2, GDPR, HIPAA dashboards)
 
-**Implementation Examples:**
+**Examples:**
 
 **Backstage Security Insights Plugins:**
-- Show vulnerability scan results
+- Vulnerability scan results
 - Dependency security scores
 - Compliance status per service
 
@@ -385,18 +363,16 @@ Connect developer portal with underlying infrastructure, CI/CD, observability, s
 
 #### 5. FinOps Integration
 
-**Function:** Cost visibility, budgets, and optimization recommendations.
-
 **Features:**
 - Cost visibility (per-service, per-team, per-environment, per-deployment)
 - Budget alerts (spending thresholds, trend analysis)
-- Right-sizing recommendations (over-provisioned resources, unused resources)
+- Right-sizing recommendations (over-provisioned or unused resources)
 - Resource lifecycle management (auto-delete unused resources, hibernation)
 
-**Implementation Examples:**
+**Examples:**
 
 **Backstage Cost Insights Plugin:**
-- Show cost per service
+- Cost per service
 - Compare cost across teams
 - Trend analysis
 
@@ -526,12 +502,12 @@ Connect developer portal with underlying infrastructure, CI/CD, observability, s
 **Navigation:**
 - Clear information architecture (catalog, docs, create, admin)
 - Search as primary navigation (developers know what they want)
-- Personalization (show my services, my team's services)
+- Personalization (my services, my team's services)
 
 **Performance:**
 - Fast load times (<3s for catalog page)
 - Pagination for large catalogs (100 services per page)
-- Caching for frequently accessed data
+- Cache frequently accessed data
 
 **Accessibility:**
 - Keyboard navigation
@@ -546,9 +522,9 @@ Connect developer portal with underlying infrastructure, CI/CD, observability, s
 - Cost-aware defaults (right-size by default, allow overrides)
 
 **Idempotency:**
-- Infrastructure operations should be idempotent
-- Retry-safe (multiple applies don't create duplicates)
-- Rollback-safe (can undo without side effects)
+- Make infrastructure operations idempotent
+- Retry-safe (repeated applies don't create duplicates)
+- Rollback-safe (undo without side effects)
 
 ### Integration Layer
 
@@ -560,5 +536,5 @@ Connect developer portal with underlying infrastructure, CI/CD, observability, s
 
 **Monitoring:**
 - Instrument all integrations (metrics for API calls, latency, errors)
-- Circuit breakers (fail fast if backend is down)
+- Circuit breakers (fail fast if backend down)
 - Timeouts (don't wait forever for slow backends)

@@ -5,30 +5,24 @@ description: Set up and automate documentation tooling - OpenAPI renderers (Swag
 
 # Documentation Generation
 
-Generate comprehensive technical documentation across multiple layers: API documentation, code documentation, documentation sites, and system diagrams. Writing ADRs belongs to the documentation-and-adrs skill; this skill only covers publishing them in a docs site.
-
 ## When to Use This Skill
 
-Use this skill when:
+Use when:
 
-- Documenting REST APIs with OpenAPI specifications (GraphQL APIs: generate reference docs from the schema with a GraphQL doc generator)
-- Creating code documentation for libraries (TypeScript, Python, Go, Rust)
-- Building documentation sites for projects or products
-- Publishing existing ADRs in a docs site, or setting up ADR tooling (writing ADRs: documentation-and-adrs)
-- Generating diagrams to visualize system architecture or data flows
-- Setting up automated documentation pipelines in CI/CD
+- Documenting REST APIs with OpenAPI specs (GraphQL APIs: generate reference docs from schema with GraphQL doc generator)
+- Creating code docs for libraries (TypeScript, Python, Go, Rust)
+- Building docs sites for projects or products
+- Publishing existing ADRs in docs site, or setting up ADR tooling (writing ADRs: documentation-and-adrs)
+- Generating diagrams of system architecture or data flows
+- Setting up automated docs pipelines in CI/CD
 
 ## Documentation Layers Overview
 
-Technical documentation operates at these layers:
-
-**Layer 1: API Documentation** - OpenAPI specs for REST APIs (Swagger UI, Redoc, Scalar); GraphQL schemas are documented from the SDL/introspection instead
+**Layer 1: API Documentation** - OpenAPI specs for REST APIs (Swagger UI, Redoc, Scalar); document GraphQL schemas from SDL/introspection instead
 **Layer 2: Code Documentation** - Generated from code comments (TypeDoc, Sphinx, godoc, rustdoc)
-**Layer 3: Documentation Sites** - Comprehensive guides and tutorials (Docusaurus, MkDocs)
-**Layer 4: Architecture Decisions** - write with documentation-and-adrs; publish via the site (see `references/adr-guide.md`)
+**Layer 3: Documentation Sites** - Guides and tutorials (Docusaurus, MkDocs)
+**Layer 4: Architecture Decisions** - write with documentation-and-adrs; publish via site (see `references/adr-guide.md`)
 **Layer 5: Diagrams** - Visual architecture (Mermaid, PlantUML, D2)
-
-See `references/api-documentation.md`, `references/code-documentation.md`, and `references/documentation-sites.md` for detailed guides.
 
 ## Quick Decision Framework
 
@@ -51,23 +45,9 @@ Visual system design?
   → Layer 5: Diagrams (Mermaid/PlantUML/D2)
 ```
 
-### Tool Selection Matrix
-
-| Need | Primary Tool | Best For |
-|------|-------------|----------|
-| **Doc Site** | Docusaurus | Feature-rich React sites |
-| **Doc Site** | MkDocs Material | Simple Python docs |
-| **API Docs (Interactive)** | Swagger UI | Testing |
-| **API Docs (Read-Only)** | Redoc | Professional design |
-| **TypeScript** | TypeDoc | All TS projects |
-| **Python** | Sphinx | All Python projects |
-| **Go** | godoc | Built-in |
-| **Rust** | rustdoc | Built-in |
-| **Diagrams** | Mermaid | All-purpose |
-
 ## API Documentation Quick Start
 
-Create OpenAPI specification:
+Create OpenAPI spec:
 
 ```yaml
 openapi: 3.1.0
@@ -120,7 +100,7 @@ security:
   - bearerAuth: []
 ```
 
-Render with Swagger UI, Redoc, or Scalar. See `references/api-documentation.md` for complete examples and `templates/openapi-template.yaml` for starter template.
+Render with Swagger UI, Redoc or Scalar. Full examples: `references/api-documentation.md`. Starter template: `templates/openapi-template.yaml`.
 
 ## Code Documentation Quick Start
 
@@ -182,14 +162,14 @@ sphinx-quickstart docs
 cd docs && make html
 ```
 
-See `references/code-documentation.md` for Go and Rust examples.
+Go and Rust examples: `references/code-documentation.md`.
 
 ## Documentation Site Quick Start
 
 ### Docusaurus
 
 ```bash
-npx create-docusaurus@latest my-website classic
+npx create-docusaurus@3.10.2 my-website classic
 cd my-website
 npm start
 ```
@@ -245,11 +225,11 @@ nav:
   - Getting Started: getting-started.md
 ```
 
-See `references/documentation-sites.md` for versioning and deployment.
+Versioning and deployment: `references/documentation-sites.md`.
 
 ## Architecture Decision Records
 
-Write ADRs with the **documentation-and-adrs** skill (it defines when to write one, the template, and how to follow the repository's existing ADR convention). This skill only publishes them: see `references/adr-guide.md` for adr-tools, log4brains, and Docusaurus/MkDocs navigation for an ADR directory.
+Write ADRs with **documentation-and-adrs** skill. It defines when to write one, the template, and how to follow repository's existing ADR convention. This skill only publishes them. See `references/adr-guide.md` for adr-tools, log4brains, and Docusaurus/MkDocs navigation for ADR directory.
 
 ## Diagrams Quick Start
 
@@ -267,30 +247,13 @@ sequenceDiagram
 ```
 ````
 
-Mermaid renders in GitHub, Docusaurus, and MkDocs. See `references/diagram-generation.md` for PlantUML and D2 examples.
+Mermaid renders in GitHub, Docusaurus, MkDocs. PlantUML and D2 examples: `references/diagram-generation.md`.
 
 ## Common Patterns
 
 ### Design-First vs Code-First APIs
 
-**Design-First:**
-1. Write OpenAPI spec
-2. Review with stakeholders
-3. Generate server stubs
-4. Implement handlers
-
-**Pros:** Contract before implementation, parallel development
-**Cons:** Spec authoring can be verbose
-
-**Code-First:**
-1. Implement API with decorators
-2. Generate OpenAPI from code
-3. Publish documentation
-
-**Pros:** Faster development, spec matches code
-**Cons:** Documentation lags behind
-
-**Recommendation:** Design-first for new APIs, code-first for existing.
+**Recommendation:** Design-first for new APIs, code-first for existing. Workflows, pros and cons: `references/api-documentation.md`.
 
 ### Embedding API Docs in Sites
 
@@ -311,7 +274,7 @@ plugins: [
 themes: ['docusaurus-theme-openapi-docs'],
 ```
 
-See `references/api-documentation.md` for MkDocs integration.
+MkDocs integration: `references/api-documentation.md`.
 
 ### CI/CD Automation
 
@@ -346,22 +309,22 @@ jobs:
           publish_dir: ./build
 ```
 
-See `references/ci-cd-integration.md` for validation and versioning.
+Pin third-party actions to a full commit SHA (`peaceiris/actions-gh-pages@<sha> # v3`) and grant least `permissions:` (`contents: write` here). Deploy commands (`git push`, `mkdocs gh-deploy`, `mike deploy --push`, `npm run deploy`) publish publicly: confirm with user first.
+
+Validation and versioning: `references/ci-cd-integration.md`.
 
 ## Reference Documentation
-
-For detailed guides:
 
 - **`references/api-documentation.md`** - OpenAPI, Swagger UI, Redoc, Scalar, design-first vs code-first
 - **`references/code-documentation.md`** - TypeDoc, Sphinx, godoc, rustdoc with examples
 - **`references/documentation-sites.md`** - Docusaurus and MkDocs setup, versioning, deployment
-- **`references/adr-guide.md`** - ADR tooling (adr-tools, log4brains) and publishing ADRs in Docusaurus/MkDocs
+- **`references/adr-guide.md`** - ADR tooling (adr-tools, log4brains), publishing ADRs in Docusaurus/MkDocs
 - **`references/diagram-generation.md`** - Mermaid, PlantUML, D2 syntax and integration
 - **`references/ci-cd-integration.md`** - Automation, validation, deployment strategies
 
 ## Templates
 
-- **`templates/openapi-template.yaml`** - OpenAPI 3.1 specification starter
+- **`templates/openapi-template.yaml`** - OpenAPI 3.1 spec starter
 
 ## Examples
 
@@ -371,7 +334,7 @@ OpenAPI, Python (Sphinx) and diagram examples are inline in `references/api-docu
 
 ## Tool Recommendations
 
-Based on research (December 2025):
+From research (December 2025):
 
 **Documentation Sites:**
 - **Docusaurus** - React-based, feature-rich (versioning, i18n, search)
@@ -395,10 +358,10 @@ Based on research (December 2025):
 
 ## Integration with Other Skills
 
-- **`documentation-and-adrs`** - ADRs, READMEs, changelog entries and keeping examples true to the code
-- **`designing-apis`** - API design that the reference documents
-- **`building-ci-pipelines`** - Automate documentation generation
-- **`designing-sdks`** - SDK documentation and generated clients
+- **`documentation-and-adrs`** - ADRs, READMEs, changelog entries, keeping examples true to code
+- **`designing-apis`** - API design the reference documents
+- **`building-ci-pipelines`** - Automate docs generation
+- **`designing-sdks`** - SDK docs and generated clients
 
 ## Best Practices
 
@@ -408,19 +371,11 @@ Based on research (December 2025):
 4. **Examples** - Include working code examples
 5. **Validation** - Lint Markdown, validate specs
 6. **Versioning** - Version docs with releases
-7. **Consistency** - Use consistent terminology
-8. **Maintenance** - Update when code changes
 
 ## Common Pitfalls
-
-**Documentation Drift** - Docs become outdated
-→ Automate generation, validate in CI/CD
 
 **Over-Documentation** - Documenting obvious behavior
 → Focus on "why" not "what"
 
 **Fragmented Docs** - Information scattered
 → Single site with clear navigation
-
-**No Examples** - Theory without practice
-→ Include runnable examples

@@ -13,49 +13,31 @@ metadata:
 
 # Simplify Code — Parallel Review & Cleanup
 
-Review your recent code changes with four focused reviewers running in
-parallel, aggregate their findings, and apply the fixes worth applying.
-
-**This is a cleanup pass, not a bug hunt.** You are improving the quality of
-code that already works — removing duplication, flattening needless
-complexity, cutting waste, and deepening band-aid fixes. Do not go hunting
-for correctness bugs here; that's what `requesting-code-review` is for.
-
-**Core principle:** Four narrow reviewers beat one broad reviewer. Each one
-deeply searches the codebase for a single class of problem — reuse, quality,
-efficiency, altitude — without diluting its attention across all four. They
-run concurrently, so you pay the latency of one review, not four.
+**Cleanup pass, not bug hunt.** Improve working code: remove duplication, flatten needless complexity, cut waste, deepen band-aid fixes.
 
 ## When to Use
 
-Trigger this skill when the user says any of:
+Trigger when user says any of:
 
 - "simplify" / "simplify my changes" / "simplify these changes"
 - "clean up my changes" / "tidy up my recent changes"
+- "/simplify" (Claude Code habit carried over)
 
-For "review my code" or a correctness review, use `requesting-code-review` instead.
-- "/simplify" (if they're carrying the Claude Code habit over)
+For "review my code" or correctness review, use `requesting-code-review` instead.
 
-Optional modifiers the user may add — honor them:
+Honor optional user modifiers:
 
-- **Focus:** "simplify focus on efficiency" → run only the efficiency reviewer
-  (or weight the aggregation toward it). Recognized focuses: `reuse`,
-  `quality` (also accepts `simplification`), `efficiency`, `altitude`.
-- **Dry run:** "simplify but don't change anything" / "just report" → run the
-  four reviewers, present findings, apply NOTHING. Ask before applying.
-- **Scope:** "simplify the last commit" / "simplify staged" / "simplify
-  src/foo.py" → narrow the diff source accordingly (see Phase 1).
+- **Focus:** "simplify focus on efficiency": run only efficiency reviewer (or weight aggregation toward it). Recognized focuses: `reuse`, `quality` (also accepts `simplification`), `efficiency`, `altitude`.
+- **Dry run:** "simplify but don't change anything" / "just report": run four reviewers, present findings, apply NOTHING. Ask before applying.
+- **Scope:** "simplify the last commit" / "simplify staged" / "simplify src/foo.py": narrow diff source to match (see Phase 1).
 
-Do NOT auto-run this after every edit or tack it onto the end of unrelated
-tasks. It costs four subagents' worth of tokens — invoke it only when the
-user explicitly asks.
+Do NOT auto-run after every edit or tack onto unrelated tasks. Costs four subagents' worth of tokens; invoke only when user explicitly asks.
 
 ## The Process
 
 ### Phase 1 — Identify the changes
 
-Capture the diff to review. Pick the source by what the user asked for, in
-this default order:
+Pick diff source by user request, in this default order:
 
 ```bash
 # 1. Default: uncommitted working-tree changes (tracked files)
@@ -71,57 +53,30 @@ git diff main...HEAD              # "this branch" / "my PR"
 git diff -- src/foo.py            # specific file(s)
 ```
 
-If `git diff` and `git diff HEAD` are both empty and there's no git repo or no
-changes, fall back to the files the user explicitly named or that were
-recently created/edited in this session. If you genuinely can't find any
-changed code, say so and stop — there's nothing to simplify.
+If `git diff` and `git diff HEAD` are both empty and there's no git repo or no changes, fall back to files user explicitly named or files created/edited this session. If no changed code found, say so and stop.
 
-Capture the full diff text. Note its size: if it's very large (say >2000
-changed lines), warn the user that four subagents each carrying the full diff
-will be token-heavy, and offer to scope it down (per-directory, per-commit)
-before proceeding.
+Capture full diff text. If very large (say >2000 changed lines), warn that four subagents each carrying full diff is token-heavy. Offer to scope down (per-directory, per-commit) first.
 
 ### Phase 2 — Launch four reviewers in parallel
 
-Use `delegate_task` **batch mode** — pass all four tasks in one `tasks`
-array so they run concurrently. Four is the right fan-out for this pattern;
-it's within the `delegation.max_concurrent_children` budget on any default
-install.
+Use `delegate_task` **batch mode**: all four tasks in one `tasks` array, run concurrently. Four fits `delegation.max_concurrent_children` budget on any default install.
 
-**No delegation available?** If you can't call `delegate_task` in this
-context (you're a leaf subagent, delegation is disabled, or the budget is
-exhausted), do NOT skip the review or drop angles. Work through all four
-reviewer angles yourself, sequentially, in this context — same search
-standards, same finding format. Then say clearly in your final summary that
-this was a single-pass inline review, not the parallel fan-out, so the user
-knows what actually ran.
+**No delegation available?** If `delegate_task` can't be called here (leaf subagent, delegation disabled, or budget exhausted), do NOT skip review or drop angles. Run all four angles yourself, sequentially, with same search standards and finding format. Final summary must state: single-pass inline review, not parallel fan-out.
 
-Give **every** reviewer the **complete diff** (not fragments — cross-file
-issues hide in the gaps) plus the absolute repo path so they can search the
-wider codebase. Each reviewer gets `terminal`, `file`, and `search`
-toolsets (so they can `git`, `read_file`, and `search_files`/grep).
+Give **every** reviewer the **complete diff** (not fragments — cross-file issues hide in gaps) plus absolute repo path for wider search. Each gets `terminal`, `file`, and `search` toolsets (for `git`, `read_file`, and `search_files`/grep).
 
 Tell each reviewer to:
-- Search the existing codebase for evidence (don't reason from the diff alone).
-- **Apply Chesterton's Fence:** before flagging anything for removal, run
-  `git blame` on the line to understand why it exists. If you can't determine
-  the original purpose, mark it `confidence: low` — don't guess.
-- Report findings as structured output with the concrete cost, confidence,
-  and risk:
+- Search codebase for evidence; don't reason from diff alone.
+- **Apply Chesterton's Fence:** before flagging anything for removal, run `git blame` on the line to learn why it exists. If original purpose is unknown, mark it `confidence: low`; don't guess.
+- Report findings as structured output with concrete cost, confidence, and risk:
   ```
   file:line → problem → cost (what's duplicated/wasted/harder to maintain) → suggested fix | confidence: high/medium/low | risk: SAFE/CAREFUL/RISKY
   ```
-  The **cost** field forces each finding to justify itself — a finding that
-  can't articulate what the problem actually costs is probably a nit.
-  - **SAFE** = proven not to affect behavior (unused imports, commented-out
-    code, pass-through wrappers). Auto-apply these.
-  - **CAREFUL** = improves without changing semantics (rename local variable,
-    flatten nested ternary, extract helper). Apply with test verification.
-  - **RISKY** = may change behavior or breaks public contracts (N+1
-    restructuring, public API rename, memory lifecycle change). Flag for
-    human review — do NOT auto-apply.
-- Skip nits and style-only churn. Only flag things that materially improve
-  the code.
+  **cost** forces each finding to justify itself. Finding that can't state its cost is probably a nit.
+  - **SAFE** = proven not to affect behavior (unused imports, commented-out code, pass-through wrappers). Auto-apply.
+  - **CAREFUL** = improves without changing semantics (rename local variable, flatten nested ternary, extract helper). Apply with test verification.
+  - **RISKY** = may change behavior or breaks public contracts (N+1 restructuring, public API rename, memory lifecycle change). Flag for human review; do NOT auto-apply.
+- Skip nits and style-only churn. Flag only material improvements.
 
 Pass these four goals (drop any the user's focus excludes):
 
@@ -190,83 +145,30 @@ Pass these four goals (drop any the user's focus excludes):
 
 Wait for all four to return (batch mode returns them together).
 
-1. **Merge** the findings into one list, deduping where reviewers overlap —
-   when two findings target the same line or the same underlying mechanism,
-   collapse them into one.
-2. **Discard false positives** — you have the most context; you don't have to
-   argue with a reviewer, just drop weak or wrong suggestions silently.
-3. **Resolve conflicts.** Reviewers can disagree (Reviewer 1: "use existing
-   util X"; Reviewer 3: "X is slow, inline it"). Default resolution order:
-   **correctness > the user's stated focus > readability/reuse > micro-perf.**
-   Don't apply a perf "fix" that hurts clarity unless the path is genuinely
-   hot. When two suggestions are mutually exclusive and both defensible, pick
-   the one that touches less code and note the alternative.
+1. **Merge** findings into one list. Collapse findings that target same line or same underlying mechanism.
+2. **Discard false positives.** Silently drop weak or wrong suggestions; no arguing with reviewers.
+3. **Resolve conflicts.** Reviewers can disagree (Reviewer 1: "use existing util X"; Reviewer 3: "X is slow, inline it"). Default resolution order: **correctness > the user's stated focus > readability/reuse > micro-perf.** Don't apply perf "fix" that hurts clarity unless path is genuinely hot. If two suggestions are mutually exclusive and both defensible, pick one touching less code and note the alternative.
 4. **Apply in risk-tier order:**
-   - **SAFE first** (auto-apply): unused imports, commented-out code,
-     pass-through wrappers, redundant type assertions. Run tests after.
-   - **CAREFUL next** (apply with verification, one file at a time): rename
-     locals, flatten ternaries, extract helpers, consolidate dupes. Run tests
-     after each file. Revert any that break.
-   - **RISKY last** (flag for review — do NOT auto-apply): N+1 restructuring,
-     public API changes, concurrency fixes, error-handling changes. Present
-     each with risk description and test coverage status. Altitude findings
-     usually land here — deepening a fix means touching shared
-     infrastructure, so present the deeper fix and let the user decide
-     whether to do it now or as a follow-up.
-   If the user opted for a dry run, present all three tiers and apply nothing.
-5. **Verify** you didn't break anything: run the project's targeted tests for
-   the touched files (not the full suite), and re-run any linter/type check the
-   repo uses. If a fix breaks a test, revert that one fix and report it.
-6. **Summarize** what you changed: a short list of applied fixes grouped by
-   reviewer category and risk tier, plus any findings you deliberately skipped
-   and why. If you ran inline (no delegation), say so here.
+   - **SAFE first** (auto-apply): unused imports, commented-out code, pass-through wrappers, redundant type assertions. Run tests after.
+   - **CAREFUL next** (apply with verification, one file at a time): rename locals, flatten ternaries, extract helpers, consolidate dupes. Run tests after each file. If one breaks, undo only your own edit (reverse that patch); never `git checkout`/`restore`/`reset`/`stash` files, since default diff is user's uncommitted work.
+   - **RISKY last** (flag for review — do NOT auto-apply): N+1 restructuring, public API changes, concurrency fixes, error-handling changes. Present each with risk description and test coverage status. Altitude findings usually land here: deeper fix touches shared infrastructure. Present it; user decides whether to do it now or as follow-up.
+   On dry run, present all three tiers and apply nothing.
+5. **Verify** nothing broke: run targeted tests for touched files (not full suite). Re-run repo's linter/type check, if any. If a fix breaks a test, undo only that edit (same rule, no git revert commands) and report it.
+6. **Summarize** applied fixes, grouped by reviewer category and risk tier, plus deliberately skipped findings and why.
 
 ## Pitfalls
 
-- **Don't fan out wider than 4.** More reviewers means more cost and more
-  conflicting suggestions to reconcile, not better coverage. The four
-  categories cover the space.
-- **Give the WHOLE diff to each reviewer.** Splitting the diff across reviewers
-  defeats the design — cross-file duplication and N+1s only show up with the
-  full picture.
-- **Reviewers search, they don't guess.** A reuse finding with no pointer to
-  the existing utility ("there's probably a helper for this") is noise. Require
-  `file:line` evidence; drop findings that lack it.
-- **Apply ≠ rewrite.** This is cleanup of the user's recent changes, not a
-  license to refactor the whole module. Keep edits scoped to what the diff
-  touched plus the minimal surrounding change a fix requires. Altitude
-  findings are the exception that proves the rule: when the right fix is
-  deeper than the diff, FLAG it — don't unilaterally rebuild the shared
-  mechanism inside a cleanup pass.
-- **Don't drift into bug-hunting.** If a reviewer surfaces a genuine
-  correctness bug, report it prominently — but as a separate "found a bug"
-  note, not folded into cleanup fixes. Correctness review is a different
-  pass with different verification standards.
-- **Respect project conventions.** If the repo has AGENTS.md / CLAUDE.md /
-  HERMES.md or a linter config, fold those rules into the reviewer prompts so
-  suggestions match house style instead of fighting it.
-- **Large diffs blow context.** If the diff is huge, scope it down before
-  delegating — four subagents each carrying a 5000-line diff is expensive and
-  may truncate.
-- **Over-trusting dead code tools.** `knip`, `ts-prune`, and `depcheck` flag
-  exports that ARE used dynamically (string-based imports, reflection). Always
-  grep for the symbol name before removing — a clean tool report is not proof.
-- **Renaming without checking public contracts.** Export names, API route
-  paths, DB column names, and config keys are contracts — even if the name is
-  bad, renaming breaks consumers. Tag public-contract changes as RISKY; never
-  auto-rename them.
-- **Removing "unnecessary" error handling.** An empty catch block or ignored
-  error might be intentional — the error is expected and benign in that
-  context. Flag it, don't remove it; let the human decide.
-- **Not every special case is a band-aid.** Compat shims, staged migrations,
-  and isolation layers around vendored code look like altitude violations but
-  are deliberate design. Check `git blame` and surrounding comments before
-  flagging; when the intent is unclear, mark `confidence: low`.
+- **Don't fan out wider than 4.** More reviewers add cost and conflicting suggestions, not coverage.
+- **Reviewers search, they don't guess.** Reuse finding with no pointer to existing utility ("there's probably a helper for this") is noise. Require `file:line` evidence; drop findings without it.
+- **Apply ≠ rewrite.** Clean up user's recent changes; don't refactor whole module. Limit edits to what diff touched plus minimal surrounding change a fix requires. Altitude findings are the exception: if right fix is deeper than diff, FLAG it. Don't unilaterally rebuild shared mechanism in cleanup pass.
+- **Don't drift into bug-hunting.** Report genuine correctness bug prominently, but as separate "found a bug" note, not folded into cleanup fixes.
+- **Respect project conventions.** If repo has AGENTS.md / CLAUDE.md / HERMES.md or linter config, fold those rules into reviewer prompts so suggestions match house style.
+- **Large diffs blow context.** Scope huge diffs down before delegating. Four subagents each carrying 5000-line diff is expensive and may truncate.
+- **Over-trusting dead code tools.** `knip`, `ts-prune`, and `depcheck` flag exports that ARE used dynamically (string-based imports, reflection). Always grep for symbol name before removing; clean tool report is not proof.
+- **Renaming without checking public contracts.** Export names, API route paths, DB column names, and config keys are contracts. Renaming breaks consumers, even if name is bad. Tag public-contract changes RISKY; never auto-rename them.
+- **Removing "unnecessary" error handling.** Empty catch block or ignored error might be intentional (expected and benign in that context). Flag it, don't remove it; human decides.
+- **Not every special case is a band-aid.** Compat shims, staged migrations, and isolation layers around vendored code are deliberate design, not altitude violations. Check `git blame` and surrounding comments before flagging; if intent unclear, mark `confidence: low`.
 
 ## Related
 
-If your install has the `subagent-driven-development` skill (optional), it
-covers the complementary case: parallel review *during* implementation, per
-task. This skill is the standalone *after-the-fact* cleanup pass. Use
-`requesting-code-review` for the pre-commit security/quality gate — that's
-the bug hunt; this is the cleanup.
+If installed, optional `subagent-driven-development` skill covers complementary case: parallel review *during* implementation, per task. This skill is standalone *after-the-fact* cleanup pass. Use `requesting-code-review` for pre-commit security/quality gate.

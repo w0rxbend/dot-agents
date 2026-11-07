@@ -1,28 +1,25 @@
-You write two frontmatter fields, `description` and `keywords`, and only when they are missing.
+Write two frontmatter fields, `description` and `keywords`, only when missing.
 
-This covers only the two fields this skill writes — `description` and `keywords` — never the rest of a page's frontmatter contract.
+Covers only these two fields, never rest of page's frontmatter contract.
 
 ## `description`
 
-One line, double-quoted, **50-150 characters**. Shorter reads as a stub; longer is truncated in
-listings, so the tail is wasted.
+One line, double-quoted, **50-150 characters**. Shorter reads as stub; longer truncates in listings.
 
-It says what the page documents, in the reader's terms — not what kind of page it is, and not its
-title restated.
+Say what page documents, in reader's terms. Not page kind, not title restated.
 
 - ✅ `description: "Compose lenses to read and update nested immutable fields in a single step."`
 - ❌ `description: "Documentation for the Lens type."` (says what the file is, not what it teaches)
 - ❌ `description: "Lens"` (restates the title, and misses the floor)
 
-Write it from the page you just read. A page's own opening definition is usually the best raw
-material; the description is that sentence compressed to fit, not a fresh claim about the library.
+Write from page you just read. Its opening definition is usually best raw material: compress that
+sentence to fit; make no fresh claim about library.
 
-Writing-style rule 3 applies: no "as we can see", no "it's worth noting that". A description has no
-room for a phrase that carries nothing.
+Writing-style rule 3 applies: no "as we can see", no "it's worth noting that".
 
 ## `keywords`
 
-**3-6 entries**, Title Case, one concept each, always as a **block list** — one `- "item"` per line:
+**3-6 entries**, Title Case, one concept each, always **block list**: one `- "item"` per line.
 
 ```
 keywords:
@@ -31,27 +28,24 @@ keywords:
   - "Nested Field Update"
 ```
 
-The inline `["a", "b"]` form is valid YAML and Docusaurus does not read it. Do not emit it.
+Inline `["a", "b"]` form is valid YAML, but Docusaurus does not read it. Do not emit it.
 
-Order them from general to specific: the domain concept a reader would search for first, then what
-this page does with it, then the type or module name.
+Order general to specific: domain concept reader searches first, then what page does with it, then
+type or module name.
 
-Each entry must be a concept the page actually covers, phrased as something a person would type into
-a search box.
+Each entry: concept page actually covers, phrased as search-box query.
 
 - ✅ `- "Distributed Tracing"`, `- "Trace Sampling"`, `- "Custom Sampler"`
 - ❌ `- "Composition"` (a bare generic word — pair it with what is being composed)
 - ❌ `- "AlwaysOnSampler AlwaysOffSampler ParentBasedSampler"` (identifiers glued into one entry)
 - ❌ `- "lens"` (lowercase, and it is the title again)
 
-Under three entries means you did not find enough in the page to index it; say so in the receipt
-rather than padding to reach three.
+Under three entries means page gave too little to index. Say so in receipt; do not pad to three.
 
 ## Editing mechanics
 
-Insert `description` and `keywords` in the contract's order — after `title`, before anything else the
-page already carries. Every key that was there before stays, with its value and its position
-unchanged, including one you would have written differently.
+Insert `description` and `keywords` in contract order: after `title`, before anything else page
+carries. Every existing key keeps value and position, even one you would write differently.
 
-Leave exactly one blank line between the closing `---` and the first line of the body. A body glued
-to the delimiter renders wrong.
+Leave exactly one blank line between closing `---` and body's first line. Body glued to delimiter
+renders wrong.

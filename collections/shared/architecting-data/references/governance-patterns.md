@@ -33,7 +33,7 @@
 **Purpose:** Track data flow from source to consumption
 
 **Benefits:**
-- Impact analysis (what breaks if I change this?)
+- Impact analysis (what breaks if this changes?)
 - Root cause analysis (where did bad data come from?)
 - Compliance (where is PII used?)
 
@@ -54,12 +54,12 @@ customers.email
 ## Data Quality
 
 **Six Dimensions:**
-1. **Accuracy:** Does data reflect reality?
-2. **Completeness:** Are required fields populated?
-3. **Consistency:** Do related data agree?
-4. **Timeliness:** Is data fresh enough?
-5. **Validity:** Does data conform to schema?
-6. **Uniqueness:** Are there unwanted duplicates?
+1. **Accuracy:** Data reflects reality?
+2. **Completeness:** Required fields populated?
+3. **Consistency:** Related data agree?
+4. **Timeliness:** Data fresh enough?
+5. **Validity:** Data conforms to schema?
+6. **Uniqueness:** Any unwanted duplicates?
 
 **Tools:**
 
@@ -132,9 +132,9 @@ ALTER TABLE gold.customers
 
 ## Best Practices
 
-1. **Automate quality checks:** Integrate into CI/CD
+1. **Automate quality checks:** Run in CI/CD
 2. **Monitor lineage:** Track data flow end-to-end
 3. **Catalog everything:** Make data discoverable
-4. **Enforce access control:** Least privilege principle
+4. **Enforce access control:** Least privilege
 5. **Track data quality:** Metrics and dashboards
 6. **Document data products:** Schema, SLAs, examples

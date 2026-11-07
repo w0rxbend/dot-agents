@@ -15,11 +15,9 @@
 
 ## 1. Array Operations
 
-Array operations are the bread and butter of data transformation. Let's replace verbose loops with expressive, chainable operations.
-
 ### Map: Transform Every Element
 
-**The Task**: Convert an array of prices from cents to dollars.
+**Task**: Convert prices from cents to dollars.
 
 #### Imperative Approach
 
@@ -49,11 +47,9 @@ const dollars = pricesInCents.map(toDollars);
 // [9.99, 14.99, 29.99, 49.99]
 ```
 
-**Why functional is better here**: The intent is immediately clear. `map` says "transform each element." The transformation logic (`toDollars`) is named and reusable. No index management, no manual array building.
-
 ### Filter: Keep What Matches
 
-**The Task**: Get all active users from a list.
+**Task**: Get active users from list.
 
 #### Imperative Approach
 
@@ -86,11 +82,9 @@ const activeUsers = users.filter(isActive);
 const activeUsers = users.filter(user => user.isActive);
 ```
 
-**Why functional is better here**: The predicate (`isActive`) is separated from the iteration logic. You can reuse, test, and compose predicates independently.
-
 ### Reduce: Accumulate Into Something New
 
-**The Task**: Calculate the total price of items in a cart.
+**Task**: Calculate cart total.
 
 #### Imperative Approach
 
@@ -126,11 +120,11 @@ const calculateTotal = (items: CartItem[]): number =>
   items.map(lineTotal).reduce((a, b) => a + b, 0);
 ```
 
-**Honest assessment**: For simple sums, the imperative loop is actually quite readable. The functional version shines when you need to compose the accumulation with other transformations, or when the reduction logic is complex enough to benefit from being named.
+**Honest assessment**: For simple sums, imperative loop reads fine. Functional wins when accumulation composes with other transformations, or reduction logic is complex enough to name.
 
 ### Chaining: Combine Operations
 
-**The Task**: Get the names of all active premium users, sorted alphabetically.
+**Task**: Get names of active premium users, sorted alphabetically.
 
 #### Imperative Approach
 
@@ -178,11 +172,7 @@ const getActivePremiumNames = (users: User[]): string[] =>
     .sort(alphabetically);
 ```
 
-**Why functional is better here**: Each step in the chain has a single responsibility. You can read the transformation as a series of steps: "filter active, filter premium, get names, sort." Adding or removing a step is trivial.
-
 ### Using fp-ts Array Module
-
-fp-ts provides additional array utilities with better composition support:
 
 ```typescript
 import * as A from 'fp-ts/Array';
@@ -236,11 +226,9 @@ const uniqueTags = pipe(
 
 ## 2. Object Transformations
 
-Objects need reshaping constantly: picking fields, omitting sensitive data, merging settings, and updating nested values.
-
 ### Pick: Select Specific Fields
 
-**The Task**: Extract only the public fields from a user object.
+**Task**: Extract only public fields from user object.
 
 #### Imperative Approach
 
@@ -282,11 +270,11 @@ const getPublicUser = pick<User, 'id' | 'name' | 'email'>(['id', 'name', 'email'
 const publicUser = getPublicUser(user);
 ```
 
-**Why functional is better here**: The `pick` utility is reusable across your codebase. Type safety ensures you can only pick keys that exist.
+`pick` is reusable; types allow only keys that exist. One-off: spread/manual copy fine; repeated: utility.
 
 ### Omit: Remove Specific Fields
 
-**The Task**: Remove sensitive fields before logging.
+**Task**: Remove sensitive fields before logging.
 
 #### Imperative Approach
 
@@ -317,11 +305,11 @@ const sanitizeForLogging = omit<User, 'passwordHash' | 'internalNotes'>([
 ]);
 ```
 
-**Honest assessment**: For one-off omits, destructuring (the imperative approach) is perfectly fine and very readable. The functional `omit` utility pays off when you have many such transformations or need to compose them.
+**Honest assessment**: For one-off omits, destructuring (imperative approach) is fine and readable. `omit` utility pays off with many such transformations, or when composing them.
 
 ### Merge: Combine Objects
 
-**The Task**: Merge user settings with defaults.
+**Task**: Merge user settings with defaults.
 
 #### Imperative Approach
 
@@ -376,11 +364,11 @@ const finalSettings = mergeSettings(defaults, userPrefs);
 // { theme: 'dark', fontSize: 16, notifications: true, language: 'en' }
 ```
 
-**Why functional is better here**: Spread syntax is concise and handles any number of keys. Later spreads override earlier ones, giving you natural "defaults with overrides" behavior.
+Later spreads override earlier ones: natural "defaults with overrides" behavior.
 
 ### Deep Merge: Nested Object Combination
 
-**The Task**: Merge nested configuration objects.
+**Task**: Merge nested configuration objects.
 
 #### Imperative Approach
 
@@ -447,9 +435,11 @@ const customConfig = deepMerge(defaultConfig, {
 // ui.theme overridden, ui.animations preserved
 ```
 
+Recommendation: use utility or library.
+
 ### Immutable Updates: Change Nested Values
 
-**The Task**: Update a deeply nested value without mutation.
+**Task**: Update deeply nested value without mutation.
 
 #### Imperative (Mutating) Approach
 
@@ -505,18 +495,16 @@ const updatePath = <T, V>(
 const newState = updatePath(state, ['user', 'profile', 'settings', 'theme'], 'dark');
 ```
 
-**Honest assessment**: The spread nesting is verbose but explicit. For deeply nested updates, consider using a library like `immer` or fp-ts lenses. The verbosity of the functional approach is the price of immutability.
+**Honest assessment**: Spread nesting is verbose but explicit. For deep updates, consider library like `immer` or fp-ts lenses.
 
 ---
 
 
 ## 3. Data Normalization
 
-API responses rarely match the shape your app needs. Normalization transforms nested, denormalized data into flat, indexed structures.
-
 ### API Response to App State
 
-**The Task**: Transform a nested API response into a normalized state.
+**Task**: Transform nested API response into normalized state.
 
 #### API Response (What You Get)
 
@@ -695,66 +683,14 @@ const normalizeApiResponse = (response: ApiResponse): NormalizedState => ({
 });
 ```
 
-**Why functional is better here**: Each extraction is independent and testable. The `createNormalizedCollection` helper is reusable. Adding a new entity type means adding one new extraction function.
-
-### Transform API Response to UI-Ready Data
-
-**The Task**: Convert API data to what your components need.
-
-```typescript
-// API gives you this
-interface ApiUser {
-  user_id: string;
-  first_name: string;
-  last_name: string;
-  email_address: string;
-  created_at: string; // ISO string
-  avatar_url: string | null;
-}
-
-// Components need this
-interface DisplayUser {
-  id: string;
-  fullName: string;
-  email: string;
-  memberSince: string; // "Jan 2024"
-  avatarUrl: string; // With fallback
-}
-```
-
-#### Functional Approach
-
-```typescript
-const formatDate = (isoString: string): string => {
-  const date = new Date(isoString);
-  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-};
-
-const DEFAULT_AVATAR = 'https://example.com/default-avatar.png';
-
-const toDisplayUser = (apiUser: ApiUser): DisplayUser => ({
-  id: apiUser.user_id,
-  fullName: `${apiUser.first_name} ${apiUser.last_name}`,
-  email: apiUser.email_address,
-  memberSince: formatDate(apiUser.created_at),
-  avatarUrl: apiUser.avatar_url ?? DEFAULT_AVATAR,
-});
-
-// Transform array of users
-const toDisplayUsers = (apiUsers: ApiUser[]): DisplayUser[] =>
-  apiUsers.map(toDisplayUser);
-```
-
 ---
 
 
 ## 4. Grouping and Aggregation
 
-Grouping and aggregating data is essential for reports, dashboards, and analytics.
-
 ### GroupBy: Organize by Key
 
-**The Task**: Group orders by customer.
+**Task**: Group orders by customer.
 
 #### Imperative Approach
 
@@ -821,7 +757,7 @@ const ordersByCustomer = pipe(
 
 ### CountBy: Count Occurrences
 
-**The Task**: Count orders by status.
+**Task**: Count orders by status.
 
 #### Imperative Approach
 
@@ -862,7 +798,7 @@ const orderCountByStatus = countBy((order: Order) => order.status)(orders);
 
 ### SumBy: Aggregate Numeric Values
 
-**The Task**: Calculate total revenue per product category.
+**Task**: Sum revenue per product category.
 
 #### Imperative Approach
 
@@ -913,7 +849,7 @@ const revenueByCategory = sumBy(
 
 ### Complex Aggregation Example
 
-**The Task**: Calculate totals from line items with quantity and unit price.
+**Task**: Total line items with quantity and unit price.
 
 ```typescript
 interface LineItem {
@@ -980,8 +916,6 @@ const calculateInvoiceTotal = (invoice: Invoice) => {
 
 ## 5. Null-Safe Access
 
-Stop writing `if (x && x.y && x.y.z)`. Safely navigate nested structures without runtime errors.
-
 ### The Problem
 
 ```typescript
@@ -1025,14 +959,14 @@ const getDatabaseHost = (config: Config): string =>
   config.database?.connection?.host ?? 'localhost';
 ```
 
-**Honest assessment**: For simple access patterns, optional chaining (`?.`) is perfect. It's built into the language and very readable. Use fp-ts Option when you need to compose operations on potentially missing values.
+**Honest assessment**: For simple access, optional chaining (`?.`) is ideal: built in, readable.
 
 ### When to Use Option Instead
 
 Use fp-ts Option when:
-- You need to chain multiple operations on potentially missing values
-- You want to distinguish "missing" from other falsy values
-- You're building a pipeline of transformations
+- Chaining several operations on possibly missing values
+- Distinguishing "missing" from other falsy values
+- Building pipeline of transformations
 
 ```typescript
 import * as O from 'fp-ts/Option';
@@ -1120,7 +1054,7 @@ const email = pipe(
 
 ### Combining Multiple Optional Values
 
-**The Task**: Get a user's display name, which requires both first and last name.
+**Task**: Get user's display name; needs both first and last name.
 
 ```typescript
 interface Profile {
@@ -1157,32 +1091,3 @@ const getDisplayName = (profile: Profile): string =>
     O.getOrElse(() => 'Anonymous')
   );
 ```
-
----
-
-
-## Summary
-
-| Task | Imperative | Functional | Recommendation |
-|------|-----------|------------|----------------|
-| Transform array elements | for loop with push | `.map()` | Use map |
-| Filter array | for loop with condition | `.filter()` | Use filter |
-| Accumulate values | for loop with accumulator | `.reduce()` | Use reduce for complex, loop for simple |
-| Group by key | for loop with object | `groupBy` utility | Create reusable utility |
-| Pick object fields | manual property copy | `pick` utility | Use spread for one-off, utility for repeated |
-| Merge objects | property-by-property | spread syntax | Use spread |
-| Deep merge | nested conditionals | recursive utility | Use utility or library |
-| Null-safe access | `if (x && x.y)` | `?.` or Option | Use `?.` for simple, Option for composition |
-| Normalize API data | nested loops | extraction functions | Break into composable functions |
-
-**The functional approach is better when:**
-- You need to compose operations
-- You want reusable transformations
-- You value explicit data flow over implicit state
-- Type safety for missing values matters
-
-**The imperative approach is acceptable when:**
-- The transformation is a one-off
-- The logic is simple and linear
-- Performance is critical and you've measured
-- The team is more comfortable with it

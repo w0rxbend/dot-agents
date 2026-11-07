@@ -7,11 +7,11 @@ allowed-tools: []
 
 # Docker Compose Basics
 
-Core Compose Specification usage with the Docker Compose v2 plugin (`docker compose`, not the legacy `docker-compose` binary). The top-level `version:` key is obsolete: Compose ignores it and prints a warning, so omit it.
+Core Compose Specification usage with Docker Compose v2 plugin (`docker compose`, not legacy `docker-compose` binary). Top-level `version:` key is obsolete: Compose ignores it and prints a warning. Omit it.
 
 ## Baseline file
 
-Name the file `compose.yaml` (Compose also reads `docker-compose.yml`).
+Name file `compose.yaml` (Compose also reads `docker-compose.yml`).
 
 ```yaml
 name: myapp
@@ -73,11 +73,11 @@ secrets:
 
 | `depends_on` form | Waits for |
 |---|---|
-| list (`- db`) | container **started** only - the app may still be booting |
-| `condition: service_healthy` | the dependency's `healthcheck` passing |
-| `condition: service_completed_successfully` | a one-shot job (migrations, seeding) exiting 0 |
+| list (`- db`) | container **started** only - app may still be booting |
+| `condition: service_healthy` | dependency's `healthcheck` passing |
+| `condition: service_completed_successfully` | one-shot job (migrations, seeding) exiting 0 |
 
-A `service_healthy` condition requires a `healthcheck` on the dependency (in the image or the compose file). The health command must exist in the image (`curl` is absent from many slim images; use `wget`, the app's own binary, or a tool like `pg_isready`).
+`service_healthy` condition requires a `healthcheck` on the dependency (in image or compose file). Health command must exist in the image. Many slim images lack `curl`; use `wget`, app's own binary, or a tool like `pg_isready`.
 
 ## Volumes vs bind mounts
 
@@ -85,19 +85,19 @@ A `service_healthy` condition requires a `healthcheck` on the dependency (in the
 |---|---|---|
 | Named volume | `pgdata:/var/lib/postgresql/data` | Persistent service data managed by Docker |
 | Bind mount | `./src:/app/src` | Development source code, config files you edit |
-| Read-only bind | `./nginx.conf:/etc/nginx/nginx.conf:ro` | Config that the container must not change |
+| Read-only bind | `./nginx.conf:/etc/nginx/nginx.conf:ro` | Config the container must not change |
 | tmpfs | `tmpfs: [/tmp]` | Scratch data that must not persist |
 
-`docker compose down` keeps named volumes; `down -v` deletes them (data loss).
+`docker compose down` keeps named volumes; `down -v` deletes them (data loss; confirm with user first).
 
 ## Environment variables
 
 Two separate mechanisms:
 
-1. **Interpolation** of `${VAR}` inside the compose file. Sources, highest priority first: the shell environment, then `--env-file` files (or the project's `.env` when none is given). Use `${VAR:-default}` for defaults and `${VAR:?message}` to fail fast when a variable is required.
-2. **Container environment**. For the same variable: `docker compose run -e` beats `environment:`, which beats `env_file:`, which beats the image's `ENV`.
+1. **Interpolation** of `${VAR}` inside compose file. Sources, highest priority first: shell environment, then `--env-file` files (or project's `.env` when none given). Use `${VAR:-default}` for defaults, `${VAR:?message}` to fail fast when a variable is required.
+2. **Container environment**. For same variable: `docker compose run -e` beats `environment:`, which beats `env_file:`, which beats image's `ENV`.
 
-`.env` only feeds interpolation; it is not injected into containers unless a service lists it in `env_file:`. Put real secrets in `secrets:` (mounted at `/run/secrets/<name>`), not in `environment:`.
+`.env` only feeds interpolation. Not injected into containers unless a service lists it in `env_file:`. Put real secrets in `secrets:` (mounted at `/run/secrets/<name>`), not in `environment:`.
 
 ## Profiles
 
@@ -108,16 +108,16 @@ services:
     profiles: [debug]
 ```
 
-Services with `profiles` start only when the profile is enabled: `docker compose --profile debug up` or `COMPOSE_PROFILES=debug`. Services without `profiles` always start.
+Services with `profiles` start only when profile is enabled: `docker compose --profile debug up` or `COMPOSE_PROFILES=debug`. Services without `profiles` always start.
 
 ## Composing files
 
 | Mechanism | Use when |
 |---|---|
 | `compose.override.yaml` | Local dev overrides; merged automatically after `compose.yaml` |
-| `-f a.yaml -f b.yaml` | Explicit layering (later files override earlier; lists like `ports` are merged) |
-| `include:` | Pull in another team's/component's compose file as its own unit with its own relative paths |
-| `extends:` | Reuse one service definition as a base for another |
+| `-f a.yaml -f b.yaml` | Explicit layering (later files override earlier; lists like `ports` merged) |
+| `include:` | Pull in another team's/component's compose file as own unit with own relative paths |
+| `extends:` | Reuse one service definition as base for another |
 
 ```yaml
 include:
@@ -131,7 +131,7 @@ services:
     command: ["node", "worker.js"]
 ```
 
-Use `!reset` / `!override` YAML tags in an override file to remove or replace a value instead of merging it.
+Use `!reset` / `!override` YAML tags in override file to remove or replace a value instead of merging.
 
 ## Development with watch
 
@@ -165,17 +165,19 @@ docker compose pull
 docker compose down                   # keeps named volumes; add -v to delete them
 ```
 
-`--scale api=3` only works when the service has no `container_name` and no fixed host port.
+`config` output inlines `.env`, shell and `env_file` values, secrets included: never paste it into chat or logs; inspect structure with `--no-interpolate --no-env-resolution`.
+
+`--scale api=3` only works when service has no `container_name` and no fixed host port.
 
 ## Done when
 
-- `docker compose config --quiet` passes and the file has no `version:` key.
-- Every dependency used with `service_healthy` has a working healthcheck, and `docker compose up -d --wait` exits 0.
-- No secrets in the compose file or committed `.env`; images are pinned.
-- Ports that need no LAN access are bound to `127.0.0.1`.
+- `docker compose config --quiet` passes; file has no `version:` key.
+- Every dependency used with `service_healthy` has working healthcheck; `docker compose up -d --wait` exits 0.
+- No secrets in compose file or committed `.env`. Images pinned.
+- Ports needing no LAN access bound to `127.0.0.1`.
 
 ## Related skills
 
 - `docker-compose-networking` - custom networks, isolation, service discovery.
 - `docker-compose-production` - resource limits, logging, restart policies and hardening for single-host production.
-- `dockerfile-optimise` - the images the services build.
+- `dockerfile-optimise` - images the services build.

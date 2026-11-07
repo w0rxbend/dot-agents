@@ -262,10 +262,13 @@ async function executeTool(name: string, args: any): Promise<any> {
       condition: 'Sunny',
       humidity: 45,
     }),
-    calculate: ({ expression }: any) => ({
-      expression,
-      result: eval(expression),
-    }),
+    calculate: ({ expression }: any) => {
+      try {
+        return { expression, result: evaluateArithmetic(String(expression)) };
+      } catch (error) {
+        return { expression, error: (error as Error).message };
+      }
+    },
     query_database: ({ query }: any) => ({
       query,
       results: [{ id: 1, name: 'Sample' }],
@@ -274,6 +277,38 @@ async function executeTool(name: string, args: any): Promise<any> {
   };
 
   return tools[name]?.(args) || { error: 'Tool not found' };
+}
+
+// Tool arguments come from the model: never eval them. Parses numbers, + - * / and parentheses only.
+function evaluateArithmetic(expr: string): number {
+  const tokens = expr.match(/\d+(?:\.\d+)?|[-+*/()]/g) ?? [];
+  if (tokens.join('') !== expr.replace(/\s+/g, '')) throw new Error('Unsupported expression');
+  let i = 0;
+  const factor = (): number => {
+    const t = tokens[i++];
+    if (t === '-') return -factor();
+    if (t === '(') {
+      const v = sum();
+      if (tokens[i++] !== ')') throw new Error('Missing )');
+      return v;
+    }
+    const n = Number(t);
+    if (Number.isNaN(n)) throw new Error('Unexpected token');
+    return n;
+  };
+  const product = (): number => {
+    let v = factor();
+    while (tokens[i] === '*' || tokens[i] === '/') v = tokens[i++] === '*' ? v * factor() : v / factor();
+    return v;
+  };
+  const sum = (): number => {
+    let v = product();
+    while (tokens[i] === '+' || tokens[i] === '-') v = tokens[i++] === '+' ? v + product() : v - product();
+    return v;
+  };
+  const result = sum();
+  if (i !== tokens.length) throw new Error('Unexpected token');
+  return result;
 }
 
 function generateResponseWithToolResult(toolName: string, result: any): string {

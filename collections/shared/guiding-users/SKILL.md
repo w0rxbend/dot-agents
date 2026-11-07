@@ -5,26 +5,22 @@ description: Implements onboarding and help systems including product tours, int
 
 # Guiding Users Through Onboarding and Help Systems
 
-## Purpose
-
-This skill provides systematic patterns for onboarding users and delivering contextual help, from first-time product tours to ongoing feature discovery. It covers the complete spectrum of user guidance mechanisms, ensuring optimal user activation, feature adoption, and self-service support.
-
 ## When to Use
 
-Activate this skill when:
-- Building first-time user experiences or product tours
-- Implementing feature discovery and announcements
-- Creating interactive tutorials or guided tasks
-- Adding tooltips, hints, or contextual help
-- Designing setup flows or completion checklists
-- Building help panels or documentation systems
-- Implementing progressive disclosure patterns
+Use for:
+- First-time user experiences or product tours
+- Feature discovery and announcements
+- Interactive tutorials or guided tasks
+- Tooltips, hints or contextual help
+- Setup flows or completion checklists
+- Help panels or documentation systems
+- Progressive disclosure patterns
 - Measuring onboarding effectiveness and user activation
-- Ensuring onboarding accessibility
+- Onboarding accessibility
 
 ## Quick Decision Framework
 
-Select the appropriate guidance mechanism based on user state and content type:
+Pick guidance mechanism by user state and content type:
 
 ```
 First-time user          → Product Tour (step-by-step)
@@ -36,26 +32,21 @@ Ongoing support          → Help Panel (sidebar/searchable)
 Feature unlock           → Progressive Disclosure
 ```
 
-Reference `references/selection-framework.md` for detailed selection criteria.
+Detailed selection criteria: `references/selection-framework.md`.
 
 ## Core Guidance Mechanisms
 
 ### Product Tours
 
-Step-by-step walkthroughs that guide users through key features:
+Step-by-step walkthroughs of key features:
 - Sequential spotlights with modal overlays
 - Progress indicators (Step 2 of 5)
-- Skip, Previous, and Next controls
-- Dismiss and resume capability
+- Skip, Previous and Next controls
+- Dismiss and resume
 - Context-sensitive activation
 
-**Implementation:**
-```bash
-npm install react-joyride
-```
-
-See `examples/first-time-tour.tsx` for complete implementation.
-Reference `references/product-tours.md` for patterns and best practices.
+Full example: `examples/first-time-tour.tsx`.
+Patterns and best practices: `references/product-tours.md`.
 
 ### Feature Spotlights
 
@@ -66,8 +57,8 @@ Announce new features to existing users:
 - Auto-dismiss after first view
 - Non-blocking overlay
 
-See `examples/feature-spotlight.tsx` for implementation.
-Reference `references/tooltips-hints.md` for patterns.
+Example: `examples/feature-spotlight.tsx`.
+Patterns: `references/tooltips-hints.md`.
 
 ### Interactive Tutorials
 
@@ -76,10 +67,10 @@ Guided task completion with validation:
 - Checkbox completion tracking
 - Celebration animations on completion
 - Sandbox mode with sample data
-- Undo and reset capabilities
+- Undo and reset
 
-See `examples/guided-tutorial.tsx` for implementation.
-Reference `references/interactive-tutorials.md` for patterns.
+Example: `examples/guided-tutorial.tsx`.
+Patterns: `references/interactive-tutorials.md`.
 
 ### Setup Checklists
 
@@ -90,50 +81,50 @@ Track multi-step onboarding progress:
 - Achievement badges and gamification
 - Persistent until completed
 
-See `examples/setup-checklist.tsx` for implementation.
-Reference `references/checklists.md` for patterns.
+Example: `examples/setup-checklist.tsx`.
+Patterns: `references/checklists.md`.
 
 ### Contextual Tooltips and Hints
 
-Just-in-time help when users need it:
-- Hover or click-triggered tooltips
+Just-in-time help when needed:
+- Hover- or click-triggered tooltips
 - Progressive hint levels (1, 2, 3)
 - "Need help?" assistance triggers
 - Context-aware suggestions
 - Keyboard-accessible
 
-See `examples/contextual-help.tsx` for implementation.
-Reference `references/tooltips-hints.md` for complete patterns.
+Example: `examples/contextual-help.tsx`.
+Full patterns: `references/tooltips-hints.md`.
 
 ### Help Panels
 
-Comprehensive help systems:
+Full help systems:
 - Sidebar or drawer interface
-- Contextual help based on current page
+- Contextual help for current page
 - Search help articles and docs
 - Video tutorials and demos
 - Contact support integration
 - Collapsible and resizable
 
-See `examples/help-panel.tsx` for implementation.
-Reference `references/help-systems.md` for patterns.
+Example: `examples/help-panel.tsx`.
+Patterns: `references/help-systems.md`.
 
 ## Timing and Triggering Strategies
 
 ### When to Show Onboarding
 
-Appropriate triggers:
+Triggers:
 - First login (always)
-- Immediately after signup
+- Right after signup
 - New feature launch (to existing users)
-- User appears stuck (smart triggering based on inactivity)
+- User appears stuck (smart triggering on inactivity)
 - User explicitly requests help
 
 ### When NOT to Show Onboarding
 
 Avoid showing when:
 - User is mid-task or focused
-- Shown in every session (becomes annoying)
+- Shown every session (annoying)
 - Before allowing free exploration
 - Tour exceeds 7 steps (too long)
 - User already dismissed or completed
@@ -141,23 +132,23 @@ Avoid showing when:
 **Auto-dismiss timing:**
 - Simple tooltips: 5-7 seconds
 - Feature announcements: 10-15 seconds or manual dismiss
-- Tours: User-controlled, no auto-dismiss
-- Persistent hints: Until user acknowledges
+- Tours: user-controlled, no auto-dismiss
+- Persistent hints: until user acknowledges
 
-Reference `references/timing-strategies.md` for detailed guidelines.
+Detailed guidelines: `references/timing-strategies.md`.
 
 ## Progressive Disclosure Patterns
 
-Show only what's needed, when it's needed:
+Show only what's needed, when needed:
 
 **Techniques:**
 1. **Accordion Help**: Collapsed by default, expand for details
-2. **"Learn More" Links**: Deep dive content optional
+2. **"Learn More" Links**: Optional deep-dive content
 3. **Advanced Settings**: Hidden behind "Show advanced" toggle
 4. **Gradual Feature Introduction**: Unlock features as user progresses
 5. **Contextual Hints**: Show based on user actions
 
-Reference `references/progressive-disclosure.md` for implementation patterns.
+Implementation patterns: `references/progressive-disclosure.md`.
 
 ## Accessibility Requirements
 
@@ -165,10 +156,10 @@ Reference `references/progressive-disclosure.md` for implementation patterns.
 
 Essential keyboard support:
 - Tab through tour steps and controls
-- ESC to dismiss tours and tooltips
-- Arrow keys for Previous/Next navigation
-- Enter/Space to activate buttons
-- Focus visible indicators
+- ESC dismisses tours and tooltips
+- Arrow keys for Previous/Next
+- Enter/Space activates buttons
+- Visible focus indicators
 
 ### Screen Reader Support
 
@@ -183,13 +174,13 @@ ARIA patterns for announcements:
 
 Respect `prefers-reduced-motion`:
 - Disable pulsing animations
-- Use instant transitions instead of animations
+- Instant transitions instead of animations
 - Remove parallax and complex effects
-- Maintain functionality without motion
+- Keep functionality without motion
 
-To check accessibility, run an automated scan in the browser (for example `@axe-core/playwright` against the page with the tour open), then verify keyboard-only navigation, screen-reader announcements and reduced motion by hand — automated scanners do not cover those. Do not report the tour as accessible until both have been done.
+To check accessibility, run automated browser scan (for example `@axe-core/playwright` against page with tour open). Then verify keyboard-only navigation, screen-reader announcements and reduced motion by hand; automated scanners do not cover those. Do not report tour as accessible until both are done.
 
-Reference `references/accessibility-patterns.md` for complete implementation.
+Full implementation: `references/accessibility-patterns.md`.
 
 ## Library Recommendations
 
@@ -199,17 +190,17 @@ Reference `references/accessibility-patterns.md` for complete implementation.
 
 Best for comprehensive product tours:
 - WAI-ARIA compliant out of the box
-- Full keyboard navigation support
+- Full keyboard navigation
 - Highly customizable styling
 - Programmatic control
-- Localization support
+- Localization
 - Active maintenance
 
 ```bash
 npm install react-joyride
 ```
 
-See `examples/joyride-tour.tsx` for complete setup.
+Full setup: `examples/joyride-tour.tsx`.
 
 ### Alternative: driver.js (Lightweight, Modern)
 
@@ -226,7 +217,7 @@ npm install driver.js
 ### Alternative: intro.js (Classic, Proven)
 
 Best for traditional tours:
-- Battle-tested library
+- Battle-tested
 - Wide browser support
 - JSON-based tour configuration
 - Extensive plugin ecosystem
@@ -235,11 +226,11 @@ Best for traditional tours:
 npm install intro.js
 ```
 
-Reference `references/library-comparison.md` for detailed analysis and selection criteria.
+Detailed analysis and selection criteria: `references/library-comparison.md`.
 
 ## Design Token Integration
 
-All onboarding components should use the project's design tokens for consistent theming (see the theming-components skill):
+Style all onboarding components with project design tokens for consistent theming (see theming-components skill):
 
 **Token categories used:**
 - **Colors**: Tour spotlight, overlay, tooltip backgrounds, hotspot colors
@@ -249,14 +240,13 @@ All onboarding components should use the project's design tokens for consistent 
 - **Shadows**: Elevation for tour spotlights and tooltips
 - **Motion**: Transition durations, pulse animations
 
-Supports light, dark, high-contrast, and custom brand themes.
-Reference the theming-components skill for complete theming documentation.
+Supports light, dark, high-contrast and custom brand themes.
 
 ## Measuring Success
 
 ### Key Metrics
 
-Track these indicators:
+Track:
 - Tour completion rate (target: >60%)
 - Time to first value (faster = better)
 - Feature adoption rate post-tour
@@ -266,30 +256,24 @@ Track these indicators:
 
 ### Optimization Strategies
 
-Iterate based on data:
+Iterate on data:
 - A/B test tour length (shorter often better)
 - Test different messaging and copy
 - Measure drop-off at each step
 - Simplify steps with high abandonment
 - Add skip options for returning users
-- Personalize based on user type
+- Personalize by user type
 
-To analyze onboarding metrics, compute per-step reach and drop-off from your analytics events (tour_started, step_viewed, tour_completed, tour_skipped) in your analytics tool or a short query over exported events.
+To analyze onboarding metrics, compute per-step reach and drop-off from analytics events (tour_started, step_viewed, tour_completed, tour_skipped). Use analytics tool or short query over exported events.
 
-Reference `references/measuring-success.md` for complete analytics implementation.
+Full analytics implementation: `references/measuring-success.md`.
 
 ## Anti-Patterns to Avoid
 
-Common mistakes that harm user experience:
-
 ❌ **Forced Tours**: Requiring tour completion before product use
-❌ **Too Long**: Tours exceeding 7 steps lose user attention
-❌ **Every Session**: Showing same tour repeatedly
-❌ **No Skip Option**: Preventing users from exploring independently
-❌ **Wall of Text**: Using lengthy explanations instead of visuals
+❌ **No Skip Option**: Users cannot explore independently
+❌ **Wall of Text**: Long explanations instead of visuals
 ❌ **Blocking Everything**: Preventing interaction during tours
-❌ **Premature Guidance**: Showing help before users explore
-❌ **Poor Timing**: Interrupting focused work
 ❌ **No Context**: Generic tips without specific relevance
 
 ## Implementation Workflow
@@ -315,35 +299,34 @@ Match mechanisms to moments:
 ### Step 3: Implement with Progressive Enhancement
 
 Build incrementally:
-1. Start with essential guidance only
+1. Start with essential guidance only: one critical flow (usually first-time experience)
 2. Add contextual help based on user behavior
-3. Implement analytics to measure effectiveness
-4. Iterate based on data
+3. Add analytics to measure effectiveness
+4. Iterate on data
 5. A/B test variations
 
 ### Step 4: Test Accessibility
 
 Verify compliance:
-- Keyboard navigation works completely
+- Keyboard navigation works fully
 - Screen reader announces properly
 - Reduced motion preference honored
 - Focus management correct
 - ARIA labels descriptive
 
-Run an automated scan (e.g. `@axe-core/playwright`) with each tour step visible, and do the manual keyboard and screen-reader checks above; report which checks were actually run.
+Run automated scan (e.g. `@axe-core/playwright`) with each tour step visible. Do manual keyboard and screen-reader checks above. Report which checks were actually run.
 
 ### Step 5: Monitor and Optimize
 
 Track and improve:
 - Monitor completion rates
-- Identify drop-off points
-- Gather user feedback
+- Find drop-off points
+- Test with real users, gather feedback
 - A/B test improvements
-- Update based on findings
 
 ## Working Examples
 
-Start with the example matching the use case:
+Start with example matching use case:
 
 ```
 first-time-tour.tsx           # Product walkthrough with react-joyride
@@ -357,25 +340,6 @@ celebration-animation.tsx     # Completion feedback
 
 ## Resources
 
-### References (Detailed Documentation)
-- `references/product-tours.md` - Tour patterns, step design, navigation
-- `references/interactive-tutorials.md` - Guided tasks and sandbox modes
-- `references/tooltips-hints.md` - Contextual help and progressive hints
-- `references/checklists.md` - Progress tracking and gamification
-- `references/help-systems.md` - Help panels, videos, and documentation
-- `references/progressive-disclosure.md` - Advanced patterns and feature unlocking
-- `references/timing-strategies.md` - When and how to trigger guidance
-- `references/accessibility-patterns.md` - WCAG compliance and ARIA patterns
-- `references/measuring-success.md` - Analytics and optimization
-- `references/library-comparison.md` - Detailed library evaluation
-- `references/selection-framework.md` - Decision trees for choosing mechanisms
-
-### Examples (Implementation Code)
-- Complete working implementations for all guidance types
-- Integration examples with common frameworks
-- Accessibility-compliant patterns
-- Design token integration examples
-
 ### Assets (Templates and Configs)
 - `assets/celebration-animations/` - Success animations and confetti
 - `assets/tour-templates.json` - Reusable tour configurations
@@ -384,7 +348,7 @@ celebration-animation.tsx     # Completion feedback
 
 ## Cross-Skill Integration
 
-This skill works with other component skills:
+Works with other component skills:
 
 - **Forms**: Guided form completion, validation hints
 - **Dashboards**: Feature tours, widget explanations
@@ -392,26 +356,3 @@ This skill works with other component skills:
 - **AI Chat**: Chat interface walkthroughs
 - **Navigation**: Menu and navigation guidance
 - **Feedback**: Success celebrations, progress notifications
-- **Design Tokens**: All visual styling and theming
-
-## Key Principles
-
-1. **Respect User Time**: Keep tours under 7 steps, make skippable
-2. **Show, Don't Tell**: Use visuals and interactions over text
-3. **Progressive Enhancement**: Start simple, add guidance as needed
-4. **Context is King**: Show help when and where it's relevant
-5. **Measure Everything**: Track completion, iterate based on data
-6. **Accessibility First**: Keyboard, screen reader, reduced motion support
-7. **Celebrate Progress**: Acknowledge completion and achievements
-8. **Allow Exploration**: Don't force tours, enable discovery
-
-## Next Steps
-
-1. Map the user journey and identify key moments
-2. Choose appropriate guidance mechanisms for each moment
-3. Install react-joyride or preferred library
-4. Start with one critical flow (usually first-time experience)
-5. Implement with accessibility built-in
-6. Add analytics tracking
-7. Test with real users
-8. Iterate based on metrics and feedback

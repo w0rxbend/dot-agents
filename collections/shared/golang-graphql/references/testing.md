@@ -12,7 +12,7 @@
 
 ## gqlgen — Client Harness
 
-The `github.com/99designs/gqlgen/client` package drives the full stack (directives, middleware, resolvers) via an `http.Handler`:
+`github.com/99designs/gqlgen/client` package drives full stack (directives, middleware, resolvers) via `http.Handler`:
 
 ```go
 func TestCreateUser(t *testing.T) {
@@ -54,11 +54,11 @@ func TestCreateUser(t *testing.T) {
 }
 ```
 
-For unit testing individual resolvers, call resolver methods directly with a constructed `Resolver` and a real `context.Context` — no HTTP overhead.
+Unit-testing individual resolvers: call resolver methods directly with constructed `Resolver` and real `context.Context`. No HTTP overhead.
 
 ## gqlgen — Testing with DataLoaders
 
-Wrap the test server with the DataLoader middleware so resolver tests exercise the full batching path:
+Wrap test server with DataLoader middleware so resolver tests exercise full batching path:
 
 ```go
 srv := handler.New(es)
@@ -124,7 +124,7 @@ func TestRelayHandler(t *testing.T) {
 
 ## Testing Error Handling
 
-Verify error extensions reach the client:
+Verify error extensions reach client:
 
 ```go
 var resp struct {
@@ -139,7 +139,7 @@ require.Equal(t, "NOT_FOUND", resp.Errors[0].Extensions.Code)
 
 ## Testing Auth Directives (gqlgen)
 
-Test the directive function directly:
+Test directive function directly:
 
 ```go
 func TestHasRoleDirective(t *testing.T) {
@@ -189,4 +189,4 @@ func TestUserQueries(t *testing.T) {
 }
 ```
 
-For testing patterns across the codebase, see the `samber/cc-skills-golang@golang-testing` skill.
+Testing patterns across codebase: see `samber/cc-skills-golang@golang-testing` skill.

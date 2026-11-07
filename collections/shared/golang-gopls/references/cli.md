@@ -1,6 +1,6 @@
 # `gopls` CLI reference
 
-The Go team documents this interface as experimental — "not efficient, complete, flexible, or officially supported." Treat it as a debugging and one-shot-scripting fallback, not the primary way to drive `gopls`; prefer the MCP tools or the native `LSP` tool when either is available (see [mcp.md](mcp.md)).
+Go team documents this interface as experimental: "not efficient, complete, flexible, or officially supported." Use as debugging and one-shot-scripting fallback, not primary way to drive `gopls`. Prefer MCP tools or native `LSP` tool when available (see [mcp.md](mcp.md)).
 
 ## Table of contents
 
@@ -16,10 +16,10 @@ The Go team documents this interface as experimental — "not efficient, complet
 
 ## Position syntax
 
-Two interchangeable formats locate a point in a file:
+Two interchangeable position formats:
 
-- `file.go:line:column` — both 1-indexed; columns count UTF-8 bytes, not runes or UTF-16 code units. Non-ASCII lines can disagree with what an editor reports if the editor counts differently.
-- `file.go:#1234` — a 0-indexed byte offset from the start of the file.
+- `file.go:line:column` — both 1-indexed. Columns count UTF-8 bytes, not runes or UTF-16 code units; on non-ASCII lines, an editor that counts differently can report a different column.
+- `file.go:#1234` — 0-indexed byte offset from file start.
 
 ```bash
 gopls definition internal/cmd/definition.go:44:47
@@ -28,49 +28,49 @@ gopls definition internal/cmd/definition.go:#1270
 
 ## Global flags
 
-Flags accepted by `gopls` itself, before the subcommand:
+Flags for `gopls` itself, before subcommand:
 
 | Flag | Value | Purpose |
 | --- | --- | --- |
-| `-logfile=<path>` | a file path, or the literal string `auto` | Log destination; `auto` picks a default output file instead of stderr |
-| `-profile.cpu=<path>` | a file path | Write a CPU profile to this file |
-| `-profile.mem=<path>` | a file path | Write a memory profile to this file |
-| `-profile.alloc=<path>` | a file path | Write an allocation profile to this file |
-| `-profile.block=<path>` | a file path | Write a blocking-profile to this file |
-| `-profile.trace=<path>` | a file path | Write an execution trace to this file |
-| `-v`, `-verbose` | boolean flag, no value | Verbose output |
-| `-vv`, `-veryverbose` | boolean flag, no value | Very verbose output |
+| `-logfile=<path>` | file path, or literal string `auto` | Log destination; `auto` picks default output file instead of stderr |
+| `-profile.cpu=<path>` | file path | CPU profile output |
+| `-profile.mem=<path>` | file path | Memory profile output |
+| `-profile.alloc=<path>` | file path | Allocation profile output |
+| `-profile.block=<path>` | file path | Blocking-profile output |
+| `-profile.trace=<path>` | file path | Execution trace output |
+| `-v`, `-verbose` | boolean, no value | Verbose output |
+| `-vv`, `-veryverbose` | boolean, no value | Very verbose output |
 
-`gopls mcp` accepts its own, narrower flag set: `-listen=<addr>` (run over SSE/HTTP instead of stdio), `-logfile=<path>` (defaults to stderr), and `-rpc.trace` (cannot be combined with `-listen`).
+`gopls mcp` has own, narrower flags: `-listen=<addr>` (SSE/HTTP instead of stdio; bind `localhost` only), `-logfile=<path>` (default stderr), `-rpc.trace` (cannot combine with `-listen`).
 
 ## Shared write flags
 
-Every command that can modify source (`format`, `imports`, `rename`, `codeaction`, `codelens`, `execute`) accepts this same set — each is a boolean flag, no value:
+Every source-modifying command (`format`, `imports`, `rename`, `codeaction`, `codelens`, `execute`) accepts these boolean flags (no value):
 
 | Flag | Purpose |
 | --- | --- |
-| `-w`, `-write` | Write the edited content back to the source file(s) |
-| `-d`, `-diff` | Print a unified diff instead of writing |
-| `-l`, `-list` | Print only the names of the files that would be/were edited |
-| `-preserve` | Combined with `-w`: keep a copy of each original file before overwriting |
+| `-w`, `-write` | Write edits back to source file(s) |
+| `-d`, `-diff` | Print unified diff instead of writing |
+| `-l`, `-list` | Print only names of files that would be/were edited |
+| `-preserve` | With `-w`: keep copy of each original before overwriting |
 
-None of these are mutually exclusive with each other; passing none of them just computes the edit without printing or writing it.
+Not mutually exclusive. With none, edit is computed but neither printed nor written.
 
 ## Navigation commands
 
 | Command | Flags | Example | Notes |
 | --- | --- | --- | --- |
-| `definition` | `-json` (boolean), `-markdown` (boolean) | `gopls definition helper/helper.go:8:6` | `-json` for structured output, `-markdown` to render doc comments as Markdown |
-| `references` | `-d`, `-declaration` (boolean) | `gopls references helper/helper.go:8:6` | Includes the declaration itself in the results when set |
+| `definition` | `-json` (boolean), `-markdown` (boolean) | `gopls definition helper/helper.go:8:6` | `-json` for structured output, `-markdown` renders doc comments as Markdown |
+| `references` | `-d`, `-declaration` (boolean) | `gopls references helper/helper.go:8:6` | When set, results include declaration itself |
 | `implementation` | none | `gopls implementation helper/helper.go:8:6` | — |
 | `call_hierarchy` | none | `gopls call_hierarchy helper/helper.go:8:6` | Static calls only |
 | `symbols` | none | `gopls symbols helper/helper.go` | File-scoped outline |
-| `workspace_symbol` | `-matcher=<value>` — one of `fuzzy`, `fastfuzzy`, `casesensitive`, `caseinsensitive` (default `caseinsensitive`) | `gopls workspace_symbol -matcher fuzzy 'wsymbols'` | Matching algorithm for the query |
+| `workspace_symbol` | `-matcher=<value>` — one of `fuzzy`, `fastfuzzy`, `casesensitive`, `caseinsensitive` (default `caseinsensitive`) | `gopls workspace_symbol -matcher fuzzy 'wsymbols'` | Query matching algorithm |
 | `signature` | none | `gopls signature helper/helper.go:8:6` | Function signature at position |
 | `highlight` | none | `gopls highlight helper/helper.go:8:6` | Same-symbol identifier highlights |
 | `folding_ranges` | none | `gopls folding_ranges helper/helper.go` | Collapsible regions |
 | `links` | `-json` (boolean) | `gopls links internal/cmd/check.go` | Structured output when set |
-| `prepare_rename` | none | `gopls prepare_rename helper/helper.go:8:6` | Validates a rename is possible at this position before attempting it |
+| `prepare_rename` | none | `gopls prepare_rename helper/helper.go:8:6` | Checks rename is possible at position before attempting it |
 | `semtok` | none | `gopls semtok internal/cmd/semtok.go` | Semantic token dump |
 
 ## Diagnostics
@@ -81,23 +81,23 @@ None of these are mutually exclusive with each other; passing none of them just 
 
 ## Transformation commands
 
-All of these additionally accept the [shared write flags](#shared-write-flags) above.
+All also accept [shared write flags](#shared-write-flags) above.
 
 | Command | Positional args | Example | Notes |
 | --- | --- | --- | --- |
-| `format` | one or more `<filerange>` (a file, or a range within one) | `gopls format -w internal/cmd/check.go` | Canonical `gofmt`-equivalent; ignores client formatting options |
+| `format` | one or more `<filerange>` (file, or range within one) | `gopls format -w internal/cmd/check.go` | Canonical `gofmt`-equivalent; ignores client formatting options |
 | `imports` | `<filename>` | `gopls imports -w internal/cmd/check.go` | Adds/removes/sorts imports |
-| `rename` | `<position> <new-name>` | `gopls rename helper/helper.go:8:6 Foo` | `<new-name>` is a plain identifier — validate first with `prepare_rename` if unsure |
+| `rename` | `<position> <new-name>` | `gopls rename helper/helper.go:8:6 Foo` | `<new-name>` is plain identifier; if unsure, validate first with `prepare_rename` |
 
 ## Code actions and code lenses
 
-`codeaction` and `codelens` additionally accept the [shared write flags](#shared-write-flags).
+`codeaction` and `codelens` also accept [shared write flags](#shared-write-flags).
 
 | Command | Extra flags | Notes |
 | --- | --- | --- |
-| `codeaction` | `-kind=<value>` — comma-separated list of kinds, see [CodeAction kind reference](#codeaction-kind-reference) below; `-title=<regex>` — filter actions by title; `-exec` (boolean) — execute the first match instead of only listing | `-kind=refactor` matches every kind nested under it (kinds are hierarchical); only one action executes per invocation — there is no conflict resolution for applying more than one; actions of kind `source.test` are excluded unless explicitly requested via `-kind` |
-| `codelens` | `-exec` (boolean) — run the first matching lens instead of only listing | Takes `<file>`, `<file:line>`, or `<file> <title>` as positional args |
-| `execute` | none beyond the shared write flags | Takes `<command> <json-argument>` — sends a raw LSP `ExecuteCommand` request; gopls's command set (`command.Interface`) is unstable and may change between versions |
+| `codeaction` | `-kind=<value>` — comma-separated kinds, see [CodeAction kind reference](#codeaction-kind-reference) below; `-title=<regex>` — filter actions by title; `-exec` (boolean) — execute first match instead of only listing | `-kind=refactor` matches every kind nested under it (kinds are hierarchical); only one action executes per invocation, no conflict resolution for applying more; `source.test` actions excluded unless explicitly requested via `-kind` |
+| `codelens` | `-exec` (boolean) — run first matching lens instead of only listing | Positional args: `<file>`, `<file:line>`, or `<file> <title>` |
+| `execute` | none beyond shared write flags | Takes `<command> <json-argument>`; sends raw LSP `ExecuteCommand` request. gopls's command set (`command.Interface`) is unstable, may change between versions |
 
 ```bash
 # List available code actions for a range
@@ -125,20 +125,11 @@ gopls execute gopls.list_known_packages '{"URI": "file:///hello.go"}'
 
 | Command | Flags | Notes |
 | --- | --- | --- |
-| `stats` | `-anon` (boolean) | JSON summary of workspace info relevant to performance; populates the file cache as a side effect. `-anon` redacts fields that could leak user/file names or source text |
+| `stats` | `-anon` (boolean) | JSON summary of performance-relevant workspace info; populates file cache as side effect. `-anon` redacts fields that could leak user/file names or source text |
 | `version` | none | Print gopls version info |
 | `api-json` | none | Print gopls' full API surface as JSON |
-| `bug` | none | Report a bug in gopls |
+| `bug` | none | Report bug in gopls |
 | `licenses` | none | Print licenses of bundled software |
-
-```bash
-gopls stats
-gopls stats -anon
-gopls version
-gopls api-json
-gopls bug
-gopls licenses
-```
 
 ## CodeAction kind reference
 
@@ -173,4 +164,4 @@ source.organizeImports
 source.test
 ```
 
-A few additional kinds exist beyond this `-kind`-documented set but are reachable only through editor UI or `execute`/code lens, not by name filter: `refactor.extract.variable-all`, `refactor.extract.constant-all`, `refactor.inline.variable`, `refactor.rewrite.moveParamLeft`, `refactor.rewrite.moveParamRight`, `refactor.rewrite.eliminateDotImport`, `refactor.rewrite.addTags`, `refactor.rewrite.removeTags`, `refactor.rewrite.implementInterface`, `source.addTest`, `source.splitPackage`, `source.toggleCompilerOptDetails`. See [features.md](features.md#transformation) for what each one does.
+More kinds exist beyond this `-kind`-documented set, reachable only through editor UI or `execute`/code lens, not by name filter: `refactor.extract.variable-all`, `refactor.extract.constant-all`, `refactor.inline.variable`, `refactor.rewrite.moveParamLeft`, `refactor.rewrite.moveParamRight`, `refactor.rewrite.eliminateDotImport`, `refactor.rewrite.addTags`, `refactor.rewrite.removeTags`, `refactor.rewrite.implementInterface`, `source.addTest`, `source.splitPackage`, `source.toggleCompilerOptDetails`. What each does: [features.md](features.md#transformation).

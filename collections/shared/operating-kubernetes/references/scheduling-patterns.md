@@ -13,7 +13,7 @@
 
 ### Required Node Affinity (Hard Constraint)
 
-Pod will not schedule unless node matches criteria:
+Pod not scheduled unless node matches criteria:
 
 ```yaml
 apiVersion: v1
@@ -46,7 +46,7 @@ spec:
 
 ### Preferred Node Affinity (Soft Constraint)
 
-Scheduler tries to match but will schedule anyway if no match:
+Scheduler tries to match, schedules anyway if no match:
 
 ```yaml
 apiVersion: v1
@@ -83,7 +83,7 @@ spec:
 | `In` | Label value in list |
 | `NotIn` | Label value not in list |
 | `Exists` | Label key exists (any value) |
-| `DoesNotExist` | Label key doesn't exist |
+| `DoesNotExist` | Label key absent |
 | `Gt` | Label value greater than (numeric) |
 | `Lt` | Label value less than (numeric) |
 
@@ -106,18 +106,6 @@ kubectl label nodes node-3 team=backend
 
 ### Use Cases
 
-**GPU Scheduling:**
-```yaml
-# Require GPU nodes
-requiredDuringSchedulingIgnoredDuringExecution:
-  nodeSelectorTerms:
-  - matchExpressions:
-    - key: accelerator
-      operator: In
-      values:
-      - nvidia-tesla-v100
-```
-
 **SSD Storage:**
 ```yaml
 # Prefer SSD nodes for databases
@@ -131,34 +119,23 @@ preferredDuringSchedulingIgnoredDuringExecution:
       - ssd
 ```
 
-**Cost Optimization:**
-```yaml
-# Prefer spot instances (non-critical workloads)
-preferredDuringSchedulingIgnoredDuringExecution:
-- weight: 100
-  preference:
-    matchExpressions:
-    - key: node.kubernetes.io/instance-lifecycle
-      operator: In
-      values:
-      - spot
-```
+GPU (required `accelerator` match) and spot (preferred `node.kubernetes.io/instance-lifecycle` in `spot`) variants: see ML Training Job and Cost-Optimized Batch Job below.
 
 ## Taints and Tolerations
 
 ### Taint Effects
 
 **NoSchedule:**
-- New pods won't schedule
-- Existing pods remain
+- New pods not scheduled
+- Existing pods stay
 
 **PreferNoSchedule:**
-- Scheduler tries to avoid
-- Will schedule if no other options
+- Scheduler tries to avoid node
+- Schedules there only if no other option
 
 **NoExecute:**
-- Evict existing pods immediately
-- New pods won't schedule
+- Existing pods evicted immediately
+- New pods not scheduled
 
 ### Applying Taints
 
@@ -200,14 +177,7 @@ spec:
 
 ### Toleration Operators
 
-**Equal:**
-```yaml
-tolerations:
-- key: "key1"
-  operator: "Equal"
-  value: "value1"
-  effect: "NoSchedule"
-```
+**Equal:** set `key` and `value` (see Pod Tolerations above).
 
 **Exists:**
 ```yaml
@@ -268,12 +238,6 @@ tolerations:
 kubectl taint nodes master-1 node-role.kubernetes.io/master:NoSchedule
 ```
 
-**Handle Hardware Failures:**
-```bash
-# Taint nodes with disk issues
-kubectl taint nodes node-1 disk=failing:NoExecute
-```
-
 ## Topology Spread Constraints
 
 ### Even Distribution Across Zones
@@ -305,7 +269,7 @@ spec:
         image: myapp:latest
 ```
 
-**Result:** 9 replicas spread evenly across 3 zones (3 per zone)
+**Result:** 9 replicas, 3 per zone across 3 zones
 
 ### Multi-Level Spreading
 
@@ -334,22 +298,22 @@ topologySpreadConstraints:
 - Zone A: 3 pods
 - Zone B: 3 pods
 - Zone C: 3 pods
-- Cannot add pod to Zone A until B and C catch up
+- No new pod in Zone A until B and C catch up
 
 **maxSkew: 2 (Relaxed)**
 - Zone A: 4 pods
 - Zone B: 3 pods
 - Zone C: 2 pods
-- Max difference is 2 (4-2=2)
+- Max difference 2 (4-2=2)
 
 ### whenUnsatisfiable
 
 **DoNotSchedule (Hard):**
-- Pod remains Pending if constraint violated
+- Pod stays Pending if constraint violated
 - Strict high-availability requirement
 
 **ScheduleAnyway (Soft):**
-- Scheduler tries to satisfy but schedules anyway
+- Scheduler tries to satisfy, schedules anyway
 - Preference, not requirement
 
 ### minDomains
@@ -369,7 +333,7 @@ topologySpreadConstraints:
 
 **Topology Spread (Modern):**
 - More intuitive (maxSkew semantics)
-- Better control over distribution
+- Finer control over distribution
 - Recommended for new applications
 
 **Pod Anti-Affinity (Legacy):**
@@ -451,16 +415,16 @@ spec:
 ### Preemption Behavior
 
 **When node resources exhausted:**
-1. Scheduler tries to find node for high-priority pod
+1. Scheduler looks for node for high-priority pod
 2. If no node available, scheduler looks for preemption candidates
-3. Lower-priority pods evicted to make room
+3. Lower-priority pods evicted to free room
 4. High-priority pod scheduled
 
 **Preemption Example:**
 - Node capacity: 4 CPU cores
 - Running: 2 medium-priority pods (2 cores each)
 - Pending: 1 high-priority pod (2 cores)
-- Result: 1 medium-priority pod evicted, high-priority scheduled
+- Result: 1 medium-priority pod evicted, high-priority pod scheduled
 
 ### PodDisruptionBudget (Protect from Preemption)
 
@@ -491,26 +455,9 @@ spec:
 
 ### Priority Use Cases
 
-**Critical Services:**
-```yaml
-# Payment API - highest priority
-priorityClassName: high-priority
-value: 1000000
-```
-
-**Standard Applications:**
-```yaml
-# Web frontend - medium priority
-priorityClassName: medium-priority
-value: 500000
-```
-
-**Batch Jobs:**
-```yaml
-# ETL jobs - low priority (preemptible)
-priorityClassName: low-priority
-value: 100000
-```
+- Critical services (Payment API): `high-priority`, value 1000000
+- Standard apps (web frontend): `medium-priority`, value 500000
+- Batch (ETL jobs, preemptible): `low-priority`, value 100000
 
 **Development:**
 ```yaml
@@ -697,22 +644,9 @@ spec:
 
 ## Summary
 
-**Scheduling Pattern Selection:**
-
-| Use Case | Pattern | Example |
-|----------|---------|---------|
-| GPU workloads | Node Affinity (required) | ML training, video encoding |
-| Isolated workloads | Taints + Tolerations | GPU nodes, spot instances |
-| High availability | Topology Spread | Critical APIs, databases |
-| Cost optimization | Node Affinity (preferred) | Spot instances, cheaper zones |
-| Critical services | Priority Class | Payment API, auth services |
-| Low latency | Pod Affinity | Frontend + cache co-location |
-| Fault tolerance | Pod Anti-Affinity | Spread replicas |
-
 **Best Practices:**
-1. Use topology spread over pod anti-affinity
+1. Prefer topology spread over pod anti-affinity
 2. Combine node affinity with taints for isolation
-3. Set PodDisruptionBudgets with priority classes
-4. Test scheduling constraints in dev/staging
-5. Monitor pod Pending events
-6. Use preferred constraints when possible (more flexible)
+3. Pair priority classes with PodDisruptionBudgets
+4. Watch for pod Pending events
+5. Use preferred constraints where possible (more flexible)

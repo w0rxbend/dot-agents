@@ -1,6 +1,6 @@
 # TimescaleDB Reference Guide
 
-TimescaleDB is a PostgreSQL extension that adds time-series optimizations while maintaining full SQL compatibility.
+PostgreSQL extension adding time-series optimizations, keeping full SQL compatibility.
 
 
 ## Table of Contents
@@ -35,22 +35,24 @@ TimescaleDB is a PostgreSQL extension that adds time-series optimizations while 
 ## Installation
 
 ```bash
-# Docker
-docker run -d --name timescaledb -p 5432:5432 -e POSTGRES_PASSWORD=password timescale/timescaledb:latest-pg16
+# Docker (password from PGPASSWORD, telemetry off)
+docker run -d --name timescaledb -p 127.0.0.1:5432:5432 -e POSTGRES_PASSWORD="$PGPASSWORD" \
+  timescale/timescaledb:2.16.1-pg16 -c timescaledb.telemetry_level=off
 
-# Ubuntu/Debian
-sudo sh -c "echo 'deb https://packagecloud.io/timescale/timescaledb/ubuntu/ $(lsb_release -c -s) main' > /etc/apt/sources.list.d/timescaledb.list"
-wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo apt-key add -
+# Ubuntu/Debian (repo key scoped via signed-by, not global apt-key)
+wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/timescaledb.gpg
+sudo sh -c "echo 'deb [signed-by=/usr/share/keyrings/timescaledb.gpg] https://packagecloud.io/timescale/timescaledb/ubuntu/ $(lsb_release -c -s) main' > /etc/apt/sources.list.d/timescaledb.list"
 sudo apt update
 sudo apt install timescaledb-2-postgresql-16
 
-# Enable extension
+# Enable extension; disable telemetry (default: basic)
 psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS timescaledb;"
+psql -U postgres -c "ALTER SYSTEM SET timescaledb.telemetry_level = off;" -c "SELECT pg_reload_conf();"
 ```
 
 ## Hypertables
 
-Hypertables are automatically partitioned tables optimized for time-series data.
+Hypertables: automatically partitioned tables optimized for time-series data.
 
 ### Creating Hypertables
 
@@ -72,7 +74,7 @@ CREATE INDEX ON metrics (device_id, time DESC);
 
 ### Chunk Management
 
-TimescaleDB partitions hypertables into chunks (default: 7 days per chunk).
+Hypertables split into chunks (default: 7 days per chunk).
 
 ```sql
 -- View chunks
@@ -85,14 +87,14 @@ SELECT drop_chunks('metrics', INTERVAL '90 days');
 SELECT set_chunk_time_interval('metrics', INTERVAL '1 day');
 ```
 
-Chunk sizing guidelines:
+Chunk sizing:
 - High-ingest (1M+ rows/day): 1-day chunks
 - Medium-ingest (100K-1M rows/day): 7-day chunks
 - Low-ingest (< 100K rows/day): 30-day chunks
 
 ## Compression
 
-Native columnar compression achieves 10-20x space savings.
+Native columnar compression gives 10-20x space savings.
 
 ### Enable Compression
 
@@ -201,8 +203,6 @@ ORDER BY bucket DESC;
 
 ## Retention Policies
 
-Automatically drop old data.
-
 ```sql
 -- Delete raw data older than 30 days
 SELECT add_retention_policy('metrics', INTERVAL '30 days');
@@ -213,7 +213,7 @@ SELECT add_retention_policy('metrics_1min', INTERVAL '90 days');
 -- Keep hourly and daily rollups forever (no retention policy)
 ```
 
-Typical retention strategy:
+Typical retention:
 - Raw data: 7-30 days
 - 1-minute rollups: 90 days
 - 1-hour rollups: 1-2 years
@@ -227,11 +227,10 @@ Typical retention strategy:
 import psycopg2
 from datetime import datetime
 
-conn = psycopg2.connect(
+conn = psycopg2.connect(  # password from PGPASSWORD or ~/.pgpass
     host="localhost",
     database="postgres",
     user="postgres",
-    password="password"
 )
 
 cur = conn.cursor()
@@ -270,11 +269,10 @@ results = cur.fetchall()
 ```typescript
 import { Pool } from 'pg';
 
-const pool = new Pool({
+const pool = new Pool({  // password from PGPASSWORD env
   host: 'localhost',
   database: 'postgres',
   user: 'postgres',
-  password: 'password',
   port: 5432,
 });
 
@@ -378,7 +376,7 @@ GROUP BY 1;
 
 ## High-Cardinality Data
 
-For metrics with many unique label combinations (Prometheus-style), use JSONB.
+Metrics with many unique label combinations (Prometheus-style): use JSONB.
 
 ```sql
 CREATE TABLE prometheus_metrics (
@@ -414,7 +412,7 @@ ORDER BY bucket DESC;
 
 ## Multi-Node (Distributed Hypertables)
 
-TimescaleDB supports distributed hypertables for horizontal scaling (requires Timescale Cloud or self-managed cluster).
+Distributed hypertables scale horizontally (requires Timescale Cloud or self-managed cluster).
 
 ```sql
 -- On access node
@@ -470,11 +468,11 @@ LIMIT 20;
 
 ## Best Practices
 
-1. **Index Strategy**: Index on time + commonly filtered columns (device_id, metric_name)
+1. **Index Strategy**: Index time plus commonly filtered columns (device_id, metric_name)
 2. **Chunk Sizing**: Match chunk interval to data retention and query patterns
-3. **Compression**: Compress chunks older than your typical query range
+3. **Compression**: Compress chunks older than typical query range
 4. **Continuous Aggregates**: Create rollups at multiple resolutions (1min, 1hour, 1day)
-5. **Retention Policies**: Set automatic data expiration to control storage costs
+5. **Retention Policies**: Expire data automatically to control storage costs
 6. **Batch Inserts**: Insert 1,000-10,000 rows per transaction for best performance
-7. **Query Patterns**: Always filter by time first, use continuous aggregates for long ranges
-8. **Monitoring**: Track chunk count, compression ratios, and background job health
+7. **Query Patterns**: Always filter by time first. Use continuous aggregates for long ranges
+8. **Monitoring**: Track chunk count, compression ratios, background job health

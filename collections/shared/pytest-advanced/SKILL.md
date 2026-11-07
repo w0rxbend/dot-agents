@@ -2,20 +2,20 @@
 name: pytest-advanced
 user-invocable: false
 description: Configure and drive pytest beyond basic asserts - markers, skip/xfail, pyproject configuration, test selection, assertion helpers, warnings-as-errors, local hooks, and coverage gates. Use when tuning a pytest setup, triaging flaky or slow suites, or adding project-wide test policy.
-allowed-tools: [Read, Write, Edit, Bash, Glob, Grep]
+allowed-tools: [Read, Write, Edit, Glob, Grep, "Bash(pytest:*)", "Bash(python -m pytest:*)"]
 ---
 
 # pytest advanced usage
 
-For fixtures and parametrization see `pytest-fixtures`; for third-party and custom
-plugins see `pytest-plugins`. Check the installed version first (`pytest --version`)
-and keep configuration in the file the project already uses.
+Fixtures and parametrization: see `pytest-fixtures`. Third-party and custom plugins:
+see `pytest-plugins`. Check installed version first (`pytest --version`). Keep
+configuration in file project already uses.
 
 ## Configuration
 
 Configuration lives in exactly one of `pytest.ini`, `pyproject.toml`
-(`[tool.pytest.ini_options]`), `tox.ini`, or `setup.cfg`; the first one found wins and
-the others are ignored. `pytest --co -q` prints the detected `rootdir` and `configfile`.
+(`[tool.pytest.ini_options]`), `tox.ini`, or `setup.cfg`. First one found wins; others
+ignored. `pytest --co -q` prints detected `rootdir` and `configfile`.
 
 ```toml
 [tool.pytest.ini_options]
@@ -33,12 +33,11 @@ markers = [
 ]
 ```
 
-- `--strict-markers` turns marker typos into errors; register every custom marker.
+- `--strict-markers` turns marker typos into errors. Register every custom marker.
 - `--strict-config` fails on unknown ini keys.
-- `xfail_strict = true` makes an unexpectedly passing xfail a failure, so fixed bugs
-  are noticed.
+- `xfail_strict = true` makes unexpectedly passing xfail fail, so fixed bugs get noticed.
 - `--import-mode=importlib` avoids `sys.path` mutation and same-basename test file
-  conflicts; it requires test helpers to live in importable packages.
+  conflicts. Requires test helpers in importable packages.
 
 ## Selecting and re-running tests
 
@@ -66,10 +65,10 @@ def test_optional_dep():
     yaml = pytest.importorskip("yaml", minversion="6")
 ```
 
-- Always give a `reason`; reference an issue for xfails.
-- Use `xfail(raises=...)` so an unrelated exception is still reported as a failure.
-- Prefer `skipif` at definition time over `pytest.skip()` inside the test, which hides
-  the condition from collection output.
+- Always give `reason`. Reference issue for xfails.
+- Use `xfail(raises=...)` so unrelated exception still reports as failure.
+- Prefer `skipif` at definition time over `pytest.skip()` inside test.
+  `pytest.skip()` hides condition from collection output.
 
 ## Assertions
 
@@ -88,12 +87,12 @@ with pytest.warns(DeprecationWarning, match="use new_api"):
     old_api()
 ```
 
-- `match` is a regex searched in `str(exc)`; escape literal special characters with
+- `match` is regex searched in `str(exc)`. Escape literal special characters with
   `re.escape`.
-- Assertion helper modules outside `conftest.py` and test files are not rewritten;
-  register them in the package `__init__.py` or conftest with
+- Assertion helper modules outside `conftest.py` and test files are not rewritten.
+  Register them in package `__init__.py` or conftest with
   `pytest.register_assert_rewrite("tests.helpers")` before they are imported.
-- For readable failures on custom objects, implement `pytest_assertrepr_compare` in
+- Readable failures on custom objects: implement `pytest_assertrepr_compare` in
   `conftest.py`.
 
 ## Local hooks in conftest.py
@@ -111,13 +110,13 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(skip_slow)
 ```
 
-Other useful hooks: `pytest_configure` (register markers dynamically, set global
+Other hooks: `pytest_configure` (register markers dynamically, set global
 state), `pytest_report_header` (print environment info), `pytest_runtest_setup`
-(per-test gating). Options must be added in the rootdir `conftest.py` or a plugin.
+(per-test gating). Options must be added in rootdir `conftest.py` or plugin.
 
 ## Coverage
 
-With `pytest-cov`, configure coverage.py rather than stacking CLI flags:
+With `pytest-cov`, configure coverage.py instead of stacking CLI flags:
 
 ```toml
 [tool.coverage.run]
@@ -131,8 +130,8 @@ fail_under = 85
 exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError"]
 ```
 
-Run `pytest --cov --cov-report=term-missing`. A coverage gate should ratchet from the
-current measured value, not jump to an aspirational number.
+Run `pytest --cov --cov-report=term-missing`. Ratchet coverage gate from current
+measured value. Do not jump to aspirational number.
 
 ## Debugging failures
 
@@ -147,16 +146,16 @@ pytest --log-cli-level=DEBUG
 
 ## Flaky and slow suites
 
-1. Reproduce: run the single test in a loop (`pytest --count=50` with
-   `pytest-repeat`, or a shell loop) and with the suite's random seed.
+1. Reproduce: run single test in loop (`pytest --count=50` with `pytest-repeat`, or
+   shell loop) and with suite's random seed.
 2. Classify: shared state, time/timezone, ordering, network, concurrency.
-3. Fix the cause. Retries (`pytest-rerunfailures`) only hide flakiness; use them only
-   with an issue link and a narrow marker.
-4. For slowness, read `--durations`, then move expensive setup to wider-scope
-   immutable fixtures or parallelize with `pytest-xdist`.
+3. Fix cause. Retries (`pytest-rerunfailures`) only hide flakiness. Use them only with
+   issue link and narrow marker.
+4. Slowness: read `--durations`, then move expensive setup to wider-scope immutable
+   fixtures or parallelize with `pytest-xdist`.
 
 ## Done when
 
-- `pytest --co -q` collects the expected tests with no warnings about unknown markers.
-- The suite passes with the project's configured `addopts`, not only with ad-hoc flags.
-- Any new skip/xfail has a reason, and new warning filters are narrow and justified.
+- `pytest --co -q` collects expected tests with no warnings about unknown markers.
+- Suite passes with project's configured `addopts`, not only with ad-hoc flags.
+- Every new skip/xfail has reason. New warning filters are narrow and justified.

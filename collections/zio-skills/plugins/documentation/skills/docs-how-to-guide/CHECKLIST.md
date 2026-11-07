@@ -1,59 +1,59 @@
 # How-To Guide Review Checklist
 
-After writing, verify every item on this checklist:
+After writing, verify every item:
 
 ## Content Quality
 
-- [ ] The guide has a clear, stated goal in the introduction
-- [ ] The guide has a "Problem" section that concretely states what problem is being solved
-- [ ] The problem section explains why the problem matters (real consequences)
-- [ ] The problem section includes an example of the pain (code or concrete scenario)
-- [ ] A reader who follows every step will have a working result at the end
+- [ ] Clear, stated goal in introduction
+- [ ] "Problem" section concretely states problem solved
+- [ ] Problem section explains why it matters (real consequences)
+- [ ] Problem section shows the pain (code or concrete scenario)
+- [ ] Reader following every step ends with working result
 - [ ] Every section introduces exactly one new concept or capability
-- [ ] No section is pure prose without a code example (Introduction, The Problem's prose, and Going Further are prose by design)
-- [ ] The running example is realistic and relatable
-- [ ] Types and APIs are introduced only when needed (no front-loaded theory dumps)
-- [ ] The Introduction has no conceptual preamble and no theory — a guide that opens by explaining what a type is has become a tutorial; fail this item, not the type explanation
-- [ ] The "before" example in The Problem section is an `mdoc:compile-only` block (the default — real, compiling, non-library code showing what the reader writes today) or a plain `scala` pseudocode fence only when the problem is architectural — and it does NOT use the API of the library being documented. Fail this when the block uses the library: a "before" written with the tool the guide is selling has no contrast in it
-- [ ] The "before" example is genuinely verbose or error-prone, not code a reader would be happy to keep — otherwise the problem isn't real
-- [ ] No heading contains this template's own vocabulary or a supplied ordinal — no "Step", "Capability", "Section", "Concept", no leading digit. Heading text names what the section delivers, in the reader's words
-- [ ] The "Putting It Together" section is a complete, self-contained, copy-paste-ready example, delivered as an EMPTY block fenced `scala mdoc:embed:<path-to-CompleteExample.scala>` (or the project's `SourceFile.print` equivalent) — never code inlined in the page. The embedded file is what the examples build actually compiles; inlining ships code no build has verified as standalone
-- [ ] "Going Further" (if present) links only to pages that exist — mention a page in prose, unlinked, when it doesn't exist yet, and never accept a stub written to make a link resolve
+- [ ] No section is pure prose without code example (Introduction, The Problem's prose, and Going Further are prose by design)
+- [ ] Running example realistic and relatable
+- [ ] Types and APIs introduced only when needed (no front-loaded theory dumps)
+- [ ] Introduction has no conceptual preamble, no theory. Guide opening by explaining what a type is has become tutorial; fail this item, not the type explanation
+- [ ] The Problem's "before" example is `mdoc:compile-only` block (default: real, compiling, non-library code reader writes today), or plain `scala` pseudocode fence only when problem is architectural. It does NOT use API of documented library. Fail when it does: "before" written with the tool the guide sells has no contrast
+- [ ] "Before" example genuinely verbose or error-prone, not code reader would happily keep; otherwise problem isn't real
+- [ ] No heading contains template's own vocabulary or supplied ordinal: no "Step", "Capability", "Section", "Concept", no leading digit. Heading names what section delivers, in reader's words
+- [ ] "Putting It Together" is complete, self-contained, copy-paste-ready example, delivered as EMPTY block fenced `scala mdoc:embed:<path-to-CompleteExample.scala>` (or project's `SourceFile.print` equivalent). Never code inlined in page. Examples build compiles embedded file; inlining ships code no build verified as standalone
+- [ ] "Going Further" (if present) links only to existing pages. Mention page in prose, unlinked, when it doesn't exist yet; never accept stub written to make link resolve
 
 ## Technical Accuracy
 
-- [ ] All method signatures and type names match the actual source code
-- [ ] All code examples use correct mdoc modifiers and would compile — a runnable block in a plain `scala` fence is a failing item, since the compiler never saw it
-- [ ] Imports are complete and correct in every code block
-- [ ] The sbt dependency in Prerequisites is correct
-- [ ] No deprecated methods or outdated patterns are used
-- [ ] The composition order the steps follow is the order the types actually compose in
-- [ ] Run `sbt "docs/mdoc --in docs/guides/<guide-id>.md --out website/docs/guides/<guide-id>.md"` and confirm zero `[error]` lines (this is mandatory before claiming the guide is done)
+- [ ] All method signatures and type names match source code
+- [ ] All code examples use correct mdoc modifiers and would compile. Runnable block in plain `scala` fence fails: compiler never saw it
+- [ ] Imports complete and correct in every code block
+- [ ] sbt dependency in Prerequisites correct
+- [ ] No deprecated methods or outdated patterns
+- [ ] Steps follow order types actually compose in
+- [ ] Run `sbt "docs/mdoc --in docs/guides/<guide-id>.md --out website/docs/guides/<guide-id>.md"` and confirm zero `[error]` lines (mandatory before claiming guide done)
 
 ## Companion Examples
 
-- [ ] A package directory exists in `<examples-module>/src/main/scala/<packagename>/` (the module name comes from this guide's own examples setup, not a fixed name — see `docs-examples`)
-- [ ] There is one example file per major guide step (typically 3-5 files)
-- [ ] There is a `CompleteExample.scala` (or descriptively named equivalent) with the full "Putting It Together" code
-- [ ] Each example file is fully self-contained (compiles and runs independently)
+- [ ] Package directory exists in `<examples-module>/src/main/scala/<packagename>/` (module name from this guide's own examples setup, not fixed; see `docs-examples`)
+- [ ] One example file per major guide step (typically 3-5 files)
+- [ ] `CompleteExample.scala` (or descriptively named equivalent) holds full "Putting It Together" code
+- [ ] Each example file fully self-contained (compiles and runs independently)
 - [ ] Each example file has complete imports
-- [ ] Each example file has a scaladoc with guide title, step description, and `sbt runMain` command
-- [ ] Each example file includes `println` output showing meaningful results
-- [ ] All examples compile successfully (`sbt "<examples-module>/compile"`)
+- [ ] Each example file has scaladoc with guide title, step description, and `sbt runMain` command
+- [ ] Each example file prints meaningful results with `println`
+- [ ] All examples compile (`sbt "<examples-module>/compile"`)
 
 ## Running the Examples Section
 
-- [ ] The guide includes a "Running the Examples" section after "Putting It Together"
-- [ ] The section clones and `cd`s in one path straight into the examples module dir (`cd <repo>/<examples-module>`, not a separate `cd <repo>` then `cd <examples-module>`)
-- [ ] Every companion example file is embedded, per step in order, inside a collapsible `<details><summary>` via `mdoc:embed:<path>:showLineNumbers` (same pattern as "Putting It Together"), with a short sentence on how to run it and its `sbt "<examples-module>/runMain ..."` command
-- [ ] The section includes `sbt "<examples-module>/compile"` as an alternative
+- [ ] "Running the Examples" section comes after "Putting It Together"
+- [ ] Section clones and `cd`s in one path straight into examples module dir (`cd <repo>/<examples-module>`, not separate `cd <repo>` then `cd <examples-module>`)
+- [ ] Every companion example file embedded, per step in order, in collapsible `<details><summary>` via `mdoc:embed:<path>:showLineNumbers` (same pattern as "Putting It Together"), with short run sentence and its `sbt "<examples-module>/runMain ..."` command
+- [ ] Section includes `sbt "<examples-module>/compile"` as alternative
 
 ## Style and Integration
 
-- [ ] The frontmatter `id` matches the filename, and the id names the task rather than a type (`docs/guides/` also holds tutorials — check the directory listing before settling on an id; a path that already exists belongs to another page)
-- [ ] The guide is added to `sidebars.js`
-- [ ] The guide is linked from `docs/index.md`
-- [ ] Related reference pages link back to this guide
-- [ ] Writing style follows the rules (present tense, "we"/"you", concise, no emojis)
-- [ ] The prose is direct and imperative ("Define a schema", "Run the effect") — fail warm, tutorial register ("Welcome", "Let's", "notice that"); that belongs to `docs-tutorial`
-- [ ] Admonitions are used sparingly and for genuinely important callouts
+- [ ] Frontmatter `id` matches filename and names task, not type (`docs/guides/` also holds tutorials: check directory listing before choosing id; existing path belongs to another page)
+- [ ] Guide added to `sidebars.js`
+- [ ] Guide linked from `docs/index.md`
+- [ ] Related reference pages link back to guide
+- [ ] Writing style follows rules (present tense, "we"/"you", concise, no emojis)
+- [ ] Prose direct and imperative ("Define a schema", "Run the effect"). Fail warm, tutorial register ("Welcome", "Let's", "notice that"); that belongs to `docs-tutorial`
+- [ ] Admonitions used sparingly, for genuinely important callouts

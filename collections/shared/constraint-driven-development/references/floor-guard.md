@@ -1,16 +1,16 @@
 # Floor guard: reference implementation
 
-Every numbered dimension in `CONSTRAINTS.md` maps to a de facto tool (Step 4). The **floor** does not: it is a diff-scoped check for the five moves in Step 6, and without a shipped reference every agent invents its own, so two runs (or a Python repo and a Go one) produce two different guards. That is the exact non-determinism this skill exists to remove.
+Each numbered dimension in `CONSTRAINTS.md` maps to a de facto tool (Step 4). **Floor** doesn't: it's a diff-scoped check for the five Step 6 moves. Without shipped reference, each agent invents one, so two runs (or a Python repo and a Go one) yield two different guards.
 
-This is the reference. Adapt the patterns to your stack; keep the contract identical.
+Adapt patterns to your stack; keep contract identical.
 
 ## Contract
 
-- **Input:** the diff between the merge base and the working tree (added *and* removed lines, plus untracked files). A guard that reads only `git diff` misses new files and staged-but-uncommitted work.
-- **Detects the five Step 6 moves:** a weakened threshold in `CONSTRAINTS.md`, a test made easier (`.skip`, a deleted test file, an assertion removed from a test that stayed), a silenced checker (a new suppression comment), unfinished work (a stub or empty `catch`), a new Exceptions row.
-- **Exit codes:** `0` clean, `1` at least one floor violation (block the change), `2` the guard could not run (no merge base, not a git repo). Never let a `2` read as a `0`.
-- **Reports the rule and the location, never the matched secret value.** Redaction is not optional (Step 4).
-- **Tightening is silent, loosening is loud:** only surfaces moves that lower the bar.
+- **Input:** diff from merge base to working tree (added *and* removed lines, plus untracked files). `git diff` alone misses new files and staged-but-uncommitted work.
+- **Detects the five Step 6 moves:** weakened `CONSTRAINTS.md` threshold, easier test (`.skip`, deleted test file, assertion removed from surviving test), silenced checker (new suppression comment), unfinished work (stub or empty `catch`), new Exceptions row.
+- **Exit codes:** `0` clean, `1` at least one floor violation (block change), `2` guard couldn't run (no merge base, not a git repo). Never let `2` read as `0`.
+- **Reports rule and location, never matched secret value.** Redaction is not optional (Step 4).
+- **Tightening is silent, loosening is loud:** surfaces only moves that lower the bar.
 
 ## Reference (Node, ~stack-agnostic patterns)
 
@@ -41,16 +41,18 @@ if (!top) bail('not inside a git work tree');
 process.chdir(top);
 
 // Merge base; bail to exit 2 rather than pretending a shallow/rootless clone is clean.
+if (!base || base.startsWith('-')) bail('bad --base ' + base); // never let a ref read as an option
 const mergeBase = git(['merge-base', base, 'HEAD'])?.trim();
 if (!mergeBase) bail('no merge base against ' + base);
 
-// Unified diff plus untracked files (git diff alone cannot see new files).
+// Unified diff plus untracked files (git diff alone cannot see new files). `--` stops an untracked
+// file named like an option (`--output=x`) being parsed as one, which would truncate a file.
 const tracked = git(['diff', '--unified=0', mergeBase, '--']);
 if (tracked === null) bail('could not diff against ' + mergeBase);
 const untrackedFiles = git(['ls-files', '--others', '--exclude-standard']);
 if (untrackedFiles === null) bail('could not list untracked files');
 const untracked = untrackedFiles.split('\n').filter(Boolean).map((f) => {
-  const d = git(['diff', '--no-index', '--unified=0', '/dev/null', f], { diffExit: true });
+  const d = git(['diff', '--no-index', '--unified=0', '--', '/dev/null', f], { diffExit: true });
   if (d === null) bail('could not diff untracked file ' + f);
   return d;
 }).join('\n');
@@ -79,7 +81,9 @@ for (const line of diff.split('\n')) {
 }
 
 const findings = [];
-const flag = (rule, f, text) => findings.push({ rule, file: f, text: text.trim().slice(0, 120) });
+// A `gitleaks:allow` line usually holds the secret itself: report location only.
+const flag = (rule, f, text) => findings.push({ rule, file: f,
+  text: /gitleaks:allow/.test(text) ? '[redacted gitleaks:allow line]' : text.trim().slice(0, 120) });
 const isTest = (f) => /\.(test|spec)\.|_test\.|test_/.test(f);
 const isConstraints = (f) => /CONSTRAINTS\.md$/.test(f);
 
@@ -177,6 +181,6 @@ process.exit(1);
 
 ## Adapting it
 
-- **Patterns are the only stack-specific part.** Add your language's suppression and stub forms to the three regexes; the diff plumbing, the CONSTRAINTS.md checks, and the exit codes stay as-is.
-- **A `.constraintsignore`** (one glob per line) lets you exempt a path the guard would otherwise flag; check each added line's file against it before flagging, so a genuine exception is a tracked file rather than a loosened rule.
-- **This is a starting point, not a finished tool.** It is deliberately regex-shallow: it catches the cheap-road-to-green moves agents actually make, not a determined human hiding a change. That is the right trade for a check that runs on every diff. Once you outgrow it, move to a real runner (Escalation Path level 3).
+- **Patterns are the only stack-specific part.** Add your language's suppression and stub forms to the three regexes. Diff plumbing, CONSTRAINTS.md checks, exit codes stay as-is.
+- **A `.constraintsignore`** (one glob per line) exempts paths guard would otherwise flag. Check each added line's file against it before flagging, so genuine exceptions are tracked files, not loosened rules.
+- **This is a starting point, not a finished tool.** Deliberately regex-shallow: catches agents' cheap-road-to-green moves, not a determined human hiding a change. When outgrown, move to a real runner (Escalation Path level 3).

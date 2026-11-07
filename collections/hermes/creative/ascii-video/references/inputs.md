@@ -7,7 +7,7 @@
 ### Loading
 
 ```python
-tmp = tempfile.mktemp(suffix=".wav")
+fd, tmp = tempfile.mkstemp(suffix=".wav"); os.close(fd)  # not mktemp: race/symlink-prone
 subprocess.run(["ffmpeg", "-y", "-i", input_path, "-ac", "1", "-ar", "22050",
                 "-sample_fmt", "s16", tmp], capture_output=True, check=True)
 with wave.open(tmp) as wf:
@@ -34,7 +34,7 @@ bands = {
 }
 ```
 
-For each frame: extract chunk, apply window, FFT, compute band energies.
+Per frame: extract chunk, apply window, FFT, compute band energies.
 
 ### Feature Set
 
@@ -50,7 +50,7 @@ For each frame: extract chunk, apply window, FFT, compute band energies.
 | `beat` | Flux peak detection | Binary beat onset |
 | `bdecay` | Exponential decay from beats | Smooth beat pulse (0→1→0) |
 
-**Band ratios are critical** — they decouple spectral shape from volume, so a quiet bass section and a loud bass section both read as "bassy" rather than just "loud" vs "quiet".
+**Band ratios are critical**: they decouple spectral shape from volume. Quiet and loud bass sections both read as "bassy", not just "loud" vs "quiet".
 
 ### Smoothing
 
@@ -117,8 +117,6 @@ cap = cv2.VideoCapture(input_video)
 
 ### Luminance-to-Character Mapping
 
-Convert video pixels to ASCII characters based on brightness:
-
 ```python
 def frame_to_ascii(frame_rgb, grid, pal=PAL_DEFAULT):
     """Convert video frame to character + color arrays."""
@@ -136,7 +134,7 @@ def frame_to_ascii(frame_rgb, grid, pal=PAL_DEFAULT):
 
 ### Edge-Weighted Character Mapping
 
-Use edge detection for more detail in contour regions:
+Edge detection adds detail in contour regions:
 
 ```python
 def frame_to_ascii_edges(frame_rgb, grid, pal=PAL_DEFAULT, edge_pal=PAL_BOX):
@@ -162,8 +160,6 @@ def frame_to_ascii_edges(frame_rgb, grid, pal=PAL_DEFAULT, edge_pal=PAL_BOX):
 
 ### Motion Detection
 
-Detect pixel changes between frames for motion-reactive effects:
-
 ```python
 prev_frame = None
 def compute_motion(frame):
@@ -176,11 +172,11 @@ def compute_motion(frame):
     return np.clip(diff / 30.0, 0, 1)  # normalized motion map
 ```
 
-Use motion map to drive particle emission, glitch intensity, or character density.
+Motion map drives particle emission, glitch intensity or character density.
 
 ### Video Feature Extraction
 
-Per-frame features analogous to audio features, for driving effects:
+Per-frame features, analogous to audio features, to drive effects:
 
 ```python
 def analyze_video_frame(frame_rgb):
@@ -211,7 +207,7 @@ for fi, path in enumerate(frames):
 
 ### Image as Texture Source
 
-Use an image as a background texture that effects modulate:
+Use image as background texture that effects modulate:
 
 ```python
 def load_texture(path, grid):
@@ -248,11 +244,11 @@ def parse_srt(path):
 
 ### Lyrics Display Modes
 
-- **Typewriter**: characters appear left-to-right over the time window
-- **Fade-in**: whole line fades from dark to bright
+- **Typewriter**: characters appear left-to-right over time window
+- **Fade-in**: whole line fades dark to bright
 - **Flash**: appear instantly on beat, fade out
 - **Scatter**: characters start at random positions, converge to final position
-- **Wave**: text follows a sine wave path
+- **Wave**: text follows sine wave path
 
 ```python
 def lyrics_typewriter(ch, co, text, row, col, t, t_start, t_end, color):
@@ -264,7 +260,7 @@ def lyrics_typewriter(ch, co, text, row, col, t, t_start, t_end, color):
 
 ## Generative (No Input)
 
-For pure generative ASCII art, the "features" dict is synthesized from time:
+For pure generative ASCII art, synthesize the "features" dict from time:
 
 ```python
 def synthetic_features(t, bpm=120):
@@ -291,9 +287,11 @@ def synthetic_features(t, bpm=120):
 
 ## TTS Integration
 
-For narrated videos (testimonials, quotes, storytelling), generate speech audio per segment and mix with background music.
+For narrated videos (testimonials, quotes, storytelling): generate speech audio per segment, mix with background music.
 
 ### ElevenLabs Voice Generation
+
+Key from env: `api_key = os.environ["ELEVENLABS_API_KEY"]`. Never hardcode it in render script, print it, or ask user to paste it into chat.
 
 ```python
 import requests, time, os
@@ -326,13 +324,13 @@ def generate_tts(text, voice_id, api_key, output_path, model="eleven_multilingua
 
 Voice settings notes:
 - `stability` 0.65 gives natural variation without drift. Lower (0.3-0.5) for more expressive reads, higher (0.7-0.9) for monotone/narration.
-- `similarity_boost` 0.80 keeps it close to the voice profile. Lower for more generic sound.
+- `similarity_boost` 0.80 stays close to voice profile. Lower for more generic sound.
 - `style` 0.15 adds slight stylistic variation. Keep low (0-0.2) for straightforward reads.
-- `use_speaker_boost` True improves clarity at the cost of slightly more processing time.
+- `use_speaker_boost` True improves clarity, costs slightly more processing time.
 
 ### Voice Pool
 
-ElevenLabs has ~20 built-in voices. Use multiple voices for variety across quotes. Reference pool:
+ElevenLabs has ~20 built-in voices. Vary voices across quotes. Reference pool:
 
 ```python
 VOICE_POOL = [
@@ -362,7 +360,7 @@ VOICE_POOL = [
 
 ### Voice Assignment
 
-Shuffle deterministically so re-runs produce the same voice mapping:
+Shuffle deterministically so re-runs give same voice mapping:
 
 ```python
 import random as _rng
@@ -377,13 +375,13 @@ def assign_voices(n_quotes, voice_pool, seed=42):
 
 ### Pronunciation Control
 
-TTS text must be separate from display text. The display text has line breaks for visual layout; the TTS text is a flat sentence with phonetic fixes.
+TTS text must stay separate from display text. Display text has line breaks for visual layout. TTS text is flat sentence with phonetic fixes.
 
 Common fixes:
 - Brand names: spell phonetically ("Nous" -> "Noose", "nginx" -> "engine-x")
 - Abbreviations: expand ("API" -> "A P I", "CLI" -> "C L I")
 - Technical terms: add phonetic hints
-- Punctuation for pacing: periods create pauses, commas create slight pauses
+- Punctuation for pacing: periods create pauses, commas slight pauses
 
 ```python
 # Display text: line breaks control visual layout
@@ -400,7 +398,7 @@ QUOTES_TTS = [
 
 ### Audio Pipeline
 
-1. Generate individual TTS clips (MP3 per quote, skipping existing)
+1. Generate TTS clips (MP3 per quote, skip existing)
 2. Convert each to WAV (mono, 22050 Hz) for duration measurement and concatenation
 3. Calculate timing: intro pad + speech + gaps + outro pad = target duration
 4. Concatenate into single TTS track with silence padding
@@ -473,10 +471,10 @@ def build_tts_track(tts_clips, target_duration, intro_pad=5.0, outro_pad=4.0):
 
 ### Audio Mixing
 
-Mix TTS (center) with background music (wide stereo, low volume). The filter chain:
+Mix TTS (center) with background music (wide stereo, low volume). Filter chain:
 1. TTS mono duplicated to both channels (centered)
 2. BGM loudness-normalized, volume reduced to 15%, stereo widened with `extrastereo`
-3. Mixed together with dropout transition for smooth endings
+3. Both mixed with dropout transition for smooth endings
 
 ```python
 def mix_audio(tts_path, bgm_path, output_path, bgm_volume=0.15):
@@ -506,7 +504,7 @@ def mix_audio(tts_path, bgm_path, output_path, bgm_volume=0.15):
 
 ### Per-Quote Visual Style
 
-Cycle through visual presets per quote for variety. Each preset defines a background effect, color scheme, and text color:
+Cycle visual presets per quote for variety. Each preset defines background effect, color scheme and text color:
 
 ```python
 QUOTE_STYLES = [
@@ -523,11 +521,11 @@ QUOTE_STYLES = [
 style = QUOTE_STYLES[quote_index % len(QUOTE_STYLES)]
 ```
 
-This guarantees no two adjacent quotes share the same look, even without randomness.
+Guarantees no two adjacent quotes share same look, even without randomness.
 
 ### Typewriter Text Rendering
 
-Display quote text character-by-character synced to speech progress. Recently revealed characters are brighter, creating a "just typed" glow:
+Reveal quote text character-by-character, synced to speech progress. Recently revealed characters are brighter, giving a "just typed" glow:
 
 ```python
 def render_typewriter(ch, co, lines, block_start, cols, progress, total_chars, text_rgb, t):
@@ -565,20 +563,18 @@ def render_typewriter(ch, co, lines, block_start, cols, progress, total_chars, t
 
 ### Feature Analysis on Mixed Audio
 
-Run the standard audio analysis (FFT, beat detection) on the final mixed track so visual effects react to both TTS and music:
+Run standard audio analysis (FFT, beat detection) on final mixed track so visual effects react to both TTS and music:
 
 ```python
 # Analyze mixed_final.wav (not individual tracks)
 features = analyze_audio("mixed_final.wav", fps=24)
 ```
 
-Visuals pulse with both the music beats and the speech energy.
-
 ---
 
 ## Audio-Video Sync Verification
 
-After rendering, verify that visual beat markers align with actual audio beats. Drift accumulates from frame timing errors, ffmpeg concat boundaries, and rounding in `fi / fps`.
+After rendering, verify visual beat markers align with actual audio beats. Drift accumulates from frame timing errors, ffmpeg concat boundaries and rounding in `fi / fps`.
 
 ### Beat Timestamp Extraction
 
@@ -679,7 +675,7 @@ print(f"Mean drift: {report['mean_drift_ms']:.1f}ms, Max: {report['max_drift_ms'
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| Consistent late visual beats | ffmpeg concat adds frames at boundaries | Use `-vsync cfr` flag; pad segments to exact frame count |
-| Drift increases over time | Floating-point accumulation in `t = fi / fps` | Use integer frame counter, compute `t` fresh each frame |
+| Consistent late visual beats | ffmpeg concat adds frames at boundaries | Use `-vsync cfr`; pad segments to exact frame count |
+| Drift increases over time | Floating-point accumulation in `t = fi / fps` | Use integer frame counter; compute `t` fresh each frame |
 | Random missed beats | Beat threshold too high / feature smoothing too aggressive | Lower threshold; reduce EMA alpha for beat feature |
 | Beats land on wrong frame | Off-by-one in frame indexing | Verify: frame 0 = t=0, frame 1 = t=1/fps (not t=0) |

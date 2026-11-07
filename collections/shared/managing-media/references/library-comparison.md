@@ -1,6 +1,5 @@
 # Media Library Comparison
 
-
 ## Table of Contents
 
 - [Image Galleries](#image-galleries)
@@ -41,16 +40,16 @@
 **Bundle Size:** ~30KB
 
 **Pros:**
-- Feature complete out of the box
+- Feature-complete out of box
 - Mobile swipe support
 - Fullscreen mode
-- Good documentation
+- Good docs
 
 **Cons:**
-- Larger bundle size
-- Less customization than headless
+- Larger bundle
+- Less customizable than headless
 
-**Best For:** Complete gallery solution with minimal setup
+**Best For:** Complete gallery, minimal setup
 
 ---
 
@@ -60,12 +59,12 @@
 
 **Pros:**
 - Extensive features
-- Excellent documentation
+- Excellent docs
 - Plugin ecosystem
 - Touch gestures
 
 **Cons:**
-- Large bundle size (~100KB+)
+- Large bundle (~100KB+)
 - Commercial license for some features
 
 **Best For:** Feature-rich galleries, enterprises
@@ -84,7 +83,7 @@
 - Limited features
 - Less active maintenance
 
-**Best For:** Simple lightbox needs, small bundle
+**Best For:** Simple lightbox, small bundle
 
 ---
 
@@ -102,10 +101,10 @@
 - Free and open source
 
 **Cons:**
-- Larger learning curve
-- More setup required
+- Steeper learning curve
+- More setup
 
-**Best For:** Professional video needs, streaming
+**Best For:** Professional video, streaming
 
 ---
 
@@ -113,7 +112,7 @@
 **Bundle Size:** ~30KB
 
 **Pros:**
-- Beautiful default UI
+- Polished default UI
 - Simple setup
 - Good accessibility
 - Multiple providers (YouTube, Vimeo)
@@ -130,12 +129,12 @@
 **Bundle Size:** ~64KB
 
 **Pros:**
-- Supports many sources
+- Many sources
 - React-first API
 - Simple integration
 
 **Cons:**
-- Less customization
+- Less customizable
 - Depends on external players
 
 **Best For:** Multi-source video (YouTube, Vimeo, files)
@@ -148,13 +147,13 @@
 **Trust Score:** 8.5+/10
 
 **Pros:**
-- Beautiful waveforms
+- Polished waveforms
 - Plugin support
 - Responsive
-- Good documentation
+- Good docs
 
 **Cons:**
-- Performance with very long audio
+- Struggles with very long audio
 - Setup complexity
 
 **Best For:** Waveform visualization, music apps
@@ -172,7 +171,7 @@
 
 **Cons:**
 - No built-in UI
-- Manual waveform needed
+- Waveform must be built manually
 
 **Best For:** Audio playback without UI, games
 
@@ -234,7 +233,7 @@
 
 **Pros:**
 - No client-side processing
-- Supports many formats
+- Many formats
 - No bundle impact
 
 **Cons:**
@@ -259,7 +258,7 @@
 
 **Cons:**
 - No UI provided
-- Manual styling needed
+- Manual styling
 
 **Best For:** Custom upload UI
 
@@ -269,14 +268,14 @@
 **Trust Score:** 8.5+/10
 
 **Pros:**
-- Feature complete
-- Beautiful UI
+- Feature-complete
+- Polished UI
 - Cloud integrations
 - Resumable uploads
 
 **Cons:**
 - Large bundle (~100KB+)
-- Complex for simple needs
+- Overkill for simple needs
 
 **Best For:** Complex upload workflows
 
@@ -286,7 +285,7 @@
 **Bundle Size:** ~30KB
 
 **Pros:**
-- Beautiful default UI
+- Polished default UI
 - Image optimization
 - Plugin support
 - Good UX
@@ -295,21 +294,21 @@
 - Less headless flexibility
 - Commercial plugins
 
-**Best For:** Quick beautiful uploads
+**Best For:** Quick polished uploads
 
 ---
 
 ## Selection Guide
 
 ### Choose react-image-gallery when:
-- Need full-featured gallery quickly
-- Mobile support is critical
+- Full-featured gallery needed fast
+- Mobile support critical
 - Bundle size <50KB acceptable
 
 ### Choose video.js when:
 - Professional video requirements
-- Need streaming (HLS/DASH)
-- Accessibility is critical
+- Streaming needed (HLS/DASH)
+- Accessibility critical
 - Plugin ecosystem valuable
 
 ### Choose wavesurfer.js when:

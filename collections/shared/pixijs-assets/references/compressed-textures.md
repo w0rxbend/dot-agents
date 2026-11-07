@@ -1,6 +1,6 @@
 # Compressed Textures
 
-GPU-compressed texture formats (DDS, KTX, KTX2, Basis) use 4–8x less GPU memory than PNG/JPEG and skip runtime decoding. Use them for large textures, high-asset-count games, and anywhere memory budget matters. Each format requires a side-effect import to register its loader.
+GPU-compressed formats (DDS, KTX, KTX2, Basis) use 4–8x less GPU memory than PNG/JPEG and skip runtime decoding. Use for large textures, asset-heavy games, tight memory budgets. Each format needs side-effect import to register its loader.
 
 ## Quick Start
 
@@ -14,8 +14,6 @@ const bg = new Sprite(texture);
 app.stage.addChild(bg);
 ```
 
-Without the side-effect import, the loader won't know how to parse the file and will skip it silently.
-
 ## Core Patterns
 
 ### Format imports
@@ -27,18 +25,18 @@ import "pixi.js/ktx2"; // KTX v2 (with Basis Universal support)
 import "pixi.js/basis"; // Basis Universal (.basis)
 ```
 
-Each import registers a `LoaderParser` that can decode the matching file extension. Import only the formats you use; the loaders include decoder runtime that adds to your bundle size.
+Each import registers `LoaderParser` for matching extension. Several imports can coexist. Import only formats you use; decoder runtime adds bundle size.
 
 ### Format selection matrix
 
-| Format | Platforms | Notes                                                                                                           |
-| ------ | --------- | --------------------------------------------------------------------------------------------------------------- |
-| DDS    | All       | Legacy desktop formats (DXT, BC). Fast decoder; wide support.                                                   |
-| KTX    | All       | Older Khronos container. Prefer KTX2 for new projects.                                                          |
-| KTX2   | All       | Newer container; typically used with Basis Universal. GPU-native when available.                                |
-| Basis  | All       | Supercompressed; transcodes to the GPU-native format at load time. Best for "one file, any platform" workflows. |
+| Format | Platforms | Notes |
+| ------ | --------- | ----- |
+| DDS    | All       | Legacy desktop formats (DXT, BC). Fast decoder; wide support. |
+| KTX    | All       | Older Khronos container. Prefer KTX2 for new projects. |
+| KTX2   | All       | Newer container, usually with Basis Universal. GPU-native when available. |
+| Basis  | All       | Supercompressed; transcodes to GPU-native format at load. Best for "one file, any platform" workflows. |
 
-Use KTX2 + Basis for new projects unless you have a specific need for one of the others.
+Use KTX2 + Basis for new projects unless you specifically need another format.
 
 ### With the resolver
 
@@ -54,7 +52,7 @@ Assets.add({
 const texture = await Assets.load("background");
 ```
 
-List compressed textures as first-preference format in the resolver. On browsers or hardware that can't sample the compressed format, the resolver falls back to WebP or PNG automatically.
+List compressed format first in resolver. Where browser or hardware can't sample it, resolver falls back to WebP or PNG automatically.
 
 ### Async decoding
 
@@ -65,17 +63,7 @@ import { Assets } from "pixi.js";
 const texture = await Assets.load("hero.basis");
 ```
 
-Basis Universal decodes asynchronously on a worker thread (where supported). You don't need to await anything beyond the normal `Assets.load`; the loader handles decoding.
-
-### Multiple compressed formats at once
-
-```ts
-import "pixi.js/ktx2";
-import "pixi.js/basis";
-import "pixi.js/dds";
-```
-
-Multiple format imports can coexist. Each registers an extension for its own file type. If you only use one format, import only that one to keep the bundle smaller.
+Basis Universal decodes async on worker thread (where supported). Normal `Assets.load` await suffices; loader handles decoding.
 
 ## Common Mistakes
 
@@ -96,12 +84,12 @@ import { Assets } from "pixi.js";
 await Assets.load("background.ktx2");
 ```
 
-Without the side-effect import, no loader parser is registered for `.ktx2` files. The load silently does nothing (or errors) and you get `undefined` back.
+Without side-effect import, no parser is registered for `.ktx2`. Load silently does nothing (or errors) and returns `undefined`.
 
 
 ### [HIGH] Relying on mipmaps from compressed textures in Canvas2D
 
-Compressed textures require WebGL or WebGPU. The Canvas2D backend can't sample them. If you need Canvas support, include a PNG/WebP fallback via the resolver format list:
+Compressed textures need WebGL or WebGPU; Canvas2D backend can't sample them. For Canvas support, add PNG/WebP fallback in resolver format list:
 
 ```ts
 Assets.add({ alias: "bg", src: "bg.{ktx2,png}" });
@@ -110,7 +98,7 @@ Assets.add({ alias: "bg", src: "bg.{ktx2,png}" });
 
 ### [MEDIUM] Large Basis files in WebGL1
 
-Basis Universal transcodes to different GPU formats based on what the device supports. On WebGL1 without extensions, some devices fall back to an uncompressed format, defeating the memory savings. Check `renderer.context.supports` for supported compressed formats if you're targeting older hardware.
+Basis Universal transcodes to whatever GPU format device supports. On WebGL1 without extensions, some devices fall back to uncompressed format, losing memory savings. If targeting older hardware, check `renderer.context.supports` for supported compressed formats.
 
 
 ## API Reference

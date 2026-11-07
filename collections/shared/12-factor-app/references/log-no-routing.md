@@ -7,7 +7,7 @@ tags: log, routing, storage, separation
 
 ## Never Route or Store Logs from Within the Application
 
-A twelve-factor app does not attempt to write to or manage logfiles. It does not configure log shipping, rotation, or aggregation. The execution environment handles capturing stdout, collating streams, and routing to destinations.
+Twelve-factor app does not write to or manage logfiles. It does not configure log shipping, rotation or aggregation. Execution environment captures stdout, collates streams and routes them to destinations.
 
 **Incorrect (app routes logs):**
 
@@ -100,11 +100,5 @@ heroku logs --tail
 # AWS ECS - logs to CloudWatch automatically
 # No app config needed
 ```
-
-**Benefits:**
-- App code is simple
-- Same app works with any log infrastructure
-- Change log destination without changing app
-- No credentials or infrastructure URLs in app
 
 Reference: [The Twelve-Factor App - Logs](https://12factor.net/logs)

@@ -9,9 +9,9 @@
 
 ## Mocks with testify/mock
 
-Create interfaces for your dependencies, then mock them.
+Create interfaces for dependencies, then mock them.
 
-> For the full testify/mock API (argument matchers, call modifiers, verification), see the `samber/cc-skills-golang@golang-stretchr-testify` skill.
+> For full testify/mock API (argument matchers, call modifiers, verification), see `samber/cc-skills-golang@golang-stretchr-testify` skill.
 
 ```go
 // Define the interface
@@ -74,7 +74,7 @@ func TestService_GetUser_NotFound(t *testing.T) {
 
 ## Mock Organization
 
-For larger codebases, organize mocks alongside the code they mock:
+In larger codebases, organize mocks alongside code they mock:
 
 ```go
 // user_service.go
@@ -142,7 +142,7 @@ func TestUserService_CreateUser(t *testing.T) {
 
 ## Test Fixtures
 
-Create reusable test data in a separate package or file:
+Create reusable test data in separate package or file:
 
 ```go
 package fixtures

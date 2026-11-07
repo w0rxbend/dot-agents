@@ -1,8 +1,6 @@
 # Saga Orchestration - Detailed Guide
 
-
-Code templates for the patterns summarized in `../SKILL.md`. The Python is illustrative (in-memory store and publisher interfaces); adapt persistence, messaging and error types to the target stack.
-
+Code templates for patterns in `../SKILL.md`. Python is illustrative (in-memory store and publisher interfaces). Adapt persistence, messaging and error types to target stack.
 
 ## Core Concepts
 
@@ -23,14 +21,13 @@ Choreography                    Orchestration
 
 ### 2. Saga Execution States
 
-| State            | Description                    |
-| ---------------- | ------------------------------ |
-| **Started**      | Saga initiated                 |
-| **Pending**      | Waiting for step completion    |
-| **Compensating** | Rolling back due to failure    |
-| **Completed**    | All steps succeeded            |
-| **Failed**       | Saga failed after compensation |
-
+| State | Description |
+|---|---|
+| **Started** | Saga initiated |
+| **Pending** | Waiting for step completion |
+| **Compensating** | Rolling back after failure |
+| **Completed** | All steps succeeded |
+| **Failed** | Failed after compensation |
 
 ## Templates
 
@@ -414,34 +411,13 @@ class TimeoutSagaOrchestrator(SagaOrchestrator):
             await self.handle_step_failed(saga_id, step_name, "Step timed out")
 ```
 
-
 ## Durable Execution Alternative
 
-The templates above build saga infrastructure from scratch — saga stores, event publishers, compensation tracking. **Durable execution frameworks** (Temporal, AWS Step Functions, Azure Durable Functions, DBOS, Restate and similar) eliminate much of this boilerplate: the workflow runtime automatically persists state to a database, retries failed steps, and resumes from the last checkpoint after crashes. Instead of building a `SagaOrchestrator` base class, you write a workflow function with steps — the framework handles persistence, crash recovery and deterministic replay of the workflow logic. Individual steps (activities) are still retried at-least-once, so they must stay idempotent. Consider durable execution when you want saga-like reliability without managing the coordination infrastructure yourself.
-
-
-## Best Practices
-
-### Do's
-
-- **Make steps idempotent** - Safe to retry
-- **Design compensations carefully** - They must work
-- **Use correlation IDs** - For tracing across services
-- **Implement timeouts** - Don't wait forever
-- **Log everything** - For debugging failures
-
-### Don'ts
-
-- **Don't assume instant completion** - Sagas take time
-- **Don't skip compensation testing** - Most critical part
-- **Don't couple services** - Use async messaging
-- **Don't ignore partial failures** - Handle gracefully
-
+Templates above build saga infrastructure from scratch: saga stores, event publishers, compensation tracking. **Durable execution frameworks** (Temporal, AWS Step Functions, Azure Durable Functions, DBOS, Restate and similar) remove much of this boilerplate. Write workflow function with steps instead of `SagaOrchestrator` base class. Runtime persists workflow state to database, retries failed steps, resumes from last checkpoint after crashes and deterministically replays workflow logic. Steps (activities) still retry at-least-once, so they must stay idempotent.
 
 ## Related Skills
 
-Works well with: `using-message-queues` (brokers, Temporal example), `architecture-patterns` (domain events, outbox).
-
+Pairs with: `using-message-queues` (brokers, Temporal example), `architecture-patterns` (domain events, outbox).
 
 ## Resources
 

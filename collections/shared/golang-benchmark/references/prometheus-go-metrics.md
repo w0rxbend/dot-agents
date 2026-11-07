@@ -1,6 +1,6 @@
 # Prometheus Go Runtime Metrics Reference
 
-Complete listing of Go runtime metrics **actually exposed as Prometheus metrics** by `prometheus/client_golang` library.
+Complete listing of Go runtime metrics **actually exposed as Prometheus metrics** by `prometheus/client_golang`.
 
 ---
 
@@ -42,11 +42,11 @@ Complete listing of Go runtime metrics **actually exposed as Prometheus metrics*
 
 ## Important Clarification
 
-**`runtime/metrics` are NOT Prometheus metrics.** They're Go runtime data structures.
+**`runtime/metrics` are NOT Prometheus metrics.** They are Go runtime data structures.
 
-The Prometheus Go client library (`prometheus/client_golang`) **selectively converts some** `runtime/metrics` into Prometheus format. By default, it exposes only the traditional `go_memstats_*` and `go_gc_*` metrics to keep cardinality low.
+Prometheus Go client library (`prometheus/client_golang`) **selectively converts some** `runtime/metrics` into Prometheus format. By default it exposes only traditional `go_memstats_*` and `go_gc_*` metrics, keeping cardinality low.
 
-**This document lists only Prometheus metrics** (the ones you actually scrape from `/metrics` endpoint).
+**This document lists only Prometheus metrics** (ones you scrape from `/metrics` endpoint).
 
 ---
 
@@ -67,7 +67,7 @@ All other metrics have **no labels**.
 
 ## Default Go Metrics (Always Exposed)
 
-These are exposed by default by `prometheus/client_golang`.
+Exposed by default by `prometheus/client_golang`.
 
 ### Memory Allocation
 
@@ -84,7 +84,7 @@ These are exposed by default by `prometheus/client_golang`.
 | `go_memstats_heap_alloc_bytes`    | gauge | Allocated heap bytes        |
 | `go_memstats_heap_idle_bytes`     | gauge | Idle heap bytes             |
 | `go_memstats_heap_inuse_bytes`    | gauge | Heap bytes in use           |
-| `go_memstats_heap_objects`        | gauge | Count of heap objects       |
+| `go_memstats_heap_objects`        | gauge | Heap object count           |
 | `go_memstats_heap_released_bytes` | gauge | Heap bytes released to OS   |
 | `go_memstats_heap_sys_bytes`      | gauge | Heap bytes reserved from OS |
 
@@ -173,7 +173,7 @@ prometheus.NewRegistry().MustRegister(
 | `go_gc_heap_frees_objects_total` | counter | Cumulative heap frees (count) |
 | `go_gc_heap_goal_bytes` | gauge | Heap size target for next GC |
 | `go_gc_heap_live_bytes` | gauge | Live heap bytes |
-| `go_gc_heap_objects_objects` | gauge | Total heap objects count |
+| `go_gc_heap_objects_objects` | gauge | Total heap object count |
 
 ### GC Pauses Distribution
 
@@ -332,7 +332,7 @@ delta(process_open_fds[1h])
 process_open_fds / process_max_fds
 ```
 
-Run these queries in the Prometheus UI, Grafana Explore, or the Prometheus HTTP API (`curl 'http://<prometheus>:9090/api/v1/query' --data-urlencode 'query=...'`).
+Run these queries in Prometheus UI, Grafana Explore, or Prometheus HTTP API (`curl 'http://<prometheus>:9090/api/v1/query' --data-urlencode 'query=...'`).
 
 ## References
 

@@ -1,8 +1,5 @@
 # WebSocket Reference Guide
 
-WebSocket protocol for bidirectional real-time communication.
-
-
 ## Table of Contents
 
 - [Protocol Overview](#protocol-overview)
@@ -29,7 +26,7 @@ WebSocket protocol for bidirectional real-time communication.
 
 ## Protocol Overview
 
-WebSocket provides full-duplex communication over a single TCP connection, upgrading from HTTP.
+Full-duplex communication over single TCP connection, upgraded from HTTP.
 
 **Handshake (HTTP → WebSocket):**
 ```
@@ -55,18 +52,26 @@ Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
 **Flow:**
 1. User logs in via HTTP POST
 2. Server sets HTTP-only cookie
-3. WebSocket connection automatically sends cookie
-4. Server validates cookie on connection
+3. WebSocket connection sends cookie automatically
+4. Server checks Origin, then validates cookie on connection
 
 **Implementation:**
 ```python
 from fastapi import WebSocket, Cookie, HTTPException
+
+ALLOWED_ORIGINS = {"https://example.com", "https://app.example.com"}
 
 @app.websocket("/ws")
 async def websocket_endpoint(
     websocket: WebSocket,
     session_token: str = Cookie(None)
 ):
+    # Required: browsers attach cookies to cross-site WebSocket handshakes and
+    # skip CORS, so without this any site can hijack the session (CSWSH)
+    if websocket.headers.get("origin") not in ALLOWED_ORIGINS:
+        await websocket.close(code=1008)
+        return
+
     if not verify_session(session_token):
         await websocket.close(code=1008)  # Policy violation
         return
@@ -84,15 +89,15 @@ await fetch('/api/login', {
   body: JSON.stringify({ username, password })
 })
 
-// WebSocket automatically sends cookie
-const ws = new WebSocket('ws://example.com/ws')
+// WebSocket automatically sends cookie (wss:// keeps it encrypted)
+const ws = new WebSocket('wss://example.com/ws')
 ```
 
 ### Pattern 2: Token in Sec-WebSocket-Protocol
 
 **Flow:**
-1. Client obtains JWT token
-2. Passes token in `Sec-WebSocket-Protocol` header
+1. Client gets JWT token
+2. Client passes token in `Sec-WebSocket-Protocol` header
 3. Server validates token during handshake
 4. Server responds with same subprotocol
 
@@ -120,7 +125,7 @@ async def websocket_endpoint(websocket: WebSocket):
 **Frontend:**
 ```typescript
 const token = await getAuthToken()
-const ws = new WebSocket('ws://example.com/ws', [`access_token_${token}`])
+const ws = new WebSocket('wss://example.com/ws', [`access_token_${token}`])
 ```
 
 ### Pattern 3: First Message Authentication
@@ -157,7 +162,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
 **Frontend:**
 ```typescript
-const ws = new WebSocket('ws://example.com/ws')
+const ws = new WebSocket('wss://example.com/ws')
 
 ws.onopen = () => {
   ws.send(JSON.stringify({
@@ -267,8 +272,6 @@ class HeartbeatWebSocket {
 
 ## Message Framing
 
-WebSocket supports text and binary frames.
-
 ### Text Frames (JSON)
 
 ```python
@@ -301,7 +304,7 @@ data = msgpack.unpackb(binary_data)
 
 ### Challenge
 
-WebSocket connections are stateful - user connections on Server A cannot directly reach users on Server B.
+WebSocket connections are stateful. Connections on Server A cannot directly reach users on Server B.
 
 ```
 User A → Server 1
@@ -311,8 +314,6 @@ User A sends message → Server 1 → ??? → Server 2 → User B
 ```
 
 ### Solution 1: Redis Pub/Sub
-
-Broadcast messages across all servers using Redis.
 
 **Architecture:**
 ```
@@ -380,7 +381,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
 ### Solution 2: Sticky Sessions (Load Balancer)
 
-Route same user to same server using load balancer.
+Load balancer routes same user to same server.
 
 **Nginx Configuration:**
 ```nginx
@@ -424,7 +425,7 @@ backend websocket_backend
 - No broadcast needed (users on same server)
 
 **Cons:**
-- Users can't communicate across servers
+- Users cannot communicate across servers
 - Uneven load distribution
 - Reconnection may hit different server
 
@@ -434,7 +435,7 @@ backend websocket_backend
 
 Browsers limit concurrent connections per domain:
 - HTTP/1.1: 6-8 connections
-- WebSocket: Typically 200-255 per domain
+- WebSocket: typically 200-255 per domain
 
 **Workaround: Use subdomains**
 ```typescript
@@ -465,8 +466,6 @@ ulimit -n 65536
 
 ## Error Codes
 
-Common WebSocket close codes:
-
 | Code | Meaning | When to Use |
 |------|---------|-------------|
 | 1000 | Normal closure | Clean shutdown |
@@ -490,12 +489,13 @@ await websocket.close(code=1011, reason="Internal error")
 
 ## CORS Configuration
 
-WebSocket upgrade requests include Origin header.
+WebSocket upgrade requests include Origin header, but browsers do not apply CORS to them: the server must check Origin itself.
 
 **Python (FastAPI):**
 ```python
 from fastapi.middleware.cors import CORSMiddleware
 
+# Covers HTTP routes only; CORSMiddleware does not apply to WebSocket routes
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://example.com"],
@@ -506,7 +506,7 @@ app.add_middleware(
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    # Check origin manually if needed
+    # Check Origin before accept() (required with cookie auth)
     origin = websocket.headers.get("origin")
     if origin not in ["https://example.com", "https://app.example.com"]:
         await websocket.close(code=1008)
@@ -535,6 +535,5 @@ var upgrader = websocket.Upgrader{
 5. **Close connections gracefully** with appropriate codes
 6. **Monitor connection count** and set alerts
 7. **Use Redis pub/sub** for horizontal scaling
-8. **Configure CORS** explicitly for security
+8. **Check Origin** on every handshake (CORS middleware does not cover WebSockets); use `wss://` outside localhost
 9. **Set timeouts** for read/write operations
-10. **Log errors** with connection metadata for debugging

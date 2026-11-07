@@ -1,7 +1,5 @@
 # GCP Data Analytics Services Reference
 
-Patterns for BigQuery, Pub/Sub, Dataflow, Dataproc, and Cloud Composer.
-
 ## Table of Contents
 
 1. [BigQuery](#bigquery)
@@ -486,14 +484,14 @@ with DAG(
 
 ### Pub/Sub
 - Use dead letter topics
-- Set appropriate ack deadlines
-- Implement exponential backoff
+- Set fitting ack deadlines
+- Use exponential backoff
 - Use message ordering when needed
 - Monitor subscription backlog
 
 ### Dataflow
 - Use windowing for streaming
-- Implement exactly-once processing
+- Use exactly-once processing
 - Monitor pipeline metrics
 - Use Flex templates for custom pipelines
 - Enable autoscaling
@@ -507,7 +505,5 @@ with DAG(
 
 ### Composer
 - Use Workload Identity
-- Set appropriate resource limits
 - Monitor DAG performance
 - Use XCom for small data only
-- Implement alerting

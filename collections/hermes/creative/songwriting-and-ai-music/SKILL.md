@@ -18,14 +18,14 @@ triggers:
 
 # Songwriting & AI Music Generation
 
-Everything here is a GUIDELINE, not a rule. Art breaks rules on purpose.
-Use what serves the song. Ignore what doesn't.
+Everything here is GUIDELINE, not rule. Art breaks rules on purpose.
+Use what serves song. Ignore what doesn't.
 
 ---
 
 ## 1. Song Structure (Pick One or Invent Your Own)
 
-Common skeletons — mix, modify, or throw out as needed:
+Common skeletons — mix, modify or discard:
 
 ```
 ABABCB  Verse/Chorus/Verse/Chorus/Bridge/Chorus    (most pop/rock)
@@ -34,55 +34,51 @@ ABAB    Verse/Chorus alternating                    (simple, direct)
 AAA     Verse/Verse/Verse (strophic, no chorus)     (folk, storytelling)
 ```
 
-The six building blocks:
-- Intro      — set the mood, pull the listener in
-- Verse      — the story, the details, the world-building
-- Pre-Chorus — optional tension ramp before the payoff
-- Chorus     — the emotional core, the part people remember
-- Bridge     — a detour, a shift in perspective or key
-- Outro      — the farewell, can echo or subvert the rest
+Six building blocks:
+- Intro      — set mood, pull listener in
+- Verse      — story, details, world-building
+- Pre-Chorus — optional tension ramp before payoff
+- Chorus     — emotional core, part people remember
+- Bridge     — detour, shift in perspective or key
+- Outro      — farewell, can echo or subvert rest
 
-You don't need all of these. Some great songs are just one section
-that evolves. Structure serves the emotion, not the other way around.
+Not all needed. Some great songs are one section that evolves.
 
 ---
 
 ## 2. Rhyme, Meter, and Sound
 
-RHYME TYPES (from tight to loose):
+RHYME TYPES (tight to loose):
 - Perfect: lean/mean
 - Family: crate/braid
 - Assonance: had/glass (same vowels, different endings)
 - Consonance: scene/when (different vowels, similar endings)
-- Near/slant: enough to suggest connection without locking it down
+- Near/slant: suggests connection without locking it down
 
-Mix them. All perfect rhymes can sound like a nursery rhyme.
-All slant rhymes can sound lazy. The blend is where it lives.
+Mix them. All-perfect can sound like nursery rhyme. All-slant can sound lazy.
 
-INTERNAL RHYME: Rhyming within a line, not just at the ends.
+INTERNAL RHYME: Rhyming within line, not only at ends.
   "We pruned the lies from bleeding trees / Distilled the storm
    from entropy" — "lies/flies," "trees/entropy" create internal echoes.
 
-METER: The rhythm of stressed vs unstressed syllables.
-- Matching syllable counts between parallel lines helps singability
-- The STRESSED syllables matter more than total count
-- Say it out loud. If you stumble, the meter needs work.
-- Intentionally breaking meter can create emphasis or surprise
+METER: Rhythm of stressed vs unstressed syllables.
+- Match syllable counts across parallel lines for singability
+- STRESSED syllables matter more than total count
+- Say it aloud. If you stumble, meter needs work.
+- Deliberate meter breaks create emphasis or surprise
 
 ---
 
 ## 3. Emotional Arc and Dynamics
 
-Think of a song as a journey, not a flat road.
-
 ENERGY MAPPING (rough idea, not prescription):
   Intro: 2-3  |  Verse: 5-6  |  Pre-Chorus: 7
   Chorus: 8-9  |  Bridge: varies  |  Final Chorus: 9-10
 
-The most powerful dynamic trick: CONTRAST.
-- Whisper before a scream hits harder than just screaming
+Most powerful dynamic trick: CONTRAST.
+- Whisper before scream hits harder than screaming alone
 - Sparse before dense. Slow before fast. Low before high.
-- The drop only works because of the buildup
+- Drop only works because of buildup
 - Silence is an instrument
 
 "Whisper to roar to whisper" — start intimate, build to full power,
@@ -98,57 +94,57 @@ SHOW, DON'T TELL (usually):
 - But sometimes "I give my life" said plainly IS the power
 
 THE HOOK:
-- The line people remember, hum, repeat
-- Usually the title or core phrase
-- Works best when melody + lyric + emotion all align
-- Place it where it lands hardest (often first/last line of chorus)
+- Line people remember, hum, repeat
+- Usually title or core phrase
+- Works best when melody + lyric + emotion align
+- Place where it lands hardest (often first/last line of chorus)
 
 PROSODY — lyrics and music supporting each other:
 - Stable feelings (resolution, peace) pair with settled melodies,
   perfect rhymes, resolved chords
 - Unstable feelings (longing, doubt) pair with wandering melodies,
   near-rhymes, unresolved chords
-- Verse melody typically sits lower, chorus goes higher
-- But flip this if it serves the song
+- Verse melody typically sits lower, chorus higher
+- Flip this if it serves song
 
-AVOID (unless you're doing it on purpose):
+AVOID (unless on purpose):
 - Cliches on autopilot ("heart of gold" without earning it)
-- Forcing word order to hit a rhyme ("Yoda-speak")
+- Forcing word order to hit rhyme ("Yoda-speak")
 - Same energy in every section (flat dynamics)
-- Treating your first draft as sacred — revision is creation
+- Treating first draft as sacred — revision is creation
 
 ---
 
 ## 5. Parody and Adaptation
 
-When rewriting an existing song with new lyrics:
+When rewriting existing song with new lyrics:
 
-THE SKELETON: Map the original's structure first.
+THE SKELETON: Map original's structure first.
 - Count syllables per line
-- Mark the rhyme scheme (ABAB, AABB, etc.)
-- Identify which syllables are STRESSED
+- Mark rhyme scheme (ABAB, AABB, etc.)
+- Identify STRESSED syllables
 - Note where held/sustained notes fall
 
 FITTING NEW WORDS:
-- Match stressed syllables to the same beats as the original
+- Match stressed syllables to same beats as original
 - Total syllable count can flex by 1-2 unstressed syllables
-- On long held notes, try to match the VOWEL SOUND of the original
+- On long held notes, match original's VOWEL SOUND
   (if original holds "LOOOVE" with an "oo" vowel, "FOOOD" fits
    better than "LIFE")
 - Monosyllabic swaps in key spots keep rhythm intact
   (Crime -> Code, Snake -> Noose)
-- Sing your new words over the original — if you stumble, revise
+- Sing new words over original — if you stumble, revise
 
 CONCEPT:
-- Pick a concept strong enough to sustain the whole song
-- Start from the title/hook and build outward
+- Pick concept strong enough to sustain whole song
+- Start from title/hook, build outward
 - Generate lots of raw material (puns, phrases, images) FIRST,
-  then fit the best ones into the structure
-- If you need a specific line somewhere, reverse-engineer the
+  then fit best into structure
+- If a specific line must land somewhere, reverse-engineer
   rhyme scheme backward to set it up
 
-KEEP SOME ORIGINALS: Leaving a few original lines or structures
-intact adds recognizability and lets the audience feel the connection.
+KEEP SOME ORIGINALS: A few intact original lines or structures add
+recognizability. Audience feels connection.
 
 ---
 
@@ -167,7 +163,7 @@ GOOD: "Cinematic orchestral spy thriller, 1960s Cold War era, smoky
        vintage analog warmth"
 ```
 
-DESCRIBE THE JOURNEY, not just the genre:
+DESCRIBE THE JOURNEY, not genre alone:
 ```
 "Begins as a haunting whisper over sparse piano. Gradually layers
  in muted brass. Builds through the chorus with full orchestra.
@@ -177,14 +173,14 @@ DESCRIBE THE JOURNEY, not just the genre:
 
 TIPS:
 - V4.5+ supports up to 1,000 chars in Style field — use them
-- NO artist names or trademarks. Describe the sound instead.
+- NO artist names or trademarks. Describe sound instead.
   "1960s Cold War spy thriller brass" not "James Bond style"
   "90s grunge" not "Nirvana-style"
-- Specify BPM and key when you have a preference
+- Specify BPM and key if you have preference
 - Use Exclude Styles field for what you DON'T want
 - Unexpected genre combos can be gold: "bossa nova trap",
   "Appalachian gothic", "chiptune jazz"
-- Build a vocal PERSONA, not just a gender:
+- Build vocal PERSONA, not only gender:
   "A weathered torch singer with a smoky alto, slight rasp,
    who starts vulnerable and builds to devastating power"
 
@@ -218,7 +214,7 @@ SFX:
   [Vinyl Crackle] [Rain] [Applause] [Static] [Thunder]
 
 Put tags in BOTH style field AND lyrics for reinforcement.
-Keep to 5-8 tags per section max — too many confuses the AI.
+Max 5-8 tags per section — too many confuses AI.
 Don't contradict yourself ([Calm] + [Aggressive] in same section).
 
 ### Custom Mode
@@ -248,22 +244,22 @@ DELIVERY CONTROL:
 ALWAYS:
 - Spell out numbers: "24/7" -> "twenty four seven"
 - Space acronyms: "AI" -> "A I" or "A-I"
-- Test proper nouns/unusual words in a short 30-second clip first
+- Test proper nouns/unusual words in short 30-second clip first
 - Once generated, pronunciation is baked in — fix in lyrics BEFORE
 
 ---
 
 ## 8. Workflow
 
-1. Write the concept/hook first — what's the emotional core?
-2. If adapting, map the original structure (syllables, rhyme, stress)
+1. Write concept/hook first — what's the emotional core?
+2. If adapting, map original structure (syllables, rhyme, stress)
 3. Generate raw material — brainstorm freely before structuring
-4. Draft lyrics into the structure
+4. Draft lyrics into structure
 5. Read/sing aloud — catch stumbles, fix meter
-6. Build the Suno style description — paint the dynamic journey
+6. Build Suno style description — paint dynamic journey
 7. Add metatags to lyrics for performance direction
-8. Generate 3-5 variations minimum — treat them like recording takes
-9. Pick the best, use Extend/Continue to build on promising sections
+8. Generate 3-5 variations minimum — treat like recording takes
+9. Pick best; use Extend/Continue on promising sections
 10. If something great happens by accident, keep it
 
 EXPECT: ~3-5 generations per 1 good result. Revision is normal.
@@ -273,28 +269,19 @@ Style can drift in extensions — restate genre/mood when extending.
 
 ## 9. Lessons Learned
 
-- Describing the dynamic ARC in the style field matters way more
-  than just listing genres. "Whisper to roar to whisper" gives
-  Suno a performance map.
-- Keeping some original lines intact in a parody adds recognizability
-  and emotional weight — the audience feels the ghost of the original.
-- The bridge slot in a song is where you can transform imagery.
-  Swap the original's specific references for your theme's metaphors
-  while keeping the emotional function (reflection, shift, revelation).
-- Monosyllabic word swaps in hooks/tags are the cleanest way to
-  maintain rhythm while changing meaning.
-- A strong vocal persona description in the style field makes a
-  bigger difference than any single metatag.
-- Don't be precious about rules. If a line breaks meter but hits
-  harder, keep it. The feeling is what matters. Craft serves art,
-  not the other way around.
+- Bridge is where you can transform imagery. Swap original's specific
+  references for your theme's metaphors. Keep emotional function
+  (reflection, shift, revelation).
+- Strong vocal persona in style field beats any single metatag.
+- If a line breaks meter but hits harder, keep it. Feeling matters most.
 
 ---
 
 ## 10. Local / Open-Source Music Generation
 
-For local, GPU-based generation instead of Suno, two optional skills
-cover this (heavy dependencies, so not installed by default):
+Two optional skills cover local, GPU-based generation instead of Suno.
+Heavy dependencies, so not installed by default. Each pulls third-party
+code and model weights; confirm with user before installing:
 
 - **heartmula** — full songs with vocals from lyrics + tags
   (open-source Suno alternative, 8-16GB VRAM):
@@ -303,6 +290,5 @@ cover this (heavy dependencies, so not installed by default):
   AudioGen (sound effects):
   `hermes skills install official/creative/audiocraft-audio-generation`
 
-The lyric-writing and prompting craft in this skill applies to
-heartmula too — its input format is lyrics with bracketed structure
-tags plus comma-separated style tags.
+Lyric and prompt craft here applies to heartmula too. Its input:
+lyrics with bracketed structure tags plus comma-separated style tags.

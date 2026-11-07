@@ -4,7 +4,7 @@ Keep imported skill instructions unchanged unless intentionally maintaining a lo
 Preserve scripts, references, assets, license files, and relative paths. Catalog entries distinguish
 redistributable files from provider-managed metadata. New provider-managed skills must remain external.
 
-Run `make check` before pushing. Installer tests use temporary homes; never run CI installation tests
+Run `just check` before pushing. Installer tests use temporary homes; never run CI installation tests
 against your real home directory. Refresh the inventory with `scripts/import_skills.py --replace` only
 after reviewing local snapshot edits and adding any new upstream license records. This rebuilds the
 repository's `collections/`, not your installed skill sources.
@@ -18,7 +18,7 @@ and dependency changes to the preserved example projects inside imported skills.
 ## Release
 
 1. Update `VERSION` to `MAJOR.MINOR.PATCH`.
-2. Run `make check`, commit the change, and push `main`.
+2. Run `just check`, commit the change, and push `main`.
 3. Wait for CI to pass.
 4. Create and push the matching tag:
 

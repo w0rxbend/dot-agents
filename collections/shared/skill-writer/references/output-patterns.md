@@ -17,7 +17,7 @@ Return findings first, ordered by severity:
 - Impact.
 - Suggested fix.
 
-Then include open questions and a brief summary.
+Then open questions and brief summary.
 
 ## Skill authoring report
 
@@ -31,4 +31,4 @@ Return:
 
 ## Deterministic artifacts
 
-When the user expects a file, deck, spreadsheet, script, or release, produce the artifact and report where it is. Do not replace the artifact with advice.
+When user expects a file, deck, spreadsheet, script, or release, produce artifact and report its location. Do not replace artifact with advice.

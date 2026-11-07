@@ -14,30 +14,26 @@
 
 ## Lambda (Serverless Functions)
 
-### Overview
-
-AWS Lambda runs code without provisioning servers. Pay only for compute time consumed. Supports multiple languages and automatic scaling.
-
 ### Key Specifications (2025)
 
 - **Execution Time:** 1ms to 15 minutes maximum
-- **Memory:** 128MB to 10,240MB (increments of 1MB)
+- **Memory:** 128MB to 10,240MB (1MB increments)
 - **Storage:** 512MB to 10GB ephemeral storage (/tmp)
 - **Deployment Package:** 50MB zipped, 250MB unzipped
-- **Concurrent Executions:** 1,000 default (can increase via quota)
+- **Concurrent Executions:** 1,000 default (raise via quota)
 - **Supported Runtimes:** Node.js, Python, Java, Go, .NET, Ruby, Custom (containers)
 
 ### Performance Features (2025)
 
 **Lambda SnapStart (Java):**
-- Near-instant cold starts for Java functions
+- Near-instant Java cold starts
 - Caches initialized execution environment
 - 10x faster startup vs. traditional Java
 
 **Lambda Response Streaming:**
-- Stream responses beyond the 6 MB buffered limit (check current Lambda quotas for the streaming maximum)
+- Stream responses beyond 6 MB buffered limit (check current Lambda quotas for streaming maximum)
 - Progressive results for large payloads
-- Ideal for generative AI, video processing
+- Fits generative AI, video processing
 
 **Provisioned Concurrency:**
 - Pre-initialized execution environments
@@ -48,7 +44,7 @@ AWS Lambda runs code without provisioning servers. Pay only for compute time con
 
 **Request Pricing:**
 - Free tier: 1M requests/month (perpetual)
-- $0.20 per 1M requests thereafter
+- $0.20 per 1M requests after
 
 **Compute Pricing (us-east-1):**
 - $0.0000166667 per GB-second
@@ -83,7 +79,7 @@ Total: $9.13/month
 
 1. **Optimize Memory Allocation:**
    - CPU scales with memory (1,769MB = 1 vCPU)
-   - Test different memory sizes (more memory = faster execution = lower cost)
+   - Test several memory sizes (more memory = faster execution = lower cost)
    - Use AWS Lambda Power Tuning tool
 
 2. **Reduce Cold Starts:**
@@ -95,21 +91,17 @@ Total: $9.13/month
 3. **Environment Variables:**
    - Use for configuration (no code changes)
    - Encrypt sensitive values with KMS
-   - Consider Parameter Store or Secrets Manager for secrets
+   - Secrets: consider Parameter Store or Secrets Manager
 
 4. **Observability:**
    - Enable X-Ray tracing
    - Use structured logging (JSON)
-   - Create CloudWatch dashboards
-   - Set up alarms for errors and throttling
+   - Build CloudWatch dashboards
+   - Alarm on errors and throttling
 
 ---
 
 ## Fargate (Serverless Containers)
-
-### Overview
-
-AWS Fargate runs containers without managing servers. Pay for vCPU and memory used. Works with ECS and EKS.
 
 ### Key Specifications
 
@@ -119,7 +111,7 @@ AWS Fargate runs containers without managing servers. Pay for vCPU and memory us
 
 **Memory Options:**
 - 0.5GB to 120GB
-- Scales with CPU selection
+- Scales with CPU choice
 
 **Platform Versions:**
 - **1.4.0:** Current default, supports EFS, container insights
@@ -142,8 +134,8 @@ AWS Fargate runs containers without managing servers. Pay for vCPU and memory us
 
 **Fargate Spot:**
 - 70% discount vs. on-demand Fargate
-- Can be interrupted with 2-minute notice
-- Ideal for fault-tolerant batch jobs
+- Interruptible with 2-minute notice
+- Fits fault-tolerant batch jobs
 
 ### Use Cases
 
@@ -152,19 +144,19 @@ AWS Fargate runs containers without managing servers. Pay for vCPU and memory us
 - Batch processing (with Fargate Spot)
 - CI/CD build agents
 - Variable traffic applications
-- Multi-hour running tasks
+- Multi-hour tasks
 
 **Avoid:**
 - Extremely cost-sensitive at high scale (EC2 cheaper)
 - GPU workloads (use EC2)
-- Stateful apps requiring persistent local storage
+- Stateful apps needing persistent local storage
 - High-performance computing
 
 ### Best Practices
 
 1. **Task Sizing:**
    - Start small, monitor CloudWatch Container Insights
-   - Scale up based on actual utilization
+   - Scale up on actual utilization
    - Use Application Auto Scaling
 
 2. **Networking:**
@@ -173,17 +165,13 @@ AWS Fargate runs containers without managing servers. Pay for vCPU and memory us
    - Use Security Groups for network isolation
 
 3. **Storage:**
-   - Ephemeral storage: 20GB default (can increase to 200GB)
+   - Ephemeral storage: 20GB default (up to 200GB)
    - Persistent storage: Mount EFS volumes
    - Logs: Send to CloudWatch Logs
 
 ---
 
 ## ECS (Elastic Container Service)
-
-### Overview
-
-AWS-native container orchestration. Simpler than Kubernetes. Tight integration with AWS services.
 
 ### Launch Types
 
@@ -197,7 +185,7 @@ AWS-native container orchestration. Simpler than Kubernetes. Tight integration w
 - More control
 
 **External:**
-- Run on on-premises servers
+- On-premises servers
 - ECS Anywhere
 
 ### Key Features (2025)
@@ -208,7 +196,7 @@ AWS-native container orchestration. Simpler than Kubernetes. Tight integration w
 - Load balancing and circuit breaking
 
 **ECS Exec:**
-- Interactive shell access to containers
+- Interactive container shell access
 - Debugging without SSH
 
 **Capacity Providers:**
@@ -218,12 +206,7 @@ AWS-native container orchestration. Simpler than Kubernetes. Tight integration w
 ### Cost Model
 
 **No ECS Control Plane Fees:**
-- Only pay for underlying compute (Fargate or EC2)
-
-**Example (10 services, t3.medium EC2):**
-- EC2: 10 × $30/month = $300
-- ECS: $0
-- **Total: $300/month**
+- Pay only for underlying compute (Fargate or EC2)
 
 ### Use Cases
 
@@ -236,15 +219,11 @@ AWS-native container orchestration. Simpler than Kubernetes. Tight integration w
 **Avoid:**
 - Multi-cloud portability needed (use EKS)
 - Team has Kubernetes expertise
-- Need Kubernetes ecosystem (Helm, Operators)
+- Kubernetes ecosystem needed (Helm, Operators)
 
 ---
 
 ## EKS (Elastic Kubernetes Service)
-
-### Overview
-
-Managed Kubernetes control plane. Full Kubernetes compatibility. Multi-cloud/hybrid portability.
 
 ### Key Specifications
 
@@ -254,7 +233,7 @@ Managed Kubernetes control plane. Full Kubernetes compatibility. Multi-cloud/hyb
 - Integrated with AWS IAM
 
 **Supported Versions:**
-- Several recent Kubernetes minor versions under standard support (check the EKS version calendar; older versions incur extended-support fees)
+- Several recent Kubernetes minor versions in standard support (check EKS version calendar; older versions incur extended-support fees)
 - Automatic minor version upgrades available
 
 ### Key Features (2025)
@@ -270,7 +249,7 @@ Managed Kubernetes control plane. Full Kubernetes compatibility. Multi-cloud/hyb
 - Easier setup and debugging
 
 **EKS Hybrid Nodes:**
-- Run Kubernetes nodes on-premises
+- Kubernetes nodes on-premises
 - Consistent management plane
 
 ### Cost Model
@@ -313,17 +292,13 @@ Managed Kubernetes control plane. Full Kubernetes compatibility. Multi-cloud/hyb
    - Use Network Policies for isolation
 
 3. **Storage:**
-   - Use EBS CSI Driver for persistent volumes
-   - Use EFS CSI Driver for shared storage
-   - Implement StorageClasses for automation
+   - EBS CSI Driver for persistent volumes
+   - EFS CSI Driver for shared storage
+   - StorageClasses for automation
 
 ---
 
 ## EC2 (Virtual Machines)
-
-### Overview
-
-Virtual servers in the cloud. Full OS control. Widest instance type selection.
 
 ### Instance Families
 
@@ -351,7 +326,7 @@ Virtual servers in the cloud. Full OS control. Widest instance type selection.
 ### Pricing Models
 
 **On-Demand:**
-- Pay by the second
+- Per-second billing
 - No commitment
 - Highest cost
 
@@ -368,7 +343,7 @@ Virtual servers in the cloud. Full OS control. Widest instance type selection.
 **Spot Instances:**
 - Bid on spare capacity
 - 60-90% savings
-- Can be interrupted with 2-minute notice
+- Interruptible with 2-minute notice
 
 ### Cost Examples (us-east-1, On-Demand)
 
@@ -392,7 +367,7 @@ Virtual servers in the cloud. Full OS control. Widest instance type selection.
 **Avoid:**
 - Variable traffic (use Lambda/Fargate)
 - Minimal ops desired
-- Serverless patterns applicable
+- Serverless patterns fit
 
 ---
 
@@ -425,8 +400,8 @@ EC2 → ECS on EC2 → ECS on Fargate → Serverless (Lambda)
 - Benefit: Better resource utilization
 
 **Step 2: ECS on EC2 → ECS on Fargate**
-- Migrate task definitions to Fargate
-- Remove EC2 instance management
+- Move task definitions to Fargate
+- Drop EC2 instance management
 - Benefit: No server operations
 
 **Step 3: ECS on Fargate → Lambda (if applicable)**
@@ -443,8 +418,8 @@ Single EC2 → Multiple ECS Services → Lambda Functions
 **Strategy:**
 - Identify bounded contexts
 - Extract services incrementally
-- Use API Gateway or ALB for routing
-- Implement service mesh (ECS Service Connect)
+- Route with API Gateway or ALB
+- Add service mesh (ECS Service Connect)
 
 ### On-Premises to AWS
 

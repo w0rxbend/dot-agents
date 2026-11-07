@@ -1,7 +1,5 @@
 # MySQL Implementation Guide
 
-MySQL-specific patterns, PlanetScale integration, and best practices for production deployments.
-
 
 ## Table of Contents
 
@@ -13,7 +11,6 @@ MySQL-specific patterns, PlanetScale integration, and best practices for product
   - [Go (database/sql)](#go-databasesql)
 - [Schema Design Differences](#schema-design-differences)
   - [JSON Support](#json-support)
-  - [Auto-Increment Primary Keys](#auto-increment-primary-keys)
   - [UUID Primary Keys](#uuid-primary-keys)
 - [PlanetScale Integration](#planetscale-integration)
   - [Non-Blocking Schema Changes](#non-blocking-schema-changes)
@@ -38,18 +35,18 @@ MySQL-specific patterns, PlanetScale integration, and best practices for product
 
 ## When to Choose MySQL
 
-- **Legacy system compatibility** - Existing MySQL infrastructure
-- **PlanetScale serverless** - Non-blocking schema changes, branch-based workflows
-- **WordPress/PHP ecosystems** - Native integration
-- **Read replicas** - Built-in replication
+- **Legacy system compatibility** - existing MySQL infrastructure
+- **PlanetScale serverless** - non-blocking schema changes, branch-based workflows
+- **WordPress/PHP ecosystems** - native integration
+- **Read replicas** - built-in replication
 
 **When PostgreSQL is better:** JSON operations, advanced indexing (GiST, GIN), extensions (PostGIS, pgvector)
 
 ## Installation
 
 ```bash
-# Docker
-docker run --name mysql -e MYSQL_ROOT_PASSWORD=password -p 3306:3306 -d mysql:8.2
+# Docker (loopback only; export a generated MYSQL_ROOT_PASSWORD first, e.g. openssl rand -base64 24; bare -e keeps it out of argv)
+docker run --name mysql -e MYSQL_ROOT_PASSWORD -p 127.0.0.1:3306:3306 -d mysql:8.2
 
 # Ubuntu/Debian
 sudo apt update
@@ -129,17 +126,6 @@ ALTER TABLE products ADD COLUMN color VARCHAR(50)
 CREATE INDEX idx_color ON products(color);
 ```
 
-### Auto-Increment Primary Keys
-
-**MySQL default (vs PostgreSQL SERIAL):**
-```sql
-CREATE TABLE users (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
 ### UUID Primary Keys
 
 ```sql
@@ -158,7 +144,7 @@ SELECT * FROM sessions WHERE id = UUID_TO_BIN('550e8400-e29b-41d4-a716-446655440
 
 ### Non-Blocking Schema Changes
 
-**PlanetScale's killer feature:** Schema changes don't lock tables.
+**PlanetScale's key feature:** schema changes don't lock tables.
 
 **Deploy request workflow:**
 ```bash
@@ -172,7 +158,7 @@ mysql> ALTER TABLE users ADD COLUMN phone VARCHAR(20);
 # 3. Create deploy request
 pscale deploy-request create mydb dev-feature
 
-# 4. Review and deploy (zero downtime)
+# 4. Review, then deploy to production (zero downtime; confirm with user first)
 pscale deploy-request deploy mydb 1
 
 # 5. Merge to main
@@ -224,8 +210,8 @@ pscale branch create mydb feature-xyz --from main
 # Connect to branch
 pscale connect mydb feature-xyz --port 3309
 
-# Run migrations on branch
-npm run prisma migrate dev
+# Run migrations on branch (Prisma telemetry off)
+CHECKPOINT_DISABLE=1 PRISMA_DISABLE_TELEMETRY=1 npx prisma migrate dev
 
 # Deploy to main via deploy request
 pscale deploy-request create mydb feature-xyz
@@ -311,7 +297,7 @@ CREATE INDEX idx_user_id_covering ON posts(user_id, id, title, created_at);
 
 ### Query Optimization
 
-**Use EXPLAIN to analyze queries:**
+**Analyze queries with EXPLAIN:**
 ```sql
 EXPLAIN SELECT * FROM users WHERE email = 'test@example.com';
 
@@ -380,14 +366,14 @@ mysqlbinlog --stop-datetime="2025-12-03 10:30:00" mysql-bin.000001 | mysql -u ro
 
 ## Migration from MySQL to PostgreSQL
 
-**Use pgLoader for automated migration:**
+**Automate migration with pgLoader:**
 ```bash
 pgloader mysql://user:pass@localhost/mydb postgresql://user:pass@localhost/mydb
 
 # Custom migration script
 pgloader mysql.load
 
-# mysql.load
+# mysql.load ("include drop" drops existing target tables; confirm target with user first)
 LOAD DATABASE
   FROM mysql://root@localhost/mydb
   INTO postgresql://user@localhost/mydb
@@ -409,27 +395,27 @@ LOAD DATABASE
 | **Pricing** | $29/month (Scaler plan) | $19/month (Launch plan) |
 
 **Choose PlanetScale if:**
-- Non-blocking schema changes are critical
+- Non-blocking schema changes critical
 - MySQL ecosystem required
 - Read replicas needed
 
 **Choose Neon if:**
-- Need PostgreSQL features (JSONB, arrays, extensions)
-- Want scale-to-zero compute
+- PostgreSQL features needed (JSONB, arrays, extensions)
+- Scale-to-zero compute wanted
 - Database branching for preview environments
 
 ## Best Practices
 
 1. **Use utf8mb4** (not utf8) for full Unicode support
-2. **Enable strict SQL mode** - Prevents silent data truncation
+2. **Enable strict SQL mode** - prevents silent data truncation
 3. **Use InnoDB engine** (default in MySQL 8.0+)
 4. **Index foreign keys** manually (especially with PlanetScale)
 5. **Use prepared statements** to prevent SQL injection
 6. **Monitor slow query log** regularly
-7. **Set appropriate connection pool sizes** (10-20 for web APIs)
-8. **Use `SELECT * FROM` sparingly** (specify columns)
+7. **Size connection pools to fit** (10-20 for web APIs)
+8. **Use `SELECT * FROM` sparingly** (name columns)
 9. **Avoid `OR` in WHERE clauses** (use `UNION` instead)
-10. **Backup before schema changes** (even with PlanetScale)
+10. **Back up before schema changes** (even with PlanetScale)
 
 ## Common Pitfalls
 

@@ -1,10 +1,8 @@
 # Notion Block Types
 
-Reference for creating and reading all common Notion block types via the API.
-
 ## Creating blocks
 
-Use `PATCH /v1/blocks/{page_id}/children` with a `children` array. Each block follows this structure:
+Use `PATCH /v1/blocks/{page_id}/children` with `children` array. Each block has this structure:
 
 ```json
 {"object": "block", "type": "<type>", "<type>": { ... }}
@@ -86,7 +84,7 @@ Use `PATCH /v1/blocks/{page_id}/children` with a `children` array. Each block fo
 
 ## Reading blocks
 
-When reading blocks from `GET /v1/blocks/{page_id}/children`, each block has a `type` field. Extract readable text like this:
+Each block from `GET /v1/blocks/{page_id}/children` has a `type` field. Extract readable text from:
 
 | Type | Text location | Extra fields |
 |------|--------------|--------------|
@@ -105,7 +103,7 @@ When reading blocks from `GET /v1/blocks/{page_id}/children`, each block has a `
 | `child_page` | — | `.child_page.title` |
 | `child_database` | — | `.child_database.title` |
 
-Rich text arrays contain objects with `.plain_text` — concatenate them for readable output.
+Rich text arrays hold objects with `.plain_text`. Concatenate them for readable output.
 
 ---
 

@@ -1,15 +1,15 @@
 # Option Quick Reference (fp-ts 2.x)
 
-`Option<A>` is `Some<A>` or `None`. Use it when absence is a normal outcome and you want to compose several steps over it. `chain` is a legacy alias of `flatMap` (fp-ts 2.14+).
+`Option<A>` is `Some<A>` or `None`. `chain` is legacy alias of `flatMap` (fp-ts 2.14+).
 
 ## When Option is worth it
 
 | Situation | Use |
 |---|---|
-| One property path with a default | `user?.profile?.name ?? 'Guest'` - optional chaining is clearer |
-| Several lookups that each may miss, then a transformation | `Option` pipeline |
+| One property path with default | `user?.profile?.name ?? 'Guest'` - optional chaining clearer |
+| Several lookups that may each miss, then transformation | `Option` pipeline |
 | Function result where "not found" is expected | Return `Option<A>` instead of `A \| undefined` |
-| Caller needs to know why it is missing | `Either` (fp-errors skill, `references/either-cheatsheet.md`) |
+| Caller needs to know why missing | `Either` (fp-errors skill, `references/either-cheatsheet.md`) |
 
 ## Create
 
@@ -62,4 +62,4 @@ const fullName = pipe(
 )
 ```
 
-More context: [the fp-data-transforms skill](../SKILL.md) (null-safe access example) and fp-refactor (null checks to Option).
+More: [the fp-data-transforms skill](../SKILL.md) (null-safe access example) and fp-refactor (null checks to Option).

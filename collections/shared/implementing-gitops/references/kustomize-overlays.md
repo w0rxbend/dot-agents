@@ -1,7 +1,5 @@
 # Kustomize Overlay Patterns
 
-Template-free Kubernetes configuration management using Kustomize base and overlay pattern.
-
 ## Table of Contents
 
 1. [Basic Concepts](#basic-concepts)
@@ -14,10 +12,10 @@ Template-free Kubernetes configuration management using Kustomize base and overl
 
 ### Kustomize Principles
 
-- **Declarative:** Pure YAML, no templating
-- **Composable:** Base + overlays for environments
-- **Patchable:** Strategic merge and JSON patches
-- **Reusable:** Components for cross-cutting concerns
+- **Declarative:** pure YAML, no templating
+- **Composable:** base + overlays per environment
+- **Patchable:** strategic merge and JSON patches
+- **Reusable:** components for cross-cutting concerns
 
 ### Directory Structure
 
@@ -268,6 +266,8 @@ secretGenerator:
   - secrets/api-key
 ```
 
+A GitOps controller builds from Git, so `secretGenerator` inputs (here and in [Generators](#generators)) would have to be committed. Never commit them in plaintext: gitignore them and use SOPS-encrypted files (Flux decrypts), Sealed Secrets or External Secrets for anything the operator reconciles.
+
 ### overlays/prod/patches/production-resources.yaml
 
 ```yaml
@@ -404,7 +404,7 @@ configMapGenerator:
   files:
   - configs/app.properties
 
-secretGenerator:
+secretGenerator:   # inputs never plaintext in Git: gitignore or SOPS-encrypt
 - name: app-secrets
   envs:
   - secrets/.env.prod
@@ -560,29 +560,27 @@ kubectl delete -k overlays/dev
 
 ### Base Configuration
 
-- Keep base minimal and generic
-- Use sensible defaults
+- Minimal, generic base
 - Avoid environment-specific values
 - Document customization points
 
 ### Overlays
 
 - One overlay per environment
-- Use meaningful names (dev, staging, prod)
-- Keep patches focused and small
+- Meaningful names (dev, staging, prod)
+- Small, focused patches
 - Document overlay purpose
 
 ### Patches
 
 - Prefer strategic merge over JSON 6902
-- Keep patches maintainable
 - Group related changes
-- Use patch files for complex changes
+- Patch files for complex changes
 
 ### Components
 
-- Create components for cross-cutting concerns
-- Make components optional
+- Components for cross-cutting concerns
+- Keep components optional
 - Document component dependencies
 - Test components in isolation
 
@@ -591,11 +589,10 @@ kubectl delete -k overlays/dev
 - Base at repository root or k8s/base
 - Overlays in k8s/overlays/
 - Components in k8s/components/
-- Use consistent naming conventions
 
 ### GitOps Integration
 
-Both ArgoCD and Flux support Kustomize natively:
+ArgoCD and Flux support Kustomize natively:
 
 **ArgoCD:**
 ```yaml

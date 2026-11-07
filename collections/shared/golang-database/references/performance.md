@@ -42,7 +42,7 @@ db.SetConnMaxIdleTime(1 * time.Minute)  // release idle connections back to the 
 
 ### Monitoring
 
-Check pool stats in production to detect exhaustion:
+Watch production pool stats for exhaustion:
 
 ```go
 stats := db.Stats()
@@ -55,11 +55,11 @@ slog.Info("db pool",
 )
 ```
 
-If `WaitCount` keeps climbing, increase `MaxOpenConns` or optimize slow queries.
+If `WaitCount` keeps climbing, raise `MaxOpenConns` or optimize slow queries.
 
 ### Prometheus Metrics
 
-Use a custom Prometheus collector to export pool metrics on-demand (scales to multiple pools automatically):
+Export pool metrics on demand with custom Prometheus collector (scales to multiple pools automatically):
 
 ```go
 type DBCollector struct {
@@ -108,17 +108,10 @@ func init() {
 }
 ```
 
-**Collector advantages:**
-
-- Metrics are collected on-demand during scrapes (no background goroutine)
-- Always returns current state (no stale data between scrapes)
-- Scales to multiple pools automatically
-- Lower memory footprint (no metric state in memory)
-
 **Alert thresholds:**
 
 - Open connections approaching `MaxOpenConns` → risk of request queuing
-- Wait count climbing steadily → pool is exhausted, increase `MaxOpenConns`
+- Wait count climbing steadily → pool exhausted, increase `MaxOpenConns`
 - Idle connections too high → reduce `MaxIdleConns` or lower `ConnMaxIdleTime`
 
 ## Batch Processing
@@ -126,11 +119,11 @@ func init() {
 Avoid two extremes:
 
 - **Row-by-row** — N round trips for N rows, extremely slow
-- **One giant batch** — locks tables, consumes memory, can timeout and block other queries
+- **One giant batch** — locks tables, eats memory, can timeout and block other queries
 
 ### Sweet spot: 100–1,000 rows per batch
 
-Adjust based on row size and database load. Larger rows → smaller batches.
+Adjust to row size and database load. Larger rows → smaller batches.
 
 ### Batch INSERT with sqlx
 
@@ -152,7 +145,7 @@ func insertUsersBatch(ctx context.Context, db *sqlx.DB, users []User) error {
 
 ### Bulk INSERT with pgx (PostgreSQL COPY protocol)
 
-For maximum throughput on PostgreSQL, use `pgx.CopyFrom` which uses the binary COPY protocol — significantly faster than multi-row INSERT:
+Max PostgreSQL throughput: `pgx.CopyFrom` uses binary COPY protocol — much faster than multi-row INSERT:
 
 ```go
 rows := make([][]any, len(users))
@@ -168,7 +161,7 @@ _, err := pool.CopyFrom(ctx,
 
 ### Cursor-based pagination (avoid OFFSET)
 
-For reading large datasets, use cursor-based pagination instead of `OFFSET`. OFFSET re-scans skipped rows, getting slower as you paginate deeper:
+Large datasets: use cursor-based pagination instead of `OFFSET`. OFFSET re-scans skipped rows; deeper pages get slower:
 
 ```go
 // ✗ Bad — OFFSET re-scans rows, O(offset + limit)
@@ -180,11 +173,11 @@ SELECT * FROM events WHERE created_at > $1 ORDER BY created_at LIMIT 100
 
 ## Indexing Strategy
 
-**Never create or drop indexes yourself.** Index changes affect production query performance and write throughput. Always suggest to the developer and let them decide.
+**Never create or drop indexes yourself.** Index changes affect production query performance and write throughput. Always suggest; developer decides.
 
 ### Use SQL MCP to check existing indexes
 
-When a SQL MCP tool is available, query the database to check existing indexes before suggesting new ones:
+If SQL MCP tool available, check existing indexes before suggesting new ones:
 
 ```sql
 -- PostgreSQL: list indexes on a table
@@ -202,33 +195,31 @@ ORDER BY idx_scan;
 ### When to suggest adding indexes
 
 - Foreign key columns (PostgreSQL does NOT auto-index foreign keys)
-- Columns frequently used in `WHERE`, `JOIN`, or `ORDER BY`
-- Composite indexes for multi-column queries (leftmost column is most selective)
+- Columns frequent in `WHERE`, `JOIN`, or `ORDER BY`
+- Composite indexes for multi-column queries (leftmost column most selective)
 - Partial indexes for filtered queries (`WHERE active = true`)
 
 ### When to suggest removing indexes
 
 - Indexes with near-zero `idx_scan` count (nobody reads them)
 - Duplicate indexes (same columns in same order)
-- Indexes on write-heavy tables that slow down INSERT/UPDATE/DELETE
-- Wide composite indexes where a narrower one would suffice
+- Indexes on write-heavy tables that slow INSERT/UPDATE/DELETE
+- Wide composite indexes where narrower one would suffice
 
-Always present findings as suggestions with data (scan counts, table size), never execute DDL yourself.
+Always present findings as suggestions with data (scan counts, table size). Never execute DDL yourself.
 
 ## Query Performance Tips
 
 - **`EXPLAIN ANALYZE`** before optimizing — measure, don't guess
-- **List columns explicitly** — avoid `SELECT *`, it fetches unnecessary data and breaks struct scanning when schema changes
-- **Use `LIMIT`** for pagination, always with an `ORDER BY`
-- **Prefer `EXISTS` over `COUNT`** for existence checks — `EXISTS` stops at the first match
-- **Avoid N+1 queries** — use `JOIN` or batch `WHERE id IN (...)` instead of querying in a loop
-- **Suggest improvements, never execute them** — performance changes (indexes, query rewrites, configuration) need human review in context of production data and workload patterns
+- **List columns explicitly** — avoid `SELECT *`: fetches unneeded data, breaks struct scanning on schema change
+- **Use `LIMIT`** for pagination, always with `ORDER BY`
+- **Prefer `EXISTS` over `COUNT`** for existence checks — `EXISTS` stops at first match
+- **Suggest improvements, never execute them** — performance changes (indexes, query rewrites, configuration) need human review against production data and workload
 
 **Rules:**
 
-- Batch operations SHOULD use 100–1,000 rows per batch — adjust based on row size and database load.
-- Cursor-based pagination MUST replace `OFFSET` for large datasets — the cursor column MUST be chosen based on actual indexes (e.g., `created_at`, `user_id`).
-- NEVER create indexes blindly — check existing indexes, measure with `EXPLAIN ANALYZE`, and present findings as suggestions.
+- Cursor-based pagination MUST replace `OFFSET` for large datasets — cursor column MUST be chosen from actual indexes (e.g., `created_at`, `user_id`).
+- NEVER create indexes blindly — check existing indexes, measure with `EXPLAIN ANALYZE`, present findings as suggestions.
 - N+1 queries MUST be eliminated — use `JOIN` or batch `WHERE id IN (...)`.
 
-→ See `samber/cc-skills-golang@golang-observability` skill for database metrics and query monitoring. Query the pool metrics (`db_open_connections`, `db_in_use_connections`, `db_idle_connections`) in Prometheus or Grafana, or with `promtool query instant <prometheus-url> '<expr>'`.
+→ `samber/cc-skills-golang@golang-observability` skill: database metrics and query monitoring. Query pool metrics (`db_open_connections`, `db_in_use_connections`, `db_idle_connections`) in Prometheus or Grafana, or with `promtool query instant <prometheus-url> '<expr>'`.

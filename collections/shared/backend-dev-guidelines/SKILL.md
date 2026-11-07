@@ -7,19 +7,19 @@ description: "Implement Node.js/Express/TypeScript service routes, validation, d
 
 ## Purpose
 
-Use the Node.js/Express/TypeScript patterns that match the repository. The referenced BaseController, unifiedConfig, Prisma, Sentry, and Zod arrangements are examples from one service architecture; preserve existing FastAPI, Tapir, Go, and other backend conventions.
+Use Node.js/Express/TypeScript patterns that match repository. Referenced BaseController, unifiedConfig, Prisma, Sentry and Zod arrangements are examples from one service architecture. Preserve existing FastAPI, Tapir, Go and other backend conventions.
 
-The resource files quote code from one sample codebase (paths such as `blog-api/` and `form/`, an `SSOMiddleware` auth client). Treat those names as placeholders: map them to the equivalent service, auth middleware and config module in the current repository instead of creating them.
+Resource files quote code from one sample codebase (paths like `blog-api/` and `form/`, an `SSOMiddleware` auth client). Treat those names as placeholders. Map them to equivalent service, auth middleware and config module in current repository. Do not create them.
 
 ## When to Use This Skill
 
-Use for Node.js/Express/TypeScript services when working on:
-- Creating or modifying routes, endpoints, APIs
-- Building controllers, services, repositories
-- Implementing middleware (auth, validation, error handling)
-- Database operations with Prisma
-- Error tracking with Sentry
-- Input validation with Zod
+Use for Node.js/Express/TypeScript service work:
+- Create or modify routes, endpoints, APIs
+- Build controllers, services, repositories
+- Add middleware (auth, validation, error handling)
+- Prisma database operations
+- Sentry error tracking
+- Zod input validation
 - Configuration management
 - Backend testing and refactoring
 
@@ -29,7 +29,7 @@ Use for Node.js/Express/TypeScript services when working on:
 
 ### New Backend Feature Checklist
 
-- [ ] **Route**: Clean definition, delegate to controller
+- [ ] **Route**: Clean definition; delegate to controller
 - [ ] **Controller**: Extend BaseController
 - [ ] **Service**: Business logic with DI
 - [ ] **Repository**: Database access (if complex)
@@ -70,7 +70,7 @@ Database (Prisma)
 
 **Key Principle:** Each layer has ONE responsibility.
 
-See [architecture-overview.md](resources/architecture-overview.md) for complete details.
+Full details: [architecture-overview.md](resources/architecture-overview.md).
 
 ---
 
@@ -141,6 +141,8 @@ try {
 }
 ```
 
+Never console.log instead of Sentry.
+
 ### 4. Use unifiedConfig, NEVER process.env
 
 ```typescript
@@ -206,32 +208,11 @@ import { asyncErrorWrapper } from './middleware/errorBoundary';
 
 ## Quick Reference
 
-### HTTP Status Codes
-
-| Code | Use Case |
-|------|----------|
-| 200 | Success |
-| 201 | Created |
-| 400 | Bad Request |
-| 401 | Unauthorized |
-| 403 | Forbidden |
-| 404 | Not Found |
-| 500 | Server Error |
+HTTP status codes: see [routing-and-controllers.md](resources/routing-and-controllers.md).
 
 ### Service Templates
 
-Use the most mature existing service in the repository as the template for new routes and services. If none exists, start from [complete-examples.md](resources/complete-examples.md).
-
----
-
-## Anti-Patterns to Avoid
-
-❌ Business logic in routes
-❌ Direct process.env usage
-❌ Missing error handling
-❌ No input validation
-❌ Direct Prisma everywhere
-❌ console.log instead of Sentry
+Use most mature existing service in repository as template for new routes and services. If none exists, start from [complete-examples.md](resources/complete-examples.md).
 
 ---
 
@@ -239,54 +220,17 @@ Use the most mature existing service in the repository as the template for new r
 
 | Need to... | Read this |
 |------------|-----------|
-| Understand architecture | [architecture-overview.md](resources/architecture-overview.md) |
-| Create routes/controllers | [routing-and-controllers.md](resources/routing-and-controllers.md) |
-| Organize business logic | [services-and-repositories.md](resources/services-and-repositories.md) |
-| Validate input | [validation-patterns.md](resources/validation-patterns.md) |
-| Add error tracking | [sentry-and-monitoring.md](resources/sentry-and-monitoring.md) |
-| Create middleware | [middleware-guide.md](resources/middleware-guide.md) |
-| Database access | [database-patterns.md](resources/database-patterns.md) |
-| Manage config | [configuration.md](resources/configuration.md) |
-| Handle async/errors | [async-and-errors.md](resources/async-and-errors.md) |
-| Write tests | [testing-guide.md](resources/testing-guide.md) |
-| See examples | [complete-examples.md](resources/complete-examples.md) |
-
----
-
-## Resource Files
-
-### [architecture-overview.md](resources/architecture-overview.md)
-Layered architecture, request lifecycle, separation of concerns
-
-### [routing-and-controllers.md](resources/routing-and-controllers.md)
-Route definitions, BaseController, error handling, examples
-
-### [services-and-repositories.md](resources/services-and-repositories.md)
-Service patterns, DI, repository pattern, caching
-
-### [validation-patterns.md](resources/validation-patterns.md)
-Zod schemas, validation, DTO pattern
-
-### [sentry-and-monitoring.md](resources/sentry-and-monitoring.md)
-Sentry init, error capture, performance monitoring
-
-### [middleware-guide.md](resources/middleware-guide.md)
-Auth, audit, error boundaries, AsyncLocalStorage
-
-### [database-patterns.md](resources/database-patterns.md)
-PrismaService, repositories, transactions, optimization
-
-### [configuration.md](resources/configuration.md)
-UnifiedConfig, environment configs, secrets
-
-### [async-and-errors.md](resources/async-and-errors.md)
-Async patterns, custom errors, asyncErrorWrapper
-
-### [testing-guide.md](resources/testing-guide.md)
-Unit/integration tests, mocking, coverage
-
-### [complete-examples.md](resources/complete-examples.md)
-Full examples, refactoring guide
+| Understand architecture (layers, request lifecycle, separation of concerns) | [architecture-overview.md](resources/architecture-overview.md) |
+| Create routes/controllers (BaseController, error handling, examples) | [routing-and-controllers.md](resources/routing-and-controllers.md) |
+| Organize business logic (service patterns, DI, repository pattern, caching) | [services-and-repositories.md](resources/services-and-repositories.md) |
+| Validate input (Zod schemas, DTO pattern) | [validation-patterns.md](resources/validation-patterns.md) |
+| Add error tracking (Sentry init, error capture, performance monitoring) | [sentry-and-monitoring.md](resources/sentry-and-monitoring.md) |
+| Create middleware (auth, audit, error boundaries, AsyncLocalStorage) | [middleware-guide.md](resources/middleware-guide.md) |
+| Database access (PrismaService, repositories, transactions, optimization) | [database-patterns.md](resources/database-patterns.md) |
+| Manage config (UnifiedConfig, environment configs, secrets) | [configuration.md](resources/configuration.md) |
+| Handle async/errors (custom errors, asyncErrorWrapper) | [async-and-errors.md](resources/async-and-errors.md) |
+| Write tests (unit/integration, mocking, coverage) | [testing-guide.md](resources/testing-guide.md) |
+| See examples (full examples, refactoring guide) | [complete-examples.md](resources/complete-examples.md) |
 
 ---
 
@@ -295,9 +239,3 @@ Full examples, refactoring guide
 - **backend-patterns** - Framework-neutral backend patterns (caching, queues, rate limiting)
 - **observability-and-instrumentation** - Logging, metrics, tracing and error tracking
 - **using-relational-databases** - Schema, migrations and ORM usage beyond Prisma basics
-
----
-
-**Skill Status**: COMPLETE ✅
-**Line Count**: < 500 ✅
-**Progressive Disclosure**: 11 resource files ✅

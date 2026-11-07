@@ -1,6 +1,5 @@
 # Qdrant: Production-Ready Vector Database
 
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -18,7 +17,6 @@
   - [Basic Usage](#basic-usage)
 - [Collections and Indexing](#collections-and-indexing)
   - [Creating Collections](#creating-collections)
-  - [Multiple Vector Types (Named Vectors)](#multiple-vector-types-named-vectors)
   - [Index Configuration (HNSW)](#index-configuration-hnsw)
 - [Metadata Filtering](#metadata-filtering)
   - [Filter Syntax](#filter-syntax)
@@ -41,8 +39,6 @@
 - [TypeScript Client Example](#typescript-client-example)
 - [Common Patterns](#common-patterns)
   - [Multi-Tenant RAG System](#multi-tenant-rag-system)
-  - [Versioned Documentation](#versioned-documentation)
-  - [Code Search](#code-search)
 - [Troubleshooting](#troubleshooting)
   - [Connection Issues](#connection-issues)
   - [Out of Memory](#out-of-memory)
@@ -52,42 +48,41 @@
 
 ## Overview
 
-Qdrant is an open-source vector database optimized for complex metadata filtering and hybrid search. It is the **primary recommendation** for RAG systems requiring production-grade filtering.
+Qdrant: open-source vector database built for complex metadata filtering and hybrid search. **Primary recommendation** for RAG systems needing production-grade filtering.
 
 **Context7 Documentation:** `/llmstxt/qdrant_tech_llms-full_txt` (10,154 snippets, 83.1 score)
 
 ## Why Qdrant?
 
 ### Strengths
-- **Best-in-class metadata filtering** - Critical for RAG systems with complex requirements
-- **Built-in hybrid search** - Combines vector similarity + BM25 keyword matching
-- **Multi-language SDKs** - Official Python, Rust, Go, TypeScript, Java support
+- **Best-in-class metadata filtering** - Key for RAG systems with complex requirements
+- **Built-in hybrid search** - Vector similarity plus BM25 keyword matching
+- **Multi-language SDKs** - Official Python, Rust, Go, TypeScript, Java
 - **Flexible deployment** - Self-hosted (Docker, Kubernetes) or managed (Qdrant Cloud)
-- **Production-proven** - Used by Anthropic, Hugging Face, and major AI companies
-- **Excellent documentation** - Comprehensive guides and 10K+ code examples
 
 ### When to Choose Qdrant
-- Complex metadata filtering requirements (multi-tenant, versioned docs, permissions)
+- Complex metadata filtering (multi-tenant, versioned docs, permissions)
 - Need hybrid search (semantic + keyword) out of the box
 - Want deployment flexibility (self-host or managed)
-- Require <100M vectors with exceptional filtering performance
-- Building production RAG systems
+- <100M vectors needing top filtering performance
+- Production RAG systems
 
 ### When to Consider Alternatives
-- **Pinecone:** Zero-ops managed-only requirement, no self-hosting needed
-- **Milvus:** >100M vectors requiring GPU acceleration
-- **pgvector:** Already using PostgreSQL, <10M vectors, tight budget
+- **Pinecone:** Zero-ops, managed-only; no self-hosting needed
+- **Milvus:** >100M vectors needing GPU acceleration
+- **pgvector:** Already on PostgreSQL, <10M vectors, tight budget
 
 ## Installation and Setup
 
 ### Docker (Development)
 
 ```bash
-# Pull and run Qdrant
-docker pull qdrant/qdrant
-docker run -p 6333:6333 -p 6334:6334 \
+# Pull and run Qdrant (pinned; localhost only: no auth by default; telemetry off)
+docker pull qdrant/qdrant:v1.19.2
+docker run -p 127.0.0.1:6333:6333 -p 127.0.0.1:6334:6334 \
+    -e QDRANT__TELEMETRY_DISABLED=true \
     -v $(pwd)/qdrant_storage:/qdrant/storage:z \
-    qdrant/qdrant
+    qdrant/qdrant:v1.19.2
 ```
 
 ### Docker Compose (Recommended)
@@ -98,14 +93,15 @@ version: '3.8'
 
 services:
   qdrant:
-    image: qdrant/qdrant:latest
-    ports:
-      - "6333:6333"  # REST API
-      - "6334:6334"  # gRPC API
+    image: qdrant/qdrant:v1.19.2  # pin a reviewed version, never :latest
+    ports:  # localhost only until auth is on
+      - "127.0.0.1:6333:6333"  # REST API
+      - "127.0.0.1:6334:6334"  # gRPC API
     volumes:
       - ./qdrant_storage:/qdrant/storage:z
     environment:
       - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__TELEMETRY_DISABLED=true  # opt out of usage telemetry
     restart: unless-stopped
 ```
 
@@ -133,10 +129,18 @@ spec:
     spec:
       containers:
       - name: qdrant
-        image: qdrant/qdrant:latest
+        image: qdrant/qdrant:v1.19.2
         ports:
         - containerPort: 6333
         - containerPort: 6334
+        env:
+        - name: QDRANT__TELEMETRY_DISABLED
+          value: "true"
+        - name: QDRANT__SERVICE__API_KEY  # require auth
+          valueFrom:
+            secretKeyRef:
+              name: qdrant-api-key
+              key: api-key
         volumeMounts:
         - name: storage
           mountPath: /qdrant/storage
@@ -155,10 +159,10 @@ spec:
 
 ### Qdrant Cloud (Managed)
 
-1. Visit https://cloud.qdrant.io
+1. Go to https://cloud.qdrant.io
 2. Create cluster (free tier available)
 3. Copy cluster URL and API key
-4. Connect with client:
+4. Connect client:
 
 ```python
 from qdrant_client import QdrantClient
@@ -243,21 +247,6 @@ client.create_collection(
 )
 ```
 
-### Multiple Vector Types (Named Vectors)
-
-```python
-from qdrant_client.models import VectorParams, Distance
-
-# Support both dense and sparse vectors
-client.create_collection(
-    collection_name="hybrid_docs",
-    vectors_config={
-        "dense": VectorParams(size=1024, distance=Distance.COSINE),
-        "sparse": VectorParams(size=30000, distance=Distance.COSINE)  # BM25
-    }
-)
-```
-
 ### Index Configuration (HNSW)
 
 ```python
@@ -275,8 +264,8 @@ client.create_collection(
 ```
 
 **HNSW Parameters:**
-- **m:** Higher = better quality, more memory (default: 16, range: 4-64)
-- **ef_construct:** Higher = better index quality, slower indexing (default: 100)
+- **m:** Higher means better quality, more memory (default: 16, range: 4-64)
+- **ef_construct:** Higher means better index quality, slower indexing (default: 100)
 - **full_scan_threshold:** Flat search below this threshold (default: 10000)
 
 ## Metadata Filtering
@@ -673,8 +662,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-**Context7 ID:** `/websites/rs_qdrant-client_qdrant_client` (1,549 snippets)
-
 ## TypeScript Client Example
 
 ```typescript
@@ -729,41 +716,6 @@ results = client.query_points(
 ).points
 ```
 
-### Versioned Documentation
-
-```python
-# Filter by product version
-results = client.query_points(
-    collection_name="documents",
-    query=embedding,
-    query_filter=Filter(
-        must=[
-            FieldCondition(key="product_version", match=MatchValue(value="v2.0"))
-        ]
-    ),
-    limit=5
-).points
-```
-
-### Code Search
-
-```python
-# Filter by programming language
-results = client.query_points(
-    collection_name="code",
-    query=embedding,
-    query_filter=Filter(
-        must=[
-            FieldCondition(
-                key="language",
-                match=MatchAny(any=["python", "rust"])
-            )
-        ]
-    ),
-    limit=5
-).points
-```
-
 ## Troubleshooting
 
 ### Connection Issues
@@ -782,14 +734,14 @@ except Exception as e:
 ### Out of Memory
 - Enable quantization (INT8)
 - Reduce vector dimensions (maturity shortening)
-- Increase Docker memory limit
+- Raise Docker memory limit
 - Use disk-based storage (not in-memory)
 
 ### Slow Searches
-- Reduce `ef` parameter (default: 100)
+- Lower `ef` parameter (default: 100)
 - Create payload indexes on filtered fields
-- Use pre-filtering (metadata first, then vector search)
-- Consider quantization
+- Pre-filter (metadata first, then vector search)
+- Try quantization
 
 ## Production Checklist
 
@@ -802,7 +754,7 @@ except Exception as e:
 - [ ] Test failover and recovery
 - [ ] Document collection schemas
 - [ ] Set up alerting (disk space, memory)
-- [ ] Implement rate limiting
+- [ ] Add rate limiting
 
 ## Additional Resources
 

@@ -1,7 +1,5 @@
 # Common Patterns
 
-Frequently used patterns for forms, authentication, DataGrid, dialogs, and other common UI elements.
-
 ---
 
 ## Authentication with useAuth
@@ -30,7 +28,7 @@ export const MyComponent: React.FC = () => {
 };
 ```
 
-**NEVER make direct API calls for auth** - always use `useAuth` hook.
+**NEVER make direct API calls for auth.** Always use `useAuth` hook.
 
 ---
 
@@ -114,7 +112,7 @@ export const MyForm: React.FC = () => {
 
 ### Standard Dialog Structure
 
-From BEST_PRACTICES.md - All dialogs should have:
+Per BEST_PRACTICES.md, every dialog needs:
 - Icon in title
 - Close button (X)
 - Action buttons at bottom
@@ -165,11 +163,11 @@ export const MyDialog: React.FC<MyDialogProps> = ({ open, onClose, onConfirm }) 
 
 ### Wrapper Component Contract
 
-From BEST_PRACTICES.md - DataGrid wrappers should accept:
+Per BEST_PRACTICES.md, DataGrid wrappers accept:
 
 **Required Props:**
-- `rows`: Data array
-- `columns`: Column definitions
+- `rows`: data array
+- `columns`: column definitions
 - Loading/error states
 
 **Optional Props:**
@@ -263,8 +261,6 @@ const handleSave = () => {
 Use TanStack Query for **all server data**:
 - Fetching: useSuspenseQuery
 - Mutations: useMutation
-- Caching: Automatic
-- Synchronization: Built-in
 
 ```typescript
 // ✅ CORRECT - TanStack Query for server data
@@ -309,23 +305,11 @@ export const useAppState = create<AppState>((set) => ({
 }));
 ```
 
-**Avoid prop drilling** - use context or Zustand instead.
+**Avoid prop drilling.** Use context or Zustand.
 
 ---
 
-## Summary
-
-**Common Patterns:**
-- ✅ useAuth hook for current user (id, email, roles, username)
-- ✅ React Hook Form + Zod for forms
-- ✅ Dialog with icon + close button
-- ✅ DataGrid wrapper contracts
-- ✅ Mutations with cache invalidation
-- ✅ TanStack Query for server state
-- ✅ useState for UI state
-- ✅ Zustand for global client state (minimal)
-
 **See Also:**
 - [data-fetching.md](data-fetching.md) - TanStack Query patterns
-- [component-patterns.md](component-patterns.md) - Component structure
-- [loading-and-error-states.md](loading-and-error-states.md) - Error handling
+- [component-patterns.md](component-patterns.md) - component structure
+- [loading-and-error-states.md](loading-and-error-states.md) - error handling

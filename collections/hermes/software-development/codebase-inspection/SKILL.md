@@ -15,12 +15,10 @@ prerequisites:
 
 # Codebase Inspection with pygount
 
-Analyze repositories for lines of code, language breakdown, file counts, and code-vs-comment ratios using `pygount`.
-
 ## When to Use
 
 - User asks for LOC (lines of code) count
-- User wants a language breakdown of a repo
+- User wants language breakdown of repo
 - User asks about codebase size or composition
 - User wants code-vs-comment ratios
 - General "how big is this repo" questions
@@ -35,8 +33,6 @@ pipx install pygount   # or: uv tool install pygount
 
 ## 1. Basic Summary (Most Common)
 
-Get a full language breakdown with file counts, code lines, and comment lines:
-
 ```bash
 cd /path/to/repo
 pygount --format=summary \
@@ -44,11 +40,11 @@ pygount --format=summary \
   .
 ```
 
-**IMPORTANT:** Always use `--folders-to-skip` to exclude dependency/build directories, otherwise pygount will crawl them and take a very long time or hang.
+**IMPORTANT:** Always use `--folders-to-skip` to exclude dependency and build directories (at minimum .git, node_modules, venv). Otherwise pygount crawls them and may take minutes or hang on large dependency trees.
 
 ## 2. Common Folder Exclusions
 
-Adjust based on the project type:
+Adjust per project type:
 
 ```bash
 # Python projects
@@ -96,11 +92,11 @@ pygount --format=summary . 2>/dev/null
 
 ## 6. Interpreting Results
 
-The summary table columns:
+Summary table columns:
 - **Language** — detected programming language
-- **Files** — number of files of that language
-- **Code** — lines of actual code (executable/declarative)
-- **Comment** — lines that are comments or documentation
+- **Files** — file count for that language
+- **Code** — lines of code (executable/declarative)
+- **Comment** — comment or documentation lines
 - **%** — percentage of total
 
 Special pseudo-languages:
@@ -112,7 +108,6 @@ Special pseudo-languages:
 
 ## Pitfalls
 
-1. **Always exclude .git, node_modules, venv** — without `--folders-to-skip`, pygount will crawl everything and may take minutes or hang on large dependency trees.
-2. **Markdown shows 0 code lines** — pygount classifies all Markdown content as comments, not code. This is expected behavior.
-3. **JSON files show low code counts** — pygount may count JSON lines conservatively. For accurate JSON line counts, use `wc -l` directly.
-4. **Large monorepos** — for very large repos, consider using `--suffix` to target specific languages rather than scanning everything.
+1. **Markdown shows 0 code lines** — pygount classifies all Markdown content as comments, not code. Expected behavior.
+2. **JSON files show low code counts** — pygount may count JSON lines conservatively. For accurate JSON line counts, use `wc -l` directly.
+3. **Large monorepos** — for very large repos, consider `--suffix` to target specific languages instead of scanning everything.

@@ -7,13 +7,12 @@ allowed-tools: []
 
 # Apply Scala functional patterns
 
-Use the project's chosen abstractions for pure transformations, effect boundaries, errors, and concurrency. Direct-style Ox/Tapir, ZIO, Cats Effect, and plain Scala are distinct established choices; do not migrate between them merely to apply a functional pattern. Inspect the Scala/library versions and use their supported syntax.
+Use project's chosen abstractions for pure transformations, effect boundaries, errors, concurrency. Direct-style Ox/Tapir, ZIO, Cats Effect and plain Scala are distinct established choices. Do not migrate between them merely to apply a pattern. Check Scala/library versions; use their supported syntax.
 
-For a new Scala/JVM build in this environment, prefer Mill and its module-focused skills; preserve an existing build unless migration is requested.
+New Scala/JVM build here: prefer Mill and its module-focused skills. Keep existing build unless migration is requested.
 
-Read only the relevant section of [references/language-patterns.md](references/language-patterns.md) for examples and detailed procedures:
+Read only relevant section of [references/language-patterns.md](references/language-patterns.md) for examples and procedures:
 
-- Introduction
 - Immutability and Pure Functions
 - Higher-Order Functions
 - Pattern Matching
@@ -27,4 +26,4 @@ Read only the relevant section of [references/language-patterns.md](references/l
 - Scala Version and Effect-System Notes
 - Resources
 
-Verify the affected behavior with the project's compiler, tests, or runtime checks. A syntax illustration does not override the version or abstractions already chosen by the repository.
+Verify affected behavior with project's compiler, tests or runtime checks. A syntax example does not override the version or abstractions the repository already chose.

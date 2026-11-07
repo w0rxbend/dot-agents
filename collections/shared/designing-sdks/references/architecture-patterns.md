@@ -1,7 +1,5 @@
 # SDK Architecture Patterns
 
-Comprehensive guide to organizing SDK code for maintainability, discoverability, and developer experience.
-
 ## Table of Contents
 
 1. [Resource-Based Architecture](#resource-based-architecture)
@@ -14,7 +12,7 @@ Comprehensive guide to organizing SDK code for maintainability, discoverability,
 
 ### Overview
 
-Resource-based SDKs organize methods around API resources (users, payments, customers). Each resource is a class or object with CRUD methods.
+Resource-based SDKs group methods by API resource (users, payments, customers). Each resource is class or object with CRUD methods.
 
 **Example (Stripe-style):**
 
@@ -45,78 +43,19 @@ Client
     └─ finalize(id)
 ```
 
-### Implementation (TypeScript)
-
-```typescript
-class StripeClient {
-  private apiKey: string
-  private baseURL: string
-
-  constructor(apiKey: string) {
-    this.apiKey = apiKey
-    this.baseURL = 'https://api.stripe.com/v1'
-  }
-
-  // Lazy-loaded resources
-  get customers() {
-    return new CustomersResource(this)
-  }
-
-  get charges() {
-    return new ChargesResource(this)
-  }
-
-  // Core request method
-  async request(method: string, path: string, params?: any) {
-    // HTTP request implementation
-  }
-}
-
-class CustomersResource {
-  constructor(private client: StripeClient) {}
-
-  async create(params: CreateCustomerParams) {
-    return this.client.request('POST', '/customers', params)
-  }
-
-  async retrieve(id: string) {
-    return this.client.request('GET', `/customers/${id}`)
-  }
-
-  async update(id: string, params: UpdateCustomerParams) {
-    return this.client.request('PATCH', `/customers/${id}`, params)
-  }
-
-  async delete(id: string) {
-    return this.client.request('DELETE', `/customers/${id}`)
-  }
-
-  async *list(params?: ListParams): AsyncGenerator<Customer> {
-    // Pagination implementation
-  }
-}
-```
-
 ### Advantages
 
 1. **Intuitive**: Matches API documentation and mental models
-2. **Discoverable**: Autocomplete shows all available resources
+2. **Discoverable**: Autocomplete shows all resources
 3. **Clear Namespacing**: No method name conflicts (`customers.create` vs. `charges.create`)
-4. **Easy to Extend**: Add new resources without changing existing code
-5. **Developer Experience**: Users can easily find methods
+4. **Easy to Extend**: Add resources without changing existing code
+5. **Developer Experience**: Users find methods easily
 
 ### Disadvantages
 
 1. **Bundle Size**: All resources loaded even if unused
-2. **Tree-Shaking**: Harder to eliminate dead code
-3. **Maintenance**: More files and classes to maintain
-
-### When to Use
-
-- Small-to-medium API surface (<100 methods)
-- Developer experience is priority
-- Bundle size is not critical (Node.js servers)
-- API has clear resource boundaries (REST APIs)
+2. **Tree-Shaking**: Dead code harder to eliminate
+3. **Maintenance**: More files and classes
 
 ---
 
@@ -124,7 +63,7 @@ class CustomersResource {
 
 ### Overview
 
-Command-based SDKs (AWS SDK v3 pattern) separate client from commands. Each operation is a command object sent through the client.
+Command-based SDKs (AWS SDK v3 pattern) separate client from commands. Each operation is command object sent through client.
 
 **Example (AWS SDK v3):**
 
@@ -209,25 +148,17 @@ const result = await client.send(command)
 ### Advantages
 
 1. **Tree-Shakeable**: Import only needed commands
-2. **Smaller Bundles**: Eliminate unused code (critical for browsers)
-3. **Modular**: Each command is independent
-4. **Middleware**: Easy to add cross-cutting concerns
+2. **Smaller Bundles**: Unused code eliminated (critical for browsers)
+3. **Modular**: Each command independent
+4. **Middleware**: Cross-cutting concerns easy to add
 5. **Testable**: Mock commands independently
 
 ### Disadvantages
 
 1. **Verbose**: Two steps (create command, send command)
 2. **Less Intuitive**: Extra indirection
-3. **Discovery**: Harder to find available operations
+3. **Discovery**: Available operations harder to find
 4. **Boilerplate**: More code to write
-
-### When to Use
-
-- Large API surface (>100 methods)
-- Bundle size is critical (browser SDKs)
-- Modular architecture preferred
-- Middleware/interceptors needed
-- API surface changes frequently
 
 ---
 
@@ -265,7 +196,7 @@ await client.users.create({ email: 'user@example.com' }) // Resource
 - Backward compatibility
 
 **Disadvantages:**
-- Two ways to do the same thing
+- Two ways to do same thing
 - Larger API surface
 
 ---
@@ -303,7 +234,7 @@ class APIClient {
 
 ### Core Request Method
 
-All resource methods delegate to a central request method:
+All resource methods delegate to central request method:
 
 ```typescript
 class APIClient {
@@ -392,15 +323,15 @@ class UsersResource {
   }
 
   async retrieve(id: string): Promise<User> {
-    return this.client.request<User>('GET', `/users/${id}`)
+    return this.client.request<User>('GET', `/users/${encodeURIComponent(id)}`)
   }
 
   async update(id: string, params: UpdateUserParams): Promise<User> {
-    return this.client.request<User>('PATCH', `/users/${id}`, { body: params })
+    return this.client.request<User>('PATCH', `/users/${encodeURIComponent(id)}`, { body: params })
   }
 
   async delete(id: string): Promise<void> {
-    await this.client.request<void>('DELETE', `/users/${id}`)
+    await this.client.request<void>('DELETE', `/users/${encodeURIComponent(id)}`)
   }
 
   async *list(params?: ListParams): AsyncGenerator<User> {
@@ -435,15 +366,16 @@ class UsersResource {
 - Clear resource boundaries (REST API)
 - Developer experience is priority
 - Target is Node.js servers (bundle size not critical)
-- Team is familiar with Stripe/Twilio SDKs
+- Team knows Stripe/Twilio SDKs
 
 ### Choose Command-Based If:
 
 - API has >100 methods
-- Bundle size is critical (browser SDKs)
+- Bundle size critical (browser SDKs)
 - Modular architecture preferred
-- Need tree-shaking for performance
+- Tree-shaking needed for performance
 - Middleware/plugin system required
+- API surface changes often
 
 ### Choose Hybrid If:
 
@@ -466,7 +398,7 @@ class UsersResource {
 
 **Go:**
 - Resource-based with interfaces
-- Use exported functions for package-level API
+- Exported functions for package-level API
 - Context.Context required for all operations
 
 ---

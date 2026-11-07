@@ -1,13 +1,10 @@
 # Middleware Guide - Express Middleware Patterns
 
-Complete guide to creating and using middleware in backend microservices.
-
 ## Table of Contents
 
 - [Authentication Middleware](#authentication-middleware)
 - [Audit Middleware with AsyncLocalStorage](#audit-middleware-with-asynclocalstorage)
 - [Error Boundary Middleware](#error-boundary-middleware)
-- [Validation Middleware](#validation-middleware)
 - [Composable Middleware](#composable-middleware)
 - [Middleware Ordering](#middleware-ordering)
 
@@ -44,8 +41,6 @@ export class SSOMiddlewareClient {
 
 ## Audit Middleware with AsyncLocalStorage
 
-### Excellent Pattern from Blog API
-
 **File:** `/form/src/middleware/auditMiddleware.ts`
 
 ```typescript
@@ -81,12 +76,6 @@ export function getAuditContext(): AuditContext | null {
     return auditContextStorage.getStore() || null;
 }
 ```
-
-**Benefits:**
-- Context propagates through entire request
-- No need to pass context through every function
-- Automatically available in services, repositories
-- Type-safe context access
 
 **Usage in Services:**
 ```typescript
@@ -203,7 +192,7 @@ Sentry.setupExpressErrorHandler(app);
 app.use(errorBoundary);
 ```
 
-**Rule:** Error handlers MUST be registered AFTER all routes!
+**Rule:** error handlers MUST come AFTER all routes!
 
 ---
 

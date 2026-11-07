@@ -1,7 +1,5 @@
 # Office Document Viewer
 
-Display Word, Excel, and PowerPoint files in the browser.
-
 ## Microsoft Office Online Viewer
 
 ```tsx
@@ -19,7 +17,7 @@ function OfficeViewer({ fileUrl }: { fileUrl: string }) {
 }
 ```
 
-**Supports:** .docx, .xlsx, .pptx (must be publicly accessible)
+**Supports:** .docx, .xlsx, .pptx
 
 ## Google Docs Viewer
 
@@ -33,6 +31,7 @@ const googleViewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(
 
 ```tsx
 import mammoth from 'mammoth';
+import DOMPurify from 'dompurify';
 
 async function convertWordToHTML(file: File): Promise<string> {
   const arrayBuffer = await file.arrayBuffer();
@@ -47,15 +46,16 @@ function WordViewer({ file }: { file: File }) {
     convertWordToHTML(file).then(setHtml);
   }, [file]);
 
-  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+  // mammoth does no sanitizing: .docx links can carry javascript: URLs
+  return <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }} />;
 }
 ```
 
 ## Best Practices
 
-1. **File must be publicly accessible** - For online viewers
+1. **Online viewers fetch file via Google/Microsoft** - Use short-lived signed URL; never for confidential files (render locally instead)
 2. **Fallback to download** - If viewing fails
-3. **Loading state** - iframe takes time to load
+3. **Loading state** - iframe loads slowly
 4. **Error handling** - Unsupported file types
 
 ## Resources

@@ -1,20 +1,6 @@
 # Azure Governance and Compliance Reference
 
-Comprehensive guide to Azure Policy, repeatable environments (Template Specs / Deployment Stacks), and cost management.
-
-## Table of Contents
-
-1. [Azure Policy](#azure-policy)
-2. [Repeatable Environments (Blueprints replacement)](#repeatable-environments-blueprints-replacement)
-3. [Cost Management](#cost-management)
-4. [Resource Tagging](#resource-tagging)
-5. [Azure Landing Zones](#azure-landing-zones)
-
----
-
 ## Azure Policy
-
-Governance service to enforce organizational standards and assess compliance at scale.
 
 ### Policy Effects
 
@@ -40,15 +26,14 @@ Governance service to enforce organizational standards and assess compliance at 
 
 ## Repeatable Environments (Blueprints replacement)
 
-Azure Blueprints is deprecated (retirement announced for July 2026). Build repeatable,
-governed environments from Template Specs and Deployment Stacks instead.
+Azure Blueprints deprecated (retirement announced for July 2026). Use Template Specs and Deployment Stacks instead for repeatable, governed environments.
 
 ### Components
 
 1. **Template Specs:** Versioned, RBAC-shared Bicep/ARM templates (resource groups, policy assignments, role assignments)
-2. **Deployment Stacks:** Deploy a template as a managed unit, with deny settings that protect deployed resources and clean-up of resources removed from the template
+2. **Deployment Stacks:** Deploy template as managed unit. Deny settings protect deployed resources; resources removed from template get cleaned up
 3. **Parameters:** Environment-specific values per stack
-4. **Versions:** Template Spec versions track changes over time
+4. **Versions:** Template Spec versions track changes
 
 ### Use Cases
 
@@ -59,8 +44,6 @@ governed environments from Template Specs and Deployment Stacks instead.
 ---
 
 ## Cost Management
-
-Monitor, allocate, and optimize Azure spending across organization.
 
 ### Cost Allocation Tags
 
@@ -95,13 +78,11 @@ Required tags for cost tracking:
 
 ### Tag Inheritance
 
-Tags on Resource Groups do NOT inherit to resources automatically (use Azure Policy to enforce).
+Resource Group tags do NOT inherit to resources automatically. Enforce with Azure Policy.
 
 ---
 
 ## Azure Landing Zones
-
-Enterprise-scale architecture for Azure adoption.
 
 ### Core Components
 

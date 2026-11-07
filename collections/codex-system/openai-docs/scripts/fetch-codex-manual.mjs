@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import {
   access,
+  lstat,
   mkdir,
   readFile,
   rename,
@@ -237,13 +238,19 @@ const nearestExistingParent = async (target) => {
   }
 };
 
+// Shared temp roots (/tmp): reject cache dirs another local user created or can write.
+const privateDir = (info) =>
+  info.isDirectory() &&
+  (typeof process.getuid !== "function" ||
+    (info.uid === process.getuid() && (info.mode & 0o002) === 0));
+
 const usableCacheDir = async (cacheDir) => {
   if (!cacheDir) return null;
   const resolved = path.resolve(cacheDir);
 
   try {
-    const info = await stat(resolved);
-    if (!info.isDirectory()) return null;
+    const info = await lstat(resolved);
+    if (!privateDir(info)) return null;
   } catch (error) {
     if (error?.code !== "ENOENT") return null;
   }
@@ -416,7 +423,12 @@ const fetchCodexManual = async ({
       "Manual cache directory is unavailable; pass --cache-dir to override or use OpenAI Docs MCP fallback."
     );
   }
-  await mkdir(resolvedCacheDir, { recursive: true });
+  await mkdir(resolvedCacheDir, { recursive: true, mode: 0o700 });
+  if (!privateDir(await lstat(resolvedCacheDir))) {
+    throw new ManualFetchError(
+      `Manual cache directory ${resolvedCacheDir} is not private to this user; pass --cache-dir to override.`
+    );
+  }
 
   const headResponse = await requestManual(manualUrl, {
     cacheDir: resolvedCacheDir,

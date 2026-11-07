@@ -11,7 +11,7 @@
 - Hardware Tokens: YubiKey, FIDO2
 
 **Implementation:**
-- Enforce MFA for all users (prioritize privileged accounts)
+- Enforce MFA for all users (privileged accounts first)
 - Support multiple MFA methods (user choice)
 - Backup codes for account recovery
 - Risk-based MFA (adaptive authentication)
@@ -23,27 +23,21 @@
 - OAuth 2.0: API authorization
 - OpenID Connect (OIDC): Authentication layer on OAuth 2.0
 
-**Benefits:**
-- Centralized authentication
-- Reduced password fatigue
-- Improved security posture
-- Better user experience
-
 ## Authorization Controls
 
 ### Role-Based Access Control (RBAC)
 
 **Structure:**
 - Users → Roles → Permissions
-- Roles represent job functions (admin, developer, analyst)
+- Roles map to job functions (admin, developer, analyst)
 - Coarse-grained, simple to implement
 
-**Best For:** Organizations with stable role structures
+**Best For:** Organizations with stable roles
 
 ### Attribute-Based Access Control (ABAC)
 
 **Structure:**
-- Fine-grained access based on attributes
+- Fine-grained, attribute-based access
 - User attributes (department, clearance level)
 - Resource attributes (classification, owner)
 - Environmental attributes (time, location)
@@ -69,7 +63,7 @@
 - Request-based access (approval workflow)
 - Time-bound grants (4-8 hours)
 - Automated de-provisioning
-- Audit all privilege activations
+- Audit every privilege activation
 
 ### Credential Vaulting
 
@@ -80,7 +74,7 @@
 - Azure Key Vault
 
 **Features:**
-- Centralized credential storage
+- Central credential storage
 - Automatic password rotation
 - Session recording
 - Break-glass procedures

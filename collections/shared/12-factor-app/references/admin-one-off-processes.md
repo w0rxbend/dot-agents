@@ -7,7 +7,7 @@ tags: admin, processes, one-off, maintenance
 
 ## Run Admin Tasks as One-Off Processes Not Special Scripts
 
-Administrative tasks (database migrations, REPL sessions, data fixes) should run as one-off processes in an identical environment to the app's regular processes. They use the same codebase, config, and dependency isolation.
+Run admin tasks (database migrations, REPL sessions, data fixes) as one-off processes in same environment as regular processes: same codebase, config, dependency isolation.
 
 **Incorrect (separate admin scripts):**
 
@@ -45,7 +45,7 @@ flask fix-bad-records
 # - Isolation
 ```
 
-**Running admin processes in production:**
+**Admin processes in production:** migrations and data fixes need explicit user approval, a backup, and a dry run or staging run first.
 
 ```bash
 # Heroku
@@ -77,10 +77,10 @@ spec:
 EOF
 
 # Docker
-docker run --rm -e DATABASE_URL="..." myapp:v1.2.3 python manage.py migrate
+docker run --rm -e DATABASE_URL myapp:v1.2.3 python manage.py migrate  # passes host env; no secret in args
 ```
 
-**Admin commands live in the codebase:**
+**Admin commands live in codebase:**
 
 ```python
 # myapp/management/commands/fix_bad_records.py
@@ -100,11 +100,5 @@ class Command(BaseCommand):
             records.update(status='pending')
             self.stdout.write(self.style.SUCCESS('Fixed!'))
 ```
-
-**Benefits:**
-- Same code, same config, same dependencies
-- Auditable: which release did the migration run against?
-- Reproducible: can run same command in any environment
-- Version controlled: admin scripts are part of the app
 
 Reference: [The Twelve-Factor App - Admin processes](https://12factor.net/admin-processes)

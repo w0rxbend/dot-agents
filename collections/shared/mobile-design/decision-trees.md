@@ -1,7 +1,6 @@
 # Mobile Decision Trees
 
-> Framework selection, state management, storage strategy, and context-based decisions.
-> **These are THINKING guides, not copy-paste answers.**
+> **THINKING guides, not copy-paste answers.**
 
 ---
 
@@ -340,7 +339,7 @@ WHAT AUTH TYPE NEEDED?
         ├── Enterprise/SSO
         │   │
         │   └── OIDC / SAML
-        │       ├── Web view or system browser
+        │       ├── System browser (ASWebAuthenticationSession / Custom Tabs), not embedded WebView
         │       └── Handle redirect properly
         │
         └── Biometric (FaceID, fingerprint)
@@ -432,10 +431,10 @@ KEY DECISIONS:
 ### Before Starting ANY Project
 
 - [ ] Target platforms defined (iOS/Android/both)?
-- [ ] Framework selected based on criteria?
-- [ ] State management approach chosen?
+- [ ] Framework picked by criteria?
+- [ ] State management chosen?
 - [ ] Navigation pattern selected?
-- [ ] Storage strategy for each data type?
+- [ ] Storage strategy per data type?
 - [ ] Offline requirements defined?
 - [ ] Auth flow designed?
 - [ ] Deep linking planned from start?
@@ -472,45 +471,9 @@ If project details are vague, ASK:
 
 | Anti-Pattern | Why It's Bad | Better Approach |
 |--------------|--------------|-----------------|
-| **Redux for simple app** | Massive overkill | Zustand or context |
+| **Redux for simple app** | Overkill | Zustand or context |
 | **Native for MVP** | Slow development | Cross-platform MVP |
 | **Drawer for 3 sections** | Hidden navigation | Tab bar |
 | **AsyncStorage for tokens** | Insecure | SecureStore |
 | **No offline consideration** | Broken on subway | Plan from start |
-| **Same stack for all projects** | Doesn't fit context | Evaluate per project |
-
----
-
-## 10. Quick Reference
-
-### Framework Quick Pick
-
-```
-OTA needed?           → React Native + Expo
-Identical UI?         → Flutter
-Maximum performance?  → Native
-Web team?            → React Native
-Quick prototype?     → Expo
-```
-
-### State Quick Pick
-
-```
-Simple app?          → Zustand / Provider
-Server-heavy?        → TanStack Query / Riverpod
-Enterprise?          → Redux / BLoC
-Atomic state?        → Jotai
-```
-
-### Storage Quick Pick
-
-```
-Secrets?             → SecureStore / Keychain
-Settings?            → AsyncStorage / UserDefaults
-Structured data?     → SQLite
-API cache?           → Query library
-```
-
----
-
-> **Remember:** These trees are guides for THINKING, not rules to follow blindly. Every project has unique constraints. ASK clarifying questions when requirements are vague, and choose based on actual needs, not defaults.
+| **Same stack for all projects** | Ignores context | Evaluate per project |

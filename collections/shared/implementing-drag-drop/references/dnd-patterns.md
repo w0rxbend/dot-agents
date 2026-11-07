@@ -11,9 +11,9 @@
 
 ### Vertical List Pattern
 
-Most common drag-and-drop pattern for priority ordering, task lists, and sequential content.
+Most common pattern. For priority ordering, task lists, sequential content.
 
-**Implementation with dnd-kit:**
+**dnd-kit implementation:**
 
 ```tsx
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -49,11 +49,11 @@ function VerticalSortableList({ items, onReorder }) {
 
 ### Horizontal List Pattern
 
-Used for tab reordering, carousel management, and timeline elements.
+For tab reordering, carousel management, timeline elements.
 
 **Key Differences:**
 - Use `horizontalListSortingStrategy` instead of vertical
-- Adjust drag handle positioning (typically on edges)
+- Adjust drag handle position (typically edges)
 - Consider touch scrolling conflicts on mobile
 
 ```tsx
@@ -67,7 +67,7 @@ import { horizontalListSortingStrategy } from '@dnd-kit/sortable';
 
 ### Drag Handle Pattern
 
-Provides explicit drag affordance while keeping content interactive.
+Explicit drag affordance. Content stays interactive.
 
 ```tsx
 import { useSortable } from '@dnd-kit/sortable';
@@ -109,7 +109,7 @@ function SortableItem({ id, children }) {
 
 ### 2D Grid Pattern
 
-For dashboard widgets, image galleries, and card layouts.
+For dashboard widgets, image galleries, card layouts.
 
 ```tsx
 import { rectSortingStrategy } from '@dnd-kit/sortable';
@@ -135,12 +135,12 @@ function GridLayout({ items, columns = 3 }) {
 
 ### Masonry Layout Pattern
 
-For Pinterest-style layouts with variable heights.
+Pinterest-style layouts with variable heights.
 
 **Considerations:**
 - Calculate positions dynamically
 - Handle reflow on drop
-- Optimize for performance with many items
+- Optimize performance for many items
 
 ```tsx
 // Use custom collision detection for masonry
@@ -155,7 +155,7 @@ function masonryCollisionDetection(args) {
 
 ### Parent-Child Dragging
 
-For tree structures, nested lists, and hierarchical content.
+For trees, nested lists, hierarchical content.
 
 ```tsx
 function NestedSortable({ items, depth = 0 }) {
@@ -180,7 +180,7 @@ function NestedSortable({ items, depth = 0 }) {
 
 ### Edge Detection Pattern
 
-Automatically scroll when dragging near container edges.
+Auto-scroll when dragging near container edges.
 
 ```tsx
 import { AutoScrollActivator } from '@dnd-kit/auto-scroll';
@@ -230,7 +230,7 @@ useEffect(() => {
 
 ### Selection State Pattern
 
-Allow dragging multiple items simultaneously.
+Drag multiple items at once.
 
 ```tsx
 function MultiSelectDraggable() {
@@ -302,16 +302,16 @@ function MultiSelectItem({ id, isSelected, isDragging }) {
 ### Accessibility Requirements
 
 Every pattern must include:
-- Keyboard navigation support
+- Keyboard navigation
 - Screen reader announcements
 - Focus management
-- Alternative UI options
+- Alternative UI
 - Clear visual feedback
 
 ### Mobile Considerations
 
-- Long press (300ms) to initiate drag
+- Long press (300ms) to start drag
 - Prevent scroll during drag
 - Larger touch targets (44px minimum)
 - Handle gesture conflicts
-- Test on actual devices
+- Test on real devices

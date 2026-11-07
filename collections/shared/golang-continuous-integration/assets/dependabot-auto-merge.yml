@@ -26,3 +26,4 @@ jobs:
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TELEMETRY: "false"   # gh sends usage telemetry by default

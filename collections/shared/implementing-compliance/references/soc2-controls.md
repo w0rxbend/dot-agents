@@ -17,13 +17,11 @@
 
 ## Overview
 
-SOC 2 is an auditing procedure that ensures service providers securely manage data to protect the interests and privacy of their clients. Reports are issued by certified public accountants (CPAs) following an audit.
-
 **Report Types:**
 - **Type I:** Point-in-time assessment of control design
 - **Type II:** 6-12 month assessment of control effectiveness (required for enterprise sales)
 
-**Note:** The Trust Services Criteria do not prescribe a testing frequency or a breach-notification deadline. Auditors test operating effectiveness across the observation period, and notification windows (often 72 hours) come from customer contracts and your own incident policy.
+**Note:** Trust Services Criteria prescribe no testing frequency and no breach-notification deadline. Auditors test operating effectiveness across observation period. Notification windows (often 72 hours) come from customer contracts and your own incident policy.
 
 ## Trust Services Criteria
 
@@ -31,37 +29,37 @@ SOC 2 is an auditing procedure that ensures service providers securely manage da
 
 #### CC1: Control Environment
 
-**CC1.1** - Organization demonstrates commitment to integrity and ethical values
+**CC1.1** - Demonstrates commitment to integrity and ethical values
 **CC1.2** - Board of directors demonstrates independence and oversight
 **CC1.3** - Management establishes structures, reporting lines, authorities, and responsibilities
-**CC1.4** - Organization demonstrates commitment to attract, develop, and retain competent individuals
-**CC1.5** - Organization holds individuals accountable for internal control responsibilities
+**CC1.4** - Demonstrates commitment to attract, develop, and retain competent individuals
+**CC1.5** - Holds individuals accountable for internal control responsibilities
 
 **Implementation:**
 - Documented code of conduct
 - Board charter and meeting minutes
 - Organizational chart with reporting structure
 - Security awareness training program
-- Performance reviews including security responsibilities
+- Performance reviews covering security responsibilities
 
 #### CC2: Communication and Information
 
-**CC2.1** - Organization obtains or generates relevant, quality information
-**CC2.2** - Organization internally communicates information necessary to support functioning of internal control
-**CC2.3** - Organization communicates with external parties regarding matters affecting internal control
+**CC2.1** - Obtains or generates relevant, quality information
+**CC2.2** - Communicates internally information needed to support internal control
+**CC2.3** - Communicates with external parties on matters affecting internal control
 
 **Implementation:**
-- Security policies and procedures documented
+- Documented security policies and procedures
 - Internal security newsletters and announcements
 - Customer security documentation and incident communication
 - Vendor management communications
 
 #### CC3: Risk Assessment
 
-**CC3.1** - Organization specifies objectives with sufficient clarity
-**CC3.2** - Organization identifies risks to achievement of objectives
-**CC3.3** - Organization considers potential for fraud in risk assessment
-**CC3.4** - Organization identifies and assesses changes that could significantly impact internal control
+**CC3.1** - Specifies objectives with sufficient clarity
+**CC3.2** - Identifies risks to achieving objectives
+**CC3.3** - Considers fraud potential in risk assessment
+**CC3.4** - Identifies and assesses changes that could significantly impact internal control
 
 **Implementation:**
 - Annual risk assessments
@@ -71,8 +69,8 @@ SOC 2 is an auditing procedure that ensures service providers securely manage da
 
 #### CC4: Monitoring Activities
 
-**CC4.1** - Organization selects, develops, and performs ongoing/separate evaluations
-**CC4.2** - Organization evaluates and communicates internal control deficiencies
+**CC4.1** - Selects, develops, and performs ongoing/separate evaluations
+**CC4.2** - Evaluates and communicates internal control deficiencies
 
 **Implementation:**
 - Continuous security monitoring
@@ -82,9 +80,9 @@ SOC 2 is an auditing procedure that ensures service providers securely manage da
 
 #### CC5: Control Activities
 
-**CC5.1** - Organization selects and develops control activities that contribute to mitigation of risks
-**CC5.2** - Organization selects and develops general control activities over technology
-**CC5.3** - Organization deploys control activities through policies and procedures
+**CC5.1** - Selects and develops control activities that help mitigate risks
+**CC5.2** - Selects and develops general control activities over technology
+**CC5.3** - Deploys control activities through policies and procedures
 
 **Implementation:**
 - Security control framework (mapped to TSC)
@@ -93,77 +91,77 @@ SOC 2 is an auditing procedure that ensures service providers securely manage da
 
 #### CC6: Logical and Physical Access Controls
 
-**CC6.1** - Organization implements logical access security software, infrastructure, and architectures
-- Multi-factor authentication for privileged access
+**CC6.1** - Implements logical access security software, infrastructure, and architectures
+- MFA for privileged access
 - Role-based access control (RBAC)
 - Encryption at rest (AES-256) and in transit (TLS 1.3)
 - Network segmentation and firewalls
 
-**CC6.2** - Organization restricts logical access (least privilege)
+**CC6.2** - Restricts logical access (least privilege)
 - Access provisioning and deprovisioning procedures
 - Quarterly access reviews
 - Separation of duties enforcement
 
-**CC6.3** - Organization manages identification and authentication
+**CC6.3** - Manages identification and authentication
 - Password complexity requirements (12+ characters)
 - Account lockout policies
 - Session timeout enforcement
 
-**CC6.4** - Organization restricts access to programs and data
+**CC6.4** - Restricts access to programs and data
 - Application-level access controls
 - Data classification and handling
 - Secure software development lifecycle
 
-**CC6.5** - Organization terminates access when appropriate
-- Immediate access revocation upon termination
+**CC6.5** - Terminates access when appropriate
+- Immediate access revocation on termination
 - Regular review of inactive accounts
 - Contractor access expiration
 
-**CC6.6** - Organization implements security measures to protect against threats
+**CC6.6** - Implements security measures against threats
 - Intrusion detection/prevention systems
 - DDoS protection
 - Web application firewall (WAF)
 
-**CC6.7** - Organization restricts transmission, movement, and removal of information
+**CC6.7** - Restricts transmission, movement, and removal of information
 - Data loss prevention (DLP)
 - Encrypted backups
 - Secure data disposal procedures
 
-**CC6.8** - Organization implements controls to prevent or detect malicious software
+**CC6.8** - Implements controls to prevent or detect malicious software
 - Endpoint detection and response (EDR)
 - Anti-malware on all systems
 - Email security gateway
 
 #### CC7: System Operations
 
-**CC7.1** - Organization ensures systems are current and can continue operating
+**CC7.1** - Keeps systems current and able to continue operating
 - Patch management with defined SLAs
 - Vulnerability scanning (weekly minimum)
 - Configuration management
 
-**CC7.2** - Organization monitors system components and operation
+**CC7.2** - Monitors system components and operation
 - Centralized logging and SIEM
 - Security information and event monitoring
-- Log retention long enough to cover the audit period and your policy (SOC 2 sets no fixed minimum)
+- Log retention covering audit period and your policy (SOC 2 sets no fixed minimum)
 
-**CC7.3** - Organization evaluates security events and responds
+**CC7.3** - Evaluates security events and responds
 - Incident response plan
 - Security operations center (SOC) or equivalent
 - Threat intelligence integration
 
-**CC7.4** - Organization identifies, develops, and implements activities to recover from disruptions
+**CC7.4** - Identifies, develops, and implements activities to recover from disruptions
 - Disaster recovery plan
 - Regular backup procedures (automated daily)
 - Annual DR testing
 
-**CC7.5** - Organization deploys detection and monitoring procedures to identify anomalies
+**CC7.5** - Deploys detection and monitoring procedures to identify anomalies
 - Anomaly detection systems
 - User behavior analytics
 - Automated alerting for suspicious activity
 
 #### CC8: Change Management
 
-**CC8.1** - Organization authorizes, designs, develops, tests, approves, and implements changes
+**CC8.1** - Authorizes, designs, develops, tests, approves, and implements changes
 - Change advisory board (CAB)
 - Code review requirements
 - Testing in non-production environments
@@ -171,12 +169,12 @@ SOC 2 is an auditing procedure that ensures service providers securely manage da
 
 #### CC9: Risk Mitigation
 
-**CC9.1** - Organization establishes requirements for vendor and business partner agreements
+**CC9.1** - Establishes requirements for vendor and business partner agreements
 - Vendor risk assessment process
 - Security requirements in vendor contracts
 - Right-to-audit clauses
 
-**CC9.2** - Organization assesses vendor and business partner services
+**CC9.2** - Assesses vendor and business partner services
 - Annual vendor reviews
 - SOC 2 report collection (≤90 days old)
 - Vendor incident notification requirements
@@ -195,7 +193,7 @@ Measures system uptime and accessibility.
 
 #### Processing Integrity
 
-Ensures system processing is complete, valid, accurate, timely, and authorized.
+System processing is complete, valid, accurate, timely, and authorized.
 
 **Implementation:**
 - Input validation
@@ -215,7 +213,7 @@ Protects confidential information as agreed with clients.
 
 #### Privacy
 
-Addresses collection, use, retention, disclosure, and disposal of personal information.
+Covers collection, use, retention, disclosure, and disposal of personal information.
 
 **Implementation:**
 - Privacy policy
@@ -227,7 +225,7 @@ Addresses collection, use, retention, disclosure, and disposal of personal infor
 
 ### Continuous Evidence Collection
 
-Collect evidence continuously across the observation period (monthly internal checks are a common practice, not a TSC requirement):
+Collect evidence continuously across observation period (monthly internal checks are common practice, not a TSC requirement):
 
 **Automated Evidence:**
 - Access logs (authentication, authorization)
@@ -247,7 +245,7 @@ Collect evidence continuously across the observation period (monthly internal ch
 
 ### AI Governance Controls (Optional)
 
-The TSC have no AI-specific criteria; these are common practices auditors and customers increasingly ask about for systems using AI/ML on customer data:
+TSC have no AI-specific criteria. Auditors and customers increasingly ask about these practices for systems using AI/ML on customer data:
 
 **Suggested Controls:**
 - AI model logging and monitoring
@@ -279,7 +277,7 @@ The TSC have no AI-specific criteria; these are common practices auditors and cu
 **Phase 3: Observation Period (Month 7-12)**
 - Collect evidence continuously
 - Monthly control testing
-- Address any control failures
+- Address control failures
 - Prepare for audit
 
 **Phase 4: Audit (Month 13)**
@@ -292,14 +290,14 @@ The TSC have no AI-specific criteria; these are common practices auditors and cu
 
 **Most Frequent Deficiencies:**
 
-1. **Access Reviews Not Performed:** Quarterly access reviews not completed or documented
+1. **Access Reviews Not Performed:** Quarterly access reviews not completed or not documented
    - **Remediation:** Automate access review reminders, track completion
 
-2. **Insufficient Logging:** Not logging all required events or inadequate retention
-   - **Remediation:** Implement comprehensive audit logging with a documented retention period
+2. **Insufficient Logging:** Not all required events logged, or retention inadequate
+   - **Remediation:** Comprehensive audit logging with documented retention period
 
 3. **MFA Gaps:** MFA not enforced for all privileged access
-   - **Remediation:** Implement MFA enforcement policies (IAM, conditional access)
+   - **Remediation:** Enforce MFA through policies (IAM, conditional access)
 
 4. **Vendor SOC 2 Reports Expired:** Vendor reports older than 90 days
    - **Remediation:** Quarterly vendor report collection process
@@ -339,11 +337,6 @@ The TSC have no AI-specific criteria; these are common practices auditors and cu
 12. Risk assessment process (CC3)
 13. Vendor management (CC9)
 
-**Month 7-12: Observation Period**
-14. Monthly testing and evidence collection
-15. Continuous monitoring and improvement
-16. Audit preparation
-
 ## Tool Recommendations
 
 **Automated Compliance Platforms:**
@@ -359,7 +352,7 @@ The TSC have no AI-specific criteria; these are common practices auditors and cu
 
 **Investment:**
 - Automated platform: $20K-40K annually
-- Manual approach: Significant staff time (200+ hours annually)
+- Manual approach: significant staff time (200+ hours annually)
 - Audit fees: $15K-50K depending on company size
 
-This guide provides the framework for SOC 2 compliance. Consult with qualified auditors for organization-specific requirements.
+Consult qualified auditors for organization-specific requirements.

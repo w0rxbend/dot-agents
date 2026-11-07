@@ -1,9 +1,6 @@
-ZIO concurrency is built on **fibers**, which are lightweight, virtual threads managed by the ZIO runtime rather than the operating system. Because fibers are significantly cheaper than OS threads, applications can scale to run millions of them simultaneously.
-
 ### **1. Fork and Join: Manual Concurrency**
-The most basic way to start a concurrent process is to **fork** an effect.
-*   **`fork`**: Calling `.fork` on an effect starts it immediately on a new fiber and returns a `Fiber` object.
-*   **`join`**: Calling `.join` on a fiber semantically blocks the current fiber until the forked fiber completes, returning its result. Crucially, this does not block the underlying OS thread.
+*   **`fork`**: `.fork` starts effect immediately on new fiber, returns `Fiber` object.
+*   **`join`**: `.join` semantically blocks current fiber until forked fiber completes; returns its result. Underlying OS thread is not blocked.
 
 **Example:**
 ```scala
@@ -15,16 +12,16 @@ for {
 ```
 
 ### **2. Interruption: Safe Cancellation**
-Interruption allows you to stop a fiber when its result is no longer needed (e.g., a timeout or a user closing a connection).
-*   **Finalizers**: Unlike standard Java threads, interrupting a ZIO fiber is **safe** because it ensures all finalizers (cleanup logic) are executed.
-*   **Timing**: The runtime checks for interruption between individual instructions. It cannot interrupt a single, "monolithic" block of side-effecting code unless specifically wrapped in constructors like `attemptBlockingCancelable`.
+Stops fiber whose result is no longer needed (e.g., timeout, user closing connection).
+*   **Finalizers**: Unlike Java threads, interrupting ZIO fiber is **safe**: all finalizers (cleanup logic) run.
+*   **Timing**: Runtime checks for interruption between instructions. Cannot interrupt single "monolithic" side-effecting block unless wrapped in constructors like `attemptBlockingCancelable`.
 
 ### **3. Parallel Operators (Structured Concurrency)**
-ZIO provides high-level operators that handle fiber management, error propagation, and interruption automatically. This follows the principle of **structured concurrency**: fibers are scoped to their parents and are interrupted if the parent fails or terminates.
+High-level operators handle fiber management, error propagation, and interruption automatically. They follow **structured concurrency**: fibers scoped to parents, interrupted if parent fails or terminates.
 
-*   **`zipPar`**: Executes two effects in parallel and returns a tuple of both results. If one fails, the other is immediately interrupted.
-*   **`foreachPar`**: Executes an effect for every element in a collection in parallel.
-*   **`race`**: Runs two effects concurrently and returns the result of the first one to succeed, interrupting the "loser".
+*   **`zipPar`**: Runs two effects in parallel, returns tuple of results. If one fails, other is interrupted immediately.
+*   **`foreachPar`**: Runs effect for each collection element in parallel.
+*   **`race`**: Runs two effects concurrently, returns first success, interrupts "loser".
 
 **Example:**
 ```scala
@@ -33,18 +30,18 @@ ZIO.foreachParN(10)(urls)(url => httpClient.get(url))
 ```
 
 ### **4. Race Conditions & Shared State**
-Concurrency becomes "hard" when fibers share state. ZIO avoids traditional locks in favor of functional primitives:
-*   **`Ref`**: A purely functional version of an `AtomicReference`. It provides atomic updates for single variables.
-*   **`STM` (Software Transactional Memory)**: Allows you to compose multiple atomic operations into a single transaction. This prevents complex race conditions like the "bank transfer problem" where one account is debited but the other isn't yet credited.
+Concurrency gets "hard" when fibers share state. ZIO uses functional primitives, not traditional locks:
+*   **`Ref`**: Purely functional `AtomicReference`. Atomic updates for single variables.
+*   **`STM` (Software Transactional Memory)**: Composes multiple atomic operations into one transaction. Prevents complex races like "bank transfer problem" (one account debited, other not yet credited).
 
 ### **Practical Rules & Best Practices**
-*   **Prefer High-Level Operators**: Use `foreachPar`, `zipPar`, and `timeout` instead of manual `fork` and `join` whenever possible.
-*   **Join or Interrupt**: If you manually `fork` a fiber, ensure you eventually `join` or `interrupt` it to avoid "dangling" work.
-*   **Use `ZIO.scoped`**: Use scopes to define exactly how long a fiber or resource should live.
-*   **Protect Critical Work**: Use `.uninterruptible` or `uninterruptibleMask` for logic that must complete once it starts, such as complex state updates.
+*   **Prefer High-Level Operators**: `foreachPar`, `zipPar`, `timeout` instead of manual `fork` and `join` whenever possible.
+*   **Join or Interrupt**: After manual `fork`, eventually `join` or `interrupt` fiber. Avoids "dangling" work.
+*   **Use `ZIO.scoped`**: Scopes define exactly how long fiber or resource lives.
+*   **Protect Critical Work**: `.uninterruptible` or `uninterruptibleMask` for logic that must finish once started (e.g., complex state updates).
 
 ### **Common Mistakes**
-*   **Blocking the Executor**: Running synchronous blocking I/O (like legacy JDBC) in a standard `ZIO.attempt`. This can lead to **thread starvation**. Always use `ZIO.attemptBlocking`.
-*   **The Interruption Gap**: Using `.ensuring` for resource cleanup. Interruption can happen after acquisition but before `.ensuring` begins, causing a **leak**. Always use `ZIO.acquireRelease`.
-*   **Non-Atomic Composition**: Trying to make two separate `Ref` updates consistent without `STM`. Each update is atomic, but the sequence is not.
-*   **Monolithic Effects**: Wrapping a giant `while` loop in `ZIO.succeed`. The runtime can't check for interruption inside that loop, making the fiber unresponsive to cancellation.
+*   **Blocking the Executor**: Synchronous blocking I/O (like legacy JDBC) in standard `ZIO.attempt`. Can cause **thread starvation**. Always use `ZIO.attemptBlocking`.
+*   **The Interruption Gap**: `.ensuring` for resource cleanup. Interruption can hit after acquisition, before `.ensuring` begins: **leak**. Always use `ZIO.acquireRelease`.
+*   **Non-Atomic Composition**: Expecting two separate `Ref` updates to stay consistent without `STM`. Each update is atomic; sequence is not.
+*   **Monolithic Effects**: Giant `while` loop in `ZIO.succeed`. Runtime can't check for interruption inside it, so fiber becomes unresponsive to cancellation.

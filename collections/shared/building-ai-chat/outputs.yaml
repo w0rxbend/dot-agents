@@ -152,8 +152,8 @@ conditional_outputs:
 
     vanilla:
       - path: "chat.js"
-        must_contain: ["EventSource", "addEventListener", "innerHTML"]
-        reason: "Vanilla JavaScript chat implementation"
+        must_contain: ["EventSource", "addEventListener", "textContent"]
+        reason: "Vanilla JavaScript chat implementation (textContent, not innerHTML, for model output)"
 
       - path: "index.html"
         must_contain: ["<div id=\"chat\"", "<script src=\"chat.js\""]

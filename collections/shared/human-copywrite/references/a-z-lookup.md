@@ -1,10 +1,10 @@
 # A-Z Lookup
 
-Alphabetical index of every entry in this skill. Click through to the topic file that contains the entry.
+Alphabetical index of every entry in this skill.
 
-**How to use:** When you only need a single term, jump straight to its topic file via this index instead of loading the whole topic file blind.
+**How to use:** Need only one term? Jump to its topic file from this index instead of loading whole topic file blind.
 
-**Cross-references:** When two terms point to the same entry (e.g., `Camera` and `Camera app`), follow the first link.
+**Cross-references:** If two terms point to same entry (e.g., `Camera` and `Camera app`), follow first link.
 
 ---
 

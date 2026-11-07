@@ -8,23 +8,21 @@
 |----------|-------------|------|-------|
 | Any | CNAME | `app` | `<service>.onrender.com` |
 
-Subdomains always use CNAME records.
-
 ### Apex domain (e.g. `example.com`)
 
-Apex domains technically cannot have CNAME records per DNS standards. Options:
+Per DNS standards, apex domains cannot have CNAME records. Options:
 
 | Provider | Record type | Name | Value | Notes |
 |----------|-------------|------|-------|-------|
-| **Cloudflare** | CNAME (flattened) | `@` | `<service>.onrender.com` | Cloudflare auto-flattens at the zone apex |
+| **Cloudflare** | CNAME (flattened) | `@` | `<service>.onrender.com` | Cloudflare auto-flattens at zone apex |
 | **Namecheap** | ALIAS | `@` | `<service>.onrender.com` | Namecheap supports ALIAS records |
-| **Other** | A | `@` | Render-provided IP | Check Dashboard for the IP address |
+| **Other** | A | `@` | Render-provided IP | Check Dashboard for IP address |
 
-**Preferred approach:** Use a DNS provider that supports CNAME flattening or ALIAS records (Cloudflare, Namecheap, DNSimple, NS1). This avoids hardcoding an IP that could change.
+**Preferred approach:** DNS provider with CNAME flattening or ALIAS records (Cloudflare, Namecheap, DNSimple, NS1). Avoids hardcoding IP that could change.
 
 ### www + apex pattern
 
-When you add `www.example.com`, Render automatically adds `example.com` with a redirect to `www`. When you add `example.com`, Render adds `www.example.com` with a redirect to the root.
+Adding `www.example.com` auto-adds `example.com` (redirects to `www`). Adding `example.com` auto-adds `www.example.com` (redirects to root).
 
 Set up DNS for both:
 
@@ -37,42 +35,42 @@ www.example.com → CNAME                  → <service>.onrender.com
 
 ### Cloudflare
 
-1. Go to DNS settings for your domain
-2. Add a CNAME record:
+1. Open domain's DNS settings
+2. Add CNAME record:
    - Name: `@` (for apex) or subdomain
    - Target: `<service>.onrender.com`
-   - Proxy status: **DNS only** (gray cloud) recommended during initial setup
-3. After verification succeeds, you can enable the orange cloud (proxy) if desired
+   - Proxy status: **DNS only** (gray cloud) recommended for initial setup
+3. Once verified, optionally enable orange cloud (proxy)
 
 **Cloudflare proxy (orange cloud) considerations:**
 - Adds Cloudflare's CDN and WAF in front of Render
 - May cache responses (configure cache rules)
-- SSL mode should be **Full (strict)** since Render provides valid TLS
+- Set SSL mode **Full (strict)**: Render provides valid TLS
 
 ### Namecheap
 
-1. Go to Advanced DNS for your domain
-2. Add a CNAME record:
+1. Open domain's Advanced DNS
+2. Add CNAME record:
    - Host: `@` (for apex, uses ALIAS) or subdomain
    - Value: `<service>.onrender.com`
    - TTL: Automatic
 
 ### Other providers
 
-1. For subdomains: Add a CNAME record pointing to `<service>.onrender.com`
-2. For apex domains: Check if your provider supports ALIAS/ANAME records. If not, use an A record with the IP from the Render Dashboard.
+1. Subdomains: CNAME record to `<service>.onrender.com`
+2. Apex domains: ALIAS/ANAME record if provider supports it. If not, A record with IP from Render Dashboard.
 
 ## TTL Recommendations
 
 | Scenario | Recommended TTL |
 |----------|-----------------|
-| Initial setup / migration | 300 (5 minutes) — enables fast iteration |
+| Initial setup / migration | 300 (5 minutes) — fast iteration |
 | After verified and stable | 3600 (1 hour) or higher |
 | During DNS provider migration | 60-300 — minimize stale cache risk |
 
 ## IPv6 (AAAA Records)
 
-**Remove all AAAA records** for domains you point to Render. Render uses IPv4 only. Stale AAAA records cause some clients to attempt IPv6 connections that fail.
+**Remove all AAAA records** for domains pointed to Render. Render is IPv4 only. Stale AAAA records make some clients try IPv6 connections that fail.
 
 ## Troubleshooting
 

@@ -14,7 +14,7 @@
 
 ## Errors as Values
 
-Go treats errors as ordinary values implementing the `error` interface:
+Go errors are ordinary values implementing `error` interface:
 
 ```go
 type error interface {
@@ -22,7 +22,7 @@ type error interface {
 }
 ```
 
-This means errors are returned, not thrown. Every function that can fail returns an `error` as its last return value, and every caller must check it.
+Returned, not thrown. Every function that can fail returns `error` as last return value. Every caller must check it.
 
 ```go
 // ✗ Bad — silently discarding errors
@@ -41,7 +41,7 @@ if err != nil {
 
 ## Error String Conventions
 
-Error strings MUST be lowercase, without trailing punctuation, and should not duplicate the context that wrapping will add.
+Error strings MUST be lowercase, no trailing punctuation. Should not duplicate context that wrapping adds.
 
 ```go
 // ✗ Bad — capitalized, punctuation, redundant prefix
@@ -53,7 +53,7 @@ return errors.New("connection refused")
 return fmt.Errorf("fetching user: %w", err)
 ```
 
-When errors are wrapped through multiple layers, each layer adds its own prefix. The result reads like a chain:
+Each wrapping layer adds own prefix. Result reads like chain:
 
 ```
 creating order: charging card: connecting to payment gateway: connection refused
@@ -80,20 +80,20 @@ return fmt.Errorf("user %s not found in tenant %s", userID, tenantID)
 return oops.With("user_id", userID).With("tenant_id", tenantID).Errorf("user not found")
 ```
 
-See [Low-Cardinality Error Messages](#low-cardinality-error-messages) for why this matters.
+Why: see [Low-Cardinality Error Messages](#low-cardinality-error-messages).
 
 ### Decision table: which error strategy to use
 
 | Situation | Strategy | Example |
 | --- | --- | --- |
-| Caller needs to match a specific condition | Sentinel error (`errors.New` as package var) | `var ErrNotFound = errors.New("not found")` |
-| Caller needs to extract structured data | Custom error type | `type ValidationError struct { Field, Msg string }` |
-| Error is purely informational, not matched on | `fmt.Errorf` or `errors.New` | `fmt.Errorf("connecting to %s: %w", addr, err)` |
+| Caller matches specific condition | Sentinel error (`errors.New` as package var) | `var ErrNotFound = errors.New("not found")` |
+| Caller extracts structured data | Custom error type | `type ValidationError struct { Field, Msg string }` |
+| Purely informational, not matched on | `fmt.Errorf` or `errors.New` | `fmt.Errorf("connecting to %s: %w", addr, err)` |
 | Need stack traces, user context, structured attrs | `samber/oops` | See [Why Use samber/oops](./error-handling.md#why-use-samberoops) |
 
 ## Low-Cardinality Error Messages
 
-APM and log aggregation tools (Datadog, Loki, Sentry) commonly group events by the logged message or exception fingerprint. When the stable log message contains variable data, every unique combination can create a separate group — dashboards become noisy and alerting breaks.
+APM and log aggregation tools (Datadog, Loki, Sentry) commonly group events by logged message or exception fingerprint. Variable data in stable log message can make each unique combination its own group: noisy dashboards, broken alerting.
 
 ```go
 import "github.com/samber/oops"
@@ -110,13 +110,13 @@ slog.Error("csv parsing failed", "error", err, "csv_file_path", csvPath, "csv_fi
 oops.With("csv_file_path", csvPath).With("csv_file_line", line).Errorf("csv parsing error")
 ```
 
-The stdlib approach works but scatters context: the error travels up the stack and the handler logging it may no longer have access to the variable data. `samber/oops` (external dependency `github.com/samber/oops`) solves this by attaching structured attributes directly to the error, so they're available wherever the error is eventually logged.
+Stdlib approach works but scatters context: error travels up stack, and logging handler may lose access to variable data. `samber/oops` (external dependency `github.com/samber/oops`) attaches structured attributes to error itself, available wherever error gets logged.
 
-**Static wrapping prefixes are fine** — `fmt.Errorf("fetching user: %w", err)` is low-cardinality because the prefix never changes. Dynamic context in returned errors is sometimes useful for CLI output or debugging, but production logging should keep the grouping message stable and attach IDs, paths, counts, and other variable data as structured attributes.
+**Static wrapping prefixes are fine** — `fmt.Errorf("fetching user: %w", err)` is low-cardinality: prefix never changes. Dynamic context in returned errors can help CLI output or debugging. Production logging should keep grouping message stable; put IDs, paths, counts, other variable data in structured attributes.
 
 ## Custom Error Types
 
-Create custom error types when callers need to extract structured data from errors.
+Create custom error types when callers need to extract structured data.
 
 ```go
 type ValidationError struct {
@@ -139,7 +139,7 @@ func validateAge(age int) error {
 
 ### Custom types that wrap other errors
 
-Implement `Unwrap()` so `errors.Is` and `errors.As` can traverse the chain:
+Implement `Unwrap()` so `errors.Is` and `errors.As` can traverse chain:
 
 ```go
 type QueryError struct {

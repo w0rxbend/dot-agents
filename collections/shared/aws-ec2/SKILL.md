@@ -17,23 +17,12 @@ metadata:
 
 # AWS EC2
 
-Deploy and manage Amazon EC2 compute instances for production, staging, and development workloads.
-
-## When to Use This Skill
-
-- Launching new compute instances for application hosting
-- Building golden AMIs for consistent deployments
-- Setting up auto-scaling groups behind load balancers
-- Migrating workloads to Spot instances for cost savings
-- Troubleshooting instance connectivity, performance, or launch failures
-- Creating launch templates for repeatable infrastructure
-
 ## Prerequisites
 
 - AWS CLI v2 installed and configured (`aws configure`)
-- IAM permissions: `ec2:*`, `autoscaling:*`, `elasticloadbalancing:*`, `iam:PassRole`
-- An existing VPC with subnets (see `architecting-networks` for VPC and subnet design)
-- SSH key pair created (`aws ec2 create-key-pair --key-name my-key --query 'KeyMaterial' --output text > my-key.pem`)
+- IAM permissions: only the EC2, Auto Scaling and ELB actions you run (not `ec2:*`-style wildcards); `iam:PassRole` scoped to the instance-profile role ARN with condition `iam:PassedToService=ec2.amazonaws.com` (unscoped PassRole + RunInstances escalates to any role)
+- Existing VPC with subnets (see `architecting-networks` for VPC and subnet design)
+- SSH key pair, private key 0600 outside the repo: `(umask 077; aws ec2 create-key-pair --key-name my-key --query 'KeyMaterial' --output text > ~/.ssh/my-key.pem)`. Prefer SSM Session Manager (no SSH keys or open port 22) where possible.
 
 ## Instance Type Selection Guide
 
@@ -44,7 +33,7 @@ Deploy and manage Amazon EC2 compute instances for production, staging, and deve
 | Memory Optimized | r6i, r7g, x2idn | In-memory caches, large databases |
 | Storage Optimized | i3, i4i, d3 | Data warehousing, distributed file systems |
 | Accelerated | p4d, g5, inf2 | ML training, GPU rendering, inference |
-| Burstable | t3.micro-t3.2xlarge | Low-steady-state with occasional bursts |
+| Burstable | t3.micro-t3.2xlarge | Low steady-state load, occasional bursts |
 
 ## Launch an Instance
 
@@ -104,7 +93,8 @@ dnf install -y amazon-cloudwatch-agent
   -a fetch-config -m ec2 \
   -s -c ssm:AmazonCloudWatch-linux
 
-# Install CodeDeploy agent
+# Install CodeDeploy agent (official AWS installer over HTTPS, runs as root).
+# Prefer SSM Distributor (AWS-ConfigureAWSPackage, name AWSCodeDeployAgent) for managed installs.
 dnf install -y ruby wget
 cd /home/ec2-user
 wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install
@@ -298,7 +288,7 @@ aws ec2 deregister-image --image-id ami-old123 --dry-run   # permission check on
 aws ec2 deregister-image --image-id ami-old123
 aws ec2 delete-snapshot --snapshot-id snap-old123   # only snapshots listed in step 1
 
-# Share AMI with another AWS account
+# Share AMI with another AWS account - outward-facing: confirm AMI ID and target account ID with user first
 aws ec2 modify-image-attribute \
   --image-id ami-0abcdef1234567890 \
   --launch-permission "Add=[{UserId=987654321098}]"
@@ -313,11 +303,11 @@ aws ec2 describe-instances \
   --query "Reservations[].Instances[].{ID:InstanceId,Type:InstanceType,IP:PrivateIpAddress,Name:Tags[?Key=='Name']|[0].Value,State:State.Name}" \
   --output table
 
-# Stop and start instances
+# Stop and start instances - disrupts service: confirm instance IDs with user first
 aws ec2 stop-instances --instance-ids i-0abc123def456
 aws ec2 start-instances --instance-ids i-0abc123def456
 
-# Resize an instance (stop first)
+# Resize an instance (stop first; same confirmation)
 aws ec2 stop-instances --instance-ids i-0abc123def456
 aws ec2 wait instance-stopped --instance-ids i-0abc123def456
 aws ec2 modify-instance-attribute \
@@ -408,14 +398,14 @@ resource "aws_autoscaling_policy" "cpu" {
 
 | Problem | Cause | Fix |
 |---|---|---|
-| Instance stuck in `pending` | Insufficient capacity | Try a different AZ or instance type |
+| Instance stuck in `pending` | Insufficient capacity | Try different AZ or instance type |
 | Cannot SSH to instance | Security group or NACL blocks port 22 | Check SG ingress rules and route tables |
 | Instance immediately terminates | EBS volume limit or AMI issue | Check `describe-instances` for StateReason |
 | IMDSv1 deprecation warnings | Metadata options not set | Set `HttpTokens=required` in launch template |
 | User data not running | Script missing shebang or not base64 | Verify `#!/bin/bash` header; check `/var/log/cloud-init-output.log` |
-| Spot instance terminated | Capacity reclaimed by AWS | Use capacity-optimized allocation and diversify types |
-| ASG not replacing unhealthy | Health check grace period too short | Increase grace period to cover app boot time |
-| EBS throughput bottleneck | gp2 volume too small for IOPS | Migrate to gp3 and set explicit IOPS/throughput |
+| Spot instance terminated | AWS reclaimed capacity | Use capacity-optimized allocation; diversify types |
+| ASG not replacing unhealthy | Health check grace period too short | Raise grace period to cover app boot time |
+| EBS throughput bottleneck | gp2 volume too small for IOPS | Migrate to gp3; set explicit IOPS/throughput |
 
 ## Related Skills
 
@@ -427,6 +417,6 @@ resource "aws_autoscaling_policy" "cpu" {
 
 ## Safety
 
-- Run `aws sts get-caller-identity` and confirm the account, region and profile before any change.
-- Use `describe`/`list`/`get` calls and `--dry-run` (EC2) first; snapshot or back up before deleting or modifying stateful resources.
-
+- Run `aws sts get-caller-identity`. Confirm account, region and profile before any change.
+- Start with `describe`/`list`/`get` calls and `--dry-run` (EC2). Snapshot or back up before deleting or modifying stateful resources.
+- Get explicit user confirmation before disruptive or outward-facing changes (stop, resize, terminate, ASG capacity, deregister/delete, sharing AMIs or snapshots with other accounts); show target IDs, account and Environment tag first.

@@ -1,9 +1,5 @@
 # GraphQL Schema Design
 
-## Overview
-
-GraphQL provides a query language for APIs with strong typing and flexible data fetching. This guide covers schema patterns, resolver optimization, and N+1 query prevention.
-
 ## Table of Contents
 
 - [Core Concepts](#core-concepts)
@@ -21,15 +17,15 @@ GraphQL provides a query language for APIs with strong typing and flexible data 
 ✅ **Use GraphQL when:**
 - Frontend needs flexible data fetching
 - Mobile apps with bandwidth constraints
-- Complex, nested data requirements
-- Over-fetching/under-fetching problems exist
+- Complex, nested data
+- Over-fetching or under-fetching problems
 - Multiple clients need different data shapes
 
 ❌ **Avoid GraphQL when:**
-- Simple CRUD operations suffice
+- Simple CRUD suffices
 - No need for flexible queries
 - Team lacks GraphQL experience
-- Caching requirements are complex
+- Caching requirements complex
 
 ### GraphQL vs REST
 
@@ -38,7 +34,7 @@ GraphQL provides a query language for APIs with strong typing and flexible data 
 | **Flexibility** | Request exact data needed | Fixed endpoint responses |
 | **Versioning** | Single endpoint, evolve schema | Multiple versions (v1, v2) |
 | **Over-fetching** | No - request only needed fields | Yes - endpoints return fixed data |
-| **Under-fetching** | No - request nested data in one query | Yes - multiple requests needed |
+| **Under-fetching** | No - nested data in one query | Yes - multiple requests needed |
 | **Caching** | More complex (field-level) | Simple (URL-based) |
 | **Learning curve** | Higher | Lower |
 
@@ -196,7 +192,7 @@ let schema = Schema::build(Query, Mutation, EmptySubscription).finish();
 
 ### Field Resolvers
 
-Resolve individual fields (not just top-level queries):
+Resolve individual fields, not only top-level queries:
 
 ```python
 @strawberry.type
@@ -217,7 +213,7 @@ class User:
         return await db.users.find(id__in=follower_ids)
 ```
 
-**Client can request exactly what they need:**
+**Client requests exactly what it needs:**
 ```graphql
 query {
   user(id: "123") {
@@ -271,7 +267,7 @@ app.include_router(graphql_app, prefix="/graphql")
 
 ### The N+1 Problem
 
-**Problem:** Fetching a list and then fetching related data for each item results in N+1 queries.
+**Problem:** Fetching list, then related data per item, gives N+1 queries.
 
 ```python
 # BAD: N+1 queries
@@ -382,7 +378,7 @@ builder.objectType('User', {
 
 ### Field-Level Errors
 
-GraphQL allows partial success - some fields can error while others succeed:
+Partial success allowed - some fields error while others succeed:
 
 ```python
 @strawberry.type
@@ -447,7 +443,7 @@ class Query:
 
 ### Relay Cursor Connections
 
-Standard pattern for pagination:
+Standard pagination pattern:
 
 ```python
 @strawberry.type
@@ -598,15 +594,15 @@ subscription {
 ## Best Practices
 
 1. **Use DataLoader for N+1 prevention** - Essential for performance
-2. **Design schema from client perspective** - Think about what data clients need
-3. **Avoid exposing database structure** - Schema should match domain model
+2. **Design schema from client perspective** - Model what data clients need
+3. **Avoid exposing database structure** - Schema matches domain model
 4. **Use pagination for lists** - Relay connections for consistency
 5. **Field-level authorization** - Check permissions in resolvers
-6. **Deprecate fields instead of removing** - GraphQL introspection shows deprecated fields
-7. **Limit query complexity** - Prevent malicious deep queries
-8. **Enable query depth limiting** - Prevent overly nested queries
+6. **Deprecate fields instead of removing** - Introspection shows deprecated fields
+7. **Limit query complexity** - Blocks malicious deep queries
+8. **Enable query depth limiting** - Blocks overly nested queries
 9. **Cache at field level** - Use DataLoader caching
-10. **Document schema** - Use descriptions for fields and types
+10. **Document schema** - Add descriptions to fields and types
 
 ## Query Complexity Analysis
 
@@ -623,7 +619,7 @@ schema = strawberry.Schema(
 )
 ```
 
-This prevents queries like:
+Blocks queries like:
 ```graphql
 query {
   user {

@@ -1,7 +1,6 @@
 # Android Platform Guidelines
 
-> Material Design 3 essentials, Android design conventions, Roboto typography, and native patterns.
-> **Read this file when building for Android devices.**
+> **Read when building for Android devices.**
 
 ---
 
@@ -28,16 +27,6 @@ ACCESSIBLE BY DEFAULT:
 ├── Semantic colors
 └── Motion respects preferences
 ```
-
-### Material Design Values
-
-| Value | Implementation |
-|-------|----------------|
-| **Dynamic Color** | Colors adapt to wallpaper/user preference |
-| **Personalization** | User-specific themes |
-| **Accessibility** | Built into every component |
-| **Responsiveness** | Works on all screen sizes |
-| **Consistency** | Unified design language |
 
 ---
 
@@ -643,12 +632,12 @@ if (reduceMotion) {
 
 ### Before Every Android Screen
 
-- [ ] Using Material 3 components
+- [ ] Material 3 components used
 - [ ] Touch targets ≥ 48dp
 - [ ] Ripple effect on all touchables
 - [ ] Roboto or Material type scale
 - [ ] Semantic colors (dynamic color support)
-- [ ] Back navigation works correctly
+- [ ] Back navigation works
 
 ### Before Android Release
 
@@ -658,9 +647,5 @@ if (reduceMotion) {
 - [ ] TalkBack tested
 - [ ] Predictive back implemented (Android 14+)
 - [ ] Edge-to-edge display (Android 15+)
-- [ ] Different screen sizes tested (phones, tablets)
+- [ ] Screen sizes tested (phones, tablets)
 - [ ] Navigation patterns match platform (back, gestures)
-
----
-
-> **Remember:** Android users expect Material Design. Custom designs that ignore Material patterns feel foreign and broken. Use Material components as your foundation, customize thoughtfully.

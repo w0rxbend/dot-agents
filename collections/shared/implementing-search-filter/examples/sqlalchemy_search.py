@@ -328,8 +328,12 @@ class SearchOptimizer:
         if session.bind.dialect.name != 'postgresql':
             return "EXPLAIN only available for PostgreSQL"
 
-        sql = str(query.statement.compile(compile_kwargs={"literal_binds": True}))
-        result = session.execute(f"EXPLAIN ANALYZE {sql}")
+        # Keep search terms as bound params; never render them into SQL (literal_binds).
+        compiled = query.statement.compile(
+            dialect=session.bind.dialect, compile_kwargs={"render_postcompile": True}
+        )
+        params = tuple(compiled.params[k] for k in compiled.positiontup) if compiled.positional else compiled.params
+        result = session.connection().exec_driver_sql(f"EXPLAIN ANALYZE {compiled}", params)
         return '\n'.join([row[0] for row in result])
 
     @staticmethod

@@ -32,7 +32,7 @@ function draw() {
 
 ### High-Resolution Export
 
-For resolutions beyond screen size, use `pixelDensity()` or a large offscreen buffer:
+For resolutions beyond screen size, use `pixelDensity()` or large offscreen buffer:
 
 ```javascript
 function exportHighRes(scale) {
@@ -81,10 +81,10 @@ saveGif('output', 5, {
 ```
 
 Limitations:
-- GIF is 256 colors max — dithering artifacts on gradients
+- GIF max 256 colors — dithering artifacts on gradients
 - Large canvases produce huge files
-- Use a smaller canvas (640x360) for GIF, higher for PNG/MP4
-- Frame rate is approximate
+- Use smaller canvas (640x360) for GIF, higher for PNG/MP4
+- Frame rate approximate
 
 ### Optimal GIF Settings
 
@@ -139,7 +139,7 @@ function draw() {
 
 ### Deterministic Capture (Critical for Video)
 
-The `noLoop()` + `redraw()` pattern is **required** for frame-perfect headless capture. Without it, p5's draw loop runs freely in Chrome while Puppeteer screenshots are slow — the sketch runs ahead and you get duplicate/missing frames.
+`noLoop()` + `redraw()` pattern is **required** for frame-perfect headless capture. Without it, p5's draw loop runs freely in Chrome while Puppeteer screenshots lag. Sketch runs ahead, giving duplicate/missing frames.
 
 ```javascript
 function setup() {
@@ -155,7 +155,7 @@ function draw() {
 }
 ```
 
-The bundled `scripts/export-frames.js` detects `window._p5Ready` and switches to deterministic mode automatically. Without it, falls back to timed capture (less precise).
+Bundled `scripts/export-frames.js` detects `window._p5Ready` and switches to deterministic mode automatically. Without it, falls back to timed capture (less precise).
 
 ### ffmpeg: Frames to MP4
 
@@ -179,22 +179,22 @@ ffmpeg -stream_loop 2 -i output.mp4 -c copy output-looped.mp4
 
 ### Video Export Gotchas
 
-**YUV420 clips dark values.** H.264 encodes in YUV420 color space, which rounds dark RGB values. Content below RGB(8,8,8) may become pure black. Subtle dark details (dim particle trails, faint noise textures) disappear in the encoded video even though they're visible in the PNG frames.
+**YUV420 clips dark values.** H.264 encodes in YUV420 color space, which rounds dark RGB values. Content below RGB(8,8,8) may become pure black. Subtle dark details (dim particle trails, faint noise textures) vanish in encoded video, though visible in PNG frames.
 
-**Fix:** Ensure minimum brightness of ~10 for any visible content. Test by encoding a few frames and comparing the MP4 frame vs the source PNG.
+**Fix:** Keep minimum brightness ~10 for any visible content. Test: encode a few frames, compare MP4 frame vs source PNG.
 
 ```bash
 # Extract a frame from MP4 for comparison
 ffmpeg -i output.mp4 -vf "select=eq(n\,100)" -vframes 1 check.png
 ```
 
-**Static frames look broken in video.** If an algorithm produces a single static image (like a pre-computed attractor heatmap), it reads as a freeze/glitch in video. Always add animation even to static content:
+**Static frames look broken in video.** Algorithm output that is one static image (like pre-computed attractor heatmap) reads as freeze/glitch in video. Always add animation, even to static content:
 - Progressive reveal (expand from center, sweep across)
 - Slow parameter drift (rotate color mapping, shift noise offset)
 - Camera-like motion (slow zoom, slight pan)
 - Overlay animated particles or grain
 
-**Scene transitions are mandatory.** Hard cuts between visually different scenes are jarring. Use fade envelopes:
+**Scene transitions are mandatory.** Hard cuts between visually different scenes jar. Use fade envelopes:
 
 ```javascript
 const FADE_FRAMES = 15;  // half-second at 30fps
@@ -207,7 +207,7 @@ fade = fade * fade * (3 - 2 * fade);  // smoothstep
 
 ### Per-Clip Architecture (Multi-Scene Videos)
 
-For videos with multiple scenes, render each as a separate HTML file + MP4 clip, then stitch with ffmpeg. This enables re-rendering individual scenes without touching the rest.
+For multi-scene videos, render each scene as separate HTML file + MP4 clip, then stitch with ffmpeg. Lets you re-render one scene without touching the rest.
 
 **Directory structure:**
 ```
@@ -248,7 +248,7 @@ ffmpeg -y -framerate 30 -i clips/01-particles/frame-%04d.png \
 ffmpeg -y -f concat -safe 0 -i clips/concat.txt -c copy final.mp4
 ```
 
-**Re-order without re-rendering:** Just change the order in concat.txt and re-stitch. No frames need re-rendering.
+**Re-order without re-rendering:** Change order in concat.txt and re-stitch. No frames need re-rendering.
 
 **Each scene HTML must:**
 - Call `noLoop()` in setup and set `window._p5Ready = true`
@@ -270,11 +270,11 @@ ffmpeg -i frame-%04d.png -i palette.png \
 
 ## Headless Export (Puppeteer)
 
-For automated, server-side, or CI rendering. Uses a headless Chrome browser to run the sketch.
+For automated, server-side or CI rendering. Runs sketch in headless Chrome.
 
 ### export-frames.js (Node.js Script)
 
-See `scripts/export-frames.js` for the full implementation. Basic pattern:
+Full implementation in `scripts/export-frames.js`. Basic pattern:
 
 ```javascript
 const puppeteer = require('puppeteer');
@@ -282,7 +282,7 @@ const puppeteer = require('puppeteer');
 async function captureFrames(htmlPath, outputDir, options) {
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: []  // '--no-sandbox' only as root in a container; never --disable-web-security
   });
   const page = await browser.newPage();
 
@@ -317,7 +317,7 @@ async function captureFrames(htmlPath, outputDir, options) {
 
 ### render.sh (Full Pipeline)
 
-See `scripts/render.sh` for the complete render script. Pipeline:
+Complete render script in `scripts/render.sh`. Pipeline:
 
 ```
 1. Launch Puppeteer → open sketch HTML
@@ -332,7 +332,7 @@ See `scripts/render.sh` for the complete render script. Pipeline:
 ### Using p5.js-svg Library
 
 ```html
-<script src="https://unpkg.com/p5.js-svg@1.5.1"></script>
+<script src="https://unpkg.com/p5.js-svg@1.6.0"></script>
 ```
 
 ```javascript
@@ -342,27 +342,27 @@ function setup() {
 }
 
 function draw() {
-  // Only vector operations (no pixels, no blend modes)
+  // Only vector operations work (no pixel ops, no blendMode)
   stroke(0);
   noFill();
   for (let i = 0; i < 100; i++) {
-    let x = random(width);
-    let y = random(height);
-    ellipse(x, y, random(10, 50));
+    ellipse(random(width), random(height), random(10, 50));
   }
   save('output.svg');
 }
 ```
 
-Limitations:
-- No `loadPixels()`, `updatePixels()`, `filter()`, `blendMode()`
+**Critical SVG caveats:**
+- **Must call `clear()` in `draw()`** for animated sketches — SVG DOM accumulates child elements, causing memory bloat
+- `blendMode()` is **not implemented** in SVG renderer
+- `filter()`, `loadPixels()`, `updatePixels()` don't work
 - No WebGL
-- No pixel-level effects
-- Great for: line art, geometric patterns, plots
+- Requires **p5.js 1.11.x** — not compatible with p5.js 2.x
+- Perfect for: line art, geometric patterns, plots, pen plotter output
 
 ### Hybrid: Raster Background + SVG Overlay
 
-Render background effects to PNG, then SVG for crisp vector elements on top.
+Render background effects to PNG, then SVG on top for crisp vector elements.
 
 ## Export Format Decision Guide
 
@@ -380,7 +380,7 @@ Render background effects to PNG, then SVG for crisp vector elements on top.
 
 ## Tiling for Ultra-High-Resolution
 
-For resolutions too large for a single canvas (e.g., 10000x10000 for print):
+For resolutions too large for one canvas (e.g., 10000x10000 for print):
 
 ```javascript
 function renderTiled(totalW, totalH, tileSize) {
@@ -405,10 +405,11 @@ function renderTiled(totalW, totalH, tileSize) {
 
 ## CCapture.js — Deterministic Video Capture
 
-The built-in `saveFrames()` has limitations: small frame counts, memory issues, browser download blocking. CCapture.js solves all of these by hooking into the browser's timing functions to simulate constant time steps regardless of actual render speed.
+Built-in `saveFrames()` has limits: small frame counts, memory issues, browser download blocking. CCapture.js fixes all of these. It hooks browser timing functions to simulate constant time steps regardless of actual render speed.
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/ccapture.js-npmfixed/build/CCapture.all.min.js"></script>
+<!-- SRI locks the ccapture.js-npmfixed@1.1.0 build; a changed file is blocked -->
+<script src="https://cdn.jsdelivr.net/npm/ccapture.js-npmfixed/build/CCapture.all.min.js" integrity="sha384-64SYlLdyj7TO3whmVmWdUWICvj+G0n7Pg170UIB4/3Zfhsvt77ZfoynTDhHhN1Ks" crossorigin="anonymous"></script>
 ```
 
 ### Basic Setup
@@ -465,10 +466,10 @@ function keyPressed() {
 
 ### Important: Timing Hook
 
-CCapture.js overrides `Date.now()`, `setTimeout`, `requestAnimationFrame`, and `performance.now()`. This means:
+CCapture.js overrides `Date.now()`, `setTimeout`, `requestAnimationFrame` and `performance.now()`. Effects:
 - `millis()` returns simulated time (perfect for recording)
 - `deltaTime` is constant (1000/framerate)
-- Complex sketches that take 500ms per frame still record at smooth 30fps
+- Complex sketches taking 500ms per frame still record at smooth 30fps
 - **Caveat**: Audio sync breaks (audio plays in real-time, not simulated time)
 
 ## Programmatic Export (canvas API)
@@ -487,36 +488,6 @@ document.querySelector('canvas').toBlob((blob) => {
 let dataUrl = document.querySelector('canvas').toDataURL('image/png');
 // Use in <img src="..."> or send as base64
 ```
-
-## SVG Export (p5.js-svg)
-
-```html
-<script src="https://unpkg.com/p5.js-svg@1.6.0"></script>
-```
-
-```javascript
-function setup() {
-  createCanvas(1920, 1080, SVG);  // SVG renderer
-  noLoop();
-}
-
-function draw() {
-  // Only vector operations work (no pixel ops, no blendMode)
-  stroke(0);
-  noFill();
-  for (let i = 0; i < 100; i++) {
-    ellipse(random(width), random(height), random(10, 50));
-  }
-  save('output.svg');
-}
-```
-
-**Critical SVG caveats:**
-- **Must call `clear()` in `draw()`** for animated sketches — SVG DOM accumulates child elements, causing memory bloat
-- `blendMode()` is **not implemented** in SVG renderer
-- `filter()`, `loadPixels()`, `updatePixels()` don't work
-- Requires **p5.js 1.11.x** — not compatible with p5.js 2.x
-- Perfect for: line art, geometric patterns, pen plotter output
 
 ## Platform Export
 
@@ -545,8 +516,8 @@ $fx.params([
 // Read params
 let density = $fx.getParam('density');
 
-// Build: npx fxhash build → upload.zip
-// Dev: npx fxhash dev → localhost:3300
+// Build: npx fxhash@0.0.17 build → upload.zip
+// Dev: npx fxhash@0.0.17 dev → localhost:3300
 ```
 
 ### Art Blocks / Generic Platform

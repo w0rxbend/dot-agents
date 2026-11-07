@@ -17,13 +17,11 @@ metadata:
 
 # HashiCorp Vault
 
-Centrally manage secrets, encryption, and access with HashiCorp Vault.
-
 ## When to Use This Skill
 
-Use this skill when:
+Use when:
 - Centralizing secrets management
-- Implementing dynamic credentials
+- Issuing dynamic credentials
 - Managing PKI and certificates
 - Encrypting sensitive data
 - Meeting compliance requirements
@@ -39,8 +37,8 @@ Use this skill when:
 ### Development Server
 
 ```bash
-# Start dev server
-vault server -dev
+# Start dev server (local learning only: in-memory, no TLS, fixed root token; never real secrets)
+vault server -dev -dev-root-token-id=root
 
 # Set environment
 export VAULT_ADDR='http://127.0.0.1:8200'
@@ -72,16 +70,15 @@ ui = true
 ```
 
 ```bash
-# Initialize Vault
+# Initialize Vault: human operator runs this in own terminal, never agent.
+# Output holds every unseal key + root token; encrypt per holder with -pgp-keys / -root-token-pgp-key.
 vault operator init -key-shares=5 -key-threshold=3
 
-# Unseal (run 3 times with different keys)
-vault operator unseal <key-1>
-vault operator unseal <key-2>
-vault operator unseal <key-3>
+# Unseal: 3 key holders each run it; prompts with hidden input (never pass key as arg)
+vault operator unseal
 
-# Login
-vault login <root-token>
+# Login: prompts for token with hidden input; -no-print keeps token out of output
+vault login -no-print
 ```
 
 ## Secret Engines
@@ -92,19 +89,19 @@ vault login <root-token>
 # Enable KV v2
 vault secrets enable -path=secret kv-v2
 
-# Write secret
+# Write secret (password=- reads value from stdin, keeps it out of argv and history)
 vault kv put secret/myapp/config \
   username="admin" \
-  password="..." # example value; use a vault-generated secret
+  password=-
 
-# Read secret
+# Read secret (prints values: run in user terminal, not agent session)
 vault kv get secret/myapp/config
 vault kv get -field=password secret/myapp/config
 
 # Update secret
 vault kv put secret/myapp/config \
   username="admin" \
-  password="..." # rotated value from your vault
+  password=-
 
 # List secrets
 vault kv list secret/
@@ -128,7 +125,7 @@ vault write database/config/postgresql \
   connection_url="postgresql://{{username}}:{{password}}@localhost:5432/mydb" \
   allowed_roles="readonly,readwrite" \
   username="vault" \
-  password="..." # service credential from your vault
+  password=- # read from stdin
 
 # Create role
 vault write database/roles/readonly \
@@ -151,7 +148,7 @@ vault secrets enable aws
 # Configure root credentials
 vault write aws/config/root \
   access_key=AKIA... \
-  secret_key=secret... \
+  secret_key=- \
   region=us-east-1
 
 # Create role
@@ -227,7 +224,7 @@ vault write -f auth/approle/role/myapp/secret-id
 # Login
 vault write auth/approle/login \
   role_id=<role-id> \
-  secret_id=<secret-id>
+  secret_id=-
 ```
 
 ### Kubernetes
@@ -259,7 +256,7 @@ vault auth enable oidc
 vault write auth/oidc/config \
   oidc_discovery_url="https://accounts.google.com" \
   oidc_client_id="your-client-id" \
-  oidc_client_secret=<your-vault-oidc-client-secret> \
+  oidc_client_secret=- \
   default_role="default"
 
 # Create role
@@ -310,7 +307,7 @@ vault policy read myapp
 
 ## Audit Devices
 
-Enable at least one audit device before production traffic; Vault logs every request and response with secret values HMAC'd.
+Enable at least one audit device before production traffic. Vault logs every request and response, secret values HMAC'd.
 
 ```bash
 # File audit device (ship the file with your log agent)
@@ -322,7 +319,7 @@ vault audit enable -path=syslog syslog tag="vault" facility="AUTH"
 vault audit list -detailed
 ```
 
-Rotate the audit file with logrotate and send `SIGHUP` to Vault afterwards so it reopens the file.
+Rotate audit file with logrotate, then send `SIGHUP` to Vault so it reopens file.
 
 ## Application Integration
 
@@ -379,12 +376,12 @@ spec:
 ## Common Issues
 
 ### Issue: Sealed Vault
-**Problem**: Vault is sealed after restart
-**Solution**: Implement auto-unseal with cloud KMS or HSM
+**Problem**: Vault sealed after restart
+**Solution**: Configure auto-unseal with cloud KMS or HSM
 
 ### Issue: Token Expired
-**Problem**: Application token has expired
-**Solution**: Implement token renewal, use shorter-lived tokens
+**Problem**: Application token expired
+**Solution**: Add token renewal, use shorter-lived tokens
 
 ### Issue: Permission Denied
 **Problem**: Cannot access secrets
@@ -392,25 +389,25 @@ spec:
 
 ## Best Practices
 
-- Use short-lived tokens
-- Implement auto-unseal
-- Enable audit logging
-- Use namespaces for isolation (Vault Enterprise / HCP only; use separate mounts and policies on Community Edition)
-- Revoke the initial root token; when one is needed again, generate a short-lived one with `vault operator generate-root` and revoke it afterwards
-- Implement least-privilege policies
+- Isolate with namespaces (Vault Enterprise / HCP only; on Community Edition use separate mounts and policies)
+- Revoke initial root token; if one needed again, generate short-lived one with `vault operator generate-root`, revoke after use
+- Write least-privilege policies
 - Use dynamic secrets where possible
-- Regular backup and DR testing
+- Back up regularly, test DR
 
 ## Related Skills
 
-- `kubernetes-hardening` - consuming Vault secrets in Kubernetes and encrypting Secrets at rest
-- `security-hardening` - host and cloud hardening around the Vault cluster
-- `deploying-on-aws` - when AWS Secrets Manager / Parameter Store is the better fit
+- `kubernetes-hardening` - consume Vault secrets in Kubernetes, encrypt Secrets at rest
+- `security-hardening` - host and cloud hardening around Vault cluster
+- `deploying-on-aws` - when AWS Secrets Manager / Parameter Store fits better
 
 ## Safety
 
 - Run `vault status` and read-only commands (`vault secrets list`, `vault policy read`, `vault audit list`) before changing anything.
-- Never paste unseal keys, root tokens or secret values into chat, tickets or logs; revoke the initial root token once admin policies exist (`vault token revoke <token>`).
-- Test policy, auth-method and seal changes on a non-production cluster; a wrong seal or storage change can make data unrecoverable.
+- Never paste unseal keys, root tokens or secret values into chat, tickets or logs. Revoke initial root token once admin policies exist (logged in as root: `vault token revoke -self`).
+- Agent never runs commands that print secret values, tokens or private keys into its output (`vault kv get`, `database/creds`, `aws/creds`, `pki/issue`, AppRole `secret-id` and login, `operator init`). Check existence with `vault kv metadata get` or `vault kv get -format=json PATH | jq '.data.data | keys'`; pipe `-field` output straight to its consumer or a 0600 file.
+- Pass secret values as `key=-` (stdin) or `key=@file` (0600 file), never inline: argv lands in shell history and process list.
+- Confirm with user, naming exact path, before `kv delete`/`destroy`/`metadata delete`, `secrets disable` or `auth disable` (wipes mount data or revokes its tokens), `token`/`lease revoke`, `policy write`/`delete`, or init/seal changes.
+- Test policy, auth-method and seal changes on non-production cluster. Wrong seal or storage change can make data unrecoverable.
 
 > Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT).

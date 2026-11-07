@@ -3,17 +3,19 @@ name: python-type-system
 user-invocable: false
 description: Annotate Python code and fix type-checker errors with mypy or pyright - builtin generics, X | None, PEP 695 generics and `type` aliases, Protocol, TypedDict, Literal, overload, ParamSpec, Self, @override, TypeIs/TypeGuard. Use when adding or reviewing annotations or configuring type checking; use python-data-classes for model classes.
 allowed-tools:
-  - Bash
+  - "Bash(uv run mypy:*)"
+  - "Bash(uv run pyright:*)"
+  - "Bash(mypy:*)"
+  - "Bash(pyright:*)"
+  - "Bash(python -m mypy:*)"
   - Read
 ---
 
 # Python Type System
 
-Write annotations that a checker can verify and that read well. First find the
-project's minimum Python (`requires-python` in `pyproject.toml`) and the checker
-it already uses; syntax below is tagged with the version that introduced it.
-Features newer than the minimum come from `typing_extensions` (works at runtime
-on older versions) or need the legacy spelling.
+First find project's minimum Python (`requires-python` in `pyproject.toml`) and
+its current checker. Features newer than minimum come from `typing_extensions`
+(works at runtime on older versions) or need legacy spelling.
 
 ## Version Map
 
@@ -27,9 +29,9 @@ on older versions) or need the legacy spelling.
 | `@override` | 3.12 | `typing_extensions.override` |
 | `TypeIs`, `ReadOnly` (TypedDict), TypeVar defaults | 3.13 | `typing_extensions` |
 
-`from __future__ import annotations` lets annotations use newer syntax on older
-interpreters (they are not evaluated), but not in runtime-evaluated places such
-as base classes, `cast()` arguments, or Pydantic/dataclass field introspection.
+`from __future__ import annotations` allows newer annotation syntax on older
+interpreters (annotations stay unevaluated). Not in runtime-evaluated places:
+base classes, `cast()` arguments, Pydantic/dataclass field introspection.
 
 ## Checkers and Configuration
 
@@ -61,8 +63,8 @@ typeCheckingMode = "strict"       # or "standard" while adopting
 # pythonVersion = "3.X"
 ```
 
-Pick one checker as the CI gate. Adopt gradually: enable `strict` per package
-via overrides rather than adding blanket `# type: ignore`.
+Pick one checker as CI gate. Adopt gradually: per-package `strict` via
+overrides, not blanket `# type: ignore`.
 
 ## Everyday Annotations
 
@@ -76,16 +78,16 @@ def apply(fn: Callable[[int], str], items: Sequence[int]) -> list[str]: ...
 def render(config: Mapping[str, object]) -> str: ...
 ```
 
-- Accept abstract types (`Iterable`, `Sequence`, `Mapping`) for parameters;
-  return concrete types (`list`, `dict`).
-- Import ABCs from `collections.abc`; the `typing` aliases are deprecated.
-- Prefer `object` over `Any` for "anything" inputs: `Any` disables checking,
+- Accept abstract types (`Iterable`, `Sequence`, `Mapping`) for parameters.
+  Return concrete types (`list`, `dict`).
+- Import ABCs from `collections.abc`; `typing` aliases are deprecated.
+- Prefer `object` over `Any` for "anything" inputs. `Any` disables checking;
   `object` forces narrowing.
-- Annotate locals only when inference cannot (empty containers, `None` initial values).
+- Annotate locals only where inference cannot: empty containers, `None` initial values.
 
 ## Generics
 
-PEP 695 syntax (3.12+) declares type parameters inline; variance is inferred.
+PEP 695 syntax (3.12+) declares type parameters inline. Variance is inferred.
 
 ```python
 from collections.abc import Sequence, Sized
@@ -113,7 +115,7 @@ type Pair[T] = tuple[T, T]
 type JsonValue = str | int | float | bool | None | list[JsonValue] | dict[str, JsonValue]
 ```
 
-Before 3.12, the equivalent is:
+Before 3.12:
 
 ```python
 from typing import Generic, TypeVar
@@ -126,8 +128,8 @@ class Stack(Generic[T]): ...
 UserId: TypeAlias = int
 ```
 
-Do not mix styles within one class. `type X = ...` aliases are lazily evaluated,
-so they can be recursive without string quotes.
+Do not mix styles in one class. `type X = ...` aliases evaluate lazily, so
+recursion needs no string quotes.
 
 ## Protocols (Structural Typing)
 
@@ -146,9 +148,9 @@ class HasName(Protocol):
     name: str
 ```
 
-Use a Protocol at boundaries where callers own the concrete type (adapters,
-test doubles). `@runtime_checkable` makes `isinstance` work, but it checks only
-that the attributes exist, not their signatures.
+Use Protocol at boundaries where callers own concrete type (adapters, test
+doubles). `@runtime_checkable` enables `isinstance`, but checks only attribute
+existence, not signatures.
 
 ## TypedDict, Literal, Final, Enums
 
@@ -166,10 +168,9 @@ def open_file(path: str, mode: Mode) -> None: ...
 MAX_RETRIES: Final = 3
 ```
 
-Use TypedDict for JSON-shaped dicts you do not control. Use a dataclass or
-Pydantic model for your own data (see `python-data-classes`). Use `Literal` for
-small fixed string sets in signatures, and `enum.Enum` when values need behavior
-or iteration.
+TypedDict: JSON-shaped dicts you do not control. Dataclass or Pydantic model:
+own data (see `python-data-classes`). `Literal`: small fixed string sets in
+signatures. `enum.Enum`: values needing behavior or iteration.
 
 ## Narrowing
 
@@ -198,10 +199,10 @@ def describe(mode: Literal["r", "w"]) -> str:
         case _: assert_never(mode)       # checker errors if a case is missing
 ```
 
-Prefer `TypeIs` over `TypeGuard`: `TypeIs` narrows in both the `if` and `else`
-branches and requires the narrowed type to be a subtype of the input.
-`TypeGuard` narrows only the positive branch; use it when the target is not a
-subtype (for example `list[object]` -> `list[str]` under invariance).
+Prefer `TypeIs` over `TypeGuard`. `TypeIs` narrows both `if` and `else`
+branches; narrowed type must be subtype of input. `TypeGuard` narrows only positive
+branch. Use `TypeGuard` when target is not a subtype (for example
+`list[object]` -> `list[str]` under invariance).
 
 ## Methods: Self, @override, overload
 
@@ -244,8 +245,7 @@ def logged[**P, R](fn: Callable[P, R]) -> Callable[P, R]:    # 3.12 syntax
 ```
 
 Before 3.12: `P = ParamSpec("P")`, `R = TypeVar("R")`. Use
-`typing.Concatenate[Ctx, P]` when the decorator injects or removes a leading
-argument.
+`typing.Concatenate[Ctx, P]` when decorator injects or removes leading argument.
 
 ## Escape Hatches
 
@@ -261,24 +261,24 @@ reveal_type(user)                     # checker prints the inferred type
 x = legacy_call()  # type: ignore[no-untyped-call]   # always scope ignores to an error code
 ```
 
-Enable `warn_unused_ignores` (part of mypy `strict`) so stale ignores get removed.
+Enable `warn_unused_ignores` (part of mypy `strict`) to flag stale ignores.
 
 ## Common Pitfalls
 
-- Mutable invariance: `list[int]` is not a `list[float]`; accept `Sequence[float]`.
-- Returning `Any` from untyped libraries silently spreads; install `types-*`
-  stubs or wrap the call with a typed function.
-- Using `Optional[X]` as "optional argument": it means "may be None"; a default
-  value is what makes an argument optional.
+- Mutable invariance: `list[int]` is not a `list[float]`. Accept `Sequence[float]`.
+- `Any` from untyped libraries spreads silently. Install `types-*` stubs or
+  wrap call in typed function.
+- `Optional[X]` means "may be None", not "optional argument". Default value
+  makes argument optional.
 - `isinstance` with parameterized generics (`isinstance(x, list[int])`) raises
   at runtime.
-- Annotating `self`-returning methods with the class name instead of `Self`.
+- `self`-returning methods annotated with class name instead of `Self`.
 
 ## Done When
 
-- The configured checker passes in CI at the project's minimum Python version.
-- New `# type: ignore` comments carry an error code and a reason.
-- Public functions and methods are fully annotated; `Any` appears only at
+- Configured checker passes in CI at project's minimum Python version.
+- New `# type: ignore` comments carry error code and reason.
+- Public functions and methods fully annotated. `Any` appears only at
   documented boundaries.
 
 ## Resources

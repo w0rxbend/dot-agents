@@ -22,7 +22,7 @@
 2. **Enable traceability:** Log and monitor all actions
 3. **Apply security at all layers:** Defense in depth across network, instance, application, data
 4. **Automate security best practices:** Infrastructure as Code
-5. **Protect data in transit and at rest:** Encryption everywhere
+5. **Protect data in transit and at rest:** Encrypt everywhere
 
 ## Key AWS Security Services
 
@@ -30,8 +30,8 @@
 
 | Service | Purpose |
 |---------|---------|
-| **AWS IAM** | User and service identity management |
-| **IAM Identity Center** | SSO for multi-account environments |
+| **AWS IAM** | User and service identities |
+| **IAM Identity Center** | Multi-account SSO |
 | **AWS Cognito** | Customer identity and authentication |
 | **AWS Organizations** | Multi-account management |
 
@@ -51,22 +51,22 @@
 | **AWS WAF** | Web application firewall |
 | **AWS Shield** | DDoS protection |
 | **AWS Network Firewall** | Stateful network firewall |
-| **AWS PrivateLink** | Private connectivity to services |
+| **AWS PrivateLink** | Private service connectivity |
 
 ### Data Protection
 
 | Service | Purpose |
 |---------|---------|
-| **AWS KMS** | Key management service |
+| **AWS KMS** | Key management |
 | **AWS Secrets Manager** | Secrets rotation and management |
 | **Amazon Macie** | Data discovery and classification |
-| **AWS Certificate Manager** | SSL/TLS certificate management |
+| **AWS Certificate Manager** | SSL/TLS certificates |
 
 ### Infrastructure Security
 
 | Service | Purpose |
 |---------|---------|
-| **AWS Systems Manager** | Patch management, configuration |
+| **AWS Systems Manager** | Patching, configuration |
 | **Amazon Inspector** | Vulnerability scanning |
 | **AWS Config** | Configuration compliance monitoring |
 
@@ -93,11 +93,11 @@ AWS Organizations (Root)
 
 **Key Patterns:**
 
-- **Service Control Policies (SCPs):** Apply guardrails at OU level
+- **Service Control Policies (SCPs):** Guardrails at OU level
 - **IAM Identity Center:** SSO across all accounts
 - **GuardDuty/Security Hub:** Organization-wide threat detection
-- **Centralized Logging:** All CloudTrail logs to dedicated Logging Account
-- **Network Isolation:** Separate VPCs per account, Transit Gateway for connectivity
+- **Centralized Logging:** All CloudTrail logs go to dedicated Logging Account
+- **Network Isolation:** Separate VPC per account, Transit Gateway connects them
 
 ## VPC Security Architecture
 
@@ -105,8 +105,8 @@ AWS Organizations (Root)
 - Public subnets: Internet-facing resources (ALB, NAT Gateway)
 - Private subnets: Application tier (no direct internet access)
 - Isolated subnets: Database tier (no outbound internet)
-- Security groups: Stateful, least privilege rules
-- NACLs: Stateless, additional layer of defense
+- Security groups: Stateful, least-privilege rules
+- NACLs: Stateless, extra defense layer
 
 **Example:**
 ```

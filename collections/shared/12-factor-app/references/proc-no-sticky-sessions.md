@@ -7,7 +7,7 @@ tags: proc, sessions, sticky-sessions, redis
 
 ## Never Use Sticky Sessions - Store Session Data in Backing Services
 
-Sticky sessions (affinity) route users to the same server instance, creating state in the process. This is a violation of twelve-factor. Session state should be stored in a backing service with time-expiration, like Redis or Memcached, so any process can handle any request.
+Sticky sessions (affinity) route users to same server instance, creating state in process. Violates twelve-factor. Store session state in backing service with time-expiration, like Redis or Memcached, so any process can handle any request.
 
 **Incorrect (sticky sessions):**
 
@@ -81,11 +81,5 @@ SESSION_SQLALCHEMY = SQLAlchemy(app)
 # Memcached - simple, volatile (acceptable for sessions)
 SESSION_MEMCACHED = pylibmc.Client([os.environ['MEMCACHED_URL']])
 ```
-
-**Benefits:**
-- Load balancer can route any request anywhere
-- Servers can be added/removed without session impact
-- Server crash doesn't log out users
-- Scaling is linear - just add servers
 
 Reference: [The Twelve-Factor App - Processes](https://12factor.net/processes)

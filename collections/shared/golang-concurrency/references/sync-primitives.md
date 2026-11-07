@@ -18,7 +18,7 @@
 
 ## sync.Mutex
 
-Protects shared state with exclusive access. MUST hold the lock for the shortest time possible — NEVER hold a mutex across I/O, network calls, or channel operations.
+Exclusive access to shared state. MUST hold lock as briefly as possible. NEVER hold mutex across I/O, network calls, or channel operations.
 
 ```go
 type SafeCache struct {
@@ -42,7 +42,7 @@ func (c *SafeCache) Set(key, value string) {
 
 ### Embedding Convention
 
-Embed the mutex as an unexported field, placed directly above the fields it protects:
+Embed mutex as unexported field, directly above fields it protects:
 
 ```go
 type Registry struct {
@@ -53,7 +53,7 @@ type Registry struct {
 
 ## sync.RWMutex
 
-SHOULD be used when reads greatly outnumber writes. Multiple goroutines can hold `RLock` simultaneously; `Lock` is exclusive.
+SHOULD be used when reads greatly outnumber writes. Multiple goroutines can hold `RLock` at once; `Lock` is exclusive.
 
 ```go
 type Config struct {
@@ -74,11 +74,11 @@ func (c *Config) Set(key, value string) {
 }
 ```
 
-**Pitfall**: Do not upgrade RLock to Lock — this deadlocks. Release RLock first, then acquire Lock.
+**Pitfall**: Do not upgrade RLock to Lock — deadlocks. Release RLock first, then acquire Lock.
 
 ## sync/atomic
 
-Lock-free operations for simple values. SHOULD be preferred over Mutex for simple counter operations. Faster than mutex for low-contention counters and flags.
+Lock-free operations on simple values. SHOULD be preferred over Mutex for simple counters. Faster than mutex for low-contention counters and flags.
 
 ```go
 // ✓ Good — atomic for a simple counter
@@ -106,11 +106,11 @@ func isRunning() bool {
 }
 ```
 
-Go 1.19+ provides typed atomics (`atomic.Int64`, `atomic.Bool`, `atomic.Pointer[T]`) — prefer these over raw `atomic.AddInt64`/`atomic.LoadInt64`.
+Go 1.19+ typed atomics (`atomic.Int64`, `atomic.Bool`, `atomic.Pointer[T]`): prefer over raw `atomic.AddInt64`/`atomic.LoadInt64`.
 
 ## sync.Map
 
-SHOULD only be used for write-once/read-many patterns. Optimized for two common patterns: (1) keys are written once and read many times, (2) multiple goroutines read/write disjoint key sets. For other patterns, a plain `map` + `sync.RWMutex` is faster.
+SHOULD only be used for write-once/read-many patterns. Optimized for two cases: (1) keys written once, read many times, (2) goroutines read/write disjoint key sets. Otherwise plain `map` + `sync.RWMutex` is faster.
 
 ```go
 var cache sync.Map
@@ -132,11 +132,11 @@ func GetOrSet(key string, compute func() any) any {
 }
 ```
 
-**When NOT to use `sync.Map`**: when you need to iterate, get the length, or when writes are frequent and keys overlap heavily. Use `sync.RWMutex` + `map` instead.
+**When NOT to use `sync.Map`**: you need iteration or length, or writes are frequent with heavily overlapping keys. Use `sync.RWMutex` + `map` instead.
 
 ## sync.Pool
 
-Reuse temporary objects to reduce GC pressure. MUST NOT store pointers to stack-allocated objects. Objects in the pool may be reclaimed at any GC cycle — do not store persistent state.
+Reuses temporary objects to cut GC pressure. MUST NOT store pointers to stack-allocated objects. Any GC cycle may reclaim pooled objects. Do not store persistent state.
 
 ```go
 var bufPool = sync.Pool{
@@ -161,12 +161,12 @@ func process(data []byte) string {
 **Rules**:
 
 - Always `Reset()` before `Put()` — returning dirty objects causes bugs
-- Do not assume an object from `Get()` is zeroed — the `New` func only runs if the pool is empty
+- Do not assume `Get()` object is zeroed — `New` func only runs if pool is empty
 - Best for short-lived, frequently allocated objects (buffers, encoders, temporary structs)
 
 ## sync.Once
 
-MUST be used for one-time initialization. Execute exactly once, regardless of how many goroutines call it concurrently. Thread-safe by design.
+MUST be used for one-time initialization. Runs exactly once, regardless of how many goroutines call it concurrently. Thread-safe by design.
 
 ```go
 type DBClient struct {
@@ -195,7 +195,7 @@ func (c *DBClient) Close() error {
 }
 ```
 
-Go 1.21+ also provides `sync.OnceFunc`, `sync.OnceValue`, and `sync.OnceValues` for simpler use cases:
+Go 1.21+ also has `sync.OnceFunc`, `sync.OnceValue`, `sync.OnceValues` for simpler cases:
 
 ```go
 var loadConfig = sync.OnceValue(func() *Config {
@@ -211,11 +211,11 @@ var loadConfig = sync.OnceValue(func() *Config {
 
 ## sync.WaitGroup
 
-Use `sync.WaitGroup` when you only need to wait for a set of goroutines to finish.
+Use `sync.WaitGroup` when you only need to wait for goroutines to finish.
 
 ### Go 1.25+: `wg.Go`
 
-`WaitGroup.Go` starts a goroutine, adds it to the group, and removes it from the group when the function returns.
+`WaitGroup.Go` starts goroutine, adds it to group, removes it when function returns.
 
 ```go
 func processAll(items []Item) {
@@ -236,17 +236,9 @@ func processAll(items []Item) {
 Rules:
 
 - `WaitGroup.Go` is Go 1.25+, not Go 1.24.
-- The function passed to `wg.Go` must not panic.
+- Function passed to `wg.Go` must not panic.
 - `WaitGroup` does not propagate errors and does not cancel siblings.
 - For first-error-wins, cancellation, concurrency limits, or returned values, use `golang.org/x/sync/errgroup`.
-
-**Benefits of `wg.Go()`**:
-
-- No manual `Add`/`Done` bookkeeping
-- Lower risk of `Add`/`Wait` ordering bugs
-- Cleaner API for simple fire-and-wait work
-
-**When to use**: Go 1.25+ projects for simple goroutines that must all finish, do not return errors, do not need cancellation, and must not panic. Use `errgroup` when work returns errors, needs cancellation, limits, or first-error behavior.
 
 ### Go <1.25 fallback
 
@@ -275,7 +267,7 @@ go func() {
 
 ## golang.org/x/sync/singleflight
 
-Deduplicates concurrent calls for the same key. When multiple goroutines request the same resource simultaneously, only one executes; the rest wait and share the result.
+Deduplicates concurrent calls per key. When multiple goroutines request same resource at once, only one executes; rest wait and share result.
 
 ```go
 var group singleflight.Group
@@ -296,7 +288,7 @@ func GetUser(ctx context.Context, id string) (*User, error) {
 
 ## golang.org/x/sync/errgroup
 
-Goroutine group with error propagation. Returns the first error from any goroutine. With `WithContext`, cancels remaining goroutines on first error.
+Goroutine group with error propagation. Returns first error from any goroutine. `WithContext` also cancels remaining goroutines on first error.
 
 ```go
 func fetchAll(ctx context.Context, urls []string) ([]Response, error) {
@@ -337,6 +329,6 @@ for _, task := range tasks {
 return g.Wait()
 ```
 
-This replaces hand-rolled worker pools for most use cases.
+Replaces hand-rolled worker pools in most cases.
 
 → See `samber/cc-skills-golang@golang-concurrency` skill for high-level patterns and decision trees.

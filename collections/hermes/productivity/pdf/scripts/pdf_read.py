@@ -133,7 +133,8 @@ def main() -> int:
     mode.add_argument("--meta", action="store_true", help="Metadata, page sizes, encrypted/scanned flags")
     mode.add_argument("--fields", action="store_true", help="AcroForm fields with types and values")
     parser.add_argument("--csv-dir", help="Also write each table as a CSV file into this directory")
-    parser.add_argument("--password", help="Password for encrypted PDFs")
+    parser.add_argument("--password", default=os.environ.get("PDF_PASSWORD"),
+                        help="Password for encrypted PDFs (default: $PDF_PASSWORD)")
     args = parser.parse_args()
 
     if args.text:

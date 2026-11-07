@@ -15,24 +15,22 @@ metadata:
 
 ## Overview
 
-When `console.log` isn't enough, drive Node's built-in V8 inspector programmatically from the terminal. You get real breakpoints, step in/over/out, call-stack walking, local/closure scope dumps, and arbitrary expression evaluation in the paused frame.
-
 Two tools, pick one:
 
 - **`node inspect`** — built-in, zero install, CLI REPL. Best for quick poking.
-- **`ndb` / CDP via `chrome-remote-interface`** — scriptable from Node/Python; best when you want to automate many breakpoints, collect state across runs, or debug non-interactively from an agent loop.
+- **`ndb` / CDP via `chrome-remote-interface`** — scriptable from Node/Python. Best when automating many breakpoints, collecting state across runs, or debugging non-interactively from agent loop.
 
-**Prefer `node inspect` first.** It's always available and the REPL is fast.
+**Prefer `node inspect` first.**
 
 ## When to Use
 
-- A Node test fails and you need to see intermediate state
-- ui-tui crashes or behaves wrong and you want to inspect React/Ink state pre-render
+- Node test fails; need intermediate state
+- ui-tui crashes or misbehaves; inspect React/Ink state pre-render
 - tui_gateway child processes (`_SlashWorker`, PTY bridge workers) misbehave
-- You need to inspect a value in a closure that `console.log` can't reach without patching
-- Perf: attach to a running process to capture a CPU profile or heap snapshot
+- Closure value `console.log` can't reach without patching
+- Perf: attach to running process for CPU profile or heap snapshot
 
-**Don't use for:** things `console.log` solves in under a minute. Breakpoint-driven debugging is heavier; use it when the payoff is real.
+**Don't use for:** things `console.log` solves in under a minute.
 
 ## Quick Reference: `node inspect` REPL
 
@@ -44,7 +42,7 @@ node inspect path/to/script.js
 node --inspect-brk $(which tsx) path/to/script.ts
 ```
 
-The `debug>` prompt accepts:
+`debug>` prompt accepts:
 
 | Command | Action |
 |---|---|
@@ -53,26 +51,26 @@ The `debug>` prompt accepts:
 | `s` or `step` | step into |
 | `o` or `out` | step out |
 | `pause` | pause running code |
-| `sb('file.js', 42)` | set breakpoint at file.js line 42 |
-| `sb(42)` | set breakpoint at line 42 of current file |
-| `sb('functionName')` | break when function is called |
+| `sb('file.js', 42)` | breakpoint at file.js line 42 |
+| `sb(42)` | breakpoint at line 42, current file |
+| `sb('functionName')` | break on function call |
 | `cb('file.js', 42)` | clear breakpoint |
-| `breakpoints` | list all breakpoints |
+| `breakpoints` | list breakpoints |
 | `bt` | backtrace (call stack) |
-| `list(5)` | show 5 lines of source around current position |
-| `watch('expr')` | evaluate expr on every pause |
+| `list(5)` | show 5 source lines around current position |
+| `watch('expr')` | evaluate expr each pause |
 | `watchers` | show watched expressions |
-| `repl` | drop into REPL in current scope (Ctrl+C to exit REPL) |
+| `repl` | REPL in current scope (Ctrl+C exits) |
 | `exec expr` | evaluate expression once |
 | `restart` | restart script |
-| `kill` | kill the script |
+| `kill` | kill script |
 | `.exit` | quit debugger |
 
-**In the `repl` sub-mode:** type any JS expression, including access to locals/closure variables. `Ctrl+C` exits back to `debug>`.
+**In `repl` sub-mode:** any JS expression, locals/closure variables included. `Ctrl+C` returns to `debug>`.
 
 ## Attaching to a Running Process
 
-When the process is already running (e.g. a long-lived dev server or the TUI gateway):
+Process already running (e.g. long-lived dev server, TUI gateway):
 
 ```bash
 # 1. Send SIGUSR1 to enable the inspector on an existing process
@@ -85,12 +83,12 @@ node inspect -p <pid>
 node inspect ws://127.0.0.1:9229/<uuid>
 ```
 
-To start a process with the inspector from the beginning:
+Start with inspector from beginning:
 
 ```bash
 node --inspect script.js           # listen on 127.0.0.1:9229, keep running
 node --inspect-brk script.js       # listen AND pause on first line
-node --inspect=0.0.0.0:9230 script.js   # custom host:port
+node --inspect=127.0.0.1:9230 script.js   # custom port; keep loopback (0.0.0.0 exposes RCE, pitfall 7)
 ```
 
 For TypeScript via tsx:
@@ -103,7 +101,7 @@ node --inspect-brk -r tsx/cjs script.ts
 
 ## Programmatic CDP (scripting from terminal)
 
-When you want to automate — set many breakpoints, capture scope state, script a repro — use `chrome-remote-interface`:
+To automate (many breakpoints, scope state capture, scripted repro), use `chrome-remote-interface`:
 
 ```bash
 npm i -g chrome-remote-interface        # or project-local
@@ -167,7 +165,7 @@ Run it:
 node ~/.hermes/cache/scratch/cdp-debug.js
 ```
 
-Hermes-specific note: `chrome-remote-interface` is NOT in `ui-tui/package.json`. Install it to a throwaway location if you don't want to dirty the project:
+Hermes-specific note: `chrome-remote-interface` is NOT in `ui-tui/package.json`. Install to throwaway location if you don't want to dirty project:
 
 ```bash
 mkdir -p ~/.hermes/cache/scratch/cdp-tools && cd ~/.hermes/cache/scratch/cdp-tools && npm i chrome-remote-interface
@@ -176,11 +174,11 @@ NODE_PATH=~/.hermes/cache/scratch/cdp-tools/node_modules node ~/.hermes/cache/sc
 
 ## Debugging Hermes ui-tui
 
-The TUI is built Ink + tsx. Two common scenarios:
+TUI uses Ink + tsx.
 
 ### Debugging a single Ink component under dev
 
-`ui-tui/package.json` has `npm run dev` (tsx --watch). Add `--inspect-brk` by running tsx directly:
+`ui-tui/package.json` has `npm run dev` (tsx --watch). For `--inspect-brk`, run tsx directly:
 
 ```bash
 cd <hermes-agent-repo>/ui-tui
@@ -197,11 +195,11 @@ sb('dist/app.js', 220)     # or wherever the suspect render is
 cont
 ```
 
-When it pauses, `repl` → inspect `props`, state refs, `useInput` handler values, etc.
+On pause, `repl`, then inspect `props`, state refs, `useInput` handler values, etc.
 
 ### Debugging a running `hermes --tui`
 
-The TUI spawns Node from the Python CLI. Easiest path:
+TUI spawns Node from Python CLI. Easiest path:
 
 ```bash
 # 1. Launch TUI
@@ -218,11 +216,11 @@ curl -s http://127.0.0.1:9229/json/list | jq -r '.[0].webSocketDebuggerUrl'
 node inspect ws://127.0.0.1:9229/<uuid>
 ```
 
-Interacting with the TUI (typing in its window) continues to advance execution; your debugger can pause it on a breakpoint at any `sb(...)`.
+Typing in TUI window keeps advancing execution. Debugger can pause it at any `sb(...)` breakpoint.
 
 ### Debugging `_SlashWorker` / PTY child processes
 
-Those are Python, not Node — use the `python-debugpy` skill for them. Only Node portions (Ink UI, tui_gateway client, tsx-run tests under `ui-tui/`) use this skill.
+Those are Python, not Node: use `python-debugpy` skill. Only Node portions (Ink UI, tui_gateway client, tsx-run tests under `ui-tui/`) use this skill.
 
 ## Running Vitest Tests Under the Debugger
 
@@ -234,11 +232,11 @@ node --inspect-brk ./node_modules/vitest/vitest.mjs run --no-file-parallelism sr
 
 In another terminal: `node inspect -p <pid>`, then `sb('src/app/foo.tsx', 42)`, `cont`.
 
-Use `--no-file-parallelism` (vitest) or `--runInBand` (jest) so only one worker exists — debugging a pool is painful.
+Use `--no-file-parallelism` (vitest) or `--runInBand` (jest) so only one worker runs.
 
 ## Heap Snapshots & CPU Profiles (Non-interactive)
 
-From the CDP driver above, swap Debugger for `HeapProfiler` / `Profiler`:
+From CDP driver above, swap Debugger for `HeapProfiler` / `Profiler`:
 
 ```javascript
 // CPU profile for 5 seconds
@@ -261,36 +259,36 @@ client.HeapProfiler.addHeapSnapshotChunk(({ chunk }) => chunks.push(chunk));
 await client.HeapProfiler.takeHeapSnapshot({ reportProgress: false });
 const heapOut = require('path').join(require('os').homedir(), '.hermes/cache/scratch/heap.heapsnapshot');
 require('fs').mkdirSync(require('path').dirname(heapOut), { recursive: true });
-require('fs').writeFileSync(heapOut, chunks.join(''));
+require('fs').writeFileSync(heapOut, chunks.join(''), { mode: 0o600 }); // holds in-memory secrets; owner-only, never share/commit
 ```
 
 ## Common Pitfalls
 
-1. **Wrong line numbers in TS source.** Breakpoints hit the emitted JS, not the `.ts`. Either (a) break in the built `dist/*.js`, or (b) enable sourcemaps (`node --enable-source-maps`) and use `sb('src/app.tsx', N)` — but only with CDP clients that follow sourcemaps. `node inspect` CLI does not.
+1. **Wrong line numbers in TS source.** Breakpoints hit emitted JS, not `.ts`. Either (a) break in built `dist/*.js`, or (b) enable sourcemaps (`node --enable-source-maps`) and use `sb('src/app.tsx', N)`. (b) works only with CDP clients that follow sourcemaps; `node inspect` CLI does not.
 
-2. **`--inspect` vs `--inspect-brk`.** `--inspect` starts the inspector but doesn't pause; your script races past your first breakpoint if you attach too late. Use `--inspect-brk` when you need to set breakpoints before any code runs.
+2. **`--inspect` vs `--inspect-brk`.** `--inspect` starts inspector but doesn't pause. Attach too late and script races past first breakpoint. Use `--inspect-brk` to set breakpoints before any code runs.
 
-3. **Port collisions.** Default is `9229`. If multiple Node processes are inspecting, pass `--inspect=0` (random port) and read the actual URL from the process's stderr (`Debugger listening on ws://127.0.0.1:<port>/...`), then query that port:
+3. **Port collisions.** Default `9229`. If multiple Node processes are inspecting, pass `--inspect=0` (random port). Read actual URL from process stderr (`Debugger listening on ws://127.0.0.1:<port>/...`), then query that port:
    ```bash
    curl -s http://127.0.0.1:<port>/json/list   # lists the inspectable target(s) on that port
    ```
 
-4. **Child processes.** `--inspect` on a parent does NOT inspect its children. `NODE_OPTIONS` propagates inspector flags to every child, but plain child processes do not get a new port: with `NODE_OPTIONS='--inspect'` each child tries 9229 and fails with "address already in use". Use `NODE_OPTIONS='--inspect=0' node parent.js` (or `--inspect-brk=0`) so each process picks a free port and prints its own `ws://` URL. (Only `cluster`/`child_process.fork` adjust the debug port for workers automatically.)
+4. **Child processes.** `--inspect` on parent does NOT inspect children. `NODE_OPTIONS` propagates inspector flags to every child, but plain children do not get new port. With `NODE_OPTIONS='--inspect'` each child tries 9229 and fails with "address already in use". Use `NODE_OPTIONS='--inspect=0' node parent.js` (or `--inspect-brk=0`) so each process picks free port and prints own `ws://` URL. (Only `cluster`/`child_process.fork` auto-adjust worker debug port.)
 
-5. **Background kills.** If you `Ctrl+C` out of `node inspect` while the target is paused, the target stays paused. Either `cont` first, or `kill` the target explicitly.
+5. **Background kills.** `Ctrl+C` out of `node inspect` while target is paused leaves target paused. `cont` first, or `kill` target explicitly.
 
-6. **Running `node inspect` through an agent terminal.** It's a PTY-friendly REPL. In Hermes, launch it with `terminal(pty=true)` or `background=true` + `process(action='submit', data='...')`. Non-PTY foreground mode will work for one-shot commands but not for interactive stepping.
+6. **Running `node inspect` through an agent terminal.** PTY-friendly REPL. In Hermes, launch with `terminal(pty=true)` or `background=true` + `process(action='submit', data='...')`. Non-PTY foreground works for one-shot commands, not interactive stepping.
 
-7. **Security.** `--inspect=0.0.0.0:9229` exposes arbitrary code execution. Always bind to `127.0.0.1` (the default) unless you have an isolated network.
+7. **Security.** `--inspect=0.0.0.0:9229` exposes arbitrary code execution. Always bind `127.0.0.1` (default) unless network is isolated.
 
 ## Verification Checklist
 
-After setting up a debug session, verify:
+After setup, verify:
 
-- [ ] `curl -s http://127.0.0.1:9229/json/list` returns exactly the target you expect
-- [ ] First breakpoint actually hits (if it doesn't, you likely missed `--inspect-brk` or attached after execution completed)
-- [ ] Source listing at pause shows the right file (mismatch = sourcemap issue, see pitfall 1)
-- [ ] `exec process.pid` in `repl` returns the PID you meant to attach to
+- [ ] `curl -s http://127.0.0.1:9229/json/list` returns exactly expected target
+- [ ] First breakpoint hits (if not: likely missed `--inspect-brk`, or attached after execution completed)
+- [ ] Source listing at pause shows right file (mismatch means sourcemap issue, see pitfall 1)
+- [ ] `exec process.pid` in `repl` returns intended PID
 
 ## One-Shot Recipes
 

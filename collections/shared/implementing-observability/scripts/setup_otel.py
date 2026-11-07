@@ -15,6 +15,7 @@ import os
 import sys
 from pathlib import Path
 from typing import List, Dict
+from urllib.parse import urlparse
 
 # Template configurations
 PYTHON_DEPENDENCIES = {
@@ -75,7 +76,7 @@ def setup_opentelemetry(app, service_name: str = "{service_name}"):
         BatchSpanProcessor(
             OTLPSpanExporter(
                 endpoint="{otlp_endpoint}",
-                insecure=True,
+                insecure={insecure},
             )
         )
     )
@@ -85,7 +86,7 @@ def setup_opentelemetry(app, service_name: str = "{service_name}"):
     metric_reader = PeriodicExportingMetricReader(
         OTLPMetricExporter(
             endpoint="{otlp_endpoint}",
-            insecure=True,
+            insecure={insecure},
         )
     )
     meter_provider = MeterProvider(
@@ -144,14 +145,14 @@ def setup_opentelemetry(app, service_name: str = "{service_name}"):
     trace_provider = TracerProvider(resource=resource)
     trace_provider.add_span_processor(
         BatchSpanProcessor(
-            OTLPSpanExporter(endpoint="{otlp_endpoint}", insecure=True)
+            OTLPSpanExporter(endpoint="{otlp_endpoint}", insecure={insecure})
         )
     )
     trace.set_tracer_provider(trace_provider)
 
     # Metrics provider
     metric_reader = PeriodicExportingMetricReader(
-        OTLPMetricExporter(endpoint="{otlp_endpoint}", insecure=True)
+        OTLPMetricExporter(endpoint="{otlp_endpoint}", insecure={insecure})
     )
     meter_provider = MeterProvider(
         resource=resource,
@@ -184,11 +185,18 @@ def create_requirements_file(framework: str, output_dir: Path) -> None:
     print(f"✓ Created {requirements_path}")
 
 
+def is_loopback(endpoint: str) -> bool:
+    """True if the OTLP endpoint host is loopback, where plaintext gRPC is acceptable."""
+    host = urlparse(endpoint if "//" in endpoint else f"//{endpoint}").hostname or ""
+    return host in ("localhost", "127.0.0.1", "::1")
+
+
 def create_instrumentation_file(
     framework: str,
     service_name: str,
     otlp_endpoint: str,
-    output_dir: Path
+    output_dir: Path,
+    insecure: bool = False
 ) -> None:
     """Create instrumentation.py file."""
     instrumentation_path = output_dir / "instrumentation.py"
@@ -203,7 +211,9 @@ def create_instrumentation_file(
 
     content = template.format(
         service_name=service_name,
-        otlp_endpoint=otlp_endpoint
+        otlp_endpoint=otlp_endpoint,
+        # Plaintext only for loopback or explicit --insecure; otherwise TLS
+        insecure=insecure or is_loopback(otlp_endpoint)
     )
 
     with open(instrumentation_path, "w") as f:
@@ -436,6 +446,11 @@ def main():
         help="OTLP gRPC endpoint (default: localhost:4317)"
     )
     parser.add_argument(
+        "--insecure",
+        action="store_true",
+        help="Plaintext gRPC to a non-loopback endpoint (trusted network only; default: TLS)"
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=Path.cwd(),
@@ -457,7 +472,8 @@ def main():
         args.framework,
         args.service_name,
         args.otlp_endpoint,
-        args.output_dir
+        args.output_dir,
+        args.insecure
     )
     create_usage_example(args.framework, args.service_name, args.output_dir)
     create_readme(args.framework, args.service_name, args.output_dir)

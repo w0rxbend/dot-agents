@@ -18,7 +18,7 @@
 
 ### Single-Method Interfaces
 
-Name them with the **method name + `-er`** suffix:
+Use **method name + `-er`** suffix:
 
 ```go
 type Reader interface {
@@ -36,7 +36,7 @@ type Closer interface {
 
 ### Multi-Method Interfaces
 
-Use a descriptive **noun** or compose from single-method interfaces:
+Use descriptive **noun** or compose from single-method interfaces:
 
 ```go
 type ReadWriteCloser interface {
@@ -52,7 +52,7 @@ type Handler interface {
 
 ### Canonical Method Names
 
-Honor established Go method names and their signatures. If your type implements `Read`, it MUST match `io.Reader`'s signature. NEVER invent variations like `ReadData` or `ToString` — use `String`.
+Honor established Go method names and signatures. Type implementing `Read` MUST match `io.Reader`'s signature. NEVER invent variants like `ReadData` or `ToString`; use `String`.
 
 | Method name | Expected interface |
 | ----------- | ------------------ |
@@ -66,7 +66,7 @@ Honor established Go method names and their signatures. If your type implements 
 
 ## Structs
 
-Name structs with **MixedCaps nouns** describing the entity. Fields follow exported/unexported rules.
+Name structs with **MixedCaps nouns** describing entity. Fields follow exported/unexported rules.
 
 ```go
 type Server struct {
@@ -76,11 +76,11 @@ type Server struct {
 }
 ```
 
-NEVER suffix struct names with `Struct`, `Object`, or `Data` — they add no information.
+NEVER suffix struct names with `Struct`, `Object`, or `Data`.
 
 ## Constants
 
-Constants MUST use **MixedCaps**, NEVER `ALL_CAPS`. The name should explain the **role**, not the **value**.
+Constants MUST use **MixedCaps**, NEVER `ALL_CAPS`. Name should explain **role**, not **value**.
 
 ```go
 // Good — MixedCaps, name explains purpose
@@ -99,7 +99,7 @@ const Port8080 = 8080
 
 ### Enums (iota)
 
-Prefix enum values with the **type name** to avoid collisions and improve readability at the call site.
+Prefix enum values with **type name**: avoids collisions, reads better at call site.
 
 ```go
 type Status int
@@ -120,13 +120,13 @@ const (
 )
 ```
 
-**Always protect the zero value.** A `var s Status` will silently be 0 — if that maps to a real state like `StatusReady`, code can behave as if a status was deliberately chosen when it wasn't. Either place an explicit `Unknown` sentinel at iota 0, or start at `iota + 1`. This is not optional — uninitialized enums are a common source of silent bugs.
+**Always protect the zero value.** `var s Status` silently becomes 0. If 0 is real state like `StatusReady`, code can treat unset status as deliberate choice. Either put explicit `Unknown` sentinel at iota 0, or start at `iota + 1`. Not optional: uninitialized enums commonly cause silent bugs.
 
 ## Errors
 
 ### Sentinel Errors
 
-Sentinel error variables use the `Err` prefix. Error strings SHOULD include the package name as prefix to identify the origin when errors are wrapped:
+Sentinel error variables use `Err` prefix. Error strings SHOULD prefix package name to identify origin when errors are wrapped:
 
 ```go
 // Good — package prefix identifies origin
@@ -140,7 +140,7 @@ var ErrNotFound = errors.New("not found")
 
 ### Error Types
 
-Custom error types use the `Error` suffix:
+Custom error types use `Error` suffix:
 
 ```go
 type PathError struct {
@@ -157,7 +157,7 @@ type SyntaxError struct {
 
 ### Error Strings
 
-Error strings MUST NOT be **capitalized** and MUST NOT **end with punctuation**, because they are often printed following other context (`fmt.Errorf("parsing config: %w", err)`). Per Go Code Review Comments, proper nouns and initialisms (`ID`, `URL`, `HTTP`) keep their usual case.
+Error strings MUST NOT be **capitalized** and MUST NOT **end with punctuation**: they often print after other context (`fmt.Errorf("parsing config: %w", err)`). Per Go Code Review Comments, proper nouns and initialisms (`ID`, `URL`, `HTTP`) keep usual case.
 
 ```go
 // Good — lowercase start, initialisms keep their case, no punctuation

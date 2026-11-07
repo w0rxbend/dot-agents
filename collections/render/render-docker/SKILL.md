@@ -19,33 +19,27 @@ metadata:
 
 # Render Docker Deployments
 
-Render uses **BuildKit** for Docker builds. All compute service types that support custom runtimes can use **`runtime: docker`** (build from a Dockerfile in the repo) or **`runtime: image`** (pull a prebuilt image; no Dockerfile build on Render). Deeper patterns and copy-paste templates live under `references/`.
+Render builds Docker images with BuildKit. Compute services supporting custom runtimes take `runtime: docker` (build repo Dockerfile) or `runtime: image` (pull prebuilt image, no Dockerfile build on Render). Templates and deeper patterns: `references/`.
 
 ## When to Use
 
-- Authoring or debugging a **Dockerfile** for a Render service
-- Choosing **`runtime: docker`** vs **`runtime: image`** in a Blueprint
-- Wiring **private base images** or **prebuilt images** with registry credentials
-- **Multi-stage builds**, **build args**, **secrets**, and **layer caching**
-- **Performance** and **security** hardening of container images on Render
+- Writing or debugging Render service Dockerfile
+- Choosing `runtime: docker` or `runtime: image` in Blueprint
+- Private base images or prebuilt images with registry credentials
+- Multi-stage builds, build args, secrets, layer caching
+- Container image performance and security hardening on Render
 
-For full Blueprint authoring, see **render-blueprints**. For end-to-end deploy flows, see **render-deploy**.
-
-## Render Docker Builds
-
-- **BuildKit** is used for Docker builds on Render.
-- **`runtime: docker`**: Render builds an image from your repo using `dockerfilePath`, `dockerContext`, and optional `dockerCommand` (overrides image `CMD`).
-- **`runtime: image`**: Render pulls **`image.url`**; no repo-based image build. Pair with **`registryCredential`** when the registry is private.
+Full Blueprint authoring: **render-blueprints**. End-to-end deploy flows: **render-deploy**.
 
 ## Blueprint Configuration
 
 | Field | Role |
 |-------|------|
-| `dockerfilePath` | Path to the Dockerfile (default `./Dockerfile`) |
-| `dockerContext` | Build context directory (what is sent to the daemon) |
-| `dockerCommand` | Overrides the container `CMD` after the image is built |
+| `dockerfilePath` | Dockerfile path (default `./Dockerfile`) |
+| `dockerContext` | Build context directory (sent to daemon) |
+| `dockerCommand` | Overrides container `CMD` after build |
 | `image.url` | Image reference for `runtime: image` (registry/repo:tag or digest) |
-| `registryCredential` | Auth for private pulls; often `fromRegistryCreds` → Dashboard-stored credential |
+| `registryCredential` | Private pull auth; often `fromRegistryCreds` naming Dashboard-stored credential |
 
 Example sketch (values illustrative):
 
@@ -64,54 +58,46 @@ services:
         value: 10000
 ```
 
-For `runtime: image`, set `image.url` and, if needed, `registryCredential` per **Registry Configuration** below.
+For `runtime: image`, set `image.url`, plus `registryCredential` if needed (see Registry Configuration).
 
 ## Multi-Stage Builds
 
-**Recommended for production.** Use a **builder** stage for compilation and dependency installation, and a minimal **runner** stage that only copies artifacts and runtime files. Benefits:
-
-- Smaller images and faster pulls
-- Fewer tools and secrets in the final image (smaller attack surface)
-- Clear separation between build-time and run-time dependencies
-
-See `references/dockerfile-patterns.md` for language-specific templates.
+Recommended for production. Builder stage compiles and installs dependencies. Minimal runner stage copies only artifacts and runtime files. Language-specific templates: `references/dockerfile-patterns.md`.
 
 ## Build Args vs Secrets
 
-**Critical:** **Never pass secrets via `ARG`.** Build arguments are stored in image **layers** and can be recovered from the image history or intermediate layers.
+**Critical:** **Never pass secrets via `ARG`.** Build args persist in image layers, recoverable from image history or intermediate layers.
 
-- Prefer **runtime environment variables** (Render **env vars** / secret files) for application secrets.
-- For **build-time** secrets (e.g. private package feeds), use **Docker BuildKit secret mounts** (`RUN --mount=type=secret,...`) rather than `ARG`.
-
-Treat anything sensitive as **runtime** or **BuildKit secret mount**, not as a build arg.
+- Prefer runtime env vars (Render env vars / secret files) for app secrets.
+- Build-time secrets (e.g. private package feeds): BuildKit secret mounts (`RUN --mount=type=secret,...`), not `ARG`.
 
 ## Registry Configuration
 
-Private **base images** (for `runtime: docker`) or **prebuilt images** (`runtime: image`) need authentication:
+Private base images (`runtime: docker`) or prebuilt images (`runtime: image`) need auth:
 
-- Store credentials in the Render Dashboard under **Registry Credentials**.
-- In Blueprint, reference them with **`registryCredential.fromRegistryCreds.name`** (match the Dashboard name).
+- Store credentials in Render Dashboard under **Registry Credentials**.
+- Reference them in Blueprint via `registryCredential.fromRegistryCreds.name` (match Dashboard name).
 
-Supports common registries (Docker Hub, GHCR, ECR, Google Artifact Registry, and others). Step-by-step per provider: `references/registry-setup.md`.
+Common registries work (Docker Hub, GHCR, ECR, Google Artifact Registry, others). Per-provider steps: `references/registry-setup.md`.
 
-**Prebuilt image services** do **not** auto-deploy when the tag moves in the registry; trigger a **manual redeploy** or use a **deploy hook** when you publish a new image.
+Prebuilt image services do **not** auto-deploy when registry tag moves. After publishing new image, trigger manual redeploy or deploy hook.
 
 ## Layer Caching
 
-- Render **caches Docker layers** between builds; **order Dockerfile instructions** so that frequently unchanged layers stay early (see `references/optimization-guide.md`).
-- **Tags and caching:** mutable tags like **`latest`** can resolve to **stale cached** images. Prefer **immutable** references: **digest** (`repo/image@sha256:...`) or **version pins** (`v1.2.3`).
+- Render caches Docker layers between builds. Put rarely changing instructions early (see `references/optimization-guide.md`).
+- **Tags and caching:** mutable tags like `latest` can resolve to stale cached images. Prefer immutable digest (`repo/image@sha256:...`) or version pin (`v1.2.3`).
 
 ## Platform Specifics
 
-- Render builds **linux/amd64**. Avoid assumptions about other architectures in production images.
-- **Port binding** matches native services: bind HTTP to **`0.0.0.0:$PORT`** (Render sets `PORT`).
-- **Health checks** behave like non-Docker web services (`healthCheckPath`, etc.).
-- **Secret files** from Render appear under **`/etc/secrets/`** — do not rely on repo-root secret paths inside the container unless you copy or mount them explicitly in the image.
+- Render builds **linux/amd64**. Do not assume other architectures in production images.
+- Port binding as for native services: bind HTTP to `0.0.0.0:$PORT` (Render sets `PORT`).
+- Health checks same as non-Docker web services (`healthCheckPath`, etc.).
+- Render secret files appear under `/etc/secrets/`. Do not rely on repo-root secret paths in container unless image explicitly copies or mounts them.
 
 ## `.dockerignore` and Start Commands
 
-- Always maintain a **`.dockerignore`** that excludes **`node_modules`**, **`.git`**, **`.env`**, build artifacts, logs, and OS junk. This shrinks context upload time and avoids leaking local files into layers. Lists and rationale: `references/optimization-guide.md`.
-- **Custom start command:** if you need multiple shell steps, use a single shell form, e.g. **`/bin/sh -c 'set -e; ./migrate && exec node server.js'`** (prefer **`exec`** so your app receives signals for graceful shutdown).
+- Always keep `.dockerignore` excluding `node_modules`, `.git`, `.env`, build artifacts, logs, OS junk. Cuts context upload, keeps local files out of layers. Lists and rationale: `references/optimization-guide.md`.
+- **Custom start command:** put multiple shell steps in one shell form, e.g. `/bin/sh -c 'set -e; ./migrate && exec node server.js'`. Prefer `exec` so app gets signals for graceful shutdown.
 
 ## References
 
@@ -124,5 +110,5 @@ Supports common registries (Docker Hub, GHCR, ECR, Google Artifact Registry, and
 ## Related Skills
 
 - **render-deploy** — Deploy flows, Blueprint vs Dashboard, operational steps
-- **render-blueprints** — Full `render.yaml` schema, wiring, and validation
-- **render-web-services** — Web service behavior, health checks, and HTTP edge cases
+- **render-blueprints** — Full `render.yaml` schema, wiring, validation
+- **render-web-services** — Web service behavior, health checks, HTTP edge cases

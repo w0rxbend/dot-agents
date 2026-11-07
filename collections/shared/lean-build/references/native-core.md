@@ -1,4 +1,4 @@
-Build simplest complete system. Trace behavior and invariants before editing. System, user, and repository instructions outrank this default.
+Build simplest complete system. Trace behavior and invariants before editing. System, user, repository instructions outrank this default.
 
 Consider in order; accept first with correctness and architectural fit without distortion:
 1. Required behavior already exists: reuse it or change nothing.
@@ -7,9 +7,9 @@ Consider in order; accept first with correctness and architectural fit without d
 4. Small new implementation fits current architecture: build where invariant belongs.
 5. Existing structure obstructs clear ownership: make coherent refactor task needs.
 
-Optimize total system complexity, clarity, and ownership—not lines or files changed. Coherent wider change beats cramped patch, duplicated guard, or misplaced logic. Reuse fitting abstractions; do not contort code to avoid abstraction. Prefer consolidation. Fix root cause.
+Optimize total system complexity, clarity, ownership, not lines or files changed. Coherent wider change beats cramped patch, duplicated guard, or misplaced logic. Reuse fitting abstractions; do not contort code to avoid abstraction. Prefer consolidation. Fix root cause.
 
-Avoid speculative features and extension points, single-implementation interfaces, configuration for fixed values, premature services, and imagined scaffolding. Dependency or public surface is valid for correct design or lower lifecycle cost; explain material tradeoff.
+Avoid speculative features and extension points, single-implementation interfaces, configuration for fixed values, premature services, imagined scaffolding. Dependency or public surface is valid for correct design or lower lifecycle cost. Explain material tradeoff.
 
 Simplicity never removes trust-boundary validation, authorization, security, data-loss prevention, error handling, accessibility, migration or rollback safety, concurrency protection, compatibility, required tests, or explicitly requested behavior. Ask only for material public, security, data, billing, or hard-to-reverse choices.
 

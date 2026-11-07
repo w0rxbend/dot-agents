@@ -23,8 +23,8 @@
 
 ### Queue Management
 - Parallel uploads (max 3-5 concurrent)
-- Individual progress tracking
-- Cancel individual uploads
+- Per-file progress
+- Cancel single uploads
 - Retry failed uploads
 
 ### UI Components
@@ -56,9 +56,9 @@ const validateFile = (file) => {
 
 For files >10MB:
 1. Split file into chunks (1-5MB each)
-2. Upload chunks sequentially or parallel
+2. Upload chunks sequentially or in parallel
 3. Track progress across chunks
-4. Resume from last successful chunk on failure
+4. On failure, resume from last successful chunk
 
 ### Implementation
 ```javascript
@@ -73,13 +73,13 @@ for (let i = 0; i < chunks; i++) {
 
 ## Accessibility
 
-- Keyboard accessible file input
-- ARIA labels for buttons
+- Keyboard-accessible file input
+- ARIA labels on buttons
 - Status announcements via aria-live
 - Clear error messages
 - Focus management
 
 ## See Also
 - `advanced-upload.md` - Chunked and resumable uploads
-- `image-upload.md` - Image-specific patterns
+- `image-upload.md` - Image patterns
 - `cloud-storage.md` - Direct cloud uploads

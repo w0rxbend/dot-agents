@@ -1,9 +1,5 @@
 # gRPC and Protocol Buffers Guide
 
-## Overview
-
-gRPC is a high-performance RPC framework using Protocol Buffers for service-to-service communication. This guide covers proto3 syntax, service definitions, streaming patterns, and implementation examples.
-
 ## Table of Contents
 
 - [Core Concepts](#core-concepts)
@@ -27,7 +23,7 @@ gRPC is a high-performance RPC framework using Protocol Buffers for service-to-s
 - Polyglot services (multiple languages)
 
 ❌ **Avoid gRPC when:**
-- Browser clients (limited support, use Connect-Go for browser compatibility)
+- Browser clients (limited support; use Connect-Go for browser compatibility)
 - Simple CRUD APIs (REST simpler)
 - Human-readable debugging required (binary protocol)
 - Public APIs (REST more accessible)
@@ -77,11 +73,11 @@ enum Role {
 ### Field Numbers
 
 **Rules:**
-- Must be unique within a message
-- Cannot be changed once in use (breaks compatibility)
+- Must be unique within message
+- Cannot change once in use (breaks compatibility)
 - 1-15 use 1 byte (use for frequently set fields)
 - 16-2047 use 2 bytes
-- 19000-19999 are reserved
+- 19000-19999 reserved
 
 ### Data Types
 
@@ -209,7 +205,7 @@ message User {
 
 ### Server Streaming
 
-Server sends multiple responses to single client request:
+Server sends multiple responses to one client request:
 
 ```protobuf
 service LogService {
@@ -251,7 +247,7 @@ message UploadResponse {
 
 ### Bidirectional Streaming
 
-Both client and server stream messages:
+Client and server both stream messages:
 
 ```protobuf
 service ChatService {
@@ -409,12 +405,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Go: Connect-Go
 
-Connect-Go provides gRPC-compatible APIs that work in browsers.
+Connect-Go gives gRPC-compatible APIs that work in browsers.
 
 ### Installation
 
 ```bash
-go install connectrpc.com/connect/cmd/protoc-gen-connect-go@latest
+go install connectrpc.com/connect/cmd/protoc-gen-connect-go@v1.21.1  # pin; bump deliberately
 ```
 
 ### Code Generation
@@ -607,12 +603,12 @@ impl UserService for MyUserService {
 
 ## Best Practices
 
-1. **Use proto3 syntax** - Latest version with better defaults
-2. **Version your services** - Use package names like `user.v1`, `user.v2`
-3. **Reserve field numbers** - When removing fields, mark as `reserved`
-4. **Use streaming for large data** - Don't send large responses in single message
+1. **Use proto3 syntax** - Latest version, better defaults
+2. **Version your services** - Package names like `user.v1`, `user.v2`
+3. **Reserve field numbers** - Mark removed fields as `reserved`
+4. **Use streaming for large data** - Don't send large responses in one message
 5. **Implement health checks** - Use gRPC health checking protocol
-6. **Enable reflection** - For debugging with tools like grpcurl
+6. **Enable reflection** - Debug with tools like grpcurl
 7. **Use interceptors** - For logging, auth, metrics
 8. **Handle backpressure** - Limit concurrent requests
 9. **Set timeouts** - Prevent hanging connections
@@ -620,9 +616,7 @@ impl UserService for MyUserService {
 
 ## Performance Tips
 
-**Use HTTP/2 multiplexing:**
-- Single connection for multiple RPCs
-- Reduces connection overhead
+**Use HTTP/2 multiplexing:** single connection for multiple RPCs, less connection overhead.
 
 **Enable compression:**
 ```rust
@@ -640,4 +634,4 @@ Server::builder()
 
 **Batch requests when possible:**
 - Use repeated fields for batch operations
-- Reduces network round trips
+- Cuts network round trips

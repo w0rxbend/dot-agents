@@ -1,8 +1,5 @@
 # API Versioning Strategies
 
-API versioning enables backward-compatible changes while evolving the API over time without breaking existing clients.
-
-
 ## Table of Contents
 
 - [Versioning Strategies Comparison](#versioning-strategies-comparison)
@@ -51,14 +48,14 @@ API versioning enables backward-compatible changes while evolving the API over t
 ## URI Path Versioning (Recommended)
 
 **Advantages:**
-- Most visible and discoverable
+- Most visible, discoverable
 - Works with all HTTP clients
 - Cache-friendly (different URLs)
 - Easy to route in API gateways
 
 **Disadvantages:**
 - URL changes between versions
-- Can lead to code duplication
+- Can duplicate code
 
 ### FastAPI Implementation
 
@@ -120,7 +117,7 @@ export default app
 
 ### Shared Logic Pattern
 
-Avoid duplication by sharing business logic:
+Share business logic to avoid duplication:
 
 ```python
 from typing import Protocol
@@ -160,7 +157,7 @@ async def get_item_v2(item_id: int):
 
 **Disadvantages:**
 - Less discoverable
-- Can be ignored by clients
+- Clients can ignore it
 - Complicates caching
 
 ### FastAPI Implementation
@@ -265,9 +262,9 @@ async def list_items(
 - Supports multiple representations
 
 **Disadvantages:**
-- Complex implementation
+- Complex to implement
 - Not widely understood
-- Difficult to test
+- Hard to test
 
 ### FastAPI Implementation
 
@@ -304,7 +301,7 @@ const res2 = await fetch('/api/items', {
 
 ## Sunset Policy (Deprecation)
 
-Communicate version deprecation to clients:
+Tell clients when version is deprecated:
 
 ```python
 from datetime import datetime, timedelta
@@ -408,7 +405,7 @@ app.include_router(v2_1_router)
 
 ### Field Aliasing
 
-Support both old and new field names:
+Accept old and new field names:
 
 ```python
 from pydantic import BaseModel, Field
@@ -539,17 +536,15 @@ def test_item_field_name(version, expected_field):
 | Minor Additions | Same version | Add optional fields, don't version |
 | Bug Fixes | No version change | Patch-level change |
 
-**Default recommendation:** URI path versioning (e.g., `/api/v1`, `/api/v2`) for public APIs.
-
 ## Migration Checklist
 
-When releasing a new API version:
+When releasing new API version:
 
-- [ ] Update OpenAPI documentation
+- [ ] Update OpenAPI docs
 - [ ] Add deprecation headers to old version
 - [ ] Set sunset date (6-12 months)
-- [ ] Communicate to API consumers (email, blog post)
-- [ ] Monitor usage of old version
-- [ ] Provide migration guide with examples
+- [ ] Notify API consumers (email, blog post)
+- [ ] Monitor old-version usage
+- [ ] Publish migration guide with examples
 - [ ] Run both versions in parallel during migration
 - [ ] Remove old version only after usage drops to <5%

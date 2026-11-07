@@ -1,7 +1,5 @@
 # Kafka - Event Streaming Platform
 
-Apache Kafka is a distributed event streaming platform designed for high-throughput, fault-tolerant log aggregation and event sourcing.
-
 
 ## Table of Contents
 
@@ -58,8 +56,6 @@ Apache Kafka is a distributed event streaming platform designed for high-through
 
 ### Topics and Partitions
 
-**Topics** are categories for messages. **Partitions** enable parallelism.
-
 ```
 Topic: "orders"
 ├─ Partition 0: [msg1, msg4, msg7, ...]
@@ -68,10 +64,10 @@ Topic: "orders"
 ```
 
 **Key points:**
-- Messages with same key go to same partition (ordering guarantee)
-- More partitions = more parallelism
+- Same key, same partition (ordering guarantee)
+- More partitions, more parallelism
 - Partition count cannot decrease (only increase)
-- Recommended: Start with partitions = max expected consumers
+- Recommended: start with partition count equal to max expected consumers
 
 ### Consumer Groups
 
@@ -85,14 +81,14 @@ Consumer Group: "order-processors"
 ```
 
 **Key points:**
-- One partition assigned to one consumer per group
+- Each partition goes to one consumer per group
 - Adding consumers (up to partition count) increases parallelism
-- Rebalancing occurs when consumers join/leave
+- Consumers joining/leaving trigger rebalancing
 - Different groups consume independently
 
 ### Offsets
 
-**Offset** tracks position in partition for each consumer group.
+**Offset** tracks each consumer group's position in partition.
 
 ```
 Partition 0: [0] [1] [2] [3] [4] [5] [6] [7] [8] [9]
@@ -101,8 +97,8 @@ Partition 0: [0] [1] [2] [3] [4] [5] [6] [7] [8] [9]
 ```
 
 **Commit strategies:**
-- **Auto-commit** (default): Periodic background commit (may lose messages on crash)
-- **Manual commit**: Commit after processing (exactly-once semantics)
+- **Auto-commit** (default): periodic background commit (may lose messages on crash)
+- **Manual commit**: commit after processing (exactly-once semantics)
 
 ## Python Implementation
 
@@ -201,7 +197,7 @@ finally:
 
 ## Exactly-Once Semantics
 
-Kafka supports exactly-once processing through **idempotent producers** and **transactional writes**.
+Kafka gets exactly-once processing from **idempotent producers** and **transactional writes**.
 
 ### Idempotent Producer
 
@@ -219,7 +215,7 @@ producer = Producer(config)
 **How it works:**
 - Producer assigns sequence numbers to messages
 - Broker detects and rejects duplicates
-- Guarantees: No duplicates even on retries
+- Guarantees: no duplicates, even on retries
 
 ### Transactional Producer
 
@@ -251,7 +247,7 @@ except Exception as e:
     raise
 ```
 
-**Use case:** Consuming from one topic, processing, producing to another (exactly-once end-to-end).
+**Use case:** consume from one topic, process, produce to another (exactly-once end-to-end).
 
 ## Partitioning Strategies
 
@@ -266,7 +262,7 @@ producer.produce(
 )
 ```
 
-**Guarantees:** Order preserved per key.
+**Guarantees:** order preserved per key.
 
 ### Custom Partitioner
 
@@ -290,8 +286,6 @@ producer = Producer(config)
 ```
 
 ## Consumer Rebalancing
-
-When consumers join/leave, Kafka **rebalances** partition assignments.
 
 ### Graceful Shutdown
 
@@ -350,9 +344,9 @@ config = {
 ```
 
 **Trade-offs:**
-- `acks=1` faster but weaker durability than `acks=all`
-- Larger batches = higher throughput, higher latency
-- `linger.ms` adds latency but increases batching efficiency
+- `acks=1` faster but less durable than `acks=all`
+- Larger batches: higher throughput, higher latency
+- `linger.ms` adds latency, improves batching
 
 ### Consumer Throughput Optimization
 
@@ -369,9 +363,9 @@ config = {
 ```
 
 **Trade-offs:**
-- Larger `fetch.min.bytes` = fewer network calls but higher latency
-- Increase `max.partition.fetch.bytes` for high-throughput topics
-- Tune `session.timeout.ms` based on processing time per message
+- Larger `fetch.min.bytes`: fewer network calls, higher latency
+- Raise `max.partition.fetch.bytes` for high-throughput topics
+- Tune `session.timeout.ms` to per-message processing time
 
 ## Monitoring
 
@@ -516,7 +510,7 @@ def rebuild_order_state(order_id):
 ### Consumer Lag Growing
 
 **Causes:**
-- Processing too slow (scale horizontally by adding consumers)
+- Slow processing (add consumers to scale horizontally)
 - Too few partitions (repartition topic)
 - Network issues (check broker health)
 
@@ -531,9 +525,9 @@ def rebuild_order_state(order_id):
 
 **Causes:**
 - Consumer crashed before committing offset
-- Rebalancing occurred mid-processing
+- Rebalance during processing
 
-**Fix:** Implement idempotency:
+**Fix:** make processing idempotent:
 ```python
 def process_order_idempotent(order_id, data):
     """Idempotent processing with deduplication"""
@@ -580,7 +574,6 @@ config = {
 
 ## Related Patterns
 
-- **CQRS**: Command topics write events, query topics build read models
-- **Event Sourcing**: Kafka as immutable event log
-- **Outbox Pattern**: Ensure database writes and event publishing are atomic
-- **Saga Pattern**: Coordinate distributed transactions via events (see Temporal integration)
+- **CQRS**: command topics write events, query topics build read models
+- **Outbox Pattern**: make database writes and event publishing atomic
+- **Saga Pattern**: coordinate distributed transactions via events (see Temporal integration)

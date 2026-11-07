@@ -1,7 +1,5 @@
 # Pulumi Infrastructure as Code Guide
 
-TypeScript-first Infrastructure as Code with Pulumi.
-
 **Context7 Research**:
 - Library: `/pulumi/docs` (Trust: 94.6/100, 9,525 snippets)
 - Website: `/websites/pulumi` (86.4 score, 6,034 snippets)
@@ -17,25 +15,6 @@ TypeScript-first Infrastructure as Code with Pulumi.
 - [Best Practices](#best-practices)
 
 ## Core Concepts
-
-### Resources
-
-Infrastructure components (EC2, S3, Lambda, etc.).
-
-```typescript
-import * as aws from "@pulumi/aws";
-
-// Create S3 bucket (resource)
-const bucket = new aws.s3.Bucket("my-bucket", {
-    acl: "private",
-    tags: {
-        Environment: "production",
-    },
-});
-
-// Export bucket name
-export const bucketName = bucket.id;
-```
 
 ### Stacks
 
@@ -153,8 +132,6 @@ template:
 
 ### ECS Fargate Service
 
-Complete serverless container deployment.
-
 ```typescript
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
@@ -162,7 +139,9 @@ import * as awsx from "@pulumi/awsx";
 
 const config = new pulumi.Config();
 const imageTag = config.require("imageTag");
-const dbUrl = config.requireSecret("dbUrl");
+// ARN of Secrets Manager secret holding DB URL (valueFrom takes ARN, never the value);
+// execution role needs secretsmanager:GetSecretValue on it (see Secrets Management)
+const dbUrlSecretArn = config.require("dbUrlSecretArn");
 
 // VPC with public/private subnets
 const vpc = new awsx.ec2.Vpc("app-vpc", {
@@ -196,7 +175,7 @@ const service = new awsx.ecs.FargateService("app-service", {
             secrets: [
                 {
                     name: "DATABASE_URL",
-                    valueFrom: dbUrl,
+                    valueFrom: dbUrlSecretArn,
                 },
             ],
             portMappings: [{
@@ -299,23 +278,31 @@ const bucket = new aws.s3.Bucket("website-bucket", {
     },
 });
 
-// Bucket policy for CloudFront
+// CloudFront Origin Access Identity
+const oai = new aws.cloudfront.OriginAccessIdentity("oai", {
+    comment: "OAI for static website",
+});
+
+// Bucket stays private; only CloudFront (OAI) reads objects
+new aws.s3.BucketPublicAccessBlock("bucket-public-access-block", {
+    bucket: bucket.id,
+    blockPublicAcls: true,
+    blockPublicPolicy: true,
+    ignorePublicAcls: true,
+    restrictPublicBuckets: true,
+});
+
 const bucketPolicy = new aws.s3.BucketPolicy("bucket-policy", {
     bucket: bucket.id,
-    policy: bucket.arn.apply(arn => JSON.stringify({
+    policy: pulumi.all([bucket.arn, oai.iamArn]).apply(([arn, oaiArn]) => JSON.stringify({
         Version: "2012-10-17",
         Statement: [{
             Effect: "Allow",
-            Principal: "*",
+            Principal: { AWS: oaiArn },
             Action: "s3:GetObject",
             Resource: `${arn}/*`,
         }],
     })),
-});
-
-// CloudFront Origin Access Identity
-const oai = new aws.cloudfront.OriginAccessIdentity("oai", {
-    comment: "OAI for static website",
 });
 
 // CloudFront distribution
@@ -365,7 +352,6 @@ const indexHtml = new aws.s3.BucketObject("index.html", {
     bucket: bucket.id,
     source: new pulumi.asset.FileAsset("./dist/index.html"),
     contentType: "text/html",
-    acl: "public-read",
 });
 
 export const cdnUrl = cdn.domainName;
@@ -659,7 +645,7 @@ pulumi stack ls
 
 # Stack configuration
 pulumi config set aws:region us-east-1
-pulumi config set --secret dbPassword mySecurePassword
+pulumi config set --secret dbPassword   # user runs; prompts for value (or pipe from file/secret manager), keeps it out of argv/history
 
 # Preview changes
 pulumi preview
@@ -688,7 +674,7 @@ const secretVersion = new aws.secretsmanager.SecretVersion("db-password-version"
     secretString: dbPassword,
 });
 
-// Use secret ARN in ECS task
+// Use secret ARN in ECS task (task execution role needs secretsmanager:GetSecretValue on it)
 const taskDefinition = new aws.ecs.TaskDefinition("task", {
     containerDefinitions: pulumi.jsonStringify([{
         name: "app",

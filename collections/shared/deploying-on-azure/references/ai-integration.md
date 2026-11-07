@@ -1,7 +1,5 @@
 # Azure AI Integration Reference
 
-Comprehensive guide to integrating Azure OpenAI Service, Cognitive Services, and Azure Machine Learning.
-
 ## Table of Contents
 
 1. [Azure OpenAI Service](#azure-openai-service)
@@ -14,8 +12,6 @@ Comprehensive guide to integrating Azure OpenAI Service, Cognitive Services, and
 
 ## Azure OpenAI Service
 
-**Enterprise-grade access to OpenAI chat, reasoning and embedding models**
-
 ### Key Advantages
 
 | Feature | Benefit |
@@ -25,24 +21,24 @@ Comprehensive guide to integrating Azure OpenAI Service, Cognitive Services, and
 | **Enterprise SLA** | 99.9% uptime guarantee |
 | **Content Filtering** | Built-in abuse monitoring |
 | **Microsoft Support** | Enterprise support contracts |
-| **Managed Identity** | Secure authentication without API keys |
+| **Managed Identity** | Authentication without API keys |
 
 ### Choosing Models
 
 Model availability, versions, retirement dates and prices change often and vary by region.
-Check the Azure OpenAI "models" and "model retirements" pages and the pricing page before
-creating a deployment. Older families (GPT-4, GPT-4 Turbo, GPT-3.5 Turbo, text-embedding-ada-002)
-are retired or being retired; do not create new deployments of them.
+Before creating a deployment, check Azure OpenAI "models" and "model retirements" pages and the pricing page.
+Older families (GPT-4, GPT-4 Turbo, GPT-3.5 Turbo, text-embedding-ada-002) are retired or retiring.
+Do not create new deployments of them.
 
 | Need | Pick | Notes |
 |------|------|-------|
-| General chat, tool calling | A current GPT-4o-class or newer chat model | Default for most apps |
-| Cheap, high-volume tasks | The current "mini" variant of that family | Classification, extraction |
-| Hard reasoning, coding | A current reasoning model (o-series or newer) | Higher latency and cost |
-| Embeddings for RAG | text-embedding-3-small (1536 dims) or -large (3072 dims) | Re-embed if you switch models |
+| General chat, tool calling | Current GPT-4o-class or newer chat model | Default for most apps |
+| Cheap, high-volume tasks | Current "mini" variant of that family | Classification, extraction |
+| Hard reasoning, coding | Current reasoning model (o-series or newer) | Higher latency and cost |
+| Embeddings for RAG | text-embedding-3-small (1536 dims) or -large (3072 dims) | Re-embed after switching models |
 
-In code, `model=` is your **deployment name**. The examples below use `chat-deployment` and
-`embedding-deployment`; name deployments by role so code does not change when you upgrade the model.
+In code, `model=` is your **deployment name**. Examples below use `chat-deployment` and `embedding-deployment`.
+Name deployments by role so code does not change on model upgrade.
 
 ### Python SDK Setup
 
@@ -223,8 +219,6 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
 
 ## Retrieval-Augmented Generation (RAG)
 
-**Combine Azure OpenAI with Azure AI Search for grounded responses**
-
 ### RAG Architecture
 
 ```
@@ -242,6 +236,8 @@ Grounded response
 ```
 
 ### Python RAG Implementation
+
+Retrieved text is untrusted: wrap each document in delimiters and tell the model never to follow instructions inside them (indirect prompt injection; see `examples/sdk/python/azure-openai-rag.py`).
 
 ```python
 import os
@@ -442,14 +438,14 @@ index_client.create_or_update_index(index)
 
 ## Function Calling
 
-**Structured outputs and tool use with Azure OpenAI**
+Structured outputs and tool use with Azure OpenAI.
 
 ### Use Cases
 
 - Extract structured data from unstructured text
-- Execute actions based on user intent (book appointments, query databases)
+- Act on user intent (book appointments, query databases)
 - Multi-step workflows (agent patterns)
-- API integration (call external services)
+- Call external services (API integration)
 
 ### Python Function Calling Example
 
@@ -577,7 +573,8 @@ def run_conversation(user_message: str) -> str:
             print(f"Calling function: {function_name}")
             print(f"Arguments: {function_args}")
 
-            # Call the function
+            # Call the function (model output is untrusted: allowlisted names only;
+            # confirm side-effecting calls such as bookings with the user first)
             function_response = available_functions[function_name](**function_args)
 
             # Add function response to messages
@@ -612,8 +609,6 @@ if __name__ == "__main__":
 ---
 
 ## Cognitive Services
-
-**Pre-built AI models for vision, speech, language, and decision**
 
 ### Service Categories
 
@@ -696,14 +691,11 @@ for doc in entities_result:
 
 ## Azure Machine Learning
 
-**End-to-end platform for custom model training and MLOps**
-
 ### When to Use Azure ML
 
-Choose Azure ML when:
 - Training custom models (pre-built Cognitive Services insufficient)
-- Need MLOps capabilities (experiment tracking, model versioning)
-- Require distributed training (multi-GPU, multi-node)
+- Need MLOps (experiment tracking, model versioning)
+- Need distributed training (multi-GPU, multi-node)
 - Building feature engineering pipelines
 - Deploying models to managed endpoints
 
@@ -793,4 +785,4 @@ print(f"Job URL: {returned_job.studio_url}")
 | **Azure ML** | Custom models, MLOps | High | Compute + storage |
 | **Azure AI Search** | Semantic search, RAG patterns | Medium | Index size + queries |
 
-**Recommendation:** Start with Azure OpenAI and Cognitive Services for 90% of AI use cases. Use Azure ML only when custom model training required.
+**Recommendation:** Start with Azure OpenAI and Cognitive Services for 90% of AI use cases. Use Azure ML only when custom model training is required.

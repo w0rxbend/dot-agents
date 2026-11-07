@@ -1,21 +1,21 @@
 # Codex network approvals / sandbox notes
 
-This file is for the fallback CLI mode only. Read it when the user explicitly asks to use `scripts/image_gen.py` / CLI / API / model controls, or after the user explicitly confirms that a transparent-output request should use the `gpt-image-1.5` true-transparency fallback path.
+Fallback CLI mode only. Read when user explicitly asks for `scripts/image_gen.py` / CLI / API / model controls, or explicitly confirms transparent-output request should use `gpt-image-1.5` true-transparency fallback path.
 
-This guidance is intentionally isolated from `SKILL.md` because it can vary by environment and may become stale. Prefer the defaults in your environment when in doubt.
+This guidance varies by environment and may go stale. When in doubt, prefer your environment's defaults.
 
 ## Why am I asked to approve image generation calls?
-The fallback CLI uses the OpenAI Image API, so it needs outbound network access. In many Codex setups, network access is disabled by default and/or the approval policy requires confirmation before networked commands run.
+Fallback CLI uses OpenAI Image API, so needs outbound network access. Many Codex setups disable network by default and/or approval policy requires confirmation before networked commands run.
 
 ## Important note about approvals vs network
 - `--ask-for-approval never` suppresses approval prompts.
 - It does **not** by itself enable network access.
-- In `workspace-write`, network access still depends on your Codex configuration (for example `[sandbox_workspace_write] network_access = true`).
+- In `workspace-write`, network access still depends on Codex configuration (for example `[sandbox_workspace_write] network_access = true`).
 
 ## How do I reduce repeated approval prompts?
-If you trust the repo and want fewer prompts, use a configuration or profile that both:
-- enables network for the sandbox mode you plan to use
-- sets an approval policy that matches your risk tolerance
+If you trust repo and want fewer prompts, use configuration or profile that both:
+- enables network for sandbox mode you plan to use
+- sets approval policy matching your risk tolerance
 
 Example `~/.codex/config.toml` pattern:
 
@@ -27,7 +27,7 @@ sandbox_mode = "workspace-write"
 network_access = true
 ```
 
-If you want quieter automation after network is enabled, you can choose a stricter approval policy, but do that intentionally and with care.
+For quieter automation once network is enabled, stricter approval policy is an option. Choose it deliberately, with care.
 
 ## Safety note
-Enabling network and reducing approvals lowers friction, but increases risk if you run untrusted code or work in an untrusted repository.
+Enabling network and reducing approvals lowers friction but raises risk when running untrusted code or working in untrusted repository.

@@ -3,7 +3,6 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [Installation](#installation)
   - [Docker (Recommended for Development)](#docker-recommended-for-development)
   - [Language Drivers](#language-drivers)
@@ -44,22 +43,22 @@
   - [Aggregation Functions](#aggregation-functions)
 - [Further Resources](#further-resources)
 
-## Overview
-
-Neo4j is the most mature and widely-used graph database (since 2007). It uses the Cypher query language and provides 65+ graph algorithms through the Graph Data Science (GDS) library.
-
 ## Installation
 
 ### Docker (Recommended for Development)
+Pin a tested tag. Usage reporting and Browser telemetry default on; the two `false` flags turn them off. Ports bind to loopback; password comes from env, never a literal.
 ```bash
-docker run -d \
+export NEO4J_PASSWORD="$(openssl rand -hex 16)"  # keep in a secret store or gitignored .env
+NEO4J_AUTH="neo4j/$NEO4J_PASSWORD" docker run -d \
   --name neo4j \
-  -p 7474:7474 -p 7687:7687 \
-  -e NEO4J_AUTH=neo4j/password \
-  neo4j:latest
+  -p 127.0.0.1:7474:7474 -p 127.0.0.1:7687:7687 \
+  -e NEO4J_AUTH \
+  -e NEO4J_dbms_usage__report_enabled=false \
+  -e NEO4J_client_allow__telemetry=false \
+  neo4j:5.26.32
 ```
 
-Access Neo4j Browser at: http://localhost:7474
+Neo4j Browser: http://localhost:7474
 
 ### Language Drivers
 
@@ -84,6 +83,8 @@ go get github.com/neo4j/neo4j-go-driver/v5/neo4j
 ```
 
 ## Connection Setup
+
+Read the password from env (`NEO4J_PASSWORD`) or a secret store; `"password"` below is a placeholder.
 
 ### Python
 ```python
@@ -139,7 +140,7 @@ console.log(`Connected: ${await db.verifyConnectivity()}`)
 
 ## Graph Data Science (GDS) Library
 
-Neo4j's GDS library provides 65+ production-quality graph algorithms.
+GDS provides 65+ production-quality graph algorithms.
 
 ### Installation
 ```cypher
@@ -153,7 +154,7 @@ CALL gds.list()
 ### Common Graph Algorithms
 
 #### PageRank (Centrality)
-Find influential nodes based on their connections.
+Find influential nodes by their connections.
 
 ```cypher
 // 1. Create graph projection
@@ -182,7 +183,7 @@ ORDER BY communityId
 ```
 
 #### Shortest Path (Dijkstra)
-Find optimal path between nodes considering weighted relationships.
+Find optimal path between nodes over weighted relationships.
 
 ```cypher
 MATCH (source:Location {name: 'New York'}), (target:Location {name: 'Los Angeles'})
@@ -196,7 +197,7 @@ RETURN [node IN nodes(path) | node.name] AS route, totalCost
 ```
 
 #### Node Similarity
-Find similar nodes based on their neighborhoods.
+Find nodes with similar neighborhoods.
 
 ```cypher
 CALL gds.nodeSimilarity.stream('socialGraph')
@@ -211,7 +212,7 @@ LIMIT 20
 
 ## APOC Procedures
 
-APOC (Awesome Procedures On Cypher) extends Neo4j with utility functions.
+APOC (Awesome Procedures On Cypher) adds utility functions to Neo4j.
 
 ### Installation
 ```bash
@@ -219,7 +220,9 @@ APOC (Awesome Procedures On Cypher) extends Neo4j with utility functions.
 docker run -d \
   --name neo4j \
   -e NEO4J_PLUGINS='["apoc"]' \
-  neo4j:latest
+  -e NEO4J_dbms_usage__report_enabled=false \
+  -e NEO4J_client_allow__telemetry=false \
+  neo4j:5.26.32
 ```
 
 ### Common APOC Procedures
@@ -360,15 +363,7 @@ MATCH (u:User)-[:FRIEND*1..4]->(distant)
 LIMIT 100
 ```
 
-**2. Use Indexes**
-```cypher
-// Create index before querying
-CREATE INDEX user_email FOR (u:User) ON (u.email)
-
-// Query benefits from index
-MATCH (u:User {email: 'alice@example.com'})
-RETURN u
-```
+**2. Use Indexes**: create index on lookup property (see [Indexes](#indexes)) before querying.
 
 **3. Eager Loading with WITH**
 ```cypher
@@ -381,11 +376,9 @@ RETURN u.name, friendCount
 
 ## Neo4j Aura (Managed Cloud)
 
-Neo4j Aura is the fully managed cloud service.
-
 ### Connection
 ```python
-# Aura uses neo4j+s:// or neo4j+ssc:// protocols
+# Aura uses neo4j+s:// (verifies cert); avoid +ssc (skips verification)
 driver = GraphDatabase.driver(
     "neo4j+s://xxxxx.databases.neo4j.io",
     auth=("neo4j", "password")
@@ -397,7 +390,7 @@ driver = GraphDatabase.driver(
 - Automated backups
 - Security (encryption at rest and in transit)
 - Monitoring dashboards
-- Free tier available (50K nodes, 175K relationships)
+- Free tier (50K nodes, 175K relationships)
 
 ## Schema Design Patterns
 

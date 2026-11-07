@@ -113,7 +113,7 @@ Review any remaining candidates and representative source. The exporter accepts
 Without analyses, it produces structure-only profiles; preserve or refresh the richer
 observations before publishing. Update installed source folders deliberately, then
 run `scripts/import_skills.py --replace` and `scripts/catalog.py`. Refresh review and
-fork records too: `make check` rejects stale hashes or incomplete coverage. Compare
+fork records too: `just check` rejects stale hashes or incomplete coverage. Compare
 upstream updates with `sources/local-forks.json` before overwriting personalized forks.
 
 ## Private context on another machine

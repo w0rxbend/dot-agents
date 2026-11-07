@@ -6,9 +6,9 @@ tags: dup, clarity, readability, naming, abstraction
 
 ## Extract Only When It Improves Clarity
 
-Extraction should make code easier to understand, not just shorter. If the extracted function name doesn't communicate intent better than the original code, keep the code inline. A helper called `processData()` or `handleStuff()` forces readers to look inside anyway. The goal is comprehension, not line count reduction.
+Extract to make code clearer, not shorter. If helper name conveys intent no better than inline code, keep code inline. Names like `processData()` or `handleStuff()` force readers to look inside anyway.
 
-**Incorrect (extraction hides intent behind vague name):**
+**Incorrect (vague name hides intent):**
 
 ```typescript
 async function checkout(cart: Cart): Promise<Order> {
@@ -26,7 +26,7 @@ async function processCartData(cart: Cart): Promise<Order> {
 }
 ```
 
-**Correct (inline code that speaks for itself):**
+**Correct (self-explanatory inline code):**
 
 ```typescript
 async function checkout(cart: Cart): Promise<Order> {
@@ -43,7 +43,7 @@ async function checkout(cart: Cart): Promise<Order> {
 // Business logic is immediately visible
 ```
 
-**Incorrect (extracting trivial operations):**
+**Incorrect (trivial operations extracted):**
 
 ```python
 def create_report(data):
@@ -77,7 +77,7 @@ def format_as_table(records):
     ...
 ```
 
-**Incorrect (generic names that require reading implementation):**
+**Incorrect (generic names):**
 
 ```go
 func HandleRequest(r *Request) (*Response, error) {
@@ -94,7 +94,7 @@ func doFormatting(r *Result) *Response { ... }
 // "do" prefix is a code smell - names don't describe behavior
 ```
 
-**Correct (names that describe actual behavior):**
+**Correct (names describe behavior):**
 
 ```go
 func HandleRequest(r *Request) (*Response, error) {
@@ -111,7 +111,7 @@ func formatInventoryResponse(status *InventoryStatus) *Response { ... }
 // Each name tells you what the function does without reading it
 ```
 
-**Incorrect (DRY obsession - extracting unrelated similar code):**
+**Incorrect (DRY obsession - unrelated similar code merged):**
 
 ```javascript
 // "These both iterate arrays, let's extract!"
@@ -128,7 +128,7 @@ const prices = processItems(products, p => p.price);
 const names = processItems(users, u => u.name);
 ```
 
-**Correct (use language features, keep intent clear):**
+**Correct (language features, clear intent):**
 
 ```javascript
 const prices = products.map(p => p.price);
@@ -138,21 +138,14 @@ const names = users.map(u => u.name);
 
 ### Signs That Extraction Improves Clarity
 
-- The function name explains a "why" that code alone doesn't convey
-- The function encapsulates a business rule that has a domain name
-- Readers can understand the calling code without reading the helper
-- The extracted logic is cohesive and represents one concept
+- Name explains a "why" code alone does not convey
+- Encapsulates business rule with a domain name
+- Callers readable without opening helper
+- Cohesive logic, one concept
 
 ### Signs That Extraction Hurts Clarity
 
-- You struggle to name the function (vague names like `process`, `handle`, `do`)
-- The function name is longer than the code it contains
-- Readers still need to check the implementation to understand the caller
-- The extraction groups unrelated operations
-
-### Benefits
-
-- Code reads like documentation of business logic
-- Reduced navigation between files and functions
-- Function names serve as accurate documentation
-- New team members understand code faster
+- Hard to name (vague names like `process`, `handle`, `do`)
+- Name longer than its body
+- Readers still open helper to understand caller
+- Groups unrelated operations

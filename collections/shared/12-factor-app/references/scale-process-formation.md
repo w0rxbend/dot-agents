@@ -7,7 +7,7 @@ tags: scale, formation, infrastructure, declarative
 
 ## Define Process Formation as Declarative Configuration
 
-The process formation (array of process types and their replica counts) should be declared in configuration, not managed manually. This enables reproducible deployments and infrastructure-as-code practices.
+Declare process formation (array of process types and replica counts) in configuration. Do not manage it manually. Enables reproducible deployments and infrastructure-as-code.
 
 **Incorrect (manual process management):**
 
@@ -104,11 +104,5 @@ kubectl apply -f kubernetes/
 # Or
 heroku ps:scale $(cat formation.yaml | yq '.production | to_entries | .[] | .key + "=" + (.value | tostring)' | tr '\n' ' ')
 ```
-
-**Benefits:**
-- Version-controlled infrastructure
-- Reproducible across environments
-- Easy to review changes
-- Disaster recovery: just reapply manifests
 
 Reference: [The Twelve-Factor App - Concurrency](https://12factor.net/concurrency)

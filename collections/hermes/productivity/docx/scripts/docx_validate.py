@@ -33,6 +33,10 @@ W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 R = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 PR = "http://schemas.openxmlformats.org/package/2006/relationships"
 
+# Package XML is untrusted: no entity expansion, DTD loading or network.
+PARSER = etree.XMLParser(resolve_entities=False, no_network=True,
+                         load_dtd=False)
+
 IMAGE_MAGIC = (
     b"\x89PNG\r\n\x1a\n", b"\xff\xd8\xff", b"GIF87a", b"GIF89a",
     b"BM", b"II*\x00", b"MM\x00*",
@@ -76,7 +80,7 @@ def validate(path: str) -> dict:
     rel_ids_by_source: dict[str, dict] = {}
     for rels_name in [n for n in names if n.endswith(".rels")]:
         try:
-            root = etree.fromstring(zf.read(rels_name))
+            root = etree.fromstring(zf.read(rels_name), PARSER)
         except etree.XMLSyntaxError as exc:
             _issue(issues, "error", "bad-rels-xml", f"{rels_name}: {exc}")
             continue
@@ -98,7 +102,7 @@ def validate(path: str) -> dict:
         rel_ids_by_source[source_part or "_package"] = ids
 
     # --- r:id / r:embed references in document.xml -----------------------
-    doc_root = etree.fromstring(zf.read("word/document.xml"))
+    doc_root = etree.fromstring(zf.read("word/document.xml"), PARSER)
     doc_rels = rel_ids_by_source.get("word", {})
     for el in doc_root.iter():
         for attr in (f"{{{R}}}id", f"{{{R}}}embed", f"{{{R}}}link"):
@@ -119,7 +123,7 @@ def validate(path: str) -> dict:
     # --- styles referenced exist ------------------------------------------
     defined = set()
     if "word/styles.xml" in names:
-        styles_root = etree.fromstring(zf.read("word/styles.xml"))
+        styles_root = etree.fromstring(zf.read("word/styles.xml"), PARSER)
         defined = {s.get(f"{{{W}}}styleId")
                    for s in styles_root.iter(f"{{{W}}}style")}
     for tag, attr in ((f"{{{W}}}pStyle", f"{{{W}}}val"),

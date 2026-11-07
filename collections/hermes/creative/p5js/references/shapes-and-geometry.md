@@ -151,8 +151,6 @@ endShape();
 
 ## p5.Vector
 
-Essential for physics, particle systems, and geometric computation.
-
 ```javascript
 let v = createVector(x, y);
 
@@ -187,7 +185,7 @@ let copy = v.copy();
 
 ## Signed Distance Fields (2D)
 
-SDFs return the distance from a point to the nearest edge of a shape. Negative inside, positive outside. Useful for smooth shapes, glow effects, boolean operations.
+SDFs return distance from point to nearest shape edge. Negative inside, positive outside. Use for smooth shapes, glow effects, boolean operations.
 
 ```javascript
 // Circle SDF

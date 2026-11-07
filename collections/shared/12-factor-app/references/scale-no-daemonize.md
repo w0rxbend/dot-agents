@@ -7,7 +7,7 @@ tags: scale, daemon, process-manager, signals
 
 ## Never Daemonize or Write PID Files Let Process Manager Handle It
 
-Twelve-factor app processes should never daemonize (fork and detach from terminal) or write PID files. Instead, rely on the operating system's process manager (systemd, Kubernetes, Docker, Heroku) to manage output streams, handle crashes, and control process lifecycle.
+Never daemonize (fork and detach from terminal) or write PID files. Rely on OS process manager (systemd, Kubernetes, Docker, Heroku) to manage output streams, restart crashed processes, control process lifecycle (clean shutdown via SIGTERM) and enforce resource limits.
 
 **Incorrect (self-daemonizing):**
 
@@ -105,11 +105,5 @@ CMD ["python", "main.py"]
 # Docker monitors the process
 # 'docker logs' shows stdout/stderr
 ```
-
-**Benefits:**
-- Process manager can restart crashed processes
-- Logs captured and routed by platform
-- Clean shutdown via SIGTERM
-- Resource limits enforced properly
 
 Reference: [The Twelve-Factor App - Concurrency](https://12factor.net/concurrency)

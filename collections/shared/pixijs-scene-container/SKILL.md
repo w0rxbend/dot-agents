@@ -4,9 +4,9 @@ description: "Use this skill when grouping, positioning, or transforming display
 license: MIT
 ---
 
-`Container` is the general-purpose node of the PixiJS v8 scene graph. It holds children and applies transforms, alpha, tint, and blend mode to its whole subtree. Every display object you make will either be a `Container` you're building a branch on, or a leaf (`Sprite`, `Graphics`, `Text`, `Mesh`) that you nest inside one.
+`Container`: general-purpose PixiJS v8 scene-graph node. Holds children; applies transforms, alpha, tint, blend mode to whole subtree. Every display object is a `Container` (branch) or a leaf (`Sprite`, `Graphics`, `Text`, `Mesh`) nested in one.
 
-Assumes the scene graph basics in [references/scene-core-concepts.md](references/scene-core-concepts.md) (leaves vs containers, constructor options, render groups, RenderLayer, masking, culling).
+Assumes scene graph basics in [references/scene-core-concepts.md](references/scene-core-concepts.md) (leaves vs containers, constructor options, render groups, RenderLayer, masking, culling).
 
 ## Quick Start
 
@@ -30,7 +30,7 @@ group.scale.set(1.5);
 app.stage.addChild(group);
 ```
 
-**Related skills:** `pixijs-scene-graphics` / `pixijs-scene-text` (leaf objects that go inside containers), `pixijs-events` (`eventMode`, hit testing), `pixijs-performance` (`cacheAsTexture`, culling, render groups). Scene graph mental model, masking, layers and render groups: [references/scene-core-concepts.md](references/scene-core-concepts.md).
+**Related skills:** `pixijs-scene-graphics` / `pixijs-scene-text` (leaves inside containers), `pixijs-events` (`eventMode`, hit testing), `pixijs-performance` (`cacheAsTexture`, culling, render groups).
 
 ## Core Patterns
 
@@ -54,30 +54,17 @@ const container = new Container({
 });
 ```
 
-All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) are also valid here — see the constructor-options table in [references/scene-core-concepts.md](references/scene-core-concepts.md).
+Constructor bulk-copies every options field onto instance via `assignWithIgnore`, except `children`, `parent`, `effects`. So any public `Container` property works: `cullable`, `cullArea`, `mask`, `filterArea`, `eventMode`, `hitArea`, etc. Full list: constructor-options table in [references/scene-core-concepts.md](references/scene-core-concepts.md).
 
-The `Container` constructor uses `assignWithIgnore` to bulk-copy every field in the options object onto the instance except `children`, `parent`, and `effects`. Any public property of `Container` is a valid constructor option: `cullable`, `cullArea`, `mask`, `filterArea`, `eventMode`, `hitArea`, and so on. The options block above groups the most common ones; see that reference for the full list.
+`isRenderGroup: true` makes container own render group: transforms apply on GPU, not recomputed per-child on CPU. Use on stable sub-trees (large static worlds, UI layers). Do not overuse; most scenes need no explicit render groups, too many hurt performance. Profile first. See [references/scene-core-concepts.md](references/scene-core-concepts.md#render-groups).
 
-`isRenderGroup: true` promotes the container to its own render group so its transforms are applied on the GPU rather than recomputed per-child on the CPU. Use it on stable sub-trees (large static worlds, UI layers). Don't overuse; most scenes don't need explicit render groups and too many hurts performance. Profile before promoting. See [references/scene-core-concepts.md](references/scene-core-concepts.md#render-groups).
+`origin` (v8 `ObservablePoint`) sets rotation/scale center **without** moving container. `pivot` shifts projection of local origin in parent space, so changing it displaces object; `origin` leaves position alone. Accepts `PointData` or single number (both axes); set live via `container.origin.set(x, y)`.
 
-`sortableChildren: true` causes children to be re-sorted by `zIndex` at the next render. See `zIndex` below.
-
-`origin` is a first-class v8 transform helper: an `ObservablePoint` that acts as a rotation/scale center **without** moving the container. Where `pivot` shifts the projection of the local origin in parent space (so changing it displaces the object), `origin` leaves position alone and simply rotates/scales around the specified local point. Accepts `PointData`, a single number (applied to both axes), or can be set live via `container.origin.set(x, y)`. Setting both `pivot` and `origin` on the same container produces compounding behavior and is discouraged; pick one.
-
-`boundsArea` forces `getBounds()` to return a fixed rectangle instead of recursively measuring children; it is a performance win for containers with hundreds of cheap, predictable children.
-
-`cullable` and `cullArea` are valid constructor options (the `assignWithIgnore` pass copies them like any other field), but they are documented in `pixijs-performance` because culling setup is a performance concern rather than a scene-graph concern.
+`boundsArea` makes `getBounds()` return fixed rectangle instead of recursively measuring children. Performance win for containers with hundreds of cheap, predictable children.
 
 ### Leaves vs containers
 
-```ts
-const parent = new Container();
-const sprite = new Sprite(texture);
-
-parent.addChild(sprite);
-```
-
-Only `Container` (and subclasses intended to hold children, like `RenderLayer`) should have children. `Sprite`, `Graphics`, `Text`, `Mesh`, `ParticleContainer` particles, and `DOMContainer` content are leaves by convention in PixiJS v8. Wrap them in a `Container` whenever you need to group things: give the container the layout logic and keep the leaves pure visual data. Adding children to a leaf logs a deprecation warning and is scheduled to become a hard error.
+Only `Container` (and child-holding subclasses like `RenderLayer`) should have children. `Sprite`, `Graphics`, `Text`, `Mesh`, `ParticleContainer` particles, `DOMContainer` content are leaves by convention in PixiJS v8. To group, wrap in a `Container`: container owns layout logic, leaves stay pure visual data.
 
 ### Adding and removing children
 
@@ -96,13 +83,13 @@ parent.removeChildren();
 parent.removeChildren(0, 2);
 ```
 
-`addChild` accepts any number of children and returns the first one. Children render in array order: index 0 is drawn first (behind), the last index is drawn last (in front). `addChildAt` inserts at a specific index; `setChildIndex` moves an existing child; `swapChildren` exchanges two children's positions.
+`addChild` takes any number of children, returns first. Children render in array order: index 0 first (behind), last index last (in front). `addChildAt` inserts at index; `setChildIndex` moves existing child; `swapChildren` swaps two children.
 
-`removeChildren(beginIndex?, endIndex?)` removes a slice and returns the removed array.
+`removeChildren(beginIndex?, endIndex?)` removes slice, returns removed array.
 
-Calling `addChildAt` with a child that already belongs to the same container silently moves it to the new index. No `added` / `childAdded` / `removed` / `childRemoved` events fire, because the parent-child relationship didn't change. Events only fire when the child comes from a different parent (or from no parent).
+`addChildAt` on child already in this container silently moves it to new index. No `added` / `childAdded` / `removed` / `childRemoved` events fire (parent unchanged). Events fire only when child comes from different parent (or none).
 
-For reparenting that preserves world transform (so the child doesn't visually jump), use `reparentChild` / `reparentChildAt`. For swapping a child in place while copying the old child's local transform, use `replaceChild`.
+Reparent keeping world transform (no visual jump): `reparentChild` / `reparentChildAt`. Swap child in place, copying old child's local transform: `replaceChild`.
 
 ### Transform properties
 
@@ -128,11 +115,11 @@ obj.visible = false;
 obj.renderable = false;
 ```
 
-- `position`, `scale`, `pivot`, `skew` are `ObservablePoint`s. Assigning `scale = 2` is valid and sets both axes.
-- `rotation` is radians; `angle` is degrees; they are aliases that stay in sync.
-- `pivot` sets the point in local space that maps to `position` in parent space; changing it both moves and rotates the container.
+- `position`, `scale`, `pivot`, `skew` are `ObservablePoint`s. `scale = 2` valid; sets both axes.
+- `rotation` (radians) and `angle` (degrees) are synced aliases.
+- `pivot`: local point mapped to `position` in parent space. Changing it both moves and rotates container.
 - `alpha` and `tint` multiply down through children. `blendMode` applies to this container's draw instructions.
-- `visible = false` skips rendering and transform updates. `renderable = false` skips rendering but still updates transforms (use when you need `getBounds()` or hit-testing without drawing).
+- `visible = false` skips rendering and transform updates. `renderable = false` skips rendering but still updates transforms (for `getBounds()` or hit-testing without drawing).
 
 ### zIndex and sortableChildren
 
@@ -151,9 +138,9 @@ ui.zIndex = 100;
 world.addChild(ground, player, ui);
 ```
 
-When `sortableChildren` is `true`, the container re-sorts its children by `zIndex` before the next render. Changing any child's `zIndex` automatically re-marks the parent as needing sort. Sort only what you need to sort; leaving `sortableChildren` off is cheaper. If you want full manual control, call `container.sortChildren()` yourself after changing `zIndex` values.
+With `sortableChildren` `true`, container re-sorts children by `zIndex` before next render; changing any child's `zIndex` automatically marks parent as needing sort. Sort only what needs it; `sortableChildren` off is cheaper. Full manual control: call `container.sortChildren()` after changing `zIndex` values.
 
-For render-order control that is decoupled from the hierarchy (children keep their logical parent for transforms but render at a different z), use `RenderLayer`. See [references/scene-core-concepts.md](references/scene-core-concepts.md#renderlayer-render-order-independent-of-the-hierarchy).
+To render at different z while keeping logical parent for transforms, use `RenderLayer`. See [references/scene-core-concepts.md](references/scene-core-concepts.md#renderlayer-render-order-independent-of-the-hierarchy).
 
 ### Bounds and coordinate conversion
 
@@ -170,9 +157,9 @@ const backToLocal = container.toLocal(world);
 const selfPos = container.getGlobalPosition();
 ```
 
-`getBounds()` returns a `Bounds` object (not a `Rectangle`); it exposes `x`, `y`, `width`, `height`, and a `.rectangle` getter for APIs that need an actual `Rectangle`. The signature is `getBounds(skipUpdate?: boolean, bounds?: Bounds)` — pass `true` as the first arg to skip the forced transform update, and an optional `Bounds` instance as the second arg to avoid allocating a new one.
+Signature `getBounds(skipUpdate?: boolean, bounds?: Bounds)`: first arg `true` skips forced transform update; optional second-arg `Bounds` is reused instead of allocating.
 
-`toGlobal(point)` converts a point in this container's local space to scene-root space. `toLocal(point, from?)` converts from another container's local space (or global space if `from` is omitted). `getGlobalPosition()` is shorthand for `parent.toGlobal(this._position)`.
+`toGlobal(point)` converts point from this container's local space to scene-root space. `toLocal(point, from?)` converts from another container's local space (global if `from` omitted). `getGlobalPosition()`: shorthand for `parent.toGlobal(this._position)`.
 
 ### Sizing
 
@@ -183,7 +170,7 @@ sprite.setSize(200, 100);
 const { width, height } = sprite.getSize();
 ```
 
-`setSize` adjusts `scale` so the container's bounds fit the requested pixel size, in one operation. Setting `.width` and `.height` individually works, but each assignment triggers a separate bounds recomputation; prefer `setSize` when changing both axes.
+`setSize` adjusts `scale` in one operation so bounds fit requested pixel size. Separate `.width` and `.height` assignments work but each recomputes bounds; prefer `setSize` for both axes.
 
 ### Container events
 
@@ -207,18 +194,18 @@ child.on("destroyed", (destroyed) => console.log("gone", destroyed.label));
 parent.addChild(child);
 ```
 
-| Event            | Fires on                              | Arguments                   |
-| ---------------- | ------------------------------------- | --------------------------- |
-| `childAdded`     | the parent receiving the child        | `(child, container, index)` |
-| `childRemoved`   | the parent losing the child           | `(child, container, index)` |
-| `added`          | the child that was attached           | `(parent)`                  |
-| `removed`        | the child that was detached           | `(parent)`                  |
-| `destroyed`      | the destroyed container               | `(container)`               |
-| `visibleChanged` | the container whose `visible` flipped | `(visible)`                 |
+| Event            | Fires on                          | Arguments                   |
+| ---------------- | --------------------------------- | --------------------------- |
+| `childAdded`     | parent receiving child            | `(child, container, index)` |
+| `childRemoved`   | parent losing child               | `(child, container, index)` |
+| `added`          | attached child                    | `(parent)`                  |
+| `removed`        | detached child                    | `(parent)`                  |
+| `destroyed`      | destroyed container               | `(container)`               |
+| `visibleChanged` | container whose `visible` flipped | `(visible)`                 |
 
-These are emitted on the `EventEmitter` side of `Container`; do not confuse them with pointer events from `pixijs-events`.
+These are `Container`'s `EventEmitter` events, not pointer events from `pixijs-events`.
 
-`destroyed` fires after internal cleanup but before listeners are removed, so by the time your handler runs `position`, `scale`, `pivot`, `origin`, `skew`, and `parent` have already been nulled, and `children` has been emptied (length 0, but the array reference itself is not nulled). Capture any data you need from the container _before_ calling `destroy()`, not inside the handler.
+`destroyed` fires after internal cleanup, before listener removal. In handler, `position`, `scale`, `pivot`, `origin`, `skew`, `parent` already nulled; `children` emptied (length 0, array reference not nulled). Capture needed data _before_ `destroy()`, not in handler.
 
 ### Per-frame updates with onRender
 
@@ -232,7 +219,7 @@ container.onRender = (renderer) => {
 container.onRender = null;
 ```
 
-`onRender` runs every frame while the container is being rendered, and receives the active `Renderer`. Use it for lightweight animation or per-frame updates tied to a specific container. In v7 this pattern was done by overriding `updateTransform`, which no longer runs every frame in v8. Set `onRender = null` to detach the callback.
+`onRender` runs every frame while container renders; receives active `Renderer`. Use for lightweight per-container animation or updates. v7 overrode `updateTransform` instead; v8 no longer calls `updateTransform` every frame. `onRender = null` detaches.
 
 ### Finding and removing from parent
 
@@ -245,10 +232,10 @@ const bounds = hud.getLocalBounds();
 oldSprite.removeFromParent();
 ```
 
-- `getChildByLabel(label, deep?)` — first match by string or `RegExp`. Pass `true` for a recursive search.
-- `getChildrenByLabel(label, deep?, out?)` — all matches. Accepts an optional reusable output array.
-- `getLocalBounds()` — bounds in this container's own coordinate space, ignoring parent transforms. Cheaper than `getBounds()` for self-contained layout math.
-- `removeFromParent()` — detaches `this` from its current parent (no-op if already orphaned).
+- `getChildByLabel(label, deep?)` — first match by string or `RegExp`. Pass `true` for recursive search.
+- `getChildrenByLabel(label, deep?, out?)` — all matches. Accepts optional reusable output array.
+- `getLocalBounds()` — bounds in container's own coordinate space, ignoring parent transforms. Cheaper than `getBounds()` for self-contained layout math.
+- `removeFromParent()` — detaches `this` from current parent (no-op if already orphaned).
 
 ### Destroy
 
@@ -264,7 +251,7 @@ container.destroy({
 console.log(container.destroyed);
 ```
 
-By default `destroy()` unlinks this container from its parent and tears down its own state. Pass `{ children: true }` to recursively destroy every descendant; this is the usual call for killing a whole subtree. `texture: true` and `textureSource: true` additionally destroy the GPU resources referenced by leaf children (useful for sprites whose textures you loaded just for them). If `cacheAsTexture` is on, disable it with `container.cacheAsTexture(false)` before destroying.
+Default `destroy()` unlinks from parent and tears down own state. `{ children: true }` recursively destroys every descendant (usual call for whole subtree). `texture: true` and `textureSource: true` also destroy GPU resources of leaf children (for textures loaded only for them).
 
 ## Common Mistakes
 
@@ -287,7 +274,7 @@ const overlay = new Sprite(overlayTexture);
 group.addChild(sprite, overlay);
 ```
 
-Sprites, Graphics, Text, and Mesh are leaves. Adding children to them logs a deprecation warning now and will be an error in a future version. Always wrap them in a `Container` when you need grouping.
+Sprites, Graphics, Text, Mesh are leaves. Adding children to them logs deprecation warning now; will be error in future version. Always group them in a `Container`.
 
 ### [HIGH] Expecting getBounds() to return a Rectangle
 
@@ -308,7 +295,7 @@ const bounds = container.getBounds();
 console.log(bounds.width, bounds.height);
 ```
 
-`getBounds()` returns a `Bounds` instance in v8. Its basic getters (`x`, `y`, `width`, `height`) work, but for `Rectangle`-specific methods like `.contains()` or passing to APIs that require a `Rectangle`, read the `.rectangle` property.
+v8 `getBounds()` returns `Bounds`. Basic getters (`x`, `y`, `width`, `height`) work; for `Rectangle`-specific methods like `.contains()` or APIs requiring a `Rectangle`, read `.rectangle`.
 
 ### [HIGH] Using cacheAsBitmap instead of cacheAsTexture
 
@@ -324,15 +311,15 @@ Correct:
 container.cacheAsTexture(true);
 ```
 
-`cacheAsBitmap` (v7 property) was renamed to `cacheAsTexture()` (a method) in v8. Always disable it with `cacheAsTexture(false)` before calling `destroy()`.
+v8 renamed `cacheAsBitmap` (v7 property) to `cacheAsTexture()` (method). Always disable with `cacheAsTexture(false)` before calling `destroy()`.
 
 ### [MEDIUM] Using container.name instead of container.label
 
-`name` was renamed to `label` in v8. The old property still works as a deprecated alias; `getChildByLabel` is the v8 way to look up children by name.
+v8 renamed `name` to `label`; `name` still works as deprecated alias. Look up children by name with `getChildByLabel`.
 
 ### [MEDIUM] Setting both pivot and origin on the same container
 
-Pivot shifts the projection of the local origin in parent space (moves the object as a side-effect of changing the rotation center). Origin changes the rotation/scale center without displacement. Setting both on the same container produces unexpected compounding; pick one.
+Pivot shifts projection of local origin in parent space (changing rotation center moves object as side-effect). Origin changes rotation/scale center without displacement. Both on one container compound unexpectedly; pick one.
 
 ## API Reference
 

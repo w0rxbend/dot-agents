@@ -32,7 +32,7 @@ func TestServeCmd(t *testing.T) {
 
 ## Isolation between tests
 
-Cobra accumulates flag state across `Execute()` calls on the same command instance. Tests must be isolated.
+Cobra accumulates flag state across `Execute()` calls on same command instance. Tests must be isolated.
 
 ### Option 1: Re-create the command tree per test (recommended for unit tests)
 
@@ -62,11 +62,11 @@ func TestWithReset(t *testing.T) {
 }
 ```
 
-Re-creating is safer — `ResetFlags` only clears the flag set, not subcommand state.
+Re-creating is safer — `ResetFlags` only clears flag set, not subcommand state.
 
 ## Testing commands that write output
 
-Commands must use `cmd.OutOrStdout()` / `cmd.ErrOrStderr()` instead of `os.Stdout` / `os.Stderr` for this to work.
+For this to work, commands must use `cmd.OutOrStdout()` / `cmd.ErrOrStderr()`, not `os.Stdout` / `os.Stderr`.
 
 ```go
 // In command handler:
@@ -85,7 +85,7 @@ assert.Contains(t, buf.String(), "Server started")
 
 ## Golden file tests
 
-For commands with structured or lengthy output, use golden files:
+Use golden files for commands with structured or long output:
 
 ```go
 func TestOutputFormat(t *testing.T) {

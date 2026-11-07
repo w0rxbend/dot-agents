@@ -1,8 +1,5 @@
 # Typography System
 
-Complete typography token reference for the design system.
-
-
 ## Table of Contents
 
 - [Font Families](#font-families)
@@ -35,7 +32,7 @@ Complete typography token reference for the design system.
 
 ## Type Scale
 
-Based on 1.25 ratio (Major Third) with 16px base:
+1.25 ratio (Major Third), 16px base:
 
 ```css
 /* Size Scale */
@@ -145,4 +142,4 @@ Based on 1.25 ratio (Major Third) with 16px base:
 
 - Line length: 45-75 characters optimal
 - Paragraph spacing: 1.5x line height
-- Use relative units (rem) not pixels for scaling
+- Use relative units (rem), not pixels, for scaling

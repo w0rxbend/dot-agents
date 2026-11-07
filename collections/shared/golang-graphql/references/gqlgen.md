@@ -1,6 +1,6 @@
 # gqlgen Reference
 
-gqlgen is a schema-first, code-generation library. Write SDL, run `go generate`, fill in resolver bodies.
+gqlgen: schema-first code-generation library. Write SDL, run `go generate`, fill in resolver bodies.
 
 ## Table of Contents
 
@@ -26,14 +26,14 @@ go run github.com/99designs/gqlgen init
 go get -tool github.com/99designs/gqlgen@latest
 ```
 
-For Go <1.24 modules, use the legacy `tools.go` blank-import workaround instead.
+Go <1.24 modules: use legacy `tools.go` blank-import workaround instead.
 
 ```bash
 # Regenerate after every schema change
 go tool gqlgen generate
 ```
 
-Never hand-edit generated files (`generated.go`, `models_gen.go`) — `generate` overwrites them.
+Never hand-edit generated files (`generated.go`, `models_gen.go`); `generate` overwrites them.
 
 ## gqlgen.yml
 
@@ -74,13 +74,13 @@ resolvers_always_return_pointers: true
 Key knobs:
 
 - `autobind` — maps Go structs to GraphQL types; fields must match by name (case-insensitive)
-- `models.<T>.model` — override which Go type backs a GraphQL type
-- `fields.<f>.resolver: true` — force a custom resolver instead of struct field access; required for any field that should batch via DataLoader
-- `struct_fields_always_pointers` / `resolvers_always_return_pointers` — controls `*T` vs `T` in generated signatures; match your domain model conventions
+- `models.<T>.model` — override which Go type backs GraphQL type
+- `fields.<f>.resolver: true` — force custom resolver instead of struct field access; required for any field that batches via DataLoader
+- `struct_fields_always_pointers` / `resolvers_always_return_pointers` — control `*T` vs `T` in generated signatures; match domain model conventions
 
 ## Resolver Structure
 
-The generated `Config` holds a `Resolvers` field of the generated interface. You implement it:
+Generated `Config` holds `Resolvers` field of generated interface. Implement it:
 
 ```go
 // graph/resolver.go — you own this file, not generated
@@ -91,7 +91,7 @@ type Resolver struct {
 }
 ```
 
-Per-type resolvers implement the generated interface split by GraphQL type:
+Per-type resolvers implement generated interface, split by GraphQL type:
 
 ```go
 type queryResolver struct{ *Resolver }
@@ -102,7 +102,7 @@ func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error
 func (r *userResolver) Posts(ctx context.Context, obj *model.User) ([]*model.Post, error) { ... }
 ```
 
-`obj` is the parent object — the entry point for walking the graph.
+`obj` is parent object: entry point for walking the graph.
 
 ## DataLoaders (gqlgen)
 
@@ -128,7 +128,7 @@ func (r *userResolver) Posts(ctx context.Context, obj *model.User) ([]*model.Pos
 }
 ```
 
-Set `wait` to 1–2ms — allows multiple concurrent resolvers to register keys before the batch fires.
+Set `wait` to 1–2ms. Lets concurrent resolvers register keys before batch fires.
 
 ## Authentication Directives
 
@@ -199,7 +199,7 @@ srv.SetRecoverFunc(func(ctx context.Context, err any) error {
 srv.AddTransport(transport.Websocket{
     KeepAlivePingInterval: 10 * time.Second,
     Upgrader: websocket.Upgrader{
-        // Restrict to your own origin in production; true here is dev-only.
+        // Allow-list own origins; never return true in production.
         CheckOrigin: func(r *http.Request) bool {
             return r.Header.Get("Origin") == "https://app.example.com"
         },
@@ -216,7 +216,7 @@ srv.AddTransport(transport.Websocket{
 })
 ```
 
-gqlgen supports both `graphql-ws` (legacy) and `graphql-transport-ws` (current) subprotocols.
+gqlgen supports `graphql-ws` (legacy) and `graphql-transport-ws` (current) subprotocols.
 
 ## File Uploads
 
@@ -264,7 +264,7 @@ type User @key(fields: "id") {
 }
 ```
 
-Implement `FindUserByID` in the generated entity resolver. Works with Apollo Router and Cosmo.
+Implement `FindUserByID` in generated entity resolver. Works with Apollo Router and Cosmo.
 
 ## Production Handler Setup
 
@@ -274,10 +274,11 @@ srv.AddTransport(transport.Options{})
 srv.AddTransport(transport.GET{})
 srv.AddTransport(transport.POST{})
 srv.AddTransport(transport.MultipartForm{MaxUploadSize: 10 << 20, MaxMemory: 5 << 20})
-srv.AddTransport(transport.Websocket{KeepAlivePingInterval: 10 * time.Second})
+// Websocket: reuse Subscriptions config (CheckOrigin allow-list + InitFunc auth)
+srv.AddTransport(transport.Websocket{KeepAlivePingInterval: 10 * time.Second, Upgrader: upgrader, InitFunc: wsAuth})
 
 srv.SetQueryCache(lru.New[*ast.QueryDocument](1000))
-if os.Getenv("ENV") != "production" {
+if os.Getenv("ENV") == "development" { // fail closed: unset ENV = no introspection
     srv.Use(extension.Introspection{})
 }
 srv.Use(extension.AutomaticPersistedQuery{Cache: lru.New[string](100)})

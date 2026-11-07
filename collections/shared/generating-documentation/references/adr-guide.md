@@ -1,12 +1,12 @@
 # ADR Tooling and Site Integration
 
-This file covers only the tooling around Architecture Decision Records: CLI helpers and publishing ADRs in a documentation site. For when to write an ADR, its template, location and numbering, use the **documentation-and-adrs** skill, and follow the repository's existing ADR convention (directory, format, numbering) when one exists. The paths below use `docs/adr`; substitute the repository's directory.
+Covers only tooling around Architecture Decision Records: CLI helpers and publishing ADRs in documentation site. For when to write ADR, its template, location and numbering, use **documentation-and-adrs** skill. Follow repository's existing ADR convention (directory, format, numbering) when one exists. Paths below use `docs/adr`; substitute repository's directory.
 
 ## Tools
 
 ### adr-tools
 
-Command-line tool for managing ADRs (it uses its own Nygard-style template unless configured):
+Command-line tool for managing ADRs. Uses own Nygard-style template unless configured:
 
 ```bash
 # Install

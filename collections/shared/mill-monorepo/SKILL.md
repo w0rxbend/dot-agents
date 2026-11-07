@@ -6,12 +6,12 @@ license: MIT
 
 # Large builds and monorepos
 
-Read [architecture.md](references/architecture.md) for module boundaries, convention traits, multifile discovery, and precompilation decisions. Read [selective-ci.md](references/selective-ci.md) for affected-task execution with a real baseline and reproducibility limits.
+Read [architecture.md](references/architecture.md) for module boundaries, convention traits, multifile discovery, precompilation. Read [selective-ci.md](references/selective-ci.md) for affected-task execution, real baseline, reproducibility limits.
 
-Make the dependency graph, source ownership, and convention ownership explicit. Separate stable contracts from language-specific implementations and deployment composition; use typed module/task edges. Scala/Java/Kotlin modules can coexist in one build without a three-language joint compiler. Prefer programmable conventions for custom logic while allowing declarative modules where owners only need settings.
+Make dependency graph, source and convention ownership explicit. Keep stable contracts apart from language-specific implementations and deployment composition. Use typed module/task edges. Scala/Java/Kotlin modules can share one build without three-language joint compiler. Prefer programmable conventions for custom logic; allow declarative modules where owners only need settings.
 
-Split large definitions into `package.mill` / `package.mill.yaml` near source owners. Retain intermediary package files needed for discovery. Use helper `.mill` files/meta-build code for shared definitions; do not multiply global mutable state or introduce another nested root build casually.
+Split large definitions into `package.mill` / `package.mill.yaml` near source owners. Keep intermediary package files needed for discovery. Shared definitions go in helper `.mill` files/meta-build code. Do not multiply global mutable state or casually add nested root builds.
 
-Cross-build only supported compatibility axes. Match dependencies to the selected cross value instead of accidentally using the default variant. Precompiled modules are experimental and require version-specific configuration; consider them after measuring build-definition compilation, not simply because the repository has many modules.
+Cross-build only supported compatibility axes. Match dependencies to selected cross value, not accidental default variant. Precompiled modules: experimental, need version-specific configuration. Consider after measuring build-definition compilation, not for module count alone.
 
-For selective CI, prepare the same selectors on the chosen baseline, preserve its snapshot while evaluating the change, inspect the selection, and run affected tasks. Do not implement affectedness using directory-name filters alone. Broad convention/toolchain/input changes should propagate through the graph; retain periodic/full validation for environment-dependent behavior that selective execution cannot model.
+Selective CI: prepare same selectors on chosen baseline, keep its snapshot while evaluating change, inspect selection, run affected tasks. Do not derive affectedness from directory-name filters alone. Broad convention/toolchain/input changes should propagate through graph. Keep periodic/full validation for environment-dependent behavior selective execution cannot model.

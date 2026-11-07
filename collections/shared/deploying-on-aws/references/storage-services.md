@@ -28,7 +28,7 @@
 ### S3 Intelligent-Tiering
 
 **How it Works:**
-- Automatic optimization across 5 tiers
+- Optimizes automatically across 5 tiers
 - No retrieval fees
 - Small monitoring fee: $0.0025 per 1,000 objects
 
@@ -40,9 +40,9 @@
 5. Deep Archive (365+ days): $0.00099/GB
 
 **Use When:**
-- Unknown or changing access patterns
-- Want automated cost optimization
-- Can tolerate small monitoring fee
+- Access patterns unknown or changing
+- Automated cost optimization wanted
+- Small monitoring fee acceptable
 
 ### S3 Express One Zone (2024)
 
@@ -83,30 +83,29 @@
 ### S3 Features
 
 **Versioning:**
-- Preserve all versions of objects
-- Protect against accidental deletion
+- Keeps all object versions
+- Protects against accidental deletion
 - Enable MFA delete for extra protection
 
 **Replication:**
-- Cross-Region Replication (CRR): Disaster recovery
-- Same-Region Replication (SRR): Compliance, lower latency
+- Cross-Region Replication (CRR): disaster recovery
+- Same-Region Replication (SRR): compliance, lower latency
 
 **S3 Object Lambda:**
-- Transform objects on retrieval
+- Transforms objects on retrieval
 - Redact PII, resize images, convert formats
 
 **S3 Batch Operations:**
-- Perform operations on billions of objects
+- Run operations on billions of objects
 - Copy, tag, restore from Glacier, invoke Lambda
 
 ### Best Practices
 
 1. Enable versioning for critical data
-2. Use lifecycle policies to reduce costs
-3. Enable S3 Intelligent-Tiering for unknown patterns
-4. Encrypt at rest (SSE-S3 or SSE-KMS)
-5. Use CloudFront for frequently accessed content
-6. Enable access logging for auditing
+2. Cut costs with lifecycle policies
+3. Encrypt at rest (SSE-S3 or SSE-KMS)
+4. Serve frequently accessed content via CloudFront
+5. Enable access logging for auditing
 
 ---
 
@@ -127,7 +126,7 @@
 
 **gp3 Advantages:**
 - 20% cheaper ($0.08 vs. $0.10)
-- Independent IOPS and throughput scaling
+- Scales IOPS and throughput independently
 - Baseline: 3,000 IOPS, 125 MB/s
 - Configurable up to 16,000 IOPS, 1,000 MB/s
 
@@ -146,14 +145,14 @@
 - Use for compliance, long-term retention
 
 **Fast Snapshot Restore (FSR):**
-- Pre-warm snapshots for instant recovery
+- Pre-warms snapshots for instant recovery
 - $0.75/hour per AZ per snapshot
-- Use for critical recovery scenarios
+- Use for critical recovery
 
 ### Multi-Attach io2 Volumes
 
 **Purpose:**
-- Share volume across multiple EC2 instances
+- Share one volume across multiple EC2 instances
 - Cluster file systems, HA applications
 
 **Limitations:**
@@ -163,12 +162,9 @@
 
 ### Best Practices
 
-1. Use gp3 for general purpose workloads
-2. Enable EBS encryption by default
-3. Automate snapshot creation (lifecycle policies)
-4. Delete unused snapshots
-5. Archive old snapshots (75% cost savings)
-6. Use Fast Snapshot Restore for critical backups
+1. Enable EBS encryption by default
+2. Automate snapshot creation (lifecycle policies)
+3. Delete unused snapshots
 
 ---
 
@@ -198,12 +194,12 @@
 ### Throughput Modes
 
 **Elastic (Default):**
-- Automatically scales
-- Pay only for actual throughput
+- Scales automatically
+- Pay only for throughput used
 - $0.30/GB transferred
 
 **Provisioned:**
-- Specify throughput independent of storage
+- Set throughput independent of storage
 - Consistent high throughput
 - $6.00/MB/s-month
 
@@ -215,7 +211,7 @@
 ### EFS Features (2025)
 
 **Intelligent-Tiering:**
-- Automatic movement to IA tier
+- Moves files to IA tier automatically
 - After 7, 14, 30, 60, or 90 days idle
 - No retrieval fees
 
@@ -242,7 +238,7 @@
 1. Enable Intelligent-Tiering (save 92% on IA files)
 2. Use One Zone class for dev/test (50% cheaper)
 3. Mount via NFS 4.1 for best compatibility
-4. Use encryption in transit (TLS)
+4. Encrypt in transit (TLS)
 5. Monitor with CloudWatch metrics
 
 ---
@@ -282,9 +278,9 @@
 - Financial modeling
 
 **S3 Integration:**
-- Link to S3 bucket
-- Lazy-load data on first access
-- Write results back to S3
+- Links to S3 bucket
+- Lazy-loads data on first access
+- Writes results back to S3
 
 ### FSx for NetApp ONTAP
 
@@ -386,6 +382,6 @@ Container storage:
 - **Total: $845/month (63% savings)**
 
 **With Intelligent-Tiering:**
-- Automatic optimization
+- Optimizes automatically
 - Similar savings
 - Small monitoring fee (~$250 for 100M objects)

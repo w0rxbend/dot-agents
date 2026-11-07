@@ -7,7 +7,7 @@ tags: disp, disposability, lifecycle, resilience
 
 ## Design Processes to Be Disposable Started or Stopped at Any Moment
 
-Twelve-factor app processes are disposable - they can be started or stopped at a moment's notice. This supports fast elastic scaling, rapid deployment of code or config changes, and robustness of production deploys.
+Twelve-factor processes are disposable: they can be started or stopped at a moment's notice.
 
 **Incorrect (processes that can't be stopped):**
 
@@ -80,11 +80,5 @@ spec:
               command: ["/bin/sh", "-c", "sleep 5"]
         # SIGTERM sent, then 30s to finish, then SIGKILL
 ```
-
-**Benefits:**
-- New deployments can start immediately
-- Scale down doesn't lose work
-- Crashed processes quickly replaced
-- Autoscaling responds to demand in seconds
 
 Reference: [The Twelve-Factor App - Disposability](https://12factor.net/disposability)

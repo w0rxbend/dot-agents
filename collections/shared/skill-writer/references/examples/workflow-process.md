@@ -1,10 +1,10 @@
 # Example: Workflow Process Skill
 
-Use this shape when a task needs a predictable sequence and a clear closeout.
+Use this shape when task needs predictable sequence and clear closeout.
 
 ## Trigger
 
-Use when the user asks to run a repeatable maintenance, release, audit, or conversion process.
+Use when user asks to run a repeatable maintenance, release, audit, or conversion process.
 
 ## Skeleton
 

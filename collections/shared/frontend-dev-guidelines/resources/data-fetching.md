@@ -1,21 +1,8 @@
 # Data Fetching Patterns
 
-Modern data fetching using TanStack Query with Suspense boundaries, cache-first strategies, and centralized API services.
-
----
-
 ## PRIMARY PATTERN: useSuspenseQuery
 
-### Why useSuspenseQuery?
-
-For **all new components**, use `useSuspenseQuery` instead of regular `useQuery`:
-
-**Benefits:**
-- No `isLoading` checks needed
-- Integrates with Suspense boundaries
-- Cleaner component code
-- Consistent loading UX
-- Better error handling with error boundaries
+For **all new components**, use `useSuspenseQuery`, not regular `useQuery`.
 
 ### Basic Pattern
 
@@ -44,7 +31,7 @@ export const MyComponent: React.FC<Props> = ({ id }) => {
 
 | Feature | useSuspenseQuery | useQuery |
 |---------|------------------|----------|
-| Loading state | Handled by Suspense | Manual `isLoading` check |
+| Loading state | Suspense handles it | Manual `isLoading` check |
 | Data type | Always defined | `Data \| undefined` |
 | Use with | Suspense boundaries | Traditional components |
 | Recommended for | **NEW components** | Legacy code only |
@@ -52,53 +39,58 @@ export const MyComponent: React.FC<Props> = ({ id }) => {
 
 **When to use regular useQuery:**
 - Maintaining legacy code
-- Very simple cases without Suspense
+- Simple cases without Suspense
 - Polling with background updates
-
-**For new components: Always prefer useSuspenseQuery**
 
 ---
 
 ## Cache-First Strategy
 
-> Example from one project that keeps list data in a "grid" query. Use it only if your app has an equivalent list query; otherwise a plain `useSuspenseQuery` is enough.
+> Example from one project that keeps list data in a "grid" query. Use only if your app has equivalent list query; otherwise plain `useSuspenseQuery` is enough.
 
 ### Cache-First Pattern Example
 
-**Smart caching** reduces API calls by checking React Query cache first:
+**Smart caching** cuts API calls by checking React Query cache first:
 
 ```typescript
 import { useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
 import { postApi } from '../api/postApi';
+import type { Post } from '../types';
 
-export function useSuspensePost(postId: number) {
+/**
+ * Hook with cache-first strategy
+ * Checks grid cache before API call
+ */
+export function useSuspensePost(blogId: number, postId: number) {
     const queryClient = useQueryClient();
 
-    return useSuspenseQuery({
-        queryKey: ['post', postId],
+    return useSuspenseQuery<Post, Error>({
+        queryKey: ['post', blogId, postId],
         queryFn: async () => {
-            // Strategy 1: Try to get from list cache first
-            const cachedListData = queryClient.getQueryData<{ posts: Post[] }>([
-                'posts',
-                'list'
+            // 1. Check grid cache first
+            const gridCache = queryClient.getQueryData<{ rows: Post[] }>([
+                'posts-v2',
+                blogId,
+                'summary'
+            ]) || queryClient.getQueryData<{ rows: Post[] }>([
+                'posts-v2',
+                blogId,
+                'flat'
             ]);
 
-            if (cachedListData?.posts) {
-                const cachedPost = cachedListData.posts.find(
-                    (post) => post.id === postId
-                );
-
-                if (cachedPost) {
-                    return cachedPost;  // Return from cache!
+            if (gridCache?.rows) {
+                const cached = gridCache.rows.find(row => row.S_ID === postId);
+                if (cached) {
+                    return cached;  // Reuse grid data
                 }
             }
 
-            // Strategy 2: Not in cache, fetch from API
-            return postApi.getPost(postId);
+            // 2. Not in cache, fetch directly
+            return postApi.getPost(blogId, postId);
         },
-        staleTime: 5 * 60 * 1000,      // Consider fresh for 5 minutes
-        gcTime: 10 * 60 * 1000,         // Keep in cache for 10 minutes
-        refetchOnWindowFocus: false,    // Don't refetch on focus
+        staleTime: 5 * 60 * 1000,
+        gcTime: 10 * 60 * 1000,
+        refetchOnWindowFocus: false,
     });
 }
 ```
@@ -106,9 +98,9 @@ export function useSuspensePost(postId: number) {
 **Key Points:**
 - Check grid/list cache before API call
 - Avoids redundant requests
-- `staleTime`: How long data is considered fresh
-- `gcTime`: How long unused data stays in cache
-- `refetchOnWindowFocus: false`: User preference
+- `staleTime`: how long data counts as fresh
+- `gcTime`: how long unused data stays in cache
+- `refetchOnWindowFocus: false`: user preference
 
 ---
 
@@ -116,7 +108,7 @@ export function useSuspensePost(postId: number) {
 
 ### useSuspenseQueries
 
-When fetching multiple independent resources:
+For multiple independent resources:
 
 ```typescript
 import { useSuspenseQueries } from '@tanstack/react-query';
@@ -180,8 +172,8 @@ export const MyComponent: React.FC = () => {
 **Rules:**
 - Start with entity name (plural for lists, singular for one)
 - Include IDs for specificity
-- Add view mode / relationship at end
-- Consistent across app
+- Put view mode / relationship last
+- Same scheme across app
 
 ### Query Key Examples
 
@@ -201,7 +193,7 @@ queryClient.invalidateQueries({ queryKey: ['post'] });          // All posts
 
 ### File Structure
 
-Create centralized API service per feature:
+One centralized API service per feature:
 
 ```
 features/
@@ -270,14 +262,14 @@ export const myFeatureApi = {
 - Export single object with methods
 - Use `apiClient` (axios instance from `@/lib/apiClient`)
 - Type-safe parameters and returns
-- JSDoc comments for each method
-- Centralized error handling (apiClient handles it)
+- JSDoc comment per method
+- Centralized error handling (apiClient does it)
 
 ---
 
 ## Route Format Rules (example project convention)
 
-> These paths come from one project whose proxy adds the `/api` prefix. Check your own `apiClient` base URL and proxy before applying them.
+> Paths come from one project whose proxy adds `/api` prefix. Check your own `apiClient` base URL and proxy before applying them.
 
 ### Correct Format
 
@@ -298,8 +290,6 @@ await apiClient.post('/api/projects/create', data); // WRONG!
 - Projects service: `/projects/*`
 - Email service: `/email/*`
 - Users service: `/users/*`
-
-**Why:** API routing is handled by proxy configuration, no `/api/` prefix needed.
 
 ---
 
@@ -462,7 +452,7 @@ import apiClient from '@/lib/apiClient';
 // - Response transformers
 ```
 
-**Do NOT create new axios instances** - use apiClient for consistency.
+**Do NOT create new axios instances**. Use apiClient for consistency.
 
 ---
 
@@ -470,7 +460,7 @@ import apiClient from '@/lib/apiClient';
 
 ### Global Query Error Handler
 
-TanStack Query v5 removed `onError`/`onSuccess` from `useQuery` and `useSuspenseQuery` (they remain on `useMutation`). `useSuspenseQuery` throws errors to the nearest error boundary. For a toast on every failed query, attach the handler to the `QueryCache` once:
+TanStack Query v5 removed `onError`/`onSuccess` from `useQuery` and `useSuspenseQuery`. They remain on `useMutation`. `useSuspenseQuery` throws errors to nearest error boundary. For toast on every failed query, attach handler to `QueryCache` once:
 
 ```typescript
 import { QueryCache, QueryClient } from '@tanstack/react-query';
@@ -487,7 +477,7 @@ export const queryClient = new QueryClient({
 
 ### Error Boundaries
 
-Combine with Error Boundaries for comprehensive error handling:
+Combine with Error Boundaries for full error handling:
 
 ```typescript
 import { ErrorBoundary } from 'react-error-boundary';
@@ -504,175 +494,9 @@ import { ErrorBoundary } from 'react-error-boundary';
 
 ---
 
-## Complete Examples
-
-### Example 1: Simple Entity Fetch
-
-```typescript
-import React from 'react';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { Box, Typography } from '@mui/material';
-import { userApi } from '../api/userApi';
-
-interface UserProfileProps {
-    userId: string;
-}
-
-export const UserProfile: React.FC<UserProfileProps> = ({ userId }) => {
-    const { data: user } = useSuspenseQuery({
-        queryKey: ['user', userId],
-        queryFn: () => userApi.getUser(userId),
-        staleTime: 5 * 60 * 1000,
-    });
-
-    return (
-        <Box>
-            <Typography variant='h5'>{user.name}</Typography>
-            <Typography>{user.email}</Typography>
-        </Box>
-    );
-};
-
-// Usage with Suspense
-<SuspenseLoader>
-    <UserProfile userId='123' />
-</SuspenseLoader>
-```
-
-### Example 2: Cache-First Strategy
-
-```typescript
-import { useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
-import { postApi } from '../api/postApi';
-import type { Post } from '../types';
-
-/**
- * Hook with cache-first strategy
- * Checks grid cache before API call
- */
-export function useSuspensePost(blogId: number, postId: number) {
-    const queryClient = useQueryClient();
-
-    return useSuspenseQuery<Post, Error>({
-        queryKey: ['post', blogId, postId],
-        queryFn: async () => {
-            // 1. Check grid cache first
-            const gridCache = queryClient.getQueryData<{ rows: Post[] }>([
-                'posts-v2',
-                blogId,
-                'summary'
-            ]) || queryClient.getQueryData<{ rows: Post[] }>([
-                'posts-v2',
-                blogId,
-                'flat'
-            ]);
-
-            if (gridCache?.rows) {
-                const cached = gridCache.rows.find(row => row.S_ID === postId);
-                if (cached) {
-                    return cached;  // Reuse grid data
-                }
-            }
-
-            // 2. Not in cache, fetch directly
-            return postApi.getPost(blogId, postId);
-        },
-        staleTime: 5 * 60 * 1000,
-        gcTime: 10 * 60 * 1000,
-        refetchOnWindowFocus: false,
-    });
-}
-```
-
-**Benefits:**
-- Avoids duplicate API calls
-- Instant data if already loaded
-- Falls back to API if not cached
-
-### Example 3: Parallel Fetching
-
-```typescript
-import { useSuspenseQueries } from '@tanstack/react-query';
-
-export const Dashboard: React.FC = () => {
-    const [statsQuery, projectsQuery, notificationsQuery] = useSuspenseQueries({
-        queries: [
-            {
-                queryKey: ['stats'],
-                queryFn: () => statsApi.getStats(),
-            },
-            {
-                queryKey: ['projects', 'active'],
-                queryFn: () => projectsApi.getActiveProjects(),
-            },
-            {
-                queryKey: ['notifications', 'unread'],
-                queryFn: () => notificationsApi.getUnread(),
-            },
-        ],
-    });
-
-    return (
-        <Box>
-            <StatsCard data={statsQuery.data} />
-            <ProjectsList projects={projectsQuery.data} />
-            <Notifications items={notificationsQuery.data} />
-        </Box>
-    );
-};
-```
-
----
-
 ## Mutations with Cache Invalidation
 
-### Update Mutation
-
-```typescript
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { postApi } from '../api/postApi';
-import { useMuiSnackbar } from '@/hooks/useMuiSnackbar';
-
-export const useUpdatePost = () => {
-    const queryClient = useQueryClient();
-    const { showSuccess, showError } = useMuiSnackbar();
-
-    return useMutation({
-        mutationFn: ({ blogId, postId, data }: UpdateParams) =>
-            postApi.updatePost(blogId, postId, data),
-
-        onSuccess: (data, variables) => {
-            // Invalidate specific post
-            queryClient.invalidateQueries({
-                queryKey: ['post', variables.blogId, variables.postId]
-            });
-
-            // Invalidate list to refresh grid
-            queryClient.invalidateQueries({
-                queryKey: ['posts-v2', variables.blogId]
-            });
-
-            showSuccess('Post updated');
-        },
-
-        onError: (error) => {
-            showError('Failed to update post');
-            console.error('Update error:', error);
-        },
-    });
-};
-
-// Usage
-const updatePost = useUpdatePost();
-
-const handleSave = () => {
-    updatePost.mutate({
-        blogId: 123,
-        postId: 456,
-        data: { responses: { '101': 'value' } }
-    });
-};
-```
+**Update:** on success invalidate both specific post (`['post', variables.blogId, variables.postId]`) and list (`['posts-v2', variables.blogId]`) to refresh grid.
 
 ### Delete Mutation
 
@@ -749,19 +573,6 @@ useSuspenseQuery({
 ```
 
 ---
-
-## Summary
-
-**Modern Data Fetching Recipe:**
-
-1. **Create API Service**: `features/X/api/XApi.ts` using apiClient
-2. **Use useSuspenseQuery**: In components wrapped by SuspenseLoader
-3. **Cache-First (optional)**: Seed from an existing list query when your app has one
-4. **Query Keys**: Consistent naming ['entity', id]
-5. **Route Format**: Match your `apiClient` base URL and proxy setup
-6. **Mutations**: invalidateQueries after success
-7. **Error Handling**: Error boundaries / `QueryCache` `onError` for queries, `useMutation` `onError` for mutations, + useMuiSnackbar
-8. **Type Safety**: Type all parameters and returns
 
 **See Also:**
 - [component-patterns.md](component-patterns.md) - Suspense integration

@@ -1,32 +1,30 @@
 ---
 name: docs-companion-examples
 description: How to commission and verify a page's companion example files — the standalone runnable Scala a page pulls in with mdoc:embed or SourceFile.print. Use when a documentation page embeds example files rather than relying only on inline mdoc blocks, to delegate the build and check what came back.
-allowed-tools: Read, Grep, Glob, Bash(sbt:*), Task, Skill
+allowed-tools: Read, Grep, Glob, Bash(sbt compile), Bash(sbt "runMain:*), Task, Skill
 ---
 
 # Companion Examples
 
-A page's runnable examples come in two forms. **Inline** mdoc blocks compile as part of the page and
-need nothing here. **Embedded** files — pulled in with `mdoc:embed:<path>` or `SourceFile.print` from a
-tutorial's "Putting It Together" or a reference page's "Running the Examples" — are real `.scala` files
-that must exist on disk before mdoc runs, in their own sbt build.
+Runnable examples come in two forms. **Inline** mdoc blocks compile with page; nothing needed here.
+**Embedded** files are real `.scala` files in own sbt build, pulled in by `mdoc:embed:<path>` or
+`SourceFile.print` (tutorial's "Putting It Together", reference page's "Running the Examples"). Must
+exist on disk before mdoc runs.
 
 ## Subagents Used by This Skill
 
-The `docs-*` agents this skill delegates to ([`docs-examples-builder`](references/agents/docs-examples-builder.md)) are not installed as Claude Code agents; each
-has a role brief in this skill's `references/agents/` directory. Wherever a step says to delegate to
-one of them with the `Task` tool, start a fresh general-purpose subagent (`subagent_type:
-"general-purpose"`) whose prompt is the full text of that brief followed by the task prompt shown. If
-you cannot start subagents, do the step yourself as a separate pass that follows the brief exactly —
-the separation rules still hold (a fix pass applies only the reviewer's verbatim findings, and a
-review pass grades the page as written).
+[`docs-examples-builder`](references/agents/docs-examples-builder.md) is not installed as Claude Code
+agent; role brief lives in `references/agents/`. To delegate with `Task`, start fresh general-purpose
+subagent (`subagent_type: "general-purpose"`) whose prompt is full brief text, then task prompt shown.
+If you cannot start subagents, do step yourself as separate pass,
+following brief exactly. Separation rules hold: fix pass applies only reviewer's verbatim findings;
+review pass grades page as written.
 
 ## Commissioning the Build
 
-Delegate the build to the **`docs-examples-builder`** agent with the `Task` tool — it must NOT share
-your conversation, so its only knowledge of the page is what you tell it. The agent already knows the
-decoupled sbt build topology, file templates, and the compile/lint/self-check procedure; give it only
-the page-specific parameters:
+Delegate build to **`docs-examples-builder`** via `Task`. It must NOT share your conversation; it knows
+only what you tell it. It already knows decoupled sbt build topology, file templates, and
+compile/lint/self-check procedure. Pass only page-specific parameters:
 
 ```
 Task(
@@ -41,19 +39,18 @@ Task(
 
 ## Ordering
 
-Commission the examples **before** mdoc verification. An `mdoc:embed:<path>` block fails outright when
-the file it names is absent, so a page that embeds examples cannot pass mdoc until they exist.
+Commission examples **before** mdoc verification. `mdoc:embed:<path>` fails outright on missing file.
 
-For a module reference, prefer ONE module-level example set that exercises several types together over
-one set per type — the cross-type workflow is what a module page is for.
+Module reference: prefer ONE module-level example set exercising several types together, not one set
+per type. Cross-type workflow is module page's point.
 
 ## Verifying what came back
 
-The delegation is done when every embedded path exists and the examples leaf compiles and runs. Check:
+Done when:
 
-- each `mdoc:embed:<path>` or `SourceFile.print` call in the page resolves to a real file,
-- the example code traces to the page's own blocks — nothing invented beyond glue,
-- the leaf built and each example ran, rather than only compiling.
+- each `mdoc:embed:<path>` or `SourceFile.print` call resolves to real file,
+- example code traces to page's blocks, nothing invented beyond glue,
+- leaf built and each example ran, not only compiled.
 
-If mdoc later reports an unresolved embed, the file is missing or at the wrong path — fix the path or
-re-commission it rather than deleting the embed to make the page compile.
+Unresolved embed in later mdoc run: file missing or at wrong path. Fix path or re-commission. Do not
+delete embed to make page compile.

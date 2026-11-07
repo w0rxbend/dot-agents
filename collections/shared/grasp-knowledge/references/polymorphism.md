@@ -2,14 +2,14 @@
 
 ## Definition
 
-When related alternatives or behaviors vary by type, assign responsibility for the behavior to the types using polymorphic operations instead of conditionals.
+When related alternatives or behaviors vary by type, assign them to the types as polymorphic operations instead of conditionals.
 
 ## When to Apply
 
-- Multiple types require different behavior
+- Multiple types need different behavior
 - Type-based conditionals (switch/if-else)
 - Behavior varies by classification
-- Need to add new types without modification
+- Add new types without modification
 
 ## Key Indicators
 
@@ -24,9 +24,9 @@ When related alternatives or behaviors vary by type, assign responsibility for t
 
 ### Compliance Signs
 
-- No type checking conditionals
+- No type-checking conditionals
 - Common interface for variants
-- New types don't require modification
+- New types need no modification
 - Strategy/Plugin architecture
 
 ## Patterns

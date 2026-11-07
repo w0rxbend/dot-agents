@@ -37,7 +37,7 @@
 - r5: Latest generation
 
 **Burstable (db.t4g - Graviton):**
-- ARM-based processors
+- ARM-based
 - 40% better price-performance
 - Sustainable performance
 
@@ -55,7 +55,7 @@
 ### Multi-AZ Deployments
 
 **How it Works:**
-- Synchronous replication to standby in different AZ
+- Synchronous replication to standby in other AZ
 - Automatic failover (60-120 seconds)
 - Same endpoint (no app changes)
 
@@ -90,7 +90,7 @@
 1. Create green environment (clone)
 2. Test in green environment
 3. Switch traffic (blue → green)
-4. Rollback if issues detected
+4. Roll back if issues found
 
 **Use Cases:**
 - Major version upgrades
@@ -112,26 +112,22 @@
 3. **Monitor Performance:**
    - Enable Performance Insights (free for 7 days)
    - Track slow queries
-   - Set up CloudWatch alarms
+   - Add CloudWatch alarms
 
 4. **Security:**
    - Enable encryption at rest (KMS)
    - Use TLS for connections
    - Store credentials in Secrets Manager
-   - Apply security group restrictions
+   - Restrict access with security groups
 
 ---
 
 ## Aurora (AWS-Native Relational)
 
-### Overview
-
-AWS-designed database compatible with MySQL and PostgreSQL. Higher performance, availability, and durability than standard RDS.
-
 ### Architecture
 
 **Storage:**
-- Automatically scales 10GB to 128TB
+- Scales automatically, 10GB to 128TB
 - 6 copies across 3 AZs
 - Self-healing storage
 - Continuous backup to S3
@@ -144,11 +140,11 @@ AWS-designed database compatible with MySQL and PostgreSQL. Higher performance, 
 ### Performance Improvements
 
 **vs. MySQL:**
-- 5x throughput improvement
+- 5x throughput
 - Same applications, drivers
 
 **vs. PostgreSQL:**
-- 3x throughput improvement
+- 3x throughput
 - PostgreSQL 11-15 compatibility
 
 ### Aurora Serverless v2
@@ -192,9 +188,9 @@ Total: ~$413/month
 - Gaming leaderboards
 
 **How it Works:**
-- Data automatically sharded
+- Data sharded automatically
 - Distributed SQL processing
-- Appears as single database to applications
+- Looks like single database to applications
 
 ### Aurora Global Database
 
@@ -206,11 +202,11 @@ Total: ~$413/month
 **Architecture:**
 - Primary region (read-write)
 - Up to 5 secondary regions (read-only)
-- Dedicated infrastructure for replication
+- Dedicated replication infrastructure
 
 **Cost:**
 - Replication: $0.10 per GB transferred
-- Instances in secondary regions charged normally
+- Secondary-region instances charged normally
 
 ### Cost Comparison: Aurora vs. RDS
 
@@ -231,17 +227,12 @@ Total: ~$413/month
 
 ### Best Practices
 
-1. **Use Aurora for Production:**
-   - Better availability than RDS
-   - Automatic storage scaling
-   - Fast failover
-
-2. **Leverage Read Replicas:**
+1. **Leverage Read Replicas:**
    - Create reader endpoint (automatic load balancing)
    - Offload analytics to replicas
-   - Use custom endpoints for workload isolation
+   - Custom endpoints for workload isolation
 
-3. **Enable Backtrack (MySQL):**
+2. **Enable Backtrack (MySQL):**
    - Rewind DB to specific point in time
    - No restore from backup needed
    - Minutes instead of hours
@@ -269,7 +260,7 @@ Fully managed NoSQL database. Single-digit millisecond latency. Infinite horizon
 
 **Attributes:**
 - Flexible schema (no predefined columns)
-- Supports strings, numbers, binary, lists, maps, sets
+- Strings, numbers, binary, lists, maps, sets
 
 ### Capacity Modes
 
@@ -284,7 +275,7 @@ Fully managed NoSQL database. Single-digit millisecond latency. Infinite horizon
 - Storage: $0.25/GB-month
 
 **Provisioned:**
-- Specify read/write capacity units
+- Set read/write capacity units
 - Predictable cost
 - Auto-scaling available
 
@@ -296,7 +287,7 @@ Fully managed NoSQL database. Single-digit millisecond latency. Infinite horizon
 ### Storage Classes (2024+)
 
 **Standard:**
-- Default storage class
+- Default class
 - $0.25/GB-month
 
 **Standard-IA (Infrequent Access):**
@@ -354,12 +345,12 @@ Fully managed NoSQL database. Single-digit millisecond latency. Infinite horizon
 **Use When:**
 - Need <1ms latency
 - Read-heavy workload
-- Can afford caching cost
+- Caching cost affordable
 
 ### Best Practices
 
 1. **Design Partition Keys:**
-   - Distribute access evenly
+   - Spread access evenly
    - Avoid hot partitions
    - Use high-cardinality attributes (UserID, not Country)
 
@@ -367,13 +358,13 @@ Fully managed NoSQL database. Single-digit millisecond latency. Infinite horizon
    - Query alternate access patterns
    - Different partition/sort keys
    - Eventually consistent reads
-   - Plan for 20 GSIs limit
+   - Limit: 20 GSIs
 
 3. **Use Local Secondary Indexes (LSI):**
    - Same partition key, different sort key
    - Strongly consistent reads
    - Must create at table creation
-   - 5 LSI limit
+   - Limit: 5 LSIs
 
 4. **Enable Point-in-Time Recovery:**
    - Restore to any second in last 35 days
@@ -390,12 +381,12 @@ Fully managed NoSQL database. Single-digit millisecond latency. Infinite horizon
 
 ### Overview
 
-Managed document database compatible with MongoDB 4.0+. Scales to millions of requests per second.
+Managed document database, compatible with MongoDB 4.0+. Scales to millions of requests per second.
 
 ### Architecture
 
 **Storage:**
-- Automatically scales to 128TB
+- Scales automatically to 128TB
 - 6 copies across 3 AZs (like Aurora)
 - Continuous backup to S3
 
@@ -412,7 +403,7 @@ Managed document database compatible with MongoDB 4.0+. Scales to millions of re
 
 **Not Supported:**
 - Some advanced MongoDB features
-- Check compatibility guide for specifics
+- See compatibility guide for specifics
 
 ### Cost Model (db.t3.medium)
 
@@ -568,7 +559,7 @@ Q6: Caching needs:
 2. **Self-Managed to DynamoDB:**
    - Application-level migration
    - Dual-write pattern (old + new)
-   - Validate and cutover
+   - Validate, then cut over
 
 ### RDS to Aurora
 
@@ -586,7 +577,7 @@ Q6: Caching needs:
 **Strategy:**
 - Application-level migration
 - Dual-write pattern
-- Gradually shift reads
+- Shift reads gradually
 - Validate data consistency
 
 **Tooling:**
@@ -595,13 +586,7 @@ Q6: Caching needs:
 
 ### Self-Managed to Managed
 
-**Benefits:**
-- Automated backups
-- Automatic failover
-- Managed upgrades
-- Built-in monitoring
-
 **Considerations:**
-- Test performance (might differ)
+- Test performance (may differ)
 - Validate feature compatibility
 - Plan rollback strategy

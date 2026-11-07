@@ -1,7 +1,5 @@
 # Documentation Sites Reference
 
-Guide to building comprehensive documentation sites with Docusaurus and MkDocs Material.
-
 ## Table of Contents
 
 1. [Docusaurus Setup](#docusaurus-setup)
@@ -12,12 +10,12 @@ Guide to building comprehensive documentation sites with Docusaurus and MkDocs M
 
 ## Docusaurus Setup
 
-React-based documentation site generator with versioning, i18n, and search.
+React-based docs site generator with versioning, i18n and search.
 
 ### Installation
 
 ```bash
-npx create-docusaurus@latest my-website classic
+npx create-docusaurus@3.10.2 my-website classic
 cd my-website
 npm start
 ```
@@ -136,7 +134,7 @@ module.exports = {
 
 ## MkDocs Material Setup
 
-Python-based documentation site with beautiful Material Design theme.
+Python-based docs site with Material Design theme.
 
 ### Installation
 
@@ -355,25 +353,12 @@ jobs:
   status = 200
 ```
 
-### GitHub Pages (MkDocs)
-
-```bash
-# One-time deployment
-mkdocs gh-deploy
-
-# With version management (mike)
-mike deploy --push --update-aliases 1.0 latest
-```
-
 ## Best Practices
 
 1. **Structure Content Logically**: Getting Started → Guides → API Reference
-2. **Use Categories**: Group related documentation together
-3. **Enable Search**: Make content discoverable
-4. **Version Documentation**: Match docs to software versions
-5. **Add Edit Links**: Enable community contributions
-6. **Include Examples**: Embed working code examples
-7. **Test Locally**: Preview changes before deploying
-8. **Automate Deployment**: Use CI/CD pipelines
-9. **Monitor Analytics**: Track usage and improve content
-10. **Keep Updated**: Regular reviews and updates
+2. **Enable Search**: Make content discoverable
+3. **Version Documentation**: Match docs to software versions
+4. **Add Edit Links**: Enable community contributions
+5. **Test Locally**: Preview changes before deploying
+6. **Automate Deployment**: Use CI/CD pipelines
+7. **Monitor Analytics**: Track usage, improve content

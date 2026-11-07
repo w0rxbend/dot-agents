@@ -6,16 +6,16 @@ license: MIT
 
 # Streaming integrations
 
-Work from the checked-out protocol implementation, dependency lockfiles, and tests. In this portfolio OBS control clients, Twitch ingestion, the backend-to-overlay WebSocket, and browser rendering are separate boundaries. Identify which boundary fails before changing another one. Preserve the repository's language, effect system, UI stack, and public contract.
+Work from checked-out protocol code, lockfiles and tests. In this portfolio these are separate boundaries: OBS control clients, Twitch ingestion, backend-to-overlay WebSocket, browser rendering. Find failing boundary before changing another. Keep repository's language, effect system, UI stack and public contract.
 
 ## Select the boundary
 
-- OBS connection, authentication, requests, batching, or reconnect: read [references/obs-session.md](references/obs-session.md).
-- Twitch first-run authorization, token refresh, permissions, or EventSub delivery: read [references/twitch-events.md](references/twitch-events.md).
-- Pixi overlays, media assets, browser-source visibility, or rendering leaks: read [references/browser-sources.md](references/browser-sources.md).
+- OBS connection, authentication, requests, batching or reconnect: read [references/obs-session.md](references/obs-session.md).
+- Twitch first-run authorization, token refresh, permissions or EventSub delivery: read [references/twitch-events.md](references/twitch-events.md).
+- Pixi overlays, media assets, browser-source visibility or rendering leaks: read [references/browser-sources.md](references/browser-sources.md).
 
-Trace one input through the relevant path: transport message → validated domain event → queue/session state → user-visible output. Keep parsing and compatibility normalization at the boundary; scene code should receive the normalized event rather than repeatedly interpreting wire aliases. Adding a new event means checking backend serialization and every consuming scene, including unknown-event fallback.
+Trace one input: transport message → validated domain event → queue/session state → user-visible output. Parse and normalize compatibility aliases at boundary; scenes receive normalized events, not wire aliases. New event: check backend serialization and every consuming scene, including unknown-event fallback.
 
-Use recorded fixtures and fake transports for protocol work. Reconnect, timeout, slow-consumer, and teardown failures need deterministic tests that observe completion, cancellation, bounded resource use, and duplicate handling. Actual OBS, Twitch accounts, and a live broadcast are separate integration checks: a request to edit code does not authorize sending chat, changing scenes, starting output, or opening a new authorization flow. Use an already authorized live check when it is in scope; otherwise report the untested boundary.
+Protocol work: recorded fixtures, fake transports. Reconnect, timeout, slow-consumer and teardown failures need deterministic tests of completion, cancellation, bounded resource use and duplicate handling. Real OBS, Twitch accounts and live broadcast are separate integration checks. Code-edit request does not authorize sending chat, changing scenes, starting output or opening new authorization flow. Use already authorized live check if in scope; otherwise report untested boundary.
 
-For performance work measure frame time, allocation/resource growth, queue depth, event age, and network gaps independently. A smooth renderer cannot repair lost ingress events; faster transport cannot repair an unbounded texture cache. Prefer a scoped repair with before/after evidence over changing multiple stacks together.
+Performance: measure frame time, allocation/resource growth, queue depth, event age and network gaps independently. Smooth renderer cannot repair lost ingress events; faster transport cannot repair unbounded texture cache. Prefer one scoped repair with before/after evidence over multi-stack changes.

@@ -1,7 +1,5 @@
 # Error Handling in SDKs
 
-Guide to creating typed error hierarchies, error metadata, and user-friendly error messages.
-
 ## Table of Contents
 
 1. [Typed Error Hierarchy](#typed-error-hierarchy)

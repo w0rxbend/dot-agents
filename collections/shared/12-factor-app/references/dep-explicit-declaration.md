@@ -7,7 +7,7 @@ tags: dep, dependencies, manifest, reproducibility
 
 ## Declare All Dependencies Explicitly in a Manifest File
 
-A twelve-factor app declares all dependencies completely and exactly via a dependency declaration manifest. This includes direct dependencies and their transitive dependencies, ensuring any developer can build and run the application with just the language runtime and dependency manager installed.
+Declare all dependencies, direct and transitive, completely and exactly in a dependency manifest. Any developer can then build and run app with only language runtime and dependency manager installed.
 
 **Incorrect (implicit dependencies):**
 
@@ -61,11 +61,5 @@ numpy==1.26.2
 pandas==2.1.3
 # Every build uses identical dependency versions
 ```
-
-**Benefits:**
-- New developers can build immediately after clone
-- CI/CD produces identical builds to development
-- Security audits can enumerate all dependencies
-- Version conflicts are detected early
 
 Reference: [The Twelve-Factor App - Dependencies](https://12factor.net/dependencies)

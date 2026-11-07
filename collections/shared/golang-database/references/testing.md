@@ -11,7 +11,7 @@
 
 ## Unit Tests with Mocks
 
-Define a repository interface so business logic can be tested without a database. Mock the interface with `testify/mock`:
+Define repository interface; test business logic without database. Mock it with `testify/mock`:
 
 ```go
 // Repository interface — the contract
@@ -78,11 +78,9 @@ func TestUserService_GetUser_NotFound(t *testing.T) {
 }
 ```
 
-Unit tests verify business logic, not SQL correctness. They run fast and without external dependencies.
-
 ## sqlmock for Query-Level Testing
 
-When you need to verify exact SQL without a real database, use [DATA-DOG/go-sqlmock](https://github.com/DATA-DOG/go-sqlmock):
+Verify exact SQL without real database: use [DATA-DOG/go-sqlmock](https://github.com/DATA-DOG/go-sqlmock):
 
 ```go
 func TestGetByID_sqlmock(t *testing.T) {
@@ -106,11 +104,11 @@ func TestGetByID_sqlmock(t *testing.T) {
 }
 ```
 
-sqlmock is useful for verifying query structure and error handling paths, but it does not validate that your SQL is correct against a real database schema.
+sqlmock checks query structure and error handling paths. It does not validate SQL against real database schema.
 
 ## Integration Tests
 
-Integration tests run against a real database. Gate them with build tags so `go test ./...` skips them by default:
+Integration tests hit real database. Gate with build tags so `go test ./...` skips them by default:
 
 ```go
 //go:build integration
@@ -176,7 +174,7 @@ go test -tags=integration -v ./internal/repository/...
 
 ### Test database with testcontainers-go
 
-For CI environments without a pre-existing database:
+CI without pre-existing database:
 
 ```go
 func (s *UserRepoSuite) SetupSuite() {
@@ -218,4 +216,4 @@ func (s *UserRepoSuite) SetupSuite() {
 - Integration tests SHOULD use testcontainers-go for reproducible database environments in CI.
 - NEVER test against production databases.
 
-→ See `samber/cc-skills-golang@golang-testing` skill for general test patterns and CI configuration.
+→ `samber/cc-skills-golang@golang-testing` skill: general test patterns and CI configuration.

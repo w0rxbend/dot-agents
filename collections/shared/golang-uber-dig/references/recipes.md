@@ -1,7 +1,5 @@
 # Recipes — uber-go/dig
 
-End-to-end examples that go beyond the SKILL.md basics. Each recipe is self-contained and shows a real wiring problem.
-
 ## Table of Contents
 
 - [HTTP server with route group](#http-server-with-route-group)
@@ -166,7 +164,7 @@ func main() {
 
 ## Request-scoped dependencies
 
-A child scope inherits its parent's providers but adds request-local ones:
+Child scope inherits parent's providers, adds request-local ones:
 
 ```go
 root := dig.New()
@@ -188,12 +186,13 @@ func handle(w http.ResponseWriter, req *http.Request) {
         return h.Serve(w, req)
     })
     if err != nil {
-        http.Error(w, err.Error(), 500)
+        log.Printf("request failed: %v", err) // dig errors expose graph and constructor details; keep them server-side
+        http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
     }
 }
 ```
 
-The decorator only applies inside the request scope — sibling scopes (other in-flight requests) keep their own logger.
+Decorator applies only inside request scope. Sibling scopes (other in-flight requests) keep own logger.
 
 ## Optional dependency for graceful degradation
 
@@ -216,7 +215,7 @@ func NewWorker(p WorkerParams) *Worker {
 }
 ```
 
-Reach for `optional` only when the dependency is genuinely optional — a missing DB hidden behind `optional` becomes a nil-pointer panic at first use.
+Reach for `optional` only when dependency genuinely optional. Missing DB hidden behind `optional` becomes nil-pointer panic at first use.
 
 ## Decorate to add cross-cutting behavior
 
@@ -235,7 +234,7 @@ must(c.Decorate(func(log *zap.Logger, cfg *Config) *zap.Logger {
 }))
 ```
 
-Decorators are scope-local. A decorator on the root applies everywhere; a decorator on a child scope only applies to that subtree.
+Decorators scope-local. Decorator on root applies everywhere; decorator on child scope applies only to that subtree.
 
 ## DryRun for graph validation in tests
 
@@ -257,7 +256,7 @@ func TestWiringIsValid(t *testing.T) {
 }
 ```
 
-This catches "no provider for \*X" failures at build time instead of in production.
+Catches "no provider for \*X" failures at build time, not in production.
 
 ## Visualizing a failed graph
 
@@ -272,4 +271,4 @@ if err != nil {
 // Render: dot -Tpng graph.dot -o graph.png
 ```
 
-`VisualizeError` highlights the missing edges in red — much faster than reading the wrapped error chain.
+`VisualizeError` highlights missing edges in red.

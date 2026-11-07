@@ -1,8 +1,5 @@
 # RabbitMQ - Advanced Message Routing
 
-RabbitMQ is a robust message broker with sophisticated routing capabilities through exchanges and bindings. Best for complex pub/sub patterns and task queues.
-
-
 ## Table of Contents
 
 - [When to Use RabbitMQ](#when-to-use-rabbitmq)
@@ -21,7 +18,6 @@ RabbitMQ is a robust message broker with sophisticated routing capabilities thro
   - [Dead Letter Exchange (DLQ)](#dead-letter-exchange-dlq)
   - [Message Priority](#message-priority)
   - [Message TTL (Time-To-Live)](#message-ttl-time-to-live)
-  - [Consumer Prefetch (Fair Dispatch)](#consumer-prefetch-fair-dispatch)
 - [Production Patterns](#production-patterns)
   - [Retry with Exponential Backoff](#retry-with-exponential-backoff)
   - [Idempotent Consumer](#idempotent-consumer)
@@ -44,11 +40,11 @@ RabbitMQ is a robust message broker with sophisticated routing capabilities thro
 ## When to Use RabbitMQ
 
 **Best for:**
-- Complex routing patterns (topic, fanout, headers exchanges)
+- Complex routing (topic, fanout, headers exchanges)
 - Task queues with priority and TTL
 - Dead letter exchanges (DLQ)
 - Multi-consumer pub/sub
-- AMQP 0.9.1 protocol compatibility
+- AMQP 0.9.1 compatibility
 
 **Not ideal for:**
 - Event streaming (use Kafka)
@@ -59,8 +55,8 @@ RabbitMQ is a robust message broker with sophisticated routing capabilities thro
 
 ### Exchanges and Bindings
 
-**Exchange:** Routes messages to queues based on routing rules
-**Binding:** Connection between exchange and queue with routing key
+**Exchange:** Routes messages to queues by routing rules
+**Binding:** Links exchange to queue, with routing key
 
 ```
 Producer → Exchange → Binding → Queue → Consumer
@@ -70,10 +66,10 @@ Producer → Exchange → Binding → Queue → Consumer
 
 | Type | Routing Logic | Use Case |
 |------|---------------|----------|
-| **Direct** | Exact routing key match | Task distribution to specific workers |
+| **Direct** | Exact routing key match | Send tasks to specific workers |
 | **Topic** | Pattern matching (wildcards) | Pub/sub with topic filtering |
-| **Fanout** | Broadcast to all queues | Event broadcasting |
-| **Headers** | Header attribute matching | Complex routing rules |
+| **Fanout** | Broadcast to all queues | Event broadcast |
+| **Headers** | Header attribute match | Complex routing rules |
 
 ## Python Implementation
 
@@ -367,17 +363,6 @@ channel.basic_publish(
 )
 ```
 
-### Consumer Prefetch (Fair Dispatch)
-
-```python
-# Limit unacknowledged messages per consumer
-channel.basic_qos(prefetch_count=1)
-
-# Now consumers only get 1 message at a time
-# Prevents one consumer from hogging all messages
-channel.basic_consume(queue='tasks', on_message_callback=callback)
-```
-
 ## Production Patterns
 
 ### Retry with Exponential Backoff
@@ -597,7 +582,7 @@ channel.basic_consume(
 
 **Check:**
 1. Queue declared correctly?
-2. Consumer connected to same queue?
+2. Consumer on same queue?
 3. Prefetch limit too low?
 4. Consumer crashed?
 
@@ -610,7 +595,7 @@ rabbitmqctl list_queues name messages consumers
 
 **Causes:**
 - Consumers too slow
-- Not enough consumers
+- Too few consumers
 - Consumer crashes without ack
 
 **Fix:**
@@ -637,7 +622,4 @@ tail -f /var/log/rabbitmq/rabbit@hostname.log
 
 ## Related Patterns
 
-- **Work Queues**: Fair dispatch with prefetch
-- **Pub/Sub**: Fanout exchange broadcasting
-- **Routing**: Direct/topic exchanges for filtering
 - **RPC**: Request-reply with correlation ID and reply-to queue

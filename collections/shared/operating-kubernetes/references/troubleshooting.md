@@ -24,7 +24,7 @@ my-app-6d5f8b9c4-xz7k2   0/1     Pending   0          5m
 kubectl describe pod my-app-6d5f8b9c4-xz7k2
 ```
 
-**Common Causes:**
+**Causes:**
 
 **A. Insufficient CPU/Memory**
 ```
@@ -33,7 +33,7 @@ Events:
 ```
 **Solution:**
 - Reduce resource requests
-- Add more nodes
+- Add nodes
 - Check resource quotas
 
 ```bash
@@ -117,7 +117,7 @@ kubectl logs my-app-6d5f8b9c4-abc12 --previous
 kubectl describe pod my-app-6d5f8b9c4-abc12
 ```
 
-**Common Causes:**
+**Causes:**
 
 **A. Application Crash on Startup**
 ```
@@ -126,7 +126,7 @@ Error: Cannot find module '/app/index.js'
 ```
 **Solution:**
 - Fix application code
-- Ensure correct Docker image
+- Verify Docker image is correct
 - Check file paths in container
 
 **B. Missing Environment Variables**
@@ -178,7 +178,7 @@ State:
     Exit Code:    137
 ```
 **Solution:**
-- Increase memory limit
+- Raise memory limit
 - Fix memory leak in application
 - Profile memory usage
 
@@ -202,7 +202,7 @@ my-app-6d5f8b9c4-def34   0/1     ImagePullBackOff    0          2m
 kubectl describe pod my-app-6d5f8b9c4-def34
 ```
 
-**Common Causes:**
+**Causes:**
 
 **A. Image Doesn't Exist**
 ```
@@ -221,12 +221,10 @@ Events:
 ```
 **Solution:**
 ```bash
-# Create image pull secret
-kubectl create secret docker-registry regcred \
-  --docker-server=myregistry.azurecr.io \
-  --docker-username=myuser \
-  --docker-password=mypassword \
-  --docker-email=myemail@example.com \
+# Prefer node/workload identity. Else pull secret from docker config file (mode 600, not in git); never password in argv
+kubectl create secret generic regcred \
+  --type=kubernetes.io/dockerconfigjson \
+  --from-file=.dockerconfigjson=./registry-config.json \
   --namespace production
 
 # Add to pod spec
@@ -247,7 +245,7 @@ Events:
 
 ```bash
 # Test DNS from node
-kubectl run test --rm -it --image=busybox -- nslookup myregistry.com
+kubectl run test --rm -it --image=busybox:1.37.0 -- nslookup myregistry.com
 
 # Check NetworkPolicies
 kubectl get networkpolicies -n production
@@ -273,7 +271,7 @@ kubectl describe pod my-app-6d5f8b9c4-ghi56
 
 **Solution:**
 - Fix init container script
-- Ensure init container can complete
+- Confirm init container can complete
 - Check init container resource requests
 
 ### Pods Evicted
@@ -293,7 +291,7 @@ kubectl describe pod my-app-6d5f8b9c4-jkl78
 kubectl get pod my-app-6d5f8b9c4-jkl78 -o jsonpath='{.status.reason}'
 ```
 
-**Common Reasons:**
+**Reasons:**
 
 **A. Node Pressure (DiskPressure, MemoryPressure)**
 ```
@@ -302,18 +300,17 @@ Message: Node node-1 which was running pod my-app was not ready for more than 40
 ```
 **Solution:**
 - Check node health
-- Increase disk/memory on nodes
+- Add disk/memory to nodes
 - Clean up unused images/volumes
 
 ```bash
 # Check node conditions
 kubectl describe node node-1 | grep Conditions -A10
 
-# Clean up images on node
-docker system prune -a
+# Clean up unused images on node (containerd), after user approval
+crictl rmi --prune
 
-# Clean up volumes
-docker volume prune
+# Volumes: find what fills disk (du -sh); delete data only after user approval
 ```
 
 **B. Exceeding ResourceQuota**
@@ -322,7 +319,7 @@ Reason: QuotaExceeded
 Message: exceeded quota: compute-resources
 ```
 **Solution:**
-- Increase quota
+- Raise quota
 - Reduce resource requests
 - Clean up unused resources
 
@@ -348,7 +345,7 @@ kubectl get endpointslices -n production -l kubernetes.io/service-name=backend-s
 kubectl describe svc backend-service -n production
 ```
 
-**Common Causes:**
+**Causes:**
 
 **A. Service Selector Doesn't Match Pod Labels**
 ```bash
@@ -369,7 +366,7 @@ backend-6d5f8b9c4-abc12    0/1     Running   0          2m
 ```
 **Solution:**
 - Fix readiness probe
-- Debug why probe is failing
+- Debug why probe fails
 
 ```bash
 # Check probe configuration
@@ -388,11 +385,11 @@ kubectl get networkpolicies -n production
 kubectl describe networkpolicy default-deny-all -n production
 
 # Test connectivity
-kubectl run test --rm -it --image=busybox -- wget -O- http://backend-service:8080
+kubectl run test --rm -it --image=busybox:1.37.0 -- wget -O- http://backend-service:8080
 ```
 
 **Solution:**
-- Create NetworkPolicy to allow traffic
+- Create NetworkPolicy allowing traffic
 - Fix existing policy selectors
 
 ```yaml
@@ -435,7 +432,7 @@ kubectl get pods -n kube-system -l k8s-app=kube-dns
 kubectl logs -n kube-system -l k8s-app=kube-dns
 
 # Test DNS from pod
-kubectl run test --rm -it --image=busybox -- nslookup kubernetes.default
+kubectl run test --rm -it --image=busybox:1.37.0 -- nslookup kubernetes.default
 ```
 
 **Solution:**
@@ -484,14 +481,13 @@ kubectl get pods -n ingress-nginx
 kubectl logs -n ingress-nginx -l app.kubernetes.io/component=controller
 ```
 
-**Common Issues:**
+**Issues:**
 
 **A. Ingress Controller Not Installed**
+Install a maintained controller (Gateway API implementation preferred) with pinned chart version. ingress-nginx retired March 2026, gets no security fixes: migrate existing installs.
 ```bash
-# Install Nginx Ingress Controller
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm install ingress-nginx ingress-nginx/ingress-nginx \
-  --namespace ingress-nginx --create-namespace
+helm install <release> <repo>/<chart> --version <x.y.z> \
+  --namespace <ns> --create-namespace
 ```
 
 **B. Ingress Class Mismatch**
@@ -526,7 +522,7 @@ postgres-data   Pending                                      gp3            5m
 kubectl describe pvc postgres-data
 ```
 
-**Common Causes:**
+**Causes:**
 
 **A. StorageClass Not Found**
 ```
@@ -589,7 +585,7 @@ Events:
   Warning  FailedMount  Unable to attach or mount volumes
 ```
 
-**Common Causes:**
+**Causes:**
 
 **A. Multi-Attach Error**
 ```
@@ -597,14 +593,14 @@ Events:
   Warning  FailedAttachVolume  Multi-Attach error for volume "pvc-xxx": Volume is already exclusively attached to one node
 ```
 **Solution:**
-- Volume already attached to another node
-- Delete old pod or wait for detachment
+- Delete old pod (normal delete) or wait for detachment
+- Force steps last resort: can corrupt data or give StatefulSet two writers. Confirm old node is down, get user approval first
 
 ```bash
-# Force delete old pod
+# Force delete old pod (last resort, after approval)
 kubectl delete pod old-pod --grace-period=0 --force
 
-# AWS: Force detach volume
+# AWS: force detach (last resort, after approval; try without --force first)
 aws ec2 detach-volume --volume-id vol-xxx --force
 ```
 
@@ -631,8 +627,8 @@ rate(container_cpu_cfs_throttled_seconds_total[5m]) > 0.1
 ```
 
 **Solution:**
-- Raise or remove the CPU limit (keep the CPU request)
-- Reduce CPU usage in application
+- Raise or remove CPU limit (keep CPU request)
+- Cut application CPU usage
 
 ```yaml
 resources:
@@ -653,8 +649,8 @@ kubectl get events --field-selector reason=OOMKilled
 
 **Solution:**
 - Profile application for memory leaks
-- Increase memory limits temporarily
-- Fix memory leak in code
+- Raise memory limits temporarily
+- Fix leak in code
 
 ### Node Pressure
 
@@ -679,9 +675,9 @@ free -h  # Memory usage
 ```
 
 **Solution:**
-- Clean up images: `docker system prune -a`
-- Clean up volumes: `docker volume prune`
-- Increase node disk/memory
+- Clean up unused images: `crictl rmi --prune` (after user approval)
+- Find what fills disk (`du -sh`); delete volume data only after user approval
+- Add node disk/memory
 - Evict non-critical pods
 
 ## Troubleshooting Toolkit
@@ -724,10 +720,10 @@ kubectl get storageclass
 
 ```bash
 # Run ephemeral debug pod
-kubectl run debug --rm -it --image=busybox -- /bin/sh
+kubectl run debug --rm -it --image=busybox:1.37.0 -- /bin/sh
 
-# Debug specific pod
-kubectl debug <pod-name> -it --image=busybox --target=<container-name>
+# Debug specific pod (--target shares its process namespace: pinned, reviewed image only)
+kubectl debug <pod-name> -it --image=busybox:1.37.0 --target=<container-name>
 
 # Copy pod for debugging (Kubernetes 1.20+)
 kubectl debug <pod-name> -it --copy-to=<debug-pod-name> --container=<container-name>
@@ -737,16 +733,16 @@ kubectl debug <pod-name> -it --copy-to=<debug-pod-name> --container=<container-n
 
 ```bash
 # Test DNS
-kubectl run test --rm -it --image=busybox -- nslookup kubernetes.default
+kubectl run test --rm -it --image=busybox:1.37.0 -- nslookup kubernetes.default
 
 # Test HTTP
-kubectl run test --rm -it --image=curlimages/curl -- curl http://backend:8080
+kubectl run test --rm -it --image=curlimages/curl:8.23.0 -- curl http://backend:8080
 
 # Test connectivity
-kubectl run test --rm -it --image=busybox -- wget -O- http://backend:8080
+kubectl run test --rm -it --image=busybox:1.37.0 -- wget -O- http://backend:8080
 
 # Network tools pod
-kubectl run nettools --rm -it --image=nicolaka/netshoot -- /bin/bash
+kubectl run nettools --rm -it --image=nicolaka/netshoot:v0.16 -- /bin/bash
 # Inside pod: dig, nslookup, curl, tcpdump, nmap, etc.
 ```
 
@@ -793,27 +789,16 @@ kube_pod_status_scheduled{condition="false"}
 
 ## Summary
 
-**Troubleshooting Workflow:**
+**Workflow:**
 
 1. **Identify symptom** (Pending, CrashLoopBackOff, etc.)
 2. **Gather information** (`kubectl describe`, `kubectl logs`)
 3. **Check events** (`kubectl get events`)
 4. **Test hypothesis** (DNS, connectivity, resources)
-5. **Apply fix** (increase resources, fix config, etc.)
+5. **Apply fix** (raise resources, fix config, etc.)
 6. **Verify** (check pod status, test functionality)
-7. **Monitor** (ensure issue doesn't recur)
+7. **Monitor** (confirm issue doesn't recur)
 
-**Common Root Causes:**
-- Resource constraints (CPU, memory, disk)
-- Configuration errors (wrong labels, selectors)
-- Network policies blocking traffic
-- Missing dependencies (images, volumes, secrets)
-- Node issues (pressure, taints, failures)
-
-**Best Practices:**
+**Practices:**
 - Always check `kubectl describe` first
-- Review events for clues
-- Test hypotheses systematically
-- Document fixes for future reference
-- Set up monitoring and alerts
 - Use PodDisruptionBudgets for critical workloads

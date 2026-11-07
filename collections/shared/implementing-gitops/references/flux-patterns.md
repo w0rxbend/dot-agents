@@ -1,7 +1,5 @@
 # Flux CD Implementation Patterns
 
-Complete guide to implementing Flux CD for GitOps workflows.
-
 ## Table of Contents
 
 1. [Installation and Bootstrap](#installation-and-bootstrap)
@@ -76,6 +74,8 @@ flux bootstrap git \
 ```
 
 ## Source Controllers
+
+Plain `Secret` manifests below show shape only; never commit them. Create them outside Git (`flux create secret git|helm|oci ...`, e.g. `--private-key-file=...`, or `kubectl create secret`) or commit them SOPS/Sealed Secrets-encrypted.
 
 ### GitRepository Source
 
@@ -410,7 +410,8 @@ spec:
   interval: 10m
   path: "./k8s/prod"
   prune: true
-  force: true  # Force apply on conflicts
+  force: true  # Opt-in only: recreates resources on immutable-field conflicts
+               # (downtime; data loss for some resources)
   sourceRef:
     kind: GitRepository
     name: myapp
@@ -748,7 +749,7 @@ spec:
   interval: 10m
   path: "./apps"
   prune: true
-  serviceAccountName: kustomize-controller
+  serviceAccountName: tenant-a-reconciler  # namespace-scoped SA below
   sourceRef:
     kind: GitRepository
     name: tenant-a-repo
@@ -864,7 +865,7 @@ flux export kustomization myapp
 
 ### Repository Structure
 
-Organize repositories with clear separation:
+Keep clear separation:
 
 ```
 fleet-infra/
@@ -884,28 +885,26 @@ fleet-infra/
 
 ### Source Management
 
-- Use appropriate intervals (1m for dev, 5-10m for prod)
-- Implement authentication for private repositories
-- Use semver for production deployments
-- Enable verification for signed commits
+- Intervals: 1m for dev, 5-10m for prod
+- Authenticate private repositories
+- Semver for production deployments
+- Verify signed commits
 
 ### Kustomization Strategy
 
-- Use dependencies for ordered deployment
-- Enable health checks for critical apps
-- Set appropriate timeouts
+- Dependencies for ordered deployment
+- Health checks for critical apps
 - Use prune carefully in production
 
 ### Helm Management
 
 - Pin chart versions in production
-- Use valuesFrom for environment-specific config
+- valuesFrom for environment-specific config
 - Enable rollback for safety
 - Test charts before production deployment
 
 ### Monitoring
 
-- Configure notifications for failures
+- Notify on failures
 - Track reconciliation metrics
 - Monitor Git source health
-- Alert on sync failures

@@ -7,7 +7,7 @@ tags: build, release, immutability, versioning
 
 ## Create Immutable Releases with Unique Identifiers
 
-Every release must have a unique identifier (timestamp or incrementing number) and be immutable once created. A release is a specific build combined with specific config - any change requires a new release. Releases are append-only; you never modify an existing release.
+Every release must have unique ID (timestamp or incrementing number) and be immutable once created. Release is specific build plus specific config; any change requires new release. Releases are append-only: never modify existing one.
 
 **Incorrect (mutable releases):**
 
@@ -83,11 +83,5 @@ kubectl set image deployment/myapp app=myapp:v102
 kubectl rollout undo deployment/myapp
 # Or explicit: kubectl set image deployment/myapp app=myapp:v101
 ```
-
-**Benefits:**
-- Audit trail: know exactly what ran when
-- Instant rollback: no rebuild required
-- Reproducibility: redeploy same release to new environment
-- Debugging: reproduce exact release state
 
 Reference: [The Twelve-Factor App - Build, Release, Run](https://12factor.net/build-release-run)

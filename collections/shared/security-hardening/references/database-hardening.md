@@ -1,7 +1,5 @@
 # Database Hardening Reference
 
-Comprehensive guide to hardening PostgreSQL, MySQL, MongoDB, and Redis databases.
-
 ## Table of Contents
 
 1. [PostgreSQL Hardening](#postgresql-hardening)
@@ -21,7 +19,8 @@ Comprehensive guide to hardening PostgreSQL, MySQL, MongoDB, and Redis databases
 REVOKE ALL ON DATABASE mydb FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 
--- Create application role with minimal permissions
+-- Create application role with minimal permissions. A PASSWORD literal lands in server logs
+-- (log_statement ddl/all): set real passwords with psql `\password app_user` (sends only a SCRAM hash).
 CREATE ROLE app_user WITH LOGIN PASSWORD 'use_vault_for_this';
 GRANT CONNECT ON DATABASE mydb TO app_user;
 GRANT USAGE ON SCHEMA app TO app_user;
@@ -78,7 +77,7 @@ ssl_cert_file = '/var/lib/postgresql/data/server.crt'
 ssl_key_file = '/var/lib/postgresql/data/server.key'
 ssl_ca_file = '/var/lib/postgresql/data/root.crt'
 ssl_min_protocol_version = 'TLSv1.2'
-ssl_ciphers = 'HIGH:MEDIUM:+3DES:!aNULL'
+ssl_ciphers = 'HIGH:!aNULL:!MD5:!3DES'
 ssl_prefer_server_ciphers = on
 
 # Logging
@@ -112,6 +111,8 @@ lock_timeout = 30000  # 30 seconds
 
 ### Encryption at Rest
 
+**Destructive:** `luksFormat` wipes the device for good. Check with `lsblk -f` that it is a new, empty disk and confirm with user first. Stop PostgreSQL and move existing data before mounting: the mount hides the current `/var/lib/postgresql`.
+
 ```bash
 # Using LUKS for filesystem encryption
 cryptsetup luksFormat /dev/sdb
@@ -130,6 +131,8 @@ CREATE TABLE users (
     ssn BYTEA  -- Encrypted column
 );
 
+-- Key shown as literal for brevity; load it from a secret store. Logged statements
+-- (log_statement, slow-query log) keep literals and bind values alike: prefer client-side encryption.
 INSERT INTO users (username, email, ssn)
 VALUES ('john', 'john@example.com', pgp_sym_encrypt('123-45-6789', 'encryption_key'));
 
@@ -170,7 +173,7 @@ find "$BACKUP_DIR" -name "*.enc" -mtime +30 -delete
 -- Remove anonymous users
 DELETE FROM mysql.user WHERE User='';
 
--- Remove remote root access
+-- Remove remote root access (first confirm another admin account works: lockout risk)
 DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
 
 -- Create application user
@@ -230,7 +233,7 @@ max_allowed_packet = 64M
 ### Remove Test Database
 
 ```sql
--- Remove test database
+-- Remove test database (confirm with user first that `test` is the unused default)
 DROP DATABASE IF EXISTS test;
 DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 FLUSH PRIVILEGES;
@@ -476,7 +479,7 @@ mongodump --archive | gzip | openssl enc -aes-256-cbc -salt -pbkdf2 -pass file:/
 
 ### 4. Audit Logging
 
-Enable comprehensive logging for all database access:
+Log all database access:
 
 **PostgreSQL:** `log_statement = 'all'`
 **MySQL:** `general_log = 1`
@@ -484,8 +487,6 @@ Enable comprehensive logging for all database access:
 **Redis:** `slowlog` and command logging
 
 ### 5. Connection Pooling
-
-Use connection pooling to limit database connections:
 
 ```python
 # Python with psycopg2 and connection pooling
@@ -499,7 +500,8 @@ db_pool = pool.SimpleConnectionPool(
     host='db.internal',
     port='5432',
     database='mydb',
-    sslmode='require'
+    sslmode='verify-full',  # 'require' encrypts but skips server cert check (MITM)
+    sslrootcert='/etc/ssl/certs/db-ca.pem'
 )
 
 # Get connection from pool
@@ -522,8 +524,6 @@ cursor.execute(query, (username,))
 ```
 
 ### 7. Rate Limiting
-
-Implement rate limiting for database access:
 
 ```python
 from redis import Redis

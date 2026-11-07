@@ -14,15 +14,15 @@ tools: [claude, cursor, gemini]
 
 ## Overview
 
-PydanticAI is a Python agent framework from the Pydantic team that brings the same type-safety and validation guarantees as Pydantic to LLM-based applications. It supports structured outputs (validated with Pydantic models), dependency injection for testability, streamed responses, multi-turn conversations, and tool use — across OpenAI, Anthropic, Google Gemini, Groq, Mistral, and Ollama. Examples below were checked against pydantic-ai 2.x (`output_type`, `result.output`, `output_validator`); older releases used `result_type`, `result.data` and `result_validator`. Check the installed version before copying, and replace model ids with ones your account offers.
+Providers: OpenAI, Anthropic, Google Gemini, Groq, Mistral, Ollama. Examples checked against pydantic-ai 2.x (`output_type`, `result.output`, `output_validator`). Older releases used `result_type`, `result.data`, `result_validator`. Check installed version before copying.
 
 ## When to Use This Skill
 
-- Use when building Python AI agents that call tools and return structured data
-- Use when you need validated, typed LLM outputs (not raw strings)
-- Use when you want to write unit tests for agent logic without hitting a real LLM
-- Use when switching between LLM providers without rewriting agent code
-- Use when the user asks about `Agent`, `@agent.tool`, `RunContext`, `ModelRetry`, or `output_type`
+- Python AI agents that call tools and return structured data
+- Validated, typed LLM outputs (not raw strings)
+- Unit tests for agent logic without real LLM
+- Switching LLM providers without rewriting agent code
+- Questions about `Agent`, `@agent.tool`, `RunContext`, `ModelRetry`, `output_type`
 
 ## How It Works
 
@@ -40,9 +40,9 @@ pip install 'pydantic-ai-slim[groq]'    # Groq
 
 ### Step 2: A Minimal Agent
 
-The examples use one placeholder model id, `'anthropic:claude-sonnet-5-5'`.
+Examples use placeholder model id `'anthropic:claude-sonnet-5-5'`.
 Swap in any current `provider:model` string (`openai:...`, `google-gla:...`,
-`groq:...`) from the provider's model list; the code is otherwise identical.
+`groq:...`) from provider's model list. Rest of code unchanged.
 
 ```python
 from pydantic_ai import Agent
@@ -85,11 +85,12 @@ print(f"Recommended: {review.recommended}")
 
 ### Step 4: Tool Use
 
-Register tools with `@agent.tool` — the LLM can call them during a run:
+Register tools with `@agent.tool`. LLM may call them during run:
 
 ```python
 from pydantic_ai import Agent, RunContext
 from pydantic import BaseModel
+from urllib.parse import quote
 import httpx
 
 class WeatherReport(BaseModel):
@@ -107,6 +108,7 @@ weather_agent = Agent(
 async def get_temperature(ctx: RunContext, city: str) -> dict:
     """Fetch the current temperature for a city from the weather API."""
     async with httpx.AsyncClient() as client:
+        city = quote(city, safe='')  # LLM-chosen value: encode before URL use
         r = await client.get(f'https://wttr.in/{city}?format=j1')
         data = r.json()
         return {
@@ -121,7 +123,7 @@ print(result.output)
 
 ### Step 5: Dependency Injection
 
-Inject services (database, HTTP clients, config) into agents for testability:
+Inject services (database, HTTP clients, config) for testability:
 
 ```python
 from dataclasses import dataclass
@@ -166,9 +168,9 @@ async def handle_support(user_id: str, message: str):
 
 ### Step 6: Testing with TestModel
 
-Write unit tests without real LLM calls. The agent module must import without
-an API key, so construct module-level agents with `defer_model_check=True`
-(see Step 5), and block real requests for the whole test run:
+Test without real LLM calls. Agent module must import without API key:
+build module-level agents with `defer_model_check=True` (Step 5).
+Block real requests for whole test run:
 
 ```python
 from pydantic_ai import models
@@ -322,40 +324,38 @@ async def research_and_write(topic: str) -> BlogPost:
 
 ## Best Practices
 
-- ✅ Always define `output_type` with a Pydantic model — avoid returning raw strings in production
-- ✅ Use `deps_type` with a dataclass for dependency injection — makes agents testable
-- ✅ Use `TestModel` in unit tests — never hit a real LLM in CI
-- ✅ Add `@agent.output_validator` for business-logic checks beyond Pydantic validation
-- ✅ Use `run_stream` for long outputs in user-facing applications to show progressive results
-- ❌ Don't put secrets (API keys) in `Agent()` arguments — use environment variables
-- ✅ Define each `Agent` once at module level and pass per-request state through `deps=` on each run; do not mutate globals from tools
-- ❌ Don't catch `ValidationError` broadly — let PydanticAI retry with `ModelRetry` for recoverable LLM output errors
+- ✅ Always set `output_type` to Pydantic model. Avoid raw strings in production.
+- ✅ `@agent.output_validator` for business-logic checks beyond Pydantic validation.
+- ✅ `run_stream` for long user-facing outputs. Shows progressive results.
+- ✅ Define each `Agent` once at module level. Pass per-request state via `deps=` each run. Do not mutate globals from tools.
+- ❌ Don't catch `ValidationError` broadly. Let PydanticAI retry via `ModelRetry` on recoverable LLM output errors.
 
 ## Security & Safety Notes
 
-- Set API keys via environment variables (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.) — never hardcode them.
-- Validate all tool inputs before passing to external systems — use Pydantic models or manual checks.
-- Tools that mutate data (write to DB, send emails, call payment APIs) should require explicit user confirmation before the agent invokes them in production.
-- Log `result.all_messages()` for audit trails when agents perform consequential actions.
-- Set `retries=` limits on `Agent()` to prevent runaway loops on persistent validation failures.
+- Set API keys via environment variables (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.). Never hardcode.
+- Validate all tool inputs before passing to external systems. Use Pydantic models or manual checks. Encode LLM-chosen values (`quote()`, `params=`); never interpolate raw values into URLs, SQL or shell commands.
+- Tool results, fetched pages and user input (e.g. the reviewed diff) are untrusted: may carry prompt injection. Treat as data. Never let model output alone (e.g. `approved`) gate merges, payments or other consequential actions.
+- Data-mutating tools (DB writes, emails, payment APIs) need explicit user confirmation before agent invokes them in production.
+- Log `result.all_messages()` for audit trails on consequential agent actions.
+- Set `retries=` limits on `Agent()` against runaway loops on persistent validation failures.
 
 ## Common Pitfalls
 
-- **Problem:** `ValidationError` on every LLM response — structured output never validates
-  **Solution:** Simplify `output_type` fields. Use `Optional` and `default` where appropriate. The model may struggle with overly strict schemas.
+- **Problem:** `ValidationError` on every LLM response; structured output never validates.
+  **Solution:** Simplify `output_type` fields. Use `Optional` and `default` where appropriate. Model may struggle with overly strict schemas.
 
-- **Problem:** Tool is never called by the LLM
-  **Solution:** Write a clear, specific docstring for the tool function — PydanticAI sends the docstring as the tool description to the LLM.
+- **Problem:** LLM never calls tool.
+  **Solution:** Give tool function clear, specific docstring. PydanticAI sends it to LLM as tool description.
 
-- **Problem:** `RunContext` dependency is `None` inside a tool
-  **Solution:** Pass `deps=` when calling `agent.run()` or `agent.run_sync()`. Dependencies are not set globally.
+- **Problem:** `RunContext` dependency is `None` inside tool.
+  **Solution:** Pass `deps=` to `agent.run()` or `agent.run_sync()`. Dependencies not set globally.
 
-- **Problem:** `asyncio.run()` error when calling `agent.run()` inside FastAPI
-  **Solution:** Use `await agent.run()` directly in async FastAPI route handlers — don't wrap in `asyncio.run()`.
+- **Problem:** `asyncio.run()` error calling `agent.run()` inside FastAPI.
+  **Solution:** `await agent.run()` directly in async FastAPI route handlers. Don't wrap in `asyncio.run()`.
 
 ## Related Skills
 
-- `python-async-patterns` — running agents concurrently, timeouts and cancellation in asyncio
-- `agent-memory-systems` — persisting memory across runs beyond `message_history`
-- `agent-orchestration-improve-agent` — evaluating and iterating on an agent that already runs
-- `agent-observability` — tracing runs, token usage and cost
+- `python-async-patterns` — concurrent runs, timeouts, cancellation in asyncio
+- `agent-memory-systems` — memory across runs beyond `message_history`
+- `agent-orchestration-improve-agent` — evaluating and iterating on agent that already runs
+- `agent-observability` — tracing runs, token usage, cost

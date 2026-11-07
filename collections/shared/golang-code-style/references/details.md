@@ -2,7 +2,7 @@
 
 ## Extract Complex Conditions
 
-When `if` conditions span multiple operands, extract into named booleans:
+When `if` conditions span multiple operands, extract named booleans:
 
 ```go
 // Good — self-documenting
@@ -19,7 +19,7 @@ if user.Role == RoleAdmin || resource.OwnerID == user.ID || permissions.Contains
 }
 ```
 
-**Exception:** When the last condition involves expensive processing, keep it inline to benefit from short-circuit evaluation:
+**Exception:** if last condition is expensive, keep it inline for short-circuit evaluation:
 
 ```go
 // Good — avoid expensive operation when possible
@@ -36,9 +36,9 @@ if isAdmin || isOwner || canOverride {
 
 ## Value vs Pointer Arguments
 
-This covers **function parameters**, not method receivers (see `samber/cc-skills-golang@golang-structs-interfaces` skill for receiver rules).
+Covers **function parameters**, not method receivers (receiver rules: `samber/cc-skills-golang@golang-structs-interfaces` skill).
 
-Pass small, fixed-size types by value — strings are already a (pointer, length) pair internally:
+Pass small, fixed-size types by value — strings are already (pointer, length) pairs internally:
 
 ```go
 // Good — value types by value
@@ -56,20 +56,18 @@ func Greet(name *string) string
 
 **When to use pointers**:
 
-- The function **mutates** the value
-- The struct is **large** (~128+ bytes) — avoids copying overhead
+- Function **mutates** value
+- Struct is **large** (~128+ bytes) — avoids copying
 - **Nil is meaningful** (optional/nullable parameter)
 
 **When NOT to use pointers**:
 
 - `string`, `int`, `bool`, `float64`, `time.Time` — pass by value
 - Read-only access to small structs — pass by value (better cache locality)
-- "Just to save memory" — value copy is negligible; stack allocation is fast
+- "Just to save memory" — value copy negligible; stack allocation fast
 
-**Memory access trade-offs when strong performance is required**:
+**Memory access trade-offs when performance is critical**:
 
-- **Values (no pointer)**: Stack allocation, excellent CPU cache locality for small types, zero indirection cost. Slower only when copying large structs.
-- **Pointers**: One extra dereference (negligible on modern CPUs), but risk cache misses if pointed-to data isn't in cache. Essential for large structs (>~128 bytes) where copy cost dominates.
-- **Rule of thumb**: For structs <~128 bytes with read-only access, values are typically faster due to cache locality. For mutation or large structs, pointers win. When in doubt, benchmark.
-
--> See the `samber/cc-skills-golang@golang-structs-interfaces` skill for pointer vs value **receiver** rules.
+- **Values (no pointer)**: stack allocation, excellent CPU cache locality for small types, zero indirection. Slower only when copying large structs.
+- **Pointers**: one extra dereference (negligible on modern CPUs), but risk cache misses if pointed-to data isn't cached. Essential for large structs (>~128 bytes) where copy cost dominates.
+- **Rule of thumb**: read-only structs <~128 bytes: values usually faster (cache locality). Mutation or large structs: pointers win. In doubt, benchmark.

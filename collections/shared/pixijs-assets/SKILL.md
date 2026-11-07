@@ -4,7 +4,7 @@ description: "Use this skill when loading and managing resources in PixiJS v8. C
 license: MIT
 ---
 
-The `Assets` API is PixiJS's asset loader, resolver, and cache in one singleton. Use it to load textures, video, spritesheets, fonts, JSON, and other resources with format detection, resolution switching, bundle grouping, progress tracking, and GPU cleanup.
+`Assets` is PixiJS's asset loader, resolver and cache in one singleton: format detection, resolution switching, bundles, progress tracking, GPU cleanup.
 
 ## Quick Start
 
@@ -25,7 +25,7 @@ await Assets.load({
 const logo = new Sprite(Assets.get("logo"));
 ```
 
-`Assets.init()` is optional but recommended for setting `basePath`, `texturePreference`, or a manifest. After init, call `Assets.load()` with a URL, alias, array, or `UnresolvedAsset`; resolved assets are cached and re-resolved by `Assets.get()`.
+`Assets.init()` optional; recommended to set `basePath`, `texturePreference` or a manifest. After init, call `Assets.load()` with URL, alias, array or `UnresolvedAsset`. Resolved assets are cached and re-resolved by `Assets.get()`.
 
 ## Supported file types
 
@@ -42,11 +42,9 @@ const logo = new Sprite(Assets.get("logo"));
 | Compressed textures | `.basis`, `.dds`, `.ktx`, `.ktx2`                                | `basis`, `dds`, `ktx`, `ktx2` | See `references/compressed-textures.md`                                                                                         |
 | Animated GIFs       | `.gif`                                                           | `gif`                         | Requires `'pixi.js/gif'`; returns `GifSource` (see `references/gif.md`)                                                         |
 
-The **Parser ID** column is the value you pass to the top-level `parser` field on an asset descriptor to force a specific loader. See "Forcing a parser" below.
-
 ## Forcing a parser with `parser`
 
-By default, PixiJS picks a loader by matching the file extension or MIME type. When your URL lacks an extension (CDN signed URLs, blob URLs, API endpoints, content-hashed paths), the resolver can't tell the loader what to do. Set the top-level `parser` field on the asset descriptor to force a specific loader:
+PixiJS picks loader by file extension or MIME type. URL without extension gives resolver nothing to match. Set top-level `parser` on asset descriptor to force a loader:
 
 ```ts
 // Signed CDN URL with no extension
@@ -77,27 +75,20 @@ const clipTexture = await Assets.load({
 });
 ```
 
-The `parser` field goes at the top level of the asset descriptor (alongside `src` and `data`), not inside `data`. It takes any parser ID from the "Supported file types" table above:
-
-- `'texture'`, `'svg'`, `'video'`: image, SVG, and video textures
-- `'json'`, `'text'`: JSON and plain text
-- `'web-font'`, `'bitmap-font'`: web and bitmap fonts
-- `'spritesheet'`: texture atlas JSON
-- `'gif'`: animated GIFs (requires `'pixi.js/gif'`)
-- `'basis'`, `'dds'`, `'ktx'`, `'ktx2'`: compressed textures (each requires its side-effect import)
+`parser` goes at top level of asset descriptor (alongside `src` and `data`), not inside `data`. Takes any parser ID from "Supported file types" table above; compressed-texture IDs (`'basis'`, `'dds'`, `'ktx'`, `'ktx2'`) each require their side-effect import.
 
 ### When you need it
 
-- **Signed CDN URLs**: `https://cdn.example.com/get?id=abc123` has no extension the loader can test against.
+- **Signed CDN URLs**: `https://cdn.example.com/get?id=abc123` has no extension for loader to test.
 - **Blob or ObjectURL**: `URL.createObjectURL(blob)` produces `blob:...` URLs with no extension.
-- **Custom routing**: `/api/assets/hero-v2` where the server decides the content type.
-- **Content-hashed paths without suffix**: some build pipelines produce names like `/static/abc123def` instead of `/static/abc123def.png`.
+- **Custom routing**: `/api/assets/hero-v2`, server decides content type.
+- **Content-hashed paths without suffix**: some build pipelines produce `/static/abc123def` instead of `/static/abc123def.png`.
 
-If the URL _does_ have an extension, you don't need `parser`; let auto-detection do its job. Only set `parser` when detection can't work.
+If URL _does_ have an extension, `parser` not needed. Set `parser` only when detection can't work.
 
 ### `loadParser` is deprecated
 
-The v7 `loadParser` field still works but emits a deprecation warning. Use `parser` for new code.
+v7 `loadParser` field still works but emits deprecation warning. Use `parser` in new code.
 
 ```ts
 // Old (deprecated)
@@ -108,8 +99,6 @@ await Assets.load({ src: "...", parser: "texture" });
 ```
 
 ## Topics
-
-Every asset workflow is covered in a reference file. Pick the one that matches the question:
 
 | Topic                          | Reference                                                              | When                                        |
 | ------------------------------ | ---------------------------------------------------------------------- | ------------------------------------------- |
@@ -128,21 +117,21 @@ Every asset workflow is covered in a reference file. Pick the one that matches t
 
 ## Decision guide
 
-- **Need to load a single image?** Use `Assets.load(url)`. No setup required.
-- **Loading many assets grouped by level/scene?** Use a bundle. See `references/bundles.md`.
-- **Know all assets at build time?** Use a manifest in `Assets.init`. See `references/manifests.md`.
-- **Need a loading bar?** Pass a progress callback to `Assets.load`. See `references/progress.md`.
-- **Smooth transitions between levels?** Background-load the next level. See `references/background.md`.
+- **Single image?** Use `Assets.load(url)`. No setup needed.
+- **Many assets grouped by level/scene?** Use a bundle. See `references/bundles.md`.
+- **All assets known at build time?** Use a manifest in `Assets.init`. See `references/manifests.md`.
+- **Need a loading bar?** Pass progress callback to `Assets.load`. See `references/progress.md`.
+- **Smooth transitions between levels?** Background-load next level. See `references/background.md`.
 - **Memory budget matters?** Use compressed textures and `Assets.unload` between screens. See `references/compressed-textures.md` and `references/caching.md`.
-- **Need crisp SVG icons at any size?** Load as Graphics, not texture. See `references/svg.md`.
+- **Crisp SVG icons at any size?** Load as Graphics, not texture. See `references/svg.md`.
 - **Retina + WebP/AVIF?** Configure `texturePreference` and use format patterns. See `references/resolution.md`.
 
 ## Load options and error handling
 
-There are two separate "options" concepts when loading assets:
+Two separate "options" concepts:
 
-1. **`LoadOptions`**: the second argument to `Assets.load`/`loadBundle`. Controls error recovery, retries, progress, and completion callbacks across a whole load.
-2. **`data`**: a field on each asset descriptor. Forwards parser-specific options (scale mode, resolution, font family, autoplay flags, etc.) to the specific loader for that asset.
+1. **`LoadOptions`**: second argument to `Assets.load`/`loadBundle`. Controls error recovery, retries, progress and completion callbacks for whole load.
+2. **`data`**: field on each asset descriptor. Forwards parser-specific options (scale mode, resolution, font family, autoplay flags, etc.) to that asset's loader.
 
 ### LoadOptions (per call)
 
@@ -160,28 +149,26 @@ await Assets.load(["hero.png", "enemy.png"], {
 ```
 
 - `onProgress(progress)`: `[0, 1]` as assets in the call complete.
-- `onError(error, url)`: `url` is `string | ResolvedAsset`. Guard before reading `.src`; when `url` is a string, `.src` is undefined.
-- `strategy: 'throw' | 'skip' | 'retry'` — default `'throw'`. `'skip'` resolves with any successful assets; `'retry'` reattempts the failed ones.
-- `retryCount` — default `3`, retries per asset when `strategy` is `'retry'`.
-- `retryDelay` — default `250` ms between retries.
+- `onError(error, url)`: `url` is `string | ResolvedAsset`. Guard before reading `.src`: when `url` is a string, `.src` is undefined.
+- `strategy: 'throw' | 'skip' | 'retry'`: default `'throw'`. `'skip'` resolves with successful assets; `'retry'` reattempts failed ones.
+- `retryCount`: default `3`, retries per asset when `strategy` is `'retry'`.
+- `retryDelay`: default `250` ms between retries.
 
-Global defaults live on `Loader.defaultOptions`, or pass `loadOptions` to `Assets.init()`.
+Global defaults: `Loader.defaultOptions`, or `loadOptions` in `Assets.init()`.
 
 ### `data` options (per asset)
 
-Each loader parser reads its own options from the `data` field on the asset descriptor. Use the table below to pick the right options for each asset type:
-
-| Asset type         | `data` shape                                                                    | Key options                                                                                                                                                                                                                                                | Reference                           |
-| ------------------ | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
-| Texture (image)    | `TextureSourceOptions`                                                          | `resolution`, `scaleMode`, `alphaMode`, `autoGenerateMipmaps`, `antialias`, `addressMode`                                                                                                                                                                  | `references/resolution.md`          |
-| SVG                | `{ parseAsGraphicsContext?, resolution? }`                                      | `parseAsGraphicsContext` for Graphics mode; `resolution` for sharper raster                                                                                                                                                                                | `references/svg.md`                 |
-| Video              | `VideoSourceOptions`                                                            | `autoPlay`, `loop`, `muted`, `playsinline`, `preload`, `updateFPS`, `crossorigin`, `mime`                                                                                                                                                                  | `references/video.md`               |
-| Web font           | `LoadFontData`                                                                  | `family`, `weights`, `style`, `display`, `unicodeRange`, `featureSettings`                                                                                                                                                                                 | `references/fonts.md`               |
-| Bitmap font        | (none; auto-configured)                                                         | Distance-field detection sets scale mode and mipmaps                                                                                                                                                                                                       | `references/fonts.md`               |
-| Spritesheet        | `{ texture?, imageFilename?, ignoreMultiPack?, textureOptions?, cachePrefix? }` | `textureOptions` forwards `TextureSourceOptions` (e.g. `scaleMode`) to the atlas image; `texture` to skip image load; `imageFilename` to override the referenced image; `ignoreMultiPack` to skip multi-pack follow-ups; `cachePrefix` to namespace frames | `references/spritesheet.md`         |
-| GIF                | `GifBufferOptions`                                                              | `fps`, `scaleMode`, `resolution`, `autoGenerateMipmaps`                                                                                                                                                                                                    | `references/gif.md`                 |
-| Compressed texture | `TextureSourceOptions`                                                          | `scaleMode`, `addressMode`, `autoGenerateMipmaps`                                                                                                                                                                                                          | `references/compressed-textures.md` |
-| JSON / Text        | (none)                                                                          | Returned as-is                                                                                                                                                                                                                                             | —                                   |
+| Asset type         | `data` shape                                                                    | Key options                                                                                                                                                                                                                                | Reference                           |
+| ------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------- |
+| Texture (image)    | `TextureSourceOptions`                                                          | `resolution`, `scaleMode`, `alphaMode`, `autoGenerateMipmaps`, `antialias`, `addressMode`                                                                                                                                                  | `references/resolution.md`          |
+| SVG                | `{ parseAsGraphicsContext?, resolution? }`                                      | `parseAsGraphicsContext` for Graphics mode; `resolution` for sharper raster                                                                                                                                                                | `references/svg.md`                 |
+| Video              | `VideoSourceOptions`                                                            | `autoPlay`, `loop`, `muted`, `playsinline`, `preload`, `updateFPS`, `crossorigin`, `mime`                                                                                                                                                  | `references/video.md`               |
+| Web font           | `LoadFontData`                                                                  | `family`, `weights`, `style`, `display`, `unicodeRange`, `featureSettings`                                                                                                                                                                 | `references/fonts.md`               |
+| Bitmap font        | (none; auto-configured)                                                         | Distance-field detection sets scale mode and mipmaps                                                                                                                                                                                       | `references/fonts.md`               |
+| Spritesheet        | `{ texture?, imageFilename?, ignoreMultiPack?, textureOptions?, cachePrefix? }` | `textureOptions` forwards `TextureSourceOptions` (e.g. `scaleMode`) to atlas image; `texture` skips image load; `imageFilename` overrides referenced image; `ignoreMultiPack` skips multi-pack follow-ups; `cachePrefix` namespaces frames | `references/spritesheet.md`         |
+| GIF                | `GifBufferOptions`                                                              | `fps`, `scaleMode`, `resolution`, `autoGenerateMipmaps`                                                                                                                                                                                    | `references/gif.md`                 |
+| Compressed texture | `TextureSourceOptions`                                                          | `scaleMode`, `addressMode`, `autoGenerateMipmaps`                                                                                                                                                                                          | `references/compressed-textures.md` |
+| JSON / Text        | (none)                                                                          | Returned as-is                                                                                                                                                                                                                             | —                                   |
 
 Example combining `LoadOptions` and `data`:
 
@@ -196,7 +183,7 @@ await Assets.load(
 );
 ```
 
-Inside a manifest or bundle, every entry can carry its own `data`:
+In a manifest or bundle, each entry can carry its own `data`:
 
 ```ts
 await Assets.init({
@@ -223,13 +210,13 @@ await Assets.init({
 
 `Assets.init(options)` accepts, alongside `basePath` and `manifest`:
 
-- `defaultSearchParams` — string or `Record<string, any>` appended to every resolved URL. Useful for cache busting.
-- `skipDetections: boolean` — bypass browser format detection for faster init. Requires explicit `texturePreference.format`.
-- `bundleIdentifier: BundleIdentifierOptions` — customize how bundle keys resolve so the same alias can live in multiple bundles.
-- `loadOptions: Partial<LoadOptions>` — set the default `strategy`, `retryCount`, `retryDelay`, and callbacks for every subsequent `Assets.load` call.
-- `preferences: Partial<AssetsPreferences>` — `crossOrigin`, `preferWorkers`, `preferCreateImageBitmap`, `parseAsGraphicsContext`.
+- `defaultSearchParams`: string or `Record<string, any>` appended to every resolved URL. Use for cache busting.
+- `skipDetections: boolean`: bypass browser format detection for faster init. Requires explicit `texturePreference.format`.
+- `bundleIdentifier: BundleIdentifierOptions`: customize bundle key resolution so same alias can live in multiple bundles.
+- `loadOptions: Partial<LoadOptions>`: default `strategy`, `retryCount`, `retryDelay` and callbacks for every later `Assets.load` call.
+- `preferences: Partial<AssetsPreferences>`: `crossOrigin`, `preferWorkers`, `preferCreateImageBitmap`, `parseAsGraphicsContext`.
 
-After init, preferences can still be tuned:
+Preferences stay tunable after init:
 
 ```ts
 Assets.setPreferences({
@@ -244,9 +231,9 @@ for (const detection of Assets.detections) {
 Assets.reset();
 ```
 
-- `Assets.setPreferences(preferences)` — push new preferences to every parser that supports them.
-- `Assets.detections` — getter exposing the registered `FormatDetectionParser` list; use when inspecting what formats the current environment advertises.
-- `Assets.reset()` — internal full reset (resolver + loader + cache). Intended for tests so a fresh `Assets.init` can run.
+- `Assets.setPreferences(preferences)`: pushes new preferences to every parser that supports them.
+- `Assets.detections`: getter for registered `FormatDetectionParser` list. Use to inspect which formats current environment advertises.
+- `Assets.reset()`: internal full reset of resolver, loader and cache. For tests, so a fresh `Assets.init` can run.
 
 ## Common Mistakes
 
@@ -264,8 +251,7 @@ Correct:
 const texture = await Assets.load("https://example.com/image.png");
 ```
 
-In v8, `Texture.from()` only reads the cache. It does not fetch from a URL. Use `Assets.load()` first; the return value is the texture itself.
-
+In v8, `Texture.from()` only reads cache. It does not fetch from a URL. Use `Assets.load()` first; it returns the texture itself.
 
 ### [HIGH] Using positional `Assets.add` signature
 
@@ -281,13 +267,11 @@ Correct:
 Assets.add({ alias: "bunny", src: "bunny.png" });
 ```
 
-The positional `Assets.add(key, url)` form was removed in v8. Use the options object with `alias` and `src` properties.
-
+Positional `Assets.add(key, url)` form was removed in v8. Use options object with `alias` and `src`.
 
 ### [HIGH] Not unloading textures between levels
 
-`Assets.load()` caches textures indefinitely. For level-based games or screens with distinct asset sets, call `Assets.unloadBundle()` when transitioning to release GPU memory.
-
+`Assets.load()` caches textures indefinitely. For level-based games or screens with distinct asset sets, call `Assets.unloadBundle()` on transition to release GPU memory.
 
 ## API Reference
 

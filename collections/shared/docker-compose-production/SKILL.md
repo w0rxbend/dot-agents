@@ -2,12 +2,12 @@
 name: docker-compose-production
 user-invocable: false
 description: Run Docker Compose in production on a single host - pinned images, secrets, non-root read-only containers, resource limits, healthchecks, restart policies, log rotation, backups, monitoring and safe updates, with Swarm-only keys called out. Use when a compose.yaml is going to a server; see docker-compose-basics for core syntax and docker-compose-networking for network design.
-allowed-tools: [Bash, Read]
+allowed-tools: [Read, Bash(docker compose config --quiet:*), Bash(docker compose ps:*)]
 ---
 
 # Docker Compose Production Deployment
 
-Plain `docker compose` manages one host. It restarts crashed containers and orders startup, but it has no scheduler, no multi-host failover and no rolling updates. When you need those, move to Swarm (`docker stack deploy`) or Kubernetes (see `operating-kubernetes`). Omit the obsolete top-level `version:` key.
+Plain `docker compose` manages one host. Restarts crashed containers and orders startup. No scheduler, no multi-host failover, no rolling updates. For those, move to Swarm (`docker stack deploy`) or Kubernetes (see `operating-kubernetes`). Omit obsolete top-level `version:` key.
 
 ## Production baseline
 
@@ -102,10 +102,10 @@ secrets:
 
 Notes:
 
-- `container_name` is incompatible with `replicas`/`--scale`; leave it out of any service that may scale. Compose names containers `<project>-<service>-<n>`.
-- Never use `:latest`. Pin tags via variables in a committed `.env` (or digests), so a deploy is reproducible and roll-back is "set the previous version and `up` again".
-- Required variables use `${VAR:?message}` so a missing value fails `docker compose config` instead of starting a broken stack.
-- Capability lists depend on the image: entrypoints that `chown` or drop privileges need `CHOWN`/`SETUID`/`SETGID`. Start from `cap_drop: [ALL]`, run, and add only what fails.
+- `container_name` incompatible with `replicas`/`--scale`; omit it on any service that may scale. Compose names containers `<project>-<service>-<n>`.
+- Never use `:latest`. Pin tags via variables in committed `.env` (or digests). Deploys stay reproducible.
+- Required variables use `${VAR:?message}`: missing value fails `docker compose config` instead of starting broken stack.
+- Capability lists depend on image: entrypoints that `chown` or drop privileges need `CHOWN`/`SETUID`/`SETGID`. Start from `cap_drop: [ALL]`, run, add only what fails.
 
 ## Which `deploy` keys apply
 
@@ -124,16 +124,18 @@ Do not rely on Swarm-only keys for zero-downtime updates under plain Compose.
 
 | Control | Setting |
 |---|---|
-| Non-root | `user: "<uid>:<gid>"` or a `USER` in the image |
+| Non-root | `user: "<uid>:<gid>"` or `USER` in image |
 | Immutable root FS | `read_only: true` plus `tmpfs:` for writable paths |
 | No privilege escalation | `security_opt: ["no-new-privileges:true"]` |
 | Minimal capabilities | `cap_drop: [ALL]`, add back individually |
 | Process limit | `deploy.resources.limits.pids` |
-| No Docker socket | never mount `/var/run/docker.sock` into app containers (equivalent to root on the host) |
-| Exposure | publish only the proxy; databases on an `internal` network; admin UIs on `127.0.0.1` |
-| Secrets | `secrets:` files, apps read `*_FILE`; nothing secret in `environment:` or the image |
+| No Docker socket | never mount `/var/run/docker.sock` into app containers (equals root on host) |
+| Exposure | publish only proxy; databases on `internal` network; admin UIs on `127.0.0.1` |
+| Secrets | `secrets:` files, apps read `*_FILE`; nothing secret in `environment:` or image |
 
 ## Deploy and update
+
+On live host, show planned `pull`/`up`/`scale`/`stop`/`down` commands and get user confirmation before running. `up -d` recreates changed containers; `down -v` deletes volumes.
 
 ```bash
 docker compose config --quiet                  # validates and fails on missing required vars
@@ -142,35 +144,35 @@ docker compose up -d --wait --wait-timeout 120 # recreate changed services; exit
 docker compose ps
 ```
 
-`up -d` recreates a changed service, so a single-replica service has a short outage. To narrow it: run two or more replicas behind the proxy and roll them by hand (`docker compose up -d --no-deps --scale api=4 api`, verify, then scale back), or adopt a tool or orchestrator built for rolling updates. Roll back by setting the previous version variable and running `up -d --wait` again.
+`up -d` recreates changed services, so single-replica service has short outage. To narrow it: run two or more replicas behind proxy, roll them by hand (`docker compose up -d --no-deps --scale api=4 api`, verify, scale back). Or adopt tool or orchestrator built for rolling updates. Roll back: set previous version variable, run `up -d --wait` again.
 
-Run Compose under a systemd unit or the Docker daemon's restart policies so the stack returns after a reboot (`restart: unless-stopped` covers containers once the daemon starts).
+Run Compose under systemd unit or Docker daemon restart policies so stack returns after reboot. `restart: unless-stopped` covers containers once daemon starts.
 
 ## Logging
 
-- Set rotation on every service (`json-file` with `max-size`/`max-file`, or the `local` driver). Unrotated logs fill the disk.
-- Prefer writing structured JSON to stdout and shipping from the host. For Loki, use Grafana Alloy; if an existing setup still runs Promtail, plan a migration because Grafana has deprecated it in favor of Alloy. Example stack: [references/monitoring-stack.md](references/monitoring-stack.md).
+- Set rotation on every service (`json-file` with `max-size`/`max-file`, or `local` driver). Unrotated logs fill disk.
+- Prefer structured JSON to stdout, shipped from host. For Loki, use Grafana Alloy. If existing setup still runs Promtail, plan migration: Grafana deprecated it in favor of Alloy.
 
 ## Backups
 
-- Logical dumps: run `pg_dump`/`pg_dumpall` from a scheduled job (host cron/systemd timer running `docker compose exec -T db pg_dump ...`, or a pinned backup image) to storage off the host.
-- Volume snapshots need the service stopped or a filesystem/LVM snapshot to be consistent.
-- A backup is only valid once restored: schedule a restore test into a scratch container and record it.
+- Logical dumps: run `pg_dump`/`pg_dumpall` from scheduled job (host cron/systemd timer running `docker compose exec -T db pg_dump ...`, or pinned backup image) to off-host storage.
+- Consistent volume snapshots need service stopped or filesystem/LVM snapshot.
+- Backup only valid once restored: schedule restore test into scratch container, record it.
 
 ## Monitoring
 
-Expose app metrics, scrape with Prometheus, add node-exporter and cAdvisor for host and container metrics, and alert on healthcheck failures, restarts, disk and memory. A pinned example stack with Alloy-based log shipping is in [references/monitoring-stack.md](references/monitoring-stack.md).
+Expose app metrics, scrape with Prometheus. Add node-exporter and cAdvisor for host and container metrics. Alert on healthcheck failures, restarts, disk and memory. Pinned example stack with Alloy-based log shipping: [references/monitoring-stack.md](references/monitoring-stack.md).
 
 ## Done when
 
 - `docker compose config --quiet` passes with no `version:` key, no `:latest`, no `container_name` on scaled services.
-- `docker compose up -d --wait` exits 0; every service has a healthcheck, restart policy, log rotation and memory limit.
-- Only the proxy publishes public ports; secrets come from `secrets:`; containers run non-root with `no-new-privileges`.
-- A backup has been restored successfully at least once, and reboot recovery has been tested.
+- `docker compose up -d --wait` exits 0; every service has healthcheck, restart policy, log rotation and memory limit.
+- Only proxy publishes public ports; secrets come from `secrets:`; containers run non-root with `no-new-privileges`.
+- Backup restored successfully at least once; reboot recovery tested.
 
 ## Related skills
 
 - `docker-compose-basics` - core file structure, env precedence, profiles, watch.
 - `docker-compose-networking` - segmentation and exposure.
-- `dockerfile-optimise` - building the images (non-root user, small runtime).
+- `dockerfile-optimise` - building images (non-root user, small runtime).
 - `implementing-observability` - full metrics/logs/traces backends.

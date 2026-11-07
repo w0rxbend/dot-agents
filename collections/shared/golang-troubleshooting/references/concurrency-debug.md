@@ -8,20 +8,20 @@
 
 ## Goroutine Leaks
 
-**Symptoms:** Memory slowly increasing, goroutine count growing, no obvious CPU spike.
+**Symptoms:** Memory slowly rising, goroutine count growing, no obvious CPU spike.
 
 **Diagnosis:**
 
-Use pprof goroutine profile (see [pprof.md](./pprof.md)) with `?debug=2` for human-readable output, then look for goroutines stuck in `chan receive`.
+Use pprof goroutine profile (see [pprof.md](./pprof.md)) with `?debug=2` for human-readable output. Look for goroutines stuck in `chan receive`.
 
-The goroutine leak profile (experimental behind `GOEXPERIMENT=goroutineleakprofile` in Go 1.26) is generally available since Go 1.27 — no build flag needed, and it is served at `/debug/pprof/goroutineleak` like any other standard profile.
+Goroutine leak profile: experimental in Go 1.26 (behind `GOEXPERIMENT=goroutineleakprofile`), generally available since Go 1.27 (no build flag needed). Served at `/debug/pprof/goroutineleak` like any other standard profile.
 
 ```bash
 curl http://localhost:6060/debug/pprof/goroutineleak?debug=2
 go tool pprof http://localhost:6060/debug/pprof/goroutineleak
 ```
 
-Keep existing tools: `go.uber.org/goleak` in tests, `runtime.NumGoroutine()` for coarse monitoring, `/debug/pprof/goroutine?debug=2` for stack dumps, and `go test -race ./...` for race checks.
+Keep existing tools: `go.uber.org/goleak` in tests, `runtime.NumGoroutine()` for coarse monitoring, `/debug/pprof/goroutine?debug=2` for stack dumps, `go test -race ./...` for race checks.
 
 ```go
 // Programmatic monitoring — log goroutine count to detect leaks
@@ -86,7 +86,7 @@ for {
 
 **Symptoms:** Intermittent failures, "sometimes works sometimes doesn't", different results on different machines.
 
-**Diagnosis:** Race conditions MUST be tested with the `-race` flag:
+**Diagnosis:** Race conditions MUST be tested with `-race` flag:
 
 ```bash
 go test -race ./...
@@ -118,4 +118,4 @@ runtime.Stack(buf, true)
 
 1. **Circular wait** — A waits for B, B waits for A
 2. **Forgotten channel send** — sender goroutine exited
-3. **Wrong lock order** — always acquire locks in the same order
+3. **Wrong lock order** — always acquire locks in same order

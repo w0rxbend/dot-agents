@@ -1,7 +1,8 @@
 # LGTM Stack Docker Compose
 # Local development observability stack with unified telemetry collection.
-# Not production-ready as is: change the Grafana admin credentials, review
-# retention/storage, and bump the pinned image versions before shared use.
+# Not production-ready as is: review retention/storage and bump the pinned
+# image versions before shared use. Ports bind 127.0.0.1 only and usage
+# reporting to Grafana Labs is off; keep both.
 #
 # Components:
 # - Grafana Alloy: OpenTelemetry collector (receives OTLP, forwards to backends)
@@ -11,8 +12,9 @@
 # - Grafana: Unified visualization and dashboard UI
 #
 # Quick Start:
+#   Set GRAFANA_ADMIN_PASSWORD in a gitignored .env next to this file, then:
 #   docker-compose up -d
-#   Access Grafana: http://localhost:3000 (admin/admin)
+#   Access Grafana: http://localhost:3000 (admin / $GRAFANA_ADMIN_PASSWORD)
 #   Send telemetry to: localhost:4317 (OTLP gRPC) or localhost:4318 (OTLP HTTP)
 
 version: '3.8'
@@ -45,9 +47,10 @@ services:
     restart: unless-stopped
 
     ports:
-      - "4317:4317"  # OTLP gRPC (recommended for production)
-      - "4318:4318"  # OTLP HTTP (easier for debugging)
-      - "12345:12345"  # Alloy UI for debugging config
+      # 127.0.0.1 only; remote senders need TLS + auth in front
+      - "127.0.0.1:4317:4317"  # OTLP gRPC (recommended for production)
+      - "127.0.0.1:4318:4318"  # OTLP HTTP (easier for debugging)
+      - "127.0.0.1:12345:12345"  # Alloy UI for debugging config
 
     volumes:
       - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
@@ -56,6 +59,7 @@ services:
       - run
       - --server.http.listen-addr=0.0.0.0:12345
       - --storage.path=/var/lib/alloy/data
+      - --disable-reporting
       - /etc/alloy/config.alloy
 
     networks:
@@ -87,13 +91,13 @@ services:
     restart: unless-stopped
 
     ports:
-      - "3100:3100"  # HTTP API for queries and ingestion
+      - "127.0.0.1:3100:3100"  # HTTP API for queries and ingestion
 
     volumes:
       - ./loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
       - loki-data:/loki  # Persistent storage for log chunks and index
 
-    command: -config.file=/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml -reporting.enabled=false
 
     networks:
       - lgtm
@@ -124,17 +128,18 @@ services:
     restart: unless-stopped
 
     ports:
-      - "3200:3200"   # HTTP API for queries
+      - "127.0.0.1:3200:3200"   # HTTP API for queries
+      - "127.0.0.1:9411:9411"   # Zipkin compatible endpoint
+      - "127.0.0.1:14268:14268" # Jaeger ingest endpoint
+    expose:
       - "4317"        # OTLP gRPC (internal, routed through Alloy)
       - "4318"        # OTLP HTTP (internal, routed through Alloy)
-      - "9411:9411"   # Zipkin compatible endpoint
-      - "14268:14268" # Jaeger ingest endpoint
 
     volumes:
       - ./tempo/tempo-config.yaml:/etc/tempo.yaml:ro
       - tempo-data:/var/tempo  # Persistent storage for trace data
 
-    command: -config.file=/etc/tempo.yaml
+    command: -config.file=/etc/tempo.yaml -reporting.enabled=false
 
     networks:
       - lgtm
@@ -165,7 +170,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - "9009:9009"  # HTTP API for queries and ingestion
+      - "127.0.0.1:9009:9009"  # HTTP API for queries and ingestion
 
     volumes:
       - ./mimir/mimir-config.yaml:/etc/mimir.yaml:ro
@@ -174,6 +179,7 @@ services:
     command:
       - -config.file=/etc/mimir.yaml
       - -target=all
+      - -usage-stats.enabled=false
 
     networks:
       - lgtm
@@ -204,12 +210,12 @@ services:
     restart: unless-stopped
 
     ports:
-      - "3000:3000"  # Web UI
+      - "127.0.0.1:3000:3000"  # Web UI
 
     environment:
       # Authentication settings
       - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD in .env}
       - GF_AUTH_ANONYMOUS_ENABLED=false
 
       # Enable explore view for ad-hoc queries
@@ -224,6 +230,7 @@ services:
       # Performance settings
       - GF_LOG_LEVEL=info
       - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false
 
     volumes:
       # Auto-provision datasources (Loki, Tempo, Mimir)
@@ -265,7 +272,7 @@ services:
   #   restart: unless-stopped
   #
   #   ports:
-  #     - "9090:9090"
+  #     - "127.0.0.1:9090:9090"
   #
   #   volumes:
   #     - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
@@ -301,7 +308,7 @@ services:
 # 3. Access Grafana:
 #    URL: http://localhost:3000
 #    Username: admin
-#    Password: admin
+#    Password: $GRAFANA_ADMIN_PASSWORD (from .env)
 #
 # 4. Configure your application to send telemetry:
 #    OTLP gRPC endpoint: localhost:4317 (production recommended)
@@ -339,7 +346,7 @@ services:
 #    - Default: Loki (31d), Tempo (7d), Mimir (15d)
 #
 # 3. Security:
-#    - Change default Grafana password: GF_SECURITY_ADMIN_PASSWORD
+#    - Strong GRAFANA_ADMIN_PASSWORD in .env; keep .env out of git
 #    - Enable TLS for OTLP endpoints in production
 #    - Use authentication for datasource endpoints
 #

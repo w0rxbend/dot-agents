@@ -20,7 +20,7 @@ app = FastAPI(title="LLM Streaming SSE Server")
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure for production
+    allow_origins=["http://localhost:8000"],  # list your frontend origins; "*" makes this an open LLM proxy for any site
     allow_credentials=False,  # browsers reject credentials with a wildcard origin
     allow_methods=["*"],
     allow_headers=["*"],

@@ -7,7 +7,7 @@ tags: svc, connection-string, url, config
 
 ## Reference All Backing Services via Connection URLs in Config
 
-Every backing service should be referenced by a URL or connection string stored in an environment variable. This standardized approach makes services truly interchangeable and keeps the app portable across deployment environments.
+Reference every backing service by URL or connection string in an environment variable. Standard format makes services interchangeable and app portable across deployment environments.
 
 **Incorrect (fragmented connection parameters):**
 
@@ -66,11 +66,5 @@ print(url.port)      # 5432
 print(url.path)      # /myapp
 print(url.username)  # admin
 ```
-
-**Benefits:**
-- Copy-paste a URL from any provider's dashboard
-- Managed database services provide connection URLs directly
-- One variable to change when swapping services
-- Standard format across all service types
 
 Reference: [The Twelve-Factor App - Backing Services](https://12factor.net/backing-services)

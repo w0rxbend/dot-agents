@@ -1,6 +1,8 @@
 # CI Benchmark Regression Detection
 
-> **Run these tools in CI only, not on local machines.** Local benchmark results are noisy due to background processes, thermal throttling, and inconsistent CPU frequency — regressions detected locally are unreliable and waste developer time. Even shared CI runners can produce significant variance (5-10%); use statistical methods like `benchstat` with multiple iterations and relative comparisons to filter noise, or invest in dedicated benchmark runners for critical paths.
+> **Run these tools in CI only, not on local machines.** Local results are noisy (background processes, thermal throttling, inconsistent CPU frequency), so local regressions are unreliable and waste developer time.
+
+Pin tool installs to reviewed versions (never `@latest`) and actions to a full commit SHA; give the token least privilege (`permissions:`).
 
 ## Table of Contents
 
@@ -24,10 +26,10 @@
 
 ## benchdiff
 
-Runs Go benchmarks on two git refs and uses `benchstat` to display deltas. Caches results for non-worktree refs so re-runs are fast. Prevents macOS sleep during benchmarks.
+Runs Go benchmarks on two git refs; `benchstat` shows deltas. Caches non-worktree refs, so re-runs only re-measure worktree. Prevents macOS sleep during benchmarks.
 
 ```bash
-go install filippo.io/mostly-harmless/benchdiff@latest
+go install filippo.io/mostly-harmless/benchdiff@v0.0.0-20261103164203-dfa6dee15068
 ```
 
 ```bash
@@ -56,14 +58,14 @@ benchdiff -clear-cache
 benchdiff -base-ref main -- -benchmem -count=10 -bench='BenchmarkParse|BenchmarkEncode'
 ```
 
-Best for: quick PR-to-base comparisons in git-based workflows. Leverages `benchstat` for statistical rigor and caches non-worktree refs so re-runs only re-measure the worktree.
+Best for: quick PR-to-base comparisons in git-based workflows.
 
 ## cob
 
-Compares benchmarks between HEAD and HEAD~1, failing the CI job if performance degrades beyond a configurable threshold (default 20%).
+Compares HEAD vs HEAD~1 benchmarks; fails CI job if performance degrades past configurable threshold (default 20%).
 
 ```bash
-go install github.com/knqyf263/cob@latest
+go install github.com/knqyf263/cob@v0.0.8
 ```
 
 ```bash
@@ -91,20 +93,20 @@ cob -bench-args "test -run '^$' -bench . -benchmem -benchtime=3s ./..."
 # Skip cob for a specific commit: include [skip cob] in commit message
 ```
 
-**Caution:** `cob` uses `git reset` internally, which can cause data loss if uncommitted changes exist — always commit your work before running.
+**Caution:** `cob` runs `git reset` internally; uncommitted changes can be lost. Always commit first.
 
 - For safety, run only in CI pipelines, not locally.
-- `cob` requires all benchmarks to pass; it skips CI gating if any benchmark fails.
-- `cob` compares single runs without `benchstat`-style statistics, making it more susceptible to noise than `benchdiff`.
+- `cob` needs all benchmarks to pass; skips CI gating if any fails.
+- `cob` compares single runs without `benchstat`-style statistics, so noisier than `benchdiff`.
 
-Best for: simple post-commit regression gating in CI where statistical rigor is less critical than fast feedback.
+Best for: simple post-commit CI regression gating where fast feedback beats statistical rigor.
 
 ## gobenchdata
 
-GitHub Action + CLI that collects benchmark results, publishes to gh-pages as JSON, and visualizes with an interactive web dashboard. Shows performance trends over time.
+GitHub Action + CLI: collects benchmark results, publishes JSON to gh-pages, shows performance trends in interactive web dashboard.
 
 ```bash
-go install go.bobheadxi.dev/gobenchdata@latest
+go install go.bobheadxi.dev/gobenchdata@v1.3.1
 ```
 
 ### CLI commands
@@ -144,6 +146,8 @@ on: [push]
 jobs:
   benchmark:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # needed to push to gh-pages; keep other jobs read-only
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -151,7 +155,7 @@ jobs:
           go-version: stable
       - name: Run benchmarks
         run: go test -bench=. -benchmem -count=5 ./... | tee bench.txt
-      - uses: bobheadxi/gobenchdata@v1
+      - uses: bobheadxi/gobenchdata@20682793c754a5377454d3e2b617e45a55ba0b6d # v1.3.1
         with:
           PRUNE_COUNT: 30
           GO_TEST_PKGS: ./...
@@ -222,37 +226,35 @@ Best for: long-term trend tracking and visualization; complements benchdiff/cob 
 
 ## Noisy Neighbor Mitigation
 
-Cloud CI environments share hardware with other jobs. Expect 5-10% variance even on quiet machines.
+Cloud CI shares hardware with other jobs. Expect 5-10% variance even on quiet machines.
 
 ### Why CI benchmarks are noisy
 
-- **Shared CPU/memory** — other CI jobs compete for resources
-- **Thermal throttling** — sustained load reduces clock speed
-- **Different hardware across runs** — CI runners may have different specs
+- **Shared CPU/memory** — other CI jobs compete
+- **Thermal throttling** — sustained load cuts clock speed
+- **Different hardware across runs** — runner specs may differ
 - **Kernel scheduling** — context switches add unpredictable latency
-- **Disk I/O contention** — shared storage affects I/O-bound benchmarks
+- **Disk I/O contention** — shared storage hits I/O-bound benchmarks
 
 ### Strategies
 
-**Statistical rigor** — run with `-count=10` or more and compare with `benchstat`. A single run is meaningless. benchstat's p-value test filters out noise-induced false positives.
+**Statistical rigor** — `-count=10` or more, compare with `benchstat`. Single run is meaningless. p-value test filters noise-induced false positives.
 
-**Relative comparison in same job** — run both base and head benchmarks in the same CI job on the same machine, rather than comparing against historical absolute values. This cancels out machine-to-machine variation. Tools like `benchdiff` do this automatically by checking out both git refs.
+**Relative comparison in same job** — run base and head in same CI job on same machine, not against historical absolute values. Cancels machine-to-machine variation. Tools like `benchdiff` do this automatically, checking out both git refs.
 
-**Dedicated benchmark runners** — for critical path benchmarks, use self-hosted CI runners with no other workloads. This eliminates noisy neighbors entirely but costs more infrastructure.
+**Dedicated benchmark runners** — for critical path benchmarks, self-hosted runners with no other workloads. No noisy neighbors; more infrastructure cost.
 
-**Conservative thresholds** — set regression thresholds higher on shared CI (20%+) than on dedicated runners (10%). Tight thresholds on noisy environments produce false positives that erode trust. GitHub-hosted runners show ~2-3% coefficient of variation in the best case; to guarantee <1% false positive rate, you need a 7%+ performance gate.
+**Conservative thresholds** — higher regression thresholds on shared CI (20%+) than dedicated runners (10%). Tight thresholds on noisy runners give false positives that erode trust. GitHub-hosted runners show ~2-3% coefficient of variation at best; <1% false positive rate needs 7%+ performance gate.
 
-**Never "retry until pass"** — rerunning benchmarks until they pass introduces selection bias. If a benchmark is flaky, fix the noise source (more iterations, dedicated runner, wider threshold) rather than retrying.
+**Never "retry until pass"** — retrying until pass is selection bias. If benchmark is flaky, fix noise source (more iterations, dedicated runner, wider threshold), don't retry.
 
 ## System Tuning for Self-Hosted Runners
 
 > **WARNING: These commands modify kernel and CPU settings. Apply them ONLY on dedicated CI runners, NEVER on developer machines or shared servers.**
 
-When you control the CI hardware, these settings dramatically reduce benchmark variance by eliminating the main sources of non-determinism.
-
 ### Disable CPU frequency scaling
 
-Variable CPU frequency makes benchmark times meaningless — the same code runs at different speeds depending on load and thermals:
+Variable CPU frequency makes times meaningless; same code runs at different speeds depending on load and thermals:
 
 ```bash
 # Set all CPUs to "performance" governor (fixed maximum frequency)
@@ -261,7 +263,7 @@ echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governo
 
 ### Disable Turbo Boost
 
-Turbo Boost temporarily increases clock speed but throttles under sustained load, creating variance between the start and end of a benchmark run:
+Turbo Boost raises clock speed briefly, then throttles under sustained load. Start and end of run differ:
 
 ```bash
 # Intel
@@ -273,7 +275,7 @@ echo 0 | sudo tee /sys/devices/system/cpu/cpufreq/boost
 
 ### Pin benchmarks to specific CPU cores
 
-Prevents the OS from migrating the benchmark process across cores, which causes cache thrashing (L1/L2 caches are per-core):
+Stops OS migrating benchmark process across cores, which thrashes caches (L1/L2 caches are per-core):
 
 ```bash
 # Pin to cores 2 and 3 (leave cores 0-1 for OS and other processes)
@@ -282,7 +284,7 @@ taskset -c 2,3 go test -bench=. -count=10 ./...
 
 ### Disable SMT (Hyper-Threading)
 
-SMT shares execution units between logical cores on the same physical core, causing unpredictable contention:
+SMT shares execution units between logical cores of one physical core, causing unpredictable contention:
 
 ```bash
 # Disable SMT system-wide

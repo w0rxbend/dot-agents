@@ -1,7 +1,5 @@
 # API Documentation Reference
 
-Comprehensive guide to API documentation with OpenAPI specifications and rendering tools.
-
 ## Table of Contents
 
 1. [OpenAPI Specification](#openapi-specification)
@@ -13,8 +11,6 @@ Comprehensive guide to API documentation with OpenAPI specifications and renderi
 7. [Integration with Documentation Sites](#integration-with-documentation-sites)
 
 ## OpenAPI Specification
-
-OpenAPI (formerly Swagger) is the standard for REST API documentation.
 
 ### Complete Example
 
@@ -375,7 +371,7 @@ security:
 
 ### Design-First Approach
 
-Write the OpenAPI specification first, then implement the API.
+Write OpenAPI spec first, then implement API.
 
 **Workflow:**
 
@@ -417,12 +413,12 @@ openapi-generator-cli generate \
 
 ### Code-First Approach
 
-Implement the API, then generate OpenAPI spec from code.
+Implement API, then generate OpenAPI spec from code.
 
 **Workflow:**
 
 1. Implement API endpoints with decorators/annotations
-2. Add documentation comments to code
+2. Add doc comments to code
 3. Generate OpenAPI spec from code
 4. Publish generated spec to documentation
 
@@ -477,13 +473,13 @@ async def get_product(product_id: str):
 **Pros:**
 - Faster initial development
 - Spec always matches implementation
-- Familiar workflow for developers
+- Familiar developer workflow
 - Less context switching
 
 **Cons:**
 - Documentation lags behind development
 - Harder to get early feedback on API design
-- Requires discipline to maintain comments
+- Needs discipline to maintain comments
 
 ### Recommendation
 
@@ -495,9 +491,11 @@ async def get_product(product_id: str):
 
 ## Swagger UI Setup
 
-Interactive API documentation with "Try it out" functionality.
+Interactive API documentation with "Try it out" feature.
 
 ### Standalone HTML
+
+Production: pin exact bundle version (not `@5` or `latest`) with SRI `integrity` + `crossorigin`, or self-host. Same for Redoc below.
 
 ```html
 <!DOCTYPE html>
@@ -550,7 +548,7 @@ function ApiDocs() {
 
 ## Redoc Setup
 
-Beautiful, read-only API documentation with three-column layout.
+Read-only API documentation, three-column layout.
 
 ### Standalone HTML
 
@@ -604,8 +602,6 @@ function ApiDocs() {
 
 ## Scalar Setup
 
-Modern API documentation with cutting-edge UX (2025).
-
 ### Installation
 
 ```bash
@@ -636,25 +632,11 @@ function ApiDocs() {
 
 ### 1. Use OpenAPI 3.1
 
-OpenAPI 3.1 is fully compatible with JSON Schema 2020-12.
+OpenAPI 3.1 fully compatible with JSON Schema 2020-12.
 
 ### 2. Organize with Tags
 
-Group related endpoints:
-
-```yaml
-tags:
-  - name: Users
-    description: User management operations
-  - name: Products
-    description: Product catalog operations
-
-paths:
-  /users:
-    get:
-      tags: [Users]
-      # ...
-```
+Group related endpoints: define top-level `tags`, reference them per operation with `tags: [Products]` (see Complete Example).
 
 ### 3. Reusable Components
 
@@ -683,23 +665,7 @@ components:
 
 ### 4. Rich Examples
 
-Provide concrete examples for clarity:
-
-```yaml
-schema:
-  $ref: '#/components/schemas/User'
-examples:
-  adminUser:
-    value:
-      id: "usr_123"
-      email: "admin@example.com"
-      role: "admin"
-  standardUser:
-    value:
-      id: "usr_456"
-      email: "user@example.com"
-      role: "user"
-```
+Give concrete named `examples` next to `schema` (see Complete Example).
 
 ### 5. Validation Rules
 
@@ -820,7 +786,8 @@ Embed in Markdown:
 Validate OpenAPI specs:
 
 ```bash
-# Using Redocly CLI
+# Using Redocly CLI (sends usage data unless opted out)
+export REDOCLY_TELEMETRY=off
 npm install -g @redocly/cli
 redocly lint openapi.yaml
 

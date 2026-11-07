@@ -11,7 +11,7 @@
 
 ## Core Concept
 
-The testing pyramid is a visual metaphor for organizing test types to optimize for both speed and confidence:
+Testing pyramid: visual metaphor for organizing test types to optimize both speed and confidence:
 
 ```
          /\
@@ -31,24 +31,23 @@ The testing pyramid is a visual metaphor for organizing test types to optimize f
 ### Why This Shape?
 
 **Foundation (Unit Tests - Wide Base)**:
-- Fast feedback (milliseconds per test)
 - Easy to debug (small scope)
 - Cheap to maintain (simple dependencies)
-- High confidence in individual components
+- High confidence per component
 
 **Middle (Integration Tests - Moderate)**:
-- Validate component interactions
 - Real database/API interactions
-- Moderate speed (seconds per test)
 - Confidence in integration points
 
 **Top (E2E Tests - Narrow Peak)**:
 - Expensive to run (minutes per suite)
 - Prone to flakiness (many moving parts)
 - Hard to debug (full stack involved)
-- High confidence in complete workflows
+- High confidence in full workflows
 
 ## Test Distribution Guidelines
+
+Distribution ratios are starting points: adjust to context (monolith vs. microservices, frontend vs. backend).
 
 ### The 70/20/10 Rule (Traditional Applications)
 
@@ -74,7 +73,7 @@ The testing pyramid is a visual metaphor for organizing test types to optimize f
 
 **60% Unit Tests**:
 - Still the foundation
-- Business logic within each service
+- Business logic inside each service
 
 **30% Integration/Contract Tests**:
 - Service boundaries critical
@@ -88,7 +87,7 @@ The testing pyramid is a visual metaphor for organizing test types to optimize f
 
 ### Measuring Your Distribution
 
-Count tests by type and calculate percentages:
+Count tests by type, compute percentages:
 
 ```bash
 # TypeScript/JavaScript (Vitest)
@@ -104,10 +103,10 @@ go test -v ./... 2>&1 | grep -c "^=== RUN"
 cargo test -- --list | wc -l
 ```
 
-Analyze results:
-- Too many E2E tests? → Slow CI, flaky tests
-- Too many unit tests? → Missing integration validation
-- Too many integration tests? → Slow feedback loop
+Read results:
+- Too many E2E tests: slow CI, flaky tests
+- Too many unit tests: missing integration validation
+- Too many integration tests: slow feedback loop
 
 ## Speed vs. Confidence Trade-offs
 
@@ -128,13 +127,6 @@ Analyze results:
 | **E2E** | Full application | User-facing errors | High (flaky) |
 
 ### Optimal Balance
-
-**Goal**: Maximum confidence with minimum execution time
-
-**Strategy**:
-1. **Unit tests** catch logic errors early (fast feedback)
-2. **Integration tests** catch interface errors (moderate confidence)
-3. **E2E tests** catch workflow errors (high confidence, sparingly)
 
 **Example Calculation**:
 ```
@@ -159,7 +151,7 @@ Result: Option B is 7x faster with similar confidence
 
 ### Testing Trophy (React/Frontend Focus)
 
-Promoted by Kent C. Dodds for frontend applications:
+From Kent C. Dodds, for frontend applications:
 
 ```
        /\
@@ -172,11 +164,11 @@ Promoted by Kent C. Dodds for frontend applications:
 /    Static    \  Static Analysis (Linting, TypeScript)
 ```
 
-**Key Difference**: Emphasizes integration tests over unit tests for UI components
+**Key Difference**: Favors integration tests over unit tests for UI components
 
 **Rationale**:
 - UI components often have little isolated logic
-- Integration tests (render + interactions) provide more value
+- Integration tests (render + interactions) give more value
 - Static analysis (TypeScript) catches many bugs unit tests would
 
 **Best For**: React, Vue, Svelte applications with component-based architecture
@@ -197,15 +189,15 @@ Promoted by Kent C. Dodds for frontend applications:
 **Key Difference**: Contract testing layer between integration and E2E
 
 **Rationale**:
-- Service boundaries are critical
+- Service boundaries critical
 - Contract tests validate interfaces without E2E overhead
-- Reduces reliance on slow E2E tests
+- Less reliance on slow E2E tests
 
 **Best For**: Microservices, service-oriented architectures
 
 ### Testing Honeycomb (GUI-Heavy Applications)
 
-Promoted by Spotify for GUI applications:
+From Spotify, for GUI applications:
 
 ```
       /----\
@@ -223,7 +215,7 @@ Promoted by Spotify for GUI applications:
 - Component integration tests catch most bugs
 - E2E tests for critical paths only
 
-**Best For**: Desktop applications, complex UI applications
+**Best For**: Desktop and complex UI applications
 
 ## Anti-Patterns
 
@@ -240,8 +232,8 @@ Promoted by Spotify for GUI applications:
 **Symptoms**:
 - CI/CD takes 30+ minutes
 - Tests fail intermittently (flaky)
-- Hard to identify root cause of failures
-- Developers avoid running full test suite locally
+- Root cause of failures hard to find
+- Developers avoid running full suite locally
 
 **Causes**:
 - "E2E tests are more realistic" mindset
@@ -264,13 +256,13 @@ Promoted by Spotify for GUI applications:
 ```
 
 **Symptoms**:
-- Unit tests pass, E2E tests pass, but integration bugs slip through
+- Unit and E2E tests pass, but integration bugs slip through
 - Issues only found in production
-- Missing validation of component boundaries
+- Component boundaries not validated
 
 **Causes**:
 - Over-focus on unit and E2E
-- Neglecting integration layer
+- Neglected integration layer
 - Poor component boundary design
 
 **Solution**:
@@ -288,7 +280,7 @@ Promoted by Spotify for GUI applications:
 ```
 
 **Symptoms**:
-- Test suite moderately slow
+- Suite moderately slow
 - Unclear when to write which test type
 - Redundant coverage (same scenario tested at all levels)
 
@@ -298,7 +290,7 @@ Promoted by Spotify for GUI applications:
 - Lack of pyramid awareness
 
 **Solution**:
-- Define clear boundaries for each test type
+- Define clear boundaries per test type
 - Remove redundant tests
 - Focus each test type on its strengths
 
@@ -338,7 +330,7 @@ Promoted by Spotify for GUI applications:
 **Small Team (1-5 developers)**:
 - Focus on unit and integration tests
 - Minimal E2E tests (manual QA acceptable)
-- Fast iteration more important
+- Fast iteration matters more
 
 **Medium Team (5-20 developers)**:
 - Balanced pyramid (70/20/10)
@@ -372,25 +364,8 @@ vitest --coverage --reporter=json
 - Coverage dropping below thresholds
 
 **Rebalancing Actions**:
-1. Profile slow tests (identify outliers)
+1. Profile slow tests (find outliers)
 2. Refactor slow unit tests (remove dependencies)
 3. Move slow E2E tests to integration tests
 4. Parallelize test execution
 5. Remove redundant tests
-
-## Summary
-
-**Key Takeaways**:
-
-1. **The pyramid shape is intentional**: More fast tests, fewer slow tests
-2. **Distribution guidelines are starting points**: Adjust based on your context (monolith vs. microservices, frontend vs. backend)
-3. **Speed matters**: Fast tests enable continuous testing and faster development
-4. **Confidence matters too**: Balance speed with comprehensive coverage
-5. **Measure and adjust**: Monitor test suite health and rebalance as needed
-
-**Next Steps**:
-- Audit your current test distribution
-- Identify anti-patterns (ice cream cone, hourglass)
-- Refactor toward pyramid shape
-- Establish clear guidelines for test type selection
-- Monitor and maintain balance over time

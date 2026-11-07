@@ -7,7 +7,7 @@ tags: code, version-control, git, deployment
 
 ## Maintain One Codebase Per Application in Version Control
 
-Every twelve-factor application has exactly one codebase tracked in version control. This single source of truth ensures all deploys (dev, staging, production) originate from the same code, eliminating "works on my machine" issues and enabling reliable rollbacks.
+Every twelve-factor app has exactly one codebase in version control. All deploys (dev, staging, production) come from that single source of truth.
 
 **Incorrect (multiple codebases or no version control):**
 
@@ -37,11 +37,5 @@ git log --oneline
 # d4e5f6g Add user authentication
 # h7i8j9k Initial commit
 ```
-
-**Benefits:**
-- Complete history of all changes enables bisecting bugs
-- Any developer can reproduce any deploy
-- Rollbacks are trivial: just redeploy an earlier commit
-- Code reviews and CI/CD operate on the single source of truth
 
 Reference: [The Twelve-Factor App - Codebase](https://12factor.net/codebase)

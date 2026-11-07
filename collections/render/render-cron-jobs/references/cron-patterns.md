@@ -1,9 +1,5 @@
 # Cron Patterns
 
-Common cron expressions and usage patterns for Render cron jobs.
-
----
-
 ## Expression Format
 
 ```
@@ -16,9 +12,7 @@ Common cron expressions and usage patterns for Render cron jobs.
 * * * * *
 ```
 
-All times are **UTC**. Render does not support local timezones in cron expressions.
-
----
+All times **UTC**. Render does not support local timezones in cron expressions.
 
 ## Common Expressions
 
@@ -34,12 +28,10 @@ All times are **UTC**. Render does not support local timezones in cron expressio
 | `0 6 * * *` | Daily at 6:00 AM UTC |
 | `0 0 * * 0` | Weekly on Sunday at midnight UTC |
 | `0 0 * * 1` | Weekly on Monday at midnight UTC |
-| `0 0 1 * *` | Monthly on the 1st at midnight UTC |
+| `0 0 1 * *` | Monthly on 1st at midnight UTC |
 | `0 0 1 1 *` | Yearly on January 1st at midnight UTC |
 | `0 6 * * 1-5` | Weekdays at 6:00 AM UTC |
 | `0 0,12 * * *` | Twice daily (midnight and noon UTC) |
-
----
 
 ## Framework-Specific Examples
 
@@ -87,20 +79,16 @@ All times are **UTC**. Render does not support local timezones in cron expressio
   startCommand: bundle exec ruby scripts/task.rb
 ```
 
----
-
 ## Error Handling
 
-- **Exit codes**: exit 0 for success, non-zero for failure. Render marks the run as failed on non-zero exit.
+- **Exit codes**: exit 0 on success, non-zero on failure. Render marks non-zero exit as failed run.
 - **Logging**: write to stdout/stderr. Render captures output in service logs.
-- **Retries**: Render does not auto-retry failed cron runs. Implement retry logic in your script if needed.
-- **Timeouts**: if your job risks approaching the 12-hour limit, add a timeout in your script.
-
----
+- **Retries**: Render does not auto-retry failed cron runs. Add retry logic in script if needed.
+- **Timeouts**: if job may near 12-hour limit, add timeout in script.
 
 ## Environment Variables
 
-Cron jobs support the same env var patterns as other services:
+Cron jobs support same env var patterns as other services:
 
 ```yaml
 envVars:

@@ -9,7 +9,7 @@ Spec format (UTF-8 JSON):
   "page_numbers": true,          // default true
   "elements": [
     {"type": "heading", "text": "Section 1", "level": 1},
-    {"type": "paragraph", "text": "Body text..."},
+    {"type": "paragraph", "text": "Body text..."},   // plain text; markup is escaped
     {"type": "table", "rows": [["H1", "H2"], ["a", "b"]], "header": true},
     {"type": "image", "path": "chart.png", "width": 400},
     {"type": "pagebreak"}
@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from xml.sax.saxutils import escape
 
 
 def _reconfigure_stdio() -> None:
@@ -57,9 +58,9 @@ def build_pdf(spec: dict, out_path: str) -> int:
         etype = el.get("type")
         if etype == "heading":
             level = min(max(int(el.get("level", 1)), 1), 3)
-            story.append(Paragraph(el.get("text", ""), styles[f"Heading{level}"]))
+            story.append(Paragraph(escape(str(el.get("text", ""))), styles[f"Heading{level}"]))
         elif etype == "paragraph":
-            story.append(Paragraph(el.get("text", ""), styles["BodyText"]))
+            story.append(Paragraph(escape(str(el.get("text", ""))), styles["BodyText"]))
             story.append(Spacer(1, 6))
         elif etype == "table":
             rows = el.get("rows", [])

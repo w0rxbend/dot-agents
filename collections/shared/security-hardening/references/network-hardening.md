@@ -1,7 +1,5 @@
 # Network Hardening Reference
 
-Comprehensive guide to hardening network configurations using firewalls, segmentation, TLS, and DNS security.
-
 ## Table of Contents
 
 1. [Firewall Configuration](#firewall-configuration)
@@ -13,6 +11,8 @@ Comprehensive guide to hardening network configurations using firewalls, segment
 ---
 
 ## Firewall Configuration
+
+Remote hosts: confirm with user first, keep console access, allow your own SSH source before any DROP policy, and use a timed rollback (`iptables-apply`). Flushing nat/mangle wipes Docker/Kubernetes rules: never on container hosts.
 
 ### iptables (Linux)
 

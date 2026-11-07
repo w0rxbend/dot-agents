@@ -5,38 +5,36 @@ description: "Design cloud network architecture - VPC/VNet topology, subnet and 
 
 # Network Architecture
 
-Design secure, scalable cloud network architectures using proven patterns across AWS, GCP, and Azure. This skill provides decision frameworks for VPC design, subnet strategy, zero trust implementation, and hybrid connectivity.
-
 ## When to Use This Skill
 
-Invoke this skill when:
+Invoke when:
 - Designing VPC/VNet topology for new cloud environments
-- Implementing network segmentation and security controls
+- Adding network segmentation and security controls
 - Planning multi-VPC or multi-cloud connectivity
-- Establishing hybrid cloud connectivity (on-premises to cloud)
-- Migrating from flat network to sophisticated architecture
-- Implementing zero trust network principles
-- Optimizing network costs and performance
+- Setting up hybrid connectivity (on-premises to cloud)
+- Migrating flat network to sophisticated architecture
+- Applying zero trust network principles
+- Optimizing network cost and performance
 
 ## Core Network Architecture Patterns
 
 ### Pattern 1: Flat (Single VPC) Architecture
 
-**Use When:** Small applications, single environment, simple security requirements, team < 10 engineers
+**Use When:** Small apps, single environment, simple security needs, team < 10 engineers
 
 **Characteristics:**
-- All resources in one VPC with subnet-level segmentation
-- Public, private, and database subnet tiers
+- All resources in one VPC, subnet-level segmentation
+- Public, private and database subnet tiers
 - Simplest to understand and manage
 - No inter-VPC routing complexity
 
 **Tradeoffs:**
-- ✓ Lowest cost, fastest to set up
-- ✗ Poor isolation, difficult to scale, entire VPC is blast radius
+- ✓ Lowest cost, fastest setup
+- ✗ Poor isolation, hard to scale, whole VPC is blast radius
 
 ### Pattern 2: Multi-VPC (Isolated) Architecture
 
-**Use When:** Multiple environments (dev/staging/prod), strong isolation requirements, compliance mandates separation
+**Use When:** Multiple environments (dev/staging/prod), strong isolation needs, compliance mandates separation
 
 **Characteristics:**
 - Separate VPCs per environment or workload
@@ -45,11 +43,11 @@ Invoke this skill when:
 
 **Tradeoffs:**
 - ✓ Strong blast radius containment, clear security boundaries
-- ✗ Management overhead, duplicate infrastructure, higher costs
+- ✗ Management overhead, duplicate infrastructure, higher cost
 
 ### Pattern 3: Hub-and-Spoke (Transit Gateway) Architecture
 
-**Use When:** 5+ VPCs need communication, centralized security inspection required, hybrid connectivity, multi-account setup
+**Use When:** 5+ VPCs must communicate, centralized security inspection required, hybrid connectivity, multi-account setup
 
 **Characteristics:**
 - Central hub VPC/Transit Gateway
@@ -57,31 +55,29 @@ Invoke this skill when:
 - All inter-VPC traffic routes through hub
 
 **Tradeoffs:**
-- ✓ Simplified routing, centralized security, scales easily (100+ VPCs)
-- ✗ Transit Gateway costs (~$0.05/hour + $0.02/GB), increased latency (hub hop)
+- ✓ Simpler routing, centralized security, scales easily (100+ VPCs)
+- ✗ Transit Gateway costs (~$0.05/hour + $0.02/GB), added latency (hub hop)
 
 ### Pattern 4: Full Mesh (VPC Peering) Architecture
 
-**Use When:** Small number of VPCs (< 5), low latency critical, no centralized inspection needed
+**Use When:** Few VPCs (< 5), low latency critical, no centralized inspection needed
 
 **Characteristics:**
-- Every VPC directly connected via peering
-- Direct VPC-to-VPC communication
+- Every VPC peered directly
 
 **Tradeoffs:**
 - ✓ Lowest latency, no Transit Gateway costs
-- ✗ Management complexity scales as O(n²), doesn't scale beyond ~10 VPCs
+- ✗ Management complexity grows O(n²), does not scale past ~10 VPCs
 
 ### Pattern 5: Hybrid (Multi-Pattern) Architecture
 
-**Use When:** Large enterprise with diverse requirements, balancing cost/performance/security
+**Use When:** Large enterprise, diverse requirements, balancing cost/performance/security
 
 **Characteristics:**
 - Hub-spoke for most VPCs + direct peering for latency-sensitive pairs
-- Combination based on workload requirements
 
 **Tradeoffs:**
-- ✓ Optimized for specific needs
+- ✓ Tuned to specific needs
 - ✗ More complex to design and manage
 
 ## Pattern Selection Framework
@@ -108,23 +104,23 @@ Additional Considerations:
 
 **Public Subnets:**
 - Route to Internet Gateway
-- Use for load balancers, bastion hosts, NAT Gateways
+- For load balancers, bastion hosts, NAT Gateways
 - CIDR: /24 to /27 (256 to 32 IPs)
 
 **Private Subnets:**
 - Route to NAT Gateway for outbound
-- Use for application servers, containers, compute workloads
+- For app servers, containers, compute workloads
 - CIDR: /20 to /22 (4,096 to 1,024 IPs)
 
 **Database Subnets:**
 - No direct internet route
-- Use for RDS, ElastiCache, managed databases
+- For RDS, ElastiCache, managed databases
 - CIDR: /24 to /26 (256 to 64 IPs)
 
 ### Multi-AZ Distribution
 
-**Production:** Distribute each tier across 3 Availability Zones minimum
-**Dev/Test:** 1-2 AZs acceptable for cost savings
+**Production:** Spread each tier across 3 Availability Zones minimum
+**Dev/Test:** 1-2 AZs acceptable to save cost
 
 ### CIDR Block Planning
 
@@ -136,9 +132,9 @@ Additional Considerations:
 **Critical Rules:**
 - Non-overlapping CIDR ranges across VPCs
 - Coordinate with on-premises network team for hybrid connectivity
-- Reserve address space for future expansion
+- Reserve address space for growth
 
-For detailed subnet planning, see `references/subnet-strategy.md`
+Detailed subnet planning: `references/subnet-strategy.md`
 
 ## NAT Gateway Strategy
 
@@ -165,7 +161,7 @@ Alternative: Centralized Egress Pattern
 ```
 
 **No Outbound Internet Needed?**
-- Skip NAT Gateway entirely (cost savings)
+- Skip NAT Gateway entirely (saves cost)
 - Use VPC Endpoints for AWS service access
 
 ## Security Controls
@@ -180,12 +176,11 @@ Alternative: Centralized Egress Pattern
 
 **Use For:**
 - Service-to-service communication
-- Instance-level security
-- Most common use case
+- Most common case
 
 **Best Practices:**
-- Use descriptive names (app-alb-sg, app-backend-sg)
-- Reference other security groups instead of CIDR blocks
+- Descriptive names (app-alb-sg, app-backend-sg)
+- Reference other security groups, not CIDR blocks
 - Keep rules minimal and specific
 
 ### Network ACLs (Optional)
@@ -194,19 +189,19 @@ Alternative: Centralized Egress Pattern
 - Stateless (must allow both request and response)
 - Subnet-level control
 - Allow and deny rules
-- Processes rules in order (lowest number first)
+- Rules processed in order (lowest number first)
 
 **Use For:**
 - Explicit deny rules (block specific IPs)
 - Compliance requirements (defense in depth)
-- Additional layer beyond security groups
+- Extra layer beyond security groups
 
 **Best Practices:**
 - Use sparingly (complex to manage)
-- Remember to allow ephemeral ports (1024-65535)
-- Test thoroughly (stateless nature causes issues)
+- Allow ephemeral ports (1024-65535)
+- Test thoroughly (stateless behavior causes issues)
 
-For security group architecture patterns, see `references/security-controls.md`
+Security group architecture patterns: `references/security-controls.md`
 
 ## Zero Trust Principles
 
@@ -214,26 +209,25 @@ For security group architecture patterns, see `references/security-controls.md`
 
 1. **Never Trust, Always Verify**
    - Authenticate every request regardless of source
-   - No implicit trust based on network location
+   - No implicit trust from network location
 
 2. **Least Privilege Access**
-   - Grant minimum necessary permissions
+   - Grant minimum needed permissions
    - Time-bound access (just-in-time)
 
 3. **Assume Breach**
    - Segment network aggressively
    - Monitor all traffic
-   - Rapid detection and response
+   - Detect and respond fast
 
 ### Implementation Patterns
 
 **Microsegmentation:**
 - Isolate every workload with granular security group rules
-- Service-to-service communication only between specific services
-- Reduce blast radius
+- Allow service-to-service traffic only between specific services
 
 **Identity-Based Access:**
-- Use IAM roles instead of IP addresses for authorization
+- Authorize by IAM roles, not IP addresses
 - VPC Endpoints with IAM policies
 - Service-to-service identity verification
 
@@ -242,13 +236,13 @@ For security group architecture patterns, see `references/security-controls.md`
 - Monitor rejected connections
 - Alert on anomalies
 
-For zero trust architecture patterns, see `references/zero-trust-networking.md`
+Zero trust architecture patterns: `references/zero-trust-networking.md`
 
 ## Hybrid Connectivity
 
 ### VPN (Virtual Private Network)
 
-**Use When:** Dev/test environments, backup connectivity, temporary connections
+**Use When:** Dev/test, backup connectivity, temporary connections
 
 **Characteristics:**
 - Encrypted tunnel over public internet
@@ -259,10 +253,10 @@ For zero trust architecture patterns, see `references/zero-trust-networking.md`
 
 ### Direct Connect / ExpressRoute / Cloud Interconnect
 
-**Use When:** Production workloads, large data transfers, real-time applications
+**Use When:** Production workloads, large data transfers, real-time apps
 
 **Characteristics:**
-- Dedicated network connection (bypasses public internet)
+- Dedicated connection (bypasses public internet)
 - Throughput: Up to 100 Gbps
 - Latency: Low and consistent
 - Cost: Higher (port fees + data transfer)
@@ -274,10 +268,9 @@ For zero trust architecture patterns, see `references/zero-trust-networking.md`
 
 **Benefits:**
 - Single Direct Connect connection → Transit Gateway → Multiple VPCs
-- Cost efficient and scalable
 - Centralized hybrid connectivity
 
-For hybrid connectivity patterns and examples, see `references/hybrid-connectivity.md`
+Hybrid connectivity patterns and examples: `references/hybrid-connectivity.md`
 
 ## Multi-Cloud Networking
 
@@ -303,15 +296,15 @@ For hybrid connectivity patterns and examples, see `references/hybrid-connectivi
 
 **GCP:**
 - Custom mode VPC (not auto-mode)
-- Start with single VPC, use Shared VPC for multi-project
+- Start with single VPC; use Shared VPC for multi-project
 - Grant network user role at subnet level
 
 **Azure:**
-- Hub-and-spoke network topology as standard
-- Few large VNets vs many small VNets
+- Hub-and-spoke topology as standard
+- Few large VNets over many small VNets
 - Private endpoints for Azure services
 
-For multi-cloud implementations, see `references/multi-cloud-networking.md`
+Multi-cloud implementations: `references/multi-cloud-networking.md`
 
 ## Network Observability
 
@@ -342,7 +335,7 @@ For multi-cloud implementations, see `references/multi-cloud-networking.md`
 - High data transfer costs
 - Network errors
 
-For observability patterns and flow log analysis, see `references/network-observability.md`
+Observability patterns and flow log analysis: `references/network-observability.md`
 
 ## Cost Optimization
 
@@ -356,26 +349,22 @@ For observability patterns and flow log analysis, see `references/network-observ
 ### Optimization Strategies
 
 **Reduce NAT Gateway Costs:**
-- Use VPC Endpoints for AWS services (S3, DynamoDB)
+- VPC Endpoints for AWS services (S3, DynamoDB)
 - Centralized egress VPC pattern
 - Single NAT Gateway for dev/test (accept availability risk)
 
 **Reduce Data Transfer Costs:**
-- Keep traffic within same region
-- Use VPC Endpoints instead of public internet
+- Keep traffic in same region
+- VPC Endpoints instead of public internet
 - Private connectivity for high-volume transfers
 
-**Avoid Transit Gateway Costs:**
-- Use VPC Peering for small number of VPCs (< 5)
-- Direct peering for latency-sensitive pairs
-
-For detailed cost optimization strategies, see `references/cost-optimization.md`
+Detailed cost optimization: `references/cost-optimization.md`
 
 ## Implementation Workflow
 
 ### Step 1: Analyze Requirements
 
-- How many VPCs/environments needed?
+- How many VPCs/environments?
 - Hybrid connectivity required?
 - Latency requirements?
 - Security/compliance requirements?
@@ -383,14 +372,14 @@ For detailed cost optimization strategies, see `references/cost-optimization.md`
 
 ### Step 2: Select Pattern
 
-Use pattern selection framework above to choose:
+Pick with pattern selection framework above:
 - Flat, Multi-VPC, Hub-Spoke, Mesh, or Hybrid
 
 ### Step 3: Design Subnets
 
 - Calculate CIDR blocks (non-overlapping)
 - Plan multi-AZ distribution
-- Determine public/private/database tiers
+- Set public/private/database tiers
 
 ### Step 4: Configure Security
 
@@ -400,26 +389,15 @@ Use pattern selection framework above to choose:
 
 ### Step 5: Implement with IaC
 
-Implement with IaC (Terraform/OpenTofu, or Pulumi via the `pulumi-components` and `pulumi-stacks` skills)
+Use IaC: Terraform/OpenTofu, or Pulumi via `pulumi-components` and `pulumi-stacks` skills.
 
 ### Step 6: Enable Observability
 
 - Configure VPC Flow Logs
 - Set up monitoring and alerting
-- Cost tracking
+- Track cost
 
 ## Quick Reference
-
-### VPC Pattern Selection
-
-| Requirement | Recommended Pattern |
-|-------------|---------------------|
-| Single environment | Flat (Single VPC) |
-| Multiple isolated environments | Multi-VPC (Isolated) |
-| 2-5 VPCs, low latency | Full Mesh (Peering) |
-| 5+ VPCs, centralized security | Hub-and-Spoke (TGW) |
-| Hybrid connectivity | Hub-and-Spoke (TGW) |
-| Cost optimization | Flat or Multi-VPC |
 
 ### NAT Gateway Configuration
 
@@ -429,18 +407,10 @@ Implement with IaC (Terraform/OpenTofu, or Pulumi via the `pulumi-components` an
 | Production | NAT per AZ | ~$96 |
 | Centralized Egress | Hub VPC NAT | ~$32-96 |
 
-### Hybrid Connectivity
-
-| Requirement | Solution | Throughput | Latency |
-|-------------|----------|------------|---------|
-| Dev/Test | VPN | ~1.25 Gbps | Variable |
-| Production | Direct Connect | Up to 100 Gbps | Low, consistent |
-| Backup | VPN (backup to DX) | ~1.25 Gbps | Variable |
-
 ## Reference Documentation
 
 **Detailed Guides:**
-- `references/vpc-design-patterns.md` - Comprehensive pattern descriptions with diagrams
+- `references/vpc-design-patterns.md` - Full pattern descriptions with diagrams
 - `references/subnet-strategy.md` - CIDR planning, IPAM, multi-AZ best practices
 - `references/zero-trust-networking.md` - Microsegmentation, IAM integration, continuous verification
 - `references/hybrid-connectivity.md` - VPN, Direct Connect, Transit Gateway patterns
@@ -452,28 +422,26 @@ Implement with IaC (Terraform/OpenTofu, or Pulumi via the `pulumi-components` an
 - `references/cost-optimization.md` - Egress reduction, NAT strategies
 
 **Code Examples:**
-- `examples/aws/` - AWS VPC patterns (flat, hub-spoke, peering, VPN, Direct Connect). GCP and Azure equivalents are described in `references/multi-cloud-networking.md`.
+- `examples/aws/` - AWS VPC patterns (flat, hub-spoke, peering, VPN, Direct Connect). GCP and Azure equivalents in `references/multi-cloud-networking.md`.
 
 **Utility Scripts:**
-- `scripts/cidr-calculator.py` - Calculate CIDR blocks and plan IP addressing
+- `scripts/cidr-calculator.py` - Calculate CIDR blocks, plan IP addressing
 
 ## Integration with Other Skills
 
 **Use `pulumi-components` / `pulumi-stacks` to:**
-- Implement network architectures as reusable, per-environment IaC
-- Version control network configurations
+- Build network architectures as reusable, per-environment IaC
 
 **Use `operating-kubernetes` skill to:**
 - Configure Kubernetes networking (CNI) on top of VPC design
-- Implement pod networking and service meshes
+- Set up pod networking and service meshes
 
 **Use `security-hardening` skill to:**
-- Implement firewall rules and WAF configurations
+- Build firewall rules and WAF configurations
 - Configure network-level DDoS protection
 - Set up intrusion detection systems
 
 **Use `implementing-observability` skill to:**
-- Implement comprehensive network monitoring
+- Build full network monitoring
 - Set up distributed tracing across network boundaries
 - Configure performance dashboards
-

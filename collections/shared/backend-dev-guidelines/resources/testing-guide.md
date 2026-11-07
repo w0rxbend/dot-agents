@@ -1,6 +1,6 @@
 # Testing Guide - Backend Testing Strategies
 
-Complete guide to testing backend services with Jest and best practices.
+Testing backend services with Jest, plus best practices.
 
 ## Table of Contents
 

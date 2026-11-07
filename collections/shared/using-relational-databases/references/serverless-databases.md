@@ -1,7 +1,5 @@
 # Serverless Databases Guide
 
-Setup, branching workflows, and cost comparisons for Neon (PostgreSQL), PlanetScale (MySQL), and Turso (SQLite).
-
 
 ## Table of Contents
 
@@ -55,37 +53,31 @@ Setup, branching workflows, and cost comparisons for Neon (PostgreSQL), PlanetSc
 | **Autoscaling** | ✓✓✓ (0-8 CPU) | ✓ (Connection pooling) | ✓ (Replica distribution) |
 | **Read Replicas** | ✓ (Manual) | ✓✓✓ (Built-in) | ✓✓✓ (Edge replicas) |
 | **Write Latency** | ~10-50ms | ~10-50ms | ~5-20ms (edge) |
-| **Free Tier** | 0.5GB storage, 3 branches | 5GB storage, 1B reads | 8GB storage, 500 locations |
-| **Pricing** | $19/month (Launch) | $29/month (Scaler) | $29/month (Scaler) |
-
----
 
 ## Neon PostgreSQL
 
-**Best for:** Preview environments, development branching, scale-to-zero PostgreSQL
-
 ### Key Features
 
-- **Instant database branches** - Create copy of production in <1 second
-- **Scale-to-zero compute** - Automatically pause after inactivity
-- **Time-travel queries** - Query database state from any point in time
-- **Autoscaling** - Scale compute from 0.25 to 8 vCPU automatically
-- **Point-in-time restore** - Restore to any second in the last 30 days
+- **Instant database branches** - Copy production in <1 second
+- **Scale-to-zero compute** - Pauses automatically after inactivity
+- **Time-travel queries** - Query database state at any point in time
+- **Autoscaling** - Compute scales from 0.25 to 8 vCPU automatically
+- **Point-in-time restore** - Restore to any second in last 30 days
 
 ### Setup
 
 ```bash
-# Install Neon CLI
+# Install Neon CLI (analytics on by default: pass --no-analytics on every call)
 npm install -g neonctl
 
 # Create project
-neonctl projects create --name myapp
+neonctl --no-analytics projects create --name myapp
 
 # Create branch
-neonctl branches create --name dev --parent main
+neonctl --no-analytics branches create --name dev --parent main
 
-# Get connection string
-neonctl connection-string main
+# Get connection string (contains password: capture, don't print)
+export DATABASE_URL=$(neonctl --no-analytics connection-string main)
 ```
 
 ### Connection String
@@ -103,17 +95,17 @@ postgresql://user:password@ep-cool-darkness-123456.us-east-2.aws.neon.tech/mydb?
 **Feature development:**
 ```bash
 # 1. Create branch from main
-neonctl branches create --name feature-auth
+neonctl --no-analytics branches create --name feature-auth
 
-# 2. Get branch connection string
-neonctl connection-string feature-auth
+# 2. Get branch connection string (capture, don't print)
+export DATABASE_URL=$(neonctl --no-analytics connection-string feature-auth)
 
-# 3. Run migrations on branch
-DATABASE_URL=$(neonctl connection-string feature-auth) npm run prisma migrate dev
+# 3. Run migrations on branch (Prisma telemetry off)
+CHECKPOINT_DISABLE=1 PRISMA_DISABLE_TELEMETRY=1 npx prisma migrate dev
 
 # 4. Test feature with real data (copy of production)
-# 5. Delete branch when done
-neonctl branches delete feature-auth
+# 5. Delete branch when done (confirm with user first)
+neonctl --no-analytics branches delete feature-auth
 ```
 
 **Preview deployments (Vercel integration):**
@@ -145,23 +137,19 @@ neonctl branches delete feature-auth
 -- Query database state from 2 hours ago
 SELECT * FROM users AS OF SYSTEM TIME '2025-12-03 10:00:00';
 
--- Point-in-time restore via dashboard or CLI
-neonctl branches restore main --timestamp '2025-12-03 10:00:00'
+-- Point-in-time restore via dashboard or CLI (overwrites branch; confirm with user first)
+neonctl --no-analytics branches restore main --timestamp '2025-12-03 10:00:00'
 ```
 
----
-
 ## PlanetScale MySQL
-
-**Best for:** Non-blocking schema changes, MySQL compatibility, read-heavy workloads
 
 ### Key Features
 
 - **Non-blocking schema changes** - Deploy schema changes with zero downtime
-- **Database branching** - Create development branches with production schema
+- **Database branching** - Development branches with production schema
 - **Built-in read replicas** - Automatic geographic distribution
 - **Online DDL** - ALTER TABLE without locking
-- **No foreign key constraints** - Application-enforced referential integrity
+- **No foreign key constraints** - Application enforces referential integrity
 
 ### Setup
 
@@ -208,7 +196,7 @@ pscale deploy-request create myapp add-user-phone
 # 5. Review diff
 pscale deploy-request diff myapp 1
 
-# 6. Deploy (zero downtime)
+# 6. Deploy to production (zero downtime; confirm with user first)
 pscale deploy-request deploy myapp 1
 
 # 7. Auto-merge to main after deploy
@@ -249,11 +237,7 @@ const users = await prisma.user.findMany();  // Read from replica
 const user = await prisma.user.create({ data: { email: 'test@example.com' } });  // Write to primary
 ```
 
----
-
 ## Turso SQLite
-
-**Best for:** Edge applications, local-first apps, global low-latency reads
 
 ### Key Features
 
@@ -330,8 +314,6 @@ export default {
 };
 ```
 
----
-
 ## Cost Comparison
 
 ### Neon (PostgreSQL)
@@ -355,8 +337,6 @@ export default {
 
 **Break-even:** 24/7 usage vs managed PostgreSQL (~$50/month)
 
----
-
 ### PlanetScale (MySQL)
 
 **Hobby (Free):**
@@ -379,8 +359,6 @@ export default {
 
 **Break-even:** High read volume vs managed MySQL
 
----
-
 ### Turso (SQLite)
 
 **Starter (Free):**
@@ -400,29 +378,25 @@ export default {
 
 **Break-even:** Edge use cases with global distribution
 
----
-
 ## Decision Framework
 
 ### Choose Neon if:
 - Need PostgreSQL features (JSONB, arrays, extensions)
 - Want scale-to-zero compute
-- Database branching for preview environments is critical
-- Development team needs isolated database copies
+- Database branching for preview environments critical
+- Team needs isolated database copies
 
 ### Choose PlanetScale if:
 - MySQL compatibility required
-- Non-blocking schema changes are critical
+- Non-blocking schema changes critical
 - High read volume with geographic distribution
 - Want automated read replicas
 
 ### Choose Turso if:
-- Building edge applications (Cloudflare Workers, Deno Deploy)
+- Building edge apps (Cloudflare Workers, Deno Deploy)
 - Need sub-10ms global reads
 - Local-first architecture (offline-capable apps)
 - SQLite compatibility required
-
----
 
 ## Integration Examples
 
@@ -430,10 +404,10 @@ export default {
 
 ```bash
 # 1. Create Neon database
-neonctl projects create
+neonctl --no-analytics projects create
 
-# 2. Add to Vercel
-vercel env add DATABASE_URL
+# 2. Add to Vercel (telemetry off)
+VERCEL_TELEMETRY_DISABLED=1 vercel env add DATABASE_URL
 
 # 3. Automatic branching (preview deployments)
 # Each PR gets a Neon branch automatically
@@ -472,11 +446,9 @@ datasource db {
 // Deploy schema changes
 pscale branch create myapp migration
 pscale connect myapp migration --port 3309
-DATABASE_URL="mysql://127.0.0.1:3309/myapp" npx prisma db push
+DATABASE_URL="mysql://127.0.0.1:3309/myapp" CHECKPOINT_DISABLE=1 PRISMA_DISABLE_TELEMETRY=1 npx prisma db push
 pscale deploy-request create myapp migration
 ```
-
----
 
 ## Best Practices
 
@@ -485,7 +457,7 @@ pscale deploy-request create myapp migration
 1. Use **pooled connections** for serverless functions
 2. **Branch per feature** for isolated development
 3. Enable **autoscaling** for variable workloads
-4. Use **time-travel** for debugging production issues
+4. Use **time-travel** to debug production issues
 
 ### PlanetScale
 
@@ -500,8 +472,6 @@ pscale deploy-request create myapp migration
 2. Use **embedded replicas** for offline-first apps
 3. **Sync periodically** in background (embedded mode)
 4. Monitor **replication lag** in multi-region setups
-
----
 
 ## Resources
 

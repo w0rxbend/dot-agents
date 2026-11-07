@@ -1,7 +1,5 @@
 # Event Patterns - Event Sourcing, CQRS, Outbox
 
-Advanced event-driven architecture patterns for building scalable, reliable systems.
-
 
 ## Table of Contents
 
@@ -22,21 +20,19 @@ Advanced event-driven architecture patterns for building scalable, reliable syst
   - [2. Event Schema Evolution](#2-event-schema-evolution)
   - [3. Idempotent Event Handlers](#3-idempotent-event-handlers)
   - [4. Event Metadata](#4-event-metadata)
-- [Related Patterns](#related-patterns)
 
 ## Event Sourcing
 
-**Pattern:** Store state changes as immutable events instead of current state.
+**Pattern:** Store state changes as immutable events, not current state.
 
 **Benefits:**
-- Complete audit log (every change recorded)
+- Full audit log (every change recorded)
 - Time travel (replay to any point)
-- Event replay for new projections
-- Natural fit for event-driven systems
+- Replay events for new projections
 
 **Trade-offs:**
 - More complex than CRUD
-- Requires event versioning strategy
+- Needs event versioning strategy
 - Eventual consistency
 
 ### Implementation
@@ -219,7 +215,7 @@ class EventStore:
 **Trade-offs:**
 - Eventual consistency between models
 - More complex than single model
-- Need to synchronize models
+- Models need synchronizing
 
 ### Implementation
 
@@ -329,7 +325,7 @@ class OrderProjector:
 
 ## Outbox Pattern
 
-**Pattern:** Ensure database writes and event publishing are atomic (no partial failures).
+**Pattern:** Make database writes and event publishing atomic (no partial failures).
 
 **Problem:**
 ```python
@@ -338,7 +334,7 @@ db.insert_order(order)  # Succeeds
 kafka.publish(event)     # FAILS → inconsistent state!
 ```
 
-**Solution:** Write events to outbox table in same transaction, then publish asynchronously.
+**Solution:** Write events to outbox table in same transaction. Publish them asynchronously later.
 
 ### Implementation
 
@@ -445,8 +441,6 @@ DELETE FROM outbox WHERE published = true AND published_at < NOW() - INTERVAL '7
 
 ## Event Versioning
 
-**Challenge:** Events are immutable but business logic evolves.
-
 ### Upcasting Pattern
 
 ```python
@@ -491,7 +485,7 @@ class EventUpcaster:
 
 **Pattern:** Coordinate transactions across services with compensation.
 
-See `temporal-workflows.md` for comprehensive Temporal saga implementation.
+Full Temporal saga implementation: see `temporal-workflows.md`.
 
 ### Event-Based Saga (Choreography)
 
@@ -609,11 +603,3 @@ event = {
     }
 }
 ```
-
-## Related Patterns
-
-- **Event Sourcing**: State as event log
-- **CQRS**: Separate read/write models
-- **Outbox**: Atomic writes + events
-- **Saga**: Distributed transactions with compensation
-- **Event Versioning**: Handle schema evolution

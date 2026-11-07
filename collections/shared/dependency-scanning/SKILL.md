@@ -17,22 +17,20 @@ metadata:
 
 # Dependency Scanning
 
-Identify vulnerabilities in third-party dependencies and libraries.
-
 ## When to Use This Skill
 
-Use this skill when:
+Use when:
 - Managing third-party dependencies
-- Implementing software composition analysis
+- Setting up software composition analysis
 - Meeting compliance requirements
-- Securing the software supply chain
+- Securing software supply chain
 - Automating vulnerability detection
 
 ## Prerequisites
 
-- Package manifest files (package.json, requirements.txt, etc.)
+- Package manifests (package.json, requirements.txt, etc.)
 - CI/CD pipeline access
-- Dependency scanning tool
+- Dependency scanner
 
 ## Tool Comparison
 
@@ -49,9 +47,14 @@ Use this skill when:
 
 ### CLI Usage
 
+Snyk is SaaS: scans upload dependency data to Snyk, and CLI still reports instrumentation to your Snyk org with analytics off.
+
 ```bash
-# Install
-npm install -g snyk
+# Install (pinned)
+npm install -g snyk@1.1308.4
+
+# Opt out of usage analytics (or export SNYK_DISABLE_ANALYTICS=1)
+snyk config set disable-analytics=1
 
 # Authenticate
 snyk auth
@@ -102,6 +105,7 @@ jobs:
         continue-on-error: true   # let the SARIF upload run even when findings fail the scan
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_DISABLE_ANALYTICS: "1"
         with:
           args: --severity-threshold=high --sarif-file-output=snyk.sarif
 
@@ -203,8 +207,9 @@ brew install dependency-check
 # https://github.com/dependency-check/DependencyCheck/releases
 ```
 
-Current releases download NVD data through the NVD API; request a free key and pass it with
-`--nvdApiKey "$NVD_API_KEY"`, or updates are very slow and may fail.
+Current releases download NVD data through NVD API. Request free key; keep it out of argv: put
+`nvd.api.key=...` in an untracked 0600 file passed with `--propertyfile` (Maven plugin 9.0.10+: `nvdApiKeyEnvironmentVariable`).
+Without key, updates are very slow and may fail.
 
 ### Usage
 
@@ -319,7 +324,7 @@ pip-audit --fix
 
 ```bash
 # Install
-go install golang.org/x/vuln/cmd/govulncheck@latest
+go install golang.org/x/vuln/cmd/govulncheck@v1.9.0
 
 # Scan project
 govulncheck ./...
@@ -350,14 +355,14 @@ bundle-audit check --format json
 
 ```bash
 # Node.js
-npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+npx @cyclonedx/cyclonedx-npm@6.0.1 --output-file sbom.json
 
 # Python
 pip install cyclonedx-bom
 cyclonedx-py environment -o sbom.json   # or: requirements / poetry / pipenv subcommands (cyclonedx-bom 4+)
 
 # Go
-go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@latest
+go install github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@v1.12.0
 cyclonedx-gomod mod -json > sbom.json
 ```
 
@@ -393,6 +398,8 @@ on:
 jobs:
   scan:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -403,11 +410,12 @@ jobs:
         uses: snyk/actions/node@<pinned-sha> # vX.Y.Z - never a branch ref
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_DISABLE_ANALYTICS: "1"
         with:
           args: --severity-threshold=high
           
       - name: Generate SBOM
-        run: npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+        run: npx @cyclonedx/cyclonedx-npm@6.0.1 --output-file sbom.json
 
       - name: Upload SBOM
         uses: actions/upload-artifact@v4
@@ -419,40 +427,29 @@ jobs:
 ## Common Issues
 
 ### Issue: Too Many Alerts
-**Problem**: Overwhelmed by vulnerability count
+**Problem**: Too many vulnerabilities to triage
 **Solution**: Prioritize by exploitability, filter by severity
 
 ### Issue: No Fix Available
 **Problem**: Vulnerable dependency has no patch
-**Solution**: Consider alternatives, implement compensating controls
+**Solution**: Evaluate alternatives, add compensating controls
 
 ### Issue: Breaking Updates
 **Problem**: Security fix breaks functionality
 **Solution**: Review changelogs, test thoroughly, use lockfiles
-
-## Best Practices
-
-- Scan on every build
-- Use lockfiles for reproducibility
-- Set severity thresholds
-- Generate and track SBOMs
-- Document exceptions properly
-- Update dependencies regularly
-- Monitor for new vulnerabilities
-- Automate PR creation for updates
 
 ## Related Skills
 
 - `code-audit` - SAST review of first-party code
 - `dockerfile-optimise` - image scanning (rule `sec-scan-images`)
 - `github-actions-advanced` - wiring scanners into hardened workflows
-- `dependency-upgrade` - executing the major upgrades that scans call for
-- `security-and-hardening` - install-script policy and new-dependency review
+- `dependency-upgrade` - major upgrades that scans call for
+- `security-and-hardening` - install-script policy, new-dependency review
 
 ## Done when
 
-- A scanner runs on every pull request and on a schedule against the default branch, using the committed lockfile.
-- The build fails on new reachable critical/high findings; accepted findings are recorded in the tool's ignore file with a reason and expiry.
-- An SBOM is generated for each release artifact, and Dependabot or Renovate opens update PRs.
+- Scanner runs on every pull request and on schedule against default branch, using committed lockfile.
+- Build fails on new reachable critical/high findings. Accepted findings live in tool's ignore file with reason and expiry.
+- SBOM generated for each release artifact. Dependabot or Renovate opens update PRs.
 
 > Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT).

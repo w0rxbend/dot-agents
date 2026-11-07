@@ -9,11 +9,11 @@ Configure in Dashboard (Settings > Redirects/Rewrites) or via Blueprint `routes`
 | Type | Behavior | Status code |
 |------|----------|-------------|
 | `redirect` | Client-side redirect (browser URL changes) | 301 (permanent) or 302 (temporary) |
-| `rewrite` | Server-side rewrite (browser URL stays the same) | Transparent |
+| `rewrite` | Server-side rewrite (browser URL unchanged) | Transparent |
 
 ### SPA catch-all (most common)
 
-Every SPA needs this rule to handle client-side routing:
+Every SPA needs this rule for client-side routing:
 
 ```yaml
 routes:
@@ -22,11 +22,11 @@ routes:
     destination: /index.html
 ```
 
-Without this, direct navigation to `/dashboard` or `/about` returns 404 from the CDN.
+Without it, direct navigation to `/dashboard` or `/about` returns 404 from CDN.
 
 ### Ordering
 
-Rules are evaluated **top to bottom**. Place specific rules above catch-all rules:
+Render evaluates rules **top to bottom**. Place specific rules above catch-all rules:
 
 ```yaml
 routes:
@@ -85,7 +85,7 @@ headers:
     value: no-cache
 ```
 
-Vite, Webpack, and other bundlers add content hashes to asset filenames, making `immutable` safe. The entry point (`index.html`) should always be revalidated.
+Vite, Webpack and other bundlers add content hashes to asset filenames, so `immutable` is safe. Always revalidate entry point (`index.html`).
 
 ### CORS headers
 
@@ -101,6 +101,6 @@ headers:
 
 ## Automatic behaviors
 
-- **HTTP → HTTPS** redirect is automatic (no configuration needed)
-- **Brotli compression** is applied automatically
-- **Cache invalidation** happens immediately on every deploy
+- **HTTP → HTTPS** redirect automatic (no configuration needed)
+- **Brotli compression** applied automatically
+- **Cache invalidation** immediate on every deploy

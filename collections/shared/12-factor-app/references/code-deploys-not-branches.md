@@ -7,7 +7,7 @@ tags: code, deployment, environments, git
 
 ## Use Deploys Not Branches to Represent Environments
 
-Different environments (dev, staging, production) should be deploys of the same codebase at different commits, not separate branches with environment-specific code. The codebase is identical; only configuration differs.
+Environments (dev, staging, production) are deploys of one codebase at different commits, not branches with environment-specific code. Same code; only config differs.
 
 **Incorrect (environment-specific branches):**
 
@@ -59,10 +59,5 @@ if (cacheEnabled) {
 }
 logger.setLevel(logLevel);
 ```
-
-**Benefits:**
-- No merge conflicts between environment branches
-- Every commit can be deployed to any environment
-- Staging truly tests what will go to production
 
 Reference: [The Twelve-Factor App - Codebase](https://12factor.net/codebase)

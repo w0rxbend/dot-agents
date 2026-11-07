@@ -1,6 +1,6 @@
 # Pipeline Sub-Packages Reference
 
-samber/mo provides sub-packages (`option`, `result`, `either`, `either3`, `either4`, `either5`) with standalone functions for type-changing transformations and composable pipelines.
+samber/mo sub-packages (`option`, `result`, `either`, `either3`, `either4`, `either5`) provide standalone functions for type-changing transformations and composable pipelines.
 
 ## Table of Contents
 
@@ -20,7 +20,7 @@ samber/mo provides sub-packages (`option`, `result`, `either`, `either3`, `eithe
 
 ## Why Sub-Packages Exist
 
-Direct methods on Option/Result/Either (`.Map`, `.FlatMap`) cannot change the type parameter because Go methods cannot introduce new type parameters. For example:
+Direct methods on Option/Result/Either (`.Map`, `.FlatMap`) cannot change type parameter, because Go methods cannot introduce new type parameters. Example:
 
 ```go
 opt := mo.Some(42)
@@ -28,7 +28,7 @@ opt := mo.Some(42)
 // because Map's signature is: func (o Option[T]) Map(func(T) (T, bool)) Option[T]
 ```
 
-Sub-package functions solve this by being standalone generic functions:
+Sub-package functions solve this as standalone generic functions:
 
 ```go
 import "github.com/samber/mo/option"
@@ -53,7 +53,7 @@ strOpt := option.Map(func(v int) string {
 
 ### Pipe Functions
 
-Chain multiple transformations in a readable pipeline:
+Chain several transformations in one readable pipeline:
 
 ```go
 import "github.com/samber/mo/option"
@@ -133,7 +133,7 @@ Available: `either.Pipe1` through `either.Pipe10`.
 
 Each provides:
 
-- `Match` with handlers for each argument type
+- `Match` with handler per argument type
 - `MapArg1`, `MapArg2`, `MapArg3` (up to `MapArg5` for either5)
 - `Pipe1` through `Pipe10`
 

@@ -1,6 +1,6 @@
 # Testing with uber-go/fx
 
-`go.uber.org/fx/fxtest` integrates fx applications with `*testing.T`: errors fail the test instead of crashing the process, and lifecycle teardown is registered automatically.
+`go.uber.org/fx/fxtest` integrates fx applications with `*testing.T`. Errors fail test instead of crashing process. Lifecycle teardown registers automatically.
 
 ## Table of Contents
 
@@ -32,7 +32,7 @@ func TestUserService_Create(t *testing.T) {
 }
 ```
 
-`fx.Populate(&svc)` fills `svc` with the value the graph would resolve. It replaces ad-hoc `fx.Invoke(func(s *UserService) { svc = s })` patterns.
+`fx.Populate(&svc)` fills `svc` with value graph would resolve. Replaces ad-hoc `fx.Invoke(func(s *UserService) { svc = s })` patterns.
 
 ## `fx.Replace` to swap a real dependency for a fake
 
@@ -57,11 +57,11 @@ func TestServer_HandlesDBError(t *testing.T) {
 }
 ```
 
-`fx.Replace` works even when the original provider is buried inside a module — it overrides the resolved type without rewriting the module.
+`fx.Replace` works even when original provider is buried inside module. Overrides resolved type without rewriting module.
 
 ## Standalone lifecycle for a unit test
 
-`fxtest.NewLifecycle(t)` gives you an `fx.Lifecycle` outside the `fx.New` machinery, useful for testing a single constructor that registers hooks:
+`fxtest.NewLifecycle(t)` gives `fx.Lifecycle` outside `fx.New` machinery. Use to test single constructor that registers hooks:
 
 ```go
 func TestWorker_StartStop(t *testing.T) {
@@ -78,8 +78,6 @@ func TestWorker_StartStop(t *testing.T) {
 }
 ```
 
-This is the lightest test for a constructor — no full graph, no `fx.New`.
-
 ## Asserting wire-time errors
 
 ```go
@@ -93,7 +91,7 @@ func TestWiring_MissingDependency(t *testing.T) {
 }
 ```
 
-Use `fx.New` (not `fxtest.New`) when you _expect_ the wiring to fail — `fxtest.New` would call `t.Fatal`.
+Use `fx.New` (not `fxtest.New`) when you _expect_ wiring to fail. `fxtest.New` would call `t.Fatal`.
 
 ## Validating the production graph in CI
 
@@ -107,11 +105,11 @@ func TestProductionGraph(t *testing.T) {
 }
 ```
 
-`fx.New` validates the type graph without starting. The test fails before deploy on any missing-provider, cycle, or annotation mismatch.
+`fx.New` validates type graph without starting. Test fails before deploy on any missing-provider, cycle or annotation mismatch.
 
 ## Test logger that captures fx events
 
-When you want to assert on lifecycle behavior, route fx events into an in-memory observer:
+To assert on lifecycle behavior, route fx events into in-memory observer:
 
 ```go
 // go.uber.org/zap/zaptest/observer
@@ -133,7 +131,7 @@ require.NotEmpty(t, recorded.FilterMessage("OnStart hook executed").All())
 
 ## Testing a lifecycle hook in isolation
 
-If a constructor returns a value _and_ registers a hook, you often want to test both halves:
+If constructor returns value _and_ registers hook, test both halves:
 
 ```go
 func TestNewServer_OnStartFailsBindError(t *testing.T) {

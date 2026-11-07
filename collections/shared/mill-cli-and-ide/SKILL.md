@@ -6,12 +6,12 @@ license: MIT
 
 # Mill setup, CLI, IDE, and migration
 
-Read [operations.md](references/operations.md) for launcher installation, header scopes, task queries, flags, IDEs, and diagnostics. Read [migration.md](references/migration.md) before importing an existing build.
+Read [operations.md](references/operations.md) for launcher install, header scopes, task queries, flags, IDEs, diagnostics. Read [migration.md](references/migration.md) before importing existing build.
 
-Prefer a checked-in project bootstrap launcher, then use `./mill` consistently in developer instructions and CI. Inspect the actual project version before selecting documentation. The tested examples use stable 1.1.10; unversioned docs can point to a milestone. Mill is preferred for new projects here; preserve an existing sbt/Gradle/Maven build unless migration is part of the request.
+Prefer checked-in bootstrap launcher; use `./mill` everywhere in developer instructions and CI. Check project's actual version before picking docs. Tested examples use stable 1.1.10; unversioned docs may point to milestone. Mill preferred for new projects here. Keep existing sbt/Gradle/Maven build unless request includes migration.
 
-Quote wildcard, brace, and cross selectors in shell commands. Discover task names using `resolve` and task documentation/dependencies using `inspect`; do not substitute a guessed flag or an old 0.x snippet. Keep Mill flags before task selectors, and distinguish task arguments after selectors. A new selector with separate arguments starts after `+`.
+Quote wildcard, brace and cross selectors in shell. Find task names with `resolve`, task docs/dependencies with `inspect`. Do not substitute guessed flags or old 0.x snippets. Mill flags go before task selectors; task arguments go after. `+` starts new selector with its own arguments.
 
-Use BSP/IDE support corresponding to the project's version and languages. Separate build-server problems from compiler failures by compiling with the launcher first. `mill-jvm-version` controls the build runtime; module `jvmVersion` controls module toolchains. Do not alter a user's global JDK merely to satisfy a module.
+Match BSP/IDE support to project's version and languages. Compile with launcher first to separate build-server problems from compiler failures. `mill-jvm-version` sets build runtime; module `jvmVersion` sets module toolchains. Do not change user's global JDK merely to satisfy a module.
 
-For migration, generate scaffolding in an isolated checkout or reviewed working tree, preserve source layout with compatibility modules, compare behavior and artifacts, and retire the previous build only after requested parity is achieved. `init` is a starting point rather than proof of equivalent behavior.
+Migration: generate scaffolding in isolated checkout or reviewed working tree. Keep source layout via compatibility modules. Compare behavior and artifacts. Retire old build only after requested parity. `init` is starting point, not proof of equivalent behavior.

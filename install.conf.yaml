@@ -45,7 +45,6 @@
     ~/.agents/skills/bash-linux: collections/shared/bash-linux
     ~/.agents/skills/bash-pro: collections/shared/bash-pro
     ~/.agents/skills/bdd-principles: collections/shared/bdd-principles
-    ~/.agents/skills/browser-testing-with-devtools: collections/shared/browser-testing-with-devtools
     ~/.agents/skills/building-ai-chat: collections/shared/building-ai-chat
     ~/.agents/skills/building-ci-pipelines: collections/shared/building-ci-pipelines
     ~/.agents/skills/building-clis: collections/shared/building-clis
@@ -55,14 +54,8 @@
     ~/.agents/skills/caveman: collections/shared/caveman
     ~/.agents/skills/caveman-commit: collections/shared/caveman-commit
     ~/.agents/skills/caveman-compress: collections/shared/caveman-compress
-    ~/.agents/skills/caveman-discover: collections/shared/caveman-discover
-    ~/.agents/skills/caveman-evidence-review: collections/shared/caveman-evidence-review
     ~/.agents/skills/caveman-help: collections/shared/caveman-help
-    ~/.agents/skills/caveman-learn: collections/shared/caveman-learn
-    ~/.agents/skills/caveman-manage: collections/shared/caveman-manage
-    ~/.agents/skills/caveman-optimize: collections/shared/caveman-optimize
     ~/.agents/skills/caveman-review: collections/shared/caveman-review
-    ~/.agents/skills/caveman-setup: collections/shared/caveman-setup
     ~/.agents/skills/caveman-stats: collections/shared/caveman-stats
     ~/.agents/skills/ci-cd-and-automation: collections/shared/ci-cd-and-automation
     ~/.agents/skills/clean-code-guard: collections/shared/clean-code-guard
@@ -111,7 +104,6 @@
     ~/.agents/skills/elixir-project-workflow: collections/shared/elixir-project-workflow
     ~/.agents/skills/embedded-device-protocols: collections/shared/embedded-device-protocols
     ~/.agents/skills/error-debugging-error-trace: collections/shared/error-debugging-error-trace
-    ~/.agents/skills/find-skills: collections/shared/find-skills
     ~/.agents/skills/fp-async: collections/shared/fp-async
     ~/.agents/skills/fp-backend: collections/shared/fp-backend
     ~/.agents/skills/fp-data-transforms: collections/shared/fp-data-transforms
@@ -372,7 +364,6 @@
     ~/.claude/skills/bash-linux: collections/shared/bash-linux
     ~/.claude/skills/bash-pro: collections/shared/bash-pro
     ~/.claude/skills/bdd-principles: collections/shared/bdd-principles
-    ~/.claude/skills/browser-testing-with-devtools: collections/shared/browser-testing-with-devtools
     ~/.claude/skills/building-ai-chat: collections/shared/building-ai-chat
     ~/.claude/skills/building-ci-pipelines: collections/shared/building-ci-pipelines
     ~/.claude/skills/building-clis: collections/shared/building-clis
@@ -382,14 +373,8 @@
     ~/.claude/skills/caveman: collections/shared/caveman
     ~/.claude/skills/caveman-commit: collections/shared/caveman-commit
     ~/.claude/skills/caveman-compress: collections/shared/caveman-compress
-    ~/.claude/skills/caveman-discover: collections/shared/caveman-discover
-    ~/.claude/skills/caveman-evidence-review: collections/shared/caveman-evidence-review
     ~/.claude/skills/caveman-help: collections/shared/caveman-help
-    ~/.claude/skills/caveman-learn: collections/shared/caveman-learn
-    ~/.claude/skills/caveman-manage: collections/shared/caveman-manage
-    ~/.claude/skills/caveman-optimize: collections/shared/caveman-optimize
     ~/.claude/skills/caveman-review: collections/shared/caveman-review
-    ~/.claude/skills/caveman-setup: collections/shared/caveman-setup
     ~/.claude/skills/caveman-stats: collections/shared/caveman-stats
     ~/.claude/skills/ci-cd-and-automation: collections/shared/ci-cd-and-automation
     ~/.claude/skills/clean-code-guard: collections/shared/clean-code-guard
@@ -459,7 +444,6 @@
     ~/.claude/skills/elixir-project-workflow: collections/shared/elixir-project-workflow
     ~/.claude/skills/embedded-device-protocols: collections/shared/embedded-device-protocols
     ~/.claude/skills/error-debugging-error-trace: collections/shared/error-debugging-error-trace
-    ~/.claude/skills/find-skills: collections/shared/find-skills
     ~/.claude/skills/fp-async: collections/shared/fp-async
     ~/.claude/skills/fp-backend: collections/shared/fp-backend
     ~/.claude/skills/fp-data-transforms: collections/shared/fp-data-transforms
@@ -817,9 +801,6 @@
     ~/.codex/skills/bdd-principles:
       path: collections/shared/bdd-principles
       if: test -d "$HOME/.codex"
-    ~/.codex/skills/browser-testing-with-devtools:
-      path: collections/shared/browser-testing-with-devtools
-      if: test -d "$HOME/.codex"
     ~/.codex/skills/building-ai-chat:
       path: collections/shared/building-ai-chat
       if: test -d "$HOME/.codex"
@@ -847,29 +828,11 @@
     ~/.codex/skills/caveman-compress:
       path: collections/shared/caveman-compress
       if: test -d "$HOME/.codex"
-    ~/.codex/skills/caveman-discover:
-      path: collections/shared/caveman-discover
-      if: test -d "$HOME/.codex"
-    ~/.codex/skills/caveman-evidence-review:
-      path: collections/shared/caveman-evidence-review
-      if: test -d "$HOME/.codex"
     ~/.codex/skills/caveman-help:
       path: collections/shared/caveman-help
       if: test -d "$HOME/.codex"
-    ~/.codex/skills/caveman-learn:
-      path: collections/shared/caveman-learn
-      if: test -d "$HOME/.codex"
-    ~/.codex/skills/caveman-manage:
-      path: collections/shared/caveman-manage
-      if: test -d "$HOME/.codex"
-    ~/.codex/skills/caveman-optimize:
-      path: collections/shared/caveman-optimize
-      if: test -d "$HOME/.codex"
     ~/.codex/skills/caveman-review:
       path: collections/shared/caveman-review
-      if: test -d "$HOME/.codex"
-    ~/.codex/skills/caveman-setup:
-      path: collections/shared/caveman-setup
       if: test -d "$HOME/.codex"
     ~/.codex/skills/caveman-stats:
       path: collections/shared/caveman-stats
@@ -1125,9 +1088,6 @@
       if: test -d "$HOME/.codex"
     ~/.codex/skills/error-debugging-error-trace:
       path: collections/shared/error-debugging-error-trace
-      if: test -d "$HOME/.codex"
-    ~/.codex/skills/find-skills:
-      path: collections/shared/find-skills
       if: test -d "$HOME/.codex"
     ~/.codex/skills/fp-async:
       path: collections/shared/fp-async
@@ -1996,9 +1956,6 @@
     ~/.config/opencode/skills/bdd-principles:
       path: collections/shared/bdd-principles
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/browser-testing-with-devtools:
-      path: collections/shared/browser-testing-with-devtools
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/building-ai-chat:
       path: collections/shared/building-ai-chat
       if: test -d "$HOME/.config/opencode"
@@ -2026,29 +1983,11 @@
     ~/.config/opencode/skills/caveman-compress:
       path: collections/shared/caveman-compress
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/caveman-discover:
-      path: collections/shared/caveman-discover
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/caveman-evidence-review:
-      path: collections/shared/caveman-evidence-review
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/caveman-help:
       path: collections/shared/caveman-help
       if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/caveman-learn:
-      path: collections/shared/caveman-learn
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/caveman-manage:
-      path: collections/shared/caveman-manage
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/caveman-optimize:
-      path: collections/shared/caveman-optimize
-      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/caveman-review:
       path: collections/shared/caveman-review
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/caveman-setup:
-      path: collections/shared/caveman-setup
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/caveman-stats:
       path: collections/shared/caveman-stats
@@ -2292,9 +2231,6 @@
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/error-debugging-error-trace:
       path: collections/shared/error-debugging-error-trace
-      if: test -d "$HOME/.config/opencode"
-    ~/.config/opencode/skills/find-skills:
-      path: collections/shared/find-skills
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/fp-async:
       path: collections/shared/fp-async
@@ -3163,9 +3099,6 @@
     ~/.copilot/skills/bdd-principles:
       path: collections/shared/bdd-principles
       if: test -d "$HOME/.copilot"
-    ~/.copilot/skills/browser-testing-with-devtools:
-      path: collections/shared/browser-testing-with-devtools
-      if: test -d "$HOME/.copilot"
     ~/.copilot/skills/building-ai-chat:
       path: collections/shared/building-ai-chat
       if: test -d "$HOME/.copilot"
@@ -3193,29 +3126,11 @@
     ~/.copilot/skills/caveman-compress:
       path: collections/shared/caveman-compress
       if: test -d "$HOME/.copilot"
-    ~/.copilot/skills/caveman-discover:
-      path: collections/shared/caveman-discover
-      if: test -d "$HOME/.copilot"
-    ~/.copilot/skills/caveman-evidence-review:
-      path: collections/shared/caveman-evidence-review
-      if: test -d "$HOME/.copilot"
     ~/.copilot/skills/caveman-help:
       path: collections/shared/caveman-help
       if: test -d "$HOME/.copilot"
-    ~/.copilot/skills/caveman-learn:
-      path: collections/shared/caveman-learn
-      if: test -d "$HOME/.copilot"
-    ~/.copilot/skills/caveman-manage:
-      path: collections/shared/caveman-manage
-      if: test -d "$HOME/.copilot"
-    ~/.copilot/skills/caveman-optimize:
-      path: collections/shared/caveman-optimize
-      if: test -d "$HOME/.copilot"
     ~/.copilot/skills/caveman-review:
       path: collections/shared/caveman-review
-      if: test -d "$HOME/.copilot"
-    ~/.copilot/skills/caveman-setup:
-      path: collections/shared/caveman-setup
       if: test -d "$HOME/.copilot"
     ~/.copilot/skills/caveman-stats:
       path: collections/shared/caveman-stats
@@ -3459,9 +3374,6 @@
       if: test -d "$HOME/.copilot"
     ~/.copilot/skills/error-debugging-error-trace:
       path: collections/shared/error-debugging-error-trace
-      if: test -d "$HOME/.copilot"
-    ~/.copilot/skills/find-skills:
-      path: collections/shared/find-skills
       if: test -d "$HOME/.copilot"
     ~/.copilot/skills/fp-async:
       path: collections/shared/fp-async
@@ -4330,9 +4242,6 @@
     ~/.cursor/skills/bdd-principles:
       path: collections/shared/bdd-principles
       if: test -d "$HOME/.cursor"
-    ~/.cursor/skills/browser-testing-with-devtools:
-      path: collections/shared/browser-testing-with-devtools
-      if: test -d "$HOME/.cursor"
     ~/.cursor/skills/building-ai-chat:
       path: collections/shared/building-ai-chat
       if: test -d "$HOME/.cursor"
@@ -4360,29 +4269,11 @@
     ~/.cursor/skills/caveman-compress:
       path: collections/shared/caveman-compress
       if: test -d "$HOME/.cursor"
-    ~/.cursor/skills/caveman-discover:
-      path: collections/shared/caveman-discover
-      if: test -d "$HOME/.cursor"
-    ~/.cursor/skills/caveman-evidence-review:
-      path: collections/shared/caveman-evidence-review
-      if: test -d "$HOME/.cursor"
     ~/.cursor/skills/caveman-help:
       path: collections/shared/caveman-help
       if: test -d "$HOME/.cursor"
-    ~/.cursor/skills/caveman-learn:
-      path: collections/shared/caveman-learn
-      if: test -d "$HOME/.cursor"
-    ~/.cursor/skills/caveman-manage:
-      path: collections/shared/caveman-manage
-      if: test -d "$HOME/.cursor"
-    ~/.cursor/skills/caveman-optimize:
-      path: collections/shared/caveman-optimize
-      if: test -d "$HOME/.cursor"
     ~/.cursor/skills/caveman-review:
       path: collections/shared/caveman-review
-      if: test -d "$HOME/.cursor"
-    ~/.cursor/skills/caveman-setup:
-      path: collections/shared/caveman-setup
       if: test -d "$HOME/.cursor"
     ~/.cursor/skills/caveman-stats:
       path: collections/shared/caveman-stats
@@ -4626,9 +4517,6 @@
       if: test -d "$HOME/.cursor"
     ~/.cursor/skills/error-debugging-error-trace:
       path: collections/shared/error-debugging-error-trace
-      if: test -d "$HOME/.cursor"
-    ~/.cursor/skills/find-skills:
-      path: collections/shared/find-skills
       if: test -d "$HOME/.cursor"
     ~/.cursor/skills/fp-async:
       path: collections/shared/fp-async
@@ -5497,9 +5385,6 @@
     ~/.gemini/skills/bdd-principles:
       path: collections/shared/bdd-principles
       if: test -d "$HOME/.gemini"
-    ~/.gemini/skills/browser-testing-with-devtools:
-      path: collections/shared/browser-testing-with-devtools
-      if: test -d "$HOME/.gemini"
     ~/.gemini/skills/building-ai-chat:
       path: collections/shared/building-ai-chat
       if: test -d "$HOME/.gemini"
@@ -5527,29 +5412,11 @@
     ~/.gemini/skills/caveman-compress:
       path: collections/shared/caveman-compress
       if: test -d "$HOME/.gemini"
-    ~/.gemini/skills/caveman-discover:
-      path: collections/shared/caveman-discover
-      if: test -d "$HOME/.gemini"
-    ~/.gemini/skills/caveman-evidence-review:
-      path: collections/shared/caveman-evidence-review
-      if: test -d "$HOME/.gemini"
     ~/.gemini/skills/caveman-help:
       path: collections/shared/caveman-help
       if: test -d "$HOME/.gemini"
-    ~/.gemini/skills/caveman-learn:
-      path: collections/shared/caveman-learn
-      if: test -d "$HOME/.gemini"
-    ~/.gemini/skills/caveman-manage:
-      path: collections/shared/caveman-manage
-      if: test -d "$HOME/.gemini"
-    ~/.gemini/skills/caveman-optimize:
-      path: collections/shared/caveman-optimize
-      if: test -d "$HOME/.gemini"
     ~/.gemini/skills/caveman-review:
       path: collections/shared/caveman-review
-      if: test -d "$HOME/.gemini"
-    ~/.gemini/skills/caveman-setup:
-      path: collections/shared/caveman-setup
       if: test -d "$HOME/.gemini"
     ~/.gemini/skills/caveman-stats:
       path: collections/shared/caveman-stats
@@ -5793,9 +5660,6 @@
       if: test -d "$HOME/.gemini"
     ~/.gemini/skills/error-debugging-error-trace:
       path: collections/shared/error-debugging-error-trace
-      if: test -d "$HOME/.gemini"
-    ~/.gemini/skills/find-skills:
-      path: collections/shared/find-skills
       if: test -d "$HOME/.gemini"
     ~/.gemini/skills/fp-async:
       path: collections/shared/fp-async
@@ -6664,9 +6528,6 @@
     ~/.hermes/skills/bdd-principles:
       path: collections/shared/bdd-principles
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/browser-testing-with-devtools:
-      path: collections/shared/browser-testing-with-devtools
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/building-ai-chat:
       path: collections/shared/building-ai-chat
       if: test -d "$HOME/.hermes"
@@ -6694,29 +6555,11 @@
     ~/.hermes/skills/caveman-compress:
       path: collections/shared/caveman-compress
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/caveman-discover:
-      path: collections/shared/caveman-discover
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/caveman-evidence-review:
-      path: collections/shared/caveman-evidence-review
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/caveman-help:
       path: collections/shared/caveman-help
       if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/caveman-learn:
-      path: collections/shared/caveman-learn
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/caveman-manage:
-      path: collections/shared/caveman-manage
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/caveman-optimize:
-      path: collections/shared/caveman-optimize
-      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/caveman-review:
       path: collections/shared/caveman-review
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/caveman-setup:
-      path: collections/shared/caveman-setup
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/caveman-stats:
       path: collections/shared/caveman-stats
@@ -6960,9 +6803,6 @@
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/error-debugging-error-trace:
       path: collections/shared/error-debugging-error-trace
-      if: test -d "$HOME/.hermes"
-    ~/.hermes/skills/find-skills:
-      path: collections/shared/find-skills
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/fp-async:
       path: collections/shared/fp-async
@@ -8002,9 +7842,6 @@
     ~/.pi/agent/skills/bdd-principles:
       path: collections/shared/bdd-principles
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/browser-testing-with-devtools:
-      path: collections/shared/browser-testing-with-devtools
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/building-ai-chat:
       path: collections/shared/building-ai-chat
       if: test -d "$HOME/.pi/agent"
@@ -8032,29 +7869,11 @@
     ~/.pi/agent/skills/caveman-compress:
       path: collections/shared/caveman-compress
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/caveman-discover:
-      path: collections/shared/caveman-discover
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/caveman-evidence-review:
-      path: collections/shared/caveman-evidence-review
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/caveman-help:
       path: collections/shared/caveman-help
       if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/caveman-learn:
-      path: collections/shared/caveman-learn
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/caveman-manage:
-      path: collections/shared/caveman-manage
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/caveman-optimize:
-      path: collections/shared/caveman-optimize
-      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/caveman-review:
       path: collections/shared/caveman-review
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/caveman-setup:
-      path: collections/shared/caveman-setup
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/caveman-stats:
       path: collections/shared/caveman-stats
@@ -8199,9 +8018,6 @@
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/error-debugging-error-trace:
       path: collections/shared/error-debugging-error-trace
-      if: test -d "$HOME/.pi/agent"
-    ~/.pi/agent/skills/find-skills:
-      path: collections/shared/find-skills
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/fp-async:
       path: collections/shared/fp-async

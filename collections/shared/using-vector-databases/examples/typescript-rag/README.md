@@ -24,8 +24,8 @@ Full-stack RAG (Retrieval-Augmented Generation) application using TypeScript, Ho
 # 1. Install dependencies
 npm install
 
-# 2. Start Qdrant
-docker run -p 6333:6333 qdrant/qdrant
+# 2. Start Qdrant (pinned, localhost only, telemetry off)
+docker run -p 127.0.0.1:6333:6333 -e QDRANT__TELEMETRY_DISABLED=true qdrant/qdrant:v1.19.2
 
 # 3. Configure environment
 cp .env.example .env
@@ -56,16 +56,18 @@ curl http://localhost:3000/api/search \
 
 ## Deployment
 
+Deploy only when the user asks; confirm the target first.
+
 ### Cloudflare Workers
 
 ```bash
-npm run deploy:cloudflare
+WRANGLER_SEND_METRICS=false npm run deploy:cloudflare  # no Wrangler telemetry
 ```
 
 ### Vercel
 
 ```bash
-vercel deploy
+VERCEL_TELEMETRY_DISABLED=1 vercel deploy  # no Vercel CLI telemetry
 ```
 
 See source files for complete implementation.

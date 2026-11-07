@@ -39,13 +39,13 @@ aws configure
 pulumi stack init dev
 pulumi config set aws:region us-east-1
 pulumi config set imageTag v1.0.0
-pulumi config set --secret dbPassword mySecurePassword
+pulumi config set --secret dbPassword   # user runs; prompts for value, keeps it out of argv/history
 
 # Production
 pulumi stack init production
 pulumi config set aws:region us-east-1
 pulumi config set imageTag v1.0.0
-pulumi config set --secret dbPassword productionPassword
+pulumi config set --secret dbPassword < db-password.txt   # or pipe from secret manager; never commit the file
 ```
 
 ## Deployment
@@ -70,7 +70,7 @@ pulumi stack output url
 
 - **VPC**: 2 availability zones, public/private subnets, NAT gateway
 - **ECS Cluster**: Fargate-based container orchestration
-- **Application Load Balancer**: HTTP traffic distribution
+- **Application Load Balancer**: HTTP traffic distribution (add HTTPS listener with ACM certificate and HTTP-to-HTTPS redirect before production)
 - **Fargate Service**: 2 container replicas, auto-scaling enabled
 - **CloudWatch Logs**: Container logging
 - **IAM Roles**: Task execution and task roles

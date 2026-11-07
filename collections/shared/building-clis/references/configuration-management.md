@@ -1,7 +1,5 @@
 # Configuration Management Guide
 
-Comprehensive guide to managing CLI configuration from multiple sources with proper precedence and validation.
-
 ## Table of Contents
 
 - [Configuration Sources](#configuration-sources)
@@ -15,8 +13,8 @@ Comprehensive guide to managing CLI configuration from multiple sources with pro
 ### Standard Configuration Hierarchy
 
 1. **CLI Arguments/Flags** (Highest Priority)
-   - Explicitly provided by user
-   - Always takes precedence
+   - Set explicitly by user
+   - Always wins
    - Example: `--port 8080`
 
 2. **Environment Variables**
@@ -30,7 +28,7 @@ Comprehensive guide to managing CLI configuration from multiple sources with pro
    - Committed to version control (usually)
 
 4. **Config File - User** (User-Level)
-   - User-specific settings across projects
+   - Per-user settings across projects
    - Location: `~/.config/myapp/config.yaml` (XDG)
    - Not committed to version control
 
@@ -41,7 +39,7 @@ Comprehensive guide to managing CLI configuration from multiple sources with pro
 
 6. **Built-in Defaults** (Lowest Priority)
    - Hardcoded in application
-   - Fallback when nothing else is specified
+   - Fallback when nothing else is set
 
 ## Precedence Strategy
 
@@ -59,20 +57,9 @@ final_value = (
 )
 ```
 
-**Example:**
-```bash
-# System config: port = 3000
-# User config: port = 4000
-# Local config: port = 5000
-# Environment: MYAPP_PORT=6000
-# CLI arg: --port 8080
-
-# Result: port = 8080 (CLI arg wins)
-```
-
 ### Partial Override Strategy
 
-Some configurations support partial overrides (merge, not replace):
+Some configs support partial overrides (merge, not replace):
 
 **Example:**
 ```yaml
@@ -161,7 +148,7 @@ log_level = "info"
 - Good for programmatic generation
 
 **Disadvantages:**
-- No comments (limitation)
+- No comments
 - Less human-friendly
 
 **Example (myapp.json):**
@@ -180,13 +167,12 @@ log_level = "info"
 }
 ```
 
-**Recommendation:** Use YAML for user-facing configs, JSON for machine-generated configs.
+**Recommendation:** YAML for user-facing configs, JSON for machine-generated ones.
 
 ## Multi-Language Implementation
 
 ### Python: YAML + Environment Variables
 
-**Implementation:**
 ```python
 import os
 import yaml
@@ -270,7 +256,6 @@ print(f"Host: {server_config.host}, Port: {server_config.port}")
 
 ### Go: Viper for Configuration
 
-**Implementation:**
 ```go
 package main
 
@@ -573,7 +558,7 @@ config/
 └── production.yaml     # Prod overrides
 ```
 
-**Load based on environment:**
+**Load by environment:**
 ```python
 import os
 
@@ -603,16 +588,3 @@ user_data = xdg_data_home / "myapp"
 xdg_cache_home = Path(os.getenv("XDG_CACHE_HOME", Path.home() / ".cache"))
 user_cache = xdg_cache_home / "myapp"
 ```
-
-## Configuration Checklist
-
-- [ ] Support multiple config sources (CLI, env, files)
-- [ ] Implement clear precedence (CLI > env > local > user > system > default)
-- [ ] Validate configuration on load
-- [ ] Provide `config show` command to inspect effective config
-- [ ] Provide `config init` to generate template
-- [ ] Document precedence in help text
-- [ ] Use environment variables for secrets
-- [ ] Follow XDG Base Directory specification
-- [ ] Support environment-specific configs (dev, staging, prod)
-- [ ] Never commit secrets to version control

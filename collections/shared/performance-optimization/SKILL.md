@@ -14,17 +14,17 @@ license_source: https://github.com/addyosmani/agent-skills/blob/main/LICENSE
 
 ## Overview
 
-Measure before optimizing. Performance work without measurement is guessing — and guessing leads to premature optimization that adds complexity without improving what matters. Profile first, identify the actual bottleneck, fix it, measure again. Optimize only what measurements prove matters.
+Measure before optimizing. Profile first, find the actual bottleneck, fix it, measure again. Optimize only what measurements prove matters.
 
 ## When to Use
 
-- Performance requirements exist in the spec (load time budgets, response time SLAs)
+- Spec has performance requirements (load time budgets, response time SLAs)
 - Users or monitoring report slow behavior
-- Core Web Vitals scores are below thresholds
-- You suspect a change introduced a regression
-- Building features that handle large datasets or high traffic
+- Core Web Vitals scores below thresholds
+- Suspected regression from a change
+- Building features for large datasets or high traffic
 
-**When NOT to use:** Don't optimize before you have evidence of a problem. Premature optimization adds complexity that costs more than the performance it gains.
+**When NOT to use:** Don't optimize until evidence shows a problem.
 
 ## Core Web Vitals Targets
 
@@ -46,18 +46,18 @@ Measure before optimizing. Performance work without measurement is guessing — 
 
 ### Step 1: Measure
 
-Two complementary approaches — use both:
+Two complementary approaches; use both:
 
-- **Synthetic (Lighthouse, DevTools Performance tab):** Controlled conditions, reproducible. Best for CI regression detection and isolating specific issues.
-- **RUM (web-vitals library, CrUX):** Real user data in real conditions. Required to validate that a fix actually improved user experience.
+- **Synthetic (Lighthouse, DevTools Performance tab):** Controlled, reproducible. Best for CI regression detection and isolating specific issues.
+- **RUM (web-vitals library, CrUX):** Real users, real conditions. Required to confirm fix improved user experience.
 
-**Frontend (synthetic):** Chrome DevTools → Performance tab → Record, or a Lighthouse run. For a scripted lab audit with scores and LCP/CLS/TBT in JSON:
+**Frontend (synthetic):** Chrome DevTools → Performance tab → Record, or Lighthouse run. For scripted lab audit with scores and LCP/CLS/TBT in JSON:
 
 ```bash
 python3 scripts/lighthouse_audit.py https://staging.example.com   # needs the lighthouse CLI + Chrome
 ```
 
-Lab runs cannot measure INP; Total Blocking Time is the closest lab proxy.
+Lab runs cannot measure INP. Total Blocking Time is closest lab proxy.
 
 **Frontend (RUM):**
 ```typescript
@@ -68,18 +68,18 @@ onINP(console.log);
 onCLS(console.log);
 ```
 
-**Backend:** APM traces, database slow-query logs with timing, or a quick local timing:
+**Backend:** APM traces, database slow-query logs with timing, or quick local timing:
 ```typescript
 console.time('db-query');
 const result = await db.query(sql, params);
 console.timeEnd('db-query');
 ```
 
-Record the baseline numbers (p50/p95, sizes, query counts) before changing anything; you need them for Step 4.
+Record baseline numbers (p50/p95, sizes, query counts) before changing anything.
 
 ### Where to Start Measuring
 
-Use the symptom to decide what to measure first:
+Let symptom decide what to measure first:
 
 ```
 What is slow?
@@ -105,42 +105,40 @@ What is slow?
 
 ### Step 2: Identify the Bottleneck
 
-Common bottlenecks by category:
-
 **Frontend:**
 
 | Symptom | Likely Cause | Investigation |
 |---------|-------------|---------------|
-| Slow LCP | Large images, render-blocking resources, slow server | Check network waterfall, image sizes |
-| High CLS | Images without dimensions, late-loading content, font shifts | Check layout shift attribution |
-| Poor INP | Heavy JavaScript on main thread, large DOM updates | Check long tasks in Performance trace |
-| Slow initial load | Large bundle, many network requests | Check bundle size, code splitting |
+| Slow LCP | Large images, render-blocking resources, slow server | Network waterfall, image sizes |
+| High CLS | Images without dimensions, late-loading content, font shifts | Layout shift attribution |
+| Poor INP | Heavy JavaScript on main thread, large DOM updates | Long tasks in Performance trace |
+| Slow initial load | Large bundle, many network requests | Bundle size, code splitting |
 
 **Backend:**
 
 | Symptom | Likely Cause | Investigation |
 |---------|-------------|---------------|
-| Slow API responses | N+1 queries, missing indexes, unoptimized queries | Check database query log |
+| Slow API responses | N+1 queries, missing indexes, unoptimized queries | Database query log |
 | Memory growth | Leaked references, unbounded caches, large payloads | Heap snapshot analysis |
 | CPU spikes | Synchronous heavy computation, regex backtracking | CPU profiling |
-| High latency | Missing caching, redundant computation, network hops | Trace requests through the stack |
+| High latency | Missing caching, redundant computation, network hops | Trace requests through stack |
 
 **Choosing a profiling tool:**
 
 | Problem | Tool |
 |---|---|
 | Page load | Lighthouse, DevTools Network waterfall |
-| Bundle size | Bundle analyzer for your bundler (e.g. `rollup-plugin-visualizer`, `webpack-bundle-analyzer`, `source-map-explorer`) |
+| Bundle size | Your bundler's analyzer (e.g. `rollup-plugin-visualizer`, `webpack-bundle-analyzer`, `source-map-explorer`) |
 | Main-thread work | DevTools Performance panel |
 | Memory | DevTools Memory panel (heap snapshots, allocation timeline) |
-| Node.js CPU | `node --cpu-prof app.js` (open the `.cpuprofile` in DevTools) or `node --inspect` + Performance panel |
+| Node.js CPU | `node --cpu-prof app.js` (open `.cpuprofile` in DevTools) or `node --inspect` + Performance panel |
 | SQL | `EXPLAIN ANALYZE` (PostgreSQL) / `EXPLAIN ANALYZE` or `EXPLAIN FORMAT=TREE` (MySQL 8) |
 
 **Reading a bundle analysis:**
 
 | Finding | Indicator | Action |
 |---|---|---|
-| Large dependency | Dominates the treemap | Lighter alternative, per-module import, or lazy load |
+| Large dependency | Dominates treemap | Lighter alternative, per-module import, or lazy load |
 | Duplicate code | Same package in several chunks or versions | Dedupe versions, shared chunk |
 | Unused code | Low DevTools Coverage | Remove or split |
 | Missing split | One large initial chunk with route code | Route-level code splitting |
@@ -149,8 +147,8 @@ Common bottlenecks by category:
 
 | Pattern | Meaning |
 |---|---|
-| Heap keeps growing across repeated identical actions | Likely leak; compare two snapshots |
-| Large retained size on one object | Follow its retainers to the reference keeping it alive |
+| Heap grows across repeated identical actions | Likely leak; compare two snapshots |
+| Large retained size on one object | Follow its retainers to reference keeping it alive |
 | Detached DOM nodes | Removed elements still referenced (listeners, caches, closures) |
 
 ### Step 3: Fix Common Anti-Patterns
@@ -183,7 +181,7 @@ EXPLAIN ANALYZE SELECT id, name FROM users WHERE email = 'test@example.com';
 -- expect "Index Scan using idx_users_email"
 ```
 
-An index only helps predicates it can serve: `LIKE '%term%'` (leading wildcard) or `lower(email) = ...` will not use a plain btree index on `email`. A sequential scan on a tiny table is fine. Every index costs write time and storage, so add it for a measured query, then re-run the plan.
+Index only helps predicates it can serve. `LIKE '%term%'` (leading wildcard) or `lower(email) = ...` will not use plain btree index on `email`. Sequential scan on tiny table is fine. Every index costs write time and storage. Add it for a measured query, then re-run plan.
 
 #### Over-fetching Columns and Payloads
 
@@ -197,7 +195,7 @@ const users = await db.query('SELECT id, name, email FROM users');
 res.json(users);
 ```
 
-`SELECT *` also defeats index-only scans and silently grows responses when columns are added.
+`SELECT *` also defeats index-only scans. It silently grows responses when columns are added.
 
 #### Sequential Independent Awaits
 
@@ -365,11 +363,11 @@ app.use('/static', express.static('public', {
 res.set('Cache-Control', 'public, max-age=300'); // 5 minutes
 ```
 
-Only cache responses that are safe to share: per-user data needs `private` (or no shared cache), and every cache needs an invalidation story.
+Cache only responses safe to share. Per-user data needs `private` (or no shared cache). Every cache needs an invalidation story.
 
 #### Algorithmic Complexity
 
-When a CPU profile points at your own code, check complexity before micro-tuning:
+If CPU profile points at your own code, check complexity before micro-tuning:
 
 ```typescript
 // BAD: O(n²) nested scan
@@ -393,7 +391,7 @@ function findDuplicates<T>(items: T[]): T[] {
 }
 ```
 
-Other common wins: replace repeated `array.find`/`includes` inside loops with a `Map`/`Set` lookup, hoist invariant work out of loops, and avoid catastrophic regex backtracking on untrusted input.
+Other common wins: replace repeated `array.find`/`includes` in loops with `Map`/`Set` lookup; hoist invariant work out of loops; avoid catastrophic regex backtracking on untrusted input.
 
 #### Memory Leaks and Large Data
 
@@ -422,11 +420,11 @@ for await (const line of createInterface({ input: createReadStream('huge.log') }
 }
 ```
 
-Also look for unbounded caches/maps keyed by request data (add a size limit or TTL) and timers/intervals that are never cleared.
+Also check for unbounded caches/maps keyed by request data (add size limit or TTL). Check for timers/intervals never cleared.
 
 ## Performance Budget
 
-Set budgets and enforce them:
+Set budgets, enforce them:
 
 ```
 JavaScript bundle: < 200KB gzipped (initial load)
@@ -438,22 +436,22 @@ Total Blocking Time: < 200ms (lab) / INP < 200ms (field)
 Lighthouse Performance score: ≥ 90
 ```
 
-**Enforce in CI:**
+**Enforce in CI** (pin `size-limit` and `@lhci/cli` as devDependencies with a lockfile; `--no-install` stops npx fetching an unpinned or look-alike package, e.g. npm `lhci` is not Lighthouse CI):
 ```bash
 # Bundle size check (size-limit reads the "size-limit" key in package.json),
 # or use your bundler's own budget (webpack performance.maxAssetSize, etc.)
-npx size-limit
+npx --no-install size-limit
 
-# Lighthouse CI
-npx lhci autorun
+# Lighthouse CI (package @lhci/cli, binary lhci)
+npx --no-install lhci autorun
 ```
 
-Treat these numbers as starting points; derive real budgets from your baseline and user expectations.
+These numbers are starting points. Derive real budgets from your baseline and user expectations.
 
 ## Related Skills
 
 - `performance-engineering`: load/stress/soak tests, backend profilers (py-spy, pprof, clinic.js), performance SLOs and CI perf gates.
-- `observability-and-instrumentation`: latency histograms and traces that keep regressions visible after the fix.
+- `observability-and-instrumentation`: latency histograms and traces keeping regressions visible after fix.
 
 ## Common Rationalizations
 
@@ -461,27 +459,18 @@ Treat these numbers as starting points; derive real budgets from your baseline a
 |---|---|
 | "We'll optimize later" | Performance debt compounds. Fix obvious anti-patterns now, defer micro-optimizations. |
 | "It's fast on my machine" | Your machine isn't the user's. Profile on representative hardware and networks. |
-| "This optimization is obvious" | If you didn't measure, you don't know. Profile first. |
-| "Users won't notice 100ms" | Research shows 100ms delays impact conversion rates. Users notice more than you think. |
-| "The framework handles performance" | Frameworks prevent some issues but can't fix N+1 queries or oversized bundles. |
 
 ## Red Flags
 
-- Optimization without profiling data to justify it
-- N+1 query patterns in data fetching
-- List endpoints without pagination
-- Images without dimensions, lazy loading, or responsive sizes
-- Bundle size growing without review
-- No performance monitoring in production
-- `React.memo` and `useMemo` everywhere (overusing is as bad as underusing)
+- `React.memo` and `useMemo` everywhere (overuse as bad as underuse)
 
 ## Verification
 
 After any performance-related change:
 
 - [ ] Before and after measurements exist (specific numbers)
-- [ ] The specific bottleneck is identified and addressed
-- [ ] Core Web Vitals are within "Good" thresholds
+- [ ] Specific bottleneck identified and addressed
+- [ ] Core Web Vitals within "Good" thresholds
 - [ ] Bundle size hasn't increased significantly
 - [ ] No N+1 queries in new data fetching code
 - [ ] Performance budget passes in CI (if configured)
@@ -489,5 +478,5 @@ After any performance-related change:
 
 ## Limitations
 
-- Lab numbers (Lighthouse, local timing) can disagree with field data; confirm user-facing wins with RUM or production percentiles.
-- Index creation, cache changes and load against shared environments affect other users: get approval and use non-blocking variants (e.g. `CREATE INDEX CONCURRENTLY`) where the database supports them.
+- Lab numbers (Lighthouse, local timing) can disagree with field data. Confirm user-facing wins with RUM or production percentiles.
+- Index creation, cache changes and load on shared environments affect other users. Get approval. Use non-blocking variants (e.g. `CREATE INDEX CONCURRENTLY`) where database supports them.

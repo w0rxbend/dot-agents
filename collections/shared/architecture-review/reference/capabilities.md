@@ -1,10 +1,6 @@
 # Ontoly Capability Notes (architecture and dependency review)
 
-Architecture review: `EvidencePack`, `ExplainArchitecture`, `GraphStatistics`, `FindCycles`, `FindDependencies`.
-
-Dependency analysis: `EvidencePack`, `FindDependencies`, `FindDependents`, `FindCycles`, `GraphStatistics`.
-
-Use [../reference/mcp.md](../reference/mcp.md) for common capability behavior and fallback CLI equivalents.
+Common capability behavior and fallback CLI equivalents: [../reference/mcp.md](../reference/mcp.md).
 
 ## Required Evidence
 

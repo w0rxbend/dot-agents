@@ -57,21 +57,21 @@ Start: What is your primary use case?
 **Startup (<50 people):**
 - **Primary:** Data Warehouse (Snowflake, BigQuery)
 - **Why:** Simplicity over flexibility; focus on BI
-- **Cost:** Pay-per-use pricing manageable at small scale
-- **Skills:** Analysts can write SQL; no data engineers needed
+- **Cost:** Pay-per-use pricing fine at small scale
+- **Skills:** Analysts write SQL; no data engineers needed
 
 **Growth (50-500 people):**
 - **Primary:** Data Lakehouse (Databricks with Delta Lake, or Iceberg on S3)
 - **Why:** Balance cost and features; support BI and emerging ML
 - **Cost:** 60-80% cheaper than warehouse at scale
-- **Skills:** Hire 1-2 data engineers for lakehouse management
+- **Skills:** Hire 1-2 data engineers to manage lakehouse
 
 **Enterprise (>500 people):**
 - **Primary:** Hybrid or unified Lakehouse
 - **Option 1 (Hybrid):** Snowflake for BI + Databricks for ML
 - **Option 2 (Unified):** Databricks lakehouse for all workloads
-- **Why:** Scale and specialization requirements
-- **Cost:** Negotiate enterprise contracts; leverage reserved capacity
+- **Why:** Scale and specialization needs
+- **Cost:** Negotiate enterprise contracts; use reserved capacity
 
 ### Cost-Benefit Analysis
 
@@ -171,17 +171,17 @@ Primary Workload?
 **Type 1 (Overwrite):**
 - **Use when:** History doesn't matter
 - **Example:** Fixing typos in customer names
-- **Storage:** No additional columns
+- **Storage:** No extra columns
 - **Query Complexity:** Simple
 
 **Type 2 (Add Row):**
-- **Use when:** Full history is critical
+- **Use when:** Full history critical
 - **Example:** Customer address changes
 - **Storage:** Add `effective_date`, `end_date`, `is_current`
 - **Query Complexity:** Filter on `is_current` or date ranges
 
 **Type 3 (Add Column):**
-- **Use when:** Need to compare current vs previous
+- **Use when:** Comparing current vs previous
 - **Example:** Customer's previous and current segment
 - **Storage:** Add `previous_value` column
 - **Query Complexity:** Simple, limited to one previous value
@@ -199,48 +199,48 @@ Primary Workload?
 ### 6-Factor Assessment (Score 1-5 each)
 
 **1. Domain Clarity:**
-- 1: No clear domains, everything is interconnected
-- 3: Some domains exist but boundaries are fuzzy
+- 1: No clear domains; everything interconnected
+- 3: Some domains exist, boundaries fuzzy
 - 5: Clear bounded contexts (Domain-Driven Design), distinct ownership
 
 **2. Team Maturity:**
 - 1: Domain teams have no data skills
-- 3: Some teams have analysts, but no data engineers
+- 3: Some teams have analysts but no data engineers
 - 5: Domain teams have data engineers, can own pipelines
 
 **3. Platform Capability:**
 - 1: No self-serve infrastructure, manual provisioning
-- 3: Some automation (Terraform), but requires platform team involvement
-- 5: Fully self-serve platform (domains can deploy independently)
+- 3: Some automation (Terraform), but needs platform team involvement
+- 5: Fully self-serve platform (domains deploy independently)
 
 **4. Governance Maturity:**
 - 1: No data governance, ad-hoc policies
-- 3: Centralized governance, but difficult to enforce
+- 3: Centralized governance, but hard to enforce
 - 5: Federated governance with automated enforcement
 
 **5. Scale Need:**
-- 1: Central team is adequate, no bottleneck
-- 3: Central team is sometimes slow, but manageable
-- 5: Central team is clear bottleneck, blocks domain progress
+- 1: Central team adequate, no bottleneck
+- 3: Central team sometimes slow but manageable
+- 5: Central team clear bottleneck; blocks domain progress
 
 **6. Organizational Buy-In:**
 - 1: No leadership support, resistance to change
-- 3: Leadership is interested, but skeptical
+- 3: Leadership interested but skeptical
 - 5: Strong leadership support, cultural readiness
 
 ### Scoring Interpretation
 
 **24-30 points: Strong Data Mesh Candidate**
-- Proceed with data mesh implementation
+- Proceed with data mesh
 - Start with pilot domain (sales or marketing)
 - Build self-serve platform capabilities
-- Establish federated governance framework
+- Set up federated governance framework
 
 **18-23 points: Hybrid Approach**
-- Implement data mesh for critical domains only
+- Use data mesh for critical domains only
 - Keep less critical domains centralized
-- Gradually expand mesh as maturity increases
-- Example: Sales domain owns data products, others remain central
+- Expand mesh gradually as maturity grows
+- Example: Sales domain owns data products, others stay central
 
 **12-17 points: Build Foundation First**
 - Invest in self-serve platform (infrastructure as code)
@@ -249,9 +249,9 @@ Primary Workload?
 - Reassess in 6-12 months
 
 **6-11 points: Centralized Approach**
-- Data mesh is premature
+- Data mesh premature
 - Focus on scaling central team
-- Improve centralized platform efficiency
+- Make centralized platform more efficient
 - Consider data mesh at >500 people or when bottleneck emerges
 
 ### Red Flags (Do NOT Pursue Data Mesh)
@@ -270,7 +270,7 @@ Primary Workload?
 
 **Cultural:**
 - Domain teams lack data ownership mindset
-- Centralized team is not a bottleneck
+- Central team not a bottleneck
 - No appetite for decentralization
 - Resistance to data-as-product thinking
 
@@ -383,7 +383,7 @@ Start: What is your priority?
 **ML/Data Science:**
 - **Best:** Apache Iceberg or Delta Lake
 - **Why:** Time travel, schema evolution, snapshot isolation
-- **Alternative:** Both are excellent; choose based on ecosystem
+- **Alternative:** Both excellent; choose by ecosystem
 
 **CDC-Heavy Workloads:**
 - **Best:** Apache Hudi
@@ -394,15 +394,15 @@ Start: What is your priority?
 
 **Migrating from Hive Tables:**
 - **Iceberg:** In-place migration (no data rewrite)
-- **Delta Lake:** Requires data rewrite
-- **Hudi:** Requires data rewrite
+- **Delta Lake:** Needs data rewrite
+- **Hudi:** Needs data rewrite
 
 **Migrating from Parquet:**
-- **All:** Require metadata creation; data files can often be reused
+- **All:** Need metadata creation; data files often reusable
 
 **Cross-Format Migration:**
 - **Iceberg ↔ Delta Lake:** Possible with tools (e.g., Delta Lake Universal Format)
-- **Hudi ↔ Others:** More complex, may require full rewrite
+- **Hudi ↔ Others:** More complex; may need full rewrite
 
 ### Recommendation Summary
 
@@ -411,12 +411,7 @@ Start: What is your priority?
 - **If Databricks-committed:** Delta Lake
 - **If CDC-heavy:** Apache Hudi
 
-**For Existing Systems:**
-- **Hive migration:** Apache Iceberg (in-place migration)
-- **Databricks platform:** Delta Lake
-- **Streaming-first:** Apache Hudi or Delta Lake
-
 **Red Flags for Each Format:**
-- **Iceberg:** Avoid if only using Databricks (Delta Lake is better integrated)
-- **Delta Lake:** Avoid if need multi-cloud, multi-engine flexibility
+- **Iceberg:** Avoid if using only Databricks (Delta Lake integrates better)
+- **Delta Lake:** Avoid if you need multi-cloud, multi-engine flexibility
 - **Hudi:** Avoid if batch analytics is primary workload (Iceberg/Delta better)

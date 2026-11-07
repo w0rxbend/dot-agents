@@ -5,12 +5,10 @@ description: Document database implementation for flexible schema applications. 
 
 # Document Database Implementation
 
-Guide NoSQL document database selection and implementation for flexible schema applications across Python, TypeScript, Rust, and Go.
-
 ## When to Use This Skill
 
-Use document databases when applications need:
-- **Flexible schemas** - Data models evolve rapidly without migrations
+Use document databases when apps need:
+- **Flexible schemas** - Data models evolve fast without migrations
 - **Nested structures** - JSON-like hierarchical data
 - **Horizontal scaling** - Built-in sharding and replication
 - **Developer velocity** - Object-to-database mapping without ORM complexity
@@ -42,15 +40,13 @@ DEPLOYMENT ENVIRONMENT?
 | **DynamoDB** | AWS serverless, predictable performance | <10ms | 400KB | PartiQL (limited) |
 | **Firestore** | Real-time apps, mobile-first | 50-200ms | 1MB | Firebase queries |
 
-See `references/mongodb.md` for MongoDB details
-See `references/dynamodb.md` for DynamoDB single-table design
-See `references/firestore.md` for Firestore real-time patterns
+MongoDB details: `references/mongodb.md`
 
 ## Schema Design Patterns
 
 ### Embedding vs Referencing
 
-**Use the decision matrix in `references/schema-design-patterns.md`**
+**Use decision matrix in `references/schema-design-patterns.md`**
 
 Quick guide:
 
@@ -102,8 +98,8 @@ Quick guide:
 }
 ```
 
-**When to denormalize:**
-- Frequently read together
+**Denormalize when:**
+- Data is read together often
 - Historical snapshots (prices, names)
 - Read-heavy workloads
 
@@ -138,40 +134,35 @@ db.articles.createIndex({
 ```
 
 **Index Best Practices:**
-- Add indexes for all query filters
+- Index all query filters
 - Compound index order: Equality → Sort → Range (MongoDB ESR rule)
 - Use covering indexes (query + projection in index)
-- Use `explain()` to verify index usage
+- Verify index usage with `explain()`
 - Monitor with Performance Advisor (Atlas)
 
-**Validate indexes with the script:**
-```bash
-python scripts/validate_indexes.py
-```
-
-See `references/indexing-strategies.md` for complete guide.
+Full guide: `references/indexing-strategies.md`.
 
 ## MongoDB Aggregation Pipelines
 
 **Key Operators:** `$match` (filter), `$group` (aggregate), `$lookup` (join), `$unwind` (arrays), `$project` (reshape)
 
-**For complete pipeline patterns and examples, see:** `references/aggregation-patterns.md`
+**Full pipeline patterns and examples:** `references/aggregation-patterns.md`
 
 ## DynamoDB Single-Table Design
 
-Design for access patterns using PK/SK patterns. Store multiple entity types in one table with composite keys.
+Design for access patterns with PK/SK patterns. Store multiple entity types in one table with composite keys.
 
-**For complete single-table design patterns and GSI strategies, see:** `references/dynamodb.md`
+**Full single-table design patterns and GSI strategies:** `references/dynamodb.md`
 
 ## Firestore Real-Time Patterns
 
-Use `onSnapshot()` for real-time listeners and Firestore security rules for access control.
+Use `onSnapshot()` for real-time listeners. Use Firestore security rules for access control.
 
-**For complete real-time patterns and security rules, see:** `references/firestore.md`
+**Full real-time patterns and security rules:** `references/firestore.md`
 
 ## Multi-Language Examples
 
-**Complete implementations available in `examples/` directory:**
+**Complete implementations in `examples/`:**
 - `examples/mongodb-fastapi/` - Python FastAPI + MongoDB
 - `examples/mongodb-nextjs/` - TypeScript Next.js + MongoDB
 - `examples/dynamodb-serverless/` - Python Lambda + DynamoDB
@@ -179,28 +170,27 @@ Use `onSnapshot()` for real-time listeners and Firestore security rules for acce
 
 ## Frontend Skill Integration
 
-- **Media Skill** - Use MongoDB GridFS for large file storage with metadata
+- **Media Skill** - MongoDB GridFS for large files with metadata
 - **AI Chat Skill** - MongoDB Atlas Vector Search for semantic conversation retrieval
 - **Feedback Skill** - DynamoDB for high-throughput event logging with TTL
 
-**For integration examples, see:** `references/skill-integrations.md`
+**Integration examples:** `references/skill-integrations.md`
 
 ## Performance Optimization
 
 **Key practices:**
-- Always use indexes for query filters (verify with `.explain()`)
 - Use connection pooling (reuse clients across requests)
 - Avoid collection scans in production
 
-**For complete optimization guide, see:** `references/performance.md`
+**Full optimization guide:** `references/performance.md`
 
 ## Common Patterns
 
-**Pagination:** Use cursor-based pagination for large datasets (recommended over offset)
-**Soft Deletes:** Mark as deleted with timestamp instead of removing
-**Audit Logs:** Store version history within documents
+**Pagination:** Cursor-based pagination for large datasets (preferred over offset)
+**Soft Deletes:** Mark deleted with timestamp instead of removing
+**Audit Logs:** Store version history in documents
 
-**For implementation details, see:** `references/common-patterns.md`
+**Implementation details:** `references/common-patterns.md`
 
 ## Validation and Scripts
 
@@ -208,16 +198,17 @@ Use `onSnapshot()` for real-time listeners and Firestore security rules for acce
 
 ```bash
 # MongoDB only; requires pymongo and the database profiler enabled
-# (db.setProfilingLevel(1, { slowms: 100 })) so slow queries are recorded
+# (db.setProfilingLevel(1, { slowms: 100 })) so slow queries are recorded.
+# Credentialed cluster: export MONGODB_URI instead of --uri (keeps password out of ps/history)
 python scripts/validate_indexes.py --uri mongodb://localhost:27017/ --db myapp --collection orders
 python scripts/validate_indexes.py --db myapp --all
 ```
 
-The script lists existing indexes, reads slow queries from `system.profile`, and suggests missing or unused indexes. Treat suggestions as candidates; confirm each with `explain("executionStats")` before creating an index.
+Script lists existing indexes, reads slow queries from `system.profile`, and suggests missing or unused indexes. Treat suggestions as candidates. Confirm each with `explain("executionStats")` before creating an index.
 
 ### Schema Analysis
 
-There is no bundled schema analyzer. To check document size and embedding balance, sample the collection, e.g. in `mongosh`: `db.users.aggregate([{ $sample: { size: 1000 } }, { $project: { size: { $bsonSize: "$$ROOT" } } }, { $group: { _id: null, avg: { $avg: "$size" }, max: { $max: "$size" } } }])`, and look for unbounded arrays (see `references/anti-patterns.md`).
+No bundled schema analyzer. Check document size and embedding balance by sampling the collection, e.g. in `mongosh` (sends usage telemetry by default; opt out once first: `mongosh --nodb --eval 'disableTelemetry()'`): `db.users.aggregate([{ $sample: { size: 1000 } }, { $project: { size: { $bsonSize: "$$ROOT" } } }, { $group: { _id: null, avg: { $avg: "$size" }, max: { $max: "$size" } } }])`. Look for unbounded arrays (see `references/anti-patterns.md`).
 
 ## Anti-Patterns to Avoid
 
@@ -225,7 +216,7 @@ There is no bundled schema analyzer. To check document size and embedding balanc
 **Over-Indexing:** Only index queried fields (indexes slow writes)
 **DynamoDB Scans:** Always use Query with partition key (avoid Scan)
 
-**For detailed anti-patterns, see:** `references/anti-patterns.md`
+**Detailed anti-patterns:** `references/anti-patterns.md`
 
 ## Dependencies
 
@@ -270,25 +261,3 @@ go get go.mongodb.org/mongo-driver
 # DynamoDB
 go get github.com/aws/aws-sdk-go-v2/service/dynamodb
 ```
-
-## Additional Resources
-
-**Database-Specific Guides:**
-- `references/mongodb.md` - Complete MongoDB documentation
-- `references/dynamodb.md` - DynamoDB single-table patterns
-- `references/firestore.md` - Firestore real-time guide
-
-**Pattern Guides:**
-- `references/schema-design-patterns.md` - Embedding vs referencing decisions
-- `references/indexing-strategies.md` - Index optimization
-- `references/aggregation-patterns.md` - MongoDB pipeline cookbook
-- `references/common-patterns.md` - Pagination, soft deletes, audit logs
-- `references/anti-patterns.md` - Mistakes to avoid
-- `references/performance.md` - Query optimization
-- `references/skill-integrations.md` - Frontend skill integration
-
-**Examples:** `examples/mongodb-fastapi/`, `examples/mongodb-nextjs/`, `examples/dynamodb-serverless/`, `examples/firestore-react/`
-
-## Helper availability
-
-The helper names marked **not shipped** describe possible project automation. Do not run those commands as installed tooling. Use the bundled helpers that exist, or implement and verify the missing behavior in the task workspace when it is actually needed.

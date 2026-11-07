@@ -7,7 +7,7 @@ tags: disp, crash-only, resilience, recovery
 
 ## Design for Crash-Only Software That Recovers from Sudden Death
 
-Even with graceful shutdown, processes can die suddenly (hardware failure, OOM killer, network partition). Design your application to recover cleanly from abrupt termination without data loss or corruption.
+Processes can die suddenly even with graceful shutdown (hardware failure, OOM killer, network partition). Design app to recover cleanly from abrupt termination without data loss or corruption.
 
 **Incorrect (assumes clean shutdown):**
 
@@ -98,11 +98,5 @@ def transfer_funds(from_account, to_account, amount):
     # Either both succeed or both fail
     # Crash mid-transaction = automatic rollback
 ```
-
-**Benefits:**
-- Hardware failures don't lose data
-- Automatic recovery without manual intervention
-- Simpler operations - just restart everything
-- Confidence in rapid deployment and scaling
 
 Reference: [The Twelve-Factor App - Disposability](https://12factor.net/disposability)

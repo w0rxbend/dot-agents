@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 
 
@@ -23,9 +24,12 @@ def main() -> int:
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--encrypt", action="store_true", help="Encrypt the PDF")
     mode.add_argument("--decrypt", action="store_true", help="Remove encryption (password required)")
-    parser.add_argument("--user-password", help="User (open) password for --encrypt")
-    parser.add_argument("--owner-password", help="Owner password for --encrypt (defaults to user password)")
-    parser.add_argument("--password", help="Known password for --decrypt")
+    parser.add_argument("--user-password", default=os.environ.get("PDF_PASSWORD"),
+                        help="User (open) password for --encrypt (default: $PDF_PASSWORD)")
+    parser.add_argument("--owner-password", default=os.environ.get("PDF_OWNER_PASSWORD"),
+                        help="Owner password for --encrypt (default: $PDF_OWNER_PASSWORD, else user password)")
+    parser.add_argument("--password", default=os.environ.get("PDF_PASSWORD"),
+                        help="Known password for --decrypt (default: $PDF_PASSWORD)")
     args = parser.parse_args()
 
     try:
@@ -37,7 +41,7 @@ def main() -> int:
     reader = PdfReader(args.pdf)
     if args.encrypt:
         if not args.user_password:
-            print("Error: --encrypt requires --user-password", file=sys.stderr)
+            print("Error: --encrypt requires --user-password or PDF_PASSWORD", file=sys.stderr)
             return 2
         if reader.is_encrypted:
             print("Error: input already encrypted; decrypt first", file=sys.stderr)

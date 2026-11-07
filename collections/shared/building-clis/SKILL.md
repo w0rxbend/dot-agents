@@ -5,16 +5,14 @@ description: Build professional command-line interfaces in Python, Go, and Rust 
 
 # Building CLIs
 
-Build professional command-line interfaces across Python, Go, and Rust using modern frameworks with robust argument parsing, configuration management, and shell integration.
-
 ## When to Use This Skill
 
-Use this skill when:
-- Building developer tooling or automation CLIs
-- Creating infrastructure management tools (deployment, monitoring)
-- Implementing API client command-line tools
-- Adding CLI capabilities to existing projects
-- Packaging utilities for distribution (PyPI, Homebrew, binary releases)
+Use when:
+- Developer tooling or automation CLIs
+- Infrastructure management tools (deployment, monitoring)
+- API client CLIs
+- Adding a CLI to existing projects
+- Packaging for distribution (PyPI, Homebrew, binary releases)
 
 Common triggers: "create a CLI tool", "build a command-line interface", "add CLI arguments", "parse command-line options", "generate shell completions"
 
@@ -23,17 +21,17 @@ Common triggers: "create a CLI tool", "build a command-line interface", "add CLI
 ### Quick Decision Guide
 
 **Python Projects:**
-- **Typer** (recommended): Modern type-safe CLIs with minimal boilerplate
-- **Click**: Mature, flexible CLIs for complex command hierarchies
+- **Typer** (recommended): modern, type-safe, minimal boilerplate
+- **Click**: mature, flexible; for complex command hierarchies
 
 **Go Projects:**
-- **Cobra** (recommended): Industry standard for enterprise tools (Kubernetes, Docker, GitHub CLI)
-- **urfave/cli**: Lightweight alternative for simple CLIs
+- **Cobra** (recommended): industry standard for enterprise tools (Kubernetes, Docker, GitHub CLI)
+- **urfave/cli**: lightweight option for simple CLIs
 
 **Rust Projects:**
-- **clap v4** (recommended): Type-safe with derive API or builder API for runtime flexibility
+- **clap v4** (recommended): type-safe; derive API, or builder API for runtime flexibility
 
-For detailed framework comparison and selection criteria, see [references/framework-selection.md](references/framework-selection.md).
+Framework comparison and selection criteria: [references/framework-selection.md](references/framework-selection.md).
 
 ## Core Patterns
 
@@ -41,29 +39,22 @@ For detailed framework comparison and selection criteria, see [references/framew
 
 **Positional Arguments:**
 - Primary input, identified by position
-- Use for required inputs (max 2-3 arguments)
+- For required inputs (max 2-3)
 - Example: `convert input.jpg output.png`
 
 **Options:**
 - Named parameters with values
-- Use for configuration and optional inputs
+- For configuration and optional inputs
 - Example: `--output file.txt`, `--config app.yaml`
 
 **Flags:**
 - Boolean options (presence = true)
-- Use for switches and toggles
+- For switches and toggles
 - Example: `--verbose`, `--dry-run`, `--force`
 
-**Decision Matrix:**
+**Variadic Arguments:** multiple values, e.g. `files...`
 
-| Use Case | Type | Example |
-|----------|------|---------|
-| Primary required input | Positional Argument | `git commit -m "message"` |
-| Optional configuration | Option | `--config app.yaml` |
-| Boolean setting | Flag | `--verbose`, `--force` |
-| Multiple values | Variadic Argument | `files...` |
-
-See [references/argument-patterns.md](references/argument-patterns.md) for comprehensive parsing patterns.
+Parsing patterns: [references/argument-patterns.md](references/argument-patterns.md).
 
 ### Subcommand Organization
 
@@ -72,23 +63,23 @@ See [references/argument-patterns.md](references/argument-patterns.md) for compr
 app command1 [args]
 app command2 [args]
 ```
-Use for: Small CLIs with 5-10 operations
+Use for: small CLIs, 5-10 operations
 
 **Grouped Structure (2 Levels):**
 ```
 app group subcommand [args]
 ```
-Use for: Medium CLIs with logical groupings (10-30 commands)
+Use for: medium CLIs with logical groups (10-30 commands)
 Example: `kubectl get pods`, `kubectl create deployment`
 
 **Nested Structure (3+ Levels):**
 ```
 app group subgroup command [args]
 ```
-Use for: Large CLIs with deep hierarchies (30+ commands)
+Use for: large CLIs, deep hierarchies (30+ commands)
 Example: `gcloud compute instances create`
 
-See [references/subcommand-design.md](references/subcommand-design.md) for structuring strategies.
+Structuring strategies: [references/subcommand-design.md](references/subcommand-design.md).
 
 ### Configuration Management
 
@@ -103,11 +94,11 @@ See [references/subcommand-design.md](references/subcommand-design.md) for struc
 
 **Best Practices:**
 - Document precedence in `--help`
-- Validate config files before execution
-- Provide `--print-config` to show effective configuration
-- Use XDG Base Directory (`~/.config/app/`) for config files
+- Validate config files before running
+- Provide `--print-config` to show effective config (mask secrets)
+- Config files under XDG Base Directory (`~/.config/app/`)
 
-See [references/configuration-management.md](references/configuration-management.md) for implementation patterns across languages.
+Implementation patterns per language: [references/configuration-management.md](references/configuration-management.md).
 
 ### Output Formatting
 
@@ -121,13 +112,12 @@ See [references/configuration-management.md](references/configuration-management
 | Progress tracking | Progress bars, spinners | Long operations |
 
 **Best Practices:**
-- Default to human-readable output
+- Human-readable by default
 - Provide `--output` flag (json, yaml, table)
-- Use stderr for logs, stdout for data
+- Logs to stderr, data to stdout
 - Auto-detect TTY (disable colors if not interactive)
-- Use exit codes: 0 = success, 1 = error, 2 = usage error
 
-See [references/output-formatting.md](references/output-formatting.md) for formatting strategies.
+Formatting strategies: [references/output-formatting.md](references/output-formatting.md).
 
 ## Language-Specific Quick Starts
 
@@ -158,13 +148,7 @@ if __name__ == "__main__":
     app()
 ```
 
-**Key Features:**
-- Type hints for automatic validation
-- Minimal boilerplate with decorators
-- Auto-generated help text
-- Rich integration for colored output
-
-See [examples/python/](examples/python/) for complete working examples including subcommands, config management, and interactive features.
+Working examples (subcommands, config, interactive features): [examples/python/](examples/python/).
 
 ### Go with Cobra
 
@@ -187,13 +171,7 @@ rootCmd.Flags().Bool("formal", false, "Use formal greeting")
 rootCmd.Execute()
 ```
 
-**Key Features:**
-- POSIX-compliant flags
-- Viper integration for configuration
-- Subcommand architecture
-- Shell completion generation
-
-See [examples/go/](examples/go/) for complete working examples including Viper config and multi-level subcommands.
+Working examples (Viper config, multi-level subcommands): [examples/go/](examples/go/).
 
 ### Rust with clap
 
@@ -225,13 +203,7 @@ fn main() {
 }
 ```
 
-**Key Features:**
-- Compile-time type safety
-- Derive API (declarative) or Builder API (programmatic)
-- Comprehensive validation
-- Performance optimized
-
-See [examples/rust/](examples/rust/) for complete working examples including subcommands and builder API patterns.
+Working examples (subcommands, builder API patterns): [examples/rust/](examples/rust/).
 
 ## Interactive Features
 
@@ -290,19 +262,19 @@ if Confirm::new().with_prompt("Are you sure?").interact()? {
 
 ### Generating Completions
 
-**Python (Typer):** every Typer app gets `--install-completion` and `--show-completion` options automatically. To write the script to a file yourself, use Typer's environment variable (note the `source_<shell>` value; Click's `bash_source` form is not accepted by Typer):
+**Python (Typer):** Typer apps get `--install-completion` and `--show-completion` automatically. To write the script to a file, set Typer's environment variable to `source_<shell>`. Typer does not accept Click's `bash_source` form:
 ```bash
 myapp --install-completion            # detects the current shell
 _MYAPP_COMPLETE=source_bash myapp > ~/.myapp-complete.bash
 _MYAPP_COMPLETE=source_zsh myapp > ~/.myapp-complete.zsh
 ```
 
-**Go (Cobra):** Cobra adds a `completion` subcommand automatically (bash, zsh, fish, powershell); no code is needed:
+**Go (Cobra):** Cobra adds a `completion` subcommand automatically (bash, zsh, fish, powershell). No code needed:
 ```bash
 myapp completion bash > ~/.myapp-complete.bash
 myapp completion zsh > "${fpath[1]}/_myapp"
 ```
-Set `rootCmd.CompletionOptions.DisableDefaultCmd = true` only if you want to hide it.
+Set `rootCmd.CompletionOptions.DisableDefaultCmd = true` only to hide it.
 
 **Rust (clap):**
 ```rust
@@ -310,9 +282,11 @@ use clap_complete::{generate, shells::Bash};
 generate(Bash, &mut Cli::command(), "myapp", &mut io::stdout())
 ```
 
-See [references/shell-completion.md](references/shell-completion.md) for installation instructions.
+Install steps: [references/shell-completion.md](references/shell-completion.md).
 
 ## Distribution and Packaging
+
+Publishing is public and irreversible (released versions cannot be reused). Dry run first (`twine check dist/*` + TestPyPI, `cargo publish --dry-run`, `goreleaser release --snapshot`); run real publish/upload only on user's explicit go-ahead.
 
 ### Python (PyPI)
 
@@ -354,7 +328,7 @@ class Myapp < Formula
 end
 ```
 
-In practice GoReleaser can generate and publish this formula (with checksums) to a tap; see [references/distribution.md](references/distribution.md).
+GoReleaser can generate this formula (with checksums) and publish it to a tap. See [references/distribution.md](references/distribution.md).
 
 ### Rust (Cargo)
 
@@ -369,110 +343,62 @@ cargo publish
 cargo install myapp
 ```
 
-See [references/distribution.md](references/distribution.md) for comprehensive packaging strategies including binary releases.
+Packaging strategies, including binary releases: [references/distribution.md](references/distribution.md).
 
 ## Best Practices
 
 ### Universal CLI Conventions
 
 **Always Provide:**
-- `--help` and `-h` for usage information
-- `--version` and `-V` for version display
-- Clear error messages with actionable suggestions
+- `--help` and `-h` for usage
+- `--version` and `-V` for version
+- Clear errors with actionable suggestions
 
 **Argument Handling:**
-- Use `--` separator for options vs. positional args
-- Support both short (`-v`) and long (`--verbose`) forms
-- Validate and sanitize all user inputs
+- Use `--` to separate options from positional args
+- Support short (`-v`) and long (`--verbose`) forms
+- Validate and sanitize all user input
 
 **Error Handling:**
 - Exit code 0 for success
 - Exit code 1 for general errors
 - Exit code 2 for usage errors
-- Write errors to stderr, data to stdout
+- Errors to stderr, data to stdout
 
 **Interactivity:**
 - Detect TTY (interactive vs. piped input)
 - Provide `--yes`/`--force` to skip prompts for automation
-- Show progress for operations longer than 2 seconds
+- Show progress for operations over 2 seconds
 
 ### Configuration Best Practices
 
 **File Formats:**
-- Use YAML, TOML, or JSON consistently
-- Separate files per environment (dev, staging, prod)
-- Validate configuration in CI/CD with `--check-config`
+- Use YAML, TOML or JSON consistently
+- One file per environment (dev, staging, prod)
+- Validate config in CI/CD with `--check-config`
 
 **Secret Management:**
 - Never commit secrets to config files
 - Use environment variables or secret managers
 - Document required environment variables
 
-**Precedence:**
-- CLI args > env vars > config file > defaults
-- Document precedence in help text
-- Provide `--print-config` to show effective configuration
-
 ## Integration with Other Skills
 
 **testing-strategies:**
-- CLI testing with mocks and fixtures
+- Test CLIs with mocks and fixtures
 - Integration tests for end-to-end workflows
 - See [examples/python/test_cli.py](examples/python/test_cli.py)
 
 **building-ci-pipelines:**
-- Binary builds for multiple platforms
+- Multi-platform binary builds
 - Automated releases via GitHub Actions
 - See [references/distribution.md](references/distribution.md)
 
 **implementing-api-patterns:**
-- Building API client CLIs
+- API client CLIs
 - Authentication and token management
 - Formatting API responses
 
 **hashicorp-vault:**
 - Secret storage and dynamic credentials via Vault
-- For local credential storage prefer the OS keychain (e.g. Python `keyring`, Go `github.com/zalando/go-keyring`) over plaintext config files
-
-## Reference Files
-
-**Decision Frameworks:**
-- [framework-selection.md](references/framework-selection.md) - Which framework to choose
-- [argument-patterns.md](references/argument-patterns.md) - Arguments vs. options vs. flags
-- [subcommand-design.md](references/subcommand-design.md) - Structuring command hierarchies
-
-**Implementation Guides:**
-- [configuration-management.md](references/configuration-management.md) - Config files and precedence
-- [output-formatting.md](references/output-formatting.md) - Human vs. machine-readable output
-- [shell-completion.md](references/shell-completion.md) - Generating completions
-- [distribution.md](references/distribution.md) - Packaging and releasing CLIs
-
-**Code Examples:**
-- [examples/python/](examples/python/) - Typer examples (basic, subcommands, config, interactive)
-- [examples/go/](examples/go/) - Cobra examples (basic, subcommands, Viper integration)
-- [examples/rust/](examples/rust/) - clap examples (derive, builder, subcommands)
-
-## Quick Reference
-
-**Framework Recommendations:**
-- Python: Typer (modern) or Click (mature)
-- Go: Cobra (enterprise) or urfave/cli (simple)
-- Rust: clap v4 (derive or builder)
-
-**Common Patterns:**
-- Arguments: Primary inputs (max 2-3)
-- Options: Named parameters with values
-- Flags: Boolean switches
-- Subcommands: Group related operations
-- Config: CLI args > env vars > files > defaults
-
-**Output Standards:**
-- Default: Human-readable (colored, tables)
-- Machine: JSON/YAML via `--output` flag
-- Errors: stderr, data: stdout
-- Exit: 0 = success, 1 = error, 2 = usage
-
-**Distribution:**
-- Python: PyPI (`pip install`)
-- Go: Homebrew, binary releases
-- Rust: Cargo (`cargo install`), binary releases
+- Local credentials: prefer OS keychain (e.g. Python `keyring`, Go `github.com/zalando/go-keyring`) over plaintext config files

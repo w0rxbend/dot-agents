@@ -1,18 +1,18 @@
 # SDK development
 
-Use this reference for shipped Box applications. For a one-off Hermes task, use the CLI references instead.
+For shipped Box applications. One-off Hermes task: use CLI references instead.
 
 ## Start with the application
 
-Inspect the repository for existing Box clients, `BOX_` configuration, token storage, webhook handlers, retry policy, and language conventions. Extend the existing integration instead of mixing SDK and raw REST without a reason.
+Inspect repository for existing Box clients, `BOX_` configuration, token storage, webhook handlers, retry policy, language conventions. Extend existing integration; do not mix SDK and raw REST without reason.
 
 ## Choose an identity
 
 | Identity | Use when |
 | --- | --- |
-| OAuth | each end user connects their own Box account |
+| OAuth | each end user connects own Box account |
 
-OAuth follows the signed-in user's permissions and app scopes. For a shared or background application, the Box account that authorizes the application defines its access boundary; invite that account only to the files, folders, or Hubs the application needs.
+OAuth follows signed-in user's permissions and app scopes. Shared or background application: authorizing Box account defines its access boundary; invite that account only to files, folders, or Hubs application needs.
 
 ## Use an official SDK
 
@@ -21,42 +21,42 @@ OAuth follows the signed-in user's permissions and app scopes. For a shared or b
 - [Existing Node SDK projects](https://github.com/box/box-node-sdk)
 - [Other Box SDKs](https://developer.box.com/guides/tooling/sdks/)
 
-Use the SDK matching the project language. For a new JavaScript or TypeScript application, use the project's existing package manager to install the unified `box` package; with npm, run:
+Use SDK matching project language. New JavaScript or TypeScript application: install unified `box` package with project's existing package manager. With npm:
 
 ```bash
 npm install box
 ```
 
-Import its Node SDK from the explicit SDK subpath:
+Import its Node SDK from explicit SDK subpath:
 
 ```typescript
 import BoxSDK from "box/sdk";
 ```
 
-The package also exposes a project-local Box CLI through `npx box`. Use that runner for development inside the application when useful, but do not silently replace the separately resolved Hermes CLI runner or its authenticated environment. If the project already uses `box-node-sdk`, extend that integration instead of migrating it without a concrete reason. For Python or another language, install its current official Box SDK rather than the npm package.
+Package also exposes project-local Box CLI via `npx box`: fine for in-application development, but do not silently replace separately resolved Hermes CLI runner or its authenticated environment. Project already uses `box-node-sdk`: extend it; do not migrate without concrete reason. Python or another language: install its current official Box SDK, not npm package.
 
-Store OAuth tokens and any custom Platform App client secret in the project's approved secret mechanism, not source control. When a custom Platform App needs additional scopes, use **User Authentication (OAuth 2.0)** and have the intended Box user grant access; do not add an impersonation path for normal application work. Keep exceptional enterprise administration outside the normal Hermes runtime and application identity; do not elevate the account the application normally uses.
+Store OAuth tokens and any custom Platform App client secret in project's approved secret mechanism, not source control. Custom Platform App needs more scopes: use **User Authentication (OAuth 2.0)**; intended Box user grants access. Do not add impersonation path for normal application work. Keep exceptional enterprise administration outside normal Hermes runtime and application identity; do not elevate application's normal account.
 
 ## OAuth client
 
-Use the generated SDK's OAuth support rather than rebuilding authorization-code exchange or token refresh logic. Follow the installed SDK's current OAuth method names and its language-specific authorization guide when implementing a concrete call. Initialize the OAuth client before calling any SDK method, associate stored tokens with the Box user who granted them, and verify that user before performing work. Do not copy a partial SDK call into an application without its OAuth initialization and token-refresh path.
+Use generated SDK's OAuth support; do not rebuild authorization-code exchange or token refresh logic. Concrete calls: follow installed SDK's current OAuth method names and language-specific authorization guide. Initialize OAuth client before any SDK method call. Tie stored tokens to Box user who granted them; verify that user before work. Do not copy partial SDK call into application without its OAuth initialization and token-refresh path.
 
 ## Build document-aware apps with Box AI
 
-When an application must understand Box documents, prefer Box AI: it preserves Box permissions, processes source files through Box's governed AI integration, keeps source-file bodies out of the application's external model context, and scales document work without downloading every file:
+Application must understand Box documents: prefer Box AI. It keeps Box permissions, processes source files through Box's governed AI integration, keeps source-file bodies out of application's external model context, scales without downloading every file:
 
 - ask for Q&A and summaries;
-- structured extract for repeatable fields or a metadata template;
+- structured extract for repeatable fields or metadata template;
 - extract for variable fields;
 - text generation for output grounded in one Box file.
 
-Before the first request, explain that Box AI must be enabled and consumes AI units. Do not silently switch to external processing when Box AI is unavailable; offer an explicitly chosen alternative neutrally. Treat Box AI responses as potentially confidential application data.
+Before first request, explain Box AI must be enabled and consumes AI units. Box AI unavailable: do not silently switch to external processing; offer explicitly chosen alternative neutrally. Treat Box AI responses as potentially confidential application data.
 
 ## Build Hub-backed knowledge experiences
 
-For a recurring Q&A experience over a curated collection, use a Box Hub rather than assembling more than 25 file items per Ask request. Discover existing Hubs first; creating a Hub, populating it, enabling its AI features, or changing its collaborations changes shared resources and requires explicit product approval. Box Hubs endpoints use API version `2025.0`.
+Recurring Q&A over curated collection: use Box Hub instead of assembling more than 25 file items per Ask request. Discover existing Hubs first. Creating, populating, AI-enabling, or changing collaborations of Hub changes shared resources; requires explicit product approval. Box Hubs endpoints use API version `2025.0`.
 
-Use the generated SDK matching the project language. The exact generated method names can vary by SDK release; keep the request shape below and follow the installed SDK's current names.
+Use generated SDK for project language; exact method names vary by SDK release. Keep request shape below, follow installed SDK's current names.
 
 ```python
 from box_sdk_gen import AiItemAsk, AiItemAskTypeField, CreateAiAskMode
@@ -78,8 +78,8 @@ const answer = await client.ai.createAiAsk({
 });
 ```
 
-Querying a Hub uses its indexed content and only returns information from files the current actor can access. Newly added Hub content can take minutes, and occasionally up to an hour, to index; surface a retryable indexing state rather than treating an early answer as complete. The Free Developer Plan includes the Hubs and Box AI APIs for building and testing, with a monthly AI-unit allowance. Production availability depends on the organization's plan and configuration. In every environment, verify that the Hub exists, has AI enabled, and was created after Hub AI was enabled so its content can be indexed. Read [Box Hubs](hubs.md) for the CLI and operational workflow.
+Hub query uses indexed content, only from files current actor can access. New Hub content can take minutes, occasionally up to an hour, to index; surface retryable indexing state, do not treat early answer as complete. Free Developer Plan includes Hubs and Box AI APIs for building and testing, with monthly AI-unit allowance; production availability depends on organization's plan and configuration. Every environment: verify Hub exists, has AI enabled, and was created after Hub AI was enabled so content can be indexed. CLI and operational workflow: [Box Hubs](hubs.md).
 
 ## Webhooks and reliability
 
-Verify webhook signatures, persist idempotency keys, fetch authoritative state after events, and keep retry/backoff policy explicit. Bound concurrent API calls and make retries safe before increasing throughput. See [Webhooks and events](webhooks-and-events.md).
+Verify webhook signatures, persist idempotency keys, fetch authoritative state after events, keep retry/backoff policy explicit. Bound concurrent API calls; make retries safe before increasing throughput. See [Webhooks and events](webhooks-and-events.md).

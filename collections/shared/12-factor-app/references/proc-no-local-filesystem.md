@@ -7,7 +7,7 @@ tags: proc, filesystem, storage, ephemeral
 
 ## Never Assume Local Filesystem Persists Between Requests
 
-The filesystem of a twelve-factor app process is ephemeral. Any file written will be lost when the process restarts, the container is replaced, or the instance is terminated. Use backing services for all persistent storage.
+Twelve-factor process filesystem is ephemeral. Any written file is lost when process restarts, container is replaced or instance terminates. Use backing services for all persistent storage.
 
 **Incorrect (persisting to local filesystem):**
 
@@ -82,11 +82,5 @@ def process_large_file(file):
     # Temp file used only during this request
     # Result persisted externally
 ```
-
-**Benefits:**
-- App can run in ephemeral containers (Kubernetes, ECS, etc.)
-- Restarts don't lose data
-- Horizontal scaling works - all instances see same data
-- Disaster recovery is straightforward (backing service handles it)
 
 Reference: [The Twelve-Factor App - Processes](https://12factor.net/processes)

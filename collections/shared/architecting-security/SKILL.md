@@ -5,32 +5,28 @@ description: "Design a security architecture - threat modeling (STRIDE/PASTA), d
 
 # Security Architecture
 
-Design and implement comprehensive security architectures that protect systems, data, and users through layered defense strategies, zero trust principles, and risk-based security controls.
-
 ## Purpose
 
-Security architecture provides the strategic foundation for building resilient, compliant, and trustworthy systems. This skill guides the design of defense-in-depth layers, zero trust implementations, threat modeling methodologies, and mapping to control frameworks (NIST CSF, CIS Controls, ISO 27001).
+Covers strategic planning, defense strategies and governance frameworks, not tactical security work (configuring firewalls, implementing authentication, scanning vulnerabilities).
 
-Unlike tactical security skills (configuring firewalls, implementing authentication, scanning vulnerabilities), security architecture focuses on strategic planning, comprehensive defense strategies, and governance frameworks.
+Start with risk assessment to understand threats. Pick architecture approach (zero trust for greenfield, hybrid for brownfield). Implement layered controls. Monitor and improve security posture continuously.
 
 ## When to Use This Skill
 
-Use security architecture when:
+Use when:
 
 - Designing security for greenfield systems (new applications, cloud migrations)
-- Conducting security audits or risk assessments of existing systems
-- Implementing zero trust architecture across enterprise environments
+- Running security audits or risk assessments of existing systems
+- Implementing zero trust across enterprise environments
 - Establishing security governance programs and compliance frameworks
-- Threat modeling applications, APIs, or microservices architectures
-- Selecting and mapping security controls to regulatory requirements (SOC 2, HIPAA, PCI DSS)
+- Threat modeling applications, APIs or microservices architectures
+- Selecting and mapping controls to regulatory requirements (SOC 2, HIPAA, PCI DSS)
 - Designing cloud security architectures (AWS, GCP, Azure multi-account strategies)
 - Addressing supply chain security (SLSA framework, SBOM implementation)
 
 ## Core Security Architecture Principles
 
 ### 1. Defense in Depth
-
-Implement multiple independent layers of security controls so that if one layer fails, others continue to protect critical assets.
 
 **9 Defense Layers (2025 Model):**
 
@@ -44,35 +40,31 @@ Implement multiple independent layers of security controls so that if one layer 
 8. **Behavioral Analytics:** UEBA, ML-based anomaly detection, threat intelligence
 9. **Security Operations:** SIEM, SOAR, incident response, continuous monitoring
 
-**Key Principle:** Each layer provides independent protection. Failure of one layer does not compromise the entire system.
+**Key Principle:** Each layer protects independently. Failure of one layer does not compromise whole system.
 
-For detailed layer-by-layer implementation patterns, see `references/defense-in-depth.md`.
+See `references/defense-in-depth.md` for layer-by-layer implementation patterns.
 
 ### 2. Zero Trust Architecture
-
-Implement "never trust, always verify" principles where every access request is authenticated, authorized, and continuously validated.
 
 **Core Zero Trust Principles:**
 
 1. **Continuous Verification:** Authenticate and authorize every access request (no implicit trust)
-2. **Least Privilege Access:** Grant minimal permissions required, use just-in-time (JIT) access
-3. **Assume Breach:** Design systems expecting compromise, limit blast radius
+2. **Least Privilege Access:** Grant minimal required permissions, use just-in-time (JIT) access
+3. **Assume Breach:** Design expecting compromise, limit blast radius
 4. **Explicit Verification:** Verify user identity (MFA), device health, application integrity, context (location, time, behavior)
-5. **Micro-Segmentation:** Divide networks into small isolated zones, control east-west traffic
+5. **Micro-Segmentation:** Split networks into small isolated zones, control east-west traffic
 
 **Zero Trust Architecture Components:**
 
-- **Policy Engine:** Centralized authorization decision point (allow/deny)
+- **Policy Engine:** Central authorization decision point (allow/deny)
 - **Identity Provider (IdP):** User/machine identity verification (Azure AD, Okta)
 - **Device Posture Service:** Device health checks (MDM, EDR integration)
 - **Context/Risk Engine:** Behavioral analytics, location, time, threat intelligence
 - **Policy Enforcement Points:** Gateways enforcing decisions (ZTNA, API gateways)
 
-For zero trust implementation roadmap and reference architecture, see `references/zero-trust-architecture.md`.
+See `references/zero-trust-architecture.md` for implementation roadmap and reference architecture.
 
 ### 3. Threat Modeling
-
-Systematically identify, prioritize, and mitigate security threats through structured methodologies.
 
 **Primary Methodologies:**
 
@@ -85,26 +77,26 @@ Systematically identify, prioritize, and mitigate security threats through struc
 
 **STRIDE Threat Categories:**
 
-- **S**poofing: Attacker impersonates another user/system (Mitigation: MFA, certificate validation)
+- **S**poofing: Impersonating another user/system (Mitigation: MFA, certificate validation)
 - **T**ampering: Unauthorized data modification (Mitigation: Encryption, digital signatures)
-- **R**epudiation: User denies action without proof (Mitigation: Audit logs, non-repudiation)
+- **R**epudiation: User denies action, no proof exists (Mitigation: Audit logs, non-repudiation)
 - **I**nformation Disclosure: Confidential data exposure (Mitigation: Encryption, access controls, DLP)
 - **D**enial of Service: System unavailability (Mitigation: Rate limiting, DDoS protection, redundancy)
 - **E**levation of Privilege: Gaining higher privileges (Mitigation: Least privilege, input validation, patching)
 
 **STRIDE Application Process:**
 
-1. Model the system using data flow diagrams (DFDs)
-2. Identify threats by applying STRIDE to each component/data flow
+1. Model system with data flow diagrams (DFDs)
+2. Apply STRIDE to each component/data flow to identify threats
 3. Document threats with STRIDE categories
-4. Prioritize threats using DREAD scoring or business impact
+4. Prioritize threats by DREAD scoring or business impact
 5. Design mitigation controls
 
-For detailed threat modeling methodologies, PASTA process, DREAD scoring, and attack trees, see `references/threat-modeling.md`. For threat modeling examples, see `examples/threat-models/`.
+See `references/threat-modeling.md` for methodologies, PASTA process, DREAD scoring and attack trees. See `examples/threat-models/` for threat modeling examples.
 
 ## Security Control Frameworks
 
-Map security controls to industry frameworks to ensure comprehensive coverage and compliance.
+Map controls to industry frameworks for full coverage and compliance.
 
 ### NIST Cybersecurity Framework (CSF) 2.0
 
@@ -117,9 +109,9 @@ Map security controls to industry frameworks to ensure comprehensive coverage an
 5. **RESPOND (RS):** Incident management, analysis, communication, mitigation
 6. **RECOVER (RC):** Recovery planning, execution, post-incident improvement
 
-**Usage:** Map security controls to NIST CSF categories to ensure coverage of all security functions. Provides risk-based, flexible framework for security programs.
+**Usage:** Map controls to NIST CSF categories to cover all security functions. Risk-based, flexible framework for security programs.
 
-For detailed NIST CSF category mapping and subcategories, see `references/nist-csf-mapping.md`.
+See `references/nist-csf-mapping.md` for category mapping and subcategories.
 
 ### CIS Critical Security Controls v8
 
@@ -139,13 +131,13 @@ For detailed NIST CSF category mapping and subcategories, see `references/nist-c
 7. Continuous Vulnerability Management
 8. Audit Log Management
 
-**Usage:** CIS Controls provide prescriptive, measurable security baseline. Start with IG1, progress to IG2/IG3 as security maturity increases.
+**Usage:** CIS Controls give prescriptive, measurable security baseline. Start with IG1. Move to IG2/IG3 as security maturity grows.
 
-For detailed CIS Controls implementation guidance, see `references/cis-controls.md`.
+See `references/cis-controls.md` for implementation guidance.
 
 ### OWASP Top 10 Risk Mitigation
 
-Map OWASP Top 10 application security risks to architectural controls:
+Map OWASP Top 10 application risks to architectural controls:
 
 | OWASP Risk | Primary Control | Framework Mapping |
 |------------|-----------------|-------------------|
@@ -160,28 +152,28 @@ Map OWASP Top 10 application security risks to architectural controls:
 | **Known Vulnerabilities** | Patch management, SBOM | NIST ID.RA, CIS 7 |
 | **Logging & Monitoring** | SIEM, centralized logging | NIST DE.CM, CIS 8 |
 
-For detailed OWASP Top 10 mitigation strategies and code examples, see `references/owasp-top10-mitigation.md`.
+See `references/owasp-top10-mitigation.md` for mitigation strategies and code examples.
 
 ## Architecture Selection Decision Framework
 
-Select appropriate security architecture approach based on system characteristics:
+Pick architecture approach by system characteristics:
 
 **Greenfield (New System):**
 - Implement Zero Trust from Day 1
 - Identity-first architecture (MFA, SSO, RBAC/ABAC)
 - Micro-segmentation by default
-- Assume breach mentality (limit blast radius)
+- Assume breach (limit blast radius)
 - Continuous verification and monitoring
 
 **Brownfield (Existing System):**
-- Hybrid: Maintain Defense in Depth + Zero Trust overlay
+- Hybrid: maintain Defense in Depth, add Zero Trust overlay
 - Keep existing perimeter controls (firewalls, VPN)
-- Layer Zero Trust controls progressively
+- Layer in Zero Trust controls progressively
 - Segment critical assets first (data, admin access)
 - Modernize identity and access management
 
 **Compliance-Driven:**
-- Map to control frameworks based on requirements:
+- Map to control frameworks per requirements:
   - **General Security:** NIST CSF for risk-based approach
   - **Baseline Hardening:** CIS Controls for prescriptive guidance
   - **Comprehensive ISMS:** ISO 27001 for certification
@@ -199,47 +191,37 @@ Select appropriate security architecture approach based on system characteristic
 - Cross-cloud visibility and monitoring
 - Cloud-agnostic IAM (Okta, Azure AD)
 
-For detailed architecture selection decision trees, see `references/defense-in-depth.md` and `references/zero-trust-architecture.md`.
+See `references/defense-in-depth.md` and `references/zero-trust-architecture.md` for architecture selection decision trees.
 
 ## Supply Chain Security
-
-Protect software supply chain from tampering, backdoors, and compromised dependencies.
 
 ### SLSA Framework
 
 **Supply-chain Levels for Software Artifacts (4 levels):**
 
-1. **SLSA Level 1 - Provenance:** Build process generates provenance metadata (not tamper-proof)
+1. **SLSA Level 1 - Provenance:** Build generates provenance metadata (not tamper-proof)
 2. **SLSA Level 2 - Hosted Build:** Build on trusted platform (GitHub Actions, Cloud Build)
 3. **SLSA Level 3 - Hardened Build:** Build platform prevents tampering, audit logs
 4. **SLSA Level 4 - Hermetic, Reproducible:** Fully hermetic builds, reproducible, two-party review
 
-**Implementation:** Start with Level 1 provenance generation, progress to Level 2 (GitHub Actions), then Level 3 (hardened CI/CD with audit logs).
+**Implementation:** Start with Level 1 provenance generation. Move to Level 2 (GitHub Actions), then Level 3 (hardened CI/CD with audit logs).
 
 ### SBOM (Software Bill of Materials)
-
-Generate and maintain inventory of software components and dependencies.
 
 **SBOM Standards:**
 - **CycloneDX:** OWASP standard (JSON/XML format)
 - **SPDX:** Linux Foundation standard
 - **SWID:** ISO/IEC 19770-2 standard
 
-**SBOM Use Cases:**
-- Vulnerability Management: Quickly identify affected components during CVE disclosures
-- License Compliance: Track open-source licenses for legal compliance
-- Supply Chain Risk: Visibility into third-party code and dependencies
-- Incident Response: Rapid assessment of Log4Shell-type incidents
-
 **Dependency Management Best Practices:**
 1. Generate SBOM automatically in CI/CD pipeline
-2. Continuous scanning with tools (Dependabot, Snyk, Trivy, Grype)
-3. Automated security patch updates
-4. License compliance tracking and approval workflows
-5. Pin dependency versions using lock files
-6. Minimize dependencies to reduce attack surface
+2. Scan continuously with tools (Dependabot, Snyk, Trivy, Grype)
+3. Automate security patch updates
+4. Track license compliance, run approval workflows
+5. Pin dependency versions with lock files
+6. Minimize dependencies to shrink attack surface
 
-For SLSA implementation guide, SBOM generation examples, and dependency scanning automation, see `references/supply-chain-security.md`.
+See `references/supply-chain-security.md` for SLSA implementation guide, SBOM generation examples and dependency scanning automation.
 
 ## Cloud Security Architecture Patterns
 
@@ -248,7 +230,7 @@ For SLSA implementation guide, SBOM generation examples, and dependency scanning
 **Well-Architected Framework - Security Pillar Principles:**
 
 1. **Strong identity foundation:** Centralize IAM, least privilege, IAM Identity Center (SSO)
-2. **Enable traceability:** CloudTrail, GuardDuty, Security Hub for comprehensive logging
+2. **Enable traceability:** CloudTrail, GuardDuty, Security Hub for full logging
 3. **Apply security at all layers:** Defense in depth across VPC, instances, applications, data
 4. **Automate security best practices:** Infrastructure as Code (Terraform, CloudFormation)
 5. **Protect data in transit and at rest:** TLS 1.3, AWS KMS, encryption everywhere
@@ -261,9 +243,9 @@ For SLSA implementation guide, SBOM generation examples, and dependency scanning
 - **Data:** KMS (key management), Secrets Manager, Macie (data classification)
 - **Compute:** Systems Manager (patch management), Inspector (vulnerability scanning)
 
-**Multi-Account Strategy:** Use AWS Organizations with Security OU (Security Account, Logging Account, Audit Account) and Workload OUs (Production, Non-Production). Apply Service Control Policies (SCPs) for guardrails.
+**Multi-Account Strategy:** Use AWS Organizations with Security OU (Security Account, Logging Account, Audit Account) and Workload OUs (Production, Non-Production). Apply Service Control Policies (SCPs) as guardrails.
 
-For AWS reference architectures and multi-account security setup, see `references/aws-security-architecture.md` and `examples/architectures/aws-multi-account-security.md`.
+See `references/aws-security-architecture.md` and `examples/architectures/aws-multi-account-security.md` for AWS reference architectures and multi-account setup.
 
 ### GCP Security Architecture
 
@@ -275,9 +257,9 @@ For AWS reference architectures and multi-account security setup, see `reference
 - **Data:** Cloud KMS, Secret Manager, Cloud DLP (data loss prevention)
 - **Compute:** Binary Authorization (image signing), Confidential Computing (encryption in use)
 
-**Organization Hierarchy:** Structure with Organization → Folders (Production, Non-Production, Security) → Projects. Apply IAM policies at folder level for inheritance.
+**Organization Hierarchy:** Structure as Organization → Folders (Production, Non-Production, Security) → Projects. Apply IAM policies at folder level for inheritance.
 
-For GCP security architecture patterns and organization setup, see `references/gcp-security-architecture.md` and `examples/architectures/gcp-security-hierarchy.md`.
+See `references/gcp-security-architecture.md` and `examples/architectures/gcp-security-hierarchy.md` for GCP architecture patterns and organization setup.
 
 ### Azure Security Architecture
 
@@ -289,9 +271,9 @@ For GCP security architecture patterns and organization setup, see `references/g
 - **Data:** Key Vault (secrets, keys, certificates), Information Protection (DLP), Storage encryption
 - **Compute:** Just-in-Time VM Access, Azure Policy (compliance enforcement)
 
-**Hub-Spoke Landing Zone:** Implement hub VNet (shared services: firewall, VPN, Azure Bastion) with spoke VNets (workloads). Use Management Groups for policy hierarchy.
+**Hub-Spoke Landing Zone:** Build hub VNet (shared services: firewall, VPN, Azure Bastion) with spoke VNets (workloads). Use Management Groups for policy hierarchy.
 
-For Azure security architecture and hub-spoke design, see `references/azure-security-architecture.md` and `examples/architectures/azure-landing-zone.md`.
+See `references/azure-security-architecture.md` and `examples/architectures/azure-landing-zone.md` for Azure architecture and hub-spoke design.
 
 ## Identity & Access Management Patterns
 
@@ -300,28 +282,27 @@ For Azure security architecture and hub-spoke design, see `references/azure-secu
 **Multi-Factor Authentication (MFA):**
 - **Types:** TOTP (time-based one-time passwords), push notifications, biometrics, hardware tokens (YubiKey, FIDO2)
 - **Enforcement:** Require MFA for all users (workforce and customers), especially privileged accounts
-- **Passwordless:** Transition to WebAuthn, FIDO2, passkeys to eliminate password-based attacks
+- **Passwordless:** Move to WebAuthn, FIDO2, passkeys to eliminate password-based attacks
 
 **Single Sign-On (SSO):**
 - **Protocols:** SAML 2.0, OAuth 2.0, OpenID Connect (OIDC)
-- **Benefits:** Centralized authentication, reduced password fatigue, improved security posture
 - **Implementation:** Azure AD, Okta, Auth0, Ping Identity
 
 ### Authorization Controls
 
 **Role-Based Access Control (RBAC):**
-- Users assigned to roles, roles have permissions
+- Users get roles, roles have permissions
 - Coarse-grained, simple to implement
 - Best for: Organizations with stable role structures
 
 **Attribute-Based Access Control (ABAC):**
-- Fine-grained access based on attributes (user department, resource classification, time, location)
+- Fine-grained access by attributes (user department, resource classification, time, location)
 - More flexible than RBAC
 - Best for: Complex, dynamic access requirements
 
 **Policy-Based Access Control (PBAC):**
-- Centralized policy engines (Open Policy Agent - OPA, AWS Cedar)
-- Policies defined declaratively and versioned
+- Central policy engines (Open Policy Agent - OPA, AWS Cedar)
+- Policies declarative and versioned
 - Best for: Microservices, API gateways, cloud-native architectures
 
 ### Privileged Access Management (PAM)
@@ -332,17 +313,15 @@ For Azure security architecture and hub-spoke design, see `references/azure-secu
 - Reduces standing privileged access
 
 **Credential Vaulting:**
-- Centralized storage of privileged credentials (CyberArk, HashiCorp Vault, Azure Key Vault)
+- Central storage of privileged credentials (CyberArk, HashiCorp Vault, Azure Key Vault)
 - Automatic password rotation
 - Session recording and auditing
 
-For detailed IAM implementation patterns, MFA configuration, and PAM setup, see `references/iam-patterns.md`.
+See `references/iam-patterns.md` for IAM implementation patterns, MFA configuration and PAM setup.
 
 ## Security Monitoring & Operations
 
 ### SIEM (Security Information & Event Management)
-
-Centralize log aggregation, correlation, and alerting for security events.
 
 **Leading SIEM Platforms:**
 - Splunk, Elastic Security, Microsoft Sentinel, Chronicle
@@ -350,13 +329,11 @@ Centralize log aggregation, correlation, and alerting for security events.
 **SIEM Architecture:**
 1. **Log Collection:** Ingest logs from all layers (network, endpoints, applications, cloud)
 2. **Normalization:** Standardize log formats for correlation
-3. **Correlation:** Apply rules to detect patterns (failed logins → brute force attack)
+3. **Correlation:** Apply rules to detect patterns (failed logins signal brute force attack)
 4. **Alerting:** Notify SOC team of high-priority events
-5. **Investigation:** Provide search and visualization for incident analysis
+5. **Investigation:** Search and visualization for incident analysis
 
 ### SOAR (Security Orchestration, Automation & Response)
-
-Automate incident response workflows to reduce mean time to respond (MTTR).
 
 **SOAR Capabilities:**
 - **Playbooks:** Automated response workflows (block IP, quarantine endpoint, revoke credentials)
@@ -376,13 +353,11 @@ Automate incident response workflows to reduce mean time to respond (MTTR).
 **Threat Intelligence:**
 - Integrate threat feeds (MISP, ThreatConnect, ISACs)
 - Enrich alerts with threat context (known malicious IPs, IOCs)
-- Proactive threat hunting using TTPs (MITRE ATT&CK framework)
+- Proactive threat hunting with TTPs (MITRE ATT&CK framework)
 
-For SIEM architecture, SOAR playbook examples, and detection strategies, see `references/security-operations.md`.
+See `references/security-operations.md` for SIEM architecture, SOAR playbook examples and detection strategies.
 
 ## Quick Reference: Control Framework Mapping
-
-Use this table to map risks to appropriate control frameworks:
 
 | Risk/Requirement | Framework | Key Controls |
 |------------------|-----------|--------------|
@@ -399,9 +374,7 @@ Use this table to map risks to appropriate control frameworks:
 
 ## Integration with Related Skills
 
-Security architecture provides the strategic foundation for tactical security implementations:
-
-- **`security-hardening`:** Implement the infrastructure layers (OS, container, cloud, network, database)
+- **`security-hardening`:** Implement infrastructure layers (OS, container, cloud, network, database)
 - **`security-and-hardening`:** Application-code controls at trust boundaries
 - **`kubernetes-hardening`:** Apply K8s security architecture (PSA, RBAC, NetworkPolicy, admission)
 - **`hashicorp-vault`:** Secrets management (dynamic secrets, PKI, rotation)
@@ -423,11 +396,9 @@ Replace VPN with identity-based access to applications.
 3. Policy engine evaluates access request (user, device, context)
 4. Access granted through secure connector (no network access)
 
-**Benefits:** Eliminates lateral movement, reduces attack surface, improves user experience
-
 ### Pattern 2: Defense in Depth for Web Applications
 
-Layer multiple security controls for web application protection.
+Layer multiple controls to protect web applications.
 
 **Layers:**
 1. DDoS Protection (Cloudflare, AWS Shield)
@@ -489,10 +460,3 @@ Continuously monitor and enforce security configurations across cloud environmen
 
 **Scripts:**
 - `scripts/security-checklist.sh` - Automated security architecture checklist
-
-## Summary
-
-Security architecture requires strategic planning across multiple layers, from physical security to security operations. Implement defense-in-depth for comprehensive protection, adopt zero trust principles for modern cloud environments, use threat modeling to identify risks proactively, and map controls to frameworks for compliance and completeness.
-
-Start with risk assessment to understand threats, select appropriate architecture approach (zero trust for greenfield, hybrid for brownfield), implement layered controls, and continuously monitor and improve security posture.
-

@@ -11,7 +11,7 @@ Dependencies:
 Configuration:
     Set environment variables:
     - SLACK_BOT_TOKEN: Slack bot token with channels:manage scope
-    - PAGERDUTY_WEBHOOK_SECRET: Secret for validating PagerDuty webhooks
+    - PAGERDUTY_WEBHOOK_SECRET: Secret for validating PagerDuty webhooks (required)
 
 Usage:
     # Run webhook server
@@ -53,7 +53,7 @@ def verify_pagerduty_signature(request_body: bytes, signature: str) -> bool:
         True if signature is valid, False otherwise
     """
     if not PAGERDUTY_WEBHOOK_SECRET:
-        return True  # Skip verification if secret not configured
+        return False  # Fail closed: never accept unsigned webhooks
 
     expected = hmac.new(
         PAGERDUTY_WEBHOOK_SECRET.encode(),
@@ -61,7 +61,9 @@ def verify_pagerduty_signature(request_body: bytes, signature: str) -> bool:
         hashlib.sha256
     ).hexdigest()
 
-    return hmac.compare_digest(signature, expected)
+    # Header is "v1=<hex>", comma-separated during secret rotation
+    candidates = [s.strip()[3:] for s in signature.split(",") if s.strip().startswith("v1=")]
+    return any(hmac.compare_digest(c, expected) for c in candidates)
 
 
 def create_incident_channel(incident: dict) -> Optional[str]:
@@ -268,6 +270,9 @@ def health_check():
 
 
 if __name__ == "__main__":
+    if not PAGERDUTY_WEBHOOK_SECRET:
+        raise SystemExit("PAGERDUTY_WEBHOOK_SECRET is required; refusing to accept unsigned webhooks")
+
     # Run webhook server
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)

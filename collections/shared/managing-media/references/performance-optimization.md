@@ -1,6 +1,5 @@
 # Media Performance Optimization
 
-
 ## Table of Contents
 
 - [Image Optimization](#image-optimization)
@@ -69,7 +68,7 @@
 
 **Guidelines:**
 - JPEG: 80-85% quality for photos
-- PNG: Use tools like pngquant
+- PNG: tools like pngquant
 - WebP: 80% quality for photos, lossless for graphics
 
 **Automated Optimization:**
@@ -174,8 +173,8 @@ Always provide:
 <video poster="thumbnail.jpg">
 ```
 - Shows before play
-- Reduces perceived load time
-- Use optimized JPEG (< 100KB)
+- Cuts perceived load time
+- Optimized JPEG (< 100KB)
 
 ## Audio Optimization
 
@@ -205,8 +204,8 @@ Always provide:
 
 **Compression:**
 - Optimize images in PDF
-- Remove unnecessary metadata
-- Use PDF/A for archival
+- Strip unneeded metadata
+- PDF/A for archival
 
 **Lazy Loading:**
 ```javascript
@@ -248,7 +247,6 @@ const loadPage = (pageNum) => {
 - Total page images: < 1MB
 - Hero image: < 200KB
 - Thumbnails: < 30KB each
-- LCP (Largest Contentful Paint): < 2.5s
 
 **Video:**
 - Initial load: < 100KB (poster only)
@@ -274,48 +272,48 @@ const loadPage = (pageNum) => {
 
 **FID (First Input Delay):**
 - Minimize main thread blocking
-- Use web workers for processing
+- Web workers for processing
 
 ### Testing Tools
 
 ```bash
 # Lighthouse performance audit (image weight, LCP element, lazy-loading, modern formats)
-npx lighthouse https://example.com --only-categories=performance --output html --output-path report.html
+npx lighthouse@13.6.0 https://example.com --only-categories=performance --output html --output-path report.html
 ```
 
-WebPageTest and the Chrome DevTools Performance and Network panels give per-request detail.
+WebPageTest and Chrome DevTools Performance and Network panels give per-request detail.
 
 ## Best Practices Checklist
 
 ### Images
-- [ ] Use modern formats (WebP, AVIF) with fallbacks
-- [ ] Implement responsive images (srcset)
+- [ ] Modern formats (WebP, AVIF) with fallbacks
+- [ ] Responsive images (srcset)
 - [ ] Lazy load below-the-fold images
 - [ ] Compress images (80-85% quality)
 - [ ] Serve via CDN
-- [ ] Specify width/height to prevent CLS
+- [ ] Set width/height to prevent CLS
 
 ### Video
-- [ ] Use adaptive streaming (HLS/DASH)
-- [ ] Provide multiple quality levels
+- [ ] Adaptive streaming (HLS/DASH)
+- [ ] Multiple quality levels
 - [ ] Set preload="none" or "metadata"
-- [ ] Include poster image
+- [ ] Poster image
 - [ ] Compress and optimize encoding
 - [ ] Serve via CDN with edge caching
 
 ### Audio
-- [ ] Use appropriate bitrate
-- [ ] Provide multiple formats
+- [ ] Appropriate bitrate
+- [ ] Multiple formats
 - [ ] Lazy load if not immediately needed
-- [ ] Show loading state
+- [ ] Loading state shown
 
 ### Documents
 - [ ] Compress PDFs
 - [ ] Load pages on demand
 - [ ] Optimize embedded images
-- [ ] Provide download option
+- [ ] Download option
 
 ## See Also
-- `image-optimization.md` - Image-specific optimization
-- `video-optimization.md` - Video-specific optimization
+- `image-optimization.md` - Image optimization
+- `video-optimization.md` - Video optimization
 - `cloud-storage.md` - CDN and cloud integration

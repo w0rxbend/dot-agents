@@ -1,6 +1,6 @@
 # Code Coverage
 
-Coverage measures which lines ran, not whether their behavior was asserted. Treat it as a gap finder — read the uncovered lines — not as a quality target to chase.
+Use coverage as gap finder (read uncovered lines), not quality target.
 
 ## Commands
 
@@ -40,9 +40,9 @@ go test -cover ./internal/store
 
 ## Pitfalls
 
-- **Per-package by default.** Without `-coverpkg`, a test in `api` exercising `store` reports nothing for `store`, making well-tested packages look untested.
-- **Integration tests are invisible** unless the build tag is passed: `go test -tags=integration -coverprofile=...`.
-- **Generated code inflates the number.** Exclude it before setting any threshold, otherwise the metric measures the generator.
-- **A covered line is not an asserted line.** A test that calls a function and ignores its result reports 100% coverage and verifies nothing.
+- **Per-package by default.** Without `-coverpkg`, test in `api` exercising `store` reports nothing for `store`, so well-tested packages look untested.
+- **Integration tests are invisible** unless build tag is passed: `go test -tags=integration -coverprofile=...`.
+- **Generated code inflates the number.** Exclude it before setting any threshold, or metric measures generator.
+- **A covered line is not an asserted line.** Test calling function and ignoring result reports 100% coverage, verifies nothing.
 
 → See `samber/cc-skills-golang@golang-continuous-integration` skill for wiring coverage reporting into CI.

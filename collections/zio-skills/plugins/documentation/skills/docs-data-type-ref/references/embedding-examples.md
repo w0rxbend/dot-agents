@@ -1,8 +1,8 @@
 # Embedding Example Files with `SourceFile`
 
-Detailed guidance for embedding full Scala source files into a reference page using `SourceFile.print`. Load this file when writing the **Running the Examples** section of a `docs-data-type-ref` page, or when an existing page's embeds need to be reformatted.
+Guidance for embedding full Scala source files in reference page via `SourceFile.print`. Load when writing **Running the Examples** section of `docs-data-type-ref` page, or reformatting existing page's embeds.
 
-The default for the `docs-data-type-ref` skill is: **always use `SourceFile.print`** to embed examples. Hand-pasting source into the doc duplicates code and lets it drift; `SourceFile.print` reads the file at mdoc compile time so docs and examples stay in lock-step automatically.
+`docs-data-type-ref` default: **always use `SourceFile.print`** for examples. Hand-pasted source duplicates code and drifts; `SourceFile.print` reads file at mdoc compile time, keeping docs and examples in lock-step.
 
 ## Pattern
 
@@ -12,11 +12,11 @@ import docs.SourceFile
 SourceFile.print("<module_name>-examples/src/main/scala/<package>/<ExampleFile>.scala")
 ```
 
-This emits a fenced Scala code block with the file path shown as the title.
+Emits fenced Scala code block with file path as title.
 
 ## Critical: Import Form
 
-Always import as `import docs.SourceFile` and call `SourceFile.print(...)` — **do NOT** use `import docs.SourceFile._` with a bare `print(...)`. The wildcard import shadows `Predef.print` inside mdoc sessions, and the resulting compile error is confusing because the obvious culprit (`print`) appears to be defined.
+Always import as `import docs.SourceFile` and call `SourceFile.print(...)`. **Do NOT** use `import docs.SourceFile._` with bare `print(...)`. Wildcard import shadows `Predef.print` inside mdoc sessions. Resulting compile error confuses because obvious culprit (`print`) appears defined.
 
 ✅ Good:
 
@@ -39,12 +39,12 @@ print("schema-examples/src/main/scala/example/Person.scala")
 | Parameter           | Type            | Default | Purpose                                          |
 |---------------------|-----------------|---------|--------------------------------------------------|
 | `lines`             | `Seq[(Int, Int)]` | none  | Include only specific 1-indexed line ranges     |
-| `showLineNumbers`   | `Boolean`       | `false` | Render with line numbers in the gutter          |
-| `showTitle`         | `Boolean`       | `true`  | Show the file path as the code-block title      |
+| `showLineNumbers`   | `Boolean`       | `false` | Render with line numbers in gutter              |
+| `showTitle`         | `Boolean`       | `true`  | Show file path as code-block title              |
 
 ### Examples
 
-Embed only lines 10–25 of a file:
+Embed only lines 10–25 of file:
 
 ```scala mdoc:passthrough
 SourceFile.print(
@@ -53,7 +53,7 @@ SourceFile.print(
 )
 ```
 
-Embed the whole file with line numbers and no title:
+Embed whole file with line numbers, no title:
 
 ```scala mdoc:passthrough
 SourceFile.print(
@@ -67,14 +67,14 @@ SourceFile.print(
 
 | Symptom                                                    | Likely cause                                                  | Fix                                                                                  |
 |------------------------------------------------------------|---------------------------------------------------------------|--------------------------------------------------------------------------------------|
-| `not found: object docs`                                   | The docs subproject does not include the `SourceFile` helper. | Verify `docs/src/main/scala/docs/SourceFile.scala` exists; if not, copy it from the project's docs scaffold. |
-| `value print is not a member of Predef`                    | Used `import docs.SourceFile._`                               | Switch to `import docs.SourceFile` and call `SourceFile.print(...)` qualified.       |
-| Embedded file appears empty                                | Path is wrong, or the file moved                              | Run the doc build (`sbt "docs/mdoc"`) — mdoc will report the missing path.           |
-| `lines = Seq(...)` shows truncated output                  | Range is exclusive of the upper bound or off-by-one           | Range is inclusive on both ends; double-check the line numbers in the source file.   |
+| `not found: object docs`                                   | Docs subproject does not include `SourceFile` helper.         | Verify `docs/src/main/scala/docs/SourceFile.scala` exists; if not, copy it from project's docs scaffold. |
+| `value print is not a member of Predef`                    | Used `import docs.SourceFile._`                               | Switch to `import docs.SourceFile`, call `SourceFile.print(...)` qualified.          |
+| Embedded file appears empty                                | Wrong path, or file moved                                     | Run doc build (`sbt "docs/mdoc"`); mdoc reports missing path.                        |
+| `lines = Seq(...)` shows truncated output                  | Range is exclusive of upper bound or off-by-one               | Range is inclusive on both ends; double-check line numbers in source file.           |
 
 ## When to Skip `SourceFile`
 
-- The example is **fewer than ~10 lines** AND is the only place that snippet appears. A plain ```` ```scala mdoc ```` block is fine.
-- The example is **synthetic** (illustrative only, not a runnable companion file). It belongs inline.
+- Example is **fewer than ~10 lines** AND only place that snippet appears. Plain ```` ```scala mdoc ```` block is fine.
+- Example is **synthetic** (illustrative only, not runnable companion file). Belongs inline.
 
-In every other case (any "Running the Examples" section, any reused snippet, any example over ~10 lines), use `SourceFile.print`.
+Every other case (any "Running the Examples" section, any reused snippet, any example over ~10 lines): use `SourceFile.print`.

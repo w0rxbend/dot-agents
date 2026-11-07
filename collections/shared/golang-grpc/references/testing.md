@@ -16,7 +16,7 @@
 
 ## Testing with `bufconn`
 
-`bufconn` creates in-memory connections that exercise the full gRPC stack (serialization, interceptors, metadata) without network overhead. This is the standard approach for gRPC unit and integration tests.
+`bufconn` creates in-memory connections exercising full gRPC stack (serialization, interceptors, metadata) without network overhead. Standard approach for gRPC unit and integration tests.
 
 ### Basic Setup
 
@@ -47,7 +47,7 @@ func setupTest(t *testing.T) pb.UserServiceClient {
 
 ### Setup with Interceptors
 
-Test your interceptors by including them in the test server:
+Test interceptors by including them in test server:
 
 ```go
 func setupTestWithInterceptors(t *testing.T) pb.UserServiceClient {
@@ -82,22 +82,7 @@ func setupTestWithInterceptors(t *testing.T) pb.UserServiceClient {
 
 ## Testing Error Codes
 
-Always verify that RPCs return the expected gRPC status codes — clients rely on codes for retry and error-handling logic.
-
-```go
-func TestGetUser_NotFound(t *testing.T) {
-    client := setupTest(t)
-    _, err := client.GetUser(context.Background(), &pb.GetUserRequest{UserId: "nonexistent"})
-
-    st, ok := status.FromError(err)
-    if !ok {
-        t.Fatalf("expected gRPC status error, got: %v", err)
-    }
-    if st.Code() != codes.NotFound {
-        t.Errorf("expected NotFound, got %s: %s", st.Code(), st.Message())
-    }
-}
-```
+Always verify RPCs return expected gRPC status codes. Clients rely on codes for retry and error-handling logic.
 
 ### Table-Driven Error Code Tests
 
@@ -195,7 +180,7 @@ func TestBatchCreate_ClientStream(t *testing.T) {
 
 ## Testing Metadata
 
-Verify that interceptors correctly read/write metadata:
+Verify interceptors correctly read/write metadata:
 
 ```go
 func TestAuth_Metadata(t *testing.T) {
@@ -239,7 +224,7 @@ func TestGetUser_DeadlineExceeded(t *testing.T) {
 
 ## Integration Test Patterns
 
-For tests that hit real dependencies (database, external services), use build tags to separate them:
+Separate tests that hit real dependencies (database, external services) with build tags:
 
 ```go
 //go:build integration

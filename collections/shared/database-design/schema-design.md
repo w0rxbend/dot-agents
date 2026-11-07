@@ -1,7 +1,5 @@
 # Schema Design Principles
 
-> Normalization, primary keys, timestamps, relationships.
-
 ## Normalization Decision
 
 ```

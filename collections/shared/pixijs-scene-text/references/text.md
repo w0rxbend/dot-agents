@@ -1,6 +1,6 @@
 # Text (Canvas Text)
 
-The primary text renderer in PixiJS v8. Rasterizes strings to an off-screen canvas via the native Canvas API, then uploads the result as a GPU texture. Use `Text` for high-quality typography, styled labels, UI text, and anything where visual fidelity matters more than update speed. For frequently-changing numeric displays (scores, timers), prefer `BitmapText`.
+Primary text renderer in PixiJS v8. Rasterizes strings to off-screen canvas via native Canvas API, then uploads result as GPU texture. Use `Text` for high-quality typography, styled labels, UI text, and anything where visual fidelity matters more than update speed.
 
 ## Quick Start
 
@@ -27,7 +27,7 @@ const text = new Text({
 app.stage.addChild(text);
 ```
 
-Text is a leaf (`allowChildren = false`). It uses an options-object constructor; positional `(string, style)` arguments from v7 are no longer supported.
+Text is a leaf (`allowChildren = false`).
 
 ## Construction
 
@@ -52,21 +52,19 @@ const crisp = new Text({
 
 ### CanvasTextOptions
 
-These are the options accepted by `new Text({ ... })`. The concrete `Text` constructor takes `CanvasTextOptions`, which extends the base `TextOptions` with the canvas-specific `textureStyle` and `autoGenerateMipmaps` fields.
+Options accepted by `new Text({ ... })`. Concrete `Text` constructor takes `CanvasTextOptions`, which extends base `TextOptions` with canvas-specific `textureStyle` and `autoGenerateMipmaps` fields.
 
-| Option                | Type                                                        | Default                                            | Description                                                                                                                                                               |
-| --------------------- | ----------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `text`                | `TextString` (`string \| number \| { toString(): string }`) | `''`                                               | Text content to display; `'\n'` inserts a line break.                                                                                                                     |
-| `style`               | `TextStyle \| TextStyleOptions`                             | `new TextStyle()`                                  | Text style object or options. See the existing TextStyle docs below for field details.                                                                                    |
-| `anchor`              | `PointData \| number`                                       | `0`                                                | Draw origin in `[0, 1]`; `0.5` is center, `1` is bottom-right.                                                                                                            |
-| `resolution`          | `number`                                                    | `null` (auto)                                      | Pixel density of the rasterized texture; `null` follows the renderer's resolution (setting to `null` at runtime enables auto-resolution; the interface type is `number`). |
-| `roundPixels`         | `boolean`                                                   | `false`                                            | Snap rendered x/y to whole pixels to avoid sub-pixel anti-aliasing.                                                                                                       |
-| `textureStyle`        | `TextureStyle \| TextureStyleOptions`                       | `undefined`                                        | Scale mode for the generated texture (`nearest` or `linear`); every other `TextureStyle` field is ignored. (@advanced)                                                    |
-| `autoGenerateMipmaps` | `boolean`                                                   | `TextureSource.defaultOptions.autoGenerateMipmaps` | Generate mipmaps for the text texture; improves quality when scaled down.                                                                                                 |
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `text` | `TextString` (`string \| number \| { toString(): string }`) | `''` | Text content to display; `'\n'` inserts line break. |
+| `style` | `TextStyle \| TextStyleOptions` | `new TextStyle()` | Text style object or options. See TextStyle docs below for field details. |
+| `anchor` | `PointData \| number` | `0` | Draw origin in `[0, 1]`; `0.5` is center, `1` is bottom-right. |
+| `resolution` | `number` | `null` (auto) | Pixel density of rasterized texture; `null` follows renderer's resolution (setting to `null` at runtime enables auto-resolution; interface type is `number`). Higher = sharper on high-DPI displays. |
+| `roundPixels` | `boolean` | `false` | Snap rendered x/y to whole pixels to avoid sub-pixel anti-aliasing. |
+| `textureStyle` | `TextureStyle \| TextureStyleOptions` | `undefined` | Scale mode for generated texture (`nearest` or `linear`); every other `TextureStyle` field ignored. (@advanced) |
+| `autoGenerateMipmaps` | `boolean` | `TextureSource.defaultOptions.autoGenerateMipmaps` | Generate mipmaps for text texture; improves quality when scaled down. |
 
-All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) are also valid here — see the constructor-options table in `references/scene-core-concepts.md` of the `pixijs-scene-container` skill.
-
-The `style` field is a rich nested type; the rest of this document covers its key properties.
+All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) also valid here. See constructor-options table in `references/scene-core-concepts.md` of `pixijs-scene-container` skill.
 
 ## Core Patterns
 
@@ -111,10 +109,10 @@ Key TextStyle properties:
 - `align`: `'left'`, `'center'`, `'right'`, `'justify'`; only affects multi-line text
 - `textBaseline`: `'alphabetic' | 'top' | 'hanging' | 'middle' | 'ideographic' | 'bottom'`
 - `lineHeight`, `letterSpacing`
-- `leading`: additional line spacing in pixels on top of `lineHeight`
+- `leading`: extra line spacing in pixels on top of `lineHeight`
 - `trim`: boolean; crop transparent padding after rasterization (expensive, use only when needed)
-- `padding`: extra space around the rendered texture; increase when a stroke or shadow gets clipped
-- `filters`: array of Pixi filters applied to the generated text texture at bake time, cheaper than filters on the `Text` node for static strings
+- `padding`: extra space around rendered texture; increase when stroke or shadow gets clipped
+- `filters`: array of Pixi filters applied to generated text texture at bake time; cheaper than filters on `Text` node for static strings
 - `tagStyles`: per-tag inline style overrides
 
 ### Tagged text
@@ -133,7 +131,7 @@ const alert = new Text({
 });
 ```
 
-Tags are parsed only when `tagStyles` has entries; without entries, `<` is treated literally. Nested tags inherit from outer tags via an internal style stack.
+Tags parsed only when `tagStyles` has entries; without entries, `<` is treated literally. Nested tags inherit from outer tags via internal style stack.
 
 ### Font loading
 
@@ -149,7 +147,7 @@ const text = new Text({
 });
 ```
 
-Supported formats: `woff2` (preferred), `woff`, `ttf`, `otf`. The `data` object is forwarded to `FontFace`; valid fields are `family`, `display`, `style`, `weights` (string array, e.g., `['normal', 'bold']`), `stretch`, `unicodeRange`, `featureSettings`, `variant`.
+Supported formats: `woff2` (preferred), `woff`, `ttf`, `otf`. `data` object is forwarded to `FontFace`; valid fields are `family`, `display`, `style`, `weights` (string array, e.g., `['normal', 'bold']`), `stretch`, `unicodeRange`, `featureSettings`, `variant`.
 
 ```ts
 await Assets.load({
@@ -157,20 +155,6 @@ await Assets.load({
   data: { family: "Titan One", weights: ["normal", "bold"] },
 });
 ```
-
-### Resolution and mipmaps
-
-```ts
-const sharp = new Text({
-  text: "Crisp on retina",
-  style: { fontSize: 36, fill: 0xffffff },
-  resolution: 2,
-  autoGenerateMipmaps: true,
-});
-```
-
-- `resolution` (default: renderer's resolution): pixel density of the underlying texture. Higher values produce sharper text on high-DPI displays.
-- `autoGenerateMipmaps`: improves quality when the text is drawn smaller than its native size.
 
 ### Dynamic content
 
@@ -183,7 +167,7 @@ app.ticker.add(() => {
 });
 ```
 
-Guard text updates with an equality check when using `Text` for live values. Every assignment triggers a canvas re-render and GPU upload.
+Guard text updates with equality check when using `Text` for live values.
 
 ### Sharing a TextStyle across instances
 
@@ -198,7 +182,7 @@ style.fill = 0xff0000; // both re-render
 title.destroy(); // detaches from `style`; `label` keeps using it
 ```
 
-A `TextStyle` instance can be shared by any number of `Text`, `BitmapText`, and `HTMLText` objects; changing it re-renders all of them. `destroy()` detaches the text from the style without destroying it. Only pass `destroy({ style: true })` (or `destroy(true)`) when no other text object uses that style, since it destroys the shared instance.
+Any number of `Text`, `BitmapText` and `HTMLText` objects can share one `TextStyle` instance; changing it re-renders all of them. `destroy()` detaches text from style without destroying it. Pass `destroy({ style: true })` (or `destroy(true)`) only when no other text object uses that style, since it destroys shared instance.
 
 ### Gradient and pattern fills
 
@@ -219,7 +203,7 @@ const title = new Text({
 });
 ```
 
-For a texture fill, pass a `FillPattern`. Its constructor takes an options object; the legacy positional form `new FillPattern(texture, repetition)` is also accepted.
+For texture fill, pass a `FillPattern`. Its constructor takes options object; legacy positional form `new FillPattern(texture, repetition)` also accepted.
 
 ```ts
 import { Assets, FillPattern } from "pixi.js";
@@ -235,9 +219,9 @@ const label = new Text({
 });
 ```
 
-Canvas-rendered text ignores the pattern's `textureSpace`; the texture tiles in the text's pixel space at its native size. Use `pattern.setTransform(matrix)` to scale, rotate, or offset the tiles. A `FillPattern` works for `stroke` too, e.g. `style: { stroke: { fill: pattern, width: 10 } }`.
+Canvas-rendered text ignores pattern's `textureSpace`; texture tiles in text's pixel space at native size. Use `pattern.setTransform(matrix)` to scale, rotate or offset tiles. `FillPattern` works for `stroke` too, e.g. `style: { stroke: { fill: pattern, width: 10 } }`.
 
-`fill` accepts any `FillInput` that `Graphics` accepts; gradients, patterns, solid colors, and arrays of stops.
+`fill` accepts any `FillInput` that `Graphics` accepts: gradients, patterns, solid colors, arrays of stops.
 
 ## Common Mistakes
 
@@ -260,7 +244,7 @@ app.ticker.add(() => {
 });
 ```
 
-Every `Text` update re-rasterizes the full string and uploads a new texture. At 60fps this burns frame budget. Use `BitmapText` for values that change per-frame, or at minimum guard with an equality check against the previous string.
+Every `Text` update re-rasterizes full string and uploads new texture. At 60fps this burns frame budget. Use `BitmapText` for values changing per-frame, or at minimum guard with equality check against previous string.
 
 
 ### [HIGH] Using positional constructor args
@@ -277,7 +261,7 @@ Correct:
 const text = new Text({ text: "Hello", style: { fontSize: 24 } });
 ```
 
-v8 `Text` uses an options object. The v7 `(string, style)` signature is not supported.
+v8 `Text` uses options object. v7 `(string, style)` signature not supported.
 
 
 ### [MEDIUM] Stroke or shadow getting clipped at edges
@@ -300,7 +284,7 @@ const text = new Text({
 });
 ```
 
-The underlying canvas is sized from the text metrics; heavy strokes or drop-shadows render past those bounds and get clipped. Add `padding` to the style to enlarge the texture.
+Underlying canvas is sized from text metrics; heavy strokes or drop-shadows render past those bounds and get clipped. Add `padding` to style to enlarge texture.
 
 
 ## API Reference

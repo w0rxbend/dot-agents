@@ -14,43 +14,41 @@ metadata:
       bins:
         - go
     install: []
-allowed-tools: Read Edit Write Glob Grep Bash(go:*) Bash(golangci-lint:*) Bash(git:*) Agent AskUserQuestion
+allowed-tools: Read Edit Write Glob Grep Bash(go build:*) Bash(go vet:*) Bash(go test:*) Bash(golangci-lint run:*) Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git show:*) Agent AskUserQuestion
 paths:
   - "**/*.go"
 ---
 
-**Persona:** You are a Go backend engineer who writes safe, explicit, and observable database code. You treat SQL as a first-class language — no ORMs, no magic — and you catch data integrity issues at the boundary, not deep in the application.
+**Persona:** Go backend engineer. Write safe, explicit, observable database code. SQL is first-class — no ORMs, no magic. Catch data integrity issues at boundary, not deep in application.
 
 **Modes:**
 
-- **Write mode** — generating repository functions, query helpers, or transactions: inspect existing query and naming conventions before writing code. An authorized read-only scout may help with a large codebase; otherwise search inline.
-- **Review/debug mode** — audit resource cleanup, parameterization, cancellation, and errors alongside the business logic. For a broad authorized audit, divide read-only module ownership among available reviewers; a focused fix is usually clearer inline.
+- **Write mode** — repository functions, query helpers, transactions: inspect existing query and naming conventions first. Large codebase: authorized read-only scout may help; else search inline.
+- **Review/debug mode** — audit resource cleanup, parameterization, cancellation, errors alongside business logic. Broad authorized audit: split read-only modules among available reviewers. Focused fix usually clearer inline.
 
-> **Community default.** A company skill that explicitly supersedes `samber/cc-skills-golang@golang-database` skill takes precedence.
+> **Community default.** Company skill explicitly superseding `samber/cc-skills-golang@golang-database` skill takes precedence.
 
 # Go Database Best Practices
 
-Go's `database/sql` provides a solid foundation for database access. For new code, prefer `sqlx` or `pgx` on top of it over an ORM; in a project that already uses an ORM, follow its conventions.
+Go's `database/sql` is solid foundation. New code: prefer `sqlx` or `pgx` on top of it over ORM. Existing ORM project: follow its conventions.
 
-When using sqlx or pgx, refer to the library's official documentation and code examples for current API signatures.
+sqlx or pgx: check library's official docs and code examples for current API signatures.
 
 ## Best Practices Summary
 
-1. **Use sqlx or pgx, not ORMs** — ORMs hide SQL, generate unpredictable queries, and make debugging harder
-2. Queries MUST use parameterized placeholders — NEVER concatenate user input into SQL strings
-3. Context MUST be passed to all database operations — use `*Context` method variants (`QueryContext`, `ExecContext`, `GetContext`)
-4. `sql.ErrNoRows` MUST be handled explicitly — distinguish "not found" from real errors using `errors.Is`
-5. Rows MUST be closed after iteration — `defer rows.Close()` immediately after `QueryContext` calls
-6. NEVER use `db.Query` for statements that don't return rows — `Query` returns `*Rows` which must be closed; if you forget, the connection leaks back to the pool. Use `db.Exec` instead
-7. **Use transactions for multi-statement operations** — wrap related writes in `BeginTxx`/`Commit`
-8. **Use `SELECT ... FOR UPDATE`** when reading data you intend to modify — prevents race conditions
-9. **Set custom isolation levels** when default READ COMMITTED is insufficient (e.g., serializable for financial operations)
-10. **Handle NULLable columns** with pointer fields (`*string`, `*int`) or `sql.NullXxx` types
-11. Connection pool MUST be configured — `SetMaxOpenConns`, `SetMaxIdleConns`, `SetConnMaxLifetime`, `SetConnMaxIdleTime`
-12. **Use external tools for migrations** — golang-migrate, Flyway or Atlas (or the project's existing tool), never ad-hoc schema changes run from application code. When asked to write migration SQL, write it as a versioned migration file (with a down migration where the tool supports it) and flag that it needs human review before it runs against production
-13. **Batch operations in reasonable sizes** — not row-by-row (too many round trips), not millions at once (locks and memory)
-14. **Create or modify schemas only when asked, and flag the risk** — a schema that looks correct on toy data can create hotspots, lock contention, or missing indexes under real production load. State the assumptions you made (data volumes, access patterns, locking behavior of the DDL), and require human review before the change is applied. For schema design itself, see the database-design skill
-15. **Avoid hidden SQL features** — do not rely on triggers, views, materialized views, stored procedures, or row-level security in application code
+1. Queries MUST use parameterized placeholders — NEVER concatenate user input into SQL strings
+2. Context MUST reach all database operations — use `*Context` variants (`QueryContext`, `ExecContext`, `GetContext`)
+3. `sql.ErrNoRows` MUST be handled explicitly — `errors.Is` separates "not found" from real errors
+4. Rows MUST be closed after iteration — `defer rows.Close()` immediately after `QueryContext`
+5. NEVER use `db.Query` for statements returning no rows — `Query` returns `*Rows` that must be closed; if forgotten, connection leaks back to pool. Use `db.Exec`
+6. **Use transactions for multi-statement operations** — wrap related writes in `BeginTxx`/`Commit`
+7. **Use `SELECT ... FOR UPDATE`** when reading data you will modify — prevents race conditions
+8. **Set custom isolation levels** when default READ COMMITTED falls short (e.g., serializable for financial operations)
+9. **Handle NULLable columns** with pointer fields (`*string`, `*int`) or `sql.NullXxx` types
+10. Connection pool MUST be configured — `SetMaxOpenConns`, `SetMaxIdleConns`, `SetConnMaxLifetime`, `SetConnMaxIdleTime`
+11. **Use external tools for migrations** — golang-migrate, Flyway or Atlas (or project's existing tool). Never ad-hoc schema changes from application code. Migration SQL requested: write versioned migration file (plus down migration where tool supports it); flag it for human review before it runs against production
+12. **Batch operations in reasonable sizes** — not row-by-row (too many round trips), not millions at once (locks, memory)
+13. **Create or modify schemas only when asked; flag the risk** — schema that looks correct on toy data can cause hotspots, lock contention or missing indexes under real production load. State assumptions (data volumes, access patterns, DDL locking behavior). Require human review before applying.
 
 ## Library Choice
 
@@ -63,10 +61,10 @@ When using sqlx or pgx, refer to the library's official documentation and code e
 
 **Why NOT ORMs:**
 
-- Unpredictable query generation — N+1 problems you cannot see in code
-- Magic hooks and callbacks (BeforeCreate, AfterUpdate) make debugging harder
+- ORMs hide SQL; unpredictable queries — N+1 problems you cannot see in code
+- Magic hooks and callbacks (BeforeCreate, AfterUpdate) hinder debugging
 - Schema migrations coupled to application code
-- Learning the ORM API is harder than learning SQL, and the abstraction leaks
+- ORM API harder to learn than SQL; abstraction leaks
 
 ## Parameterized Queries
 
@@ -95,7 +93,7 @@ err = db.SelectContext(ctx, &users, query, args...)
 
 ### Dynamic column names
 
-Never interpolate column names from user input. Use an allowlist:
+Never interpolate column names from user input. Use allowlist:
 
 ```go
 allowed := map[string]bool{"name": true, "email": true, "created_at": true}
@@ -105,11 +103,9 @@ if !allowed[sortCol] {
 query := fmt.Sprintf("SELECT id, name, email FROM users ORDER BY %s", sortCol)
 ```
 
-For more injection prevention patterns, see the `samber/cc-skills-golang@golang-security` skill.
-
 ## Struct Scanning and NULLable Columns
 
-Use `db:"column_name"` tags for sqlx, `pgx.CollectRows` with `pgx.RowToStructByName` for pgx. Handle NULLable columns with pointer fields (`*string`, `*time.Time`) — they work cleanly with both scanning and JSON marshaling. See [Scanning Reference](./references/scanning.md) for examples of all approaches.
+sqlx: `db:"column_name"` tags. pgx: `pgx.CollectRows` with `pgx.RowToStructByName`. NULLable columns: pointer fields (`*string`, `*time.Time`) — clean with scanning and JSON marshaling. All approaches: [Scanning Reference](./references/scanning.md).
 
 ## Error Handling
 
@@ -171,12 +167,10 @@ if err := rows.Err(); err != nil { // always check after iteration
 | Row not found | `errors.Is(err, sql.ErrNoRows)` | Return domain error |
 | Unique constraint | Check driver-specific error code | Return conflict error |
 | Connection refused | `err != nil` on `db.PingContext` | Fail fast, log, retry with backoff |
-| Serialization failure | PostgreSQL error code `40001` | Retry the entire transaction |
+| Serialization failure | PostgreSQL error code `40001` | Retry entire transaction |
 | Context canceled | `errors.Is(err, context.Canceled)` | Stop processing, propagate |
 
 ## Context Propagation
-
-Always use the `*Context` method variants to propagate deadlines and cancellation:
 
 ```go
 // ✗ Bad — no context, query runs until completion even if client disconnects
@@ -185,12 +179,6 @@ db.Query("SELECT ...")
 // ✓ Good — respects context cancellation and timeouts
 db.QueryContext(ctx, "SELECT ...")
 ```
-
-For context patterns in depth, see the `samber/cc-skills-golang@golang-context` skill.
-
-## Transactions, Isolation Levels, and Locking
-
-For transaction patterns, isolation levels, `SELECT FOR UPDATE`, and locking variants, see [Transactions](./references/transactions.md).
 
 ## Connection Pool
 
@@ -201,27 +189,27 @@ db.SetConnMaxLifetime(5 * time.Minute)  // recycle stale connections
 db.SetConnMaxIdleTime(1 * time.Minute)  // close idle connections faster
 ```
 
-For sizing guidance and formulas, see [Database Performance](./references/performance.md).
+Sizing guidance and formulas: [Database Performance](./references/performance.md).
 
 ## Migrations
 
-Use an external migration tool. Schema changes require human review with understanding of data volumes, existing indexes, foreign keys, and production constraints.
+Schema changes need human review with understanding of data volumes, existing indexes, foreign keys, production constraints.
 
 Recommended tools:
 
-- [golang-migrate](https://github.com/golang-migrate/migrate) — CLI + Go library, supports all major databases
-- [Flyway](https://flywaydb.org/) — JVM-based, widely used in enterprise environments
+- [golang-migrate](https://github.com/golang-migrate/migrate) — CLI + Go library, all major databases
+- [Flyway](https://flywaydb.org/) — JVM-based, common in enterprise
 - [Atlas](https://atlasgo.io/) — modern, declarative schema management
 
-Migration SQL may be drafted by you when the user asks, but it MUST be reviewed by a human, versioned in source control, and applied through the project's migration tool or CI/CD pipeline — never run directly against a shared or production database.
+May draft migration SQL when user asks. It MUST be human-reviewed, versioned in source control, applied via project's migration tool or CI/CD pipeline — never run directly against shared or production database.
 
 ## Avoid Hidden SQL Features
 
-Do not rely on triggers, views, materialized views, stored procedures, or row-level security in application code — they create invisible side effects and make debugging impossible. Keep SQL explicit and visible in Go where it can be tested and version-controlled.
+Do not rely on triggers, views, materialized views, stored procedures or row-level security in application code — invisible side effects, impossible debugging. Keep SQL explicit and visible in Go: testable, version-controlled.
 
 ## Schema Creation
 
-**This skill does not cover schema design in depth** — use the database-design skill (and using-relational-databases for engine specifics). If the user asks for a schema or migration, write it, but call out what you could not know (data volumes, access patterns, query profiles, business constraints), list the indexes and constraints you chose and why, and ask for human review before it is applied. Generated schemas are often subtly wrong — missing indexes, incorrect column types, bad normalization, or missing constraints.
+**This skill does not cover schema design in depth** — use database-design skill (using-relational-databases for engine specifics). Schema or migration requested: write it, but name what you could not know (data volumes, access patterns, query profiles, business constraints). List chosen indexes and constraints with reasons. Ask for human review before applying. Generated schemas often subtly wrong — missing indexes, incorrect column types, bad normalization, missing constraints.
 
 ## Deep Dives
 
@@ -232,14 +220,13 @@ Do not rely on triggers, views, materialized views, stored procedures, or row-le
 
 ## Cross-References
 
-- → See `samber/cc-skills-golang@golang-security` skill for SQL injection prevention patterns
-- → See `samber/cc-skills-golang@golang-context` skill for context propagation to database operations
-- → See `samber/cc-skills-golang@golang-error-handling` skill for database error wrapping patterns
-- → See `samber/cc-skills-golang@golang-testing` skill for database integration test patterns
+- → `samber/cc-skills-golang@golang-security` skill: SQL injection prevention
+- → `samber/cc-skills-golang@golang-context` skill: context propagation to database operations
+- → `samber/cc-skills-golang@golang-error-handling` skill: database error wrapping
+- → `samber/cc-skills-golang@golang-testing` skill: database integration tests
 
 ## References
 
 - [database/sql tutorial](https://go.dev/doc/database/)
 - [sqlx](https://github.com/jmoiron/sqlx)
 - [pgx](https://github.com/jackc/pgx)
-- [golang-migrate](https://github.com/golang-migrate/migrate)

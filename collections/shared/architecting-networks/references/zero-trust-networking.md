@@ -1,7 +1,5 @@
 # Zero Trust Networking
 
-Comprehensive guide to implementing zero trust network architecture principles in cloud environments.
-
 ## Table of Contents
 
 1. [Zero Trust Principles](#zero-trust-principles)
@@ -18,13 +16,13 @@ Comprehensive guide to implementing zero trust network architecture principles i
 
 #### 1. Never Trust, Always Verify
 
-**Traditional Approach:**
+**Traditional:**
 ```
 Inside Network = Trusted
 Outside Network = Untrusted
 ```
 
-**Zero Trust Approach:**
+**Zero Trust:**
 ```
 Every Request = Verify
 Every User = Authenticate
@@ -32,39 +30,39 @@ Every Device = Validate
 ```
 
 **Implementation:**
-- Authenticate every request regardless of source
+- Authenticate every request, whatever its source
 - Verify identity AND device health
-- No implicit trust based on network location
+- No implicit trust from network location
 
 #### 2. Least Privilege Access
 
-**Traditional Approach:**
+**Traditional:**
 ```
 VPC = Full Access
 Subnet = Full Access within subnet
 ```
 
-**Zero Trust Approach:**
+**Zero Trust:**
 ```
 Service A → Service B: Port 8080 only
 Service C → Database: Port 5432 only
 ```
 
 **Implementation:**
-- Grant minimum necessary permissions
+- Grant minimum permissions
 - Time-bound access (just-in-time)
 - Continuous authorization
 - Revoke unused permissions
 
 #### 3. Assume Breach
 
-**Traditional Approach:**
+**Traditional:**
 ```
 Perimeter = Secure
 Inside = Trusted
 ```
 
-**Zero Trust Approach:**
+**Zero Trust:**
 ```
 Attackers Inside = Assume
 Lateral Movement = Block
@@ -74,43 +72,12 @@ Segment Everything = Required
 **Implementation:**
 - Segment network aggressively
 - Monitor all traffic
-- Rapid detection and response
+- Detect and respond fast
 - Limit blast radius
 
 ---
 
 ## Microsegmentation
-
-### Traditional Network vs Zero Trust
-
-#### Traditional (Large Blast Radius)
-
-```
-┌────────────────────────────────────────────────┐
-│              DMZ (0.0.0.0/0 allowed)           │
-│  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐     │
-│  │ App1│ │ App2│ │ App3│ │ App4│ │ App5│     │
-│  └─────┘ └─────┘ └─────┘ └─────┘ └─────┘     │
-│   All apps can talk to each other              │
-└────────────────────────────────────────────────┘
-
-Problem: If one app compromised, all apps at risk
-```
-
-#### Zero Trust (Microsegmentation)
-
-```
-┌────────────────────────────────────────────────┐
-│         Microsegmented Environment             │
-│  ┌─────┐   ┌─────┐   ┌─────┐   ┌─────┐       │
-│  │App1 │──►│App2 │   │App3 │──►│App4 │       │
-│  │[SG1]│   │[SG2]│   │[SG3]│   │[SG4]│       │
-│  └─────┘   └─────┘   └─────┘   └─────┘       │
-│    Only App1→App2 and App3→App4 allowed       │
-└────────────────────────────────────────────────┘
-
-Benefit: Compromise of App1 doesn't affect App3/App4
-```
 
 ### Implementing Microsegmentation with Security Groups
 
@@ -218,15 +185,9 @@ resource "aws_security_group" "database" {
     description     = "From backend only"
   }
 
-  # No outbound (database doesn't initiate)
-  # Note: Some egress required for health checks
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Required for AWS health checks"
-  }
+  # No egress rules: SGs are stateful (replies allowed) and RDS needs none for
+  # health checks. Terraform removes AWS's default allow-all egress. If egress is
+  # needed, scope it to specific ports and destinations.
 
   tags = {
     Name      = "database-sg"
@@ -235,85 +196,19 @@ resource "aws_security_group" "database" {
 }
 ```
 
-#### Pattern 2: Microservices Segmentation
-
-**Scenario:** Multiple microservices with specific dependencies
-
-```hcl
-# Auth Service
-resource "aws_security_group" "auth_service" {
-  name        = "auth-service-sg"
-  vpc_id      = module.vpc.vpc_id
-
-  # Accept from API Gateway
-  ingress {
-    from_port       = 8081
-    to_port         = 8081
-    protocol        = "tcp"
-    security_groups = [aws_security_group.api_gateway.id]
-  }
-
-  # Can talk to user database
-  egress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.user_db.id]
-  }
-
-  tags = {
-    Service = "auth"
-  }
-}
-
-# Order Service
-resource "aws_security_group" "order_service" {
-  name        = "order-service-sg"
-  vpc_id      = module.vpc.vpc_id
-
-  # Accept from API Gateway
-  ingress {
-    from_port       = 8082
-    to_port         = 8082
-    protocol        = "tcp"
-    security_groups = [aws_security_group.api_gateway.id]
-  }
-
-  # Can talk to order database
-  egress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.order_db.id]
-  }
-
-  # Can talk to payment service
-  egress {
-    from_port       = 8083
-    to_port         = 8083
-    protocol        = "tcp"
-    security_groups = [aws_security_group.payment_service.id]
-  }
-
-  tags = {
-    Service = "order"
-  }
-}
-```
-
 ### Microsegmentation Best Practices
 
 1. **One Security Group Per Service**
    - Don't reuse security groups across services
-   - Makes dependency tracking clear
+   - Keeps dependencies easy to track
 
 2. **Reference Other Security Groups**
-   - Use security group IDs instead of CIDR blocks
+   - Use security group IDs, not CIDR blocks
    - Example: `source_security_group_id = aws_security_group.backend.id`
 
 3. **Explicit Deny Not Needed**
-   - Security groups are deny-by-default
-   - Only create allow rules
+   - Security groups deny by default
+   - Create only allow rules
 
 4. **Document Dependencies**
    ```hcl
@@ -338,13 +233,13 @@ resource "aws_security_group" "order_service" {
 
 ### Concept: Identity Over IP Address
 
-**Traditional Approach:**
+**Traditional:**
 ```
 Allow: 10.0.1.0/24 (subnet) → S3
 Problem: Any compromised instance in subnet can access S3
 ```
 
-**Zero Trust Approach:**
+**Zero Trust:**
 ```
 Allow: IAM Role "app-role" → S3 bucket "app-bucket"
 Benefit: Only instances with specific role can access
@@ -617,7 +512,7 @@ ORDER BY count DESC
 ### Phase 3: Pilot (Weeks 5-6)
 
 **Activities:**
-- [ ] Implement in non-production environment
+- [ ] Implement in non-production
 - [ ] Test microsegmentation rules
 - [ ] Validate IAM policies
 - [ ] Enable VPC flow logs
@@ -648,11 +543,11 @@ ORDER BY count DESC
 - [ ] Review flow logs weekly
 - [ ] Audit security group rules monthly
 - [ ] Update microsegmentation as services change
-- [ ] Conduct quarterly security reviews
+- [ ] Run quarterly security reviews
 - [ ] Respond to security incidents
 
-**Metrics to Track:**
-- Number of rejected connections
+**Metrics:**
+- Rejected connection count
 - Security group rule count
 - IAM policy complexity
 - Time to detect threats

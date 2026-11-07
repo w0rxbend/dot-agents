@@ -36,7 +36,7 @@ cargo run
 
 Access:
 - API: http://localhost:3000
-- Grafana: http://localhost:3000 (admin/admin)
+- Grafana: http://localhost:3000 (admin / `GRAFANA_ADMIN_PASSWORD` from `.env`)
 
 ## Implementation
 

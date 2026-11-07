@@ -5,7 +5,7 @@ Generate Kubernetes manifests from templates.
 This script is executed WITHOUT loading into context (token-free).
 
 Usage:
-    python scripts/generate_k8s_manifests.py --app-name my-app --replicas 3 --namespace production
+    python scripts/generate_k8s_manifests.py --app-name my-app --image <registry>/<image>@sha256:<digest> --replicas 3 --namespace production
 
 Features:
     - Generates Deployment, Service, ConfigMap, Ingress
@@ -37,9 +37,18 @@ spec:
       labels:
         app: {app_name}
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: {app_name}
         image: {image}
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
         ports:
         - containerPort: {port}
           name: http
@@ -160,7 +169,7 @@ def main():
     parser.add_argument("--app-name", required=True, help="Application name")
     parser.add_argument("--namespace", default="default", help="Kubernetes namespace")
     parser.add_argument("--replicas", type=int, default=2, help="Number of replicas")
-    parser.add_argument("--image", default="my-app:latest", help="Container image")
+    parser.add_argument("--image", required=True, help="Container image, pinned (registry/image@sha256:<digest>)")
     parser.add_argument("--port", type=int, default=3000, help="Container port")
     parser.add_argument("--cpu-request", default="100m", help="CPU request")
     parser.add_argument("--memory-request", default="128Mi", help="Memory request")

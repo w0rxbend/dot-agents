@@ -4,7 +4,7 @@ description: "Use this skill when creating and configuring a PixiJS v8 Applicati
 license: MIT
 ---
 
-`Application` is the convenience wrapper that owns a renderer, a root `stage` Container, a canvas, and the Ticker/Resize plugins. In v8 the constructor takes no arguments; all configuration is passed to the async `app.init()` call which instantiates the renderer via `autoDetectRenderer`.
+`Application`: convenience wrapper owning renderer, root `stage` Container, canvas, Ticker/Resize plugins. All configuration goes to async `app.init()`, which creates renderer via `autoDetectRenderer`.
 
 ## Quick Start
 
@@ -25,7 +25,7 @@ await app.init({
 document.body.appendChild(app.canvas);
 ```
 
-**Related skills:** `pixijs-core-concepts` (renderers, render pipeline), `pixijs-ticker` (render loop detail), `pixijs-scene-container` (working with `app.stage`). Non-browser setups (Web Worker, SSR, strict CSP) are summarized in `pixijs-core-concepts` (Decision guide).
+**Related skills:** `pixijs-core-concepts` (renderers, render pipeline), `pixijs-ticker` (render loop detail), `pixijs-scene-container` (working with `app.stage`). Non-browser setups (Web Worker, SSR, strict CSP) summarized in `pixijs-core-concepts` (Decision guide).
 
 ## Core Patterns
 
@@ -47,10 +47,10 @@ app.destroy(
 );
 ```
 
-- `new Application()` allocates the instance but creates nothing. Options passed here are ignored with a v8 deprecation warning.
-- `app.init(options)` is async. It builds the renderer, wires up plugins, and must complete before you can use `app.canvas`, `app.renderer`, or `app.screen`.
-- The TickerPlugin calls `app.render()` every frame once init resolves (unless `autoStart: false`).
-- `app.destroy(rendererDestroyOptions, stageDestroyOptions)` — the first argument forwards to `renderer.destroy()`. Pass `true` or `{ removeView: true }` to remove the canvas from the DOM. Add `releaseGlobalResources: true` to drain global pools (batches, texture caches) when tearing down and re-creating an app in the same tab; omitting it is the usual cause of flickering and stale textures after a re-init (see `pixijs-performance`).
+- `new Application()` allocates instance but creates nothing.
+- `app.init(options)` is async. Builds renderer, wires plugins.
+- TickerPlugin calls `app.render()` every frame once init resolves (unless `autoStart: false`).
+- `app.destroy(rendererDestroyOptions, stageDestroyOptions)` — first argument forwards to `renderer.destroy()`. Pass `true` or `{ removeView: true }` to remove canvas from DOM. Add `releaseGlobalResources: true` to drain global pools (batches, texture caches) when re-creating app in same tab. Omitting it usually causes flickering and stale textures after re-init (see `pixijs-performance`).
 
 ### Key init options
 
@@ -76,7 +76,7 @@ await app.init({
 });
 ```
 
-For every option — view/canvas, background, renderer preference (including the array form), ticker, resize, culler, events, accessibility, WebGL/WebGPU context flags, Graphics bezier smoothness, GC, and per-renderer overrides (`webgl` / `webgpu` / `canvasOptions`) — see [references/application-options.md](references/application-options.md).
+Full option list in [references/application-options.md](references/application-options.md): view/canvas, background, renderer preference (including array form), ticker, resize, culler, events, accessibility, WebGL/WebGPU context flags, Graphics bezier smoothness, GC, and per-renderer overrides (`webgl` / `webgpu` / `canvasOptions`).
 
 ### Application properties
 
@@ -88,11 +88,11 @@ app.screen; // Rectangle describing the visible area in CSS pixels
 app.domContainerRoot; // HTMLDivElement that holds DOMContainer overlays
 ```
 
-`app.stage` is a plain `Container`. For scene graph detail (transforms, addChild, destroy) see `pixijs-scene-container`. For renderer-level operations (extract, generateTexture, custom systems) see `pixijs-core-concepts` (custom render pipes are not covered by these skills; see the [RenderPipe API](https://pixijs.download/release/docs/rendering.RenderPipe.html.md)). `app.domContainerRoot` is the `<div>` that the renderer uses to host `DOMContainer` overlays; append it next to `app.canvas` when you need DOM elements pinned to scene nodes (see the [DOMContainer API](https://pixijs.download/release/docs/scene.DOMContainer.html.md); requires `import 'pixi.js/dom'`).
+`app.stage` is plain `Container`. Scene graph detail (transforms, addChild, destroy): see `pixijs-scene-container`. Renderer-level operations (extract, generateTexture, custom systems): see `pixijs-core-concepts`. Custom render pipes not covered by these skills; see [RenderPipe API](https://pixijs.download/release/docs/rendering.RenderPipe.html.md). Append `app.domContainerRoot` next to `app.canvas` to pin DOM elements to scene nodes (see [DOMContainer API](https://pixijs.download/release/docs/scene.DOMContainer.html.md); requires `import 'pixi.js/dom'`).
 
 ### ResizePlugin
 
-Set `resizeTo` at init (or reassign `app.resizeTo` later) to have the plugin listen for the `resize` event and call `renderer.resize()` with the target element's client size. Combine with `autoDensity: true` and `resolution: window.devicePixelRatio` for high-DPI output.
+Set `resizeTo` at init (or reassign `app.resizeTo` later). Plugin then listens for `resize` event and calls `renderer.resize()` with target element's client size. Combine with `autoDensity: true` and `resolution: window.devicePixelRatio` for high-DPI output.
 
 ```ts
 await app.init({ resizeTo: window });
@@ -104,15 +104,14 @@ app.queueResize(); // defer the resize to the next animation frame
 app.cancelResize(); // drop a pending queueResize
 ```
 
-The plugin keeps the canvas matched to the target. `app.screen` and `app.canvas.width/height` update in response; read them after the resize to place UI.
+Plugin keeps canvas matched to target; `app.screen` and `app.canvas.width/height` update in response. Read them after resize to place UI.
 
-- `app.resize()` — immediate synchronous resize.
-- `app.queueResize()` — coalesces rapid calls by deferring to the next frame; internally used by the `window.resize` listener to avoid redundant work.
-- `app.cancelResize()` — cancels a queued resize. Call this before tearing down your own layout code that triggered `queueResize`.
+- `app.queueResize()` — coalesces rapid calls by deferring to next frame. `window.resize` listener uses it internally to skip redundant work.
+- `app.cancelResize()` — cancels queued resize. Call before tearing down own layout code that triggered `queueResize`.
 
 ### Ticker basics
 
-The TickerPlugin creates `app.ticker` and registers `app.render()` on it at `UPDATE_PRIORITY.LOW`. Control the loop with `app.start()`/`app.stop()` and add callbacks with `app.ticker.add` / `app.ticker.addOnce`:
+TickerPlugin creates `app.ticker` and registers `app.render()` on it at `UPDATE_PRIORITY.LOW`. Control loop with `app.start()`/`app.stop()`. Add callbacks with `app.ticker.add` / `app.ticker.addOnce`:
 
 ```ts
 app.ticker.add((ticker) => {
@@ -127,7 +126,7 @@ app.stop(); // pause the render loop (e.g. tab hidden)
 app.start(); // resume
 ```
 
-The callback receives the `Ticker` instance; read `ticker.deltaTime` for a frame-rate-independent multiplier (~1.0 at 60fps), `ticker.deltaMS` for real milliseconds, or `ticker.FPS` for the current frame rate. See `pixijs-ticker` for priorities, FPS capping, `onRender`, shared vs private tickers, and the v8 callback signature change.
+Callback receives `Ticker` instance. Read `ticker.deltaTime` for frame-rate-independent multiplier (~1.0 at 60fps), `ticker.deltaMS` for real milliseconds, `ticker.FPS` for current frame rate. See `pixijs-ticker` for priorities, FPS capping, `onRender`, shared vs private tickers, and v8 callback signature change.
 
 ### Manual render loop
 
@@ -143,11 +142,11 @@ function frame() {
 frame();
 ```
 
-`autoStart: false` prevents the TickerPlugin from starting the ticker automatically. Call `app.render()` yourself (or `app.renderer.render({ container: app.stage })` for the same effect). If you want registered ticker callbacks to fire, call `app.ticker.update()` in your loop; TickerPlugin's registered callback already renders the stage, so omit the separate `app.render()` call.
+`autoStart: false` keeps TickerPlugin from auto-starting ticker. Call `app.render()` yourself (or `app.renderer.render({ container: app.stage })`, same effect). For registered ticker callbacks to fire, call `app.ticker.update()` in loop. TickerPlugin's registered callback already renders stage, so then omit separate `app.render()` call.
 
 ### CullerPlugin (opt-in)
 
-The CullerPlugin skips rendering containers that fall outside `app.renderer.screen`. It isn't registered by default; add it before creating your app:
+CullerPlugin skips rendering containers outside `app.renderer.screen`. Not registered by default. Add it before creating app:
 
 ```ts
 import {
@@ -174,11 +173,11 @@ world.addChild(tile);
 app.stage.addChild(world);
 ```
 
-Containers are not culled unless `cullable` is set. Override the default bounds check with `container.cullArea = new Rectangle(x, y, w, h)` when child bounds are expensive to compute. The plugin wraps `app.render()` so `Culler.shared.cull(app.stage, app.renderer.screen)` runs before every frame. See `pixijs-performance` for when culling pays off.
+Containers not culled unless `cullable` set. Override default bounds check with `container.cullArea = new Rectangle(x, y, w, h)` when child bounds are expensive to compute. Plugin wraps `app.render()` so `Culler.shared.cull(app.stage, app.renderer.screen)` runs before every frame. See `pixijs-performance` for when culling pays off.
 
 ### Custom Application plugins
 
-Extend `Application` by registering a class with `static init`, `static destroy`, and `static extension = ExtensionType.Application`. Both methods are called with `this` bound to the Application instance, so `this.renderer` and `this.stage` are available.
+Extend `Application` by registering class with `static init`, `static destroy`, and `static extension = ExtensionType.Application`. Both run with `this` bound to Application instance, so `this.renderer` and `this.stage` are available.
 
 ```ts
 import {
@@ -204,7 +203,7 @@ class FpsOverlay {
 extensions.add(FpsOverlay);
 ```
 
-Plugins initialize in registration order and destroy in reverse. To add typed options for your plugin, extend `PixiMixins.ApplicationOptions`:
+Plugins initialize in registration order, destroy in reverse. For typed plugin options, extend `PixiMixins.ApplicationOptions`:
 
 ```ts
 declare global {
@@ -218,7 +217,7 @@ declare global {
 await app.init({ fpsOverlay: { visible: true } });
 ```
 
-The built-in `ResizePlugin`, `TickerPlugin`, and opt-in `CullerPlugin` all use this same contract. If you set `skipExtensionImports: true`, register the built-ins you need yourself (`extensions.add(ResizePlugin, TickerPlugin)`).
+Built-in `ResizePlugin`, `TickerPlugin`, and opt-in `CullerPlugin` use same contract. With `skipExtensionImports: true`, register needed built-ins yourself (`extensions.add(ResizePlugin, TickerPlugin)`).
 
 ## Common Mistakes
 
@@ -239,7 +238,7 @@ await app.init({ width: 800, height: 600 });
 document.body.appendChild(app.canvas);
 ```
 
-In v8 the `Application` constructor takes no arguments. Options passed there are ignored and log a deprecation warning; the renderer is only created inside the async `init()` call.
+In v8 `Application` constructor takes no arguments. Options passed there are ignored and log deprecation warning. Renderer is only created inside async `init()` call.
 
 
 ### [HIGH] Using app.view instead of app.canvas
@@ -256,7 +255,7 @@ Correct:
 document.body.appendChild(app.canvas);
 ```
 
-`app.view` was renamed to `app.canvas` in v8. The old getter still works but emits a deprecation warning.
+`app.view` renamed to `app.canvas` in v8. Old getter still works but emits deprecation warning.
 
 
 ### [MEDIUM] Touching app.canvas or app.renderer before init resolves
@@ -277,7 +276,7 @@ await app.init({ width: 800, height: 600 });
 document.body.appendChild(app.canvas);
 ```
 
-`app.renderer`, `app.canvas`, and `app.screen` are only usable once the `init()` promise resolves. Before that, `app.renderer` is `undefined`, and the `app.canvas` / `app.screen` getters throw a `TypeError` because they read from the missing renderer.
+`app.renderer`, `app.canvas`, and `app.screen` only usable once `init()` promise resolves. Before that, `app.renderer` is `undefined`. `app.canvas` / `app.screen` getters throw `TypeError` because they read from missing renderer.
 
 
 ## API Reference

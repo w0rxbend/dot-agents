@@ -21,10 +21,9 @@
   - [Application Metrics](#application-metrics)
 - [Best Practices](#best-practices)
   - [1. Right-Size Your Pool](#1-right-size-your-pool)
-  - [2. Use Connection Lifecycle Management](#2-use-connection-lifecycle-management)
-  - [3. Handle Connection Errors](#3-handle-connection-errors)
-  - [4. Close Connections Properly](#4-close-connections-properly)
-  - [5. Serverless: Use Connection Poolers](#5-serverless-use-connection-poolers)
+  - [2. Handle Connection Errors](#2-handle-connection-errors)
+  - [3. Close Connections Properly](#3-close-connections-properly)
+  - [4. Serverless: Use Connection Poolers](#4-serverless-use-connection-poolers)
 - [Troubleshooting](#troubleshooting)
   - ["Too many connections" Error](#too-many-connections-error)
   - [High Connection Wait Times](#high-connection-wait-times)
@@ -33,12 +32,12 @@
 
 ## Why Connection Pooling Matters
 
-Creating database connections is expensive:
+New DB connections are expensive:
 - TCP handshake: 50-100ms
 - Authentication: 50-200ms
 - **Total**: 100-500ms per connection
 
-Connection pooling reuses connections, reducing latency from 100ms to <1ms.
+Pooling reuses connections, cutting latency from 100ms to <1ms.
 
 ## Recommended Pool Sizes
 
@@ -46,12 +45,12 @@ Connection pooling reuses connections, reducing latency from 100ms to <1ms.
 |----------------|-----------|--------------|-----------|
 | **Web API (single instance)** | 10-20 | 10 | `(CPU cores × 2) + effective_spindle_count` |
 | **Serverless (per function)** | 1-2 | 0 | Minimize idle connections, use pgBouncer |
-| **Background workers** | 5-10 | 5 | Depends on concurrency needs |
+| **Background workers** | 5-10 | 5 | Depends on concurrency |
 | **High-traffic API** | 20-50 | 20 | Monitor with pgBouncer/PgPool II |
 
 **Formula:** `pool_size = (num_cores * 2) + num_disks`
 - Example: 4 cores, 1 disk = 10 connections
-- More connections != better (causes contention)
+- More connections is not better (causes contention)
 
 ## Configuration by Language
 
@@ -145,14 +144,14 @@ pool, _ := pgxpool.NewWithConfig(context.Background(), config)
 
 ### Problem
 
-Traditional connection pooling doesn't work well in serverless:
+Traditional pooling doesn't work well in serverless:
 - Each function instance creates its own pool
-- 100 concurrent functions × 10 connections = 1,000 database connections!
+- 100 concurrent functions × 10 connections = 1,000 database connections
 - Database runs out of connections (typically max 100-500)
 
 ### Solution: pgBouncer
 
-**pgBouncer** is a connection pooler that sits between your app and database.
+**pgBouncer**: connection pooler between app and database.
 
 ```
 Your App (1000 instances, 1 connection each) → pgBouncer (20 connections) → Database
@@ -169,9 +168,10 @@ apt-get install pgbouncer
 mydb = host=localhost port=5432 dbname=mydb
 
 [pgbouncer]
-listen_addr = 0.0.0.0
+# private interface only; never expose publicly (pgbouncer has no inline comments)
+listen_addr = 10.0.0.5
 listen_port = 6432
-auth_type = md5
+auth_type = scram-sha-256
 auth_file = /etc/pgbouncer/userlist.txt
 pool_mode = transaction
 max_client_conn = 1000
@@ -191,12 +191,12 @@ engine = create_engine(
 
 ### Serverless Database Services
 
-Modern serverless databases handle pooling automatically:
+Serverless databases handle pooling automatically:
 
 | Service | Type | Connection Pooling |
 |---------|------|--------------------|
-| **Neon** | PostgreSQL | Built-in connection pooler |
-| **PlanetScale** | MySQL | Built-in connection pooler |
+| **Neon** | PostgreSQL | Built-in pooler |
+| **PlanetScale** | MySQL | Built-in pooler |
 | **Supabase** | PostgreSQL | pgBouncer included |
 
 ```typescript
@@ -265,21 +265,9 @@ println!("Idle connections: {}", pool.num_idle());
 **Too many connections:**
 - Database CPU exhaustion
 - Memory pressure
-- Context switching overhead
+- Context-switching overhead
 
-**Start with:** `pool_size = (num_cores * 2) + num_disks`
-
-### 2. Use Connection Lifecycle Management
-
-```python
-# SQLAlchemy - verify connection before use
-engine = create_engine(..., pool_pre_ping=True)
-
-# Also recycle connections periodically
-engine = create_engine(..., pool_recycle=3600)  # 1 hour
-```
-
-### 3. Handle Connection Errors
+### 2. Handle Connection Errors
 
 ```python
 from sqlalchemy.exc import OperationalError
@@ -295,7 +283,7 @@ def execute_with_retry(query, max_retries=3):
             time.sleep(2 ** attempt)  # Exponential backoff
 ```
 
-### 4. Close Connections Properly
+### 3. Close Connections Properly
 
 ```python
 # Context manager (recommended)
@@ -310,7 +298,7 @@ finally:
     session.close()
 ```
 
-### 5. Serverless: Use Connection Poolers
+### 4. Serverless: Use Connection Poolers
 
 ```typescript
 // Option 1: Use serverless-friendly database
@@ -330,12 +318,12 @@ const pool = new Pool({
 
 ### "Too many connections" Error
 
-**Cause:** Application pool size × number of instances > database max_connections
+**Cause:** App pool size × instance count > database max_connections
 
 **Solutions:**
-1. Reduce `pool_size` in application
-2. Increase `max_connections` in PostgreSQL (requires more RAM)
-3. Add pgBouncer connection pooler
+1. Reduce `pool_size` in app
+2. Increase `max_connections` in PostgreSQL (needs more RAM)
+3. Add pgBouncer pooler
 4. Use serverless database (Neon, PlanetScale)
 
 ### High Connection Wait Times
@@ -345,15 +333,15 @@ const pool = new Pool({
 **Solutions:**
 1. Increase `pool_size`
 2. Increase `max_overflow` for bursty traffic
-3. Optimize slow queries (reduce connection hold time)
+3. Optimize slow queries (shorter connection hold time)
 
 ### Stale Connections
 
-**Cause:** Database closed connections but pool still holds them
+**Cause:** Database closed connections; pool still holds them
 
 **Solutions:**
 1. Enable `pool_pre_ping` (SQLAlchemy)
-2. Set `pool_recycle` to less than database timeout
+2. Set `pool_recycle` below database timeout
 3. Configure `idle_timeout` and `max_lifetime` (SQLx)
 
 ## Resources

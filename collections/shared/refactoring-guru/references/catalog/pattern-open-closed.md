@@ -6,9 +6,9 @@ tags: pattern, ocp, solid, extensibility
 
 ## Apply Open-Closed Principle
 
-Classes should be open for extension but closed for modification. Design so that new behavior can be added without changing existing code.
+Classes open for extension, closed for modification. Add new behavior without changing existing code.
 
-**Incorrect (requires modification for new types):**
+**Incorrect (new types need modification):**
 
 ```typescript
 class DiscountCalculator {
@@ -96,10 +96,5 @@ const calculator = new DiscountCalculator([
   new HolidayDiscount()  // Added without modifying DiscountCalculator
 ])
 ```
-
-**Benefits:**
-- New discount rules added without risk to existing rules
-- Each rule can be tested independently
-- Rules can be conditionally included at runtime
 
 Reference: [Open-Closed Principle](https://en.wikipedia.org/wiki/Open%E2%80%93closed_principle)

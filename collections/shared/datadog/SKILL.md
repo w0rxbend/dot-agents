@@ -19,14 +19,12 @@ metadata:
 
 # Datadog
 
-Monitor infrastructure and applications with Datadog's unified observability platform.
-
 ## When to Use This Skill
 
-Use this skill when:
-- Installing or configuring the Datadog Agent and its integrations
-- Enabling APM tracing and log-trace correlation in an application
-- Sending custom metrics through DogStatsD or the API
+Use when:
+- Installing or configuring Datadog Agent and its integrations
+- Enabling APM tracing and log-trace correlation in application
+- Sending custom metrics through DogStatsD or API
 - Defining Datadog dashboards and monitors as JSON/code
 - Diagnosing missing data (agent not reporting, traces missing, metrics dropped)
 
@@ -50,8 +48,9 @@ DD_API_KEY="$DD_API_KEY" DD_SITE="datadoghq.com" bash install_script_agent7.sh
 # repository and GPG keys as described in the Agent install docs for your distro, then:
 #   sudo apt-get update && sudo apt-get install datadog-agent
 
-# Configure API key (set the existing api_key line rather than appending a duplicate)
-sudo sed -i "s/^api_key:.*/api_key: ${DD_API_KEY}/" /etc/datadog-agent/datadog.yaml
+# Package-manager path only (installer already writes the key): set existing api_key line.
+# Key goes via stdin, never in sudo argv (logged to auth.log/journald, visible in ps)
+printf 's/^api_key:.*/api_key: %s/\n' "$DD_API_KEY" | sudo sed -i -f - /etc/datadog-agent/datadog.yaml
 
 # Start agent
 systemctl start datadog-agent
@@ -64,7 +63,7 @@ systemctl enable datadog-agent
 # docker-compose.yml
 services:
   datadog-agent:
-    image: gcr.io/datadoghq/agent:7
+    image: gcr.io/datadoghq/agent:7  # production: pin reviewed exact version or digest (7.x.y@sha256:...)
     environment:
       - DD_API_KEY=${DD_API_KEY}
       - DD_SITE=datadoghq.com
@@ -75,9 +74,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc/:/host/proc/:ro
       - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
-    ports:
-      - "8126:8126"  # APM
-      - "8125:8125/udp"  # DogStatsD
+    ports:  # loopback only: intake is unauthenticated; compose services use datadog-agent:8126 instead
+      - "127.0.0.1:8126:8126"  # APM
+      - "127.0.0.1:8125:8125/udp"  # DogStatsD
 ```
 
 ### Kubernetes
@@ -88,8 +87,9 @@ helm repo add datadog https://helm.datadoghq.com
 
 # Keep the key out of shell history and Helm values: store it in a Secret
 kubectl create namespace datadog
-kubectl create secret generic datadog-secret -n datadog --from-literal api-key="$DD_API_KEY"
+printf '%s' "$DD_API_KEY" | kubectl create secret generic datadog-secret -n datadog --from-file=api-key=/dev/stdin
 
+# Pin reviewed chart version: add --version <x.y.z>
 helm install datadog datadog/datadog \
   --set datadog.apiKeyExistingSecret=datadog-secret \
   --set datadog.site=datadoghq.com \
@@ -241,7 +241,7 @@ metadata:
 
 ### Python
 
-Configure the tracer with environment variables (unified service tagging) and let `ddtrace-run` auto-instrument supported libraries. Passing `hostname`/`port` to `tracer.configure()` is the old API and is removed in current ddtrace majors.
+Configure tracer with environment variables (unified service tagging). Let `ddtrace-run` auto-instrument supported libraries. Passing `hostname`/`port` to `tracer.configure()` is old API, removed in current ddtrace majors.
 
 ```bash
 pip install ddtrace
@@ -267,7 +267,7 @@ def process_order(order_id):
         ...
 ```
 
-Check the installed `ddtrace` version (`pip show ddtrace`) against Datadog's Python tracer docs before copying configuration.
+Check installed `ddtrace` version (`pip show ddtrace`) against Datadog's Python tracer docs before copying configuration.
 
 ### Node.js
 
@@ -448,37 +448,36 @@ with ApiClient(configuration) as api_client:
 ## Common Issues
 
 ### Issue: Agent Not Reporting
-**Problem**: No data appearing in Datadog
-**Solution**: Check API key, verify agent status with `datadog-agent status`
+**Problem**: No data in Datadog
+**Solution**: Check API key; verify agent status with `datadog-agent status`
 
 ### Issue: Missing Traces
 **Problem**: APM traces not appearing
-**Solution**: Verify APM is enabled, check tracer configuration, verify port 8126
+**Solution**: Verify APM enabled, check tracer configuration, verify port 8126
 
 ### Issue: High Cardinality Tags
-**Problem**: Custom metrics getting dropped
-**Solution**: Reduce unique tag values, use distributions instead of histograms
+**Problem**: Custom metrics dropped
+**Solution**: Reduce unique tag values; use distributions instead of histograms
 
 ## Best Practices
 
-- Use consistent service and environment tags
-- Implement proper tag naming conventions
+- Define tag naming conventions
 - Use unified service tagging (service, env, version)
 - Set up service-level monitors
 - Create dashboards per service
-- Implement log correlation with traces
+- Correlate logs with traces
 - Use distributions for latency metrics
-- Configure proper alert escalation
+- Configure alert escalation
 
 ## Related Skills
 
-- `datadog-automation`: query metrics/logs and manage monitors, dashboards and downtimes in an existing account through an MCP connection.
-- `implementing-observability`: vendor-neutral OpenTelemetry + Grafana LGTM alternative (Datadog can also ingest OTLP).
-- `observability-and-instrumentation`: what to instrument and how to design symptom-based alerts, independent of vendor.
+- `datadog-automation`: query metrics/logs; manage monitors, dashboards and downtimes in existing account through MCP connection.
+- `implementing-observability`: vendor-neutral OpenTelemetry + Grafana LGTM alternative (Datadog also ingests OTLP).
+- `observability-and-instrumentation`: what to instrument and how to design symptom-based alerts, vendor-independent.
 
 ## Limitations
 
-- Agent installs, integration configs with database credentials, and monitor changes affect shared environments: confirm the target org/site (`DD_SITE`), get approval, and keep API/app keys in a secret store, never in committed YAML.
-- Custom metrics and indexed logs are billed by volume and cardinality; estimate tag cardinality before shipping new metrics.
+- Agent installs, integration configs with database credentials, and monitor changes affect shared environments. Confirm target org/site (`DD_SITE`) and get approval. Keep API/app keys in secret store, never in committed YAML.
+- Custom metrics and indexed logs billed by volume and cardinality. Estimate tag cardinality before shipping new metrics.
 
 > Adapted from [BagelHole/DevOps-Security-Agent-Skills](https://github.com/BagelHole/DevOps-Security-Agent-Skills) (MIT); frontmatter, When to Use/Limitations, and safety boundaries added for upstream compliance. Docs-only import: helper scripts and templates not bundled.

@@ -11,6 +11,9 @@
 #   - Copy and adapt commands for your specific needs
 #   - Replace placeholders (PROJECT_ID, REGION, etc.) with actual values
 #   - All commands are non-destructive examples unless marked with [DESTRUCTIVE]
+#   - Confirm exact resource and project with the user before any [DESTRUCTIVE]
+#     or [PUBLIC] command; never add --quiet/-q to them
+#   - Never print secret values into logs or chat
 #
 # Prerequisites:
 #   - gcloud CLI installed: https://cloud.google.com/sdk/docs/install
@@ -144,7 +147,7 @@ gcloud compute machine-types list --filter="zone:us-central1-a"
 gcloud compute images list
 
 # Delete an instance [DESTRUCTIVE]
-gcloud compute instances delete INSTANCE_NAME --zone=us-central1-a --quiet
+gcloud compute instances delete INSTANCE_NAME --zone=us-central1-a
 
 # Create instance template for managed instance groups
 gcloud compute instance-templates create TEMPLATE_NAME \
@@ -213,7 +216,7 @@ gcloud run deploy SERVICE_NAME \
   --vpc-connector=CONNECTOR_NAME \
   --vpc-egress=private-ranges-only
 
-# Allow unauthenticated access (public)
+# Allow unauthenticated access [PUBLIC]
 gcloud run services add-iam-policy-binding SERVICE_NAME \
   --region=us-central1 \
   --member="allUsers" \
@@ -246,7 +249,7 @@ gcloud logging read "resource.type=cloud_run_revision AND resource.labels.servic
   --format=json
 
 # Delete a service [DESTRUCTIVE]
-gcloud run services delete SERVICE_NAME --region=us-central1 --quiet
+gcloud run services delete SERVICE_NAME --region=us-central1
 
 # Create Cloud Run Job (non-HTTP workload)
 gcloud run jobs create JOB_NAME \
@@ -337,11 +340,10 @@ gcloud container node-pools list --cluster=CLUSTER_NAME --zone=us-central1-a
 # Delete node pool [DESTRUCTIVE]
 gcloud container node-pools delete POOL_NAME \
   --cluster=CLUSTER_NAME \
-  --zone=us-central1-a \
-  --quiet
+  --zone=us-central1-a
 
 # Delete cluster [DESTRUCTIVE]
-gcloud container clusters delete CLUSTER_NAME --zone=us-central1-a --quiet
+gcloud container clusters delete CLUSTER_NAME --zone=us-central1-a
 
 
 ################################################################################
@@ -378,7 +380,7 @@ gcloud sql instances describe INSTANCE_NAME
 gcloud sql users set-password root \
   --host=% \
   --instance=INSTANCE_NAME \
-  --password=PASSWORD
+  --prompt-for-password
 
 # Create database
 gcloud sql databases create DATABASE_NAME \
@@ -390,7 +392,7 @@ gcloud sql databases list --instance=INSTANCE_NAME
 # Create database user
 gcloud sql users create USERNAME \
   --instance=INSTANCE_NAME \
-  --password=PASSWORD
+  --password="$DB_PASSWORD"  # from env, not typed inline
 
 # List users
 gcloud sql users list --instance=INSTANCE_NAME
@@ -428,7 +430,7 @@ gcloud sql instances patch INSTANCE_NAME --activation-policy=NEVER
 gcloud sql instances patch INSTANCE_NAME --activation-policy=ALWAYS
 
 # Delete instance [DESTRUCTIVE]
-gcloud sql instances delete INSTANCE_NAME --quiet
+gcloud sql instances delete INSTANCE_NAME
 
 
 ################################################################################
@@ -502,7 +504,7 @@ gcloud projects test-iam-permissions PROJECT_ID \
   --permissions=compute.instances.list,storage.buckets.list
 
 # Delete service account [DESTRUCTIVE]
-gcloud iam service-accounts delete SERVICE_ACCOUNT_EMAIL --quiet
+gcloud iam service-accounts delete SERVICE_ACCOUNT_EMAIL
 
 
 ################################################################################
@@ -528,14 +530,14 @@ gcloud compute networks subnets list
 # List firewall rules
 gcloud compute firewall-rules list
 
-# Create firewall rule (allow HTTP)
+# Create firewall rule (allow HTTP) [PUBLIC]
 gcloud compute firewall-rules create allow-http \
   --network=NETWORK_NAME \
   --allow=tcp:80 \
   --source-ranges=0.0.0.0/0 \
   --target-tags=http-server
 
-# Create firewall rule (allow HTTPS)
+# Create firewall rule (allow HTTPS) [PUBLIC]
 gcloud compute firewall-rules create allow-https \
   --network=NETWORK_NAME \
   --allow=tcp:443 \
@@ -554,7 +556,7 @@ gcloud compute firewall-rules create allow-internal \
   --allow=tcp:0-65535,udp:0-65535,icmp \
   --source-ranges=10.0.0.0/8
 
-# Update firewall rule
+# Update firewall rule [PUBLIC - 0.0.0.0/0 opens to internet]
 gcloud compute firewall-rules update RULE_NAME \
   --source-ranges=0.0.0.0/0
 
@@ -562,7 +564,7 @@ gcloud compute firewall-rules update RULE_NAME \
 gcloud compute firewall-rules describe RULE_NAME
 
 # Delete firewall rule [DESTRUCTIVE]
-gcloud compute firewall-rules delete RULE_NAME --quiet
+gcloud compute firewall-rules delete RULE_NAME
 
 # List static external IP addresses
 gcloud compute addresses list
@@ -575,7 +577,7 @@ gcloud compute addresses create ADDRESS_NAME \
 gcloud compute addresses create ADDRESS_NAME --global
 
 # Release static IP [DESTRUCTIVE]
-gcloud compute addresses delete ADDRESS_NAME --region=us-central1 --quiet
+gcloud compute addresses delete ADDRESS_NAME --region=us-central1
 
 # Create VPC peering
 gcloud compute networks peerings create PEERING_NAME \
@@ -603,7 +605,7 @@ gcloud compute routers list
 # Create VPN tunnel
 gcloud compute vpn-tunnels create TUNNEL_NAME \
   --peer-address=PEER_IP \
-  --shared-secret=SECRET \
+  --shared-secret="$VPN_SHARED_SECRET" \
   --target-vpn-gateway=GATEWAY_NAME \
   --region=us-central1
 
@@ -659,10 +661,10 @@ gcloud storage rm --recursive gs://BUCKET_NAME/PREFIX  # [DESTRUCTIVE]
 # View object metadata
 gcloud storage objects describe gs://BUCKET_NAME/OBJECT_NAME
 
-# Make object publicly readable
+# Make object publicly readable [PUBLIC]
 gcloud storage objects update gs://BUCKET_NAME/OBJECT_NAME --add-acl-grant=entity=AllUsers,role=READER
 
-# Make bucket publicly readable (all objects)
+# Make bucket publicly readable (all objects) [PUBLIC]
 gcloud storage buckets add-iam-policy-binding gs://BUCKET_NAME --member=allUsers --role=roles/storage.objectViewer
 
 # Set bucket lifecycle policy
@@ -687,7 +689,7 @@ gcloud storage buckets get-iam-policy gs://BUCKET_NAME
 # Grant IAM role on bucket
 gcloud storage buckets add-iam-policy-binding gs://BUCKET_NAME --member=serviceAccount:SERVICE_ACCOUNT_EMAIL --role=roles/storage.objectViewer
 
-# Remove IAM role on bucket
+# Remove IAM role on bucket [DESTRUCTIVE]
 gcloud storage buckets remove-iam-policy-binding gs://BUCKET_NAME --member=serviceAccount:SERVICE_ACCOUNT_EMAIL --role=roles/storage.objectViewer
 
 # Set CORS policy on bucket
@@ -833,13 +835,13 @@ gcloud monitoring uptime-checks create UPTIME_CHECK_NAME \
 gcloud secrets list
 
 # Create secret
-echo -n "secret-value" | gcloud secrets create SECRET_NAME --data-file=-
+printf %s "$SECRET_VALUE" | gcloud secrets create SECRET_NAME --data-file=-
 
-# Access secret value
-gcloud secrets versions access latest --secret=SECRET_NAME
+# Access secret value (prints plaintext: pipe to consumer or write a 0600 file outside the repo; never into chat/logs)
+(umask 077; gcloud secrets versions access latest --secret=SECRET_NAME --out-file=secret.txt)
 
 # Add new secret version
-echo -n "new-secret-value" | gcloud secrets versions add SECRET_NAME --data-file=-
+printf %s "$NEW_SECRET_VALUE" | gcloud secrets versions add SECRET_NAME --data-file=-
 
 # Grant access to secret
 gcloud secrets add-iam-policy-binding SECRET_NAME \
@@ -876,8 +878,8 @@ gcloud compute instances list \
   --filter="status=RUNNING AND zone:us-central1" \
   --format="table(name,zone,machineType)"
 
-# Use --quiet or -q to skip confirmation prompts (useful for scripts)
-gcloud compute instances delete INSTANCE_NAME --zone=us-central1-a --quiet
+# --quiet/-q skips prompts: unattended non-destructive scripts only, never on [DESTRUCTIVE]
+gcloud components update --quiet
 
 # Use --project flag to specify project (override current config)
 gcloud compute instances list --project=OTHER_PROJECT_ID
@@ -904,7 +906,7 @@ gcloud components install alpha
 gcloud beta compute instances create INSTANCE_NAME ...
 gcloud alpha run services update SERVICE_NAME ...
 
-# Authenticate with service account key (CI/CD pipelines)
+# Authenticate with service account key [SECURITY RISK - prefer Workload Identity Federation in CI/CD]
 gcloud auth activate-service-account --key-file=key.json
 
 # Switch between configurations (useful for multiple projects/accounts)
@@ -935,7 +937,7 @@ gcloud run deploy SERVICE_NAME \
   --image REGION-docker.pkg.dev/PROJECT_ID/REPO/IMAGE_NAME:TAG \
   --region us-central1 \
   --platform managed \
-  --allow-unauthenticated
+  --allow-unauthenticated  # [PUBLIC]
 
 # 3. Get service URL
 gcloud run services describe SERVICE_NAME \

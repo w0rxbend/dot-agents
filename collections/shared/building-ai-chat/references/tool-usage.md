@@ -15,8 +15,6 @@
 
 ### Basic Function Call Indicator
 
-Show when AI is using functions:
-
 ```tsx
 interface ToolCall {
   id: string;
@@ -93,7 +91,7 @@ function ToolCallDisplay({ toolCall }: { toolCall: ToolCall }) {
 
 ### Tool Chain Visualization
 
-Show multiple tool calls in sequence:
+Show tool calls in sequence:
 
 ```tsx
 function ToolChain({ tools, currentIndex }) {
@@ -144,8 +142,6 @@ function ToolChain({ tools, currentIndex }) {
 ## Code Execution
 
 ### Code Execution Display
-
-Show code being run by AI:
 
 ```tsx
 function CodeExecution({ execution }) {
@@ -253,7 +249,7 @@ function CodeExecution({ execution }) {
 
 ### Interactive Code Execution
 
-Allow users to modify and re-run code:
+Let users modify and re-run code:
 
 ```tsx
 function InteractiveCodeExecution({ initialCode, language, onExecute }) {
@@ -350,8 +346,6 @@ function InteractiveCodeExecution({ initialCode, language, onExecute }) {
 
 ### Search Progress Display
 
-Show web search in progress:
-
 ```tsx
 function WebSearchDisplay({ search }) {
   const [expandedResults, setExpandedResults] = useState(new Set());
@@ -443,7 +437,7 @@ function WebSearchDisplay({ search }) {
 
 ### File Access Visualization
 
-Show which files AI is reading/writing:
+Show files AI reads/writes:
 
 ```tsx
 function FileOperations({ operations }) {
@@ -508,7 +502,7 @@ function FileOperations({ operations }) {
 
 ### API Request Display
 
-Show external API calls:
+Show external API calls. Redact `Authorization`, cookies and API keys server-side before sending headers to the client:
 
 ```tsx
 function APICallDisplay({ apiCall }) {
@@ -600,8 +594,6 @@ function APICallDisplay({ apiCall }) {
 ## Database Queries
 
 ### SQL Query Visualization
-
-Display database queries being executed:
 
 ```tsx
 function DatabaseQuery({ query }) {
@@ -695,8 +687,6 @@ function DatabaseQuery({ query }) {
 
 ### Complex Tool Workflow
 
-Visualize multi-step tool operations:
-
 ```tsx
 function ToolWorkflow({ workflow }) {
   const [activeStep, setActiveStep] = useState(workflow.currentStep);
@@ -788,7 +778,7 @@ function ToolWorkflow({ workflow }) {
 
 ### Tool Permission Requests
 
-Request user permission for sensitive operations:
+Ask user permission for sensitive operations:
 
 ```tsx
 function PermissionRequest({ request, onApprove, onDeny }) {
@@ -869,8 +859,6 @@ function PermissionRequest({ request, onApprove, onDeny }) {
 ```
 
 ### Permission Settings
-
-Configure tool permissions:
 
 ```tsx
 function ToolPermissionSettings({ permissions, onChange }) {
@@ -957,13 +945,13 @@ function ToolPermissionSettings({ permissions, onChange }) {
 
 ## Best Practices Summary
 
-1. **Show progress clearly** - Users need to know what's happening
+1. **Show progress clearly** - Users need to see what's happening
 2. **Make details expandable** - Progressive disclosure for technical info
 3. **Color-code status** - Green=success, yellow=warning, red=error
-4. **Display duration** - Show how long operations take
-5. **Allow inspection** - Let users see inputs and outputs
+4. **Display duration** - Show operation time
+5. **Allow inspection** - Show inputs and outputs
 6. **Request permissions** - For sensitive operations
 7. **Group related operations** - Show tool chains logically
-8. **Provide previews** - Quick glimpse of results
+8. **Provide previews** - Quick result glimpse
 9. **Enable re-running** - Let users retry failed operations
-10. **Maintain audit trail** - Show complete history of actions
+10. **Maintain audit trail** - Show full action history

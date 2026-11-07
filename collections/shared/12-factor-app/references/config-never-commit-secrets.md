@@ -7,7 +7,7 @@ tags: config, security, secrets, git
 
 ## Never Commit Secrets or Credentials to Version Control
 
-Secrets committed to git remain in the repository history forever, even after deletion. A twelve-factor app never contains credentials in its codebase. Use environment variables, secret managers, or encrypted secret files that are explicitly gitignored.
+Secrets committed to git stay in history forever, even after deletion. Never keep credentials in codebase. Use environment variables, secret managers or explicitly gitignored encrypted secret files.
 
 **Incorrect (secrets in code or config files):**
 
@@ -64,21 +64,15 @@ secrets:
     external: true  # Managed by Docker Swarm or similar
 ```
 
-**If you accidentally committed a secret:**
+**If secret accidentally committed:**
 
 ```bash
 # 1. Rotate the credential IMMEDIATELY (it's compromised)
 # 2. Remove from current code
-# 3. Clean git history (complex, may require force push)
-git filter-branch --force --index-filter \
-  "git rm --cached --ignore-unmatch path/to/secret" \
-  --prune-empty --tag-name-filter cat -- --all
+# 3. Clean git history ONLY with explicit user approval: rewrites every branch
+#    and tag, needs force push. Back up, use a fresh clone, collaborators re-clone.
+git filter-repo --path path/to/secret --invert-paths
 # 4. Still assume it's compromised - history might be cached/forked
 ```
-
-**Benefits:**
-- Repository can be safely open-sourced
-- Credentials can be rotated without code changes
-- Security audit is straightforward
 
 Reference: [The Twelve-Factor App - Config](https://12factor.net/config)

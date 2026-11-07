@@ -84,7 +84,7 @@ conditional_outputs:
 
     datadog:
       - path: "observability/datadog/datadog.yaml"
-        must_contain: ["api_key:", "site:", "logs_enabled:", "apm_config:"]
+        must_contain: ["site:", "logs_enabled:", "apm_config:"]  # API key via DD_API_KEY env/Secret, never in file
       - path: "observability/datadog/agent-daemonset.yaml"
         must_contain: ["DaemonSet", "datadog/agent"]
       - path: "observability/datadog/monitors/"
@@ -92,7 +92,7 @@ conditional_outputs:
 
     newrelic:
       - path: "observability/newrelic/newrelic.yml"
-        must_contain: ["license_key:", "app_name:", "log_level:"]
+        must_contain: ["app_name:", "log_level:"]  # key via NEW_RELIC_LICENSE_KEY env/Secret, never in file
       - path: "observability/newrelic/otel-collector.yaml"
         must_contain: ["exporters:", "otlp:", "endpoint: https://otlp.nr-data.net"]
 

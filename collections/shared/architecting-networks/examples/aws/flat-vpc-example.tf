@@ -10,6 +10,7 @@
  * - AWS provider configured
  *
  * Usage:
+ * export CHECKPOINT_DISABLE=1  # opt out of Terraform checkpoint phone-home
  * terraform init
  * terraform plan
  * terraform apply
@@ -268,15 +269,9 @@ resource "aws_security_group" "database" {
     description     = "From backend only"
   }
 
-  # No egress rules needed (database doesn't initiate connections)
-  # Some egress required for AWS health checks
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Required for AWS health checks"
-  }
+  # No egress rules: SGs are stateful (replies allowed) and RDS needs none for
+  # health checks. Terraform removes AWS's default allow-all egress. If egress is
+  # needed, scope it to specific ports and destinations.
 
   tags = {
     Name        = "${var.environment}-database-sg"

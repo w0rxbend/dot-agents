@@ -9,7 +9,7 @@
 | Service | Purpose |
 |---------|---------|
 | **Azure AD (Entra ID)** | Identity platform |
-| **Privileged Identity Management** | JIT access for admins |
+| **Privileged Identity Management** | JIT admin access |
 | **Conditional Access** | Risk-based access policies |
 
 #### Detection & Response
@@ -17,8 +17,8 @@
 | Service | Purpose |
 |---------|---------|
 | **Microsoft Defender for Cloud** | CSPM and CWPP |
-| **Microsoft Sentinel** | SIEM and SOAR platform |
-| **Azure Monitor** | Logging and metrics collection |
+| **Microsoft Sentinel** | SIEM and SOAR |
+| **Azure Monitor** | Logs and metrics |
 
 #### Network Security
 
@@ -32,9 +32,9 @@
 
 | Service | Purpose |
 |---------|---------|
-| **Azure Key Vault** | Secrets, keys, certificates management |
+| **Azure Key Vault** | Secrets, keys, certificates |
 | **Azure Information Protection** | Data classification and DLP |
-| **Storage Encryption** | At-rest encryption for storage |
+| **Storage Encryption** | Storage encryption at rest |
 
 #### Infrastructure Security
 
@@ -72,7 +72,7 @@ Management Groups Hierarchy:
 
 **Key Patterns:**
 
-- **Hub-Spoke Topology:** Centralized security and networking
-- **Management Groups:** Policy hierarchy and governance
+- **Hub-Spoke Topology:** Central security and networking
+- **Management Groups:** Policy hierarchy, governance
 - **Azure Policy:** Enforce compliance (e.g., require encryption)
-- **Landing Zones:** Pre-configured secure environments
+- **Landing Zones:** Preconfigured secure environments

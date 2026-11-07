@@ -4,7 +4,7 @@
 
 ## Hardware Detection
 
-Detect the user's hardware at script startup and adapt rendering parameters automatically. Never hardcode worker counts or resolution.
+Detect user hardware at script startup. Adapt render parameters automatically. Never hardcode worker counts or resolution.
 
 ### CPU and Memory Detection
 
@@ -67,7 +67,7 @@ def detect_hardware():
 
 ### Adaptive Quality Profiles
 
-Scale resolution, FPS, CRF, and grid density based on hardware:
+Scale resolution, FPS, CRF and grid density to hardware:
 
 ```python
 def quality_profile(hw, target_duration_s, user_preference="auto"):
@@ -158,7 +158,7 @@ log(f"Render:   {profile['vw']}x{profile['vh']} @{profile['fps']}fps, "
 
 ### Portrait Mode Considerations
 
-Portrait (1080x1920) has the same pixel count as landscape 1080p, so performance is equivalent. But composition patterns differ:
+Portrait (1080x1920) has same pixel count as landscape 1080p, so performance is equivalent. Composition patterns differ:
 
 | Concern | Landscape | Portrait |
 |---------|-----------|----------|
@@ -173,12 +173,10 @@ Portrait (1080x1920) has the same pixel count as landscape 1080p, so performance
 | Quote layout | 2-3 wide lines | 5-6 short lines |
 
 **Portrait-optimized patterns:**
-- Vertical rain/matrix effects are naturally enhanced — longer column travel
 - Fire columns rise through more screen space
-- Rising embers/particles have more vertical runway
-- Text can be stacked more aggressively with more lines
-- Radial effects work if aspect correction is applied (GridLayer handles this automatically)
-- Spectrum bars can be rotated 90 degrees (vertical bars from bottom)
+- Rising embers/particles get more vertical runway
+- Radial effects work if aspect correction is applied (GridLayer does this automatically)
+- Spectrum bars can rotate 90 degrees (vertical bars from bottom)
 
 **Portrait text layout:**
 ```python
@@ -226,13 +224,13 @@ canvas[y:y+ch, x:x+cw] = np.maximum(canvas[y:y+ch, x:x+cw],
                                       (bitmap[:,:,None] * color).astype(np.uint8))
 ```
 
-Collect all characters from all palettes + overlay text into the init set. Lazy-init for any missed characters.
+Collect all characters from all palettes + overlay text into init set. Lazy-init any missed characters.
 
 ## Pre-Rendered Background Textures
 
-Alternative to `_render_vf()` for backgrounds where characters don't need to change every frame. Pre-bake a static ASCII texture once at init, then multiply by a per-cell color field each frame. One matrix multiply vs thousands of bitmap blits.
+Alternative to `_render_vf()` for backgrounds whose characters don't need to change every frame. Pre-bake static ASCII texture once at init. Each frame, multiply it by per-cell color field.
 
-Use when: background layer uses a fixed character palette and only color/brightness varies per frame. NOT suitable for layers where character selection depends on a changing value field.
+Use when: background layer uses fixed character palette and only color/brightness varies per frame. NOT suitable for layers where character selection depends on changing value field.
 
 ### Init: Bake the Texture
 
@@ -294,7 +292,7 @@ color_field = mkc(R, G, B, g.rows, g.cols)  # (rows, cols, 3) uint8
 canvas_bg = g.render_bg(color_field, PAL_DENSE)
 ```
 
-The texture init loop runs once and is cached per palette. Per-frame cost is one fancy-index lookup + one broadcast multiply — orders of magnitude faster than the per-cell bitmap blit loop in `render()` for dense backgrounds.
+Texture init loop runs once, cached per palette. Per-frame cost: one fancy-index lookup + one broadcast multiply. For dense backgrounds, that is orders of magnitude faster than the per-cell bitmap blit loop in `render()`.
 
 ## Coordinate Array Caching
 
@@ -313,7 +311,7 @@ self.dist_n = ...                      # normalized distance
 
 ### Avoid Per-Cell Python Loops in Effects
 
-The render loop (compositing bitmaps) is unavoidably per-cell. But effect functions must be fully vectorized numpy -- never iterate over rows/cols in Python.
+Render loop (compositing bitmaps) is unavoidably per-cell. Effect functions must be fully vectorized numpy. Never iterate over rows/cols in Python.
 
 Bad (O(rows*cols) Python loop):
 ```python
@@ -329,7 +327,7 @@ val = np.sin(g.cc * 0.1 + t) * np.cos(g.rr * 0.1 - t)
 
 ### Vectorized Matrix Rain
 
-The naive per-column per-trail-pixel loop is the second biggest bottleneck after the render loop. Use numpy fancy indexing:
+Naive per-column per-trail-pixel loop is second biggest bottleneck after render loop. Use numpy fancy indexing:
 
 ```python
 # Instead of nested Python loops over columns and trail pixels:
@@ -358,7 +356,7 @@ co[ar, ac, 1] = (af * bri * 255).astype(np.uint8)  # green channel
 
 ### Vectorized Fire Columns
 
-Same pattern -- accumulate index arrays, assign in bulk:
+Same pattern: accumulate index arrays, assign in bulk:
 
 ```python
 fire_val = np.zeros((rows, cols), dtype=np.float32)
@@ -379,9 +377,9 @@ for fi in range(n_cols):
 
 ## PIL String Rendering for Text-Heavy Scenes
 
-Alternative to per-cell bitmap blitting when rendering many long text strings (scrolling tickers, typewriter sequences, idea floods). Uses PIL's native `ImageDraw.text()` which renders an entire string in one C call, vs one Python-loop bitmap blit per character.
+Alternative to per-cell bitmap blitting for many long text strings (scrolling tickers, typewriter sequences, idea floods). PIL's native `ImageDraw.text()` renders whole string in one C call, vs one Python-loop bitmap blit per character.
 
-Typical win: a scene with 56 ticker rows renders 56 PIL `text()` calls instead of ~10K individual bitmap blits.
+Typical win: scene with 56 ticker rows makes 56 PIL `text()` calls instead of ~10K individual bitmap blits.
 
 Use when: scene renders many rows of readable text strings. NOT suitable for sparse or spatially-scattered single characters (use normal `render()` for those).
 
@@ -426,13 +424,13 @@ canvas_tickers = render_text_layer(g_md, rows_data, g_md.font)
 result = blend_canvas(canvas_bg, canvas_tickers, "screen", 0.9)
 ```
 
-This is purely a rendering optimization — same visual output, fewer draw calls. The grid's `render()` method is still needed for sparse character fields where characters are placed individually based on value fields.
+Pure rendering optimization: same visual output, fewer draw calls.
 
 ## Bloom Optimization
 
 **Do NOT use `scipy.ndimage.uniform_filter`** -- measured at 424ms/frame.
 
-Use 4x downsample + manual box blur instead -- 84ms/frame (5x faster):
+Use 4x downsample + manual box blur instead: 84ms/frame (5x faster):
 
 ```python
 sm = canvas[::4, ::4].astype(np.float32)  # 4x downsample
@@ -447,7 +445,7 @@ bl = np.repeat(np.repeat(br, 4, axis=0), 4, axis=1)[:H, :W]
 
 ## Vignette Caching
 
-Distance field is resolution- and strength-dependent, never changes per frame:
+Distance field depends on resolution and strength, never changes per frame:
 
 ```python
 _vig_cache = {}
@@ -471,7 +469,7 @@ noise = np.random.randint(-amt, amt+1, (H//2, W//2, 1), dtype=np.int16)
 noise = np.repeat(np.repeat(noise, 2, axis=0), 2, axis=1)[:H, :W]
 ```
 
-2x blocky grain looks like film grain and costs 1/4 the random generation.
+2x blocky grain looks like film grain, costs 1/4 the random generation.
 
 ## Parallel Rendering
 
@@ -509,14 +507,14 @@ with ProcessPoolExecutor(max_workers=N_WORKERS) as pool:
 ### Worker Isolation
 
 Each worker:
-- Creates its own `Renderer` instance (with full grid + bitmap init)
-- Opens its own ffmpeg subprocess
+- Creates own `Renderer` instance (full grid + bitmap init)
+- Opens own ffmpeg subprocess
 - Has independent random seed (`random.seed(batch_id * 10000)`)
-- Writes to its own segment file and stderr log
+- Writes to own segment file and stderr log
 
 ### ffmpeg Pipe Safety
 
-**CRITICAL**: Never `stderr=subprocess.PIPE` with long-running ffmpeg. The stderr buffer fills at ~64KB and deadlocks:
+**CRITICAL**: Never `stderr=subprocess.PIPE` with long-running ffmpeg. Stderr buffer fills at ~64KB and deadlocks:
 
 ```python
 # WRONG -- will deadlock
@@ -549,7 +547,7 @@ subprocess.run(cmd, capture_output=True, check=True)
 
 ## Particle System Performance
 
-Cap particle counts based on quality profile:
+Cap particle counts by quality profile:
 
 | System | Low | Standard | High |
 |--------|-----|----------|------|
@@ -575,7 +573,7 @@ if len(S["px"]) > MAX_PARTICLES:
 
 Total memory per worker: ~50-150MB. Total: ~400-800MB for 8 workers.
 
-For low-memory systems (< 4GB), reduce worker count and use smaller grids.
+Low-memory systems (< 4GB): reduce worker count, use smaller grids.
 
 ## Brightness Verification
 
@@ -590,7 +588,7 @@ for t in [2, 30, 60, 120, 180]:
     print(f"t={t}s  mean={arr.mean():.1f}  max={arr.max()}")
 ```
 
-Target: mean > 5 for quiet sections, mean > 15 for active sections. If consistently below, increase brightness floor in effects and/or global boost multiplier.
+Target: mean > 5 for quiet sections, mean > 15 for active sections. If consistently below, raise brightness floor in effects and/or global boost multiplier.
 
 ## Render Time Estimates
 
@@ -612,13 +610,13 @@ Heavier effects (many particles, dense grids, extra shader passes) add ~20-50%.
 
 ## Temp File Cleanup
 
-Rendering generates intermediate files that accumulate across runs. Clean up after the final concat/mux step.
+Rendering leaves intermediate files that accumulate across runs. Clean up after final concat/mux step.
 
 ### Files to Clean
 
 | File type | Source | Location |
 |-----------|--------|----------|
-| WAV extracts | `ffmpeg -i input.mp3 ... tmp.wav` | `tempfile.mktemp()` or project dir |
+| WAV extracts | `ffmpeg -i input.mp3 ... tmp.wav` | `tempfile.mkstemp()` or project dir |
 | Segment clips | `render_clip()` output | `segments/seg_00.mp4` etc. |
 | Concat list | ffmpeg concat demuxer input | `segments/concat.txt` |
 | ffmpeg stderr logs | piped to file for debugging | `*.log` in project dir |
@@ -669,7 +667,7 @@ def cleanup_render_artifacts(segments_dir="segments", keep_final=True):
 
 ### Integration with Render Pipeline
 
-Call cleanup at the end of the main render script, after the final output is verified:
+Call cleanup at end of main render script, after final output is verified:
 
 ```python
 # At end of main()
@@ -682,7 +680,7 @@ else:
 
 ### Temp File Best Practices
 
-- Use `tempfile.mkdtemp()` for segment directories — avoids polluting the project dir
-- Name WAV extracts with `tempfile.mktemp(suffix=".wav")` so they're in the OS temp dir
+- Use `tempfile.mkdtemp()` for segment directories. Avoids polluting project dir.
+- Create WAV extracts with `tempfile.mkstemp(suffix=".wav")` (not race-prone `mktemp`) so they land in OS temp dir
 - For debugging, set `KEEP_INTERMEDIATES=1` env var to skip cleanup
-- Feature caches (`.npz`) are cheap to store and expensive to recompute — default to keeping them
+- Feature caches (`.npz`) are cheap to store, expensive to recompute. Keep them by default.

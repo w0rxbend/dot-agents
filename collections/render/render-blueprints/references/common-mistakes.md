@@ -1,24 +1,22 @@
 # Common Blueprint Mistakes
 
-Symptoms, causes, and fixes for frequent `render.yaml` errors.
-
 ## 1. Setting `branch` while using preview environments
 
-**Mistake:** A global or service-level `branch` is set (e.g. `main`) while PR previews are enabled.
+**Mistake:** Global or service-level `branch` (e.g. `main`) set while PR previews enabled.
 
-**Effect:** Previews are meant to build **pull request** refs. Forcing a single branch can make preview builds ignore the PR commit you intend to test, undermining PR workflows.
+**Effect:** Previews build **pull request** refs. Forced single branch can make preview builds ignore PR commit under test, undermining PR workflows.
 
-**Fix:** Use default branch settings appropriate for production services; let previews use PR head refs. Avoid hardcoding production `branch` on services that must track arbitrary PRs. Validate preview behavior in the Dashboard after changes.
+**Fix:** Use default branch settings for production services; let previews use PR head refs. Avoid hardcoding production `branch` on services that must track arbitrary PRs. Check preview behavior in Dashboard after changes.
 
 ---
 
 ## 2. `buildFilter` sync — omitting `paths` clears filters
 
-**Mistake:** Syncing a Blueprint that includes `buildFilter` but **omits** `paths` or `ignoredPaths` keys.
+**Mistake:** Syncing Blueprint whose `buildFilter` **omits** `paths` or `ignoredPaths` keys.
 
-**Effect:** Missing keys can be interpreted as “set to empty,” **replacing** existing path filters with empty lists—triggering builds on every unrelated commit or breaking intended ignore rules.
+**Effect:** Missing keys may be read as “set to empty,” **replacing** existing path filters with empty lists. Result: builds on every unrelated commit, or broken ignore rules.
 
-**Fix:** Always specify the **full** desired `paths` and `ignoredPaths` arrays when using `buildFilter`. Treat filters as replace, not patch.
+**Fix:** Always specify **full** desired `paths` and `ignoredPaths` arrays with `buildFilter`. Filters replace, not patch.
 
 ---
 
@@ -26,13 +24,13 @@ Symptoms, causes, and fixes for frequent `render.yaml` errors.
 
 **Mistake A:** Setting `readReplicas: []` to “leave unchanged.”
 
-**Effect:** An **empty list destroys all read replicas**.
+**Effect:** **Empty list destroys all read replicas**.
 
 **Mistake B:** Renaming replica identifiers in YAML without understanding reconcile behavior.
 
 **Effect:** Unmatched replicas may be **removed** and new ones **created**, causing churn or brief disconnects.
 
-**Fix:** Treat `readReplicas` as authoritative. Only include entries you want to exist. Prefer additive changes with care and validate in a non-production environment first.
+**Fix:** `readReplicas` is authoritative. Only include entries you want to exist. Prefer additive changes, made carefully; validate in non-production environment first.
 
 ---
 
@@ -45,27 +43,27 @@ Symptoms, causes, and fixes for frequent `render.yaml` errors.
 | `autoDeploy` | `autoDeployTrigger` |
 | `pullRequestPreviewsEnabled` | `previews.generation` (`off` / `manual` / `automatic`) |
 
-**Fix:** Migrate to current keys; run schema validation against `https://render.com/schema/render.yaml.json`.
+**Fix:** Migrate to current keys; validate schema against `https://render.com/schema/render.yaml.json`.
 
 ---
 
 ## 5. Same resource defined in multiple places
 
-**Mistake:** Defining a service or database at the **root** and again under a **project environment**, or listing duplicates across environments.
+**Mistake:** Service or database defined at **root** and again under **project environment**, or duplicated across environments.
 
 **Effect:** Confusing reconcile behavior, name collisions, or unintended duplicate infrastructure.
 
-**Fix:** Each logical resource should live in **exactly one** scope: root `services` / `databases` **or** a single `projects[].environments[]` block—not both.
+**Fix:** Each logical resource lives in **exactly one** scope: root `services` / `databases` **or** one `projects[].environments[]` block, not both.
 
 ---
 
 ## 6. Mixing flexible and non-flexible instance types in `previewPlan`
 
-**Mistake:** `plan` uses one instance family and `previewPlan` uses an incompatible (flex vs non-flex) type.
+**Mistake:** `plan` uses one instance family; `previewPlan` uses incompatible (flex vs non-flex) type.
 
 **Effect:** Preview deploy failures or plan validation errors.
 
-**Fix:** Match preview plan family to primary plan constraints per Render’s current plan catalog; when unsure, set `previewPlan` to a conservative plan in the same family or validate via CLI.
+**Fix:** Match preview plan family to primary plan constraints per Render’s current plan catalog. If unsure, set `previewPlan` to conservative same-family plan or validate via CLI.
 
 ---
 
@@ -75,7 +73,7 @@ Symptoms, causes, and fixes for frequent `render.yaml` errors.
 
 **Effect:** Validation failures or broken deploys with missing env vars.
 
-**Fix:** Keep a single naming table; grep for `name:` and cross-check references. Run `render blueprints validate`.
+**Fix:** Keep one naming table; grep `name:` and cross-check references. Run `render blueprints validate`.
 
 ---
 
@@ -83,9 +81,9 @@ Symptoms, causes, and fixes for frequent `render.yaml` errors.
 
 **Mistake:** Provisioning `keyvalue` without proper network restrictions.
 
-**Effect:** Security exposure or service creation errors (depending on account defaults and product requirements).
+**Effect:** Security exposure or service creation errors (per account defaults and product requirements).
 
-**Fix:** Always set **`ipAllowList`** to explicit CIDRs appropriate for your private services and regions.
+**Fix:** Always set **`ipAllowList`** to explicit CIDRs for your private services and regions.
 
 ---
 
@@ -102,5 +100,5 @@ Symptoms, causes, and fixes for frequent `render.yaml` errors.
 ## Quick prevention
 
 1. `render blueprints validate` (CLI v2.7.0+).
-2. JSON Schema in the IDE: `https://render.com/schema/render.yaml.json`.
+2. JSON Schema in IDE: `https://render.com/schema/render.yaml.json`.
 3. Diff previews against production wiring before merging.

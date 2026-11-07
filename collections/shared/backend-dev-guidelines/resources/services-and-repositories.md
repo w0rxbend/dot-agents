@@ -1,7 +1,5 @@
 # Services and Repositories - Business Logic Layer
 
-Complete guide to organizing business logic with services and data access with repositories.
-
 ## Table of Contents
 
 - [Service Layer Overview](#service-layer-overview)
@@ -18,7 +16,7 @@ Complete guide to organizing business logic with services and data access with r
 
 ### Purpose of Services
 
-**Services contain business logic** - the 'what' and 'why' of your application:
+**Services contain business logic** - the 'what' and 'why' of the application:
 
 ```
 Controller asks: "Should I do this?"
@@ -26,31 +24,23 @@ Service answers: "Yes/No, here's why, and here's what happens"
 Repository executes: "Here's the data you requested"
 ```
 
-**Services are responsible for:**
-- ✅ Business rules enforcement
-- ✅ Orchestrating multiple repositories
-- ✅ Transaction management
-- ✅ Complex calculations
-- ✅ External service integration
-- ✅ Business validations
+**Services own:**
+- Enforcing business rules
+- Orchestrating multiple repositories
+- Transaction management
+- Complex calculations
+- External service integration
+- Business validations
 
-**Services should NOT:**
-- ❌ Know about HTTP (Request/Response)
-- ❌ Direct Prisma access (use repositories)
-- ❌ Handle route-specific logic
-- ❌ Format HTTP responses
+**Services do NOT:**
+- Know about HTTP (Request/Response)
+- Access Prisma directly (use repositories)
+- Handle route-specific logic
+- Format HTTP responses
 
 ---
 
 ## Dependency Injection Pattern
-
-### Why Dependency Injection?
-
-**Benefits:**
-- Easy to test (inject mocks)
-- Clear dependencies
-- Flexible configuration
-- Promotes loose coupling
 
 ### Excellent Example: NotificationService
 
@@ -217,13 +207,6 @@ const notification = await notificationService.createNotification({
 });
 ```
 
-**Key Takeaways:**
-- Dependencies passed via constructor
-- Clear interface defines required dependencies
-- Easy to test (inject mocks)
-- Encapsulated caching logic
-- Business rules isolated from HTTP
-
 ---
 
 ## Singleton Pattern
@@ -358,17 +341,17 @@ Service: "Get me all active users sorted by name"
 Repository: "Here's the Prisma query that does that"
 ```
 
-**Repositories are responsible for:**
-- ✅ All Prisma operations
-- ✅ Query construction
-- ✅ Query optimization (select, include)
-- ✅ Database error handling
-- ✅ Caching database results
+**Repositories own:**
+- All Prisma operations
+- Query construction
+- Query optimization (select, include)
+- Database error handling
+- Caching database results
 
-**Repositories should NOT:**
-- ❌ Contain business logic
-- ❌ Know about HTTP
-- ❌ Make decisions (that's service layer)
+**Repositories do NOT:**
+- Contain business logic
+- Know about HTTP
+- Make decisions (service layer does)
 
 ### Repository Template
 
@@ -553,7 +536,7 @@ export class UserService {
 
 ### 1. Single Responsibility
 
-Each service should have ONE clear purpose:
+Each service has ONE clear purpose:
 
 ```typescript
 // ✅ GOOD - Single responsibility
@@ -579,7 +562,7 @@ class UserService {
 
 ### 2. Clear Method Names
 
-Method names should describe WHAT they do:
+Method names describe WHAT they do:
 
 ```typescript
 // ✅ GOOD - Clear intent
@@ -611,7 +594,7 @@ async createUser(data) {}  // No types!
 
 ### 4. Error Handling
 
-Services should throw meaningful errors:
+Services throw meaningful errors:
 
 ```typescript
 // ✅ GOOD - Meaningful errors

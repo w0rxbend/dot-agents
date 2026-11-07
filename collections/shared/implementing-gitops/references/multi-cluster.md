@@ -1,8 +1,5 @@
 # Multi-Cluster Management
 
-Manage deployments across multiple Kubernetes clusters using GitOps.
-
-
 ## Table of Contents
 
 - [ArgoCD Multi-Cluster](#argocd-multi-cluster)
@@ -86,6 +83,8 @@ flux bootstrap github \
 ```
 
 ### Remote Cluster Management
+
+The kubeconfig `Secret` shows shape only; never commit it. Create it outside Git (`kubectl create secret generic remote-cluster-kubeconfig -n flux-system --from-file=value=./remote.kubeconfig`) or commit it SOPS-encrypted.
 
 ```yaml
 apiVersion: kustomize.toolkit.fluxcd.io/v1

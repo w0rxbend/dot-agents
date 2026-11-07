@@ -1,7 +1,5 @@
 # Health Check Strategies
 
-Comprehensive guide to implementing reliable health checks for load-balanced applications.
-
 ## Table of Contents
 
 1. [Health Check Types](#health-check-types)
@@ -19,13 +17,13 @@ Comprehensive guide to implementing reliable health checks for load-balanced app
 **How it works:** Load balancer attempts TCP connection to backend port
 
 **Validates:**
-- Port is open and accepting connections
-- Network connectivity exists
-- Process is listening on port
+- Port open and accepting connections
+- Network connectivity
+- Process listening on port
 
 **Does NOT validate:**
-- Application is functioning correctly
-- Dependencies are available
+- Application works correctly
+- Dependencies available
 - Application can handle requests
 
 **Use for:**
@@ -34,7 +32,7 @@ Comprehensive guide to implementing reliable health checks for load-balanced app
 - Fast failure detection
 - Protocols without health endpoints
 
-**Configuration example (NGINX):**
+**Example (NGINX):**
 ```nginx
 upstream backend {
     server backend1:8080 max_fails=3 fail_timeout=30s;
@@ -44,15 +42,15 @@ upstream backend {
 
 ### HTTP/HTTPS Health Check
 
-**How it works:** Load balancer sends HTTP GET request, validates response
+**How it works:** Load balancer sends HTTP GET, validates response
 
 **Validates:**
-- HTTP service is responding
-- Returns expected status code (200, 204)
-- Optional: Response body contains expected content
-- Optional: Response headers match criteria
+- HTTP service responds
+- Expected status code returned (200, 204)
+- Optional: response body contains expected content
+- Optional: response headers match criteria
 
-**Configuration example (HAProxy):**
+**Example (HAProxy):**
 ```haproxy
 backend web_servers
     option httpchk GET /health HTTP/1.1\r\nHost:\ example.com
@@ -63,7 +61,7 @@ backend web_servers
     server web2 192.168.1.102:8080 check inter 5s fall 3 rise 2
 ```
 
-**Configuration example (AWS ALB):**
+**Example (AWS ALB):**
 ```hcl
 resource "aws_lb_target_group" "app" {
   health_check {
@@ -81,14 +79,14 @@ resource "aws_lb_target_group" "app" {
 
 ### gRPC Health Check
 
-**How it works:** Uses gRPC Health Checking Protocol (standard)
+**How it works:** Uses standard gRPC Health Checking Protocol
 
 **Validates:**
-- gRPC service is responding
+- gRPC service responds
 - Service reports healthy status
-- Connection is functional
+- Connection works
 
-**Configuration example (Envoy):**
+**Example (Envoy):**
 ```yaml
 clusters:
 - name: grpc_backend
@@ -121,11 +119,11 @@ healthServer.SetServingStatus("myservice", healthpb.HealthCheckResponse_SERVING)
 
 ### Liveness Check
 
-**Purpose:** Is the application process alive?
+**Purpose:** Is application process alive?
 
 **Endpoint:** `/health/live` or `/live`
 
-**Response:** 200 if process is running
+**Response:** 200 if process running
 
 **Implementation (Python/Flask):**
 ```python
@@ -144,7 +142,7 @@ def liveness():
 
 ### Readiness Check
 
-**Purpose:** Can the application handle traffic?
+**Purpose:** Can application handle traffic?
 
 **Endpoint:** `/health/ready` or `/ready`
 
@@ -152,7 +150,7 @@ def liveness():
 - Database connectivity
 - Cache availability (Redis, Memcached)
 - External API dependencies
-- Required services accessible
+- Required services reachable
 
 **Implementation (Python/Flask):**
 ```python
@@ -203,14 +201,14 @@ def readiness():
 
 ### Startup Check
 
-**Purpose:** Has the application finished initializing?
+**Purpose:** Has application finished initializing?
 
 **Endpoint:** `/health/startup` or `/startup`
 
 **Use for:**
-- Applications with long startup times
+- Apps with long startup times
 - Data loading or cache warming
-- Migration execution
+- Running migrations
 
 **Kubernetes example:**
 ```yaml
@@ -240,21 +238,13 @@ startupProbe:
 
 ### Interval
 
-**Definition:** Time between health checks
-
 **Guidelines:**
 - Critical services: 5-10 seconds
 - Standard services: 10-30 seconds
 - Slow-changing backends: 30-60 seconds
 - Development/testing: 5 seconds
 
-**Trade-offs:**
-- Shorter interval: Faster failure detection, more overhead
-- Longer interval: Less overhead, slower detection
-
 ### Timeout
-
-**Definition:** Maximum time to wait for health check response
 
 **Guidelines:**
 - Always less than interval
@@ -262,7 +252,7 @@ startupProbe:
 - Fast services: 1-2 seconds
 - Slow services: 5-10 seconds
 
-**Example configuration:**
+**Example:**
 ```yaml
 # Interval: 10s, Timeout: 3s
 # Check every 10 seconds, fail if no response in 3 seconds
@@ -273,7 +263,7 @@ health_check:
 
 ### Failure Threshold (Unhealthy Threshold)
 
-**Definition:** Number of consecutive failures before marking server unhealthy
+**Definition:** Consecutive failures before server marked unhealthy
 
 **Guidelines:**
 - Stable networks: 2-3 failures
@@ -292,12 +282,12 @@ health_check {
 
 ### Success Threshold (Healthy Threshold)
 
-**Definition:** Number of consecutive successes before marking server healthy
+**Definition:** Consecutive successes before server marked healthy
 
 **Guidelines:**
-- Typically lower than failure threshold (2 vs 3)
+- Usually lower than failure threshold (2 vs 3)
 - Prevents rapid re-addition of flapping servers
-- Higher threshold for previously problematic servers
+- Higher for previously problematic servers
 
 **Example (Kubernetes):**
 ```yaml
@@ -311,16 +301,11 @@ readinessProbe:
 
 ## Health Check Hysteresis
 
-**Problem:** Servers rapidly transition between healthy/unhealthy (flapping)
-
-**Impact:**
-- Unstable load distribution
-- Degraded user experience
-- Alert fatigue
+**Problem:** Servers flip rapidly between healthy/unhealthy (flapping)
 
 **Solution:** Different thresholds for marking up vs down
 
-**Configuration example (NGINX Plus):**
+**Example (NGINX Plus):**
 ```nginx
 upstream backend {
     server backend1:8080;
@@ -354,7 +339,7 @@ Check 6: Success (count: 3)
 
 ### Weighted Health Checks
 
-Check multiple conditions with different importance:
+Check several conditions, weighted by importance:
 
 ```python
 @app.route('/health/ready')
@@ -452,7 +437,8 @@ def readiness():
 **HAProxy configuration:**
 ```haproxy
 backend web_servers
-    option httpchk GET /health HTTP/1.1\r\nHost:\ example.com\r\nX-Health-Check-Secret:\ secret123
+    option httpchk
+    http-check send meth GET uri /health ver HTTP/1.1 hdr Host example.com hdr X-Health-Check-Secret "${HEALTH_CHECK_SECRET}"   # from env, not in config
 ```
 
 ## Monitoring Health Checks
@@ -464,19 +450,18 @@ backend web_servers
 - Alert if <95% over 5 minutes
 
 **Time to detect failure:**
-- Track: Time from actual failure to removal from pool
+- Track: time from actual failure to removal from pool
 - Formula: `failure_threshold * interval`
-- Optimize based on user experience
 
 **Flapping rate:**
-- Count: State transitions per hour
+- Count: state transitions per hour
 - Alert if >10 transitions per server per hour
-- Indicates unstable backend or misconfigured thresholds
+- Signals unstable backend or misconfigured thresholds
 
 **Health check latency:**
-- Track: Response time of health endpoint
+- Track: health endpoint response time
 - Alert if p95 > timeout threshold
-- Indicates backend degradation
+- Signals backend degradation
 
 ### Logging Health Check Events
 
@@ -509,27 +494,27 @@ def readiness():
 - Network latency spikes
 
 **Solutions:**
-- Increase timeout
-- Optimize health endpoint (cache results)
-- Increase failure threshold
-- Use separate fast liveness check
+- Raise timeout
+- Speed up health endpoint (cache results)
+- Raise failure threshold
+- Add separate fast liveness check
 
 ### Problem: Slow Failure Detection
 
-**Symptoms:** Failed servers remain in pool too long
+**Symptoms:** Failed servers stay in pool too long
 
 **Causes:**
 - Long check interval
 - High failure threshold
 
 **Solutions:**
-- Reduce interval (increase check frequency)
+- Shorten interval (check more often)
 - Lower failure threshold
-- Implement active health checks (NGINX Plus)
+- Add active health checks (NGINX Plus)
 
 ### Problem: Health Check Overload
 
-**Symptoms:** Health checks consume significant resources
+**Symptoms:** Health checks use significant resources
 
 **Causes:**
 - Too many load balancers checking
@@ -537,10 +522,10 @@ def readiness():
 - Short interval with expensive checks
 
 **Solutions:**
-- Use shallow checks for liveness
+- Shallow checks for liveness
 - Deep checks only for readiness
 - Cache health check results (5-10s)
-- Increase check interval
+- Lengthen check interval
 
 **Health check result caching:**
 ```python
@@ -566,7 +551,3 @@ def readiness():
     return {'status': 'ready' if result['healthy'] else 'not_ready'}, \
            200 if result['healthy'] else 503
 ```
-
-## Summary
-
-Implement separate liveness and readiness endpoints. Use appropriate intervals and thresholds based on service criticality. Implement hysteresis to prevent flapping. Monitor health check success rates and optimize endpoint performance. Shallow checks for liveness, deep checks for readiness.

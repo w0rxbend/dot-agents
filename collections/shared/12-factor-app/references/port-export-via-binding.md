@@ -7,7 +7,7 @@ tags: port, binding, environment, containers
 
 ## Export Services via Port Binding Using PORT Environment Variable
 
-A twelve-factor app binds to a port specified by the environment (typically the PORT variable) to export its service. This allows the execution environment (Kubernetes, Heroku, Docker) to assign ports dynamically and route traffic appropriately.
+Twelve-factor app exports its service by binding to a port the environment specifies (typically the PORT variable). Execution environment (Kubernetes, Heroku, Docker) then assigns ports dynamically and routes traffic.
 
 **Incorrect (hardcoded port):**
 
@@ -82,11 +82,5 @@ services:
       replicas: 3
     # Load balancer routes to any replica's 8080
 ```
-
-**Benefits:**
-- Platform can run multiple app instances with different ports
-- Zero-downtime deploys: new instances on new ports while draining old
-- Service mesh integration works automatically
-- Local development can specify any available port
 
 Reference: [The Twelve-Factor App - Port Binding](https://12factor.net/port-binding)

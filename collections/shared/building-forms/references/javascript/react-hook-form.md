@@ -1,26 +1,20 @@
 # React Hook Form: Complete Implementation Guide
 
-**React Hook Form is the recommended form library for React applications, offering best-in-class performance, minimal re-renders, and excellent TypeScript support.**
+**React Hook Form: recommended form library for React.**
 
 ## Why React Hook Form?
 
 **Performance Benefits:**
-- **30-40% fewer re-renders** compared to Formik
-- **Uncontrolled components** - Better performance, less state management
+- **30-40% fewer re-renders** than Formik
+- **Uncontrolled components** - Faster, less state to manage
 - **Small bundle size** - ~8KB (vs Formik's ~15KB)
 - **No dependencies** - Zero external dependencies
 
-**Developer Experience:**
-- **TypeScript-first** - Excellent type inference
-- **Minimal boilerplate** - Less code, more productivity
-- **Flexible validation** - Works with any validation library (Zod, Yup, built-in)
-- **DevTools** - Browser extension for debugging
-
 **When to Use:**
-- ✅ New React projects (start with this)
+- ✅ New React projects (start here)
 - ✅ Performance-critical forms (checkout, login)
 - ✅ TypeScript projects (best type inference)
-- ✅ Any form complexity (simple to complex)
+- ✅ Any form complexity, simple to complex
 
 ---
 
@@ -76,9 +70,9 @@ function BasicForm() {
 ```
 
 **Key Concepts:**
-- `useForm()` - Hook that provides form methods
-- `register()` - Registers input to form (name, ref, onChange, onBlur)
-- `handleSubmit()` - Validates and calls onSubmit with data
+- `useForm()` - Hook returning form methods
+- `register()` - Registers input with form (name, ref, onChange, onBlur)
+- `handleSubmit()` - Validates, then calls onSubmit with data
 
 ---
 
@@ -201,42 +195,27 @@ function ValidationForm() {
 ```
 
 **Built-in Validation Rules:**
-- `required` - Field is required
-- `min` / `max` - Numeric min/max values
+- `required` - Field required
+- `min` / `max` - Numeric bounds
 - `minLength` / `maxLength` - String length
-- `pattern` - Regex pattern
+- `pattern` - Regex
 - `validate` - Custom validation function
 
 ---
 
 ## Validation Modes
 
-```tsx
-const { register } = useForm({
-  mode: 'onBlur', // When to validate
-});
-```
-
-**Available Modes:**
+**Available Modes** (values for the useForm mode option):
 
 | Mode | When Validated | Best For |
 |------|----------------|----------|
-| `onSubmit` | On form submit only | Simple forms, infrequent validation |
-| `onBlur` | When field loses focus | **RECOMMENDED** - Most forms |
+| `onSubmit` | On submit only | Simple forms, rare validation |
+| `onBlur` | Field loses focus | **RECOMMENDED** - Most forms |
 | `onChange` | As user types | Password strength, character count |
-| `onTouched` | After field touched and blurred | Similar to onBlur |
+| `onTouched` | After field touched and blurred | Like onBlur |
 | `all` | onChange + onBlur | Maximum validation |
 
-**reValidateMode (after first error):**
-
-```tsx
-const { register } = useForm({
-  mode: 'onBlur', // Initial validation
-  reValidateMode: 'onChange', // After error, validate on change
-});
-```
-
-**Progressive Enhancement Pattern (RECOMMENDED):**
+**reValidateMode (after first error) - Progressive Enhancement Pattern (RECOMMENDED):**
 ```tsx
 const { register } = useForm({
   mode: 'onBlur', // Validate when user leaves field
@@ -248,114 +227,13 @@ const { register } = useForm({
 
 ## Schema Validation with Zod
 
-**Recommended:** Use Zod for TypeScript-first schema validation.
+**Recommended:** Zod for TypeScript-first schema validation. One schema defines types and validation; reuse it on frontend and backend.
 
 ```bash
 npm install zod @hookform/resolvers
 ```
 
-```tsx
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-
-// Define validation schema
-const userSchema = z.object({
-  username: z.string()
-    .min(3, 'Username must be at least 3 characters')
-    .max(20, 'Username must be less than 20 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z.string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/[A-Z]/, 'Must contain uppercase letter')
-    .regex(/[0-9]/, 'Must contain number'),
-  confirmPassword: z.string(),
-  age: z.number()
-    .int('Age must be an integer')
-    .min(18, 'Must be at least 18')
-    .max(120, 'Must be less than 120'),
-  terms: z.boolean().refine((val) => val === true, {
-    message: 'You must accept the terms and conditions',
-  }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'], // Error appears on confirmPassword field
-});
-
-// Infer TypeScript type from schema
-type UserFormData = z.infer<typeof userSchema>;
-
-function RegistrationForm() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<UserFormData>({
-    resolver: zodResolver(userSchema),
-    mode: 'onBlur',
-  });
-
-  const onSubmit = async (data: UserFormData) => {
-    console.log(data); // Fully type-safe!
-    await registerUser(data);
-  };
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <label htmlFor="username">Username</label>
-        <input id="username" {...register('username')} />
-        {errors.username && <span>{errors.username.message}</span>}
-      </div>
-
-      <div>
-        <label htmlFor="email">Email</label>
-        <input id="email" type="email" {...register('email')} />
-        {errors.email && <span>{errors.email.message}</span>}
-      </div>
-
-      <div>
-        <label htmlFor="password">Password</label>
-        <input id="password" type="password" {...register('password')} />
-        {errors.password && <span>{errors.password.message}</span>}
-      </div>
-
-      <div>
-        <label htmlFor="confirmPassword">Confirm Password</label>
-        <input id="confirmPassword" type="password" {...register('confirmPassword')} />
-        {errors.confirmPassword && <span>{errors.confirmPassword.message}</span>}
-      </div>
-
-      <div>
-        <label htmlFor="age">Age</label>
-        <input id="age" type="number" {...register('age', { valueAsNumber: true })} />
-        {errors.age && <span>{errors.age.message}</span>}
-      </div>
-
-      <div>
-        <label>
-          <input type="checkbox" {...register('terms')} />
-          I accept the terms and conditions
-        </label>
-        {errors.terms && <span>{errors.terms.message}</span>}
-      </div>
-
-      <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Registering...' : 'Register'}
-      </button>
-    </form>
-  );
-}
-```
-
-**Benefits of Zod + React Hook Form:**
-- ✅ Single source of truth (schema defines types and validation)
-- ✅ Type-safe (TypeScript infers types from schema)
-- ✅ Reusable schemas (use same schema on frontend and backend)
-- ✅ Excellent error messages
-- ✅ Complex validation (cross-field, conditional)
-
-**See:** `zod-validation.md` for complete Zod guide
+**See:** Complete Example below; `zod-validation.md` for full Zod guide
 
 ---
 
@@ -750,13 +628,6 @@ function FormWithDevTools() {
 }
 ```
 
-**DevTools Features:**
-- View form state in real-time
-- See validation errors
-- Inspect field values
-- Track touched/dirty state
-- Debug validation issues
-
 ---
 
 ## Complete Example: Registration Form
@@ -869,23 +740,20 @@ export default function RegistrationForm() {
 
 1. **Use TypeScript** - Type-safe forms prevent bugs
 2. **Use Zod for validation** - Single source of truth, type inference
-3. **Use onBlur mode** - Best UX balance (not annoying, timely feedback)
-4. **Use reValidateMode: onChange** - After first error, validate on change
-5. **Provide clear error messages** - Explain what's wrong and how to fix
-6. **Show success indicators** - Green checkmark when valid
-7. **Use aria attributes** - `aria-invalid`, `aria-describedby`, `role="alert"`
-8. **Debounce async validation** - Reduce API calls (500ms recommended)
-9. **Use DevTools in development** - Debug form state easily
-10. **Handle loading states** - Disable submit button while submitting
+3. **Provide clear error messages** - Say what's wrong and how to fix it
+4. **Show success indicators** - Green checkmark when valid
+5. **Use aria attributes** - `aria-invalid`, `aria-describedby`, `role="alert"`
+6. **Debounce async validation** - Fewer API calls (500ms recommended)
+7. **Handle loading states** - Disable submit button while submitting
 
 ---
 
 ## Common Patterns
 
-**Login Form:** See `../../examples/basic-form.tsx`
-**Multi-Step Wizard (includes `useFieldArray`):** See `../../examples/multi-step-wizard.tsx`
-**Inline Validation:** See `../../examples/inline-validation.tsx`
-**Conditional Fields:** See `../../examples/conditional-form.tsx`
+**Login Form:** `../../examples/basic-form.tsx`
+**Multi-Step Wizard (includes `useFieldArray`):** `../../examples/multi-step-wizard.tsx`
+**Inline Validation:** `../../examples/inline-validation.tsx`
+**Conditional Fields:** `../../examples/conditional-form.tsx`
 
 ---
 

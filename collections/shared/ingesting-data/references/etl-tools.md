@@ -23,11 +23,12 @@
 
 ## dlt (data load tool) - Recommended
 
-Modern Python-first ETL with automatic schema evolution.
+Python-first ETL, automatic schema evolution.
 
 ### Installation
 ```bash
 pip install dlt[postgres]  # or dlt[duckdb], dlt[bigquery], etc.
+export RUNTIME__DLTHUB_TELEMETRY=false  # telemetry on by default; or: dlt --disable-telemetry
 ```
 
 ### Basic Pipeline
@@ -93,12 +94,12 @@ pipeline.run(
 
 ## Meltano (ELT Platform)
 
-Singer-based with 500+ connectors.
+Singer-based, 500+ connectors.
 
 ### Installation
 ```bash
 pip install meltano
-meltano init my_project
+meltano init my_project --no-usage-stats  # usage stats on by default
 cd my_project
 ```
 
@@ -137,6 +138,8 @@ meltano run tap-github target-postgres
 ```
 
 ## Dagster (Orchestration + ELT)
+
+Telemetry on by default: set `telemetry: {enabled: false}` in `$DAGSTER_HOME/dagster.yaml`.
 
 ### Assets-based Pipeline
 ```python
@@ -177,9 +180,10 @@ defs = Definitions(
 
 ### Docker Setup
 ```bash
-git clone https://github.com/airbytehq/airbyte.git
-cd airbyte
-./run-ab-platform.sh
+# abctl replaced run-ab-platform.sh; pin the release (or verify tarball against abctl_0.30.4_checksums.txt)
+export DO_NOT_TRACK=1  # abctl telemetry on by default
+go install github.com/airbytehq/abctl@v0.30.4
+abctl local install --values values.yaml  # values.yaml: global.tracking: {enabled: false, strategy: logging} (platform Segment tracking on by default)
 ```
 
 ### API Configuration

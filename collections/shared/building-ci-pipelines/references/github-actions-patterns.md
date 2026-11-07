@@ -1,7 +1,5 @@
 # GitHub Actions Patterns
 
-This reference provides detailed patterns for GitHub Actions workflows including reusable workflows, composite actions, matrix strategies, and advanced techniques.
-
 ## Table of Contents
 
 1. [Workflow Syntax Reference](#workflow-syntax-reference)
@@ -287,8 +285,10 @@ runs:
     - name: Install dependencies
       if: inputs.install-dependencies == 'true' && steps.cache.outputs.cache-hit != 'true'
       shell: bash
+      env:
+        PM: ${{ inputs.package-manager }}  # pass inputs via env; ${{ }} inside run: allows script injection
       run: |
-        case "${{ inputs.package-manager }}" in
+        case "$PM" in
           npm) npm ci ;;
           yarn) yarn install --frozen-lockfile ;;
           pnpm) pnpm install --frozen-lockfile ;;
@@ -296,10 +296,14 @@ runs:
 
     - name: Report status
       shell: bash
+      env:
+        NODE_VERSION: ${{ inputs.node-version }}
+        PM: ${{ inputs.package-manager }}
+        CACHE_HIT: ${{ steps.cache.outputs.cache-hit }}
       run: |
-        echo "✅ Node.js ${{ inputs.node-version }} setup complete"
-        echo "📦 Package manager: ${{ inputs.package-manager }}"
-        echo "💾 Cache hit: ${{ steps.cache.outputs.cache-hit }}"
+        echo "✅ Node.js $NODE_VERSION setup complete"
+        echo "📦 Package manager: $PM"
+        echo "💾 Cache hit: $CACHE_HIT"
 ```
 
 ### Using Composite Action
@@ -456,7 +460,7 @@ Trust policy JSON:
 }
 ```
 
-More restrictive conditions:
+Stricter conditions:
 ```json
 "Condition": {
   "StringEquals": {
@@ -570,6 +574,7 @@ jobs:
 **Step 1: Create Azure AD Application**
 
 ```bash
+export AZURE_CORE_COLLECT_TELEMETRY=false  # Azure CLI telemetry is on by default; set in every shell that runs az (steps 1-3)
 az ad app create --display-name github-actions-app
 ```
 
@@ -598,6 +603,8 @@ az ad app federated-credential create \
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      AZURE_CORE_COLLECT_TELEMETRY: 'false'  # Azure CLI telemetry is on by default (azure/login runs az too)
     permissions:
       id-token: write
       contents: read
@@ -619,7 +626,7 @@ jobs:
 
 ### GitHub Encrypted Secrets
 
-Store secrets at repository, environment, or organization level.
+Store secrets at repository, environment or organization level.
 
 ```yaml
 jobs:
@@ -731,7 +738,7 @@ concurrency:
   cancel-in-progress: true
 ```
 
-For PRs, this cancels previous runs when new commits are pushed.
+On PRs, new commits cancel previous runs.
 
 ### Environment-Specific Concurrency
 

@@ -7,15 +7,7 @@ allowed-tools: []
 
 # Java Streams API
 
-Master Java's Streams API for functional-style operations on collections,
-enabling declarative data processing with operations like filter, map, and
-reduce.
-
 ## Introduction to Streams
-
-Streams provide a functional approach to processing collections of objects.
-Unlike collections, streams don't store elements - they convey elements from
-a source through a pipeline of operations.
 
 **Creating streams:**
 
@@ -49,8 +41,8 @@ public class StreamCreation {
 
 ## Intermediate Operations
 
-Intermediate operations return a new stream and are lazy - they don't
-execute until a terminal operation is invoked.
+Intermediate operations return new stream. Lazy: they don't run until a
+terminal operation is invoked.
 
 **filter() - Select elements:**
 
@@ -188,7 +180,7 @@ public class PeekExample {
 
 ## Terminal Operations
 
-Terminal operations produce a result or side effect and close the stream.
+Terminal operations produce result or side effect, then close stream.
 
 **collect() - Gather results:**
 
@@ -239,13 +231,13 @@ public class CollectExample {
 
 | Call | Java | Result list | Use when |
 |------|------|-------------|----------|
-| `stream.toList()` | 16+ | Unmodifiable; `add`/`set` throw | Default for new code that only reads the result |
-| `Collectors.toList()` | 8+ | Unspecified mutability (an `ArrayList` in practice) | Pre-16 code; do not rely on mutating it |
-| `Collectors.toCollection(ArrayList::new)` | 8+ | Guaranteed mutable `ArrayList` | Caller adds/removes afterwards |
-| `Collectors.toUnmodifiableList()` | 10+ | Unmodifiable; **rejects nulls** with NPE | Want immutability and null rejection |
+| `stream.toList()` | 16+ | Unmodifiable; `add`/`set` throw | Default for new code that only reads result |
+| `Collectors.toList()` | 8+ | Unspecified mutability (`ArrayList` in practice) | Pre-16 code; do not rely on mutating it |
+| `Collectors.toCollection(ArrayList::new)` | 8+ | Guaranteed mutable `ArrayList` | Caller adds/removes later |
+| `Collectors.toUnmodifiableList()` | 10+ | Unmodifiable; **rejects nulls** with NPE | Need immutability and null rejection |
 
 When replacing `collect(Collectors.toList())` with `toList()` in existing code,
-check that no caller mutates the returned list.
+check no caller mutates returned list.
 
 **reduce() - Combine elements:**
 
@@ -432,8 +424,8 @@ public class StatisticsExample {
 
 ## mapMulti and Gatherers
 
-`mapMulti` (Java 16+) is an imperative alternative to `flatMap` that avoids
-creating a stream per element:
+`mapMulti` (Java 16+) is imperative alternative to `flatMap`. Avoids creating
+a stream per element:
 
 ```java
 List<Integer> evensDoubled = List.of(1, 2, 3, 4).stream()
@@ -447,9 +439,8 @@ List<Integer> evensDoubled = List.of(1, 2, 3, 4).stream()
 ```
 
 `Stream.gather(Gatherer)` adds custom intermediate operations (windowing,
-scanning, stateful dedup, bounded-concurrency mapping). It was a preview in
-JDK 22-23 and is final in JDK 24; check the project's `--release` level before
-using it.
+scanning, stateful dedup, bounded-concurrency mapping). Preview in JDK 22-23,
+final in JDK 24. Check project's `--release` level before using it.
 
 ```java
 import java.util.stream.Gatherers;
@@ -463,11 +454,9 @@ List<Integer> runningTotals = Stream.of(1, 2, 3)
     .toList();   // [1, 3, 6]
 ```
 
-Before JDK 24, write a custom `Collector` or a plain loop instead.
+Before JDK 24, write custom `Collector` or plain loop instead.
 
 ## Parallel Streams
-
-Parallel streams automatically partition data and process in parallel.
 
 **Using parallel streams:**
 
@@ -538,8 +527,6 @@ public class ParallelPerformance {
 ```
 
 ## Primitive Streams
-
-Specialized streams for primitive types avoid boxing overhead.
 
 **IntStream, LongStream, DoubleStream:**
 
@@ -684,46 +671,24 @@ public class FileProcessing {
 }
 ```
 
-## When to Use This Skill
-
-Use java-streams-api when you need to:
-
-- Process collections with functional-style operations
-- Filter, map, or transform data declaratively
-- Aggregate or reduce collections to single values
-- Group or partition data by criteria
-- Chain multiple data transformations
-- Process large datasets in parallel
-- Write more readable collection processing code
-- Avoid explicit loops and mutable state
-- Perform lazy evaluation of operations
-- Work with infinite sequences efficiently
-
 ## Best Practices
 
-- Use method references when possible for readability
+- Use method references when possible; they read better
 - Avoid side effects in stream operations
 - Close streams from I/O sources (Files.lines, etc.)
 - Prefer collect() over forEach() for accumulation
 - Use primitive streams to avoid boxing overhead
-- Keep stream pipelines readable with proper formatting
-- Use parallel streams only for large datasets
-- Don't reuse streams - they're one-time use
 - Prefer Optional over null checks in results
 - Use Collectors factory methods for common operations
 
 ## Common Pitfalls
 
-- Reusing streams after terminal operation (throws exception)
+- Reusing stream after terminal operation (throws exception)
 - Modifying source collection during stream processing
-- Using parallel streams for small datasets (overhead cost)
+- Parallel streams for small datasets (overhead cost)
 - Side effects in stateless operations (unpredictable results)
-- Not handling Optional results properly
-- Excessive chaining making code unreadable
-- Forgetting to close streams from I/O sources
-- Using forEach() when collect() is more appropriate
-- Not considering thread safety in parallel streams
-- Performance issues from unnecessary boxing/unboxing
+- Excessive chaining that makes code unreadable
+- Ignoring thread safety in parallel streams
 
 ## Resources
 

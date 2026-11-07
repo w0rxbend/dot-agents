@@ -3,7 +3,6 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [When to Show Progress](#when-to-show-progress)
   - [Timing Thresholds](#timing-thresholds)
 - [Spinner Patterns](#spinner-patterns)
@@ -36,10 +35,6 @@
   - [ARIA Attributes](#aria-attributes)
   - [Screen Reader Support](#screen-reader-support)
 - [Best Practices](#best-practices)
-
-## Overview
-
-Progress indicators communicate the status of operations, helping users understand system activity and manage expectations for completion times.
 
 ## When to Show Progress
 
@@ -794,8 +789,8 @@ function AccessibleProgress({ value, max, label }) {
 3. **Provide context**: Always include descriptive text
 4. **Show time estimates**: For operations > 5 seconds
 5. **Allow cancellation**: For operations > 30 seconds
-6. **Smooth animations**: Use CSS transitions for progress updates
-7. **Avoid layout shift**: Reserve space for progress indicators
-8. **Mobile optimization**: Ensure touch-friendly cancel buttons
-9. **Error recovery**: Provide retry options on failure
-10. **Accessibility**: Include proper ARIA attributes and announcements
+6. **Smooth animations**: CSS transitions for progress updates
+7. **Avoid layout shift**: Reserve space for indicators
+8. **Mobile optimization**: Touch-friendly cancel buttons
+9. **Error recovery**: Offer retry on failure
+10. **Accessibility**: Proper ARIA attributes and announcements

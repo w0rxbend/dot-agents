@@ -5,38 +5,32 @@ description: Manages deprecation and migration. Use when removing old systems, A
 
 # Deprecation and Migration
 
-## Overview
-
-Code is a liability, not an asset. Every line of code has ongoing maintenance cost — bugs to fix, dependencies to update, security patches to apply, and new engineers to onboard. Deprecation is the discipline of removing code that no longer earns its keep, and migration is the process of moving users safely from the old to the new.
-
-Most engineering organizations are good at building things. Few are good at removing them. This skill addresses that gap.
-
 ## When to Use
 
-- Replacing an old system, API, or library with a new one
-- Sunsetting a feature that's no longer needed
+- Replacing old system, API, or library
+- Sunsetting unneeded feature
 - Consolidating duplicate implementations
-- Removing dead code that nobody owns but everybody depends on
-- Planning the lifecycle of a new system (deprecation planning starts at design time)
-- Deciding whether to maintain a legacy system or invest in migration
+- Removing dead code nobody owns but everybody depends on
+- Planning new system lifecycle (deprecation planning starts at design time)
+- Choosing: maintain legacy system or invest in migration
 
 ## Core Principles
 
 ### Code Is a Liability
 
-Every line of code has ongoing cost: it needs tests, documentation, security patches, dependency updates, and mental overhead for anyone working nearby. The value of code is the functionality it provides, not the code itself. When the same functionality can be provided with less code, less complexity, or better abstractions — the old code should go.
+Every line needs tests, documentation, security patches, dependency updates, and mental overhead for anyone working nearby. Value is functionality, not code. If less code, less complexity, or better abstractions can deliver same functionality, remove old code.
 
 ### Hyrum's Law Makes Removal Hard
 
-With enough users, every observable behavior becomes depended on — including bugs, timing quirks, and undocumented side effects. This is why deprecation requires active migration, not just announcement. Users can't "just switch" when they depend on behaviors the replacement doesn't replicate.
+With enough users, every observable behavior gets depended on: bugs, timing quirks, undocumented side effects. So deprecation needs active migration, not only announcement. Users can't "just switch" if replacement misses behaviors they rely on.
 
 ### Deprecation Planning Starts at Design Time
 
-When building something new, ask: "How would we remove this in 3 years?" Systems designed with clean interfaces, feature flags, and minimal surface area are easier to deprecate than systems that leak implementation details everywhere.
+When building something new, ask: "How would we remove this in 3 years?" Clean interfaces, feature flags, and minimal surface area ease deprecation. Leaked implementation details make it harder.
 
 ## The Deprecation Decision
 
-Before deprecating anything, answer these questions:
+Before deprecating anything, answer:
 
 ```
 1. Does this system still provide unique value?
@@ -59,18 +53,18 @@ Before deprecating anything, answer these questions:
 
 | Type | When to Use | Mechanism |
 |------|-------------|-----------|
-| **Advisory** | Migration is optional, old system is stable | Warnings, documentation, nudges. Users migrate on their own timeline. |
-| **Compulsory** | Old system has security issues, blocks progress, or maintenance cost is unsustainable | Hard deadline. Old system will be removed by date X. Provide migration tooling. |
+| **Advisory** | Migration optional, old system stable | Warnings, documentation, nudges. Users migrate on own timeline. |
+| **Compulsory** | Old system has security issues, blocks progress, or costs too much to maintain | Hard deadline: old system removed by date X. Provide migration tooling. |
 
-**Default to advisory.** Use compulsory only when the maintenance cost or risk justifies forcing migration. Compulsory deprecation requires providing migration tooling, documentation, and support — you can't just announce a deadline.
+**Default to advisory.** Use compulsory only when maintenance cost or risk justifies forcing migration. Compulsory requires migration tooling, documentation, and support, not only a deadline.
 
 ## The Migration Process
 
 ### Step 1: Build the Replacement
 
-Don't deprecate without a working alternative. The replacement must:
+Don't deprecate without a working alternative. Replacement must:
 
-- Cover all critical use cases of the old system
+- Cover all critical use cases of old system
 - Have documentation and migration guides
 - Be proven in production (not just "theoretically better")
 
@@ -88,12 +82,12 @@ Don't deprecate without a working alternative. The replacement must:
 ### Migration Guide
 1. Replace `import { client } from 'old-service'` with `import { client } from 'new-service'`
 2. Update configuration (see examples below)
-3. Run the migration verification script: `npx migrate-check`
+3. Run the project's migration check: `npm run migrate-check`
 ```
 
 ### Step 3: Migrate Incrementally
 
-Migrate consumers one at a time, not all at once. For each consumer:
+Migrate consumers one at a time, not all at once. Per consumer:
 
 ```
 1. Identify all touchpoints with the deprecated system
@@ -103,7 +97,7 @@ Migrate consumers one at a time, not all at once. For each consumer:
 5. Confirm no regressions
 ```
 
-**The Churn Rule:** If you own the infrastructure being deprecated, you are responsible for migrating your users — or providing backward-compatible updates that require no migration. Don't announce deprecation and leave users to figure it out.
+**The Churn Rule:** If you own deprecated infrastructure, you migrate your users or ship backward-compatible updates needing no migration. Don't announce deprecation and leave users to figure it out.
 
 ### Step 4: Remove the Old System
 
@@ -121,7 +115,7 @@ Only after all consumers have migrated:
 
 ### Strangler Pattern
 
-Run old and new systems in parallel. Route traffic incrementally from old to new. When the old system handles 0% of traffic, remove it.
+Run old and new in parallel. Shift traffic to new incrementally. Remove old once it handles 0% of traffic.
 
 ```
 Phase 1: New system handles 0%, old handles 100%
@@ -133,7 +127,7 @@ Phase 5: Remove old system
 
 ### Adapter Pattern
 
-Create an adapter that translates calls from the old interface to the new implementation. Consumers keep using the old interface while you migrate the backend.
+Adapter maps old-interface calls to new implementation. Consumers keep old interface while you migrate backend.
 
 ```typescript
 // Adapter: old interface, new implementation
@@ -150,7 +144,7 @@ class LegacyTaskService implements OldTaskAPI {
 
 ### Feature Flag Migration
 
-Use feature flags to switch consumers from old to new system one at a time:
+Switch consumers from old to new system one at a time via feature flags:
 
 ```typescript
 function getTaskService(userId: string): TaskService {
@@ -163,7 +157,7 @@ function getTaskService(userId: string): TaskService {
 
 ### Database Schema Migrations (Expand/Contract)
 
-A schema change is the riskiest migration because the data is the one thing you cannot roll back by reverting a deploy. The failure mode is coupling the schema change to the code change: rename a column in the same release that starts using the new name, and during the rollout window — when old and new code run at once — one of them is querying a column that doesn't exist. The fix is to **never change a column in place**. Migrate in additive phases so old and new code are both valid at every step.
+Schema change is riskiest migration: reverting a deploy cannot roll back data. Main failure: coupling schema change to code change. Example: one release renames a column and uses new name. During rollout, old and new code run together; one queries a missing column. Fix: **never change a column in place**. Migrate in additive phases so old and new code stay valid at every step.
 
 ```
 EXPAND ──────────────→ MIGRATE ──────────────→ CONTRACT
@@ -175,73 +169,61 @@ the old one            the app                  a later, separate deploy
 **Worked example — renaming `name` to `full_name`:**
 
 1. **Expand.** Add `full_name` as nullable. Deploy. (Old code ignores it; nothing breaks.)
-2. **Dual-write.** App writes both `name` and `full_name` on every insert/update. Deploy.
-3. **Backfill.** Copy `name → full_name` for existing rows, in batches, so you don't lock the table.
-4. **Switch reads.** Point the app at `full_name`, keep writing both. Deploy and bake.
-5. **Contract.** Stop writing `name`, then — in a *separate, later* deploy — drop the column.
+2. **Dual-write.** App writes `name` and `full_name` on every insert/update. Deploy.
+3. **Backfill.** Copy `name → full_name` for existing rows in batches, to avoid locking table.
+4. **Switch reads.** Point app at `full_name`; keep writing both. Deploy and bake.
+5. **Contract.** Stop writing `name`. Then drop column in a *separate, later* deploy; confirm with user before the drop.
 
-Each step is independently deployable and reversible: if step 4 misbehaves, roll the code back and `full_name` is still being populated. Treat each phase as a thin vertical slice — see the `incremental-implementation` skill.
+Each step deploys and reverts independently. If step 4 misbehaves, roll code back; `full_name` stays populated. Treat each phase as thin vertical slice (see `incremental-implementation` skill).
 
 **Rules:**
-- **Additive first, destructive last and alone.** Adds (new nullable column, new table, new index) are safe in any deploy; drops and renames get their own deploy *after* no code references the old shape.
-- **Every migration has a tested down path.** A migration you can't reverse is a deploy you can't roll back. Write and run the `down` before merging.
-- **Backfill in batches, off the hot path.** A single `UPDATE` over millions of rows locks the table; chunk it and throttle.
+- **Additive first, destructive last and alone.** Adds (new nullable column, table, index) are safe in any deploy. Drops and renames get own deploy *after* no code references old shape.
+- **Every migration has a tested down path.** Irreversible migration blocks deploy rollback. Write and run `down` before merging.
+- **Backfill in batches, off the hot path.** Single `UPDATE` over millions of rows locks table; chunk and throttle.
 - **Build large indexes without blocking writes** (e.g. Postgres `CREATE INDEX CONCURRENTLY`).
-- **Decouple from code by feature flag** when the cutover is risky, exactly as in the Feature Flag Migration pattern above.
+- **Decouple from code by feature flag** when cutover is risky (see Feature Flag Migration above).
 
 ## Zombie Code
 
-Zombie code is code that nobody owns but everybody depends on. It's not actively maintained, has no clear owner, and accumulates security vulnerabilities and compatibility issues. Signs:
+Zombie code: nobody owns it, everybody depends on it. Unmaintained and ownerless, it accumulates security vulnerabilities and compatibility issues. Signs:
 
 - No commits in 6+ months but active consumers exist
 - No assigned maintainer or team
-- Failing tests that nobody fixes
-- Dependencies with known vulnerabilities that nobody updates
-- Documentation that references systems that no longer exist
+- Failing tests nobody fixes
+- Known-vulnerable dependencies nobody updates
+- Documentation referencing systems that no longer exist
 
-**Response:** Either assign an owner and maintain it properly, or deprecate it with a concrete migration plan. Zombie code cannot stay in limbo — it either gets investment or removal.
+**Response:** Assign owner and maintain properly, or deprecate with concrete migration plan. Zombie code cannot stay in limbo: invest or remove.
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "It still works, why remove it?" | Working code that nobody maintains accumulates security debt and complexity. Maintenance cost grows silently. |
-| "Someone might need it later" | If it's needed later, it can be rebuilt. Keeping unused code "just in case" costs more than rebuilding. |
-| "The migration is too expensive" | Compare migration cost to ongoing maintenance cost over 2-3 years. Migration is usually cheaper long-term. |
-| "We'll deprecate it after we finish the new system" | Deprecation planning starts at design time. By the time the new system is done, you'll have new priorities. Plan now. |
-| "Users will migrate on their own" | They won't. Provide tooling, documentation, and incentives — or do the migration yourself (the Churn Rule). |
-| "We can maintain both systems indefinitely" | Two systems doing the same thing is double the maintenance, testing, documentation, and onboarding cost. |
-| "Just rename the column, it's one line" | During the rollout, old and new code run together — one will query a column that no longer exists. Expand/contract, never rename in place. |
-| "I'll add the column and drop the old one in the same migration" | That couples a safe add to a destructive drop. Drops get their own deploy, after no code references the old shape. |
-| "We'll write the rollback if we need it" | A migration with no down path is a deploy you can't reverse. Write and run the `down` before merging. |
+| "It still works, why remove it?" | Unmaintained working code accrues security debt and complexity. Cost grows silently. |
+| "Someone might need it later" | Rebuild it if needed. Keeping unused code "just in case" costs more than rebuilding. |
+| "The migration is too expensive" | Compare migration cost to 2-3 years of maintenance. Migration usually costs less long-term. |
+| "Users will migrate on their own" | They won't. Provide tooling, documentation, and incentives, or do the migration yourself (the Churn Rule). |
+| "We can maintain both systems indefinitely" | Two systems doing same thing double maintenance, testing, documentation, and onboarding cost. |
 
 ## Red Flags
 
-- Deprecated systems with no replacement available
-- Deprecation announcements with no migration tooling or documentation
-- "Soft" deprecation that's been advisory for years with no progress
-- Zombie code with no owner and active consumers
-- New features added to a deprecated system (invest in the replacement instead)
-- Deprecation without measuring current usage
-- Removing code without verifying zero active consumers
-- A schema change and the code that depends on it shipped in the same deploy
-- A column renamed or dropped in place rather than via expand/contract
-- A migration merged with no tested down path, or a backfill that locks the table
+- "Soft" deprecation, advisory for years, no progress
+- New features added to deprecated system (invest in replacement instead)
 
 ## Verification
 
-After completing a deprecation:
+After a deprecation:
 
-- [ ] Replacement is production-proven and covers all critical use cases
-- [ ] Migration guide exists with concrete steps and examples
-- [ ] All active consumers have been migrated (verified by metrics/logs)
-- [ ] Old code, tests, documentation, and configuration are fully removed
-- [ ] No references to the deprecated system remain in the codebase
-- [ ] Deprecation notices are removed (they served their purpose)
+- [ ] Replacement production-proven, covers all critical use cases
+- [ ] Migration guide has concrete steps and examples
+- [ ] All active consumers migrated (verified by metrics/logs)
+- [ ] Old code, tests, documentation, and configuration fully removed
+- [ ] No references to deprecated system remain in codebase
+- [ ] Deprecation notices removed (they served their purpose)
 
-After a database schema migration:
+After database schema migration:
 
-- [ ] The change ships in additive phases (expand → backfill → contract), not a single in-place edit
-- [ ] Old and new code are both valid against the schema at every deploy step
-- [ ] Each migration has a tested down path; backfills run in throttled batches
-- [ ] Destructive steps (drop/rename) ship in their own deploy after no code references the old shape
+- [ ] Change ships in additive phases (expand, backfill, contract), not one in-place edit
+- [ ] Old and new code valid against schema at every deploy step
+- [ ] Each migration has tested down path; backfills run in throttled batches
+- [ ] Destructive steps (drop/rename) get own deploy after no code references old shape

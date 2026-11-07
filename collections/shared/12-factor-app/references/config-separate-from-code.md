@@ -7,7 +7,7 @@ tags: config, separation, security, deployment
 
 ## Strictly Separate Configuration from Code
 
-A twelve-factor app strictly separates config from code. Configuration is anything likely to vary between deploys (database URLs, credentials, feature flags). A litmus test: could you open-source your codebase right now without exposing credentials?
+Config is anything likely to vary between deploys (database URLs, credentials, feature flags). Litmus test: could codebase go open-source now without exposing credentials?
 
 **Incorrect (config hardcoded in code):**
 

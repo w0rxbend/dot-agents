@@ -1,6 +1,6 @@
 # Styling Guide
 
-Modern styling patterns for using MUI v7 sx prop, inline styles, and theme integration.
+Styling patterns for MUI v7 sx prop, inline styles and theme integration.
 
 ---
 
@@ -62,50 +62,11 @@ export const MyComponent: React.FC = () => {
 
 **Lines 48-126**: 78 lines of inline styles (acceptable)
 
-```typescript
-const formStyles: Record<string, SxProps<Theme>> = {
-    gridContainer: {
-        height: '100%',
-        maxHeight: 'calc(100vh - 220px)',
-    },
-    section: {
-        height: '100%',
-        maxHeight: 'calc(100vh - 220px)',
-        overflow: 'auto',
-        p: 4,
-    },
-    // ... 15 more style objects
-};
-```
-
-**Guideline**: User is comfortable with ~80 lines inline. Use your judgment around 100 lines.
+**Guideline**: User accepts ~80 lines inline. Use judgment around 100 lines.
 
 ---
 
 ## sx Prop Patterns
-
-### Basic Usage
-
-```typescript
-<Box sx={{ p: 2, mb: 3, display: 'flex' }}>
-    Content
-</Box>
-```
-
-### With Theme Access
-
-```typescript
-<Box
-    sx={{
-        p: 2,
-        backgroundColor: (theme) => theme.palette.primary.main,
-        color: (theme) => theme.palette.primary.contrastText,
-        borderRadius: (theme) => theme.shape.borderRadius,
-    }}
->
-    Themed Box
-</Box>
-```
 
 ### Responsive Styles
 
@@ -170,16 +131,6 @@ import { Grid } from '@mui/material';
 ```
 
 **Key Change**: `size={{ xs: 12, md: 6 }}` instead of `xs={12} md={6}`
-
-### Responsive Grid
-
-```typescript
-<Grid container spacing={3}>
-    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-        Responsive Column
-    </Grid>
-</Grid>
-```
 
 ### Nested Grids
 
@@ -261,7 +212,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 ```
 
-**Why avoid**: Deprecated, v7 doesn't support it well
+**Why avoid**: Deprecated; v7 doesn't support it well
 
 ### ❌ styled() Components
 
@@ -274,7 +225,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
 }));
 ```
 
-**Why avoid**: sx prop is more flexible and doesn't create new components
+**Why avoid**: sx prop more flexible; doesn't create new components
 
 ### ✅ Use sx Prop Instead
 
@@ -297,16 +248,6 @@ const StyledBox = styled(Box)(({ theme }) => ({
 ### Indentation
 
 **4 spaces** (not 2, not tabs)
-
-```typescript
-const styles: Record<string, SxProps<Theme>> = {
-    container: {
-        p: 2,
-        display: 'flex',
-        flexDirection: 'column',
-    },
-};
-```
 
 ### Quotes
 
@@ -349,29 +290,6 @@ const styles = {
 
 ## Common Style Patterns
 
-### Flexbox Layout
-
-```typescript
-const styles = {
-    flexRow: {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-    },
-    flexColumn: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 1,
-    },
-    spaceBetween: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-};
-```
-
 ### Spacing
 
 ```typescript
@@ -389,39 +307,7 @@ p: 2  // = 16px
 p: 0.5  // = 4px
 ```
 
-### Positioning
-
-```typescript
-const styles = {
-    relative: {
-        position: 'relative',
-    },
-    absolute: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-    },
-    sticky: {
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-    },
-};
-```
-
 ---
-
-## Summary
-
-**Styling Checklist:**
-- ✅ Use `sx` prop for MUI styling
-- ✅ Type-safe with `SxProps<Theme>`
-- ✅ <100 lines: inline; >100 lines: separate file
-- ✅ MUI v7 Grid: `size={{ xs: 12 }}`
-- ✅ 4 space indentation
-- ✅ Single quotes
-- ✅ Trailing commas
-- ❌ No makeStyles or styled()
 
 **See Also:**
 - [component-patterns.md](component-patterns.md) - Component structure

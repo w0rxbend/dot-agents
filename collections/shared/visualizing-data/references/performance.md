@@ -1,7 +1,6 @@
 # Performance Optimization for Data Visualization
 
-Strategies for handling datasets from 100 to 100,000+ points.
-
+Pick strategy by data volume. Don't optimize prematurely, but plan for scale.
 
 ## Table of Contents
 
@@ -28,7 +27,7 @@ Strategies for handling datasets from 100 to 100,000+ points.
 
 ## Strategy 1: Downsampling (<10K points)
 
-**Reduce data points while preserving visual appearance:**
+**Fewer data points, same visual appearance:**
 
 ```javascript
 // Largest Triangle Three Buckets (LTTB) algorithm
@@ -93,19 +92,17 @@ const downsampled = downsampleLTTB(largeDataset, 500);        // Reduce to 500
 
 ## Strategy 2: Canvas Rendering (10K-100K points)
 
-**Switch from SVG to Canvas for better performance:**
+**Switch from SVG to Canvas for speed:**
 
 **SVG (DOM-based):**
 - Each element is a DOM node
 - Slow with >1000 elements
 - Accessible, crisp, scalable
-- Good for <1000 points
 
 **Canvas (Pixel-based):**
 - Single bitmap
 - Fast with 10K+ elements
 - Not accessible (rasterized)
-- Excellent for large datasets
 
 **D3 with Canvas Example:**
 ```javascript
@@ -306,7 +303,7 @@ worker.onmessage = function(e) {
 **Target Frame Rates:**
 - **Static charts:** N/A (render once)
 - **Interactive (zoom/pan):** 30fps minimum, 60fps ideal
-- **Animated transitions:** 60fps for smooth
+- **Animated transitions:** 60fps for smoothness
 
 **Memory Usage:**
 - **SVG:** ~1KB per element (1000 points = 1MB)
@@ -339,8 +336,4 @@ worker.onmessage = function(e) {
 - [ ] Verify FPS ≥30fps
 - [ ] Check memory usage <100MB
 - [ ] Test on low-end devices
-- [ ] Ensure accessibility maintained
-
----
-
-*Performance optimization is about choosing the right strategy for your data volume. Don't optimize prematurely, but plan for scale.*
+- [ ] Confirm accessibility maintained

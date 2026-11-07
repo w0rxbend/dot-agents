@@ -1,7 +1,5 @@
 # Static Site Framework Configurations
 
-Build commands and publish paths for common static site generators and frontend frameworks.
-
 ## Framework Reference
 
 ### React (Create React App)
@@ -23,11 +21,11 @@ staticPublishPath: dist
 Requires `output: 'export'` in `next.config.js`:
 
 ```yaml
-buildCommand: npm ci && next build
+buildCommand: npm ci && NEXT_TELEMETRY_DISABLED=1 next build
 staticPublishPath: out
 ```
 
-If you need SSR (`next start`), use a **Web Service** instead.
+For SSR (`next start`), use **Web Service** instead.
 
 ### Nuxt (static generate)
 
@@ -36,7 +34,7 @@ buildCommand: npm ci && nuxt generate
 staticPublishPath: .output/public
 ```
 
-For SSR (`nuxt build` + server), use a **Web Service**.
+For SSR (`nuxt build` + server), use **Web Service**.
 
 ### SvelteKit (static adapter)
 
@@ -52,11 +50,11 @@ staticPublishPath: build
 Default static output:
 
 ```yaml
-buildCommand: npm ci && astro build
+buildCommand: npm ci && ASTRO_TELEMETRY_DISABLED=1 astro build
 staticPublishPath: dist
 ```
 
-For SSR mode, use a **Web Service**.
+For SSR mode, use **Web Service**.
 
 ### Hugo
 
@@ -65,12 +63,10 @@ buildCommand: hugo --minify
 staticPublishPath: public
 ```
 
-Set `HUGO_VERSION` env var if you need a specific version.
-
 ### Gatsby
 
 ```yaml
-buildCommand: npm ci && gatsby build
+buildCommand: npm ci && GATSBY_TELEMETRY_DISABLED=1 gatsby build
 staticPublishPath: public
 ```
 
@@ -113,18 +109,6 @@ Common build-time env vars:
 | `NODE_VERSION` | Pin Node.js version (e.g. `20`) |
 | `HUGO_VERSION` | Pin Hugo version |
 | `PYTHON_VERSION` | Pin Python version (Jekyll, Pelican) |
-| `SKIP_INSTALL_DEPS` | Set to `true` to skip auto dependency install |
+| `SKIP_INSTALL_DEPS` | Set `true` to skip auto dependency install |
+| `NEXT_TELEMETRY_DISABLED`, `ASTRO_TELEMETRY_DISABLED`, `GATSBY_TELEMETRY_DISABLED` | Set `1` (build-command prefix above or service env var): these CLIs send usage telemetry by default |
 | `NODE_ENV` | Defaults to `production` on Render |
-
-## SPA Routing
-
-All SPAs need a rewrite rule to serve `index.html` for all paths. Add this to every SPA Blueprint:
-
-```yaml
-routes:
-  - type: rewrite
-    source: /*
-    destination: /index.html
-```
-
-Without this, refreshing or deep-linking to any route returns 404.

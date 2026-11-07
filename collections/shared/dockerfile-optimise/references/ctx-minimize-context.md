@@ -7,7 +7,7 @@ tags: ctx, context-size, performance, build-time
 
 ## Keep Build Context Small
 
-Docker must serialize and transfer the entire build context to the builder daemon before the first instruction runs. In a monorepo or large project, passing the repository root as context can mean transferring gigabytes of unrelated code, assets, and data -- adding seconds or minutes of overhead to every build even when nothing relevant has changed.
+Docker must serialize and transfer whole build context to builder daemon before first instruction runs. In monorepo or large project, repository root as context can mean gigabytes of unrelated code, assets and data, adding seconds or minutes to every build even when nothing relevant changed.
 
 **Incorrect (monorepo root as build context):**
 
@@ -37,20 +37,20 @@ project/
 docker build -f services/api/Dockerfile .
 ```
 
-(Docker sends the entire 3+ GB monorepo to the builder, including ML models, seed data, other services, and documentation. This transfer happens on every build regardless of what changed.)
+(Docker sends whole 3+ GB monorepo to builder: ML models, seed data, other services, documentation.)
 
-**Correct (scoped context to the service directory):**
+**Correct (context scoped to service directory):**
 
 ```bash
 # Pass only the service directory as context
 docker build -f services/api/Dockerfile services/api/
 ```
 
-(Docker sends only the `services/api/` directory -- typically a few MB of source code and configuration. The build starts almost instantly instead of waiting for gigabytes to transfer.)
+(Docker sends only `services/api/` directory, typically a few MB of source and configuration. Build starts almost instantly instead of waiting on gigabytes.)
 
-**Correct (use a dedicated context path with shared dependencies):**
+**Correct (dedicated context path with shared dependencies):**
 
-When services share code (e.g. a common library), scope the context to include only what is needed:
+When services share code (e.g. common library), scope context to only what is needed:
 
 ```text
 project/
@@ -90,7 +90,5 @@ WORKDIR /app/api
 RUN npm run build
 CMD ["node", "dist/server.js"]
 ```
-
-(The context is `services/`, which contains only the relevant service code and shared libraries. Multi-gigabyte directories like `data/` and `ml-models/` are never transferred.)
 
 Reference: [Docker Build Cache - Optimize](https://docs.docker.com/build/cache/optimize/)

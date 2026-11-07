@@ -12,7 +12,7 @@
 
 ## Goroutine Lifecycle
 
-NEVER start a goroutine without knowing how it stops. Every goroutine MUST answer: **how will it stop?**
+NEVER start goroutine without knowing how it stops.
 
 ```go
 // ✗ Bad — fire-and-forget, no way to stop or wait
@@ -45,7 +45,7 @@ func startWorker(ctx context.Context) *sync.WaitGroup {
 
 ### Panic Recovery at Goroutine Boundaries
 
-A panic in a goroutine crashes the entire process. Always recover at goroutine boundaries in production code:
+Panic in goroutine crashes whole process. Always recover at goroutine boundaries in production code:
 
 ```go
 go func() {
@@ -60,7 +60,7 @@ go func() {
 
 ## Channel Direction
 
-Specify direction in function signatures to prevent misuse at compile time:
+Specify direction in function signatures so compiler catches misuse:
 
 ```go
 // ✗ Bad — caller could accidentally close or send on a receive-only channel
@@ -73,7 +73,7 @@ func consume(ch <-chan int) { ... } // receive-only
 
 ## Channel Closing
 
-Channels MUST be closed by the sender (producer), NEVER by the receiver — it causes a panic if the sender writes after close.
+Sender (producer) MUST close channels, NEVER receiver. Receiver close panics if sender writes after close.
 
 ```go
 // ✓ Good — producer closes when done
@@ -97,9 +97,9 @@ func generate(ctx context.Context) <-chan int {
 
 | Size | When to use |
 | --- | --- |
-| 0 (unbuffered) | Default. Synchronizes sender and receiver — use when you need handoff guarantees |
-| 1 | Signal channels (`done := make(chan struct{}, 1)`), or when sender must not block on a single pending item |
-| N > 1 | Only with measured justification — document why N was chosen and what happens when the buffer fills |
+| 0 (unbuffered) | Default. Syncs sender and receiver. Use for handoff guarantees |
+| 1 | Signal channels (`done := make(chan struct{}, 1)`), or sender must not block on single pending item |
+| N > 1 | Only with measured justification. Document why N and what happens when buffer fills |
 
 ```go
 // ✓ Good — unbuffered for synchronous handoff
@@ -115,7 +115,7 @@ ch := make(chan Task, 1000) // why 1000? what if it fills?
 
 ## Select for Non-Blocking Communication
 
-Use `select` to multiplex channel operations and always include `ctx.Done()` to prevent goroutine leaks:
+Multiplex channel operations with `select`. Always include `ctx.Done()` to prevent goroutine leaks:
 
 ```go
 func process(ctx context.Context, in <-chan Task, out chan<- Result) {
@@ -167,4 +167,4 @@ for {
 }
 ```
 
-For Go <1.23, if `timer.Stop()` returns false, drain a possible stale value before `Reset`. In Go 1.23+, receiving from `timer.C` after `Stop` returns is guaranteed to block rather than receive a stale value.
+Go <1.23: if `timer.Stop()` returns false, drain possible stale value before `Reset`. Go 1.23+: receive from `timer.C` after `Stop` returns is guaranteed to block, not get stale value.

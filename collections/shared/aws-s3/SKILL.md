@@ -17,24 +17,22 @@ metadata:
 
 # AWS S3
 
-Manage Amazon S3 object storage with production-grade security, lifecycle policies, replication, and access controls.
-
 ## When to Use This Skill
 
-- Creating S3 buckets with security hardening (encryption, public access block, versioning)
-- Writing bucket policies to enforce HTTPS, restrict IP ranges, or grant cross-account access
-- Setting up lifecycle rules to transition objects between storage classes
-- Configuring cross-region replication for disaster recovery
-- Generating presigned URLs for temporary access to private objects
-- Setting up static website hosting or CloudFront origins
-- Troubleshooting access denied errors or policy conflicts
+- Create S3 buckets with security hardening (encryption, public access block, versioning)
+- Write bucket policies to enforce HTTPS, restrict IP ranges or grant cross-account access
+- Set lifecycle rules to transition objects between storage classes
+- Configure cross-region replication for disaster recovery
+- Generate presigned URLs for temporary access to private objects
+- Set up static website hosting or CloudFront origins
+- Troubleshoot access denied errors or policy conflicts
 
 ## Prerequisites
 
 - AWS CLI v2 installed and configured
-- IAM permissions: `s3:*`, `s3-object-lambda:*`, `kms:*` (for SSE-KMS)
-- For replication: IAM role with replication permissions and destination bucket in target region
-- For logging: a separate logging bucket with appropriate ACL
+- IAM permissions: least privilege. Grant only actions you run (e.g. `s3:CreateBucket`, `s3:PutBucketPolicy`, `s3:PutEncryptionConfiguration`) on the bucket ARNs; for SSE-KMS, `kms:GenerateDataKey` and `kms:Decrypt` on the specific key. Avoid `s3:*`/`kms:*`.
+- For replication: IAM role with replication permissions, destination bucket in target region
+- For logging: separate logging bucket whose bucket policy grants `logging.s3.amazonaws.com` `s3:PutObject` (keep ACLs disabled)
 
 ## Create and Secure a Bucket
 
@@ -102,12 +100,12 @@ aws s3api put-bucket-tagging \
 
 ## Bucket Policies
 
-> **Lockout warning:** a `Deny` on `s3:*` for `"Principal": "*"` also applies to the
-> console, CI runners and your own admin session whenever they do not come through the
-> VPC endpoint - including the very next `put-bucket-policy`/`delete-bucket-policy` call.
-> Recovery then needs the account root user. Keep a break-glass exception (below,
-> `ArnNotLike aws:PrincipalArn`) for an admin role, and apply the policy from a session
-> that matches that exception.
+> **Lockout warning:** `Deny` on `s3:*` for `"Principal": "*"` also applies to console,
+> CI runners and your own admin session whenever they do not come through the VPC
+> endpoint, including the very next `put-bucket-policy`/`delete-bucket-policy` call.
+> Recovery then needs account root user. Keep break-glass exception (below,
+> `ArnNotLike aws:PrincipalArn`) for an admin role. Apply policy from a session
+> matching that exception.
 
 ```bash
 # Apply a bucket policy (enforce HTTPS and restrict to VPC endpoint,
@@ -231,10 +229,10 @@ aws s3api put-bucket-lifecycle-configuration \
   }'
 ```
 
-S3 rejects the whole configuration if any transition to `STANDARD_IA` or `ONEZONE_IA`
-is earlier than 30 days after creation. Also mind minimum storage durations
-(Standard-IA 30 days, Glacier Flexible Retrieval 90, Deep Archive 180): expiring an
-object before that is billed as if it stayed the full minimum.
+S3 rejects whole configuration if any transition to `STANDARD_IA` or `ONEZONE_IA`
+is earlier than 30 days after creation. Mind minimum storage durations
+(Standard-IA 30 days, Glacier Flexible Retrieval 90, Deep Archive 180). Expiring an
+object before that minimum is billed as if it stayed the full minimum.
 
 ## Cross-Region Replication
 
@@ -283,8 +281,8 @@ aws s3 presign s3://my-app-data-prod/reports/quarterly.pdf \
 
 ```
 
-`aws s3 presign` only produces GET (download) URLs, and the CLI has no command for
-upload URLs. Generate PUT URLs with an SDK, for example boto3:
+`aws s3 presign` only produces GET (download) URLs. CLI has no command for upload
+URLs. Generate PUT URLs with an SDK, for example boto3:
 
 ```python
 import boto3
@@ -432,25 +430,25 @@ resource "aws_s3_bucket_policy" "enforce_https" {
 
 | Problem | Cause | Fix |
 |---|---|---|
-| Access Denied on GetObject | Bucket policy or IAM denies access | Check bucket policy, IAM policy, and public access block |
+| Access Denied on GetObject | Bucket policy or IAM denies access | Check bucket policy, IAM policy, public access block |
 | Access Denied on PutObject | Missing encryption header when required | Add SSE header; check bucket policy encryption conditions |
-| 403 on presigned URL | URL expired or wrong region | Regenerate; ensure region matches bucket region |
+| 403 on presigned URL | URL expired or wrong region | Regenerate; match region to bucket region |
 | Replication not working | Versioning disabled on source or dest | Enable versioning on both buckets |
 | Lifecycle not transitioning | Rule filter does not match objects | Verify prefix and tag filters; check rule status |
-| Bucket delete fails | Bucket not empty or has versioned objects | Delete all objects and versions first; disable versioning |
+| Bucket delete fails | Bucket not empty or has versioned objects | After user confirms, delete all objects and versions; disable versioning |
 | Slow uploads for large files | Single-part upload | Use `aws s3 cp` (auto multipart) or set multipart threshold |
-| Cross-account access denied | Both bucket policy AND IAM policy needed | Grant in bucket policy and in caller's IAM policy |
+| Cross-account access denied | Both bucket policy AND IAM policy needed | Grant in bucket policy and caller's IAM policy |
 | Object Lock prevents deletion | Governance or compliance mode active | Use governance bypass (with permission) or wait for retention |
 
 ## Related Skills
 
 - `aws-iam` - identity policies that combine with bucket policies
 - `architecting-networks` - VPC endpoints for private S3 access
-- `deploying-on-aws` - storage-service selection and storage classes
+- `deploying-on-aws` - storage-service selection, storage classes
 - `pulumi-components` - S3 resources as code
 
 ## Safety
 
-- Run `aws sts get-caller-identity` and confirm the account, region and profile before any change.
-- Use `list`/`get`/`head` calls first and `--dryrun` on `aws s3 cp/mv/sync/rm`; snapshot or back up before deleting or modifying stateful resources.
-
+- Run `aws sts get-caller-identity`; confirm account, region and profile before any change.
+- Show exact command and target; get user confirmation before any delete (objects, versions, buckets, governance bypass), `rm`/`sync --delete` without `--dryrun`, `put-bucket-policy`, `put-public-access-block`, lifecycle `Expiration` or replication change.
+- Use `list`/`get`/`head` calls first and `--dryrun` on `aws s3 cp/mv/sync/rm`. Snapshot or back up before deleting or modifying stateful resources.

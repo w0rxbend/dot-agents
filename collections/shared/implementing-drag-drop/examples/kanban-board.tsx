@@ -80,7 +80,7 @@ function TaskCard({ task, isDragging }: { task: Task; isDragging?: boolean }) {
         {task.assignee && (
           <div className="assignee">
             <img
-              src={`https://ui-avatars.com/api/?name=${task.assignee}&size=24`}
+              src={`/avatars/${encodeURIComponent(task.assignee)}.png`}
               alt={task.assignee}
               title={task.assignee}
             />

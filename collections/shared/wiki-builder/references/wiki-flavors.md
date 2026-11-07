@@ -1,15 +1,15 @@
 # Wiki Flavors
 
-Use these as starting points. The wiki's `wiki.config.md` can override any structure.
+Use as starting points. Wiki's `wiki.config.md` can override any structure.
 
 ## Research Wiki
 
-Best for an ongoing topic with many source types.
+Best for ongoing topic with many source types.
 
 Suggested pages:
 
 - `wiki/index.md` for overview and navigation.
-- `wiki/maps/research-map.md` for the conceptual map.
+- `wiki/maps/research-map.md` for conceptual map.
 - `wiki/concepts/<concept>.md` for durable ideas.
 - `wiki/sources/<source>.md` for important source writeups.
 - `wiki/questions/<question>.md` for open investigations.
@@ -17,7 +17,7 @@ Suggested pages:
 
 ## Paper Wiki
 
-Best for a paper, cluster of papers, or literature review.
+Best for one paper, paper cluster or literature review.
 
 Suggested pages:
 
@@ -27,23 +27,23 @@ Suggested pages:
 - `wiki/comparisons/<topic>.md` for cross-paper comparisons.
 - `wiki/questions/<question>.md` for research gaps.
 
-Paper pages should usually cover problem, method, results, limitations, implementation notes, and related papers.
+Paper pages should usually cover problem, method, results, limitations, implementation notes and related papers.
 
 ## Domain Wiki
 
-Best for learning or tracking an entire field.
+Best for learning or tracking whole field.
 
 Suggested pages:
 
 - `wiki/index.md` for high-level map.
-- `wiki/landscape.md` for actors, concepts, tools, and debates.
+- `wiki/landscape.md` for actors, concepts, tools and debates.
 - `wiki/timelines/<topic>.md` for historical development.
 - `wiki/glossary.md` for terms.
 - `wiki/questions/<question>.md` for active uncertainties.
 
 ## Product Wiki
 
-Best for products, tools, APIs, or platforms.
+Best for products, tools, APIs or platforms.
 
 Suggested pages:
 
@@ -53,25 +53,25 @@ Suggested pages:
 - `wiki/competitors/<competitor>.md` for alternatives.
 - `wiki/questions/<question>.md` for evaluation gaps.
 
-Product pages should distinguish documented behavior, observed behavior, pricing or availability, limitations, and integration notes.
+Product pages should distinguish documented behavior, observed behavior, pricing or availability, limitations and integration notes.
 
 ## Person Wiki
 
-Best for a researcher, founder, writer, or public expert.
+Best for researcher, founder, writer or public expert.
 
 Suggested pages:
 
 - `wiki/index.md` for profile and navigation.
-- `wiki/work/<work-slug>.md` for papers, talks, posts, projects, or artifacts.
+- `wiki/work/<work-slug>.md` for papers, talks, posts, projects or artifacts.
 - `wiki/themes/<theme>.md` for recurring ideas.
 - `wiki/timeline.md` for dated milestones.
 - `wiki/questions/<question>.md` for unresolved context.
 
-Use source-grounded language and avoid unsupported biographical claims.
+Use source-grounded language. Avoid unsupported biographical claims.
 
 ## Organization Wiki
 
-Best for labs, companies, communities, or institutions.
+Best for labs, companies, communities or institutions.
 
 Suggested pages:
 
@@ -85,7 +85,7 @@ Separate facts from interpretation, especially for strategy or intent.
 
 ## Project Wiki
 
-Best for an internal build, research initiative, course, or content project.
+Best for internal build, research initiative, course or content project.
 
 Suggested pages:
 
@@ -95,4 +95,4 @@ Suggested pages:
 - `wiki/notes/<note>.md` for working notes.
 - `derived/briefs/` for summaries and handoffs.
 
-Project wikis should make the current state obvious to the next agent.
+Make project's current state obvious to next agent.

@@ -8,7 +8,7 @@ handling both SQL (PostgreSQL/MySQL) and Elasticsearch query generation.
 
 import json
 import argparse
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, timedelta
 
 
@@ -28,9 +28,18 @@ class SQLQueryBuilder:
             'limit': None,
             'offset': None
         }
+        self.params: Dict[str, Any] = {}
 
-    def build_search_query(self, filters: Dict[str, Any]) -> str:
-        """Build a complete search query from filters."""
+    def _bind(self, name: str, value: Any) -> str:
+        """Store value as a bound parameter and return its placeholder; never inline values."""
+        self.params[name] = value
+        return f"%({name})s"
+
+    def build_search_query(self, filters: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
+        """Build (sql, params) for cursor.execute(sql, params) (psycopg/PyMySQL pyformat).
+
+        User values go only into params; never string-build SQL from them.
+        """
 
         # Base query
         self.query_parts['select'] = ['p.*']
@@ -75,10 +84,11 @@ class SQLQueryBuilder:
             filters.get('per_page', 20)
         )
 
-        return self._build_query_string()
+        return self._build_query_string(), self.params
 
     def _add_text_search(self, query: str):
         """Add full-text search condition."""
+        q = self._bind('query', query)
         if self.dialect == 'postgresql':
             # PostgreSQL full-text search
             search_vector = """
@@ -87,42 +97,42 @@ class SQLQueryBuilder:
                                        COALESCE(p.tags, ''))
             """
             self.query_parts['where'].append(
-                f"{search_vector} @@ plainto_tsquery('english', '{query}')"
+                f"{search_vector} @@ plainto_tsquery('english', {q})"
             )
 
             # Add relevance score
             self.query_parts['select'].append(
-                f"ts_rank({search_vector}, plainto_tsquery('english', '{query}')) AS relevance"
+                f"ts_rank({search_vector}, plainto_tsquery('english', {q})) AS relevance"
             )
         else:
             # MySQL FULLTEXT
             self.query_parts['where'].append(
-                f"MATCH(p.title, p.description) AGAINST('{query}' IN NATURAL LANGUAGE MODE)"
+                f"MATCH(p.title, p.description) AGAINST({q} IN NATURAL LANGUAGE MODE)"
             )
 
     def _add_category_filter(self, categories: List[str]):
         """Add category filter."""
-        placeholders = ', '.join([f"'{cat}'" for cat in categories])
+        placeholders = ', '.join(self._bind(f'category_{i}', cat) for i, cat in enumerate(categories))
         self.query_parts['where'].append(f"p.category IN ({placeholders})")
 
     def _add_price_filter(self, min_price: Optional[float], max_price: Optional[float]):
         """Add price range filter."""
         if min_price is not None:
-            self.query_parts['where'].append(f"p.price >= {min_price}")
+            self.query_parts['where'].append(f"p.price >= {self._bind('min_price', min_price)}")
         if max_price is not None:
-            self.query_parts['where'].append(f"p.price <= {max_price}")
+            self.query_parts['where'].append(f"p.price <= {self._bind('max_price', max_price)}")
 
     def _add_brand_filter(self, brands: List[str]):
         """Add brand filter."""
-        placeholders = ', '.join([f"'{brand}'" for brand in brands])
+        placeholders = ', '.join(self._bind(f'brand_{i}', brand) for i, brand in enumerate(brands))
         self.query_parts['where'].append(f"p.brand IN ({placeholders})")
 
     def _add_date_filter(self, date_from: Optional[str], date_to: Optional[str]):
         """Add date range filter."""
         if date_from:
-            self.query_parts['where'].append(f"p.created_at >= '{date_from}'")
+            self.query_parts['where'].append(f"p.created_at >= {self._bind('date_from', date_from)}")
         if date_to:
-            self.query_parts['where'].append(f"p.created_at <= '{date_to}'")
+            self.query_parts['where'].append(f"p.created_at <= {self._bind('date_to', date_to)}")
 
     def _add_sorting(self, sort_by: str):
         """Add sorting clause."""
@@ -140,6 +150,7 @@ class SQLQueryBuilder:
 
     def _add_pagination(self, page: int, per_page: int):
         """Add pagination."""
+        page, per_page = int(page), int(per_page)
         self.query_parts['limit'] = per_page
         self.query_parts['offset'] = (page - 1) * per_page
 
@@ -363,8 +374,9 @@ def main():
 
     if args.type == 'sql':
         builder = SQLQueryBuilder(dialect=args.dialect)
-        query = builder.build_search_query(filters)
-        print(query)
+        sql, params = builder.build_search_query(filters)
+        print(sql)
+        print(f"-- params: {json.dumps(params, default=str)}")
     else:
         builder = ElasticsearchQueryBuilder()
         query = builder.build_search_query(filters)

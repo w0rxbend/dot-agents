@@ -5,23 +5,19 @@ description: Build React dashboard UIs (Tremor, react-grid-layout) that combine 
 
 # Creating Dashboards
 
-## Purpose
-
-This skill enables the creation of sophisticated dashboard interfaces that aggregate and present data through coordinated widgets including KPI cards, charts, tables, and filters. Dashboards serve as centralized command centers for data-driven decision making, combining multiple component types from other skills (visualizing-data, building-tables, theming-components) into unified analytics experiences with real-time updates, responsive layouts, and interactive filtering.
-
 ## When to Use
 
-Activate this skill when:
-- Building business intelligence or analytics dashboards
-- Creating executive reporting interfaces
-- Implementing real-time monitoring systems
-- Designing KPI displays with metrics and trends
-- Developing customizable widget-based layouts
-- Coordinating filters across multiple data displays
-- Building responsive data-heavy interfaces
-- Implementing drag-and-drop dashboard editors
-- Creating template-based analytics systems
-- Designing multi-tenant SaaS dashboards
+Activate for:
+- Business intelligence or analytics dashboards
+- Executive reporting interfaces
+- Real-time monitoring systems
+- KPI displays with metrics and trends
+- Customizable widget-based layouts
+- Filters coordinated across multiple data displays
+- Responsive data-heavy interfaces
+- Drag-and-drop dashboard editors
+- Template-based analytics systems
+- Multi-tenant SaaS dashboards
 
 ## Core Dashboard Elements
 
@@ -39,13 +35,13 @@ Activate this skill when:
 ### Widget Container Structure
 - Title bar with widget name and actions
 - Loading state (skeleton or spinner)
-- Error boundary with retry option
+- Error boundary with retry
 - Resize handles for adjustable layouts
 - Settings menu (export, configure, refresh)
 
 ### Dashboard Layout Types
 
-**Fixed Layout**: Designer-defined placement, consistent across users
+**Fixed Layout**: Designer-defined placement, same for all users
 **Customizable Grid**: User drag-and-drop, resizable widgets, saved layouts
 **Template-Based**: Pre-built patterns, industry-specific starting points
 
@@ -61,22 +57,22 @@ Activate this skill when:
 ### 1. Choose Dashboard Architecture
 
 **For Quick Analytics Dashboard → Use Tremor**
-Pre-built KPI cards, charts, and tables with minimal code:
+Pre-built KPI cards, charts and tables, minimal code:
 ```bash
 npm install @tremor/react@3   # legacy npm package, built for Tailwind CSS v3
 ```
-Tremor's current releases are copy-paste components (tremor.so) rather than this npm package; check which one the project already uses before adding either.
+Current Tremor releases are copy-paste components (tremor.so), not this npm package. Check which one project already uses before adding either.
 
 **For Customizable Dashboard → Use react-grid-layout**
 Drag-and-drop, resizable widgets, user-defined layouts:
 ```bash
 npm install react-grid-layout@1   # the examples below use the v1 WidthProvider/Responsive API
 ```
-react-grid-layout v2 changed the HOC API; if the project is on v2, follow its README instead of these snippets.
+react-grid-layout v2 changed HOC API. If project is on v2, follow its README instead of these snippets.
 
 ### 2. Set Up Global State Management
 
-Implement filter context for cross-widget coordination:
+Add filter context for cross-widget coordination:
 ```tsx
 // Dashboard context for shared filters
 const DashboardContext = createContext({
@@ -94,24 +90,17 @@ const DashboardContext = createContext({
 
 ### 3. Implement Data Fetching Strategy
 
-**Parallel Loading**: Fetch all widget data simultaneously
+**Parallel Loading**: Fetch all widget data at once
 **Lazy Loading**: Load visible widgets first, others on scroll
 **Cached Updates**: Serve from cache while fetching fresh data
 
 ### 4. Configure Real-Time Updates
 
-**Server-Sent Events (Recommended for Dashboards)**:
-```tsx
-const eventSource = new EventSource('/api/dashboard/stream');
-eventSource.onmessage = (event) => {
-  const update = JSON.parse(event.data);
-  updateWidget(update.widgetId, update.data);
-};
-```
+**Server-Sent Events (Recommended for Dashboards)**: see Real-Time Data Patterns below.
 
 ### 5. Apply Responsive Design
 
-Define breakpoints for different screen sizes:
+Define breakpoints per screen size:
 - Desktop (>1200px): Multi-column grid
 - Tablet (768-1200px): 2-column layout
 - Mobile (<768px): Single column stack
@@ -153,7 +142,7 @@ function QuickDashboard({ data }) {
 }
 ```
 
-For complete implementation, see `examples/tremor-dashboard.tsx`.
+Full implementation: `examples/tremor-dashboard.tsx`.
 
 ## Customizable Dashboard Implementation
 
@@ -193,12 +182,12 @@ function CustomizableDashboard() {
 }
 ```
 
-For full example with widget catalog, see `examples/customizable-dashboard.tsx`.
+Full example with widget catalog: `examples/customizable-dashboard.tsx`.
 
 ## Real-Time Data Patterns
 
 ### Server-Sent Events (Recommended)
-Best for unidirectional updates from server to dashboard:
+Best for one-way updates, server to dashboard:
 ```tsx
 function useSSEUpdates(endpoint) {
   useEffect(() => {
@@ -216,7 +205,7 @@ function useSSEUpdates(endpoint) {
 ```
 
 ### WebSocket (For Bidirectional)
-Use when dashboard needs to send commands back to server:
+Use when dashboard sends commands back to server:
 ```tsx
 const ws = new WebSocket('ws://localhost:3000/dashboard');
 ws.onmessage = (event) => {
@@ -251,7 +240,7 @@ function useSmartPolling(fetchData, interval = 30000) {
 }
 ```
 
-For detailed patterns including error handling and reconnection, see `references/real-time-updates.md`.
+Detailed patterns, including error handling and reconnection: `references/real-time-updates.md`.
 
 ## Performance Optimization
 
@@ -289,7 +278,7 @@ const loadDashboard = async () => {
 ```
 
 ### Widget-Level Caching
-Keep fetched data in React state (or a query cache) so a refresh re-renders; a `useRef` update alone never does.
+Keep fetched data in React state (or query cache) so refresh re-renders. `useRef` update alone never does.
 ```tsx
 import { useQuery } from '@tanstack/react-query';
 
@@ -304,7 +293,7 @@ function CachedWidget({ id, fetcher, ttl = 60000 }) {
 }
 ```
 
-To analyze and optimize dashboard performance, run:
+Analyze and optimize dashboard performance:
 ```bash
 python scripts/optimize-dashboard-performance.py --config dashboard-config.json
 # or estimate without a config: --widgets 12 --auto-refresh-count 4
@@ -312,9 +301,9 @@ python scripts/optimize-dashboard-performance.py --config dashboard-config.json
 
 ## Cross-Skill Integration
 
-These are other skills in this collection; load them for the widget internals. They are guidance, not importable modules, so build or install the components in the user's project.
+Other skills in this collection; load them for widget internals. They are guidance, not importable modules. Build or install components in user's project.
 
-- **Charts**: `visualizing-data` for chart type selection and chart components (Recharts, Nivo, D3).
+- **Charts**: `visualizing-data` for chart type choice and chart components (Recharts, Nivo, D3).
 - **Data grids**: `building-tables` for sortable, filterable, paginated tables (e.g. TanStack Table).
 - **Theming**: `theming-components` for design tokens. Dashboard-specific tokens can map onto existing ones:
 ```tsx
@@ -332,23 +321,22 @@ const dashboardTokens = {
 ## Library Selection Guide
 
 ### Choose Tremor When:
-- Need to build dashboards quickly
-- Want pre-styled, professional components
-- Using Tailwind CSS in your project
-- Building standard analytics interfaces
-- Limited customization requirements
+- Dashboards needed quickly
+- Pre-styled, professional components wanted
+- Project uses Tailwind CSS
+- Standard analytics interfaces
+- Limited customization needs
 
 ### Choose react-grid-layout When:
-- Users need to customize layouts
-- Drag-and-drop is required
+- Users need custom layouts
+- Drag-and-drop required
 - Different users need different views
-- Building a dashboard builder tool
-- Maximum flexibility is priority
+- Dashboard builder tool
+- Maximum flexibility first
 
 ### Combine Both When:
-- Use Tremor for widget contents (KPIs, charts)
-- Use react-grid-layout for layout management
-- Get best of both worlds
+- Tremor for widget contents (KPIs, charts)
+- react-grid-layout for layout management
 
 ## Bundled Resources
 
@@ -356,7 +344,7 @@ const dashboardTokens = {
 - `scripts/generate-dashboard-layout.py` - Generate responsive grid configurations
 - `scripts/calculate-kpi-metrics.py` - Calculate trends, comparisons, sparklines
 - `scripts/validate-widget-config.py` - Validate widget and filter configurations
-- `scripts/optimize-dashboard-performance.py` - Analyze and optimize performance
+- `scripts/optimize-dashboard-performance.py` - Analyze, optimize performance
 - `scripts/export-dashboard.py` - Export dashboards to various formats
 
 Run scripts directly without loading into context:
@@ -365,15 +353,15 @@ python scripts/calculate-kpi-metrics.py --data metrics.json --period monthly
 ```
 
 ### References (Detailed Patterns)
-- `references/kpi-card-patterns.md` - KPI card design patterns and variations
+- `references/kpi-card-patterns.md` - KPI card patterns and variations
 - `references/layout-strategies.md` - Grid systems and responsive approaches
-- `references/real-time-updates.md` - WebSocket, SSE, and polling implementations
+- `references/real-time-updates.md` - WebSocket, SSE and polling implementations
 - `references/filter-coordination.md` - Cross-widget filter synchronization
-- `references/performance-optimization.md` - Advanced optimization techniques
-- `references/library-guide.md` - Detailed Tremor and react-grid-layout guides
+- `references/performance-optimization.md` - Advanced optimization
+- `references/library-guide.md` - Tremor and react-grid-layout guides
 
 ### Examples (Complete Implementations)
-- `examples/sales-dashboard.tsx` - Full sales analytics dashboard
+- `examples/sales-dashboard.tsx` - Sales analytics dashboard
 - `examples/monitoring-dashboard.tsx` - Real-time monitoring with alerts
 - `examples/executive-dashboard.tsx` - Polished executive reporting
 - `examples/customizable-dashboard.tsx` - Drag-and-drop with persistence
@@ -390,14 +378,12 @@ python scripts/calculate-kpi-metrics.py --data metrics.json --period monthly
 ## Dashboard Creation Workflow
 
 1. **Define Requirements**: Fixed or customizable? Real-time or static?
-2. **Choose Libraries**: Tremor for quick, react-grid-layout for flexible
+2. **Choose Libraries**: Tremor for speed, react-grid-layout for flexibility
 3. **Set Up Structure**: Global state, filter context, layout system
 4. **Build Widgets**: KPI cards, charts (visualizing-data), tables (building-tables)
 5. **Implement Data Flow**: Fetching strategy, caching, updates
 6. **Add Interactivity**: Filters, drill-downs, exports
 7. **Optimize Performance**: Lazy loading, parallel fetching, caching
-8. **Apply Theming**: Use theming-components for consistent styling
+8. **Apply Theming**: theming-components for consistent styling
 9. **Test Responsiveness**: Desktop, tablet, mobile breakpoints
 10. **Deploy & Monitor**: Track performance, user engagement
-
-For specific patterns and detailed implementations, explore the bundled resources referenced above.

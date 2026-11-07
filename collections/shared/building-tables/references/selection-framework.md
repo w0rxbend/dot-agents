@@ -1,6 +1,5 @@
 # Table Selection Framework
 
-
 ## Table of Contents
 
 - [Primary Decision Tree](#primary-decision-tree)
@@ -19,8 +18,6 @@
 - [Common Pitfalls to Avoid](#common-pitfalls-to-avoid)
 
 ## Primary Decision Tree
-
-Start with data volume to determine your implementation approach:
 
 ```
 START: How many rows will your table display?
@@ -70,8 +67,6 @@ START: How many rows will your table display?
 
 ## Feature Complexity Matrix
 
-Determine which features you need at your data scale:
-
 | Feature | <100 | 100-1K | 1K-10K | 10K+ |
 |---------|------|--------|---------|------|
 | **Sorting** | Client JS | Client | Server | Server + Index |
@@ -89,29 +84,29 @@ Determine which features you need at your data scale:
 ### When to Use Native HTML Tables
 
 Choose native tables when:
-- Data is static or rarely changes
-- Row count is consistently under 50
+- Data static or rarely changes
+- Row count consistently under 50
 - No interactive features needed
-- SEO is critical
+- SEO critical
 - Bundle size must be minimal
 
 ### When to Use TanStack Table
 
 Choose TanStack Table when:
-- Need complete control over markup
-- Building a design system
-- TypeScript is required
+- Need full control over markup
+- Building design system
+- TypeScript required
 - Bundle size matters (~15KB)
-- Framework agnostic solution needed
-- Custom styling is critical
+- Framework-agnostic solution needed
+- Custom styling critical
 
 ### When to Use AG Grid
 
 Choose AG Grid when:
 - Need enterprise features (pivoting, charts)
-- Excel-like UX is required
-- Commercial support is valuable
-- Time-to-market is critical
+- Excel-like UX required
+- Commercial support valuable
+- Time-to-market critical
 - Handling 100K+ rows
 - Complex aggregations needed
 
@@ -139,7 +134,7 @@ const page = filtered.slice(0, 50);
 **Performance targets:**
 - Initial load: <500ms
 - Sort/filter: <50ms
-- Feels instant to users
+- Feels instant
 
 ### Tier 2: Server-Assisted (1,000-10,000 rows)
 ```javascript
@@ -200,32 +195,29 @@ while (true) {
 
 ## Decision Flowchart Summary
 
-1. **Start with row count** - This is your primary constraint
+1. **Start with row count** - Primary constraint
 2. **Identify required features** - Sort, filter, edit, etc.
-3. **Check performance requirements** - Response time expectations
+3. **Check performance requirements** - Expected response times
 4. **Consider development constraints** - Time, budget, expertise
 5. **Select implementation tier** - Client, server, virtual, or streaming
 6. **Choose appropriate library** - Or build with native HTML
 7. **Implement progressively** - Start simple, add features
-8. **Test at scale** - Use realistic data volumes
+8. **Test at scale** - Realistic data volumes
 9. **Optimize based on metrics** - Not assumptions
 
 ## Common Pitfalls to Avoid
 
 ❌ **Loading all data client-side** for large datasets
-✅ Implement server-side operations or virtualization
+✅ Use server-side operations or virtualization
 
 ❌ **Rendering all rows** in the DOM
-✅ Use virtual scrolling for 1000+ rows
+✅ Virtual scrolling for 1000+ rows
 
 ❌ **Filtering/sorting in component** render
 ✅ Memoize expensive operations
 
 ❌ **Re-fetching on every** interaction
-✅ Implement proper caching strategy
+✅ Add a caching strategy
 
 ❌ **Ignoring mobile** performance
 ✅ Test on real devices with throttling
-
-❌ **Over-engineering** simple tables
-✅ Start simple, add complexity as needed

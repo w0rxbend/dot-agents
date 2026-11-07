@@ -10,7 +10,7 @@
 
 ## Functions and Methods
 
-Functions returning a value are named like **nouns** (what they return). Functions performing actions are named like **verbs** (what they do).
+Value-returning functions: **nouns** (what they return). Action functions: **verbs** (what they do).
 
 ```go
 // Noun-like: returns something
@@ -22,7 +22,7 @@ func WriteFile(name string, data []byte) error { ... }
 func SendNotification(user *User) error { ... }
 ```
 
-NEVER repeat the package name in function names:
+NEVER repeat package name in function names:
 
 ```go
 // Good: users call http.Get(), not http.HTTPGet()
@@ -34,7 +34,7 @@ package http
 func HTTPGet(url string) (*Response, error)
 ```
 
-Functions that accept a format string and variadic args (like `fmt.Sprintf`) MUST end with **`f`**:
+Functions taking format string and variadic args (like `fmt.Sprintf`) MUST end with **`f`**:
 
 ```go
 // Good
@@ -49,7 +49,7 @@ func WrapError(err error, format string, args ...any) error
 
 ### Getters and Setters
 
-Getters MUST NOT use the `Get` prefix. The getter is simply the field name, capitalized.
+Getters MUST NOT use `Get` prefix. Getter is field name, capitalized.
 
 ```go
 // Good
@@ -60,9 +60,9 @@ func (u *User) SetName(name string)  { u.name = name }
 func (u *User) GetName() string      { return u.name }
 ```
 
-Only use `Get` when the underlying concept inherently uses "get" (e.g., HTTP GET). For expensive or blocking operations, use `Fetch` or `Compute` to signal that the call is not trivial.
+Use `Get` only when underlying concept inherently uses "get" (e.g., HTTP GET). For expensive or blocking operations, use `Fetch` or `Compute` to signal non-trivial call.
 
-**Exception — boolean predicates keep the `Is`/`Has`/`Can` prefix.** The no-Get rule applies to value getters, not boolean predicates. A method returning `bool` SHOULD use `Is`/`Has`/`Can` to read naturally as a question — this follows the standard library pattern (`reflect.Type.IsVariadic()`, `net.IP.IsLoopback()`, `big.Int.IsInt64()`).
+**Exception — boolean predicates keep the `Is`/`Has`/`Can` prefix.** No-Get rule covers value getters, not boolean predicates. Method returning `bool` SHOULD use `Is`/`Has`/`Can` to read as question, like stdlib (`reflect.Type.IsVariadic()`, `net.IP.IsLoopback()`, `big.Int.IsInt64()`).
 
 ```go
 // Good — boolean predicate keeps Is prefix
@@ -83,7 +83,7 @@ func (s *Server) GetPort() int      { return s.port }
 
 ### Constructors
 
-Name constructors `New` when the package exports a single primary type, or `NewTypeName` when there are multiple types.
+`New` when package exports single primary type; `NewTypeName` when it has multiple types.
 
 ```go
 // Single primary type — New is unambiguous
@@ -98,7 +98,7 @@ func NewServeMux() *ServeMux
 
 ### Named Return Values
 
-Named return values SHOULD only be used when it improves readability — typically when multiple return values have the same type, or when the names serve as documentation.
+Named returns SHOULD appear only when they aid readability: typically several returns of same type, or names as documentation.
 
 ```go
 // Good — names clarify which int64 is which
@@ -112,11 +112,11 @@ func Write(p []byte) (int, error)
 func Read(p []byte) (bytes int, e error)  // "bytes" shadows the package, "e" is non-standard
 ```
 
-NEVER use named returns just to enable bare `return` — bare returns hurt readability in anything but the shortest functions.
+NEVER use named returns just to enable bare `return`.
 
 ## Functional Options Pattern
 
-When a constructor has 3+ optional parameters that may grow, use the **functional options pattern** for clean, extensible APIs.
+Constructor with 3+ optional parameters that may grow: use **functional options pattern** for extensible APIs.
 
 - **Struct**: `ServerOptions`, `ClientOptions` (not `Opts`, `Params`, `Settings`, `Config`)
 - **Function type**: `ServerOption` (singular, not plural)

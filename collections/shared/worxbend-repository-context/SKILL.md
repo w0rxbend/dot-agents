@@ -6,34 +6,34 @@ license: MIT
 
 # Work in this user's repositories
 
-Identify the repository from its Git remotes and read its current applicable `AGENTS.md`, build files, and CI before choosing a workflow. This skill supplies a dated public repository index, not instructions that override the current checkout. Use it when the remote belongs to `worxbend` or `w0rxbend`; ordinary work elsewhere does not require it.
+Identify repository from Git remotes. Before choosing workflow, read its current applicable `AGENTS.md`, build files, and CI. Skill supplies dated public repository index; current checkout overrides it. Use when remote belongs to `worxbend` or `w0rxbend`; not needed elsewhere.
 
-Run the bundled lookup from the current checkout:
+Run bundled lookup from current checkout:
 
 ```sh
 python3 <this-skill-directory>/scripts/repo_profile.py --cwd .
 ```
 
-Or pass `--remote https://github.com/worxbend/worxbend` when inspecting a repository without a local checkout. The helper reads [the profile index](references/profiles.json), prints observed build files and relevant skill candidates, and performs no network or project execution. Read only the relevant repository record. A missing record means inspect the current repository directly; do not guess its stack from its name.
+Without local checkout, pass `--remote https://github.com/worxbend/worxbend`. Helper reads [the profile index](references/profiles.json), prints observed build files and relevant skill candidates. No network access, no project execution. Read only relevant repository record. No record: inspect current repository directly; do not guess stack from name.
 
-Prefer Mill for **new** Scala/JVM builds when a choice is needed. Preserve existing sbt, Gradle, Maven, Scala CLI, Crystal, Cargo, and frontend build arrangements unless migration is requested. The existing repositories deliberately use different application models: ZIO, Cats Effect/FS2, plain `Future`, and Ox/synchronous Tapir. Select guidance that matches the dependency files and public API; an installed skill does not authorize replacing that stack. Preserve version pins, compiler target floors, native packaging boundaries, and test tiers instead of applying the newest example globally.
+Prefer Mill for **new** Scala/JVM builds when free to choose. Keep existing sbt, Gradle, Maven, Scala CLI, Crystal, Cargo, and frontend builds unless migration is requested. Repositories deliberately differ in application model: ZIO, Cats Effect/FS2, plain `Future`, Ox/synchronous Tapir. Match guidance to dependency files and public API. Installed skill does not authorize replacing that stack. Keep version pins, compiler target floors, native packaging boundaries, and test tiers; do not apply newest example globally.
 
-The original domain skills add concrete repository constraints when applicable:
+Original domain skills add concrete repository constraints when applicable:
 
-- `scala-library-contracts`: Scala derivation/redaction, stable API/effect boundaries, and native/JVM publication contracts.
-- `mill-jvm-modules` and `mill-monorepo`: the actual Scala/Java/Kotlin graph and shared conventions in Mill builds.
-- `rust-linux-apps`: Rust desktop, TUI, async lifecycle, and Linux system dependencies.
-- `workstation-installers`: package plans, checked downloads, state, atomic replacement, and idempotency.
-- `airgradient-clients`: LAN device contracts and client/configuration behavior across surfaces.
-- `streaming-integrations`: OBS request/event boundaries, Twitch auth/EventSub, and browser overlays.
-- `embedded-device-protocols`: actual board identity, firmware/wire protocols, and host/firmware compatibility.
-- `homelab-operations`: repository-owned Ansible/Flux/K3s/SOPS workflows and execution scope.
-- `compatibility-ports`: byte-for-byte ports, chess fixtures, and observable compatibility boundaries.
+- `scala-library-contracts`: Scala derivation/redaction, stable API/effect boundaries, native/JVM publication contracts.
+- `mill-jvm-modules` and `mill-monorepo`: actual Scala/Java/Kotlin graph and shared conventions in Mill builds.
+- `rust-linux-apps`: Rust desktop, TUI, async lifecycle, Linux system dependencies.
+- `workstation-installers`: package plans, checked downloads, state, atomic replacement, idempotency.
+- `airgradient-clients`: LAN device contracts, client/configuration behavior across surfaces.
+- `streaming-integrations`: OBS request/event boundaries, Twitch auth/EventSub, browser overlays.
+- `embedded-device-protocols`: actual board identity, firmware/wire protocols, host/firmware compatibility.
+- `homelab-operations`: repository-owned Ansible/Flux/K3s/SOPS workflows, execution scope.
+- `compatibility-ports`: byte-for-byte ports, chess fixtures, observable compatibility boundaries.
 
-These are optional relevant capabilities, not a mandatory stack of skills to load. Use existing language, API, documentation, testing, or CI skills for ordinary tasks. Avoid loading several overlapping review or orchestration guides for a small change; delegate only when available and authorized, with separate edit ownership.
+These are optional relevant capabilities, not mandatory skill stack to load. Ordinary tasks: use existing language, API, documentation, testing, or CI skills. Avoid loading several overlapping review or orchestration guides for small change. Delegate only when available and authorized, with separate edit ownership.
 
-For archived repositories and forks, confirm whether the requested work is maintenance, a port, or revival before proposing modernization. Documentation-only profiles do not imply an application to scaffold. Inspect current source/tests when a README and implementation disagree. Report the distinction between static review, offline tests, service integration, and actual device/fleet execution; a local check does not prove deployment.
+Archived repositories and forks: before proposing modernization, confirm whether work is maintenance, port, or revival. Documentation-only profiles do not imply application to scaffold. When README and implementation disagree, inspect current source/tests. In reports, distinguish static review, offline tests, service integration, and actual device/fleet execution; local check does not prove deployment.
 
-Private repositories are absent from the public index. Inspect their checkout normally; if `worxbend-private-repository-context` is installed locally, it supplies a local-only profile. Keep private source, names, host inventories, and credentials out of public skill exports and issue/release text.
+Private repositories are absent from public index; inspect their checkout normally. If `worxbend-private-repository-context` is installed locally, it supplies local-only profile. Keep private source, names, host inventories, and credentials out of public skill exports and issue/release text.
 
-The index records the 2026-10-04 review. Read [review-method.md](references/review-method.md) only when refreshing this collection or assessing evidence coverage.
+Index records 2026-10-04 review. Read [review-method.md](references/review-method.md) only to refresh this collection or assess evidence coverage.

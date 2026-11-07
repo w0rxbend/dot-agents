@@ -6,9 +6,9 @@ tags: flow, boolean, de-morgans, double-negation, conditions
 
 ## Simplify Boolean Expressions
 
-Complex boolean expressions with double negations, redundant comparisons, and tangled logic slow readers down and hide bugs. Apply De Morgan's laws, remove double negations, and compare directly to booleans to make conditions express their intent in the simplest possible form.
+Double negations, redundant comparisons and tangled logic slow readers and hide bugs. Apply De Morgan's laws, drop double negations, compare directly to booleans.
 
-**Incorrect (double negations and redundant comparisons):**
+**Incorrect (double negations, redundant comparisons):**
 
 ```typescript
 function shouldShowBanner(user: User, settings: Settings): boolean {
@@ -109,13 +109,6 @@ func validateConfig(config *Config) error {
 
 ### When NOT to Apply
 
-- When boolean variables are nullable (`x === true` explicitly excludes `null`/`undefined`)
-- When intermediate boolean names add meaningful domain context (extracting `isEligible` from a complex expression is good)
-- When the simplified form is actually harder to read than the expanded form
-
-### Benefits
-
-- Conditions express intent directly without mental inversion
-- Fewer logical operators means fewer places for bugs
-- Named intermediate booleans document the business logic
-- Code reviewers catch logical errors faster in simplified expressions
+- Nullable booleans (`x === true` explicitly excludes `null`/`undefined`)
+- Intermediate names add domain context (extracting `isEligible` from complex expression is good)
+- Simplified form reads worse than expanded form

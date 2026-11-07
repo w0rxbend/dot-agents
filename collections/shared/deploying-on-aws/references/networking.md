@@ -52,14 +52,14 @@ Availability Zone C:
 
 ### NAT Gateway
 
-**Purpose:** Enable private subnet instances to access internet for updates, APIs
+**Purpose:** Lets private subnet instances reach internet for updates, APIs
 
 **Cost (us-east-1):**
 - $0.045/hour = $32.85/month
 - $0.045/GB processed
-- Deploy one per AZ for HA
+- One per AZ for HA
 
-**Alternative:** NAT Instance (EC2) - cheaper but manual management
+**Alternative:** NAT Instance (EC2) - cheaper, managed manually
 
 ---
 
@@ -102,7 +102,7 @@ Availability Zone C:
 
 ## CloudFront (CDN)
 
-**Purpose:** Global content delivery network with 450+ edge locations
+**Purpose:** Global CDN, 450+ edge locations
 
 **Features:**
 - Cache static content (images, CSS, JS)
@@ -117,7 +117,7 @@ Availability Zone C:
 
 **Cache Behaviors:**
 - Match path patterns: `/images/*`, `/api/*`
-- TTL configuration per pattern
+- TTL per pattern
 - Origin types: S3, ALB, custom
 
 ---
@@ -130,11 +130,11 @@ Availability Zone C:
 |--------|----------|
 | **Simple** | Single resource |
 | **Weighted** | A/B testing, gradual migration (10% → 90%) |
-| **Latency** | Route to lowest-latency region |
+| **Latency** | Lowest-latency region |
 | **Failover** | Active-passive disaster recovery |
-| **Geolocation** | Route based on user location |
-| **Geoproximity** | Route based on resource location + bias |
-| **Multi-value** | Return multiple IPs with health checks |
+| **Geolocation** | By user location |
+| **Geoproximity** | By resource location + bias |
+| **Multi-value** | Multiple IPs with health checks |
 
 **Cost:**
 - Hosted zone: $0.50/month
@@ -156,7 +156,7 @@ Availability Zone C:
 
 ## PrivateLink
 
-**Purpose:** Privately access AWS services or third-party services
+**Purpose:** Private access to AWS or third-party services
 
 **Use Cases:**
 - Access S3, DynamoDB without internet gateway
@@ -171,12 +171,12 @@ Availability Zone C:
 
 ## Transit Gateway
 
-**Purpose:** Hub-and-spoke network architecture for 100s of VPCs
+**Purpose:** Hub-and-spoke network for 100s of VPCs
 
 **Features:**
 - Connect VPCs, on-premises networks (VPN, Direct Connect)
 - Transitive routing
-- Route table customization
+- Custom route tables
 
 **Cost:**
 - $0.05/hour per attachment = $36.50/month
@@ -184,5 +184,5 @@ Availability Zone C:
 
 **Use When:**
 - >5 VPCs to connect
-- Need centralized routing
+- Centralized routing needed
 - Hybrid cloud architecture

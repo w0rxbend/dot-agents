@@ -1,6 +1,6 @@
 # Testing with uber-go/dig
 
-dig containers are cheap to create. Build a fresh one per test, override what you need, drive the system with `Invoke`.
+dig containers cheap to create. Build fresh one per test, override what you need, drive system with `Invoke`.
 
 ## Table of Contents
 
@@ -32,7 +32,7 @@ func TestUserService_Create(t *testing.T) {
 
 ## Shared test wiring
 
-For larger suites, factor the common providers into a helper:
+For larger suites, factor common providers into helper:
 
 ```go
 func newTestContainer(t *testing.T, overrides ...func(*dig.Container)) *dig.Container {
@@ -64,7 +64,7 @@ func TestUserService_NotFound(t *testing.T) {
 }
 ```
 
-`Decorate` is the cleanest way to swap a dependency in tests — the test reads almost like production wiring with one extra line.
+`Decorate` is cleanest way to swap dependency in tests.
 
 ## Validate the production graph in CI
 
@@ -80,11 +80,11 @@ func TestProductionGraph(t *testing.T) {
 }
 ```
 
-`DryRun(true)` skips constructor execution — the graph is validated structurally. This catches missing-provider and type-mismatch errors without spinning up real DB connections.
+`DryRun(true)` skips constructor execution; graph validated structurally. Catches missing-provider and type-mismatch errors without spinning up real DB connections.
 
 ## Detecting cycles before deploy
 
-A cyclic graph fails at the first `Invoke` (or at `Provide` time when `DeferAcyclicVerification` is off, which is the default):
+Cyclic graph fails at first `Invoke` (or at `Provide` time when `DeferAcyclicVerification` is off, which is default):
 
 ```go
 func TestNoCycles(t *testing.T) {
@@ -98,7 +98,7 @@ func TestNoCycles(t *testing.T) {
 
 ## Asserting a constructor's error path
 
-When a constructor returns an error, dig wraps it with the dependency path. Use `dig.RootCause` to assert the original error:
+When constructor returns error, dig wraps it with dependency path. Assert original error with `dig.RootCause`:
 
 ```go
 func TestDBProvider_BadDSN(t *testing.T) {
@@ -116,7 +116,7 @@ func TestDBProvider_BadDSN(t *testing.T) {
 
 ## Recovering from constructor panics
 
-Wrap constructors that may panic on misuse so the test reports a typed error instead of crashing the runner:
+Wrap constructors that may panic on misuse, so test reports typed error instead of crashing runner:
 
 ```go
 c := dig.New(dig.RecoverFromPanics())

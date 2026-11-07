@@ -1,7 +1,5 @@
 # Shell Completion Guide
 
-Guide to generating and installing shell completions for bash, zsh, fish, and PowerShell.
-
 ## Table of Contents
 
 - [Python (Typer)](#python-typer)
@@ -13,14 +11,16 @@ Guide to generating and installing shell completions for bash, zsh, fish, and Po
 
 ### Generating Completions
 
-Every Typer app gets two options automatically:
+Typer apps get two options automatically:
 
 ```bash
 myapp --install-completion   # install for the current shell
 myapp --show-completion      # print the script for the current shell
 ```
 
-To write the script to a file yourself, use Typer's environment variable. Typer expects `source_<shell>` (Click's `bash_source` style is rejected with "Shell source not supported"):
+Pass `add_completion=False` to `typer.Typer()` to hide the options.
+
+To write script to file, use Typer's environment variable. Typer expects `source_<shell>` (Click's `bash_source` style fails with "Shell source not supported"):
 
 ```bash
 # Bash
@@ -36,11 +36,7 @@ _MYAPP_COMPLETE=source_fish myapp > ~/.config/fish/completions/myapp.fish
 _MYAPP_COMPLETE=source_powershell myapp > ~/.myapp-complete.ps1
 ```
 
-The variable name is `_<PROG_NAME>_COMPLETE` with the program name upper-cased and dashes replaced by underscores.
-
-### Implementation
-
-No special code required - Typer adds completion support automatically. Pass `add_completion=False` to `typer.Typer()` to hide the options.
+Variable name is `_<PROG_NAME>_COMPLETE`: program name upper-cased, dashes replaced by underscores.
 
 ### Installation
 
@@ -71,7 +67,7 @@ Add-Content $PROFILE ". ~/.myapp-complete.ps1"
 
 ### Generating Completions
 
-Cobra (v1.2+) adds a `completion` subcommand to the root command automatically, with `bash`, `zsh`, `fish` and `powershell` subcommands. No code is needed:
+Cobra (v1.2+) auto-adds `completion` subcommand to root command, with `bash`, `zsh`, `fish` and `powershell` subcommands. No code needed:
 
 ```go
 package main
@@ -108,7 +104,7 @@ myapp completion powershell > ~/.myapp-complete.ps1
 
 ### Custom Completions
 
-For dynamic completions (e.g., resource names from API):
+Dynamic completions (e.g., resource names from API):
 
 ```go
 var getCmd = &cobra.Command{
@@ -181,21 +177,13 @@ fn main() {
 }
 ```
 
-### Usage
-
-```bash
-myapp completion bash > /etc/bash_completion.d/myapp
-myapp completion zsh > "${fpath[1]}/_myapp"
-myapp completion fish > ~/.config/fish/completions/myapp.fish
-```
-
 ## Installation Instructions
 
 ### Bash
 
 **System-wide:**
 ```bash
-sudo myapp completion bash > /etc/bash_completion.d/myapp
+myapp completion bash | sudo tee /etc/bash_completion.d/myapp > /dev/null
 ```
 
 **User-level:**
@@ -208,7 +196,7 @@ echo "source ~/.myapp-complete.bash" >> ~/.bashrc
 
 **System-wide:**
 ```bash
-sudo myapp completion zsh > /usr/local/share/zsh/site-functions/_myapp
+myapp completion zsh | sudo tee /usr/local/share/zsh/site-functions/_myapp > /dev/null
 ```
 
 **User-level:**
@@ -263,7 +251,7 @@ myapp <TAB>
 ## Best Practices
 
 - Add completion command to CLI (`myapp completion bash`)
-- Include installation instructions in README
-- Test completions in all supported shells
+- Put installation instructions in README
+- Test completions in every supported shell
 - Document completion in `--help` output
-- Provide installation script for ease of use
+- Provide installation script

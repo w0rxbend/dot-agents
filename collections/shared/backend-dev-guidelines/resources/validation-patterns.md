@@ -1,7 +1,5 @@
 # Validation Patterns - Input Validation with Zod
 
-Complete guide to input validation using Zod schemas for type-safe validation.
-
 ## Table of Contents
 
 - [Why Zod?](#why-zod)
@@ -17,26 +15,9 @@ Complete guide to input validation using Zod schemas for type-safe validation.
 
 ## Why Zod?
 
-### Benefits Over Joi/Other Libraries
-
-**Type Safety:**
-- ✅ Full TypeScript inference
-- ✅ Runtime + compile-time validation
-- ✅ Automatic type generation
-
-**Developer Experience:**
-- ✅ Intuitive API
-- ✅ Composable schemas
-- ✅ Excellent error messages
-
-**Performance:**
-- ✅ Fast validation
-- ✅ Small bundle size
-- ✅ Tree-shakeable
-
 ### Migration from Joi
 
-Modern validation uses Zod instead of Joi:
+Modern validation uses Zod, not Joi:
 
 ```typescript
 // ❌ OLD - Joi (being phased out)
@@ -335,8 +316,8 @@ router.post(
 ```
 
 **Pros:**
-- Quick and simple
-- Good for simple routes
+- Quick, simple
+- Fits simple routes
 
 **Cons:**
 - Validation logic in routes
@@ -431,7 +412,7 @@ export class UserController extends BaseController {
 - Type-safe DTOs
 
 **Cons:**
-- More files to manage
+- More files
 
 ---
 
@@ -749,6 +730,6 @@ router.post('/users',
 
 **Related Files:**
 - [SKILL.md](../SKILL.md) - Main guide
-- [routing-and-controllers.md](routing-and-controllers.md) - Using validation in controllers
-- [services-and-repositories.md](services-and-repositories.md) - Using DTOs in services
+- [routing-and-controllers.md](routing-and-controllers.md) - Validation in controllers
+- [services-and-repositories.md](services-and-repositories.md) - DTOs in services
 - [async-and-errors.md](async-and-errors.md) - Error handling patterns

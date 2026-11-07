@@ -1,6 +1,6 @@
 # godig sample output
 
-Representative `-o md` output for each command, captured against `godig` v0.2.0. Empty cells are shown as `—`. Field sets mirror the underlying APIs — pkg.go.dev for most commands, the Go vulnerability database (`vuln.go.dev`, OSV) for `vulns` — and may grow over time.
+Representative `-o md` output per command, captured against `godig` v0.2.0. Empty cells show as `—`. Field sets mirror underlying APIs: pkg.go.dev for most commands, Go vulnerability database (`vuln.go.dev`, OSV) for `vulns`. Fields may grow over time.
 
 ## Table of Contents
 
@@ -62,7 +62,7 @@ Representative `-o md` output for each command, captured against `godig` v0.2.0.
 
 ## package imports
 
-`godig package imports github.com/samber/ro -o md` — a plain list (no `--limit`):
+`godig package imports github.com/samber/ro -o md`, plain list (no `--limit`):
 
 ```text
 - context
@@ -103,17 +103,17 @@ Representative `-o md` output for each command, captured against `godig` v0.2.0.
 
 `godig vulns github.com/dgrijalva/jwt-go -o md`
 
-Since v0.2.0 `vulns` reads the Go vulnerability database (`vuln.go.dev`, OSV) directly, so `summary` and per-range fix versions are populated (they were empty when sourced from pkg.go.dev). `fixedVersion` is gone — fixed/introduced versions now live in `ranges`; new `aliases`, `packages` and `references` fields are also returned.
+Since v0.2.0 `vulns` reads Go vulnerability database (`vuln.go.dev`, OSV) directly, so `summary` and per-range fix versions are populated. They were empty when sourced from pkg.go.dev. `fixedVersion` is gone: fixed/introduced versions now live in `ranges`. New `aliases`, `packages` and `references` fields also returned.
 
 | aliases | details | id | ranges | summary |
 | --- | --- | --- | --- | --- |
 | ["CVE-2020-26160","GHSA-w73w-5m7g-f7qc"] | If a JWT contains an audience claim with an array of strings ... | GO-2020-0017 | [{"introduced":"0.0.0-20150717181359-44718f8a89b0"}] | Authorization bypass in github.com/dgrijalva/jwt-go |
 
-`vulns` returns an empty list when a module has no known vulnerabilities. `--filter` and `--module` no longer apply to `vulns`; only `--version` and `--limit` do.
+`vulns` returns empty list when module has no known vulnerabilities. `--filter` and `--module` no longer apply to `vulns`. Only `--version` and `--limit` do.
 
 ## dependencies
 
-`godig dependencies github.com/samber/ro -o md` — one section per go.mod block (`requires`, `replaces`, `excludes`, `go` directive):
+`godig dependencies github.com/samber/ro -o md`, one section per go.mod block (`requires`, `replaces`, `excludes`, `go` directive):
 
 ```markdown
 ## requires
@@ -165,7 +165,7 @@ Since v0.2.0 `vulns` reads the Go vulnerability database (`vuln.go.dev`, OSV) di
 
 ## symbol doc
 
-`godig symbol doc github.com/samber/lo Map -o md` — token-efficient vs `package doc`:
+`godig symbol doc github.com/samber/lo Map -o md` (token-efficient vs `package doc`):
 
 | field | value |
 | --- | --- |
@@ -190,4 +190,4 @@ Since v0.2.0 `vulns` reads the Go vulnerability database (`vuln.go.dev`, OSV) di
 ...
 ```
 
-`package licenses` and `module licenses` return the full license text.
+`package licenses` and `module licenses` return full license text.

@@ -1,8 +1,5 @@
 # SQLite Implementation Guide
 
-SQLite patterns, Turso edge deployment, and embedded database best practices.
-
-
 ## Table of Contents
 
 - [When to Choose SQLite](#when-to-choose-sqlite)
@@ -173,7 +170,6 @@ PRAGMA temp_store = MEMORY;
 ```
 
 **Benefits:**
-- Concurrent reads during writes
 - Faster writes (3-5x)
 - Better crash recovery
 
@@ -189,7 +185,7 @@ EXPLAIN QUERY PLAN SELECT * FROM users WHERE email = 'test@example.com';
 
 ### Connection Pooling (Not Needed)
 
-SQLite uses file locking, not connection pooling. Use a single connection per application.
+SQLite uses file locking, not connection pooling. Use one connection per application.
 
 ## Full-Text Search
 
@@ -267,16 +263,11 @@ await db.sync();
 
 ## Best Practices
 
-1. **Enable WAL mode** for better write performance
-2. **Use prepared statements** to prevent SQL injection
-3. **Single connection per app** (no pooling needed)
-4. **Index foreign keys** manually
-5. **Use INTEGER PRIMARY KEY** for auto-increment (alias for rowid)
-6. **VACUUM regularly** to reclaim space
-7. **Analyze after bulk inserts** to update query planner stats
-8. **Use transactions** for multiple writes
-9. **Limit database size** to <100GB for optimal performance
-10. **Consider Turso** for edge deployment with replication
+1. **Use prepared statements** to prevent SQL injection
+2. **Index foreign keys** manually
+3. **VACUUM regularly** to reclaim space
+4. **Analyze after bulk inserts** to update query planner stats
+5. **Use transactions** for multiple writes
 
 ## Common Pitfalls
 

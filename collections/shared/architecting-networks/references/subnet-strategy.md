@@ -1,7 +1,5 @@
 # Subnet Strategy
 
-Comprehensive guide to subnet design, CIDR planning, IP address management (IPAM), and multi-AZ distribution for cloud networks.
-
 ## Table of Contents
 
 1. [Subnet Tier Design](#subnet-tier-design)
@@ -19,10 +17,10 @@ Comprehensive guide to subnet design, CIDR planning, IP address management (IPAM
 
 #### Public Subnets
 
-**Purpose:** Resources that need direct internet access
+**Purpose:** Resources needing direct internet access
 
 **Routes:**
-- Default route (0.0.0.0/0) points to Internet Gateway
+- Default route (0.0.0.0/0) to Internet Gateway
 
 **Use For:**
 - Application Load Balancers (ALB)
@@ -32,23 +30,16 @@ Comprehensive guide to subnet design, CIDR planning, IP address management (IPAM
 - Public-facing web servers
 
 **CIDR Sizing:**
-- Small: /27 (32 IPs) - For load balancers only
-- Medium: /26 (64 IPs) - Load balancers + NAT
-- Large: /24 (256 IPs) - Public-facing workloads
-
-**Example (3 AZs):**
-```
-10.0.1.0/26   - us-east-1a (64 IPs)
-10.0.1.64/26  - us-east-1b (64 IPs)
-10.0.1.128/26 - us-east-1c (64 IPs)
-```
+- Small: /27 (32 IPs) - load balancers only
+- Medium: /26 (64 IPs) - load balancers + NAT
+- Large: /24 (256 IPs) - public-facing workloads
 
 #### Private Subnets
 
 **Purpose:** Application workloads with outbound internet access
 
 **Routes:**
-- Default route (0.0.0.0/0) points to NAT Gateway
+- Default route (0.0.0.0/0) to NAT Gateway
 
 **Use For:**
 - EC2 instances
@@ -58,20 +49,13 @@ Comprehensive guide to subnet design, CIDR planning, IP address management (IPAM
 - Kubernetes worker nodes
 
 **CIDR Sizing:**
-- Small: /22 (1,024 IPs) - Small workloads
-- Medium: /21 (2,048 IPs) - Medium workloads
-- Large: /20 (4,096 IPs) - Large workloads, Kubernetes
-
-**Example (3 AZs):**
-```
-10.0.16.0/20  - us-east-1a (4,096 IPs)
-10.0.32.0/20  - us-east-1b (4,096 IPs)
-10.0.48.0/20  - us-east-1c (4,096 IPs)
-```
+- Small: /22 (1,024 IPs) - small workloads
+- Medium: /21 (2,048 IPs) - medium workloads
+- Large: /20 (4,096 IPs) - large workloads, Kubernetes
 
 #### Database Subnets
 
-**Purpose:** Database and cache layers with no direct internet
+**Purpose:** Database and cache layers, no direct internet
 
 **Routes:**
 - No default route to internet
@@ -85,16 +69,9 @@ Comprehensive guide to subnet design, CIDR planning, IP address management (IPAM
 - Self-managed databases
 
 **CIDR Sizing:**
-- Small: /26 (64 IPs) - Few databases
-- Medium: /25 (128 IPs) - Multiple databases
-- Large: /24 (256 IPs) - Many databases, read replicas
-
-**Example (3 AZs):**
-```
-10.0.64.0/24 - us-east-1a (256 IPs)
-10.0.65.0/24 - us-east-1b (256 IPs)
-10.0.66.0/24 - us-east-1c (256 IPs)
-```
+- Small: /26 (64 IPs) - few databases
+- Medium: /25 (128 IPs) - multiple databases
+- Large: /24 (256 IPs) - many databases, read replicas
 
 ### Advanced: Specialized Subnet Tiers
 
@@ -150,7 +127,7 @@ Comprehensive guide to subnet design, CIDR planning, IP address management (IPAM
 | Medium Production | /18 | 16,384 | Medium production workloads |
 | Small Production | /20 | 4,096 | Small production, limited services |
 | Development | /20 | 4,096 | Dev/test environments |
-| POC/Sandbox | /24 | 256 | Proof of concept, experimentation |
+| POC/Sandbox | /24 | 256 | Proof of concept, experiments |
 
 ### CIDR Allocation Examples
 
@@ -220,16 +197,15 @@ Reserved (1,408 IPs):
    ```
 
 2. **Coordinate with On-Premises**
-   - Avoid overlapping with on-premises CIDR ranges
-   - Example: If on-prem uses 172.16.0.0/12, use 10.0.0.0/8 for cloud
+   - Avoid overlap with on-premises CIDR ranges
+   - Example: if on-prem uses 172.16.0.0/12, use 10.0.0.0/8 for cloud
 
 3. **Reserve Address Space**
    - Always reserve at least 20% for future growth
-   - Use larger CIDR than immediately needed
 
 4. **AWS Reserved Addresses**
-   - First 4 IPs and last IP in each subnet are reserved
-   - Example: In 10.0.1.0/24:
+   - First 4 IPs and last IP in each subnet reserved
+   - Example: in 10.0.1.0/24:
      - 10.0.1.0 - Network address
      - 10.0.1.1 - VPC router
      - 10.0.1.2 - DNS server
@@ -245,9 +221,9 @@ Reserved (1,408 IPs):
 #### 1. Centralized IPAM Tool
 
 **AWS:**
-- Use Amazon VPC IP Address Manager (IPAM)
+- Amazon VPC IP Address Manager (IPAM)
 - Automated CIDR allocation
-- Prevent overlapping ranges
+- Prevents overlapping ranges
 
 **Azure:**
 - Azure Virtual Network Manager
@@ -291,15 +267,11 @@ Reserved (1,408 IPs):
 
 **Common Pitfalls:**
 1. Overlapping VPC CIDRs (prevents peering)
-2. Overlapping with on-premises
-3. Overlapping with VPN client pools
-4. Not reserving enough space for growth
+2. Overlap with VPN client pools
 
 **Resolution Strategy:**
 - Plan CIDR allocation before creating VPCs
-- Use IPAM tools to prevent overlaps
-- Document all allocations
-- Communicate with network team
+- Coordinate with network team
 
 ---
 
@@ -309,8 +281,6 @@ Reserved (1,408 IPs):
 
 **Minimum: 3 Availability Zones**
 - Survives single AZ failure
-- Meets most SLA requirements
-- AWS best practice for production
 
 **Configuration:**
 ```hcl
@@ -332,19 +302,6 @@ private_subnets = [
 ### Non-Production Flexibility
 
 **Cost-Optimized: 2 Availability Zones**
-```hcl
-azs = ["us-east-1a", "us-east-1b"]
-
-public_subnets = [
-  "10.0.1.0/24",   # AZ-a
-  "10.0.2.0/24"    # AZ-b
-]
-
-private_subnets = [
-  "10.0.10.0/24",  # AZ-a
-  "10.0.11.0/24"   # AZ-b
-]
-```
 
 **Extreme Cost-Optimization: 1 Availability Zone**
 - Only for dev/test
@@ -368,12 +325,6 @@ eu-west-1 Production: 10.2.0.0/16
 
 ## Reserved Address Space
 
-### Why Reserve Space
-
-1. **Future Growth:** Add new subnet tiers without redesigning
-2. **Service Expansion:** New AWS services may require dedicated subnets
-3. **Unforeseen Requirements:** Compliance, security, or business needs
-
 ### Reservation Strategy
 
 **Allocate 30-50% for Future Use:**
@@ -388,9 +339,9 @@ Reserved: 32,768 IPs (50%)
 ```
 
 **Use Larger VPC CIDR Than Needed:**
-- Planning for 1,000 IPs? Use /20 (4,096 IPs)
-- Planning for 4,000 IPs? Use /18 (16,384 IPs)
-- Planning for 16,000 IPs? Use /16 (65,536 IPs)
+- Need 1,000 IPs: use /20 (4,096 IPs)
+- Need 4,000 IPs: use /18 (16,384 IPs)
+- Need 16,000 IPs: use /16 (65,536 IPs)
 
 ---
 

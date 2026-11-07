@@ -7,25 +7,7 @@ allowed-tools: []
 
 # Nim Metaprogramming
 
-## Introduction
-
-Nim's metaprogramming system provides powerful compile-time code generation and
-manipulation through templates, macros, and compile-time evaluation. This enables
-zero-overhead abstractions, domain-specific languages, and optimizations performed
-at compile time rather than runtime.
-
-The system operates on Nim's abstract syntax tree (AST), allowing inspection and
-transformation of code structure. Templates provide hygienic macro-like substitution,
-while macros enable full AST manipulation. Compile-time evaluation executes Nim
-code during compilation for constant folding and validation.
-
-This skill covers templates for code substitution, macros for AST transformation,
-compile-time evaluation with static blocks, AST inspection and manipulation, code
-generation patterns, DSL creation, and metaprogramming best practices.
-
 ## Templates
-
-Templates provide hygienic code substitution with type safety and inline expansion.
 
 ```nim
 import std/times  # cpuTime, used by benchmark below
@@ -142,12 +124,7 @@ template log(msg: string): untyped =
 log "Debug message"  # Only in debug builds
 ```
 
-Templates provide compile-time code substitution with hygiene and type safety.
-
 ## Macros and AST Manipulation
-
-Macros transform AST at compile time, enabling powerful code generation and
-domain-specific languages.
 
 ```nim
 import macros
@@ -236,12 +213,7 @@ macro match(value: typed, patterns: varargs[untyped]): untyped =
     result.add nnkElifBranch.newTree(check, body)
 ```
 
-Macros enable compile-time code transformation and generation through AST
-manipulation.
-
 ## Compile-Time Evaluation
-
-Nim executes code at compile time for constants, optimizations, and validations.
 
 ```nim
 import std/[strutils, strformat]
@@ -339,13 +311,7 @@ proc optimizedPower(base: float, exp: static[int]): float =
 echo optimizedPower(2.0, 10)
 ```
 
-Compile-time evaluation enables zero-runtime-cost abstractions and build-time
-validations.
-
 ## DSL Creation
-
-Nim's metaprogramming enables creating domain-specific languages with natural
-syntax.
 
 ```nim
 import std/macros
@@ -486,12 +452,7 @@ let req = builder(Request):
   httpMethod("GET")
 ```
 
-DSLs enable domain-specific notation within Nim while maintaining type safety.
-
 ## Code Generation Patterns
-
-Metaprogramming enables automated code generation from specifications or runtime
-data.
 
 ```nim
 import std/[macros, strutils]
@@ -564,83 +525,30 @@ stateMachine Idle, Running, Stopped
 
 ```
 
-Code generation reduces boilerplate and ensures consistency across similar
-implementations.
-
 ## Best Practices
 
-1. **Use templates for simple substitutions** to avoid macro complexity when AST
-   manipulation isn't needed
+1. **Choose parameter kinds deliberately**: `untyped` for DSL syntax not yet
+   semantically valid (not type-checked), `typed` when macro needs resolved
+   symbols or types (`getType`, `getImpl`), `static[T]` for values
 
-2. **Choose parameter kinds deliberately**: `untyped` for DSL syntax that is not
-   semantically valid yet (it is not type-checked), `typed` when the macro needs
-   resolved symbols or types (`getType`, `getImpl`), `static[T]` for values
+2. **Use quote do for AST generation**: write natural Nim code, not manual AST
+   construction
 
-3. **Test macros thoroughly** as compile-time errors are harder to debug than
-   runtime errors
-
-4. **Document macro usage** with examples since expanded code isn't visible to
-   users
-
-5. **Use quote do for AST generation** to write natural Nim code instead of
-   manual AST construction
-
-6. **Leverage compile-time evaluation** for validations and optimizations without
-   runtime cost
-
-7. **Keep macros focused** on single responsibilities for maintainability
-
-8. **Use static blocks for compile-time** side effects like logging or validation
-
-9. **Provide error messages in macros** using error() for clear compile-time
-   failures
-
-10. **Test macro expansions** by examining generated code with dumpTree or
-    expandMacros
+3. **Use static blocks for compile-time** side effects like logging or validation
 
 ## Common Pitfalls
 
-1. **Overusing macros** for problems solvable with templates adds unnecessary
-   complexity
+1. **Not handling AST node kinds** breaks compilation on unexpected input
 
-2. **Not handling AST node kinds** properly causes compilation failures on
-   unexpected input
-
-3. **Forgetting hygiene in templates** can capture unintended identifiers from
+2. **Forgetting hygiene in templates** can capture unintended identifiers from
    calling scope
 
-4. **Creating overly complex macros** makes code hard to understand and maintain
+3. **Mixing runtime and compile-time** code without static blocks causes errors
 
-5. **Not validating macro inputs** leads to confusing error messages at macro
-   expansion
+4. **Evaluating a template argument twice**: template pastes expression at every
+   use. Bind it once (`let v = arg`) when it has side effects
 
-6. **Mixing runtime and compile-time** code without static blocks causes errors
-
-7. **Assuming AST structure** without checking node kinds breaks on different
-   inputs
-
-8. **Evaluating a template argument twice**: a template pastes the expression at
-   every use, so bind it once (`let v = arg`) when it has side effects
-
-9. **Creating DSLs that are too magical** reduces code readability and
-   maintainability
-
-10. **Forgetting to return nodes** from macros causes empty code generation
-
-## When to Use This Skill
-
-Apply templates for zero-overhead abstractions replacing repetitive patterns.
-
-Use macros when transforming or generating code based on compile-time information.
-
-Leverage compile-time evaluation for constants, validations, and build-time
-optimizations.
-
-Create DSLs for domain-specific problems requiring specialized notation.
-
-Generate code for boilerplate like serialization, getters, or pattern matching.
-
-Use metaprogramming for performance-critical abstractions with zero runtime cost.
+5. **Forgetting to return nodes** from macros generates empty code
 
 ## Resources
 
@@ -651,10 +559,10 @@ Use metaprogramming for performance-critical abstractions with zero runtime cost
 
 ## Done when
 
-- A template or generic was tried first and the macro is justified by AST
-  rewriting or compile-time introspection.
-- The expansion was inspected (`expandMacros:` block, `dumpTree`/`dumpAstGen`,
-  or `--expandMacro:name`) and malformed input produces an `error(msg, node)`
-  pointing at the user's code.
-- Code was compiled with the project's Nim version (`nim -v`); nothing here was
-  compiled while editing this skill, so check examples before copying.
+- Template or generic tried first; macro justified by AST rewriting or
+  compile-time introspection.
+- Expansion inspected (`expandMacros:` block, `dumpTree`/`dumpAstGen`, or
+  `--expandMacro:name`). Malformed input produces an `error(msg, node)` pointing
+  at user's code.
+- Code compiled with project's Nim version (`nim -v`). Nothing here was compiled
+  while editing this skill; check examples before copying.

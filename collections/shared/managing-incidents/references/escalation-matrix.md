@@ -1,9 +1,7 @@
 # Escalation Matrix
 
-
 ## Table of Contents
 
-- [Overview](#overview)
 - [Escalation Decision Matrix](#escalation-decision-matrix)
 - [Escalation Triggers](#escalation-triggers)
   - [Time-Based Escalation](#time-based-escalation)
@@ -17,10 +15,6 @@
   - [Executive Notification](#executive-notification)
 - [Avoiding Over-Escalation](#avoiding-over-escalation)
 - [Further Reading](#further-reading)
-
-## Overview
-
-Escalation ensures incidents get appropriate resources and attention based on duration, complexity, and impact. This matrix defines when and how to escalate incidents.
 
 ## Escalation Decision Matrix
 
@@ -36,11 +30,11 @@ Escalation ensures incidents get appropriate resources and attention based on du
 ### Time-Based Escalation
 
 **15 Minutes - No Acknowledgment:**
-- Primary on-call hasn't acknowledged alert
+- Primary on-call has not acknowledged alert
 - Auto-escalate to secondary on-call via PagerDuty/Opsgenie
 
 **30 Minutes - No Progress:**
-- Investigation ongoing but no mitigation path identified
+- Investigation ongoing, no mitigation path identified
 - Escalate to team lead or senior engineer for guidance
 
 **60 Minutes - Extended Duration:**
@@ -64,7 +58,7 @@ Escalation ensures incidents get appropriate resources and attention based on du
 - Escalate to @db-team within 15 minutes if database-related
 
 **Network/Infrastructure:**
-- Escalate to @infra-team if network or infrastructure issue
+- Escalate to @infra-team for network or infrastructure issues
 
 **Security Incident:**
 - Escalate to @security-team immediately for security issues
@@ -110,7 +104,7 @@ Director / VP Engineering
 
 ### Internal Notification
 
-When escalating, post in incident channel:
+On escalation, post in incident channel:
 ```
 @team-lead Escalating to you - no progress after 30 minutes.
 Current status: [Brief summary]
@@ -119,7 +113,7 @@ Need: [Specific help needed]
 
 ### Executive Notification
 
-For SEV0 incidents, notify executives within 15 minutes:
+For SEV0, notify executives within 15 minutes:
 - **Who to notify:** CTO, VP Engineering, CEO (for major outages)
 - **How:** Slack DM + brief email
 - **What to include:** Business impact, ETA, current actions
@@ -137,11 +131,11 @@ IC: @[name]
 ## Avoiding Over-Escalation
 
 **Do NOT escalate if:**
-- Issue being actively mitigated
+- Issue actively being mitigated
 - Clear path to resolution identified
 - Escalation would distract without adding value
 
-**Example:** Database slow, root cause identified, mitigation in progress → Do NOT escalate unless mitigation fails.
+**Example:** Database slow, root cause identified, mitigation in progress. Do NOT escalate unless mitigation fails.
 
 ## Further Reading
 

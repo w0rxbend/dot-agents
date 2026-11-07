@@ -3,7 +3,6 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [Modal Types & Use Cases](#modal-types-use-cases)
   - [Confirmation Modal](#confirmation-modal)
   - [Form Modal](#form-modal)
@@ -33,10 +32,6 @@
   - [Screen Reader Announcements](#screen-reader-announcements)
   - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Best Practices](#best-practices)
-
-## Overview
-
-Modal dialogs are overlays that require user interaction before returning to the main application. They create a focused experience by blocking interaction with the rest of the page.
 
 ## Modal Types & Use Cases
 
@@ -75,7 +70,7 @@ interface FormModal {
 
 **Use cases:**
 - Quick edits
-- Create new items
+- Create items
 - Settings/preferences
 - Login/signup
 
@@ -95,7 +90,7 @@ interface InfoModal {
 - Help content
 - Terms & conditions
 - Feature announcements
-- Detailed information
+- Detailed info
 
 ### Media Modal
 ```tsx
@@ -687,13 +682,13 @@ function useModalKeyboard(onClose: () => void, onConfirm?: () => void) {
 
 ## Best Practices
 
-1. **Focus management**: Always trap focus and restore on close
+1. **Focus management**: Always trap focus; restore it on close
 2. **Keyboard support**: ESC to close, Tab to navigate
-3. **Scroll locking**: Prevent body scroll when modal is open
-4. **Click outside**: Allow closing by clicking backdrop (when appropriate)
-5. **Loading states**: Show loading indicators for async operations
-6. **Error handling**: Display errors clearly within modal
+3. **Scroll locking**: Lock body scroll while modal open
+4. **Click outside**: Backdrop click closes modal (when appropriate)
+5. **Loading states**: Show loading indicators during async operations
+6. **Error handling**: Show errors clearly inside modal
 7. **Mobile optimization**: Full-screen on mobile, centered on desktop
-8. **Animation**: Smooth but quick transitions (200-300ms)
-9. **Z-index management**: Use consistent z-index scale
+8. **Animation**: Smooth, quick transitions (200-300ms)
+9. **Z-index management**: Consistent z-index scale
 10. **Accessibility**: Test with screen readers and keyboard navigation

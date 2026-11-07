@@ -2,15 +2,15 @@
 
 ## When to choose orchestration vs choreography
 
-- Choose orchestration when business flow visibility and centralized control are required.
-- Choose choreography when autonomy is high and coupling is low.
+- Choose orchestration when business flow needs visibility and centralized control.
+- Choose choreography for high autonomy and low coupling.
 
 ## Saga design checklist
 
 - Define explicit saga state machine.
 - Define timeout policy per step.
-- Define a compensation action for each compensatable step (pivot and retriable steps get none).
-- Use idempotency keys for command handling.
+- Define compensation for each compensatable step (pivot and retriable steps get none).
+- Use idempotency keys in command handling.
 - Store correlation IDs across all events and logs.
 
 ## Failure handling
@@ -21,6 +21,6 @@
 
 ## Verification
 
-- Simulate failure at every step and confirm compensation path.
+- Simulate failure at every step; confirm compensation path.
 - Validate duplicate message handling.
-- Validate recovery from orchestrator restart.
+- Validate recovery after orchestrator restart.

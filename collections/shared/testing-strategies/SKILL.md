@@ -1,39 +1,26 @@
 ---
 name: testing-strategies
-description: Choose the mix of unit, integration, E2E and contract tests for a project, plus mocking, test-data, coverage/mutation and CI test-stage strategy (TypeScript, Python, Go, Rust). Use when designing, auditing or rebalancing a test suite; for writing one test first use test-driven-development and for browser runtime checks use browser-testing-with-devtools.
+description: Choose the mix of unit, integration, E2E and contract tests for a project, plus mocking, test-data, coverage/mutation and CI test-stage strategy (TypeScript, Python, Go, Rust). Use when designing, auditing or rebalancing a test suite; for writing one test first use test-driven-development.
 ---
 
 # Testing Strategies
 
-Build comprehensive, effective test suites by strategically selecting and implementing the right testing approaches across unit, integration, E2E, and contract testing levels.
-
-## Purpose
-
-This skill provides strategic frameworks for:
-- **Test Type Selection**: Determine when to use unit vs. integration vs. E2E vs. contract testing
-- **Test Pyramid Balancing**: Optimize test distribution for fast feedback and reliable coverage
-- **Multi-Language Implementation**: Apply consistent testing patterns across TypeScript, Python, Go, and Rust
-- **Test Data Management**: Choose appropriate strategies (fixtures, factories, property-based testing)
-- **CI/CD Integration**: Integrate tests into automated pipelines with optimal execution patterns
-
-Testing is foundational to reliable software. With microservices and continuous delivery, a deliberate mix of test levels matters more than raw test count.
-
 ## When to Use This Skill
 
-Invoke this skill when:
-- Building a new feature that requires test coverage
-- Designing a testing strategy for a new project
-- Refactoring existing tests to improve speed or reliability
-- Setting up CI/CD pipelines with testing stages
-- Choosing between unit, integration, or E2E testing approaches
-- Implementing contract testing for microservices
-- Managing test data with fixtures, factories, or property-based testing
+Use when:
+- New feature needs test coverage
+- Designing testing strategy for new project
+- Refactoring tests for speed or reliability
+- Setting up CI/CD pipelines with test stages
+- Choosing unit, integration, or E2E
+- Adding contract testing for microservices
+- Managing test data (fixtures, factories, property-based testing)
 
 ## The Testing Pyramid Framework
 
 ### Core Concept
 
-The testing pyramid guides test distribution for optimal speed and confidence:
+Pyramid sets test distribution for speed and confidence:
 
 ```
          /\
@@ -50,21 +37,21 @@ The testing pyramid guides test distribution for optimal speed and confidence:
                       - Isolated units
 ```
 
-**Key Principle**: More unit tests (fast, isolated), fewer E2E tests (slow, comprehensive). Integration tests bridge the gap.
+**Key Principle**: More unit tests (fast, isolated), fewer E2E tests (slow, comprehensive). Integration tests bridge gap.
 
 ### Modern Adaptations
 
 **Microservices Adjustment**:
-- Add contract testing layer between unit and integration
-- Increase integration/contract tests to 30% (validate service boundaries)
-- Reduce E2E tests to critical user journeys only
+- Add contract layer between unit and integration
+- Raise integration/contract tests to 30% (validate service boundaries)
+- E2E tests for critical user journeys only
 
 **Cloud-Native Patterns**:
-- Use containers for integration tests (ephemeral databases, test services)
+- Containers for integration tests (ephemeral databases, test services)
 - Parallel execution for fast CI/CD feedback
 - Risk-based test prioritization (focus on high-impact areas)
 
-For detailed pyramid guidance, see `references/testing-pyramid.md`.
+Details: `references/testing-pyramid.md`.
 
 ## Universal Testing Decision Tree
 
@@ -95,20 +82,20 @@ Q4: Is this pure business logic or a pure function?
 | Feature | Test Type | Rationale |
 |---------|-----------|-----------|
 | `calculateTotal(items)` | Unit | Pure function, no dependencies |
-| `POST /api/users` endpoint | Integration | Tests API + database interaction |
+| `POST /api/users` endpoint | Integration | API + database interaction |
 | User registration flow (form → API → redirect) | E2E | Critical user journey, full stack |
 | Microservice A → B communication | Contract | Service interface validation |
 | `formatCurrency(amount, locale)` | Unit + Property | Pure logic, many edge cases |
 | Form validation logic | Unit | Isolated business rules |
 | File upload to S3 | Integration | External service interaction |
 
-For comprehensive decision frameworks, see `references/decision-tree.md`.
+Full decision frameworks: `references/decision-tree.md`.
 
 ## Testing Levels in Detail
 
 ### Unit Testing (Foundation - 60-70%)
 
-**Purpose**: Validate small, isolated units of code (functions, methods, components)
+**Purpose**: Validate small, isolated code units (functions, methods, components)
 
 **Characteristics**:
 - Fast (milliseconds per test)
@@ -125,20 +112,20 @@ For comprehensive decision frameworks, see `references/decision-tree.md`.
 
 **Recommended Tools**:
 - **TypeScript/JavaScript**: Vitest (primary; fast, native ESM/TypeScript), Jest (common in existing codebases)
-- **Python**: pytest (industry standard)
+- **Python**: pytest
 - **Go**: testing package (stdlib) + testify (assertions)
 - **Rust**: cargo test (stdlib)
 
-For detailed patterns, see `references/unit-testing-patterns.md`.
+Patterns: `references/unit-testing-patterns.md`.
 
 ### Integration Testing (Middle Layer - 20-30%)
 
-**Purpose**: Validate interactions between components, modules, or services
+**Purpose**: Validate interactions between components, modules, services
 
 **Characteristics**:
 - Moderate speed (seconds per test)
 - Partial integration (real database, mocked external APIs)
-- Focused scope (test component boundaries)
+- Focused scope (component boundaries)
 - API and database validation
 
 **When to Use**:
@@ -154,17 +141,17 @@ For detailed patterns, see `references/unit-testing-patterns.md`.
 - **Go**: testing + httptest, testcontainers
 - **Rust**: cargo test + mockito, testcontainers
 
-For detailed patterns, see `references/integration-testing-patterns.md`.
+Patterns: `references/integration-testing-patterns.md`.
 
 ### End-to-End Testing (Top Layer - 10%)
 
-**Purpose**: Validate complete user workflows across the entire application stack
+**Purpose**: Validate complete user workflows across full stack
 
 **Characteristics**:
 - Slow (minutes per test suite)
 - Full integration (real browser, services, database)
-- Wide scope (user journeys from start to finish)
-- Prone to flakiness (requires careful design)
+- Wide scope (user journeys start to finish)
+- Prone to flakiness (needs careful design)
 
 **When to Use**:
 - Critical user journeys (login, checkout, payment)
@@ -173,15 +160,15 @@ For detailed patterns, see `references/integration-testing-patterns.md`.
 - Regression prevention for core features
 
 **Best Practices**:
-- Limit E2E tests to high-value scenarios (not every edge case)
+- High-value scenarios only (not every edge case)
 - Use stable selectors (data-testid, not CSS classes)
-- Implement retry logic for network flakiness
-- Run tests in parallel for speed
+- Add retry logic for network flakiness
+- Run in parallel for speed
 
 **Recommended Tools**:
-- **All Languages**: Playwright (cross-browser, fast, Microsoft-backed)
+- **All Languages**: Playwright (cross-browser, fast)
 
-For detailed patterns, see `references/e2e-testing-patterns.md`.
+Patterns: `references/e2e-testing-patterns.md`.
 
 ### Contract Testing (Microservices)
 
@@ -191,11 +178,11 @@ For detailed patterns, see `references/e2e-testing-patterns.md`.
 - Microservices architecture
 - Service-to-service communication
 - API contract validation
-- Reducing E2E testing overhead
+- Cutting E2E overhead
 
-**Recommended Tool**: Pact (pact.io) - supports TypeScript, Python, Go, Rust
+**Recommended Tool**: Pact (pact.io) - TypeScript, Python, Go, Rust
 
-For detailed patterns, see `references/contract-testing.md`.
+Patterns: `references/contract-testing.md`.
 
 ## Test Data Management Strategies
 
@@ -203,13 +190,13 @@ For detailed patterns, see `references/contract-testing.md`.
 
 **Fixtures (Static Data)**:
 - Pros: Deterministic, easy to debug
-- Cons: Can become stale, doesn't test variety
-- Use When: Testing known scenarios, regression tests
+- Cons: Can go stale, no variety
+- Use When: Known scenarios, regression tests
 
 **Factories (Generated Data)**:
 - Pros: Flexible, generates variety
 - Cons: Less deterministic, harder to debug
-- Use When: Need diverse test data, testing edge cases
+- Use When: Diverse test data, edge cases
 
 **Property-Based Testing (Random Data)**:
 - Pros: Finds edge cases not anticipated
@@ -223,11 +210,11 @@ For detailed patterns, see `references/contract-testing.md`.
 
 **Property-Based Testing Tools**:
 - **TypeScript/JavaScript**: fast-check
-- **Python**: hypothesis (best-in-class)
+- **Python**: hypothesis
 - **Go**: gopter
 - **Rust**: proptest (primary)
 
-For detailed strategies, see `references/test-data-strategies.md`.
+Strategies: `references/test-data-strategies.md`.
 
 ## Mocking Decision Matrix
 
@@ -244,11 +231,11 @@ For detailed strategies, see `references/test-data-strategies.md`.
 
 **Guiding Principles**:
 1. **Unit Tests**: Mock everything external
-2. **Integration Tests**: Use real database (ephemeral), mock external APIs
-3. **E2E Tests**: Use real everything (or staging equivalents)
+2. **Integration Tests**: Real database (ephemeral), mock external APIs
+3. **E2E Tests**: Real everything (or staging equivalents)
 4. **Contract Tests**: Mock nothing (test real interfaces)
 
-For detailed mocking patterns, see `references/mocking-strategies.md`.
+Mocking patterns: `references/mocking-strategies.md`.
 
 ## Language-Specific Quick Starts
 
@@ -287,8 +274,6 @@ test('user can checkout', async ({ page }) => {
 })
 ```
 
-See `examples/typescript/` for complete working examples.
-
 ### Python
 
 **Unit Testing with pytest**:
@@ -306,8 +291,6 @@ from hypothesis import given, strategies as st
 def test_reverse_reverse_is_identity(lst):
     assert reverse(reverse(lst)) == lst
 ```
-
-See `examples/python/` for complete working examples.
 
 ### Go and Rust
 
@@ -333,7 +316,15 @@ mod tests {
 }
 ```
 
-Fixture, factory and property-based examples for Go and Rust (including `proptest`) are in `references/test-data-strategies.md`.
+Go and Rust fixture, factory, property-based examples (including `proptest`): `references/test-data-strategies.md`.
+
+### Working Examples
+
+Code examples in `examples/`:
+
+- **`examples/typescript/vitest-unit.test.ts`** and **`examples/typescript/vitest-integration.test.ts`** - Vitest unit and integration tests
+- **`examples/python/pytest_unit_test.py`** - pytest unit tests and fixtures
+- **`examples/python/hypothesis_property_test.py`** - Hypothesis property-based tests
 
 ## Coverage and Quality Metrics
 
@@ -346,7 +337,7 @@ Fixture, factory and property-based examples for Go and Rust (including `proptes
 - **UI Components**: 60%+ coverage (focus on logic, not markup)
 - **Overall Project**: 70-80% coverage
 
-**Anti-Pattern**: Aiming for 100% coverage leads to testing trivial code and false confidence.
+**Anti-Pattern**: Chasing 100% coverage. Leads to testing trivial code and false confidence.
 
 **Coverage Tools**:
 - **TypeScript/JavaScript**: Vitest coverage (c8/istanbul)
@@ -356,7 +347,7 @@ Fixture, factory and property-based examples for Go and Rust (including `proptes
 
 ### Mutation Testing (Validate Test Quality)
 
-Mutation testing introduces bugs and verifies tests catch them.
+Mutation testing injects bugs and checks tests catch them.
 
 **Tools**:
 - **TypeScript/JavaScript**: Stryker Mutator
@@ -364,7 +355,7 @@ Mutation testing introduces bugs and verifies tests catch them.
 - **Go**: go-mutesting
 - **Rust**: cargo-mutants
 
-For detailed coverage strategies, see `references/coverage-strategies.md`.
+Coverage strategies: `references/coverage-strategies.md`.
 
 ## CI/CD Integration Patterns
 
@@ -399,7 +390,7 @@ For detailed coverage strategies, see `references/coverage-strategies.md`.
 ### The Ice Cream Cone (Inverted Pyramid)
 
 **Problem**: Too many E2E tests, too few unit tests
-**Result**: Slow test suites, flaky tests, long feedback loops
+**Result**: Slow suites, flaky tests, long feedback loops
 **Solution**: Rebalance toward more unit tests, fewer E2E tests
 
 ### Testing Implementation Details
@@ -414,45 +405,19 @@ For detailed coverage strategies, see `references/coverage-strategies.md`.
 
 ### Flaky E2E Tests
 
-**Problem**: Tests fail intermittently due to timing issues
+**Problem**: Intermittent failures from timing issues
 **Solutions**:
-- Use auto-wait features (Playwright has built-in auto-wait)
+- Use auto-wait (built into Playwright)
 - Avoid hardcoded waits (`sleep(1000)`)
-- Use stable selectors (data-testid)
-- Implement retry logic for network requests
 
 ## Integration with Other Skills
 
-**For form testing**: See `building-forms` skill for form-specific validation and submission testing patterns.
+**For form testing**: `building-forms` (form validation and submission test patterns).
 
-**For API testing**: See the `designing-apis` skill for the REST/GraphQL contract that endpoint and contract tests verify.
+**For API testing**: `designing-apis` (REST/GraphQL contract that endpoint and contract tests verify).
 
-**For test-first work on one behavior**: See `test-driven-development`. For stakeholder-readable acceptance scenarios, see `bdd-principles`.
+**For test-first work on one behavior**: `test-driven-development`. Stakeholder-readable acceptance scenarios: `bdd-principles`.
 
-**For CI/CD pipelines**: See `building-ci-pipelines` skill for test automation, parallel execution, and coverage reporting.
+**For CI/CD pipelines**: `building-ci-pipelines` (test automation, parallel execution, coverage reporting).
 
-**For data visualization testing**: See `visualizing-data` skill for snapshot testing chart configurations and visual regression testing.
-
-## Reference Documentation
-
-For deeper exploration of specific topics:
-
-- **`references/testing-pyramid.md`** - Detailed testing pyramid framework and balancing strategies
-- **`references/decision-tree.md`** - Comprehensive decision frameworks for test type selection
-- **`references/unit-testing-patterns.md`** - Unit testing patterns across languages
-- **`references/integration-testing-patterns.md`** - Integration testing with databases, APIs, and containers
-- **`references/e2e-testing-patterns.md`** - E2E testing best practices and Playwright patterns
-- **`references/contract-testing.md`** - Consumer-driven contract testing with Pact
-- **`references/test-data-strategies.md`** - Fixtures, factories, and property-based testing
-- **`references/mocking-strategies.md`** - When and how to mock dependencies
-- **`references/coverage-strategies.md`** - Meaningful coverage metrics and mutation testing
-
-## Working Examples
-
-Code examples in the `examples/` directory:
-
-- **`examples/typescript/vitest-unit.test.ts`** and **`examples/typescript/vitest-integration.test.ts`** - Vitest unit and integration tests
-- **`examples/python/pytest_unit_test.py`** - pytest unit tests and fixtures
-- **`examples/python/hypothesis_property_test.py`** - Hypothesis property-based tests
-
-For Go and Rust, see the "Go and Rust" quick-start section above and `references/test-data-strategies.md`.
+**For data visualization testing**: `visualizing-data` (chart configuration snapshot tests, visual regression testing).

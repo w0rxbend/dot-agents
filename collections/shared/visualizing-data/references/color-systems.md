@@ -1,7 +1,6 @@
 # Color Systems for Data Visualization
 
-Comprehensive guide to color usage in charts.
-
+Always test for colorblindness and provide non-color alternatives.
 
 ## Table of Contents
 
@@ -29,9 +28,9 @@ Comprehensive guide to color usage in charts.
 ## Color Scale Types
 
 ### 1. Categorical (Qualitative)
-**Purpose:** Distinguish different categories (no inherent order)
+**Purpose:** Distinguish categories (no inherent order)
 **Use for:** Product lines, regions, categories
-**Max categories:** 10 (human limit for distinguishing colors)
+**Max categories:** 10 (human limit for telling colors apart)
 
 **Recommendations:**
 - IBM Colorblind-Safe (5 colors) - Primary choice
@@ -45,7 +44,7 @@ Comprehensive guide to color usage in charts.
 ### 2. Sequential (Single-Hue)
 **Purpose:** Show magnitude/intensity (low to high)
 **Use for:** Heatmaps, choropleths, intensity maps
-**Range:** Light → Dark (or vice versa)
+**Range:** Light → Dark (or reverse)
 
 **Recommendations:**
 - Blues: #EFF6FF → #1E3A8A
@@ -82,20 +81,20 @@ Comprehensive guide to color usage in charts.
 ### Types of Colorblindness
 
 **Deuteranopia** (most common, ~5% of males)
-- Reduced sensitivity to green
+- Reduced green sensitivity
 - Red/green confusion
 
 **Protanopia** (~2.5% of males)
-- Reduced sensitivity to red
+- Reduced red sensitivity
 - Red/green confusion
 
 **Tritanopia** (rare, <0.01%)
-- Reduced sensitivity to blue
+- Reduced blue sensitivity
 - Blue/yellow confusion
 
 **Achromatopsia** (very rare)
 - Complete color blindness
-- See only grayscale
+- Grayscale only
 
 ---
 
@@ -108,7 +107,7 @@ Comprehensive guide to color usage in charts.
 
 **2. Avoid Problem Combinations**
 - ❌ Red + Green (deuteranopia/protanopia can't distinguish)
-- ❌ Blue + Purple (can be hard to distinguish)
+- ❌ Blue + Purple (often hard to distinguish)
 - ✅ Blue + Orange (high contrast, safe)
 - ✅ Blue + Yellow (high contrast, safe)
 
@@ -167,7 +166,7 @@ python scripts/validate_accessibility.py chart.html
 
 ### For Business Dashboards
 **Use:** IBM Colorblind-Safe or Default 10-Color
-**Why:** Professional, accessible, works for most users
+**Why:** Professional, accessible, suits most users
 
 ### For Scientific Publications
 **Use:** Paul Tol Qualitative or Viridis (sequential)
@@ -179,11 +178,11 @@ python scripts/validate_accessibility.py chart.html
 
 ### For Geographic/Heatmaps
 **Use:** Sequential single-hue (Blues, Greens)
-**Why:** Magnitude clear, no confusion
+**Why:** Clear magnitude, no confusion
 
 ### For Correlation Matrices
 **Use:** Red-Blue or Orange-Blue diverging
-**Why:** Negative/neutral/positive clear
+**Why:** Clear negative/neutral/positive
 
 ---
 
@@ -247,13 +246,4 @@ const colorScale = d3.scaleSequential()
 <Bar fill="var(--chart-color-primary)" />
 ```
 
-**Benefits:**
-- Theme switching (light/dark)
-- Brand customization
-- Consistent across all charts
-
-**See:** `../design-tokens/` skill for complete token system
-
----
-
-*Color is a powerful encoding channel, but must be used responsibly. Always test for colorblindness and provide non-color alternatives.*
+**See:** `../design-tokens/` skill for full token system

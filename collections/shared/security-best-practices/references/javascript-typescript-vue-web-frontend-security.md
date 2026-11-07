@@ -1,21 +1,12 @@
 # Vue.js Web Security Spec (Vue 3.x, TypeScript/JavaScript, common tooling: Vite)
 
-This document is designed as a **security spec** that supports:
-
-1. **Secure-by-default code generation** for new Vue code.
-2. **Security review / vulnerability hunting** in existing Vue code (passive “notice issues while working” and active “scan the repo and report findings”).
-
-It is intentionally written as a set of **normative requirements** (“MUST/SHOULD/MAY”) plus **audit rules** (what bad patterns look like, how to detect them, and how to fix/mitigate them).
-
----
-
 ## 0) Safety, boundaries, and anti-abuse constraints (MUST FOLLOW)
 
 * MUST NOT request, output, log, or commit secrets (API keys, passwords, private keys, session cookies, auth tokens).
-* MUST NOT “fix” security by disabling protections (e.g., weakening CSP, turning on unsafe template compilation, using `v-html` as a shortcut, bypassing backend auth, or “just store the token in localStorage”).
-* MUST provide **evidence-based findings** during audits: cite file paths, code snippets, and configuration values that justify the claim.
-* MUST treat uncertainty honestly: if a protection might exist at the edge (CDN, reverse proxy, WAF, server headers), report it as “not visible in repo; verify runtime/infra config”.
-* MUST remember the frontend trust model: **any code shipped to browsers is attacker-readable and attacker-modifiable**. Secrets and “security enforcement” cannot rely on frontend-only logic.
+* MUST NOT “fix” security by disabling protections (e.g., weakening CSP, enabling unsafe template compilation, using `v-html` as shortcut, bypassing backend auth, or “just store the token in localStorage”).
+* MUST give **evidence-based findings** in audits: cite file paths, code snippets and configuration values justifying the claim.
+* MUST treat uncertainty honestly: if protection might exist at edge (CDN, reverse proxy, WAF, server headers), report “not visible in repo; verify runtime/infra config”.
+* MUST remember frontend trust model: **any code shipped to browsers is attacker-readable and attacker-modifiable**. Secrets and “security enforcement” cannot rely on frontend-only logic.
 
 ---
 
@@ -23,33 +14,33 @@ It is intentionally written as a set of **normative requirements** (“MUST/SHOU
 
 ### 1.1 Generation mode (default)
 
-When asked to write new Vue code or modify existing code:
+When writing new Vue code or modifying existing code:
 
 * MUST follow every **MUST** requirement in this spec.
-* SHOULD follow every **SHOULD** requirement unless the user explicitly says otherwise.
+* SHOULD follow every **SHOULD** requirement unless user explicitly says otherwise.
 * MUST prefer safe-by-default framework features and proven libraries over custom security code.
 * MUST avoid introducing new risky sinks (runtime template compilation, `v-html` / `innerHTML`, unsafe URL navigation, dynamic script injection, etc.). ([Vue.js][1])
 
 ### 1.2 Passive review mode (always on while editing)
 
-While working anywhere in a Vue repo (even if the user did not ask for a security scan):
+While working anywhere in Vue repo (even if user did not ask for security scan):
 
-* MUST “notice” violations of this spec in touched/nearby code.
-* SHOULD mention issues as they come up, with a brief explanation + safe fix.
+* MUST “notice” spec violations in touched/nearby code.
+* SHOULD mention issues as they come up, with brief explanation and safe fix.
 
 ### 1.3 Active audit mode (explicit scan request)
 
-When the user asks to “scan”, “audit”, or “hunt for vulns”:
+When user asks to “scan”, “audit”, or “hunt for vulns”:
 
-* MUST systematically search the codebase for violations of this spec.
-* MUST output findings in a structured format (see §2.3).
+* MUST systematically search codebase for spec violations.
+* MUST output findings in structured format (see §2.3).
 
 Recommended audit order:
 
 1. Build/deploy entrypoints and hosting config (Docker, CI, static hosting, SSR server).
 2. Secrets exposure (env usage, `.env*`, hard-coded keys). ([vitejs][2])
 3. XSS surface: templates, `v-html` / `innerHTML`, URL/style injection, DOM APIs. ([Vue.js][1])
-4. Auth/session handling in the browser (token storage, credentialed requests, CSRF integration). ([Vue.js][1])
+4. Auth/session handling in browser (token storage, credentialed requests, CSRF integration). ([Vue.js][1])
 5. Routing/navigation (open redirects, “return_to/next”, unsafe external navigation). ([Vue.js][1])
 6. Third-party scripts and content (CDN assets, analytics, widgets, iframes). ([Vue.js][1])
 7. Security headers and browser hardening expectations (CSP, clickjacking). ([Vue.js][1])
@@ -61,18 +52,18 @@ Recommended audit order:
 
 ### 2.1 Untrusted input (treat as attacker-controlled unless proven otherwise)
 
-In a Vue app, untrusted input includes (non-exhaustive):
+Untrusted input in Vue app includes (non-exhaustive):
 
 * Anything from APIs: `fetch`, `axios`, GraphQL responses, webhooks, third-party SDKs.
 * Router-controlled data: `route.params`, `route.query`, `route.hash`, and anything derived from `window.location`.
-* User-controlled persisted content: DB-backed content displayed in the UI (comments, profiles, CMS content).
+* User-controlled persisted content: DB-backed content shown in UI (comments, profiles, CMS content).
 * Browser-controlled storage: `localStorage`, `sessionStorage`, `IndexedDB`.
 * Cross-window messages: `postMessage` inputs.
-* Anything that can be influenced by an attacker through DOM clobbering or injected HTML (especially if Vue is mounted onto non-sterile DOM). ([Vue.js][1])
+* Anything attacker can influence through DOM clobbering or injected HTML (especially if Vue mounts onto non-sterile DOM). ([Vue.js][1])
 
 ### 2.2 State-changing action (frontend perspective)
 
-An action is state-changing if it can:
+Action is state-changing if it can:
 
 * Create/update/delete data via API calls.
 * Change authentication/session state (login, logout, refresh token).
@@ -81,7 +72,7 @@ An action is state-changing if it can:
 
 ### 2.3 Required audit finding format
 
-For each issue found, output:
+For each issue, output:
 
 * Rule ID:
 * Severity: Critical / High / Medium / Low
@@ -96,20 +87,16 @@ For each issue found, output:
 
 ## 3) Secure baseline: minimum production configuration (MUST in production)
 
-This is the smallest “production baseline” that prevents common Vue/front-end misconfigurations.
-
-* MUST ship a **production build** (not a development build or dev server). ([Vue.js][3])
+* MUST ship **production build** (not development build or dev server). ([Vue.js][3])
 * MUST NOT ship secrets in frontend bundles; treat all client-exposed env variables as public. ([vitejs][2])
 * MUST NOT render non-trusted templates or allow user-provided Vue templates (equivalent to arbitrary JS execution). ([Vue.js][1])
 * SHOULD avoid raw HTML injection (`v-html`, `innerHTML`) unless content is trusted or strongly sandboxed. ([Vue.js][1])
-* SHOULD deploy baseline security headers (especially CSP and clickjacking defenses) at the server/CDN layer. ([OWASP Cheat Sheet Series][4])
+* SHOULD deploy baseline security headers (especially CSP and clickjacking defenses) at server/CDN layer. ([OWASP Cheat Sheet Series][4])
 * SHOULD use safe auth patterns (prefer HttpOnly cookies for session tokens; coordinate with backend on CSRF). ([Vue.js][1])
 
 ---
 
 ## 4) Rules (generation + audit)
-
-Each rule contains: required practice, insecure patterns, detection hints, and remediation.
 
 ### VUE-DEPLOY-001: Do not run dev/preview servers in production
 
@@ -117,13 +104,13 @@ Severity: High
 
 Required:
 
-* MUST NOT deploy the Vite/Vue dev server (`vite`, `npm run dev`, HMR) as the production server.
-* MUST NOT use `vite preview` as a production server. ([vitejs][5])
-* MUST build (`vite build`) and serve the built assets using a production-grade static server/CDN, or a production SSR server if you are doing SSR. ([vitejs][6])
+* MUST NOT deploy Vite/Vue dev server (`vite`, `npm run dev`, HMR) as production server.
+* MUST NOT use `vite preview` as production server. ([vitejs][5])
+* MUST build (`vite build`) and serve built assets from production-grade static server/CDN, or production SSR server if doing SSR. ([vitejs][6])
 
 Insecure patterns:
 
-* Docker/Procfile/systemd running `vite`, `npm run dev`, or `vite preview` as the production entrypoint.
+* Docker/Procfile/systemd running `vite`, `npm run dev`, or `vite preview` as production entrypoint.
 * Publicly exposed HMR endpoints.
 
 Detection hints:
@@ -134,22 +121,22 @@ Detection hints:
 Fix:
 
 * Build artifacts with `vite build`.
-* Serve `dist/` with hardened hosting (CDN/static server) or integrate into your backend server as static assets.
+* Serve `dist/` with hardened hosting (CDN/static server) or integrate into backend server as static assets.
 
 Notes:
 
-* Using dev/preview servers locally is fine; only flag if it is the production entrypoint.
+* Dev/preview servers are fine locally; flag only if one is production entrypoint.
 
 ---
 
 ### VUE-DEPLOY-002: Use Vue production builds and keep devtools off in production
 
-Severity: Medium (High if production devtools/debug hooks are enabled)
+Severity: Medium (High if production devtools/debug hooks enabled)
 
 Required:
 
-* If loading Vue from CDN/self-host without a bundler, MUST use the `.prod.js` builds in production. ([Vue.js][3])
-* SHOULD ensure production bundles do not enable Vue devtools in production builds, and SHOULD not intentionally enable production devtools flags. ([Vue.js][7])
+* If loading Vue from CDN/self-host without bundler, MUST use `.prod.js` builds in production. ([Vue.js][3])
+* SHOULD ensure production bundles do not enable Vue devtools. SHOULD not intentionally enable production devtools flags. ([Vue.js][7])
 
 Insecure patterns:
 
@@ -163,7 +150,7 @@ Detection hints:
 
 Fix:
 
-* Switch to production build artifacts and ensure compile-time flags are configured for production.
+* Switch to production build artifacts; configure compile-time flags for production.
 
 ---
 
@@ -178,12 +165,12 @@ Required:
 
   * source code
   * `.env` files committed to repo
-  * `import.meta.env.*` variables included in the bundle
-* MUST assume any env var that ends up in the client bundle is attacker-readable. ([vitejs][2])
+  * `import.meta.env.*` variables included in bundle
+* MUST assume any env var ending up in client bundle is attacker-readable. ([vitejs][2])
 
 Insecure patterns:
 
-* `VITE_API_KEY=...` containing a true secret (not just a public identifier).
+* `VITE_API_KEY=...` containing true secret (not just public identifier).
 * Hard-coded API keys, private tokens, service credentials, signing keys in JS/TS.
 
 Detection hints:
@@ -194,11 +181,11 @@ Detection hints:
 Fix:
 
 * Move secrets to backend/edge functions.
-* Use backend-minted short-lived tokens for the browser when needed.
+* Use backend-minted short-lived tokens for browser when needed.
 
 Notes:
 
-* Vite specifically warns that `.env.*.local` should be gitignored and that `VITE_*` vars end up in the client bundle, so they must not contain sensitive info. ([vitejs][2])
+* Vite warns `.env.*.local` should be gitignored and `VITE_*` vars end up in client bundle, so they must not contain sensitive info. ([vitejs][2])
 
 ---
 
@@ -208,13 +195,13 @@ Severity: High
 
 Required:
 
-* MUST NOT configure Vite to expose all environment variables to the client.
+* MUST NOT configure Vite to expose all environment variables to client.
 * SHOULD keep `envPrefix` strict and explicit.
 
 Insecure patterns:
 
 * Setting `envPrefix` to overly broad values (or `''`) to “make env vars work”.
-* Custom scripts that inject server secrets into global variables in HTML at build time.
+* Custom scripts injecting server secrets into HTML global variables at build time.
 
 Detection hints:
 
@@ -224,11 +211,11 @@ Detection hints:
 Fix:
 
 * Keep secrets server-side.
-* Only expose non-sensitive values intentionally designed to be public.
+* Expose only non-sensitive values intentionally designed to be public.
 
 Notes:
 
-* Vite’s docs explain that only prefixed variables are exposed and that exposed variables land in the client bundle. ([vitejs][2])
+* Vite docs: only prefixed variables are exposed, and exposed variables land in client bundle. ([vitejs][2])
 
 ---
 
@@ -244,7 +231,7 @@ Required:
   * `v-html`
   * `innerHTML` in render functions / JSX
   * direct DOM APIs (`element.innerHTML`, `insertAdjacentHTML`)
-    unless the HTML is trusted or robustly sanitized and the risk is explicitly accepted. ([Vue.js][1])
+    unless HTML is trusted or robustly sanitized and risk is explicitly accepted. ([Vue.js][1])
 
 Insecure patterns:
 
@@ -260,11 +247,11 @@ Detection hints:
 Fix:
 
 * Render untrusted content as text (interpolation).
-* If HTML rendering is required (e.g., Markdown), sanitize with a well-maintained HTML sanitizer and apply defense-in-depth (CSP, Trusted Types). ([Vue.js][1])
+* If HTML rendering required (e.g., Markdown), sanitize with well-maintained HTML sanitizer and add defense-in-depth (CSP, Trusted Types). ([Vue.js][1])
 
 Notes:
 
-* Vue’s docs explicitly warn that user-provided HTML is never “100% safe” unless sandboxed or strictly self-only exposure. ([Vue.js][1])
+* Vue docs warn user-provided HTML is never “100% safe” unless sandboxed or strictly self-only exposure. ([Vue.js][1])
 
 ---
 
@@ -274,26 +261,26 @@ Severity: Critical
 
 Required:
 
-* MUST NOT use non-trusted content as a Vue component template.
+* MUST NOT use non-trusted content as Vue component template.
 * MUST treat “user can write a Vue template” as “user can execute arbitrary JavaScript in your app”, and potentially in SSR contexts too. ([Vue.js][1])
-* SHOULD prefer the runtime-only build (templates compiled at build time) and avoid shipping the runtime compiler unless you have a vetted need.
+* SHOULD prefer runtime-only build (templates compiled at build time) and avoid shipping runtime compiler unless need is vetted.
 
 Insecure patterns:
 
 * `createApp({ template: '<div>' + userProvidedString + '</div>' }).mount(...)`
-* Storing templates in DB and compiling/rendering them in the browser.
-* Admin/CMS features that allow entering Vue template syntax.
+* Storing templates in DB and compiling/rendering them in browser.
+* Admin/CMS features that accept Vue template syntax.
 
 Detection hints:
 
-* Search: `template:` where the value is not a static string.
+* Search: `template:` where value is not static string.
 * Search: `@vue/compiler-dom`, `compile(`, “runtime compiler” build selection, dynamic SFC compilation.
 * Search for “template editor”, “custom template”, “theme HTML” features.
 
 Fix:
 
 * Treat templates as code: keep them developer-controlled.
-* If end-user customization is required, use a safe format (restricted Markdown subset) rendered via a sanitizer, or isolate in a sandboxed iframe.
+* If end-user customization required, use safe format (restricted Markdown subset) rendered via sanitizer, or isolate in sandboxed iframe.
 
 ---
 
@@ -303,22 +290,22 @@ Severity: Medium
 
 Required:
 
-* MUST NOT mount Vue on nodes that may contain server-rendered and user-provided content (because attacker-controlled HTML that is “safe as HTML” may become unsafe as a Vue template). ([Vue.js][1])
-* SHOULD mount Vue into a “sterile” root element and render the app’s DOM from Vue-controlled templates/components.
+* MUST NOT mount Vue on nodes that may contain server-rendered and user-provided content (attacker-controlled HTML “safe as HTML” may become unsafe as Vue template). ([Vue.js][1])
+* SHOULD mount Vue into “sterile” root element and render app DOM from Vue-controlled templates/components.
 
 Insecure patterns:
 
-* Server renders user content into `#app`, then Vue mounts on `#app` and compiles/interprets that DOM as a template.
-* “Sprinkling Vue” on large server-rendered pages that include user-generated content.
+* Server renders user content into `#app`, then Vue mounts on `#app` and compiles/interprets that DOM as template.
+* “Sprinkling Vue” on large server-rendered pages with user-generated content.
 
 Detection hints:
 
-* Check server templates (e.g., Rails/Django/Express templates) for user HTML inserted inside the Vue mount root.
+* Check server templates (e.g., Rails/Django/Express templates) for user HTML inserted inside Vue mount root.
 * Look for `mount('#app')` where `#app` includes server-rendered UGC.
 
 Fix:
 
-* Move user-rendered HTML outside the Vue mount root, or render it in a safe way (text/sanitized HTML) from Vue components.
+* Move user-rendered HTML outside Vue mount root, or render it safely (text/sanitized HTML) from Vue components.
 
 ---
 
@@ -329,7 +316,7 @@ Severity: High
 Required:
 
 * MUST validate/sanitize any user-influenced URL before binding to navigation sinks (`href`, `src`, `action`, `window.location`, `window.open`, router navigation to external).
-* MUST specifically prevent `javascript:` URL execution in bindings like `<a :href="userProvidedUrl">`. ([Vue.js][1])
+* MUST prevent `javascript:` URL execution in bindings like `<a :href="userProvidedUrl">`. ([Vue.js][1])
 * SHOULD validate protocol and destination (allowlist `https:` and expected hosts; allow `mailto:`/`tel:` only if intended).
 
 Insecure patterns:
@@ -347,7 +334,7 @@ Fix:
 
 * Prefer internal navigation via route names/paths you control.
 * For external URLs: parse with `new URL(...)`, allowlist protocol/host, reject `javascript:` and other dangerous schemes.
-* Sanitize and validate on the backend before storing user URLs (Vue docs explicitly recommend backend sanitization). ([Vue.js][1])
+* Sanitize and validate on backend before storing user URLs (Vue docs recommend backend sanitization). ([Vue.js][1])
 
 ---
 
@@ -358,17 +345,17 @@ Severity: Low
 Required:
 
 * MUST NOT bind attacker-controlled CSS strings broadly (e.g., `:style="userProvidedStyles"`).
-* SHOULD use Vue’s style object syntax and only allow safe, specific properties if user customization is needed. ([Vue.js][1])
+* SHOULD use Vue’s style object syntax and allow only safe, specific properties if user customization is needed. ([Vue.js][1])
 * SHOULD isolate “user can control layout/CSS” features inside sandboxed iframes.
 
 Insecure patterns:
 
 * `:style="userProvidedStyles"` where styles are attacker-controlled.
-* Rendering user-provided `<style>` content (even if Vue blocks some patterns, don’t try to work around it).
+* Rendering user-provided `<style>` content (even if Vue blocks some patterns, do not try to work around it).
 
 Detection hints:
 
-* Search: `:style="` bound to non-constant variables that originate from API/user content.
+* Search: `:style="` bound to non-constant variables originating from API/user content.
 * Search for “custom CSS”, “theme editor”, “profile CSS”.
 
 Fix:
@@ -400,7 +387,7 @@ Detection hints:
 Fix:
 
 * Use real event listeners with developer-controlled handlers.
-* If you truly need user scripting, isolate it (sandboxed iframe + strict boundaries).
+* If user scripting is truly needed, isolate it (sandboxed iframe and strict boundaries).
 
 ---
 
@@ -411,7 +398,7 @@ Severity: High
 Required:
 
 * MUST NOT rely on Vue Router guards, UI hiding, or client-side checks to enforce authorization.
-* MUST enforce authorization on the backend for every privileged action and sensitive data response. ([OWASP Cheat Sheet Series][8])
+* MUST enforce authorization on backend for every privileged action and sensitive data response. ([OWASP Cheat Sheet Series][8])
 
 Insecure patterns:
 
@@ -420,12 +407,12 @@ Insecure patterns:
 
 Detection hints:
 
-* Search `router.beforeEach` for role-based gating and see if the backend is also enforcing.
+* Search `router.beforeEach` for role-based gating; check whether backend also enforces.
 * Look for “security by route meta” patterns (`meta.requiresAdmin`) with no server corroboration.
 
 Fix:
 
-* Keep route guards as UX only (reduce accidental access), but enforce real checks server-side.
+* Keep route guards as UX only (reduce accidental access); enforce real checks server-side.
 
 ---
 
@@ -436,8 +423,8 @@ Severity: Low
 Required:
 
 * MUST validate redirect destinations derived from untrusted input (`next`, `return_to`, `redirect`).
-* SHOULD allow only same-site relative paths or an explicit allowlist of destinations.
-* MUST NOT allow non `http` / `https` protos (such as `javascript:`)
+* SHOULD allow only same-site relative paths or explicit destination allowlist.
+* MUST NOT allow non `http` / `https` protocols (such as `javascript:`)
 
 Insecure patterns:
 
@@ -447,7 +434,7 @@ Insecure patterns:
 Detection hints:
 
 * Search for `route.query.next`, `route.query.redirect`, `return_to`, `continue`, `callback`.
-* Trace the value into router/window navigation sinks.
+* Trace value into router/window navigation sinks.
 
 Fix:
 
@@ -456,7 +443,7 @@ Fix:
 
 Notes:
 
-* Even Vue’s docs note that sanitized URLs still may not guarantee safe destinations. ([Vue.js][1])
+* Even Vue docs note sanitized URLs may still not guarantee safe destinations. ([Vue.js][1])
 
 ---
 
@@ -467,7 +454,7 @@ Severity: Low
 Required:
 
 * MUST assume any token accessible to JavaScript can be stolen via XSS.
-* SHOULD prefer HttpOnly cookies (set by the backend) for session tokens, combined with CSRF protections where relevant. ([Vue.js][1])
+* SHOULD prefer HttpOnly cookies (set by backend) for session tokens, with CSRF protections where relevant. ([Vue.js][1])
 * SHOULD avoid storing long-lived tokens (especially refresh tokens) in `localStorage`/`sessionStorage`.
 
 Insecure patterns:
@@ -483,7 +470,7 @@ Detection hints:
 Fix:
 
 * Prefer backend-managed sessions via HttpOnly cookies.
-* If bearer tokens are unavoidable, keep them short-lived, stored in memory, and rotate frequently; combine with strong XSS mitigations (CSP, Trusted Types, strict sanitization). ([OWASP Cheat Sheet Series][4])
+* If bearer tokens unavoidable, keep them short-lived, in memory, and rotate frequently. Combine with strong XSS mitigations (CSP, Trusted Types, strict sanitization). ([OWASP Cheat Sheet Series][4])
 
 ---
 
@@ -491,12 +478,12 @@ Fix:
 
 Severity: High (for cookie-authenticated state-changing requests)
 
-NOTE: If the application is not using cookie based authentication (for example if it passes an Authorization header), then CSRF is not a concern
+NOTE: If app does not use cookie-based authentication (for example, passes an Authorization header), CSRF is not a concern
 
 Required:
 
-* If API requests include cookies (`credentials: 'include'` / `withCredentials: true`) and cookies authenticate the user, MUST include CSRF protections coordinated with the backend (token/header patterns, Origin checks, SameSite cookies as defense-in-depth). ([Vue.js][1])
-* MUST NOT “solve CORS/CSRF errors” by disabling protections on the backend or using `mode: 'no-cors'` on the frontend.
+* If API requests include cookies (`credentials: 'include'` / `withCredentials: true`) and cookies authenticate user, MUST include CSRF protections coordinated with backend (token/header patterns, Origin checks, SameSite cookies as defense-in-depth). ([Vue.js][1])
+* MUST NOT “solve CORS/CSRF errors” by disabling protections on backend or using `mode: 'no-cors'` on frontend.
 
 Insecure patterns:
 
@@ -506,16 +493,12 @@ Insecure patterns:
 Detection hints:
 
 * Search: `credentials: 'include'`, `withCredentials`, `xsrf`, `csrf`, `X-CSRF-Token`, `X-XSRF-TOKEN`.
-* Look at API wrapper modules for headers and cookie settings.
+* Check API wrapper modules for headers and cookie settings.
 
 Fix:
 
-* Implement backend-issued CSRF tokens and require them on state-changing requests.
+* Use backend-issued CSRF tokens; require them on state-changing requests.
 * Keep cookies `SameSite=Lax/Strict` where compatible and verify Origin/Referer where appropriate (backend-driven). ([OWASP Cheat Sheet Series][9])
-
-Notes:
-
-* Vue’s docs explicitly say CSRF is primarily backend-addressed but recommends coordinating on CSRF token submission. ([Vue.js][1])
 
 ---
 
@@ -531,7 +514,7 @@ Required:
 Insecure patterns:
 
 * `/?token=...`, `/#access_token=...` used beyond short-lived OAuth handoff.
-* `console.log(userSession)` that includes tokens/PII.
+* `console.log(userSession)` including tokens/PII.
 
 Detection hints:
 
@@ -551,13 +534,13 @@ Severity: Medium
 
 Required:
 
-* SHOULD deploy a CSP (`Content-Security-Policy`) suitable for your Vue app.
+* SHOULD deploy CSP (`Content-Security-Policy`) suited to your Vue app.
 * SHOULD deploy clickjacking defenses (CSP `frame-ancestors` and/or `X-Frame-Options`) unless intentional embedding is required.
 * SHOULD deploy `X-Content-Type-Options: nosniff`, plus other headers as appropriate (Referrer-Policy, Permissions-Policy). ([OWASP Cheat Sheet Series][4])
 
 Insecure patterns:
 
-* No evidence of headers in server/CDN config for an app with UGC or rich HTML rendering.
+* No evidence of headers in server/CDN config for app with UGC or rich HTML rendering.
 * CSP includes `unsafe-inline`/`unsafe-eval` without strong justification.
 
 Detection hints:
@@ -567,7 +550,7 @@ Detection hints:
 
 Fix:
 
-* Set headers at the edge or in the server. Start with a conservative CSP and tighten.
+* Set headers at edge or in server. Start with conservative CSP, then tighten.
 
 ---
 
@@ -578,7 +561,7 @@ Severity: Low
 Required:
 
 * For apps with significant DOM injection surface (rich text, plugins, `v-html`), SHOULD consider enabling Trusted Types to reduce DOM XSS risk. ([web.dev][10])
-* SHOULD treat Trusted Types as defense-in-depth, not a replacement for sanitization.
+* SHOULD treat Trusted Types as defense-in-depth, not replacement for sanitization.
 
 Insecure patterns:
 
@@ -587,11 +570,11 @@ Insecure patterns:
 Detection hints:
 
 * Search: `v-html`, `innerHTML`, `insertAdjacentHTML`.
-* Check CSP for `require-trusted-types-for 'script'` usage (if headers are in repo).
+* Check CSP for `require-trusted-types-for 'script'` usage (if headers in repo).
 
 Fix:
 
-* Reduce/centralize HTML injection, sanitize inputs, and add Trusted Types policies where appropriate.
+* Reduce/centralize HTML injection, sanitize inputs, add Trusted Types policies where appropriate.
 
 ---
 
@@ -601,13 +584,13 @@ Severity: Low
 
 Required:
 
-* MUST NOT inject `<script src="...">` where the URL is user-controlled.
+* MUST NOT inject `<script src="...">` where URL is user-controlled.
 * SHOULD treat third-party widgets/analytics as supply-chain risk; load only from vetted, pinned sources.
 
 Insecure patterns:
 
 * `const s=document.createElement('script'); s.src = userProvidedUrl; ...`
-* “Plugin marketplace” that loads arbitrary remote scripts.
+* “Plugin marketplace” loading arbitrary remote scripts.
 
 Detection hints:
 
@@ -627,7 +610,7 @@ Severity: Low
 
 Required:
 
-* If loading scripts/styles from a CDN, SHOULD use Subresource Integrity (`integrity` attribute) with appropriate `crossorigin` configuration. ([MDN Web Docs][11])
+* If loading scripts/styles from CDN, SHOULD use Subresource Integrity (`integrity` attribute) with appropriate `crossorigin` configuration. ([MDN Web Docs][11])
 * SHOULD prefer self-hosting or bundling over runtime CDN dependencies for security-critical code.
 
 Insecure patterns:
@@ -652,9 +635,9 @@ Severity: Low
 
 Required:
 
-* SHOULD keep Vue and official companion libraries updated; Vue explicitly recommends using latest versions to remain as secure as possible. ([Vue.js][1])
+* SHOULD keep Vue and official companion libraries updated; Vue recommends latest versions to stay as secure as possible. ([Vue.js][1])
 * MUST respond to security advisories promptly.
-* SHOULD pin dependencies and keep lockfiles committed (to reduce drift in production artifacts).
+* SHOULD pin dependencies and commit lockfiles (reduces drift in production artifacts).
 
 Insecure patterns:
 
@@ -669,7 +652,7 @@ Detection hints:
 
 Fix:
 
-* Upgrade dependencies and add regression tests around the impacted behavior.
+* Upgrade dependencies; add regression tests around impacted behavior.
 * Add dependency scanning in CI.
 
 ---
@@ -680,8 +663,8 @@ Severity: Medium
 
 Required:
 
-* When using SSR, MUST treat anything injected into the HTML document (initial state, serialized data, inline scripts) as XSS-sensitive.
-* MUST keep the “trusted templates only” rule even stricter, because unsafe templates can lead to server-side execution during rendering. ([Vue.js][1])
+* When using SSR, MUST treat anything injected into HTML document (initial state, serialized data, inline scripts) as XSS-sensitive.
+* MUST apply “trusted templates only” rule even more strictly, because unsafe templates can cause server-side execution during rendering. ([Vue.js][1])
 * SHOULD follow Vue SSR documentation and best practices for SSR security. ([Vue.js][1])
 
 Insecure patterns:
@@ -703,42 +686,16 @@ Fix:
 
 ## 5) Practical scanning heuristics (how to “hunt”)
 
-When actively scanning, use these high-signal patterns:
+High-signal patterns for active scanning:
 
-* Dev/preview servers in production:
-
-  * `npm run dev`, `vite`, `vite preview`, `vue-cli-service serve` ([vitejs][5])
-* Secrets exposure:
-
-  * `.env`, `.env.production`, `.env.*.local`, `VITE_`, `import.meta.env`, hard-coded `API_KEY` / `SECRET` ([vitejs][2])
-* XSS sinks:
-
-  * `v-html`, `innerHTML`, `insertAdjacentHTML`, `DOMParser`, `document.write` ([Vue.js][1])
-* Client-side template injection:
-
-  * `template:` concatenation, `compile(`, runtime compiler usage, mounting on non-sterile DOM ([Vue.js][1])
 * URL injection / open redirects:
 
-  * `:href="..."` / `:src="..."` from user data
   * `javascript:` occurrences
-  * `route.query.next` / `redirect` / `return_to` flowing into `router.push` or `window.location` ([Vue.js][1])
-* Style injection:
-
-  * `:style="userProvidedStyles"` or user-driven theme CSS ([Vue.js][1])
-* Token storage:
-
-  * `localStorage.setItem('token'...)`, persisted auth stores, refresh tokens in JS-accessible storage
-* CSRF integration red flags:
-
-  * `credentials: 'include'` / `withCredentials: true` without any CSRF header/token handling ([Vue.js][1])
-* Third-party scripts:
-
-  * dynamic script injection (`createElement('script')`), CDN scripts without SRI ([MDN Web Docs][11])
 * External links security:
 
   * `target="_blank"` without `rel="noopener"`/`noreferrer` (still recommended for legacy and explicitness) ([MDN Web Docs][12])
 
-Always try to confirm:
+Always confirm:
 
 * data origin (untrusted vs trusted)
 * sink type (HTML/DOM insertion, template compilation, URL navigation, style injection, script injection)

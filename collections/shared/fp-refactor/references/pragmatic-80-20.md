@@ -1,22 +1,20 @@
 # Pragmatic fp-ts: The 80/20
 
-Merged from an earlier pragmatic-FP guide by the same upstream source. Read this before proposing an fp-ts refactor to decide *how much* FP a change should introduce.
-
 ## The Golden Rule
 
 > **If functional programming makes the code harder to read for the team that maintains it, don't use it.**
 
 ## The 80/20
 
-Five tools cover most of the benefit. Introduce them in this order and stop when the code is clear:
+Five tools cover most benefit. Introduce in this order; stop when code is clear:
 
 1. `pipe` - read transformations top to bottom instead of nesting calls.
 2. `Option` - replace chains of null checks that feed further logic (not one-off `?.`).
-3. `Either` - make failures part of the return type.
-4. `map` - transform the value inside an `Option`/`Either`/`TaskEither` without unpacking it.
+3. `Either` - make failures part of return type.
+4. `map` - transform value inside `Option`/`Either`/`TaskEither` without unpacking it.
 5. `flatMap` - sequence steps that can each miss or fail.
 
-Everything else (Reader, Validation, Do notation, type classes) comes later and only when a concrete problem needs it.
+Everything else (Reader, Validation, Do notation, type classes) comes later, only when concrete problem needs it.
 
 ## Quick Wins: Easy Changes That Improve Code Today
 
@@ -119,7 +117,7 @@ const handleError = (error: AppError): string => {
 
 ## The Readability Rule
 
-Before using any FP pattern, ask: **"Would a junior developer understand this?"**
+Before any FP pattern, ask: **"Would a junior developer understand this?"**
 
 ### Too Clever (Avoid)
 
@@ -158,15 +156,15 @@ const result = pipe(
 
 ## When Your Team Doesn't Know FP
 
-If only one person can read the code, it is not good code. A plain `async` function with `try/catch` that returns `null` on failure is acceptable when nobody branches on the failure reason. Introduce `TaskEither` at a boundary where typed errors pay for themselves (an API client, a repository), with a short example in the PR description, rather than converting a whole module at once.
+Plain `async` function with `try/catch` returning `null` on failure is fine when nobody branches on failure reason. Introduce `TaskEither` at a boundary where typed errors pay for themselves (API client, repository). Add short example in PR description. Do not convert whole module at once.
 
 ## When to Level Up
 
-Once comfortable with these patterns, explore:
+Once comfortable with basics, explore:
 
-1. **TaskEither** - Async operations that can fail (replaces Promise + try/catch)
-2. **Validation** - Collect ALL errors instead of stopping at first
-3. **Reader** - Dependency injection without classes
-4. **Do notation** - Cleaner syntax for multiple bindings
+1. **TaskEither** - async operations that can fail (replaces Promise + try/catch)
+2. **Validation** - collect ALL errors instead of stopping at first
+3. **Reader** - dependency injection without classes
+4. **Do notation** - cleaner syntax for multiple bindings
 
-But don't rush. The basics here will handle 80% of real-world scenarios. Get comfortable with these before adding more tools to your belt.
+Don't rush: basics handle 80% of real-world scenarios.

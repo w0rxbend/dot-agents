@@ -7,43 +7,27 @@ allowed-tools: []
 
 # Lua C Integration
 
-## Introduction
-
-Lua's C API enables seamless integration with C code, allowing developers to
-extend Lua with high-performance native functionality or embed Lua as a scripting
-engine within C applications. This bidirectional integration makes Lua ideal for
-performance-critical applications requiring scripting capabilities.
-
-The C API operates through a virtual stack for passing values between Lua and C,
-with functions for manipulating Lua values, calling functions, and managing
-memory. Understanding stack operations and Lua's data model is essential for
-safe, efficient C integration.
-
-This skill covers the Lua stack, calling C from Lua, calling Lua from C,
-creating C modules, userdata and metatables, error handling, memory management,
-and performance optimization patterns.
-
 ## Target version first
 
-Examples below use the Lua 5.2-5.4 API (`luaL_newlib`, `luaL_setfuncs`,
-`lua_len`, `luaL_len`, `lua_callk`). Lua 5.1 and LuaJIT (which also backs
-Neovim, OpenResty and LÖVE) expose the 5.1 C API, where several of these do
-not exist. Check `LUA_VERSION_NUM` (501, 502, 503, 504) at compile time and
-build against the headers of the interpreter that will load the module -
-a module compiled against 5.4 headers will not load into LuaJIT.
+Examples below use Lua 5.2-5.4 API (`luaL_newlib`, `luaL_setfuncs`,
+`lua_len`, `luaL_len`, `lua_callk`). Lua 5.1 and LuaJIT (behind Neovim,
+OpenResty and LÖVE) expose 5.1 C API, which lacks several of these. Check
+`LUA_VERSION_NUM` (501, 502, 503, 504) at compile time. Build against headers
+of interpreter that loads module. Module compiled against 5.4 headers will not
+load into LuaJIT.
 
 | Need | Lua 5.1 / LuaJIT | Lua 5.2-5.4 |
 |------|------------------|-------------|
-| Create module table | `lua_newtable` + `luaL_register(L, NULL, funcs)` (or `luaL_register(L, "name", funcs)`, which also sets a global) | `luaL_newlib(L, funcs)` |
+| Create module table | `lua_newtable` + `luaL_register(L, NULL, funcs)` (or `luaL_register(L, "name", funcs)`, which also sets global) | `luaL_newlib(L, funcs)` |
 | Register into existing table, with upvalues | `luaL_register` (no upvalues) / loop with `lua_pushcclosure` | `luaL_setfuncs(L, funcs, nup)` |
 | Raw length | `lua_objlen(L, idx)` | `lua_rawlen(L, idx)`; `lua_len`/`luaL_len` honor `__len` |
 | Globals table | `LUA_GLOBALSINDEX` pseudo-index | `lua_pushglobaltable(L)` / `LUA_RIDX_GLOBALS` |
 | Integers | `lua_Integer` is `ptrdiff_t`; numbers are doubles | 5.3+: real 64-bit integer subtype, `lua_isinteger` |
 | Set userdata metatable by name | `luaL_getmetatable` + `lua_setmetatable` | `luaL_setmetatable(L, name)`; `luaL_testudata` for non-erroring checks |
 | Userdata user values | `lua_setfenv`/`lua_getfenv` | 5.2-5.3: one user value; 5.4: `lua_newuserdatauv(L, size, nuv)` |
-| Yield across C | not possible | `lua_yieldk`, `lua_callk`, `lua_pcallk` with a continuation function |
+| Yield across C | not possible | `lua_yieldk`, `lua_callk`, `lua_pcallk` with continuation function |
 
-A small compatibility block covers most modules:
+Small compatibility block covers most modules:
 
 ```c
 #if LUA_VERSION_NUM == 501
@@ -52,15 +36,11 @@ A small compatibility block covers most modules:
 #endif
 ```
 
-For anything larger use the maintained `lua-compat-5.3` headers instead of
-growing your own shims. On LuaJIT, prefer the FFI (`ffi.cdef` + `ffi.load`)
-for plain C library bindings: it is JIT-compiled, while classic `lua_CFunction`
-calls are not.
+Anything larger: use maintained `lua-compat-5.3` headers, not home-grown shims.
+On LuaJIT, prefer FFI (`ffi.cdef` + `ffi.load`) for plain C library bindings.
+FFI is JIT-compiled; classic `lua_CFunction` calls are not.
 
 ## Lua Stack Fundamentals
-
-The Lua-C API uses a virtual stack for all value exchange between Lua and C,
-requiring understanding of push/pop operations.
 
 ```c
 #include <lua.h>
@@ -198,13 +178,7 @@ void global_operations(lua_State *L) {
 }
 ```
 
-Master stack operations for efficient C-Lua value exchange and avoid stack
-overflow through proper cleanup.
-
 ## Calling C Functions from Lua
-
-C functions follow specific signatures and conventions to be callable from Lua
-scripts.
 
 ```c
 #include <lua.h>
@@ -343,12 +317,7 @@ void register_functions(lua_State *L) {
 }
 ```
 
-C functions must follow Lua's calling convention and properly manage the stack
-for reliable integration.
-
 ## Calling Lua from C
-
-C code can load Lua scripts, call Lua functions, and access Lua global variables.
 
 ```c
 #include <lua.h>
@@ -505,12 +474,15 @@ void load_chunk(lua_State *L, const char *code) {
 }
 ```
 
-Calling Lua from C enables using Lua as a configuration or scripting layer
-within C applications.
+Examples above trust script. `luaL_openlibs` gives it `io`, `os`, `package`
+and `debug`: full host access. Untrusted or user-supplied scripts: open only
+base, string, table and math (`luaL_requiref`), set `dofile`, `loadfile` and
+`load` (5.1: also `loadstring`) to nil, and load source text only
+(`luaL_loadbufferx(L, buf, len, name, "t")`; plain 5.1: reject `buf[0] ==
+'\x1b'`). Bytecode is unverified and can crash or exploit VM. Cap CPU with
+`lua_sethook` count hook and memory with custom `lua_Alloc`.
 
 ## Creating C Modules
-
-C modules package related functions and constants for use in Lua programs.
 
 ```c
 #include <lua.h>
@@ -665,13 +637,7 @@ int luaopen_stateful(lua_State *L) {
 }
 ```
 
-Organize related functionality into modules for clean API design and namespace
-management.
-
 ## Userdata and Metatables
-
-Userdata wraps C structures for use in Lua with custom behavior through
-metatables.
 
 ```c
 #include <lua.h>
@@ -824,84 +790,65 @@ static int create_light_userdata(lua_State *L) {
 }
 ```
 
-Userdata enables passing C structures to Lua while controlling access through
-metatables.
-
 ## Best Practices
 
-1. **Always check lua_pcall results** to catch and handle Lua errors properly
+1. **Always check lua_pcall results** to catch Lua errors
 
-2. **Use luaL_check functions** for argument validation with clear error messages
+2. **Balance push and pop operations** to prevent stack overflow and leaks
 
-3. **Balance push and pop operations** to prevent stack overflow and leaks
+3. **Create metatables for userdata** for Lua-style access
 
-4. **Create metatables for userdata** to enable natural Lua-style access patterns
+4. **Use luaL_newlib for modules** to register function tables
 
-5. **Use luaL_newlib for modules** to simplify registration of function tables
+5. **Handle errors with luaL_error**, not returned error codes
 
-6. **Handle errors with luaL_error** rather than returning error codes
-
-7. **Do not call lua_tostring on a key during lua_next traversal**: it converts
-   a number in place to a string and corrupts the iteration; copy the key with
+6. **Do not call lua_tostring on a key during lua_next traversal**: it converts
+   number key in place to string and corrupts iteration. Copy key with
    `lua_pushvalue` first
 
-8. **Use lua_absindex** when stack positions change during operations
+7. **Use lua_absindex** when stack positions shift during operations
 
-9. **Register metamethods for userdata** cleanup to prevent memory leaks
-
-10. **Document stack effects** in comments for complex C functions
+8. **Document stack effects** in comments of complex C functions
 
 ## Common Pitfalls
 
-1. **Stack overflow from unbalanced push/pop** causes crashes and undefined
-   behavior
+1. **Not checking function return types** causes type mismatches
 
-2. **Not checking function return types** leads to type mismatches and errors
-
-3. **Using lua_tostring without checking** returns NULL for non-convertible
+2. **Using lua_tostring without checking** returns NULL for non-convertible
    values and converts numbers in place
 
-4. **Calling lua_error directly** instead of luaL_error loses error context
+3. **Calling lua_error directly** instead of luaL_error loses error context
 
-5. **Accessing invalid stack indices** causes undefined behavior and crashes
+4. **Accessing invalid stack indices** crashes or causes undefined behavior
 
-6. **Not setting a `__gc` metamethod on userdata that owns C resources** leaks
-   those resources: Lua frees the block but never calls your cleanup
+5. **Not setting a `__gc` metamethod on userdata that owns C resources** leaks
+   those resources. Lua frees block but never calls your cleanup
 
-7. **Mixing absolute and relative indices** causes confusion and bugs
+6. **Not using luaL_checkudata** allows type confusion and crashes
 
-8. **Forgetting lua_pcall error handling** causes uncaught exceptions
-
-9. **Not using luaL_checkudata** allows type confusion and crashes
-
-10. **Closing lua_State prematurely** invalidates all references and causes
-    crashes
+7. **Closing lua_State prematurely** invalidates all references and crashes
 
 ## When to Use This Skill
 
-Apply C integration when performance-critical operations exceed pure Lua
-capabilities.
+Performance-critical operations too slow in pure Lua.
 
-Use C modules to wrap existing C libraries for use in Lua applications.
+Wrapping existing C libraries as C modules for Lua.
 
-Leverage userdata when managing complex C structures from Lua code.
+Managing complex C structures from Lua through userdata.
 
-Embed Lua as a scripting engine in C applications requiring runtime
-configuration.
+Embedding Lua as scripting engine for runtime configuration of C applications.
 
-Create C extensions for computationally intensive algorithms unsuitable for Lua.
-
-Implement low-level system operations or hardware interfaces through C bindings.
+Low-level system operations or hardware interfaces through C bindings.
 
 ## Done when
 
-- The module builds against the headers of the interpreter that loads it
+- Module builds against headers of interpreter that loads it
   (`LUA_VERSION_NUM` checked; 5.1/LuaJIT shims in place if needed).
-- Every C function leaves the stack balanced (assert `lua_gettop` in debug
+- Every C function leaves stack balanced (assert `lua_gettop` in debug
   builds) and validates arguments with `luaL_check*`.
-- Userdata that owns C resources has `__gc` (and `__close` on 5.4) and is
+- Userdata owning C resources has `__gc` (and `__close` on 5.4) and is
   type-checked with `luaL_checkudata`.
-- Loaded and exercised from Lua under the real host, ideally under ASan.
+- Loaded and exercised from Lua under real host, ideally under ASan.
 
 ## Resources
 

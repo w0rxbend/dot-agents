@@ -1,8 +1,5 @@
 # Presence Patterns Reference Guide
 
-Real-time awareness of other users: online status, cursors, selections, typing indicators.
-
-
 ## Table of Contents
 
 - [What is Presence?](#what-is-presence)
@@ -29,22 +26,22 @@ Real-time awareness of other users: online status, cursors, selections, typing i
 
 ## What is Presence?
 
-Presence provides awareness of other users in collaborative applications:
+Presence shows other users in collaborative apps:
 
 - **Who's online** - Active users list
-- **Cursor positions** - Where others are editing
-- **Selections** - What others have selected
-- **Typing indicators** - Who's currently typing
-- **Active view** - What page/document others are viewing
+- **Cursor positions** - Where others edit
+- **Selections** - What others selected
+- **Typing indicators** - Who is typing now
+- **Active view** - Page/document others view
 
 **Key Characteristics:**
 - **Ephemeral** - Not persisted (unlike CRDT document state)
 - **Fast updates** - High-frequency position changes
-- **Eventually consistent** - Can tolerate temporary inconsistency
+- **Eventually consistent** - Tolerates temporary inconsistency
 
 ## Yjs Awareness API
 
-Yjs includes built-in presence via Awareness API.
+Yjs has built-in presence via Awareness API.
 
 ### Basic Setup
 
@@ -168,7 +165,7 @@ window.addEventListener('beforeunload', () => {
 
 ### Mouse Cursor Position
 
-Track mouse position and broadcast to others.
+Track mouse position, broadcast to others.
 
 **Tracking:**
 ```typescript
@@ -221,16 +218,19 @@ function renderCursors() {
     cursor.style.top = `${state.cursor.y}px`
     cursor.style.pointerEvents = 'none'
 
-    // Cursor shape
+    // Cursor shape: static markup only. Awareness state is peer-controlled,
+    // so set it through DOM APIs, never interpolated into HTML
     cursor.innerHTML = `
       <svg width="24" height="24" viewBox="0 0 24 24">
-        <path d="M5.65376 12.3673H5.46026L5.31717 12.4976L0.500002 16.8829L0.500002 1.19841L11.7841 12.3673H5.65376Z"
-              fill="${state.user.color}"/>
+        <path d="M5.65376 12.3673H5.46026L5.31717 12.4976L0.500002 16.8829L0.500002 1.19841L11.7841 12.3673H5.65376Z"/>
       </svg>
-      <div class="cursor-label" style="background: ${state.user.color}">
-        ${state.user.name}
-      </div>
+      <div class="cursor-label"></div>
     `
+    const color = /^#[0-9a-f]{6}$/i.test(state.user.color) ? state.user.color : '#888888'
+    cursor.querySelector('path')!.setAttribute('fill', color)
+    const label = cursor.querySelector<HTMLElement>('.cursor-label')!
+    label.style.background = color
+    label.textContent = state.user.name
 
     cursorsContainer.appendChild(cursor)
   })
@@ -367,7 +367,7 @@ function renderSelections() {
 
 ## Typing Indicator
 
-Show when users are typing.
+Show who is typing.
 
 **Tracking:**
 ```typescript
@@ -428,7 +428,7 @@ awareness.on('change', renderTypingIndicators)
 
 ## Active View Tracking
 
-Track which page/section users are viewing.
+Track which page/section each user views.
 
 ```typescript
 // Update when route changes
@@ -457,12 +457,18 @@ function renderUsersHere() {
   const users = getUsersOnSamePage(window.location.pathname)
 
   const list = document.getElementById('users-here')
-  list.innerHTML = users.map(user => `
-    <div class="user-badge">
-      <img src="${user.avatar}" alt="${user.name}" />
-      <span>${user.name}</span>
-    </div>
-  `).join('')
+  // DOM APIs, not innerHTML: name and avatar come from other peers
+  list.replaceChildren(...users.map(user => {
+    const badge = document.createElement('div')
+    badge.className = 'user-badge'
+    const img = document.createElement('img')
+    if (user.avatar?.startsWith('https://')) img.src = user.avatar
+    img.alt = user.name
+    const name = document.createElement('span')
+    name.textContent = user.name
+    badge.append(img, name)
+    return badge
+  }))
 }
 
 awareness.on('change', renderUsersHere)
@@ -470,7 +476,7 @@ awareness.on('change', renderUsersHere)
 
 ## Last Seen Timestamp
 
-Track when users were last active.
+Track when each user was last active.
 
 ```typescript
 // Update on any interaction
@@ -512,9 +518,13 @@ setInterval(() => {
 
 ## User Avatar List
 
-Display all online users with avatars.
+List all online users with avatars.
 
 ```typescript
+// Element with plain text only: never parses HTML (every field below comes from a peer)
+const el = (tag: string, className: string, text = '') =>
+  Object.assign(document.createElement(tag), { className, textContent: text })
+
 function renderUserList() {
   const container = document.getElementById('user-list')
 
@@ -536,18 +546,23 @@ function renderUserList() {
       return a.name.localeCompare(b.name)
     })
 
-  container.innerHTML = users.map(user => `
-    <div class="user-item ${user.isMe ? 'me' : ''}">
-      <div class="avatar" style="border-color: ${user.color}">
-        <img src="${user.avatar}" alt="${user.name}" />
-        ${isUserActive(user) ? '<div class="status-dot"></div>' : ''}
-      </div>
-      <div class="user-info">
-        <div class="name">${user.name} ${user.isMe ? '(you)' : ''}</div>
-        <div class="email">${user.email}</div>
-      </div>
-    </div>
-  `).join('')
+  container.replaceChildren(...users.map(user => {
+    const avatar = el('div', 'avatar')
+    avatar.style.borderColor = user.color  // CSSOM drops invalid values
+    const img = Object.assign(document.createElement('img'), { alt: user.name })
+    if (user.avatar?.startsWith('https://')) img.src = user.avatar
+    avatar.append(img)
+    if (isUserActive(user)) avatar.append(el('div', 'status-dot'))
+
+    const info = el('div', 'user-info')
+    info.append(
+      el('div', 'name', user.isMe ? `${user.name} (you)` : user.name),
+      el('div', 'email', user.email ?? '')
+    )
+    const item = el('div', user.isMe ? 'user-item me' : 'user-item')
+    item.append(avatar, info)
+    return item
+  }))
 }
 
 function isUserActive(user: { lastSeen?: number }): boolean {
@@ -613,7 +628,7 @@ awareness.on('change', renderUserList)
 
 ## Focus Indicator
 
-Show which element/field users are focused on.
+Show which element/field each user has focused.
 
 ```typescript
 document.addEventListener('focusin', (event) => {
@@ -666,7 +681,7 @@ awareness.on('change', renderFieldOccupancy)
 
 ### Throttling Updates
 
-Don't send awareness updates on every pixel movement.
+Don't send awareness updates on every pixel moved.
 
 ```typescript
 import throttle from 'lodash.throttle'
@@ -731,13 +746,9 @@ setInterval(() => {
 
 ## Best Practices
 
-1. **Throttle frequent updates** - Cursor movements, scrolling (16-33ms)
-2. **Debounce typing indicators** - Stop typing after 1 second of inactivity
-3. **Include last seen timestamp** - Track user activity
-4. **Clear state on page unload** - Notify others when leaving
-5. **Show inactive users differently** - Visual cue after 1+ minute
-6. **Limit awareness data size** - Don't include large objects
-7. **Use color coding** - Assign each user a distinct color
-8. **Render cursors efficiently** - Use CSS transforms, not DOM manipulation
-9. **Test with many users** - Ensure performance with 50+ users
-10. **Provide privacy controls** - Let users hide their presence
+1. **Limit awareness data size** - Don't include large objects
+2. **Use color coding** - Distinct color per user
+3. **Render cursors efficiently** - Use CSS transforms, not DOM manipulation
+4. **Test with many users** - Check performance at 50+ users
+5. **Provide privacy controls** - Let users hide their presence
+6. **Treat awareness state as untrusted** - Any peer sets any value (names are self-asserted unless the server assigns them). Render with `textContent`/DOM APIs, never `innerHTML`; validate colors and avatar URLs

@@ -7,7 +7,7 @@ tags: parity, deployment, continuous-deployment, time-gap
 
 ## Deploy Frequently to Minimize the Time Gap
 
-The twelve-factor developer makes the time gap small: code should be deployed within hours or minutes of being written, not weeks or months. Frequent small deploys are less risky than infrequent large deploys.
+Twelve-factor developer keeps time gap small: deploy code within hours or minutes of writing it, not weeks or months.
 
 **Incorrect (infrequent deploys):**
 
@@ -107,11 +107,5 @@ git commit -m "Fix login redirect bug"
 git commit -m "Update security dependencies"
 # Each can be deployed (and rolled back) independently
 ```
-
-**Benefits:**
-- Lower risk per deployment
-- Faster feedback from production
-- Easier debugging when issues arise
-- Continuous improvement mindset
 
 Reference: [The Twelve-Factor App - Dev/prod parity](https://12factor.net/dev-prod-parity)

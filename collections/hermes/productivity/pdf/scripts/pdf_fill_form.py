@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 
 
@@ -28,7 +29,8 @@ def main() -> int:
     parser.add_argument("-o", "--output", required=True, help="Output PDF path")
     parser.add_argument("--flatten", action="store_true",
                         help="Make fields read-only and burn appearances into the page")
-    parser.add_argument("--password", help="Password if the input is encrypted")
+    parser.add_argument("--password", default=os.environ.get("PDF_PASSWORD"),
+                        help="Password if the input is encrypted (default: $PDF_PASSWORD)")
     args = parser.parse_args()
 
     try:

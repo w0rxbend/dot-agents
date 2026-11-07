@@ -3,7 +3,6 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [Default Strategy (Works for 80% of Cases)](#default-strategy-works-for-80-of-cases)
 - [Chunking by Content Type](#chunking-by-content-type)
 - [Implementation Strategies](#implementation-strategies)
@@ -26,20 +25,11 @@
 - [Evaluating Chunking Quality](#evaluating-chunking-quality)
 - [Common Mistakes to Avoid](#common-mistakes-to-avoid)
   - [1. Using Character Count Instead of Tokens](#1-using-character-count-instead-of-tokens)
-  - [2. No Overlap](#2-no-overlap)
-  - [3. Ignoring Content Structure](#3-ignoring-content-structure)
-  - [4. Chunks Too Large](#4-chunks-too-large)
 - [Performance Optimization](#performance-optimization)
   - [Parallel Chunking](#parallel-chunking)
   - [Caching Chunked Documents](#caching-chunked-documents)
 - [Production Checklist](#production-checklist)
 - [Additional Resources](#additional-resources)
-
-## Overview
-
-Chunking splits long documents into smaller pieces that fit within embedding model context windows and provide focused semantic meaning for retrieval.
-
-**Core principle:** Balance between context (larger chunks) and precision (smaller chunks).
 
 ## Default Strategy (Works for 80% of Cases)
 
@@ -50,9 +40,9 @@ CHUNK_OVERLAP = 50  # tokens (10% overlap)
 
 **Why these numbers?**
 - **512 tokens:** Sweet spot between context and precision
-  - Too small (128-256): Fragments concepts, loses context
-  - Too large (1024-2048): Dilutes relevance, wastes LLM tokens
-- **50 token overlap:** Ensures sentences/paragraphs aren't split awkwardly
+  - Too small (128-256): fragments concepts, loses context
+  - Too large (1024-2048): dilutes relevance, wastes LLM tokens
+- **50 token overlap:** stops awkward splits through sentences/paragraphs
 
 ## Chunking by Content Type
 
@@ -64,7 +54,7 @@ CHUNK_OVERLAP = 50  # tokens (10% overlap)
 | **Chat Logs** | 256 tokens | 20 tokens | Turn-based | Customer support, Slack |
 | **Legal Docs** | 1024 tokens | 150 tokens | Clause-based | Contracts, policies |
 | **API Logs (JSON)** | 512 tokens | 0 tokens | Structure-preserving | Request/response pairs |
-| **Emails** | 384 tokens | 40 tokens | Thread-aware | Email conversations |
+| **Emails** | 384 tokens | 40 tokens | Thread-aware | Email threads |
 | **PDFs (scanned)** | 512 tokens | 100 tokens | Page-aware | Research papers, reports |
 
 ## Implementation Strategies
@@ -93,15 +83,10 @@ splitter = RecursiveCharacterTextSplitter(
 chunks = splitter.split_text(document)
 ```
 
-**How it works:**
-1. Try splitting on `\n\n` (paragraphs)
-2. If chunks still too large, try `\n` (lines)
-3. Then `. ` (sentences)
-4. Then ` ` (words)
-5. Finally split by character
+**How it works:** splits on `\n\n` (paragraphs); if chunks still too large, falls back to `\n` (lines), then `. ` (sentences), then ` ` (words), finally by character.
 
 **Best for:**
-- General text documents
+- General text
 - Unknown/mixed content types
 - Markdown files
 - README files
@@ -122,17 +107,17 @@ chunks = splitter.split_text(document)
 ```
 
 **How it works:**
-1. Generates embeddings for sentences
+1. Embeds each sentence
 2. Computes similarity between consecutive sentences
-3. Splits where similarity drops significantly (semantic shift)
+3. Splits where similarity drops sharply (semantic shift)
 
 **Best for:**
 - Structured documentation
 - Technical articles with clear sections
 - Content with logical flow
-- When preserving semantic coherence is critical
+- Semantic coherence is critical
 
-**Trade-off:** Slower (generates embeddings for splitting), but better quality.
+**Trade-off:** Slower (embeds text to find splits), better quality.
 
 ### 3. Code-Aware Chunking (AST-Based)
 
@@ -216,7 +201,7 @@ def fixed_size_chunks(text, chunk_size=512, overlap=50):
 **Best for:**
 - Prototyping
 - Uniform content (chat logs, logs)
-- When speed matters more than quality
+- Speed matters more than quality
 
 **Drawbacks:**
 - May split sentences/paragraphs awkwardly
@@ -257,12 +242,7 @@ for parent in parent_chunks:
 # This gives precise retrieval + full context
 ```
 
-**Benefits:**
-- Retrieve with precision (small chunks)
-- Provide LLM with full context (large chunks)
-- Best of both worlds
-
-**Use case:** Complex technical documentation where context is critical.
+**Use case:** Complex technical docs where context is critical.
 
 ### Sliding Window Chunking
 
@@ -282,7 +262,7 @@ def sliding_window_chunks(text, window_size=512, step_size=256):
 
 **When to use:**
 - Need high overlap for dense coverage
-- Content has critical information at unpredictable locations
+- Critical info sits at unpredictable locations
 - Willing to trade storage for retrieval quality
 
 ### Sentence-Based Chunking
@@ -301,7 +281,7 @@ chunks = splitter.split_text(document)
 **Best for:**
 - Preserving sentence boundaries
 - Natural language text
-- When readability matters
+- Readability matters
 
 ## Metadata Enrichment During Chunking
 
@@ -368,7 +348,7 @@ for page in pages:
 - **Chunk size:** 512-768 tokens
 - **Overlap:** 50-100 tokens
 - **Strategy:** Semantic chunking
-- **Goal:** Provide conversational context
+- **Goal:** Give conversational context
 
 ### Summarization
 - **Chunk size:** 1024-2048 tokens
@@ -418,34 +398,6 @@ splitter = RecursiveCharacterTextSplitter(
 )
 ```
 
-### 2. No Overlap
-```python
-# ❌ BAD: No overlap, may split sentences
-splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=0)
-
-# ✅ GOOD: 10% overlap
-splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=50)
-```
-
-### 3. Ignoring Content Structure
-```python
-# ❌ BAD: Treat code like prose
-general_splitter.split_text(python_code)
-
-# ✅ GOOD: Use language-specific splitter
-python_splitter = RecursiveCharacterTextSplitter.from_language(Language.PYTHON)
-python_splitter.split_text(python_code)
-```
-
-### 4. Chunks Too Large
-```python
-# ❌ BAD: Chunks too large, dilutes relevance
-splitter = RecursiveCharacterTextSplitter(chunk_size=2048)
-
-# ✅ GOOD: 512 tokens balances context and precision
-splitter = RecursiveCharacterTextSplitter(chunk_size=512)
-```
-
 ## Performance Optimization
 
 ### Parallel Chunking
@@ -466,22 +418,22 @@ with ThreadPoolExecutor(max_workers=10) as executor:
 
 ```python
 import hashlib
-import pickle
+import json  # not pickle: a tampered cache file must not run code
 
 def get_cached_chunks(document, cache_dir="chunk_cache"):
     # Hash document content
     doc_hash = hashlib.sha256(document.encode()).hexdigest()
-    cache_path = f"{cache_dir}/{doc_hash}.pkl"
+    cache_path = f"{cache_dir}/{doc_hash}.json"
 
     # Check cache
     if os.path.exists(cache_path):
-        with open(cache_path, 'rb') as f:
-            return pickle.load(f)
+        with open(cache_path, encoding='utf-8') as f:
+            return json.load(f)
 
     # Chunk and cache
     chunks = chunk_document(document)
-    with open(cache_path, 'wb') as f:
-        pickle.dump(chunks, f)
+    with open(cache_path, 'w', encoding='utf-8') as f:
+        json.dump(chunks, f)
 
     return chunks
 ```
@@ -490,14 +442,14 @@ def get_cached_chunks(document, cache_dir="chunk_cache"):
 
 - [ ] Use token count, not character count
 - [ ] Apply 10% overlap (50 tokens for 512 chunk size)
-- [ ] Choose strategy based on content type
+- [ ] Pick strategy by content type
 - [ ] Enrich chunks with metadata (source, section, index)
-- [ ] Test chunking with sample documents
+- [ ] Test chunking on sample documents
 - [ ] Validate chunk sizes (min, max, avg)
 - [ ] Consider hierarchical chunking for complex docs
-- [ ] Cache chunked documents for efficiency
+- [ ] Cache chunked documents
 - [ ] Monitor chunk quality over time
-- [ ] Document chunking strategy for the team
+- [ ] Document chunking strategy for team
 
 ## Additional Resources
 

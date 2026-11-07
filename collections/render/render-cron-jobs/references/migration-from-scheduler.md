@@ -1,12 +1,6 @@
 # Migrating from Heroku Scheduler
 
-Convert Heroku Scheduler tasks to Render cron jobs.
-
----
-
 ## Schedule Mapping
-
-Heroku Scheduler has limited frequency options. Render supports full cron syntax.
 
 | Heroku Scheduler | Render Cron Expression |
 |-----------------|----------------------|
@@ -14,13 +8,11 @@ Heroku Scheduler has limited frequency options. Render supports full cron syntax
 | Every hour | `0 * * * *` |
 | Every day at midnight UTC | `0 0 * * *` |
 
-Render supports arbitrary schedules that Heroku Scheduler cannot express (e.g., weekdays only, twice daily, every 15 minutes).
-
----
+Render supports arbitrary schedules Heroku Scheduler cannot express (e.g., weekdays only, twice daily, every 15 minutes).
 
 ## Command Conversion
 
-Commands are generally the same, with `buildCommand` handling dependency installation:
+Commands mostly unchanged:
 
 | Heroku | Render |
 |--------|--------|
@@ -30,8 +22,6 @@ Commands are generally the same, with `buildCommand` handling dependency install
 
 Set `buildCommand` to install dependencies (e.g., `bundle install`, `pip install -r requirements.txt`, `npm ci`).
 
----
-
 ## Key Differences
 
 | Aspect | Heroku Scheduler | Render Cron Job |
@@ -40,15 +30,13 @@ Set `buildCommand` to install dependencies (e.g., `bundle install`, `pip install
 | Max run time | No explicit limit (but dyno restarts) | 12 hours hard limit |
 | Concurrent runs | May overlap | Single-run guarantee (at most one active) |
 | Execution guarantee | Best-effort (may skip) | Reliable (runs at scheduled time) |
-| Dedicated service | No (runs on a one-off dyno) | Yes (own build/deploy cycle) |
+| Dedicated service | No (runs on one-off dyno) | Yes (own build/deploy cycle) |
 | Cost model | Per-dyno-second | $1/month minimum + per-second billing |
 | Persistent disk | N/A | Not available |
 
----
-
 ## Blueprint Example
 
-A Ruby cron job migrated from Heroku Scheduler:
+Ruby cron job migrated from Heroku Scheduler:
 
 ```yaml
 services:
@@ -72,14 +60,14 @@ databases:
     plan: starter
 ```
 
----
-
 ## Migration Steps
 
-1. **List Heroku Scheduler tasks**: `heroku addons:open scheduler -a <app>` or check the Scheduler dashboard.
-2. **Map each task** to a Render cron job service (one service per task, or combine related tasks into one script).
-3. **Choose cron expressions** using the mapping table above.
+Heroku and Render CLIs send usage data by default; keep the opt-out prefixes below.
+
+1. **List Heroku Scheduler tasks**: `DISABLE_TELEMETRY=true heroku addons:open scheduler -a <app>` or check Scheduler dashboard.
+2. **Map each task** to Render cron job service (one service per task, or combine related tasks into one script).
+3. **Choose cron expressions** using mapping table above.
 4. **Add to Blueprint** with appropriate `buildCommand`, `startCommand`, and `envVars`.
-5. **Validate**: `render blueprints validate`
+5. **Validate**: `RENDER_CLI_DISABLE_ANALYTICS=1 render blueprints validate`
 6. **Deploy** via Blueprint deeplink or Dashboard.
-7. **Verify**: check cron run logs in the Render Dashboard after the first scheduled execution.
+7. **Verify**: check cron run logs in Render Dashboard after first scheduled execution.

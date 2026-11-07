@@ -44,18 +44,16 @@ spec:
         service: '{{path.basename}}'
         environment: '{{environment}}'
     spec:
-      project: default
+      project: platform-services  # restricted AppProject (allowed repos, clusters, namespaces), not default
       source:
         repoURL: https://github.com/my-org/infrastructure
-        targetRevision: HEAD
+        targetRevision: HEAD  # default branch: protect it so changes (incl. prod) land only via reviewed PR
         path: '{{path}}/{{environment}}'
         helm:
           valueFiles:
             - values.yaml
-            - values-{{environment}}.yaml
+            - values-{{environment}}.yaml  # pins image.tag to an immutable version or digest; promote by PR, never `latest`
           parameters:
-            - name: image.tag
-              value: '{{path.basename}}-latest'
             - name: replicaCount
               value: '{{replicaCount}}'
       destination:

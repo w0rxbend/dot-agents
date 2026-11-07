@@ -1,7 +1,6 @@
 # Natural-language PDF text editing with nano-pdf (merged from the nano-pdf skill)
-# nano-pdf
 
-Edit PDFs using natural-language instructions. Point it at a page and describe what to change. For structural PDF work (merge, split, forms, watermarks, creation), see the `pdf` skill; for text extraction from scans, see `ocr-and-documents`.
+Edit PDFs with natural-language instructions. Point nano-pdf at a page, describe what to change. For structural PDF work (merge, split, forms, watermarks, creation), see `pdf` skill. For text extraction from scans, see `ocr-and-documents`.
 
 ## Prerequisites
 
@@ -34,7 +33,7 @@ nano-pdf edit contract.pdf 2 "Change the client name from 'Acme Corp' to 'Acme I
 
 ## Notes
 
-- Page numbers may be 0-based or 1-based depending on version — if the edit hits the wrong page, retry with ±1
-- Always verify the output PDF after editing (use `read_file` to check file size, or open it)
-- The tool uses an LLM under the hood — requires an API key (check `nano-pdf --help` for config)
-- Works well for text changes; complex layout modifications may need a different approach
+- Page numbers may be 0-based or 1-based depending on version. If edit hits wrong page, retry with ±1
+- Always verify output PDF after editing (use `read_file` to check file size, or open it)
+- Tool uses LLM under the hood: page content goes to third-party LLM API. Confirm with user before sending confidential docs; work on a copy. API key via env/config (check `nano-pdf --help`), never pasted in chat
+- Works well for text changes. Complex layout modifications may need different approach

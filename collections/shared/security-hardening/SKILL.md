@@ -5,28 +5,22 @@ description: "Harden hosts, containers, cloud accounts, networks and databases a
 
 # Security Hardening
 
-## Purpose
-
-Proactive reduction of attack surface across infrastructure layers through systematic configuration hardening, least-privilege enforcement, and automated security controls. Applies industry-standard CIS Benchmarks and zero-trust principles to operating systems, containers, cloud configurations, networks, and databases.
-
 ## When to Use This Skill
 
-Invoke this skill when:
+Use when:
 - Hardening production infrastructure before deployment
 - Meeting compliance requirements (SOC 2, PCI-DSS, HIPAA, FedRAMP)
-- Implementing zero-trust security architecture
-- Reducing container or cloud misconfiguration risks
+- Building zero-trust security architecture
+- Reducing container or cloud misconfiguration risk
 - Preparing for security audits or penetration tests
 - Automating security baseline enforcement
 - Responding to vulnerability scan findings
 
 ## Hardening Layers
 
-Security hardening applies across five infrastructure layers:
-
 ### Layer 1: Operating System (Linux)
 - Kernel parameter tuning (sysctl)
-- SSH configuration hardening
+- SSH hardening
 - User and group management
 - File system permissions and mount options
 - Service minimization
@@ -34,18 +28,18 @@ Security hardening applies across five infrastructure layers:
 
 ### Layer 2: Container
 - Minimal base images (Chainguard, Distroless, Alpine)
-- Non-root container execution
+- Non-root execution
 - Read-only root filesystems
 - Seccomp and AppArmor profiles
-- Resource limits and capabilities dropping
+- Resource limits, dropped capabilities
 - Pod Security Standards enforcement
 
 ### Layer 3: Cloud Configuration
 - IAM least privilege and MFA enforcement
-- Network security groups and NACL configuration
+- Network security groups and NACLs
 - Encryption at rest and in transit
 - Public access blocking
-- Logging and monitoring enablement
+- Logging and monitoring enabled
 - CSPM (Cloud Security Posture Management) integration
 
 ### Layer 4: Network
@@ -58,30 +52,30 @@ Security hardening applies across five infrastructure layers:
 ### Layer 5: Database
 - Authentication and authorization hardening
 - Connection encryption (SSL/TLS)
-- Audit logging enablement
+- Audit logging enabled
 - Network isolation and access control
 - Role-based permissions with least privilege
 
 ## Core Hardening Principles
 
 ### 1. Default Deny, Explicit Allow
-Start with all access denied, explicitly permit only required operations. Apply default-deny firewall rules and network policies, then allow specific traffic.
+Deny all access by default. Permit only required operations. Apply default-deny firewall rules and network policies, then allow specific traffic.
 
 ### 2. Least Privilege Access
-Grant minimum permissions required for operation. Use RBAC, IAM policies with specific resources, and database roles with limited permissions (no DELETE or DDL unless required).
+Grant minimum permissions needed. Use RBAC, IAM policies scoped to specific resources, and database roles with limited permissions (no DELETE or DDL unless required).
 
 ### 3. Defense in Depth
-Implement multiple overlapping security controls: network firewalls, authentication, authorization, audit logging, and encryption working together.
+Layer overlapping controls: network firewalls, authentication, authorization, audit logging, encryption.
 
 ### 4. Minimal Attack Surface
-Remove unnecessary components, services, and permissions. Use minimal container base images, disable unused services, and drop all Linux capabilities unless required.
+Remove unneeded components, services and permissions. Use minimal container base images, disable unused services, drop all Linux capabilities unless required.
 
 ### 5. Fail Securely
-On error or misconfiguration, default to secure state. Authentication failures deny access, missing configurations use restrictive defaults, and monitoring failures trigger immediate alerts.
+On error or misconfiguration, default to secure state. Authentication failures deny access. Missing configuration uses restrictive defaults. Monitoring failures trigger immediate alerts.
 
 ## Hardening Priority Framework
 
-Prioritize hardening efforts based on exposure and data sensitivity:
+Prioritize by exposure and data sensitivity:
 
 ### Critical Priority: Internet-Facing Systems
 **Apply immediately:**
@@ -115,20 +109,15 @@ Prioritize hardening efforts based on exposure and data sensitivity:
 
 ## CIS Benchmark Integration
 
-CIS (Center for Internet Security) Benchmarks provide industry-standard hardening guidance.
-
 ### Automated CIS Scanning
 
 **Docker CIS Benchmark:**
 ```bash
-docker run --rm -it \
-  --net host \
-  --pid host \
-  --cap-add audit_control \
-  -v /var/lib:/var/lib:ro \
-  -v /var/run/docker.sock:/var/run/docker.sock:ro \
-  -v /etc:/etc:ro \
-  docker/docker-bench-security
+# Hub image docker/docker-bench-security is stale (2019) and gets host net/pid + Docker socket
+# (root on host): never pull it. Run a reviewed release tag on the host instead.
+GH_TELEMETRY=false gh repo clone docker/docker-bench-security -- --depth 1 --branch v1.6.1   # gh sends usage telemetry unless off
+cd docker-bench-security && less docker-bench-security.sh   # review before running as root
+sudo sh docker-bench-security.sh
 ```
 
 **Kubernetes CIS Benchmark:**
@@ -165,11 +154,9 @@ oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_cis_level1_serve
 | 13.1 Network Monitoring | Deploy IDS/IPS, flow logs | Network |
 | 3.1 Data Protection | Enable encryption at rest/transit | Cloud, Database |
 
-For detailed CIS control mapping, see `references/cis-benchmark-mapping.md`.
+Detailed CIS control mapping: `references/cis-benchmark-mapping.md`.
 
 ## Container Base Image Selection
-
-Choose base images based on security requirements and compatibility needs:
 
 | Use Case | Recommended Base | Size | CVEs | Trade-off |
 |----------|------------------|------|------|-----------|
@@ -179,17 +166,19 @@ Choose base images based on security requirements and compatibility needs:
 | **Debugging** | Debian slim | ~80MB | More | Has debugging tools |
 | **Legacy apps** | Ubuntu | ~100MB | Many | Full compatibility |
 
-**Production recommendation:** Chainguard Images or Distroless for production, Alpine for development.
+**Production recommendation:** Chainguard Images or Distroless in production, Alpine for development.
 
 ## Verification and Auditing
 
-Hardening must be verified continuously, not just at implementation.
+Verify hardening continuously, not only at implementation.
 
 ### Automated Security Scanning
 
 **Container vulnerability scanning:**
 ```bash
-# Trivy: Comprehensive vulnerability and misconfiguration scanner
+# Trivy: Comprehensive vulnerability and misconfiguration scanner.
+# Sends usage telemetry to Aqua by default: opt out wherever it runs (CI env too)
+export TRIVY_DISABLE_TELEMETRY=true TRIVY_SKIP_VERSION_CHECK=true
 trivy image --severity HIGH,CRITICAL myapp:latest
 
 # Grype: Fast vulnerability scanner
@@ -227,8 +216,6 @@ scout aws --services s3 iam ec2
 ```
 
 ### Continuous Verification Pipeline
-
-Integrate security scanning into CI/CD:
 
 ```yaml
 # GitHub Actions example
@@ -271,8 +258,6 @@ jobs:
 
 ### Compliance Reporting
 
-Generate compliance reports from scan results:
-
 ```bash
 # Generate CIS compliance report
 kube-bench run --json > cis-report.json
@@ -281,7 +266,7 @@ kube-bench run --json > cis-report.json
 trivy image --format json --output vuln-report.json myapp@sha256:<digest>
 ```
 
-Store these JSON reports as build artifacts or evidence; aggregate them in your compliance tooling (see the `implementing-compliance` skill).
+Store JSON reports as build artifacts or evidence. Aggregate them in compliance tooling (see `implementing-compliance` skill).
 
 ## Automation Tools
 
@@ -291,16 +276,6 @@ Store these JSON reports as build artifacts or evidence; aggregate them in your 
 - **Cloud Custodian:** Cloud resource policy enforcement
 - **OPA/Gatekeeper:** Kubernetes policy enforcement
 - **Kyverno:** Kubernetes-native policy management
-
-### Scanning Tools
-- **Trivy:** Universal vulnerability and misconfiguration scanner
-- **Checkov:** IaC security and compliance scanner
-- **Falco:** Runtime security monitoring
-- **Prowler:** AWS security assessment tool
-- **ScoutSuite:** Multi-cloud security auditing
-- **Lynis:** Linux security auditing
-- **docker-bench-security:** Docker CIS benchmark scanner
-- **kube-bench:** Kubernetes CIS benchmark scanner
 
 ### Monitoring Tools
 - **Falco:** Runtime threat detection for containers
@@ -312,8 +287,8 @@ Store these JSON reports as build artifacts or evidence; aggregate them in your 
 
 ### Harden SSH Access
 Lockout guard for remote hosts: first confirm key login from a **second** terminal
-(`ssh -o PreferredAuthentications=publickey -o PasswordAuthentication=no user@host`) and keep
-your current session open until a fresh login works with the new config.
+(`ssh -o PreferredAuthentications=publickey -o PasswordAuthentication=no user@host`).
+Keep current session open until a fresh login works with new config.
 
 ```bash
 # /etc/ssh/sshd_config.d/00-hardening.conf
@@ -334,12 +309,12 @@ systemctl reload ssh 2>/dev/null || systemctl reload sshd   # ssh on Debian/Ubun
 sshd -T | grep -E '^(passwordauthentication|permitrootlogin) '  # effective values
 ```
 
-`scripts/harden-linux.py` automates this with the same checks; it only previews unless given `--apply`.
+`scripts/harden-linux.py` automates this with same checks. Only previews unless given `--apply`.
 
 ### Harden Container Image
 ```dockerfile
-# Use minimal base
-FROM cgr.dev/chainguard/python:latest
+# Minimal base, pinned by digest (Renovate/Dependabot bumps it)
+FROM cgr.dev/chainguard/python:latest@sha256:<digest>
 
 # App files owned by root and not writable by the runtime user
 COPY app /app
@@ -350,8 +325,8 @@ USER nonroot
 ENTRYPOINT ["python", "-m", "app"]
 ```
 
-A Dockerfile cannot make the root filesystem read-only or drop capabilities; set those at
-runtime (`docker run --read-only --cap-drop=ALL --security-opt no-new-privileges`, or the
+Dockerfile cannot make root filesystem read-only or drop capabilities. Set those at
+runtime (`docker run --read-only --cap-drop=ALL --security-opt no-new-privileges`, or
 Kubernetes `securityContext` below).
 
 ### Harden Kubernetes Pod
@@ -421,20 +396,20 @@ ALTER SYSTEM SET ssl = on;
 
 ## Detailed Hardening Guides
 
-For layer-specific hardening guidance:
-- **OS hardening:** See `references/linux-hardening.md`
-- **Container hardening:** See `references/container-hardening.md`
-- **Cloud hardening:** See `references/cloud-hardening.md`
-- **Network hardening:** See `references/network-hardening.md`
-- **Database hardening:** See `references/database-hardening.md`
+Layer-specific guides:
+- **OS hardening:** `references/linux-hardening.md`
+- **Container hardening:** `references/container-hardening.md`
+- **Cloud hardening:** `references/cloud-hardening.md`
+- **Network hardening:** `references/network-hardening.md`
+- **Database hardening:** `references/database-hardening.md`
 
-For automation scripts:
-- **Python automation:** See `scripts/harden-linux.py` (dry run by default; `--apply` to change the host, `--confirm-key-login` before it touches sshd, `--disable-ip-forward` only on non-container, non-router hosts)
-- **Infrastructure scanning:** See `scripts/scan-infrastructure.sh`
+Automation scripts:
+- **Python automation:** `scripts/harden-linux.py` (dry run by default; `--apply` to change host, `--confirm-key-login` before it touches sshd, `--disable-ip-forward` only on non-container, non-router hosts)
+- **Infrastructure scanning:** `scripts/scan-infrastructure.sh`
 
-For working examples:
-- **Linux configurations:** See `examples/linux/`
-- **Kubernetes manifests:** See `examples/kubernetes/`
+Working examples:
+- **Linux configurations:** `examples/linux/`
+- **Kubernetes manifests:** `examples/kubernetes/`
 
 ## Integration with Related Skills
 
@@ -448,33 +423,21 @@ For working examples:
 
 ## Anti-Patterns to Avoid
 
-**❌ Hardening only at deployment**
-- Hardening is continuous; scan and verify regularly
-
-**❌ Applying all controls blindly**
-- Prioritize based on risk and exposure
-
-**❌ No verification**
-- Always verify hardening is applied and effective
-
 **❌ Security through obscurity**
-- Obscurity is not security; use proven controls
+- Obscurity is not security. Use proven controls.
 
 **❌ Hardening without testing**
-- Test hardening changes don't break functionality
-
-**❌ Manual hardening at scale**
-- Automate hardening for consistency and repeatability
+- Test that hardening changes don't break functionality
 
 ## Getting Started
 
 1. **Assess current posture:** Run CIS benchmark scans
 2. **Prioritize:** Internet-facing → sensitive data → internal
 3. **Apply baseline hardening:** OS, container, cloud basics
-4. **Automate:** Use scripts and IaC for consistency
-5. **Verify continuously:** Integrate scanning into CI/CD
+4. **Automate:** Scripts and IaC for consistency
+5. **Verify continuously:** Add scanning to CI/CD
 6. **Monitor:** Deploy runtime security monitoring
 7. **Iterate:** Review and improve hardening regularly
 
-For step-by-step implementation, start with `references/linux-hardening.md` or `references/container-hardening.md` based on infrastructure type.
+Step-by-step: start with `references/linux-hardening.md` or `references/container-hardening.md`, by infrastructure type.
 

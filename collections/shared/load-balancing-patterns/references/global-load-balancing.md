@@ -1,8 +1,5 @@
 # Global Load Balancing
 
-DNS-based global traffic management for multi-region deployments.
-
-
 ## Table of Contents
 
 - [GeoDNS Routing](#geodns-routing)
@@ -15,7 +12,7 @@ DNS-based global traffic management for multi-region deployments.
 
 ## GeoDNS Routing
 
-Route users to nearest server based on geographic location.
+Route users to nearest server by geographic location.
 
 ### AWS Route 53 Geolocation Routing
 
@@ -98,7 +95,7 @@ resource "aws_route53_record" "latency_us" {
 
 ## Multi-Region Failover
 
-Primary/secondary configuration with health checks.
+Primary/secondary setup with health checks.
 
 ```hcl
 resource "aws_route53_record" "primary" {
@@ -149,7 +146,7 @@ resource "aws_route53_health_check" "primary" {
 
 ## AWS Global Accelerator
 
-Global Layer 4 load balancer using AWS backbone.
+Global Layer 4 load balancer on AWS backbone.
 
 ```hcl
 resource "aws_globalaccelerator_accelerator" "main" {
@@ -186,7 +183,7 @@ resource "aws_globalaccelerator_endpoint_group" "us_east" {
 
 ## CDN Integration
 
-Combine load balancing with CDN for global content delivery.
+Pair load balancing with CDN for global content delivery.
 
 **CloudFlare:**
 - Global anycast network
@@ -201,4 +198,4 @@ Combine load balancing with CDN for global content delivery.
 
 ## Summary
 
-Use GeoDNS for geographic routing, latency-based routing for performance, and failover routing for high availability. Combine with CDN for optimal global performance. Monitor DNS propagation times and TTLs carefully.
+Watch DNS propagation times and TTLs closely.

@@ -5,44 +5,42 @@ description: Design or review an HTTP, GraphQL or event API contract - protocol 
 
 # Designing APIs
 
-Design well-structured, scalable APIs using REST, GraphQL, or event-driven patterns. Focus on resource design, versioning, error handling, pagination, rate limiting, and security.
-
 ## When to Use This Skill
 
 Use when:
-- Designing a new REST, GraphQL, or event-driven API
-- Establishing API design standards for a team or organization
-- Choosing between REST, GraphQL, WebSockets, or message queues
-- Planning API versioning and breaking change management
+- Designing new REST, GraphQL or event-driven API
+- Setting API design standards for team or organization
+- Choosing between REST, GraphQL, WebSockets or message queues
+- Planning API versioning and breaking-change management
 - Defining error response formats and HTTP status code usage
-- Implementing pagination, filtering, and rate limiting patterns
+- Implementing pagination, filtering and rate limiting patterns
 - Designing OAuth2 flows or API key authentication
-- Creating OpenAPI or AsyncAPI specifications and API reference docs, changelogs and migration guides
-- Reviewing an API design before implementation or release
+- Creating OpenAPI or AsyncAPI specs, API reference docs, changelogs and migration guides
+- Reviewing API design before implementation or release
 
 Do NOT use for:
 - Server implementation code (use `implementing-api-patterns` for FastAPI, Hono, Axum, Gin, tRPC, gRPC)
 - Module/library boundaries inside one process (use `api-and-interface-design`)
-- Client libraries for an API (use `designing-sdks`)
+- Client libraries for API (use `designing-sdks`)
 - Authentication implementation (use `api-security-best-practices` or `security-and-hardening`)
 - Docs-site tooling and renderers (use `generating-documentation`)
 
 ## Workflow
 
-1. **Consumers and constraints.** Who calls the API (public third parties, own frontends, internal services)? Latency, caching, real-time and language constraints.
-2. **Pick the style** with the matrix below (details in `references/protocol-selection.md`).
-3. **Model resources or operations,** then errors, pagination, versioning, idempotency and auth, using the sections below.
+1. **Consumers and constraints.** Who calls API (public third parties, own frontends, internal services)? Latency, caching, real-time and language constraints.
+2. **Pick the style** with matrix below (details in `references/protocol-selection.md`).
+3. **Model resources or operations,** then errors, pagination, versioning, idempotency and auth, per sections below.
 4. **Write the contract** (OpenAPI 3.1, AsyncAPI 3.0, GraphQL SDL or `.proto`) with examples for every body.
-5. **Review** against `references/api-design-checklist.md` and run `references/api-security-testing.md` before public release.
+5. **Review** against `references/api-design-checklist.md`; run `references/api-security-testing.md` before public release.
 6. **Check the spec:** `python3 scripts/check_openapi.py <spec-or-dir>` for design gaps, `scripts/validate-openapi.sh <spec>` for Spectral linting.
 
-**Done when:** the contract lints clean, every operation has examples and documented error responses, the checklist has no unexplained gaps, and the versioning/deprecation policy is written down.
+**Done when:** contract lints clean, every operation has examples and documented error responses, checklist has no unexplained gaps, versioning/deprecation policy is written down.
 
 ## Core Design Principles
 
 ### Resource-Oriented Design (REST)
 
-Use nouns for resources, not verbs in URLs:
+Nouns for resources, not verbs, in URLs:
 ```
 ✓ GET    /users              List users
 ✓ GET    /users/123          Get user 123
@@ -54,14 +52,14 @@ Use nouns for resources, not verbs in URLs:
 ✗ POST   /createUser
 ```
 
-Nest resources for relationships (limit depth to 2-3 levels):
+Nest resources for relationships (max depth 2-3 levels):
 ```
 ✓ GET /users/123/posts
 ✓ GET /users/123/posts/456/comments
 ✗ GET /users/123/posts/456/comments/789/replies  (too deep)
 ```
 
-For complete REST patterns, see references/rest-design.md
+Full REST patterns: references/rest-design.md
 
 ### HTTP Method Semantics
 
@@ -69,11 +67,9 @@ For complete REST patterns, see references/rest-design.md
 |--------|-----------|------|---------|----------------|
 | GET | Yes | Yes | Read resource | 200 OK |
 | POST | No | No | Create resource | 201 Created |
-| PUT | Yes | No | Replace entire resource | 200 OK, 204 No Content |
+| PUT | Yes | No | Replace whole resource | 200 OK, 204 No Content |
 | PATCH | No | No | Update specific fields | 200 OK, 204 No Content |
 | DELETE | Yes | No | Remove resource | 204 No Content, 200 OK |
-
-Idempotent means multiple identical requests have the same effect as one request.
 
 ### HTTP Status Codes
 
@@ -87,7 +83,7 @@ Idempotent means multiple identical requests have the same effect as one request
 **Server Errors (5xx):**
 - 500 Internal Server Error, 503 Service Unavailable
 
-For complete status code guide, see references/rest-design.md
+Full status code guide: references/rest-design.md
 
 ## API Style Selection
 
@@ -108,7 +104,7 @@ For complete status code guide, see references/rest-design.md
 - **Real-time, bidirectional** → WebSockets
 - **Event-driven, microservices** → Message Queue
 
-For detailed protocol selection, see references/protocol-selection.md
+Detailed protocol selection: references/protocol-selection.md
 
 ## API Versioning
 
@@ -119,13 +115,13 @@ https://api.example.com/v1/users
 https://api.example.com/v2/users
 ```
 
-Pros: Explicit, easy to implement and test
-Cons: Maintenance overhead
+Pros: explicit, easy to implement and test; most visible and simplest. Best for most APIs.
+Cons: maintenance overhead
 
 ### Alternative Strategies
 
-- Header-Based: `Accept-Version: v1`
-- Media Type: `Accept: application/vnd.example.v1+json`
+- Header-Based: `Accept-Version: v1` (less visible; best for internal APIs)
+- Media Type: `Accept: application/vnd.example.v1+json` (least simple; best for content negotiation)
 - Query Parameter: `?version=1` (not recommended)
 
 ### Breaking Change Management
@@ -143,9 +139,9 @@ Sunset: Sat, 31 Dec 2025 23:59:59 GMT
 Link: </api/v2/users>; rel="successor-version"
 ```
 
-`Deprecation` takes the date the resource was deprecated as `@<unix-seconds>` (RFC 9745); older drafts used `Deprecation: true`.
+`Deprecation` value: date resource was deprecated, as `@<unix-seconds>` (RFC 9745). Older drafts used `Deprecation: true`.
 
-For complete versioning guide, see references/versioning-strategies.md
+Full versioning guide: references/versioning-strategies.md
 
 ## Error Response Standards
 
@@ -169,7 +165,7 @@ For complete versioning guide, see references/versioning-strategies.md
 
 Content-Type: `application/problem+json`
 
-For complete error patterns, see references/error-handling.md
+Full error patterns: references/error-handling.md
 
 ## Pagination Patterns
 
@@ -196,17 +192,17 @@ Response includes: `limit`, `offset`, `total`, `currentPage`
 GET /users?limit=20&cursor=eyJpZCI6MTIzfQ==
 ```
 
-Cursor is base64-encoded JSON with position information.
+Cursor: base64-encoded JSON holding position.
 Response includes: `nextCursor`, `hasNext`
 
-For implementation details, see references/pagination-patterns.md. For Link-header pagination, bulk endpoints, `Idempotency-Key` handling, CORS and health endpoints, see references/rest-operations.md.
+Implementation details: references/pagination-patterns.md. Link-header pagination, bulk endpoints, `Idempotency-Key` handling, CORS and health endpoints: references/rest-operations.md.
 
 ## Rate Limiting
 
 ### Token Bucket Algorithm
 
-- Each user has bucket with tokens
-- Each request consumes 1 token
+- Each user has token bucket
+- Each request uses 1 token
 - Tokens refill at constant rate
 - Empty bucket rejects request
 
@@ -230,7 +226,7 @@ Retry-After: 3600
 - Per IP: 50 requests/hour (unauthenticated)
 - Tiered: Free (100/hr), Pro (1000/hr), Enterprise (10000/hr)
 
-For implementation patterns, see references/rate-limiting.md
+Implementation patterns: references/rate-limiting.md
 
 ## API Security Design
 
@@ -270,7 +266,7 @@ Best practices:
 - Support key rotation
 - Track last-used timestamp
 
-For complete security patterns, see references/authentication.md
+Full security patterns: references/authentication.md
 
 ## OpenAPI Specification
 
@@ -300,13 +296,7 @@ paths:
                 $ref: '#/components/schemas/UserList'
 ```
 
-OpenAPI enables:
-- Code generation (server stubs, client SDKs)
-- Validation (request/response checking)
-- Mock servers (testing against spec)
-- Documentation (interactive docs)
-
-For the reference-docs workflow (spec as source of truth, examples, guides, changelog and migration guides), see references/api-reference-docs.md
+Reference-docs workflow (spec as source of truth, examples, guides, changelog and migration guides): references/api-reference-docs.md
 
 ## AsyncAPI Specification
 
@@ -332,7 +322,7 @@ channels:
               type: string
 ```
 
-For AsyncAPI examples, see examples/asyncapi/
+AsyncAPI examples: examples/asyncapi/
 
 ## GraphQL Design
 
@@ -366,36 +356,14 @@ const userLoader = new DataLoader(async (userIds) => {
 });
 ```
 
-For GraphQL patterns, see references/graphql-design.md (type system, DataLoader, Relay pagination, errors) and references/graphql-schema-patterns.md (interfaces/unions, mutation payloads, batch mutations, subscriptions, directives, cost limits, schema evolution).
-
-## Quick Reference Tables
-
-### Pagination Strategy Selection
-
-| Scenario | Strategy |
-|----------|----------|
-| Small datasets | Offset-based |
-| Large datasets | Cursor-based |
-| Sorted data | Keyset |
-| Real-time feeds | Cursor-based |
-
-### Versioning Strategy Selection
-
-| Factor | URL Path | Header | Media Type |
-|--------|----------|--------|------------|
-| Visibility | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐ |
-| Simplicity | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ |
-| Best For | Most APIs | Internal APIs | Content negotiation |
+GraphQL patterns: references/graphql-design.md (type system, DataLoader, Relay pagination, errors) and references/graphql-schema-patterns.md (interfaces/unions, mutation payloads, batch mutations, subscriptions, directives, cost limits, schema evolution).
 
 ## Integration with Other Skills
 
-- **implementing-api-patterns**: Implement the design in FastAPI, Hono, Axum, Gin, tRPC or gRPC
-- **designing-sdks**: Client libraries for the API
 - **api-security-best-practices** / **security-and-hardening**: Implement OAuth2, JWT, sessions, input validation
-- **api-security**: Authorized offensive assessment of a running API
+- **api-security**: Authorized offensive assessment of running API
 - **database-design**: Database schemas behind API resources
 - **testing-strategies**: API testing (integration, contract, load)
-- **generating-documentation**: Render and host the reference docs
 - **observability-and-instrumentation**: Monitor API latency, errors and usage
 
 ## Additional Resources
@@ -403,24 +371,14 @@ For GraphQL patterns, see references/graphql-design.md (type system, DataLoader,
 **Detailed guidance:**
 - references/protocol-selection.md - Choosing REST, GraphQL, tRPC, gRPC, WebSockets or messaging
 - references/rest-design.md - RESTful patterns, status codes, query parameters, caching
-- references/rest-operations.md - Idempotency keys, bulk endpoints, Link-header pagination, CORS, health endpoints
-- references/graphql-design.md - GraphQL type system, DataLoader, pagination, errors
-- references/graphql-schema-patterns.md - GraphQL schema shapes, mutation payloads, cost limits, evolution
-- references/versioning-strategies.md - Comprehensive versioning guide
-- references/error-handling.md - Problem Details implementation details
-- references/pagination-patterns.md - Pagination implementation patterns
 - references/rate-limiting.md - Rate limiting algorithms and strategies
-- references/authentication.md - OAuth2, API keys, scopes
-- references/api-reference-docs.md - OpenAPI/AsyncAPI docs workflow, changelog and migration guides
 - references/api-design-checklist.md - Pre-implementation and pre-release review checklist
 - references/api-security-testing.md - OWASP API Top 10 test plan
 
 **Working examples:**
-- examples/asyncapi/ - Event-driven API specification
 - examples/graphql/ - GraphQL schema
 
 **Validation and tooling:**
 - scripts/check_openapi.py - Read-only design-gap check of OpenAPI/Swagger files (operationIds, error responses, pagination, security)
-- scripts/validate-openapi.sh - Lint spec files with Spectral
 
 Attribution for merged material: references/ATTRIBUTION.md

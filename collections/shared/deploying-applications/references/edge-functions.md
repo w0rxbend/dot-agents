@@ -1,7 +1,5 @@
 # Edge Functions
 
-Deploy functions to global edge locations for low-latency responses.
-
 ## Table of Contents
 
 - [Cloudflare Workers](#cloudflare-workers)
@@ -11,8 +9,6 @@ Deploy functions to global edge locations for low-latency responses.
 - [Comparison](#comparison)
 
 ## Cloudflare Workers
-
-Execute code at Cloudflare's edge (200+ locations) with <5ms cold starts.
 
 ### Performance Characteristics
 
@@ -35,6 +31,9 @@ Execute code at Cloudflare's edge (200+ locations) with <5ms cold starts.
 ```bash
 # Install Wrangler
 npm install -g wrangler
+
+# Opt out of Wrangler usage telemetry (on by default)
+export WRANGLER_SEND_METRICS=false
 
 # Login
 wrangler login
@@ -59,41 +58,6 @@ export default {
 };
 ```
 
-### With Hono Framework
-
-```typescript
-import { Hono } from 'hono'
-import { cors } from 'hono/cors'
-import { logger } from 'hono/logger'
-
-const app = new Hono()
-
-app.use('*', cors())
-app.use('*', logger())
-
-app.get('/', (c) => {
-  return c.json({ message: 'Hello from edge!' })
-})
-
-app.get('/api/users/:id', async (c) => {
-  const id = c.req.param('id')
-
-  // Query edge database (Turso, D1)
-  const user = await c.env.DB
-    .prepare('SELECT * FROM users WHERE id = ?')
-    .bind(id)
-    .first()
-
-  if (!user) {
-    return c.json({ error: 'Not found' }, 404)
-  }
-
-  return c.json(user)
-})
-
-export default app
-```
-
 ### Environment Variables & Secrets
 
 **wrangler.toml**:
@@ -101,6 +65,7 @@ export default app
 name = "my-worker"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
+send_metrics = false  # no Wrangler telemetry for this project
 
 [vars]
 ENVIRONMENT = "production"
@@ -239,7 +204,7 @@ export default {
 
 ## Deno Deploy
 
-TypeScript-native edge runtime with global deployment.
+TypeScript-native edge runtime, deployed globally.
 
 ### Performance Characteristics
 
@@ -252,7 +217,7 @@ TypeScript-native edge runtime with global deployment.
 ### When to Use
 
 - TypeScript APIs (no build step)
-- Real-time applications (WebSockets)
+- Real-time apps (WebSockets)
 - Edge rendering
 - Deno-compatible code
 
@@ -268,7 +233,7 @@ curl -fsSL https://deno.land/install.sh -o deno-install.sh && less deno-install.
 # Or use deployctl
 
 # Install deployctl
-deno install -gArf jsr:@deno/deployctl   # Deno 2 needs -g for global installs
+deno install -gArf jsr:@deno/deployctl@1.13.1   # pinned; Deno 2 needs -g for global installs
 
 # Deploy
 deployctl deploy --project=my-app main.ts
@@ -277,9 +242,8 @@ deployctl deploy --project=my-app main.ts
 ### Basic Server
 
 ```typescript
-import { serve } from "https://deno.land/std/http/server.ts";
-
-serve((req: Request) => {
+// Built-in server: no remote import needed
+Deno.serve((req: Request) => {
   const url = new URL(req.url);
 
   if (url.pathname === "/api/hello") {
@@ -295,32 +259,29 @@ serve((req: Request) => {
 ### With Hono (Universal Framework)
 
 ```typescript
-import { Hono } from "https://deno.land/x/hono/mod.ts";
+// Pin every remote import (verify current release); commit deno.lock so integrity is checked
+import { Hono } from "jsr:@hono/hono@4.13.16";
+import { createClient } from "npm:@libsql/client@0.18.0/web";
 
 const app = new Hono();
+
+const db = createClient({
+  url: Deno.env.get("TURSO_URL")!,
+  authToken: Deno.env.get("TURSO_TOKEN")!,
+});
 
 app.get("/", (c) => c.json({ message: "Hello from Deno!" }));
 
 app.get("/api/users/:id", async (c) => {
   const id = c.req.param("id");
 
-  // Query Turso edge database
-  const response = await fetch(
-    `${Deno.env.get("TURSO_URL")}/v1/execute`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${Deno.env.get("TURSO_TOKEN")}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        statements: [`SELECT * FROM users WHERE id = ${id}`],
-      }),
-    }
-  );
+  // Query Turso edge database (parameterized; never interpolate input into SQL)
+  const result = await db.execute({
+    sql: "SELECT * FROM users WHERE id = ?",
+    args: [id],
+  });
 
-  const data = await response.json();
-  return c.json(data);
+  return c.json(result.rows);
 });
 
 Deno.serve(app.fetch);
@@ -333,8 +294,8 @@ Deno.serve(app.fetch);
 const apiKey = Deno.env.get("API_KEY");
 const dbUrl = Deno.env.get("DATABASE_URL");
 
-// Set via Deno Deploy dashboard or deployctl
-deployctl deploy --project=my-app --env=API_KEY=secret main.ts
+// Set via Deno Deploy dashboard or deployctl env file (gitignored; keeps secrets out of argv/history)
+deployctl deploy --project=my-app --env-file=.env main.ts
 ```
 
 ### KV Store
@@ -372,7 +333,7 @@ Edge functions integrated with Next.js and Vercel platform.
 
 ### When to Use
 
-- Next.js applications (tight integration)
+- Next.js apps (tight integration)
 - Edge middleware
 - A/B testing
 - Personalization
@@ -424,7 +385,7 @@ export const config = {
 
 ### Edge Config
 
-Fast, global key-value store for Vercel Edge Functions.
+Fast global key-value store for Vercel Edge Functions.
 
 ```typescript
 import { get } from '@vercel/edge-config'
@@ -440,8 +401,6 @@ export async function GET() {
 ```
 
 ## Hono Framework
-
-Universal web framework that runs on all edge runtimes.
 
 ### Why Hono
 
@@ -466,8 +425,8 @@ import { etag } from 'hono/etag'
 
 const app = new Hono()
 
-// Middleware
-app.use('*', cors())
+// Middleware (cors() alone allows any origin: only for public, credential-free APIs)
+app.use('*', cors({ origin: ['<your-app-origin>'] }))  // explicit allowlist
 app.use('*', logger())
 app.use('*', etag())
 
@@ -502,7 +461,7 @@ export default app
 
 **Deno**:
 ```typescript
-import { Hono } from "https://deno.land/x/hono/mod.ts"
+import { Hono } from "jsr:@hono/hono@4.13.16"  // pinned
 const app = new Hono()
 // ... routes ...
 Deno.serve(app.fetch)

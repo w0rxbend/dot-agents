@@ -7,7 +7,7 @@ tags: config, validation, startup, error-handling
 
 ## Validate Required Configuration at Application Startup
 
-A twelve-factor app fails fast and loudly if required configuration is missing or invalid. Check all required environment variables at startup, before accepting traffic, to avoid discovering configuration problems at 3 AM when a code path finally tries to use the missing value.
+Fail fast and loudly if required config is missing or invalid. Check all required env vars at startup, before accepting traffic.
 
 **Incorrect (late configuration failure):**
 
@@ -60,11 +60,5 @@ def get_user(user_id):
     conn = connect(config.database_url)  # Always valid
     return conn.execute("SELECT * FROM users WHERE id = ?", user_id)
 ```
-
-**Benefits:**
-- App fails immediately with a clear error message
-- Deployment fails before routing traffic to broken instance
-- Easier debugging: error message names the missing variable
-- Prevents partial startup where some features work and others don't
 
 Reference: [The Twelve-Factor App - Config](https://12factor.net/config)

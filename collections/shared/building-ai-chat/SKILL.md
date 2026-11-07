@@ -7,24 +7,24 @@ description: Builds the frontend of AI chat interfaces - ChatGPT-style message l
 
 ## Purpose
 
-Patterns and components for the user-facing side of AI chat: streaming UX, context and token-limit communication, multi-modal input, feedback, tool-call display, error states and accessibility. Code targets React with the Vercel AI SDK 5 or later; the UI patterns apply to other stacks too.
+Code targets React with Vercel AI SDK 5 or later. UI patterns apply to other stacks too.
 
 ## When to Use
 
-Activate this skill when:
-- Building ChatGPT-style conversational interfaces
-- Creating the UI for AI assistants, copilots, or chatbots
-- Implementing streaming text responses with markdown
-- Managing conversation context and token limits
-- Handling multi-modal inputs (text, images, files, voice)
-- Dealing with AI-specific errors (hallucinations, refusals, limits)
-- Adding feedback mechanisms (thumbs, regeneration, editing)
-- Implementing conversation branching or threading
-- Visualizing tool/function calling
+Use for:
+- ChatGPT-style conversational interfaces
+- UI for AI assistants, copilots, chatbots
+- Streaming text responses with markdown
+- Conversation context and token limits
+- Multi-modal inputs (text, images, files, voice)
+- AI-specific errors (hallucinations, refusals, limits)
+- Feedback (thumbs, regeneration, editing)
+- Conversation branching or threading
+- Tool/function calling visualization
 
 ## Quick Start
 
-Minimal AI chat interface (AI SDK 5+; type-checked against `ai` 5.0 and 7.0):
+Minimal AI chat (AI SDK 5+; type-checked against `ai` 5.0 and 7.0):
 
 ```tsx
 'use client';
@@ -93,13 +93,11 @@ export async function POST(req: Request) {
 }
 ```
 
-AI SDK 4 code (`ai/react`, `input`/`handleSubmit`, `isLoading`, `message.content`) does not compile against v5+. For a fuller implementation see `examples/basic-chat.tsx`; for tools, files and metadata see `references/library-guide.md`.
+AI SDK 4 code (`ai/react`, `input`/`handleSubmit`, `isLoading`, `message.content`) does not compile against v5+. Fuller implementation: `examples/basic-chat.tsx`. Tools, files and metadata: `references/library-guide.md`.
 
 ## Core Components
 
 ### Message Display
-
-Build user, AI, and system message bubbles with streaming support:
 
 ```tsx
 // Text of a UIMessage (AI SDK 5+) lives in message.parts
@@ -123,11 +121,9 @@ const text = message.parts.map(p => (p.type === 'text' ? p.text : '')).join('');
 </div>
 ```
 
-For markdown rendering, code blocks, and formatting details, see `references/message-components.md`.
+Markdown rendering, code blocks, formatting: `references/message-components.md`.
 
 ### Input Components
-
-Create rich input experiences with attachments and voice:
 
 ```tsx
 <div className="input-container">
@@ -156,8 +152,6 @@ Create rich input experiences with attachments and voice:
 
 ### Response Controls
 
-Essential controls for AI responses:
-
 ```tsx
 <div className="response-controls">
   {isStreaming && (
@@ -183,8 +177,6 @@ Essential controls for AI responses:
 ```
 
 ### Feedback Mechanisms
-
-Collect user feedback to improve AI responses:
 
 ```tsx
 <div className="feedback-controls">
@@ -216,8 +208,6 @@ Collect user feedback to improve AI responses:
 
 ## Streaming & Real-Time UX
 
-Progressive rendering of AI responses requires special handling:
-
 ```tsx
 // Use Streamdown for AI streaming (handles incomplete markdown)
 import { Streamdown } from 'streamdown';
@@ -239,11 +229,9 @@ function shouldAutoScroll() {
 }
 ```
 
-For complete streaming patterns, auto-scroll behavior, and stop generation, see `references/streaming-patterns.md`.
+Full streaming patterns, auto-scroll behavior, stop generation: `references/streaming-patterns.md`.
 
 ## Context Management
-
-Communicate token limits clearly to users:
 
 ```tsx
 // User-friendly token display
@@ -266,11 +254,9 @@ function TokenIndicator({ used, total }) {
 }
 ```
 
-For summarization strategies, conversation branching, and organization, see `references/context-management.md`.
+Summarization strategies, conversation branching, organization: `references/context-management.md`.
 
 ## Multi-Modal Support
-
-Handle images, files, and voice inputs:
 
 ```tsx
 // Image upload with preview
@@ -297,11 +283,9 @@ function ImageUpload({ onUpload }) {
 }
 ```
 
-For complete multi-modal patterns including voice and screen sharing, see `references/multimodal-input.md`.
+Full multi-modal patterns, including voice and screen sharing: `references/multimodal-input.md`.
 
 ## Error Handling
-
-Handle AI-specific errors gracefully:
 
 ```tsx
 // Refusal handling
@@ -330,11 +314,9 @@ if (error.code === 'RATE_LIMIT') {
 }
 ```
 
-For comprehensive error patterns, see `references/error-handling.md`.
+All error patterns: `references/error-handling.md`.
 
 ## Tool Usage Visualization
-
-Show when AI is using tools or functions:
 
 ```tsx
 function ToolUsage({ tool }) {
@@ -356,13 +338,13 @@ function ToolUsage({ tool }) {
 }
 ```
 
-For function calling, code execution, and web search patterns, see `references/tool-usage.md`.
+Function calling, code execution, web search patterns: `references/tool-usage.md`.
 
 ## Implementation Guide
 
 ### Recommended Stack
 
-Primary libraries (AI SDK 5 or later; current majors at the time of writing were `ai` 7 and `streamdown` 2):
+Primary libraries (AI SDK 5 or later; current majors at time of writing: `ai` 7, `streamdown` 2):
 
 ```bash
 # Core AI chat functionality (plus one provider package)
@@ -376,8 +358,6 @@ npm install dompurify marked
 ```
 
 ### Performance Optimization
-
-Critical for smooth streaming:
 
 ```tsx
 // Memoize message rendering
@@ -395,15 +375,15 @@ const debouncedUpdate = useMemo(
 import { VariableSizeList } from 'react-window';
 ```
 
-For detailed performance patterns, see `references/streaming-patterns.md` and `references/performance-optimization.md`.
+Performance details: `references/streaming-patterns.md` and `references/performance-optimization.md`.
 
 ### Security Considerations
 
-Treat model output as untrusted. Sanitize at the point where markdown becomes HTML, not before:
+Treat model output as untrusted. Sanitize where markdown becomes HTML, not before:
 
-- Rendering through React (Streamdown, `react-markdown`) does not inject raw HTML strings; Streamdown additionally runs `rehype-sanitize` and `rehype-harden` (link/image hardening). Do not enable raw-HTML plugins for model output.
-- Running DOMPurify on the markdown source does not protect you (the markdown renderer runs afterwards) and mangles code blocks containing `<`.
-- If you render markdown to an HTML string yourself (for `dangerouslySetInnerHTML` or `v-html`), sanitize the generated HTML:
+- Rendering through React (Streamdown, `react-markdown`) does not inject raw HTML strings. Streamdown also runs `rehype-sanitize` and `rehype-harden` (link/image hardening). Do not enable raw-HTML plugins for model output.
+- DOMPurify on markdown source does not protect you, because markdown renderer runs afterwards. It also mangles code blocks containing `<`.
+- If you render markdown to HTML string yourself (for `dangerouslySetInnerHTML` or `v-html`), sanitize generated HTML:
 
 ```tsx
 import DOMPurify from 'dompurify';
@@ -416,8 +396,6 @@ function SafeMarkdown({ markdown }: { markdown: string }) {
 ```
 
 ### Accessibility
-
-Ensure AI chat is usable by everyone:
 
 ```tsx
 // ARIA live regions for screen readers
@@ -435,7 +413,7 @@ Ensure AI chat is usable by everyone:
 </div>
 ```
 
-For complete accessibility patterns, see `references/accessibility-chat.md`.
+Full accessibility patterns: `references/accessibility-chat.md`.
 
 ## Bundled Resources
 
@@ -447,13 +425,13 @@ For complete accessibility patterns, see `references/accessibility-chat.md`.
 
 ### References (Progressive Disclosure)
 
-- `references/streaming-patterns.md` - Streaming UX, auto-scroll, stop/regenerate and render performance
+- `references/streaming-patterns.md` - Streaming UX, auto-scroll, stop/regenerate, render performance
 - `references/context-management.md` - Token limits and conversation strategies
-- `references/multimodal-input.md` - Image, file, and voice handling
+- `references/multimodal-input.md` - Image, file, voice handling
 - `references/feedback-loops.md` - User feedback and RLHF patterns
 - `references/error-handling.md` - AI-specific error scenarios
 - `references/tool-usage.md` - Visualizing function calls and tool use
-- `references/accessibility-chat.md` - Screen reader, keyboard, contrast and mobile support
+- `references/accessibility-chat.md` - Screen reader, keyboard, contrast, mobile support
 - `references/library-guide.md` - AI SDK 5+ and Streamdown setup, tools, files, metadata
 - `references/performance-optimization.md` - Streaming performance patterns
 
@@ -467,14 +445,14 @@ For complete accessibility patterns, see `references/accessibility-chat.md`.
 
 ### Assets
 
-- `assets/system-prompts.json` - Curated prompts for different use cases
+- `assets/system-prompts.json` - Curated prompts per use case
 - `assets/message-templates.json` - Pre-built message components
 - `assets/error-messages.json` - User-friendly error messages
-- `assets/themes.json` - Light, dark, and high-contrast themes
+- `assets/themes.json` - Light, dark, high-contrast themes
 
 ## Design Token Integration
 
-Style chat components with design tokens (CSS custom properties) so they follow the app's theme:
+Style chat components with design tokens (CSS custom properties) to follow app theme:
 
 ```css
 /* Message bubbles use design tokens */
@@ -491,4 +469,4 @@ Style chat components with design tokens (CSS custom properties) so they follow 
 }
 ```
 
-For the token system, light/dark and high-contrast themes, use the theming-components skill.
+Token system, light/dark and high-contrast themes: use theming-components skill.

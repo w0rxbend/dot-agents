@@ -19,6 +19,7 @@ import os
 import asyncio
 from typing import Dict, Any, Optional, AsyncIterator
 import httpx
+from urllib.parse import quote
 
 
 class APIError(Exception):
@@ -96,13 +97,13 @@ class AsyncUsersResource:
         return await self._client.request('POST', '/users', body={'name': name, 'email': email})
 
     async def retrieve(self, user_id: str) -> Dict[str, Any]:
-        return await self._client.request('GET', f'/users/{user_id}')
+        return await self._client.request('GET', f'/users/{quote(user_id, safe="")}')
 
     async def update(self, user_id: str, **kwargs) -> Dict[str, Any]:
-        return await self._client.request('PATCH', f'/users/{user_id}', body=kwargs)
+        return await self._client.request('PATCH', f'/users/{quote(user_id, safe="")}', body=kwargs)
 
     async def delete(self, user_id: str) -> Dict[str, Any]:
-        return await self._client.request('DELETE', f'/users/{user_id}')
+        return await self._client.request('DELETE', f'/users/{quote(user_id, safe="")}')
 
     async def list(self, limit: int = 100) -> AsyncIterator[Dict[str, Any]]:
         """Async generator for automatic pagination"""

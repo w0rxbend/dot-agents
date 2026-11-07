@@ -1,7 +1,5 @@
 # CLI Framework Selection Guide
 
-Comprehensive decision framework for choosing the appropriate CLI framework based on language, complexity, and requirements.
-
 ## Table of Contents
 
 - [Decision Tree](#decision-tree)
@@ -59,13 +57,13 @@ What is most important?
 
 **When to Use:**
 - New Python CLI projects (2025 standard)
-- Type-safe applications with Python 3.7+
+- Type-safe apps on Python 3.7+
 - Need auto-completion and validation
-- Want minimal boilerplate with modern ergonomics
-- Building CLI for FastAPI project (consistent tooling)
+- Want minimal boilerplate, modern ergonomics
+- CLI for FastAPI project (consistent tooling)
 
 **Strengths:**
-- Type hints for automatic validation and documentation
+- Type hints give automatic validation and docs
 - Minimal code for full-featured CLIs
 - Excellent error messages with suggestions
 - Auto-completion support (bash, zsh, fish)
@@ -91,7 +89,7 @@ pip install "typer[all]"  # Includes rich, shellingham
 ### Click (Alternative for Complex/Legacy Projects)
 
 **When to Use:**
-- Existing projects already using Click
+- Existing projects already on Click
 - Need specific Click plugins
 - Complex nested command structures
 - Python <3.6 support required (rare in 2025)
@@ -99,10 +97,8 @@ pip install "typer[all]"  # Includes rich, shellingham
 
 **Strengths:**
 - Very mature and stable (2014+)
-- Large ecosystem of plugins
+- Large plugin ecosystem
 - Flexible and composable
-- Excellent documentation
-- Battle-tested in production
 
 **Considerations:**
 - More verbose than Typer
@@ -113,11 +109,6 @@ pip install "typer[all]"  # Includes rich, shellingham
 ```bash
 pip install click
 ```
-
-**Best For:**
-- Complex multi-level command trees
-- Legacy Python codebases
-- Projects requiring specific Click plugins
 
 ### Comparison: Typer vs. Click
 
@@ -132,7 +123,7 @@ pip install click
 | Documentation | Excellent | Excellent |
 | Python Version | 3.6+ | 2.7+ |
 
-**Decision:** Use Typer for new projects, Click for existing codebases or if specific plugins required.
+**Decision:** Typer for new projects. Click for existing codebases or when specific plugins are required. Complex command trees: Click or Typer.
 
 ## Go Frameworks
 
@@ -141,14 +132,13 @@ pip install click
 **When to Use:**
 - Enterprise-grade CLI tools
 - Complex subcommand hierarchies (like git, docker, kubectl)
-- Go projects requiring configuration management (with Viper)
+- Go projects needing config management (with Viper)
 - Need POSIX-compliant flags
-- Building developer tooling
+- Developer tooling
 
 **Strengths:**
 - Industry standard (Kubernetes, Docker, GitHub CLI, Hugo, Terraform)
 - Designed for complex multi-command CLIs
-- Excellent subcommand support
 - Viper integration for configuration
 - Automatic help and usage generation
 - Shell completion for all major shells
@@ -181,7 +171,7 @@ go get -u github.com/spf13/cobra@latest
 **Strengths:**
 - Simpler API than Cobra
 - Less boilerplate for basic CLIs
-- Good documentation with clear examples
+- Good docs with clear examples
 - Lightweight (smaller binary size)
 
 **Considerations:**
@@ -212,7 +202,7 @@ go get github.com/urfave/cli/v2
 | Industry Usage | Very High | Medium |
 | Binary Size | Larger | Smaller |
 
-**Decision:** Use Cobra for enterprise tools and complex CLIs, urfave/cli for simple utilities.
+**Decision:** Cobra for enterprise tools and complex CLIs, urfave/cli for simple utilities.
 
 ## Rust Frameworks
 
@@ -223,28 +213,28 @@ go get github.com/urfave/cli/v2
 - Need compile-time safety (derive API)
 - Performance-critical CLIs
 - Want excellent error messages
-- Building system utilities or developer tools
+- System utilities or developer tools
 
 **Strengths:**
 - Two APIs: Derive (declarative, type-safe) and Builder (programmatic, flexible)
 - Compile-time validation (derive API catches errors before runtime)
-- Improved v4: Faster compile times, better error messages
-- Comprehensive feature set (subcommands, validation, shell completion, colored help)
-- Active development with modern Rust idioms
-- Performance: Minimal runtime overhead
+- Improved v4: faster compile times, better error messages
+- Comprehensive features (subcommands, validation, shell completion, colored help)
+- Active development, modern Rust idioms
+- Performance: minimal runtime overhead
 
 **API Choice:**
 
 **Derive API:**
 - Type-safe at compile time
 - Declarative (attributes on structs)
-- Best for: Static command structures
-- Example: Most CLIs with fixed commands
+- Best for: static command structures
+- Example: most CLIs with fixed commands
 
 **Builder API:**
 - Runtime flexibility
 - Programmatic construction
-- Best for: Dynamic commands, plugin systems
+- Best for: dynamic commands, plugin systems
 - Example: CLIs with runtime-loaded subcommands
 
 **Considerations:**
@@ -260,13 +250,13 @@ clap = { version = "4.5", features = ["derive"] }
 
 **Best For:**
 - Performance-critical tools
-- System utilities (replacements for coreutils)
-- Developer tools requiring fast startup
+- System utilities (coreutils replacements)
+- Developer tools needing fast startup
 - Cross-platform binaries
 
 ### Alternative: structopt (Legacy)
 
-**Note:** structopt is now deprecated. clap v3+ absorbed structopt's derive functionality. Migrate existing structopt projects to clap v4 derive API.
+**Note:** structopt is deprecated. clap v3+ absorbed structopt's derive functionality. Migrate existing structopt projects to clap v4 derive API.
 
 ## Comparison Matrix
 
@@ -299,7 +289,7 @@ clap = { version = "4.5", features = ["derive"] }
 
 **Why Migrate:**
 - Modern type safety with type hints
-- Reduced boilerplate
+- Less boilerplate
 - Better auto-completion support
 
 **Migration Strategy:**
@@ -370,7 +360,7 @@ var rootCmd = &cobra.Command{
 **Why Migrate:**
 - structopt is deprecated
 - clap v4 has better compile times
-- More features and active development
+- More features, active development
 
 **Migration Strategy:**
 ```rust
@@ -400,12 +390,10 @@ struct Cli {
 
 ## Decision Checklist
 
-Use this checklist to select the appropriate framework:
-
 **Project Context:**
-- [ ] What language is the project using?
-- [ ] Is this a new project or existing codebase?
-- [ ] What is the expected complexity (simple, medium, complex)?
+- [ ] Project language?
+- [ ] New project or existing codebase?
+- [ ] Expected complexity (simple, medium, complex)?
 
 **Requirements:**
 - [ ] Performance requirements (startup time, memory)?
@@ -418,20 +406,3 @@ Use this checklist to select the appropriate framework:
 - [ ] Configuration file management?
 - [ ] Shell completion?
 - [ ] Interactive features (prompts, progress)?
-
-**Recommendations Based on Answers:**
-
-**Python:**
-- New project + type safety → Typer
-- Existing Click project → Click (or migrate to Typer)
-- Complex command trees → Click or Typer
-
-**Go:**
-- Enterprise tool + complex commands → Cobra
-- Simple utility → urfave/cli
-- Need configuration management → Cobra + Viper
-
-**Rust:**
-- Any Rust CLI → clap v4 (derive or builder)
-- Static commands → derive API
-- Dynamic commands → builder API

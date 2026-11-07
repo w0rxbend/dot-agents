@@ -1,8 +1,5 @@
 # Common MongoDB Patterns
 
-Frequently-used patterns for pagination, soft deletes, audit logs, and data modeling.
-
-
 ## Table of Contents
 
 - [Pagination Patterns](#pagination-patterns)
@@ -68,7 +65,7 @@ db.posts.find({})
   .limit(perPage)
 ```
 
-**Problem:** Performance degrades with large skip values.
+**Problem:** Large skip values slow queries.
 
 ### Range-Based (Time Series)
 
@@ -176,7 +173,7 @@ db.audit_log.insertOne({
 })
 ```
 
-**Use when:** Many updates, need queryable audit history
+**Use when:** Many updates, queryable audit history needed
 
 ## Versioning Documents
 
@@ -360,16 +357,11 @@ db.users.aggregate([
 
 ## Best Practices
 
-1. **Index all queries** - Every filter should have supporting index
+1. **Index all queries** - Every filter needs supporting index
 2. **Compound index order** - Equality, Sort, Range (ESR)
 3. **Use partial indexes** - Index only needed subset
-4. **Cursor pagination** - Avoid skip for large offsets
-5. **Soft deletes** - Preserve data, add isDeleted flag
-6. **Audit critical changes** - Log who/what/when
-7. **Version important docs** - Maintain history
-8. **Use upserts** - Idempotent operations
-9. **Bulk operations** - Batch for performance
-10. **Monitor slow queries** - Enable profiling
+4. **Use upserts** - Idempotent operations
+5. **Monitor slow queries** - Enable profiling
 
 ## Resources
 

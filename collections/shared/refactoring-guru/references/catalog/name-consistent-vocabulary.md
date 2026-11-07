@@ -6,9 +6,9 @@ tags: name, consistency, vocabulary, ubiquitous-language
 
 ## Use Consistent Vocabulary
 
-Pick one word for each concept and stick to it throughout the codebase. Mixing synonyms forces readers to wonder if different words mean different things.
+Pick one word per concept; use it everywhere. Mixed synonyms make readers wonder if different words mean different things.
 
-**Incorrect (inconsistent terms for same concept):**
+**Incorrect (synonyms for same concept):**
 
 ```typescript
 class UserController {
@@ -33,7 +33,7 @@ class UserRepository {
 }
 ```
 
-**Correct (consistent vocabulary throughout):**
+**Correct (one vocabulary throughout):**
 
 ```typescript
 // Pick 'get' for all retrieval operations

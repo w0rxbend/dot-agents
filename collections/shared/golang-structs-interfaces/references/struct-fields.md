@@ -2,7 +2,7 @@
 
 ## Struct Field Tags
 
-Field tags drive every reflection-based encoder and decoder. Exported fields in serialized structs MUST have field tags — without one, the encoder falls back to the Go field name, so renaming a field silently changes the wire format:
+Exported fields in serialized structs MUST have field tags. Without tag, encoder uses Go field name; renaming field silently changes wire format:
 
 ```go
 type Order struct {
@@ -31,15 +31,15 @@ type Order struct {
 
 Notes that bite in production:
 
-- **Unexported fields are never serialized**, tag or not. A tag on an unexported field is dead weight and `go vet` flags the malformed ones only.
-- **`omitempty` is length/zero based, not semantic.** It drops `0`, `""`, and `false`, so an explicit "zero" value becomes indistinguishable from "absent". Use a pointer, `mo.Option[T]`, or `omitzero` (Go 1.24+) when the difference matters.
-- **Tag syntax is unchecked at compile time.** A missing backtick or a `json: "id"` with a stray space produces a silently ignored tag. `go vet`'s `structtag` analyzer catches malformed tags — run it in CI.
+- **Unexported fields are never serialized**, tag or not. Their tags are dead weight; `go vet` flags only malformed ones.
+- **`omitempty` is length/zero based, not semantic.** Drops `0`, `""`, `false`: explicit "zero" indistinguishable from "absent". Use pointer, `mo.Option[T]`, or `omitzero` (Go 1.24+) when difference matters.
+- **Tag syntax is unchecked at compile time.** Missing backtick or `json: "id"` with stray space yields silently ignored tag. Run `go vet`'s `structtag` analyzer in CI to catch malformed tags.
 
-**Diagnose:** 1- `go vet ./...` — the `structtag` analyzer reports malformed or duplicated tags 2- round-trip test: marshal, unmarshal, compare — catches field-name drift the compiler cannot see
+**Diagnose:** 1- `go vet ./...` — `structtag` analyzer reports malformed or duplicated tags 2- round-trip test: marshal, unmarshal, compare — catches field-name drift compiler cannot see
 
 ## Preventing Struct Copies with `noCopy`
 
-Some structs must never be copied after first use (e.g., those containing a mutex, a channel, or internal pointers) — copying duplicates the lock state, so two goroutines end up guarding two different mutexes and the invariant silently disappears. Embed a `noCopy` sentinel to make `go vet` catch accidental copies:
+Some structs must never be copied after first use (e.g., holding mutex, channel, or internal pointers). Copy duplicates lock state: two goroutines guard two different mutexes, invariant silently gone. Embed `noCopy` sentinel so `go vet` catches accidental copies:
 
 ```go
 // noCopy may be added to structs which must not be copied after first use.
@@ -56,7 +56,7 @@ type ConnPool struct {
 }
 ```
 
-`go vet` reports an error if a `ConnPool` value is copied (passed by value, assigned, returned by value, ranged over). The detection is purely name-based: `vet`'s `copylocks` analyzer flags any type whose fields implement `Lock`/`Unlock`. This is the same technique the standard library uses for `sync.WaitGroup`, `sync.Mutex`, `strings.Builder`, and others.
+`go vet` reports error when `ConnPool` value is copied (passed by value, assigned, returned by value, ranged over). Detection is purely name-based: `vet`'s `copylocks` analyzer flags any type whose fields implement `Lock`/`Unlock`. Standard library does same for `sync.WaitGroup`, `sync.Mutex`, `strings.Builder`, others.
 
 Pass these structs by pointer:
 
@@ -68,4 +68,4 @@ func process(pool *ConnPool) { ... }
 func process(pool ConnPool) { ... }
 ```
 
-**Diagnose:** 1- `go vet ./...` — `copylocks` reports every value copy of a lock-bearing struct 2- `go test -race ./...` — surfaces the data races a silent copy introduces
+**Diagnose:** 1- `go vet ./...` — `copylocks` reports every value copy of a lock-bearing struct 2- `go test -race ./...` — surfaces data races a silent copy introduces

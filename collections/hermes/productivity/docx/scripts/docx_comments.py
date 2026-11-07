@@ -51,7 +51,8 @@ def _comments_root(doc):
             el = getattr(part, "_element", None)
             if el is not None:
                 return el
-            return etree.fromstring(part.blob)
+            return etree.fromstring(part.blob, etree.XMLParser(
+                resolve_entities=False, no_network=True))
     return None
 
 

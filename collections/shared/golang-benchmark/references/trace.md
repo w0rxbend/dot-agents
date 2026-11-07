@@ -1,60 +1,17 @@
 # Execution Trace Reference
 
-`go tool trace` shows what pprof cannot: **scheduling delays**, GC stop-the-world phases, goroutine state transitions, and why goroutines are **not** running. pprof samples what's on-CPU; trace records every state transition at nanosecond precision.
+`go tool trace` shows what pprof cannot: **scheduling delays**, GC stop-the-world phases, goroutine state transitions, and why goroutines are **not** running. pprof samples on-CPU work; trace records every state transition at nanosecond precision.
 
-Use the execution tracer when:
+Use execution tracer when:
 
-- pprof shows low CPU% but latency is high (goroutines waiting, not working)
-- You suspect GC pauses are causing tail latency spikes
-- You need to understand goroutine scheduling and contention
-- You want to see the wall-clock timeline of concurrent operations
-
-## Table of Contents
-
-- [Generating Traces](#generating-traces)
-  - [From benchmarks](#from-benchmarks)
-  - [From running service](#from-running-service)
-  - [From tests](#from-tests)
-  - [From code (programmatic)](#from-code-programmatic)
-- [Full Command Reference](#full-command-reference)
-  - [Opening traces](#opening-traces)
-  - [Extracting pprof profiles from traces](#extracting-pprof-profiles-from-traces)
-  - [Full capture-to-analysis workflows](#full-capture-to-analysis-workflows)
-  - [`go tool trace` flags summary](#go-tool-trace-flags-summary)
-  - [HTTP endpoints served by the web UI](#http-endpoints-served-by-the-web-ui)
-- [Web UI](#web-ui)
-  - [Main views](#main-views)
-  - [Navigating the trace viewer](#navigating-the-trace-viewer)
-  - [Reading the timeline](#reading-the-timeline)
-- [What to Look For](#what-to-look-for)
-  - [Goroutine states](#goroutine-states)
-  - [GC phases](#gc-phases)
-  - [Scheduling latency](#scheduling-latency)
-  - [Network/sync blocking](#networksync-blocking)
-  - [Goroutine creation and destruction](#goroutine-creation-and-destruction)
-- [Custom Annotations](#custom-annotations)
-  - [Tasks](#tasks)
-  - [Regions](#regions)
-  - [Log messages](#log-messages)
-  - [When to use annotations](#when-to-use-annotations)
-- [Flight Recorder (Go 1.25+)](#flight-recorder-go-125)
-  - [Setup](#setup)
-  - [Snapshot on error](#snapshot-on-error)
-  - [Trigger patterns](#trigger-patterns)
-  - [Analyzing a snapshot](#analyzing-a-snapshot)
-  - [Constraints](#constraints)
-  - [When to use flight recorder vs regular tracing](#when-to-use-flight-recorder-vs-regular-tracing)
-- [Overhead and Practical Limits](#overhead-and-practical-limits)
-- [Trace vs pprof: When to Use Which](#trace-vs-pprof-when-to-use-which)
+- pprof shows low CPU% but high latency (goroutines waiting, not working)
+- GC pauses suspected of causing tail latency spikes
+- Goroutine scheduling and contention need explaining
+- Wall-clock timeline of concurrent operations needed
 
 ## Generating Traces
 
-### From benchmarks
-
-```bash
-go test -bench=BenchmarkParse -trace=trace.out ./pkg/parser
-go tool trace trace.out
-```
+Benchmarks and tests: add `-trace=trace.out` to `go test` (see [workflows](#full-capture-to-analysis-workflows) 1 and 3).
 
 ### From running service
 
@@ -66,26 +23,9 @@ curl -o trace.out http://localhost:6060/debug/pprof/trace?seconds=5
 go tool trace trace.out
 ```
 
-**Warning:** traces generate data at MB/s. Keep captures short — 5-10 seconds is typical. Longer traces are unwieldy, slow to parse, and may consume significant memory when opened.
-
-### From tests
-
-```bash
-go test -trace=trace.out ./pkg/parser
-go tool trace trace.out
-```
+**Warning:** traces generate MB/s. Keep captures short (5-10 seconds typical). Longer traces are unwieldy, slow to parse, may use significant memory when opened.
 
 ### From code (programmatic)
-
-```go
-import "runtime/trace"
-
-f, _ := os.Create("trace.out")
-trace.Start(f)
-defer trace.Stop()
-```
-
-Or capture a region of interest:
 
 ```go
 import "runtime/trace"
@@ -111,13 +51,14 @@ go tool trace trace.out
 # Open on a specific port
 go tool trace -http=:8080 trace.out
 
-# Open on a specific host:port (e.g., for remote access)
-go tool trace -http=0.0.0.0:8080 trace.out
+# Remote host: UI has no auth and exposes stacks, so keep it on localhost and tunnel
+go tool trace -http=localhost:8080 trace.out   # on remote host
+ssh -L 8080:localhost:8080 user@remote-host    # locally, then browse localhost:8080
 ```
 
 ### Extracting pprof profiles from traces
 
-`go tool trace` can convert trace data into pprof-compatible profiles. This bridges the two tools — you capture with the tracer (nanosecond events) and analyze with pprof (statistical aggregation with `top`, `list`, `peek`):
+`go tool trace` converts trace data into pprof-compatible profiles. Capture with tracer (nanosecond events), analyze with pprof (statistical aggregation with `top`, `list`, `peek`):
 
 ```bash
 # Network blocking profile — where goroutines wait on network I/O
@@ -135,14 +76,6 @@ go tool pprof -top syscall.prof
 # Scheduler latency profile — time between becoming runnable and actually running
 go tool trace -pprof=sched trace.out > sched.prof
 go tool pprof -top sched.prof
-```
-
-You can chain with any pprof command — e.g., annotated source for a blocking function:
-
-```bash
-go tool trace -pprof=sync trace.out > sync.prof
-go tool pprof -list=handleRequest sync.prof
-go tool pprof -svg sync.prof > sync-blocking.svg
 ```
 
 ### Full capture-to-analysis workflows
@@ -169,49 +102,39 @@ go tool trace -pprof=net trace.out > net.prof                   # extract networ
 go tool pprof -top net.prof                                     # find network wait sites
 ```
 
-### `go tool trace` flags summary
-
-| Flag | Example | Purpose |
-| --- | --- | --- |
-| (none) | `go tool trace trace.out` | Open trace in web browser (default) |
-| `-http=:PORT` | `go tool trace -http=:9090 trace.out` | Set HTTP server address for the web UI |
-| `-pprof=TYPE` | `go tool trace -pprof=net trace.out > net.prof` | Extract pprof profile from trace. Types: `net`, `sync`, `syscall`, `sched` |
-
 ### HTTP endpoints served by the web UI
 
-When `go tool trace trace.out` starts its HTTP server, it exposes these pages:
+HTTP server started by `go tool trace trace.out` exposes these pages:
 
 | Endpoint | What it shows |
 | --- | --- |
-| `/` | Index page with links to all views |
-| `/trace` | Interactive timeline viewer (Chrome trace viewer) — the main visualization |
-| `/goroutines` | Goroutine analysis — summary table of all goroutine types, counts, and execution stats |
-| `/goroutine/<id>` | Detailed view of a specific goroutine — its full lifecycle timeline |
-
-From `/goroutines`, click on a goroutine type to see all instances and their execution statistics (total time, scheduled time, blocked time). Click an individual goroutine to see its timeline.
+| `/` | Index with links to all views |
+| `/trace` | Interactive timeline viewer (Chrome trace viewer), main visualization |
+| `/goroutines` | Goroutine analysis: summary of all goroutine types, counts, execution stats |
+| `/goroutine/<id>` | One goroutine's full lifecycle timeline |
 
 ## Web UI
 
 ### Main views
 
-The web UI (opened by `go tool trace trace.out`) shows a timeline where each horizontal lane represents a processor (P), goroutine, or system event:
+Web UI (opened by `go tool trace trace.out`) shows timeline. Each horizontal lane is a processor (P), goroutine, or system event:
 
 - **Trace viewer** (`/trace`) — interactive timeline with:
-  - **P lanes** — one per logical processor (GOMAXPROCS), showing which goroutine runs on each P at each moment
+  - **P lanes** — one per logical processor (GOMAXPROCS): which goroutine runs on each P at each moment
   - **Goroutine lanes** — each goroutine's lifecycle: created → runnable → running → waiting → running → …
-  - **GC events** — mark phases, sweep, STW pauses shown as colored bands across all P lanes
+  - **GC events** — mark phases, sweep, STW pauses as colored bands across all P lanes
   - **System events** — syscalls, network I/O, timer events
-  - **User annotations** — tasks, regions, and log messages from `runtime/trace` API
+  - **User annotations** — tasks, regions, log messages from `runtime/trace` API
 
 - **Goroutine analysis** (`/goroutines`) — summary table:
   - Groups goroutines by creation stack trace (type)
-  - Shows count, total execution time, total scheduling wait, total blocking time
-  - Click a type to see individual goroutine statistics
-  - Click an individual goroutine to see its timeline
+  - Shows count and totals for execution time, scheduling wait, blocking time
+  - Click type for per-goroutine statistics
+  - Click goroutine for its timeline
 
 ### Navigating the trace viewer
 
-The trace viewer uses the Chrome tracing UI (also used by Chrome DevTools):
+Trace viewer uses Chrome tracing UI (also used by Chrome DevTools):
 
 | Key/Action | Effect |
 | --- | --- |
@@ -219,10 +142,10 @@ The trace viewer uses the Chrome tracing UI (also used by Chrome DevTools):
 | `S` / scroll down | Zoom out (time axis) |
 | `A` | Pan left |
 | `D` | Pan right |
-| Click on event | Show details panel at bottom — goroutine ID, duration, stack trace |
-| `Shift+click` | Select a time range — highlights all events in that window |
+| Click on event | Details panel at bottom: goroutine ID, duration, stack trace |
+| `Shift+click` | Select time range, highlighting all events in it |
 | `M` | Mark current selection |
-| `/` | Search for events by name |
+| `/` | Search events by name |
 | `?` | Show keyboard shortcuts |
 
 ### Reading the timeline
@@ -236,38 +159,36 @@ The trace viewer uses the Chrome tracing UI (also used by Chrome DevTools):
 - **Light blue bands** = GC concurrent mark phase
 - **Purple** = user-defined regions (from `trace.WithRegion`)
 
-**Gaps in P lanes** = the processor was idle (no runnable goroutines, or goroutines blocked). Many idle gaps with pending runnable goroutines suggests scheduling contention.
+**Gaps in P lanes** = processor idle (no runnable goroutines, or goroutines blocked). Many idle gaps with pending runnable goroutines suggest scheduling contention.
 
 ## What to Look For
 
 ### Goroutine states
 
-The trace timeline color-codes goroutine states:
+Trace timeline color-codes goroutine states:
 
 | Color | State | Meaning | What it indicates |
 | --- | --- | --- | --- |
-| **Green** | Running | Actively executing on a P | Normal — doing useful work |
-| **Yellow/Orange** | Runnable | Ready to run but waiting for a P | CPU-saturated — too many runnable goroutines competing for too few processors |
-| **Red/Pink** | Waiting | Blocked on I/O, channel, mutex, sleep, select | I/O-bound or contention — investigate what it's waiting on |
-| **Blue** | GC assist | Drafted by GC to help mark/sweep | GC pressure — too many allocations forcing goroutines to help the collector |
+| **Green** | Running | Executing on a P | Normal: useful work |
+| **Yellow/Orange** | Runnable | Ready, waiting for a P | CPU saturation: too many runnable goroutines for too few processors |
+| **Red/Pink** | Waiting | Blocked on I/O, channel, mutex, sleep, select | I/O-bound or contention: check what it waits on |
+| **Blue** | GC assist | Drafted by GC to help mark/sweep | GC pressure: allocations force goroutines to help collector |
 
 ### GC phases
 
-GC events appear as colored bands across all P lanes:
-
-- **Mark assist** — goroutines drafted to help GC scan the heap. Visible as gaps in application goroutine execution. The runtime forces goroutines to assist with GC work in proportion to their allocation rate — heavy allocators get taxed more.
-- **STW (stop-the-world)** — brief phases where all goroutines are stopped (mark setup, mark termination). These cause latency spikes visible as vertical bands across all lanes.
-- **Sweep** — concurrent sweep of unreachable objects. Usually low overhead but can accumulate if the heap is large.
+- **Mark assist** — goroutines drafted to help GC scan heap. Show as gaps in application goroutine execution. Runtime makes goroutines assist in proportion to allocation rate, so heavy allocators pay more.
+- **STW (stop-the-world)** — brief phases with all goroutines stopped (mark setup, mark termination). Cause latency spikes, seen as vertical bands across all lanes.
+- **Sweep** — concurrent sweep of unreachable objects. Usually cheap, but can accumulate if heap is large.
 
 **Diagnosing GC issues from traces:**
 
 - Frequent GC cycles with long mark assist = too many allocations (reduce allocation rate)
-- Long STW phases = too many pointers for the GC to scan (reduce pointer density)
+- Long STW phases = too many pointers to scan (reduce pointer density)
 - GC cycles clustering after specific operations = those operations allocate heavily
 
 ### Scheduling latency
 
-Time between a goroutine becoming **runnable** and actually **running**. High scheduling latency means:
+Time from goroutine becoming **runnable** to **running**. High scheduling latency means:
 
 - Too many goroutines competing for GOMAXPROCS processors
 - OS scheduling interference (noisy neighbors, CPU throttling)
@@ -275,31 +196,29 @@ Time between a goroutine becoming **runnable** and actually **running**. High sc
 
 **What to look for:**
 
-- Yellow (runnable) gaps before green (running) segments — the longer the yellow gap, the higher the scheduling latency
-- Many goroutines in runnable state simultaneously — indicates CPU saturation
-- Uneven distribution across Ps — one P overloaded while others are idle suggests work imbalance
+- Yellow (runnable) gaps before green (running) segments. Longer gap means higher scheduling latency
+- Many goroutines runnable at once: CPU saturation
+- Uneven load across Ps (one overloaded, others idle): work imbalance
 
 ### Network/sync blocking
 
-- **Long red/pink periods** on a goroutine = it's blocked waiting. Click the block event to see what it's waiting on (channel receive, mutex lock, network read, etc.)
-- **Many goroutines blocked on the same channel or mutex** = serialization bottleneck. All work funnels through one point.
-- **Goroutines blocked on network I/O** = external dependency latency. The Go code can't do anything faster — the bottleneck is upstream. Use `-pprof=net` to generate a pprof profile of network wait locations.
+- **Long red/pink periods** on a goroutine = blocked waiting. Click block event to see cause (channel receive, mutex lock, network read, etc.)
+- **Many goroutines blocked on the same channel or mutex** = serialization bottleneck; all work funnels through one point.
+- **Goroutines blocked on network I/O** = external dependency latency. Bottleneck is upstream, not in Go code. Use `-pprof=net` for pprof profile of network wait locations.
 
 ### Goroutine creation and destruction
 
-The trace shows goroutine lifecycle events. Look for:
+Trace shows goroutine lifecycle events. Look for:
 
 - **Goroutines created in a loop without bound** = potential goroutine leak
-- **Goroutines that are created but never finish** = leak — they accumulate over time
-- **Very short-lived goroutines created repeatedly** = high overhead from goroutine creation/scheduling (consider batching or worker pools)
+- **Goroutines that are created but never finish** = leak; they accumulate over time
+- **Very short-lived goroutines created repeatedly** = goroutine creation/scheduling overhead (consider batching or worker pools)
 
 ## Custom Annotations
 
-Add application-level context to traces so you can correlate runtime events with business operations.
-
 ### Tasks
 
-A task represents a logical operation that may span multiple goroutines:
+Task: logical operation, possibly spanning multiple goroutines:
 
 ```go
 import "runtime/trace"
@@ -316,11 +235,11 @@ func processOrder(ctx context.Context, order Order) error {
 }
 ```
 
-Tasks appear as named groups in the trace timeline. You can filter the trace view to show only events belonging to a specific task.
+Tasks show as named groups in timeline. Trace view can filter to one task's events.
 
 ### Regions
 
-A region represents a phase within a task or goroutine:
+Region: phase within task or goroutine:
 
 ```go
 func validate(ctx context.Context, order Order) {
@@ -335,30 +254,30 @@ func validate(ctx context.Context, order Order) {
 }
 ```
 
-Regions appear as labeled spans on the goroutine's timeline, making it easy to see which phase of processing takes the most wall-clock time.
+Regions show as labeled spans on goroutine timeline, revealing which phase takes most wall-clock time.
 
 ### Log messages
 
-Add point-in-time log messages to the trace:
+Add point-in-time log messages:
 
 ```go
 trace.Log(ctx, "orderID", order.ID)
 trace.Log(ctx, "status", "payment_verified")
 ```
 
-Logs appear as markers on the timeline — useful for correlating trace events with specific data.
+Logs show as timeline markers for correlating trace events with specific data.
 
 ### When to use annotations
 
-- **Always** in server request handlers — wrap each request in a task
-- **Performance-critical paths** — add regions to phases you want to measure wall-clock time for
-- **Debugging intermittent latency** — add logs at key decision points to see what happened in the slow trace
+- **Always** in server request handlers — wrap each request in task
+- **Performance-critical paths** — add regions to phases to measure their wall-clock time
+- **Debugging intermittent latency** — add logs at key decision points to see what happened in slow trace
 
-Annotations add negligible overhead when tracing is disabled (they check a flag and return immediately).
+Annotations cost negligible overhead when tracing is disabled (flag check, immediate return).
 
 ## Flight Recorder (Go 1.25+)
 
-The flight recorder solves a fundamental problem with execution traces in long-running services: when a problem occurs (timeout, failed health check), it's already too late to call `trace.Start()`. The flight recorder keeps a circular buffer of recent trace data in memory, and you snapshot it to disk when something goes wrong — like an airplane's black box.
+Solves key problem of execution traces in long-running services: once problem occurs (timeout, failed health check), calling `trace.Start()` is too late. Flight recorder keeps circular in-memory buffer of recent trace data. Snapshot it to disk when something goes wrong.
 
 ### Setup
 
@@ -376,12 +295,12 @@ if err := fr.Start(); err != nil {
 
 **Sizing guidance:**
 
-- **MinAge** — set to ~2x your problem window. For 5-second timeout debugging, use 10 seconds. The runtime may retain more data than MinAge if MaxBytes allows.
-- **MaxBytes** — busy services generate ~1-10 MB/s of trace data. Start with 1-5 MiB and adjust. MaxBytes takes precedence over MinAge — when the buffer fills, older data is discarded regardless of age.
+- **MinAge** — ~2x problem window. For 5-second timeout debugging, use 10 seconds. Runtime may retain more than MinAge if MaxBytes allows.
+- **MaxBytes** — busy services generate ~1-10 MB/s of trace data. Start at 1-5 MiB, adjust. MaxBytes wins over MinAge: full buffer discards older data regardless of age.
 
 ### Snapshot on error
 
-Capture the trace buffer when something unexpected happens. Use `sync.Once` to prevent multiple snapshots overwriting each other:
+Capture trace buffer on unexpected events. `sync.Once` prevents multiple snapshots overwriting each other:
 
 ```go
 var snapshotOnce sync.Once
@@ -423,7 +342,7 @@ if !healthCheck() && fr.Enabled() {
     go captureSnapshot(fr)
 }
 
-// Pattern 3: HTTP endpoint for on-demand capture
+// Pattern 3: HTTP endpoint for on-demand capture (internal/admin listener with auth only; traces expose stacks and logged data)
 http.HandleFunc("/debug/flightrecorder", func(w http.ResponseWriter, r *http.Request) {
     if !fr.Enabled() {
         http.Error(w, "flight recorder not active", http.StatusServiceUnavailable)
@@ -441,46 +360,46 @@ http.HandleFunc("/debug/flightrecorder", func(w http.ResponseWriter, r *http.Req
 go tool trace snapshot.trace
 ```
 
-The snapshot contains the same data as a regular trace — use all the same analysis techniques (timeline viewer, goroutine analysis, pprof extraction). The flight recorder's flow events are particularly useful for diagnosing lock contention and goroutine stalls that caused the anomaly.
+Snapshot has same data as regular trace; same analysis techniques apply (timeline viewer, goroutine analysis, pprof extraction). Its flow events help diagnose lock contention and goroutine stalls behind the anomaly.
 
 ### Constraints
 
-- **At most one flight recorder** may be active at a time (this restriction may be relaxed in future Go versions)
-- A flight recorder **can run concurrently** with `trace.Start` — both can be active simultaneously
-- Only one goroutine may call `WriteTo` at a time — the `sync.Once` pattern handles this naturally
+- **At most one flight recorder** active at a time (may be relaxed in future Go versions)
+- Flight recorder **can run concurrently** with `trace.Start`
+- Only one goroutine may call `WriteTo` at a time; `sync.Once` pattern handles this
 - `Stop()` blocks until any concurrent `WriteTo` completes
 
 ### When to use flight recorder vs regular tracing
 
 | Scenario | Tool | Why |
 | --- | --- | --- |
-| Investigating a known slow operation | `go test -trace` or `trace.Start`/`Stop` | You know when to start and stop |
-| Intermittent latency spikes in production | Flight recorder | You don't know when the spike will happen — the buffer captures it retroactively |
-| Post-mortem after a timeout or crash | Flight recorder | The problem already happened; regular tracing would miss it |
-| Continuous performance monitoring | `samber/cc-skills-golang@golang-observability` (Pyroscope) | Flight recorder is for one-shot diagnosis, not continuous collection |
+| Known slow operation | `go test -trace` or `trace.Start`/`Stop` | Start and stop points known |
+| Intermittent production latency spikes | Flight recorder | Spike timing unknown; buffer captures it retroactively |
+| Post-mortem after timeout or crash | Flight recorder | Problem already happened; regular tracing misses it |
+| Continuous performance monitoring | `samber/cc-skills-golang@golang-observability` (Pyroscope) | Flight recorder is one-shot diagnosis, not continuous collection |
 
 ## Overhead and Practical Limits
 
 | Concern | Guidance |
 | --- | --- |
 | **Runtime overhead** | ~1-2% CPU during capture; negligible when not capturing |
-| **Data volume** | Traces generate MB/s of data. A 10-second trace of a busy service can be 50-100MB |
-| **Capture duration** | 5-10 seconds is typical. Longer traces are slow to open and hard to navigate |
-| **Memory to view** | `go tool trace` loads the entire trace into memory. Large traces may need 1GB+ RAM |
-| **Browser performance** | The web UI can struggle with traces >100MB. Use short captures. |
-| **Production use** | Safe for short captures on a single instance. Do not capture continuously. |
+| **Data volume** | Traces generate MB/s. 10-second trace of busy service can hit 50-100MB |
+| **Capture duration** | 5-10 seconds typical. Longer traces slow to open, hard to navigate |
+| **Memory to view** | `go tool trace` loads whole trace into memory. Large traces may need 1GB+ RAM |
+| **Browser performance** | Web UI may struggle with traces >100MB. Use short captures. |
+| **Production use** | Safe for short captures on one instance. Do not capture continuously. |
 
 ## Trace vs pprof: When to Use Which
 
 | Question | Tool | Why |
 | --- | --- | --- |
-| Where does CPU time go? | pprof CPU profile | Statistical sampling, low overhead, good for aggregate view |
-| Why is latency high but CPU low? | go tool trace | Shows goroutine waiting states — I/O, channels, mutexes |
+| Where does CPU time go? | pprof CPU profile | Statistical sampling, low overhead, aggregate view |
+| Why is latency high but CPU low? | go tool trace | Shows goroutine waiting states: I/O, channels, mutexes |
 | Where do allocations happen? | pprof heap profile | Per-function allocation counts and sizes |
 | Why are GC pauses long? | go tool trace | Shows STW phases, mark assist, GC timeline |
-| Is there lock contention? | pprof mutex/block + trace | pprof quantifies it; trace shows the timeline |
-| Are goroutines leaking? | pprof goroutine + trace | pprof shows the stack; trace shows creation/lifecycle |
+| Is there lock contention? | pprof mutex/block + trace | pprof quantifies it; trace shows timeline |
+| Are goroutines leaking? | pprof goroutine + trace | pprof shows stack; trace shows creation/lifecycle |
 | Which goroutines compete for CPU? | go tool trace | Shows runnable vs running states across all Ps |
 | What's the wall-clock breakdown of a request? | go tool trace (with annotations) | Timeline view with tasks and regions |
 
-When in doubt, start with pprof (lower overhead, simpler output). Use trace when pprof doesn't explain the latency or when you need the wall-clock timeline view.
+Unsure: start with pprof (lower overhead, simpler output). Use trace when pprof doesn't explain latency or wall-clock timeline is needed.

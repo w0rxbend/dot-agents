@@ -1,16 +1,6 @@
 # Routing Guide
 
-TanStack Router implementation with folder-based routing and lazy loading patterns.
-
----
-
-## TanStack Router Overview
-
-**TanStack Router** with file-based routing:
-- Folder structure defines routes
-- Lazy loading for code splitting
-- Type-safe routing
-- Breadcrumb loaders
+TanStack Router with folder-based routing and lazy loading.
 
 ---
 
@@ -32,58 +22,9 @@ routes/
 ```
 
 **Pattern**:
-- `index.tsx` = Route at that path
-- `$param.tsx` = Dynamic parameter
-- Nested folders = Nested routes
-
----
-
-## Basic Route Pattern
-
-### Example from posts/index.tsx
-
-```typescript
-/**
- * Posts route component
- * Displays the main blog posts list
- */
-
-import { createFileRoute } from '@tanstack/react-router';
-import { lazy } from 'react';
-
-// Lazy load the page component
-const PostsList = lazy(() =>
-    import('@/features/posts/components/PostsList').then(
-        (module) => ({ default: module.PostsList }),
-    ),
-);
-
-export const Route = createFileRoute('/posts/')({
-    component: PostsPage,
-    // Define breadcrumb data
-    loader: () => ({
-        crumb: 'Posts',
-    }),
-});
-
-function PostsPage() {
-    return (
-        <PostsList
-            title='All Posts'
-            showFilters={true}
-        />
-    );
-}
-
-export default PostsPage;
-```
-
-**Key Points:**
-- Lazy load heavy components
-- `createFileRoute` with route path
-- `loader` for breadcrumb data
-- Page component renders content
-- Export both Route and component
+- `index.tsx`: route at that path
+- `$param.tsx`: dynamic parameter
+- Nested folders: nested routes
 
 ---
 
@@ -111,28 +52,9 @@ import { lazy } from 'react';
 const MyPage = lazy(() => import('@/features/my-feature/components/MyPage'));
 ```
 
-### Why Lazy Load Routes?
-
-- Code splitting - smaller initial bundle
-- Faster initial page load
-- Load route code only when navigated to
-- Better performance
-
 ---
 
 ## createFileRoute
-
-### Basic Configuration
-
-```typescript
-export const Route = createFileRoute('/my-route/')({
-    component: MyRoutePage,
-});
-
-function MyRoutePage() {
-    return <div>My Route Content</div>;
-}
-```
 
 ### With Breadcrumb Loader
 
@@ -145,7 +67,7 @@ export const Route = createFileRoute('/my-route/')({
 });
 ```
 
-Breadcrumb appears in navigation/app bar automatically.
+Breadcrumb shows in navigation/app bar automatically.
 
 ### With Data Loader
 
@@ -182,22 +104,6 @@ function SearchPage() {
 ---
 
 ## Dynamic Routes
-
-### Parameter Routes
-
-```typescript
-// routes/users/$userId.tsx
-
-export const Route = createFileRoute('/users/$userId')({
-    component: UserPage,
-});
-
-function UserPage() {
-    const { userId } = Route.useParams();
-
-    return <UserProfile userId={userId} />;
-}
-```
 
 ### Multiple Parameters
 
@@ -353,6 +259,7 @@ export default UserPage;
 - ✅ Folder-based: `routes/my-route/index.tsx`
 - ✅ Lazy load components: `React.lazy(() => import())`
 - ✅ Use `createFileRoute` with route path
+- ✅ Export Route and component
 - ✅ Add breadcrumb in `loader` function
 - ✅ Wrap in `SuspenseLoader` for loading states
 - ✅ Use `Route.useParams()` for dynamic params

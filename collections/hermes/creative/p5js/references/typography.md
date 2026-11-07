@@ -36,7 +36,7 @@ function setup() {
 </script>
 ```
 
-Google Fonts work without `loadFont()` but only for `text()` — not for `textToPoints()`. For particle text, you need `loadFont()` with an OTF/TTF file.
+Google Fonts work without `loadFont()`, but only for `text()`, not for `textToPoints()`. Particle text needs `loadFont()` with OTF/TTF file.
 
 ## Text Rendering
 
@@ -89,7 +89,7 @@ text('Very long text', x, y, maxWidth, maxHeight);
 
 ## textToPoints() — Text as Particles
 
-Convert text outline to array of points. Requires a loaded font (OTF/TTF via `loadFont()`).
+Converts text outline to point array. Requires loaded font (OTF/TTF via `loadFont()`).
 
 ```javascript
 let font;

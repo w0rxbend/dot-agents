@@ -21,20 +21,20 @@ metadata:
 
 # Render Blueprints (render.yaml)
 
-Blueprints define Render infrastructure as YAML (commonly `render.yaml` at the repo root). This skill focuses on **authoring**, **wiring**, **projects/environments**, **previews**, **validation**, and **immutable fields**. Heavy detail lives under `references/`.
+Blueprints define Render infrastructure as YAML, usually `render.yaml` at repo root.
 
 ## When to Use
 
-Apply this skill when the user:
+Use when user:
 
-- Creates or edits a `render.yaml` / Blueprint
+- Creates or edits `render.yaml` / Blueprint
 - Wires databases, private services, or Key Value into app env vars
 - Groups services with **projects** and **environments**
 - Configures **preview environments** for pull requests
 - Validates YAML against Render’s schema or CLI
-- Asks what can or cannot change after a resource is created
+- Asks what can or cannot change after creation
 
-For end-to-end deploy flows and MCP/CLI operations, see **render-deploy**. For env var strategy outside Blueprint syntax, see **render-env-vars**. For Docker-specific Blueprint fields, see **render-docker**.
+End-to-end deploy flows and MCP/CLI operations: **render-deploy**. Env var strategy outside Blueprint syntax: **render-env-vars**. Docker-specific Blueprint fields: **render-docker**.
 
 ## Blueprint Structure
 
@@ -44,16 +44,16 @@ For end-to-end deploy flows and MCP/CLI operations, see **render-deploy**. For e
 |-----|---------|
 | `services` | Web, worker, cron, private service, Key Value, static (via `web` + `runtime: static`) |
 | `databases` | Managed PostgreSQL instances |
-| `envVarGroups` | Reusable env var sets attached to services |
-| `projects` | Optional grouping; contains `environments` and service lists |
-| `previews` | Defaults for PR preview environments |
+| `envVarGroups` | Reusable env var sets for services |
+| `projects` | Optional grouping with `environments` and service lists |
+| `previews` | PR preview environment defaults |
 
-A Blueprint may also use patterns like **ungrouped** resources vs **environment-scoped** lists, depending on whether you adopt the projects model. Avoid duplicating the same logical resource in multiple places (see `references/common-mistakes.md`).
+Resources are **ungrouped** or in **environment-scoped** lists, depending on whether you use projects model. Avoid duplicating one logical resource in multiple places (see `references/common-mistakes.md`).
 
 ### Schema and IDE validation
 
 - **JSON Schema URL:** `https://render.com/schema/render.yaml.json`
-- Configure your editor to associate `render.yaml` with that schema for completions and diagnostics.
+- Map `render.yaml` to that schema in editor for completions and diagnostics.
 
 ### Minimal example: web + PostgreSQL
 
@@ -82,53 +82,53 @@ services:
 
 | `type` | Role |
 |--------|------|
-| `web` | Public HTTP service (use `runtime: static` for static sites) |
+| `web` | Public HTTP service (`runtime: static` for static sites) |
 | `pserv` | Private service (internal HTTP/TCP; not public) |
 | `worker` | Long-running background process |
 | `cron` | Scheduled job (`schedule` required) |
-| `keyvalue` | Managed Key Value (Redis-compatible); alias **`redis`** accepted in Blueprints |
+| `keyvalue` | Managed Key Value (Redis-compatible); Blueprints accept alias **`redis`** |
 
 ## Runtimes
 
 Common `runtime` values: **`node`**, **`python`**, **`go`**, **`ruby`**, **`rust`**, **`elixir`**, **`docker`**, **`image`**, **`static`**.
 
 - **`docker`**: Build from `Dockerfile` (see `dockerfilePath`, `dockerContext`, `dockerCommand`).
-- **`image`**: Run a prebuilt container image (registry + optional `registryCredential`).
-- **`static`**: Static site; requires `staticPublishPath` and build output paths (see references).
+- **`image`**: Run prebuilt container image (registry + optional `registryCredential`).
+- **`static`**: Static site; needs `staticPublishPath` and build output paths (see references).
 
 ## Cross-Service Wiring
 
-Env vars under `envVars` (and analogous patterns in groups) can pull values from other resources instead of hardcoding secrets.
+`envVars` entries (and groups) can pull values from other resources instead of hardcoded secrets.
 
 ### `fromDatabase`
 
-Reference a database in `databases:` by `name`. Properties include:
+Reference database in `databases:` by `name`. Properties:
 
 - `connectionString`, `host`, `port`, `user`, `password`, `database`
 
 ### `fromService`
 
-Reference a service by `name`. Typical properties:
+Reference service by `name`. Typical properties:
 
 - `host`, `port`, `hostport`, `connectionString`, `envVarKey`
 
-Which properties are valid depends on target service type (e.g. Key Value vs `pserv`). See `references/wiring-patterns.md`.
+Valid properties depend on target service type (e.g. Key Value vs `pserv`).
 
 ### `fromGroup`
 
-Attach shared vars from `envVarGroups` (by group `name`).
+Attach shared vars from `envVarGroups` by group `name`.
 
 ### Other env var keys
 
 - **`value`**: Literal string.
-- **`generateValue`**: Let Render generate a random secret (password/API key).
-- **`sync`**: Set `sync: false` for secrets that should not sync from repo on every update (see edge cases in wiring reference).
+- **`generateValue`**: Render generates random secret (password/API key).
+- **`sync`**: Set `sync: false` for secrets that should not sync from repo on each update (see wiring reference edge cases).
 
 Full patterns and combinations: `references/wiring-patterns.md`.
 
 ## Projects and Environments
 
-For multi-service apps, use the **`projects`/`environments`** pattern instead of flat top-level `services`/`databases`. This groups all related resources into a single Render project, supports multiple environments (production, staging), and enables environment-scoped configuration.
+Single-service apps: flat top-level `services`/`databases` is fine. Use projects for multiple services, staging/production separation, or environment-scoped env groups.
 
 ```yaml
 projects:
@@ -186,11 +186,9 @@ projects:
 Key rules:
 
 - Each environment owns its `services` and `databases` lists.
-- Do not define the same resource at both the root level and inside an environment.
-- `envVarGroups` can be scoped to a project environment or shared across the workspace.
+- Do not define same resource at both root level and inside an environment.
+- `envVarGroups` can be scoped to one project environment or shared across workspace.
 - Environment isolation (Professional+) can block cross-environment private network traffic.
-
-For single-service apps, flat top-level `services`/`databases` is fine. Reach for the projects pattern when you have multiple services, need staging/production separation, or want environment-scoped env groups.
 
 ## Preview Environments
 
@@ -199,21 +197,19 @@ Top-level `previews` controls PR previews:
 - **`previews.generation`**: `off` (default), `manual`, or `automatic`
 - **`previews.expireAfterDays`**: Auto-delete preview stacks after N days
 
-Services can override preview behavior (e.g. service-level `previews.generation`). Limitations: autoscaling behavior, `sync: false` vars, `previewPlan` / flexible instance constraints—see `references/preview-environments.md`.
+Services can override preview behavior (e.g. service-level `previews.generation`). Limitations (autoscaling, `sync: false` vars, `previewPlan` / flexible instance constraints): see `references/preview-environments.md`.
 
 ## Validation
 
 ```bash
-render blueprints validate
+RENDER_CLI_DISABLE_ANALYTICS=1 render blueprints validate
 ```
 
-Requires **Render CLI v2.7.0+**. Run from the repo root (or pass the appropriate path options your CLI version supports). Fix schema and semantic errors before merging Blueprint changes.
-
-Official schema: `https://render.com/schema/render.yaml.json`
+Render CLI sends usage analytics by default; prefix every `render` command with `RENDER_CLI_DISABLE_ANALYTICS=1`. Needs **Render CLI v2.7.0+**. Run from repo root, or pass path options your CLI version supports. Fix schema and semantic errors before merging Blueprint changes.
 
 ## Immutable Fields
 
-**CRITICAL:** Some fields cannot change after the resource is created. Edits may be rejected or require replacement resources.
+**CRITICAL:** Some fields cannot change after creation. Edits may be rejected or need replacement resources.
 
 ### Services
 
@@ -224,13 +220,13 @@ Official schema: `https://render.com/schema/render.yaml.json`
 
 Cannot change after creation:
 
-- `name` (logical Blueprint/database identifier in this context)
+- `name` (logical Blueprint/database identifier here)
 - `databaseName`
 - `user`
 - `region`
 - `postgresMajorVersion`
 
-Plan other fields (disk, HA, replicas) carefully up front; consult Render docs for fields that can scale vs require recreation.
+Plan other fields (disk, HA, replicas) carefully up front. Check Render docs for which fields scale vs need recreation.
 
 ## Key Fields (Quick Map)
 
@@ -261,4 +257,4 @@ Deprecated names to avoid: `env` (use `runtime`), `redis` (use `keyvalue`), `aut
 
 - **render-deploy** — Deploy flows, Blueprint vs direct create, MCP/deeplinks
 - **render-env-vars** — Env var strategy, secrets, Dashboard vs Blueprint
-- **render-docker** — Dockerfile-backed services and image runtime nuances
+- **render-docker** — Dockerfile-backed services, image runtime nuances

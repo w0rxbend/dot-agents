@@ -108,7 +108,7 @@ let x = easedValue(100, 700, animStartTime, 2000, easeOutCubic);
 
 ## Spring Physics
 
-More natural than easing — responds to force, overshoots, settles.
+More natural than easing. Responds to force, overshoots, settles.
 
 ```javascript
 class Spring {
@@ -331,7 +331,7 @@ for (let i = 0; i < elements.length; i++) {
 
 ## Recording Deterministic Animations
 
-For frame-perfect export, use frame count instead of millis():
+For frame-perfect export, use frame count, not millis():
 
 ```javascript
 const TOTAL_FRAMES = 300;  // 10 seconds at 30fps
@@ -353,7 +353,7 @@ function draw() {
 
 ## Scene Fade Envelopes (Video)
 
-Every scene in a multi-scene video needs fade-in and fade-out. Hard cuts between visually different generative scenes are jarring.
+Every scene in multi-scene video needs fade-in and fade-out. Hard cuts between visually different generative scenes jar.
 
 ```javascript
 const SCENE_FRAMES = 150;  // 5 seconds at 30fps
@@ -385,11 +385,11 @@ function draw() {
 
 ## Animating Static Algorithms
 
-Some generative algorithms produce a single static result (attractors, circle packing, Voronoi). In video, static content reads as frozen/broken. Techniques to add motion:
+Some generative algorithms produce one static result (attractors, circle packing, Voronoi). In video, static content reads as frozen/broken. Ways to add motion:
 
 ### Progressive Reveal
 
-Expand a mask from center outward to reveal the precomputed result:
+Expand mask from center outward to reveal precomputed result:
 
 ```javascript
 let revealRadius = easeOutCubic(min(t * 1.5, 1)) * (width * 0.8);
@@ -402,7 +402,7 @@ let edgeFade = constrain((revealRadius - dist) / 40, 0, 1);
 
 ### Parameter Sweep
 
-Slowly change a parameter to show the algorithm evolving:
+Slowly change a parameter to show algorithm evolving:
 
 ```javascript
 // Attractor with drifting parameters
@@ -412,7 +412,7 @@ let b = 1.3 + cos(t * 0.3) * 0.15;
 
 ### Slow Camera Motion
 
-Apply subtle zoom or rotation to the final image:
+Apply subtle zoom or rotation to final image:
 
 ```javascript
 push();
@@ -426,7 +426,7 @@ pop();
 
 ### Overlay Dynamic Elements
 
-Add particles, grain, or subtle noise on top of static content:
+Add particles, grain or subtle noise over static content:
 
 ```javascript
 // Static background

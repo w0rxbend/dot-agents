@@ -5,19 +5,15 @@ description: "Set up GitOps continuous delivery for Kubernetes with Argo CD or F
 
 # GitOps Workflows
 
-Implement GitOps continuous delivery for Kubernetes using declarative, pull-based deployment models where Git serves as the single source of truth for infrastructure and application configuration.
-
 ## When to Use
 
-Use GitOps workflows for:
-
-- **Kubernetes Deployments:** Automating application and infrastructure deployments to Kubernetes clusters
-- **Multi-Cluster Management:** Managing deployments across development, staging, production, and edge clusters
-- **Continuous Delivery:** Implementing pull-based CD pipelines with automated reconciliation
-- **Drift Detection:** Automatically detecting and correcting configuration drift from desired state
-- **Audit Requirements:** Maintaining complete audit trails via Git commits for compliance
-- **Progressive Delivery:** Implementing canary, blue-green, or rolling deployment strategies
-- **Disaster Recovery:** Enabling rapid cluster recovery with GitOps bootstrap processes
+- **Kubernetes Deployments:** Automate application and infrastructure deploys to clusters
+- **Multi-Cluster Management:** Deploy across development, staging, production and edge clusters
+- **Continuous Delivery:** Pull-based CD with automated reconciliation
+- **Drift Detection:** Detect and correct drift from desired state automatically
+- **Audit Requirements:** Full audit trail in Git commits for compliance
+- **Progressive Delivery:** Canary, blue-green or rolling strategies
+- **Disaster Recovery:** Fast cluster recovery via GitOps bootstrap
 
 Trigger keywords: "deploy to Kubernetes", "ArgoCD setup", "Flux bootstrap", "GitOps pipeline", "environment promotion", "multi-cluster deployment", "automated reconciliation"
 
@@ -25,19 +21,15 @@ Trigger keywords: "deploy to Kubernetes", "ArgoCD setup", "Flux bootstrap", "Git
 
 ### 1. Git as Single Source of Truth
 
-All system configuration stored in Git repositories. No manual kubectl apply or cluster modifications. Declarative manifests (YAML) for all Kubernetes resources, environment-specific overlays, infrastructure configuration, and application deployments.
+All system configuration lives in Git. No manual kubectl apply or cluster edits. Declarative YAML manifests (not imperative scripts) define desired state for all Kubernetes resources, environment overlays, infrastructure and applications.
 
 ### 2. Pull-Based Deployment
 
-Operators running inside clusters pull changes from Git and apply them automatically. Benefits include no cluster credentials in CI/CD pipelines, support for air-gapped environments, self-healing through continuous reconciliation, and simplified CI/CD.
+In-cluster operators pull changes from Git and apply them automatically. Benefits: no cluster credentials in CI/CD, air-gapped support, self-healing via continuous reconciliation, simpler CI/CD.
 
 ### 3. Automated Reconciliation
 
-GitOps operators continuously compare actual cluster state with desired state in Git and reconcile differences through a continuous loop: watch Git, compare live state, apply differences, report status, repeat.
-
-### 4. Declarative Configuration
-
-Use declarative Kubernetes manifests (not imperative scripts) to define desired state.
+Operators continuously reconcile actual cluster state against desired state in Git. Loop: watch Git, compare live state, apply differences, report status, repeat.
 
 ## Tool Selection
 
@@ -45,27 +37,30 @@ Use declarative Kubernetes manifests (not imperative scripts) to define desired 
 
 | Decision Factor | Choose ArgoCD | Choose Flux |
 |----------------|---------------|-------------|
-| **Team Preference** | Visual management with web UI | CLI/API-first workflows |
-| **Learning Curve** | Easier onboarding with UI | Steeper but more flexible |
+| **Team Preference** | Web UI visual management | CLI/API-first workflows |
+| **Learning Curve** | Easier onboarding via UI | Steeper, more flexible |
 | **Architecture** | Monolithic, stateful controller | Modular, stateless controllers |
 | **Multi-Tenancy** | Built-in RBAC and projects | Kubernetes-native RBAC |
-| **Resource Usage** | Higher (includes UI components) | Lower (minimal controllers) |
+| **Resource Usage** | Higher (UI components) | Lower (minimal controllers) |
 | **Best For** | Transitioning to GitOps | Platform engineering |
 
-**Hybrid Approach:** Some teams use Flux for infrastructure and ArgoCD for applications.
+**Hybrid Approach:** Some teams use Flux for infrastructure, ArgoCD for applications.
 
-For ArgoCD implementation patterns, see references/argocd-patterns.md
-For Flux implementation patterns, see references/flux-patterns.md
-For Kustomize overlay patterns, see references/kustomize-overlays.md
+ArgoCD patterns: references/argocd-patterns.md
+Flux patterns: references/flux-patterns.md
+Kustomize overlay patterns: references/kustomize-overlays.md
 
 ## Quick Start
 
 ### ArgoCD Installation
 
 ```bash
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# Pinned release (ARGOCD_VERSION, default v3.6.1), never the moving `stable` branch;
+# downloads the manifest, shows the kube context, asks before applying
+./scripts/install-argocd.sh
 ```
+
+Pin install manifests, Helm charts and images to reviewed versions or digests, never `stable`/`latest`; review third-party manifests before applying.
 
 **Basic Application:**
 ```yaml
@@ -115,45 +110,43 @@ spec:
     name: myapp
 ```
 
-For complete examples, see examples/argocd/ and examples/flux/
-
 ## Environment Promotion
 
 **Branch-Based Strategy:** dev branch → staging branch → main branch (prod)
 **Kustomize-Based Strategy:** k8s/base/ → k8s/overlays/{dev,staging,prod}/
 
 **Promotion Process:**
-1. Merge code changes to main branch
-2. CI builds container image with tag
-3. Update image tag in environment overlay (Git commit)
+1. Merge code to main branch
+2. CI builds tagged container image
+3. Commit new image tag to environment overlay
 4. GitOps operator detects change and deploys
 5. Test in environment
-6. Promote to next environment by updating Git
+6. Promote by updating next environment in Git
 
-For multi-environment ApplicationSet patterns, see references/argocd-patterns.md
+Multi-environment ApplicationSet patterns: references/argocd-patterns.md
 
 ## Multi-Cluster Management
 
-**ArgoCD:** Register external clusters with argocd CLI, use ApplicationSets to generate Applications per cluster, manage from single ArgoCD instance.
+**ArgoCD:** Register external clusters with argocd CLI. ApplicationSets generate Applications per cluster. One ArgoCD instance manages all.
 
-**Flux:** Bootstrap Flux per cluster, use same Git repo with cluster-specific paths, configure remote clusters via kubeConfig secrets.
+**Flux:** Bootstrap Flux per cluster. One Git repo, cluster-specific paths. Remote clusters via kubeConfig secrets.
 
-For detailed multi-cluster patterns, see references/multi-cluster.md
+Detailed multi-cluster patterns: references/multi-cluster.md
 
 ## Progressive Delivery
 
-**Canary Deployments:** Gradually shift traffic to new version, monitor metrics during rollout, automated rollback on failures.
+**Canary Deployments:** Shift traffic to new version gradually, watch metrics during rollout, automated rollback on failure.
 
-**Blue-Green Deployments:** Deploy new version alongside old, switch traffic atomically, instant rollback if issues detected.
+**Blue-Green Deployments:** Run new version beside old, switch traffic atomically, roll back instantly on issues.
 
-**ArgoCD:** Use Argo Rollouts for progressive delivery
-**Flux:** Integrate Flagger for automated canary analysis
+**ArgoCD:** Argo Rollouts for progressive delivery
+**Flux:** Flagger for automated canary analysis
 
-For progressive delivery strategies and Argo Rollouts examples, see references/progressive-delivery.md
+Progressive delivery strategies and Argo Rollouts examples: references/progressive-delivery.md
 
 ## Secret Management
 
-GitOps requires storing configuration in Git, but secrets must be protected.
+Configuration lives in Git, but secrets must stay protected: commit only encrypted secrets (Sealed Secrets, SOPS) or references (ESO); never plaintext Secret manifests, generator inputs or decryption keys. Never print secrets or ask the user to paste them into chat.
 
 | Tool | Approach | Security | Complexity |
 |------|----------|----------|------------|
@@ -162,11 +155,9 @@ GitOps requires storing configuration in Git, but secrets must be protected.
 | **External Secrets** | Reference external vaults | High | Medium |
 | **HashiCorp Vault** | Central secret management | Very High | High |
 
-For secret management integration patterns, see references/secret-management.md
+Secret management integration patterns: references/secret-management.md
 
 ## Drift Detection and Remediation
-
-GitOps operators continuously monitor for drift between Git (desired state) and cluster (actual state).
 
 **ArgoCD Automatic Self-Healing:**
 ```yaml
@@ -185,7 +176,7 @@ spec:
                    # conflicts (downtime; data loss for some resources)
 ```
 
-**Manual Operations:**
+**Manual Operations:** confirm with user first before cluster-changing or destructive commands (install/bootstrap, sync with `--prune`/`--force`, `delete`, `cluster rm`, removing finalizers, `git push`).
 ```bash
 # ArgoCD
 argocd app get myapp           # View sync status
@@ -197,11 +188,9 @@ flux get kustomizations              # View sync status
 flux reconcile kustomization myapp   # Force immediate sync
 ```
 
-For drift detection strategies and troubleshooting, see references/drift-remediation.md
+Drift detection strategies and troubleshooting: references/drift-remediation.md
 
 ## Sync Hooks and Lifecycle
-
-Execute operations before/after syncs using hooks.
 
 **PreSync Hook (Database Migration):**
 ```yaml
@@ -222,19 +211,19 @@ metadata:
     argocd.argoproj.io/hook: PostSync
 ```
 
-For complete sync hook examples, see examples/argocd/sync-hooks.yaml
+Complete sync hook examples: examples/argocd/sync-hooks.yaml
 
 ## Monitoring and Observability
 
 ### Key Metrics
 
 - **Sync Status:** OutOfSync, Synced, Unknown
-- **Sync Frequency:** How often reconciliation occurs
+- **Sync Frequency:** How often reconciliation runs
 - **Drift Detection:** Time to detect configuration drift
 - **Sync Duration:** Time to apply changes
 - **Failure Rate:** Failed syncs and causes
 
-**ArgoCD Metrics:** Exposed at `/metrics` endpoint (`argocd_app_sync_total`, `argocd_app_info`)
+**ArgoCD Metrics:** `/metrics` endpoint (`argocd_app_sync_total`, `argocd_app_info`)
 **Flux Metrics:** From controllers (`gotk_reconcile_condition`, `gotk_reconcile_duration_seconds`)
 
 ## Troubleshooting
@@ -242,14 +231,14 @@ For complete sync hook examples, see examples/argocd/sync-hooks.yaml
 ### Common Issues
 
 **Sync Stuck/OutOfSync:**
-- Check Git repository accessibility
-- Verify manifests are valid YAML
+- Check Git repository access
+- Validate manifest YAML
 - Review sync logs for errors
 - Check resource finalizers
 
 **Self-Heal Not Working:**
 - Verify selfHeal enabled in syncPolicy
-- Check operator has write permissions
+- Check operator write permissions
 - Review resource ownership labels
 
 **Secrets Not Decrypting:**
@@ -289,10 +278,8 @@ kubectl diff -k k8s/overlays/prod  # Show differences
 
 ## Installation Scripts
 
-Use the provided installation scripts for quick setup:
-
 ```bash
-# Install ArgoCD
+# Install ArgoCD (pinned ARGOCD_VERSION; asks before applying; never prints the admin password)
 ./scripts/install-argocd.sh
 
 # Bootstrap Flux
@@ -311,7 +298,7 @@ export GITHUB_REPO=fleet-infra
 
 ## Example Files
 
-Complete working examples provided in examples/ directory:
+Working examples in examples/:
 
 **ArgoCD Examples:**
 - examples/argocd/application.yaml - Basic Application
@@ -336,11 +323,7 @@ Complete working examples provided in examples/ directory:
 ## Related Skills
 
 - **operating-kubernetes:** Kubernetes fundamentals and resource management
-- **pulumi-stacks** / **deploying-on-aws**, **deploying-on-gcp**, **deploying-on-azure:** Provisioning clusters that GitOps deploys to
+- **pulumi-stacks** / **deploying-on-aws**, **deploying-on-gcp**, **deploying-on-azure:** Provision clusters GitOps deploys to
 - **building-ci-pipelines:** CI builds images, GitOps deploys them
 - **hashicorp-vault:** Vault/ESO integration with GitOps
-- **deploying-applications:** GitOps as the deployment mechanism
-
-## Summary
-
-GitOps provides automated, declarative continuous delivery for Kubernetes with Git as the single source of truth. Choose ArgoCD for UI-driven workflows or Flux for CLI/API-first approaches. Implement automated reconciliation, drift detection, and progressive delivery for reliable deployments at scale. Integrate secret management, multi-cluster orchestration, and disaster recovery for production-grade GitOps workflows.
+- **deploying-applications:** GitOps as deployment mechanism

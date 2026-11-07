@@ -1,6 +1,6 @@
 # Skill catalog
 
-509 unique installed skills: 450 included, 59 external (provider-managed, direct-source, or local-only).
+501 unique installed skills: 442 included, 59 external (provider-managed, direct-source, or local-only).
 
 Install IDs keep same-named skills from different collections in separate directories. The upstream `name` in each skill remains unchanged.
 
@@ -40,7 +40,6 @@ Install IDs keep same-named skills from different collections in separate direct
 | `bash-linux` | bash-linux | shared | MIT | [SKILL.md](../collections/shared/bash-linux/SKILL.md) |
 | `bash-pro` | bash-pro | shared | MIT | [SKILL.md](../collections/shared/bash-pro/SKILL.md) |
 | `bdd-principles` | bdd-principles | shared | FSL-1.1-ALv2 | [SKILL.md](../collections/shared/bdd-principles/SKILL.md) |
-| `browser-testing-with-devtools` | browser-testing-with-devtools | shared | MIT | [SKILL.md](../collections/shared/browser-testing-with-devtools/SKILL.md) |
 | `building-ai-chat` | building-ai-chat | shared | MIT | [SKILL.md](../collections/shared/building-ai-chat/SKILL.md) |
 | `building-ci-pipelines` | building-ci-pipelines | shared | MIT | [SKILL.md](../collections/shared/building-ci-pipelines/SKILL.md) |
 | `building-clis` | building-clis | shared | MIT | [SKILL.md](../collections/shared/building-clis/SKILL.md) |
@@ -50,14 +49,8 @@ Install IDs keep same-named skills from different collections in separate direct
 | `caveman` | caveman | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman/SKILL.md) |
 | `caveman-commit` | caveman-commit | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-commit/SKILL.md) |
 | `caveman-compress` | caveman-compress | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-compress/SKILL.md) |
-| `caveman-discover` | caveman-discover | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-discover/SKILL.md) |
-| `caveman-evidence-review` | caveman-evidence-review | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-evidence-review/SKILL.md) |
 | `caveman-help` | caveman-help | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-help/SKILL.md) |
-| `caveman-learn` | caveman-learn | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-learn/SKILL.md) |
-| `caveman-manage` | caveman-manage | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-manage/SKILL.md) |
-| `caveman-optimize` | caveman-optimize | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-optimize/SKILL.md) |
 | `caveman-review` | caveman-review | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-review/SKILL.md) |
-| `caveman-setup` | caveman-setup | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-setup/SKILL.md) |
 | `caveman-stats` | caveman-stats | shared | Apache-2.0 | [SKILL.md](../collections/shared/caveman-stats/SKILL.md) |
 | `ci-cd-and-automation` | ci-cd-and-automation | shared | MIT | [SKILL.md](../collections/shared/ci-cd-and-automation/SKILL.md) |
 | `claude-design--accessibility-review` | accessibility-review | claude-design | Apache-2.0 | [SKILL.md](../collections/claude-plugins/design/accessibility-review/SKILL.md) |
@@ -201,7 +194,6 @@ Install IDs keep same-named skills from different collections in separate direct
 | `elixir-project-workflow` | elixir-project-workflow | shared | MIT | [SKILL.md](../collections/shared/elixir-project-workflow/SKILL.md) |
 | `embedded-device-protocols` | embedded-device-protocols | shared | MIT | [SKILL.md](../collections/shared/embedded-device-protocols/SKILL.md) |
 | `error-debugging-error-trace` | error-debugging-error-trace | shared | MIT | [SKILL.md](../collections/shared/error-debugging-error-trace/SKILL.md) |
-| `find-skills` | find-skills | shared | MIT | [SKILL.md](../collections/shared/find-skills/SKILL.md) |
 | `fp-async` | fp-async | shared | MIT | [SKILL.md](../collections/shared/fp-async/SKILL.md) |
 | `fp-backend` | fp-backend | shared | MIT | [SKILL.md](../collections/shared/fp-backend/SKILL.md) |
 | `fp-data-transforms` | fp-data-transforms | shared | MIT | [SKILL.md](../collections/shared/fp-data-transforms/SKILL.md) |

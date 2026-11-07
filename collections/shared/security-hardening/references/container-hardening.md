@@ -1,7 +1,5 @@
 # Container Hardening Reference
 
-Comprehensive guide to hardening Docker containers and Kubernetes workloads using minimal images, security contexts, and policy enforcement.
-
 ## Table of Contents
 
 1. [Container Image Hardening](#container-image-hardening)
@@ -19,7 +17,7 @@ Comprehensive guide to hardening Docker containers and Kubernetes workloads usin
 
 ### Base Image Selection
 
-Choose minimal base images to reduce attack surface and vulnerabilities:
+Pick minimal base images to cut attack surface and vulnerabilities:
 
 | Base Image | Size | CVEs | Use Case | Trade-offs |
 |------------|------|------|----------|------------|
@@ -33,22 +31,20 @@ Choose minimal base images to reduce attack surface and vulnerabilities:
 **Production recommendation:**
 - **First choice:** Chainguard Images (cgr.dev/chainguard/*)
 - **Second choice:** Distroless (gcr.io/distroless/*)
-- **Development:** Alpine (for easier debugging)
+- **Development:** Alpine (easier debugging)
 
 ### Multi-Stage Builds
 
-Use multi-stage builds to minimize final image size:
-
 ```dockerfile
-# Build stage
-FROM cgr.dev/chainguard/python:latest-dev AS builder
+# Build stage (pin bases by digest; Renovate/Dependabot bumps them)
+FROM cgr.dev/chainguard/python:latest-dev@sha256:<digest> AS builder
 
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt --target=/app/deps
 
 # Production stage
-FROM cgr.dev/chainguard/python:latest
+FROM cgr.dev/chainguard/python:latest@sha256:<digest>
 
 # Run as non-root user (nonroot user exists in Chainguard images)
 USER nonroot
@@ -68,7 +64,8 @@ ENTRYPOINT ["python", "-m", "app"]
 Scan images for vulnerabilities before deployment:
 
 ```bash
-# Trivy: Comprehensive scanner
+# Trivy: Comprehensive scanner (sends usage telemetry by default: opt out)
+export TRIVY_DISABLE_TELEMETRY=true TRIVY_SKIP_VERSION_CHECK=true
 trivy image --severity HIGH,CRITICAL myapp:latest
 
 # Grype: Fast vulnerability scanner
@@ -86,8 +83,8 @@ trivy image --exit-code 1 --severity CRITICAL myapp:test
 ### Secure Dockerfile Template
 
 ```dockerfile
-# Use minimal base image
-FROM cgr.dev/chainguard/node:latest AS builder
+# Use minimal base image, pinned by digest
+FROM cgr.dev/chainguard/node:latest@sha256:<digest> AS builder
 
 # Set working directory
 WORKDIR /app
@@ -102,7 +99,7 @@ RUN npm ci --only=production
 COPY . .
 
 # Production image
-FROM cgr.dev/chainguard/node:latest
+FROM cgr.dev/chainguard/node:latest@sha256:<digest>
 
 # Security labels
 LABEL org.opencontainers.image.source="https://github.com/org/repo"
@@ -180,7 +177,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 ```
 
-**5. Use specific versions:**
+**5. Pin specific versions:**
 ```dockerfile
 # Bad (unpredictable)
 FROM node:latest
@@ -237,8 +234,6 @@ systemctl restart docker
 
 ### Secure Docker Run Options
 
-Run containers with security flags:
-
 ```bash
 # Secure container runtime
 docker run \
@@ -258,15 +253,15 @@ docker run \
   myapp:latest
 ```
 
-**Docker security options explained:**
-- `--read-only`: Root filesystem is read-only
-- `--tmpfs`: Mount writable tmpfs for temporary files
-- `--cap-drop=ALL`: Drop all Linux capabilities
-- `--cap-add`: Add only required capabilities
-- `--security-opt=no-new-privileges`: Prevent privilege escalation
-- `--user`: Run as non-root user (UID:GID)
-- `--memory`, `--cpus`: Resource limits
-- `--pids-limit`: Limit number of processes
+**Flags:**
+- `--read-only`: read-only root filesystem
+- `--tmpfs`: writable tmpfs for temp files
+- `--cap-drop=ALL`: drop all Linux capabilities
+- `--cap-add`: add only required capabilities
+- `--security-opt=no-new-privileges`: block privilege escalation
+- `--user`: non-root user (UID:GID)
+- `--memory`, `--cpus`: resource limits
+- `--pids-limit`: cap process count
 
 ### Docker Compose Security
 
@@ -307,8 +302,6 @@ services:
 ## Kubernetes Pod Security
 
 ### Pod Security Context
-
-Apply security context to pods:
 
 ```yaml
 apiVersion: v1
@@ -444,10 +437,8 @@ spec:
 
 ## Pod Security Standards
 
-Kubernetes defines three Pod Security Standards:
-
 ### 1. Privileged (No restrictions)
-For system-level workloads only. **Avoid in production applications.**
+System-level workloads only. **Avoid in production applications.**
 
 ### 2. Baseline (Minimally restrictive)
 Prevents known privilege escalations:
@@ -616,11 +607,9 @@ spec:
 
 ### Image Signing with Sigstore
 
-Sign container images to verify authenticity:
-
 ```bash
-# Install cosign
-go install github.com/sigstore/cosign/v2/cmd/cosign@latest
+# Install cosign (pinned release)
+go install github.com/sigstore/cosign/v2/cmd/cosign@v2.6.5
 
 # Generate key pair
 cosign generate-key-pair
@@ -665,8 +654,6 @@ spec:
 
 ### Software Bill of Materials (SBOM)
 
-Generate SBOM for container images:
-
 ```bash
 # Generate SBOM with syft
 syft myapp:latest -o json > sbom.json
@@ -686,10 +673,10 @@ cosign verify-attestation --key cosign.pub \
 
 ### Falco Rules
 
-Deploy Falco for runtime threat detection:
-
 ```yaml
-# Falco DaemonSet (simplified)
+# Falco DaemonSet (simplified). Prefer the falcosecurity Helm chart pinned with --version
+# (chart 9.2.2 = Falco 0.45.2); driver.kind=modern_ebpf + driver.modernEbpf.leastPrivileged=true
+# drops privileged: true. Never run this privileged, hostPID pod from an unpinned image.
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -709,7 +696,7 @@ spec:
       hostPID: true
       containers:
       - name: falco
-        image: falcosecurity/falco:latest
+        image: falcosecurity/falco:0.45.2  # or pin @sha256:<digest>
         securityContext:
           privileged: true
         volumeMounts:
@@ -756,16 +743,15 @@ spec:
 
 ### Automated Response
 
-Integrate Falco with incident response:
-
 ```yaml
-# Falcosidekick for alert routing
+# Falcosidekick for alert routing. Webhook URL and integration key are secrets:
+# Secret (from your secret store), not a ConfigMap; never commit real values.
 apiVersion: v1
-kind: ConfigMap
+kind: Secret
 metadata:
   name: falcosidekick
   namespace: falco
-data:
+stringData:
   config.yaml: |
     slack:
       webhookurl: "https://hooks.slack.com/services/XXX"
@@ -779,8 +765,6 @@ data:
 
 ## Verification Checklist
 
-Run these checks to verify container hardening:
-
 ```bash
 #!/bin/bash
 # verify-container-hardening.sh
@@ -789,11 +773,12 @@ echo "=== Container Hardening Verification ==="
 
 # Check image vulnerabilities
 echo -e "\n[Image Scanning]"
+export TRIVY_DISABLE_TELEMETRY=true TRIVY_SKIP_VERSION_CHECK=true
 trivy image --severity HIGH,CRITICAL myapp:latest
 
 # Check Dockerfile best practices
 echo -e "\n[Dockerfile Linting]"
-docker run --rm -i hadolint/hadolint < Dockerfile
+docker run --rm -i hadolint/hadolint:v2.15.1 < Dockerfile
 
 # Check Kubernetes manifests
 echo -e "\n[Kubernetes Security]"

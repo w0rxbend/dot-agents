@@ -7,12 +7,14 @@ Useful for validating WebSocket implementations before frontend integration.
 
 Usage:
     python test_websocket_connection.py --url ws://localhost:8000/ws
-    python test_websocket_connection.py --url wss://api.example.com/ws --auth-token SECRET
+    read -rs WS_AUTH_TOKEN && export WS_AUTH_TOKEN  # keeps token out of argv/history
+    python test_websocket_connection.py --url wss://api.example.com/ws
 """
 
 import asyncio
 import argparse
 import json
+import os
 import sys
 from datetime import datetime
 from typing import Optional
@@ -130,7 +132,9 @@ def main():
     )
     parser.add_argument(
         "--auth-token",
-        help="Bearer token for authentication"
+        default=os.environ.get("WS_AUTH_TOKEN"),
+        help="Bearer token (default: $WS_AUTH_TOKEN; prefer the env var, "
+             "argv shows in ps and shell history)"
     )
     parser.add_argument(
         "--messages",

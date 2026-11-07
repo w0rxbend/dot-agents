@@ -1,6 +1,6 @@
 # HTMLText
 
-Text rendered via an SVG `<foreignObject>` wrapping an HTML fragment. This gives you the full HTML/CSS box model for typography; real `<b>`, `<i>`, `<br>`, `<div>`, line-breaks, nested styles, emoji; rasterized to a texture. Use `HTMLText` for rich formatting, mixed content, inline custom tags, or markup that the canvas `Text` class can't express.
+Text rendered via SVG `<foreignObject>` wrapping an HTML fragment. Gives full HTML/CSS box model for typography (real `<b>`, `<i>`, `<br>`, `<div>`, line-breaks, nested styles, emoji), rasterized to texture. Use `HTMLText` for rich formatting, mixed content, inline custom tags, or markup canvas `Text` class can't express.
 
 ## Quick Start
 
@@ -19,7 +19,7 @@ const rich = new HTMLText({
 app.stage.addChild(rich);
 ```
 
-`HTMLText` is a leaf. It uses `HTMLTextStyle`, which is `TextStyle` minus `leading`, `textBaseline`, `trim`, and `filters` (those four are unsupported by the SVG rendering path). Rendering is asynchronous; the text may not appear on the same frame it's created.
+`HTMLText` is a leaf. Uses `HTMLTextStyle`: `TextStyle` minus `leading`, `textBaseline`, `trim` and `filters` (SVG rendering path does not support those four).
 
 ## Construction
 
@@ -38,19 +38,17 @@ const styled = new HTMLText({
 
 ### HTMLTextOptions
 
-`HTMLText` extends the base `TextOptions` (typed with `HTMLTextStyle` / `HTMLTextStyleOptions` as its style) and adds HTML-specific fields. Inherited `text`, `style`, `anchor`, `resolution`, and `roundPixels` behave as documented in `references/text.md` — only the HTMLText-specific additions are listed here.
+`HTMLText` extends base `TextOptions` (typed with `HTMLTextStyle` / `HTMLTextStyleOptions` as style) and adds HTML-specific fields. Inherited `text`, `style`, `anchor`, `resolution` and `roundPixels` behave as in `references/text.md`. Table lists only HTMLText-specific additions.
 
-| Option                | Type                                    | Default                                            | Description                                                                                                                                               |
-| --------------------- | --------------------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `style`               | `HTMLTextStyle \| HTMLTextStyleOptions` | `new HTMLTextStyle()`                              | HTML text style object or options. Matches `TextStyle` minus `leading`, `textBaseline`, `trim`, and `filters`. Adds `cssOverrides` for raw CSS injection. |
-| `textureStyle`        | `TextureStyle \| TextureStyleOptions`   | `undefined`                                        | Scale mode for the generated texture (`nearest` or `linear`); every other `TextureStyle` field is ignored. (@advanced)                                    |
-| `autoGenerateMipmaps` | `boolean`                               | `TextureSource.defaultOptions.autoGenerateMipmaps` | Generate mipmaps for the text texture; improves quality when scaled down.                                                                                 |
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `style` | `HTMLTextStyle \| HTMLTextStyleOptions` | `new HTMLTextStyle()` | HTML text style object or options. Matches `TextStyle` minus `leading`, `textBaseline`, `trim` and `filters`. Adds `cssOverrides` for raw CSS injection. |
+| `textureStyle` | `TextureStyle \| TextureStyleOptions` | `undefined` | Scale mode for generated texture (`nearest` or `linear`); every other `TextureStyle` field ignored. (@advanced) |
+| `autoGenerateMipmaps` | `boolean` | `TextureSource.defaultOptions.autoGenerateMipmaps` | Generate mipmaps for text texture; improves quality when scaled down. |
 
-All base text options (`text`, `anchor`, `resolution`, `roundPixels`) are inherited from `TextOptions` — see `references/text.md`.
+All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) also valid here. See constructor-options table in `references/scene-core-concepts.md` of `pixijs-scene-container` skill.
 
-All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) are also valid here — see the constructor-options table in `references/scene-core-concepts.md` of the `pixijs-scene-container` skill.
-
-> Both `textureStyle` and `autoGenerateMipmaps` are also exposed as runtime instance properties, but they are only read when a new texture is generated for the text (a text, style or resolution change); `onViewUpdate()` alone does not regenerate it.
+> `textureStyle` and `autoGenerateMipmaps` are also runtime instance properties, but are read only when a new texture is generated for the text (text, style or resolution change); `onViewUpdate()` alone does not regenerate it.
 
 ## Core Patterns
 
@@ -71,7 +69,7 @@ const message = new HTMLText({
 });
 ```
 
-`tagStyles` maps custom (or standard) HTML tag names to style overrides. Inherit is automatic; a nested `<warning>` inside `<custom>` inherits the outer style. Standard tags like `<b>`, `<i>`, `<u>`, `<br>` work as expected.
+`tagStyles` maps custom (or standard) HTML tag names to style overrides. Inheritance is automatic; nested `<warning>` inside `<custom>` inherits outer style. Standard tags like `<b>`, `<i>`, `<u>`, `<br>` work as expected.
 
 ### Raw CSS overrides
 
@@ -85,7 +83,7 @@ styled.style.addOverride("text-decoration: underline");
 styled.style.addOverride("text-shadow: 2px 2px 4px rgba(0,0,0,0.5)");
 ```
 
-For CSS properties without a `TextStyle` equivalent, use `addOverride` to inject raw CSS. Useful for `text-decoration`, `text-transform`, `letter-spacing` beyond what TextStyle exposes, and any other CSS property supported inside SVG `<foreignObject>`.
+For CSS properties without `TextStyle` equivalent, use `addOverride` to inject raw CSS. Use for `text-decoration`, `text-transform`, `letter-spacing` beyond what TextStyle exposes, and any other CSS property supported inside SVG `<foreignObject>`.
 
 ### Word wrap
 
@@ -103,20 +101,7 @@ const wrapped = new HTMLText({
 });
 ```
 
-Word wrap is handled by the browser's SVG layout, so it supports everything CSS wrapping supports; including hyphenation, justification, and RTL scripts when the font and the rendered CSS support them.
-
-### Resolution and mipmaps
-
-```ts
-const crisp = new HTMLText({
-  text: "Retina crisp",
-  style: { fontSize: 32, fill: 0xffffff },
-  resolution: 2,
-  autoGenerateMipmaps: true,
-});
-```
-
-Same pattern as canvas `Text`: `resolution` controls the rasterized texture density; `autoGenerateMipmaps` improves quality when drawn smaller than native.
+Browser's SVG layout handles word wrap, so it supports everything CSS wrapping supports, including hyphenation, justification and RTL scripts when font and rendered CSS support them.
 
 ### Async rendering
 
@@ -133,7 +118,7 @@ app.ticker.addOnce(() => {
 });
 ```
 
-HTMLText renders to an SVG blob, then a texture. The texture is available one frame after creation. If you need the text ready before showing it, add it while hidden and reveal it on the next tick.
+HTMLText renders to SVG blob, then texture. Texture is available one frame after creation. To have text ready before showing it, add it while hidden and reveal on next tick.
 
 ## Common Mistakes
 
@@ -156,12 +141,12 @@ app.ticker.add(() => {
 });
 ```
 
-Each `HTMLText.text` assignment re-renders the SVG, rasterizes it, and uploads to the GPU. At 60fps this is far too expensive. Use `BitmapText` for any text that changes per-frame.
+Each `HTMLText.text` assignment re-renders SVG, rasterizes it and uploads to GPU. At 60fps this is far too expensive. Use `BitmapText` for any text changing per-frame.
 
 
 ### [HIGH] Missing CORS headers on fonts
 
-If the HTML references a web font loaded from a different origin without CORS headers, the SVG `<foreignObject>` is tainted and the rasterization fails (or falls back to a default font). Host fonts on the same origin or include `Access-Control-Allow-Origin`.
+If HTML references web font from different origin without CORS headers, SVG `<foreignObject>` is tainted and rasterization fails (or falls back to default font). Host fonts on same origin or include `Access-Control-Allow-Origin`.
 
 
 ### [MEDIUM] Expecting HTMLText frame on creation
@@ -182,7 +167,7 @@ app.ticker.addOnce(() => {
 });
 ```
 
-HTMLText measurement happens asynchronously. Defer layout calculations to the next frame, or use canvas `Text` when you need immediate metrics.
+HTMLText measurement happens asynchronously. Defer layout calculations to next frame, or use canvas `Text` when you need immediate metrics.
 
 
 ## API Reference

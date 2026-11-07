@@ -1,6 +1,6 @@
 # Examples as Documentation
 
-Examples are executable documentation: `go test` runs them and compares stdout to the `// Output:` comment, and `pkg.go.dev` renders them next to the documented symbol. An example that drifts from the API fails the build, unlike a code block in a README.
+Examples are executable documentation: `go test` runs them and compares stdout to `// Output:` comment; `pkg.go.dev` renders them beside documented symbol. Example drifting from API fails build, unlike README code block.
 
 ```go
 func ExampleCalculatePrice() {
@@ -18,23 +18,23 @@ func ExampleCalculatePrice_singleItem() {
 
 ## Naming
 
-The suffix decides where godoc attaches the example, so a typo silently detaches it from its symbol:
+Suffix decides where godoc attaches example; typo silently detaches it from its symbol:
 
-| Function name               | Documents                          |
-| --------------------------- | ---------------------------------- |
-| `Example()`                 | The package itself                 |
-| `ExampleCalculatePrice()`   | The `CalculatePrice` function      |
-| `ExampleStore_Get()`        | The `Get` method of `Store`        |
-| `ExampleStore_Get_cached()` | A named variant of the same method |
+| Function name               | Documents                     |
+| --------------------------- | ----------------------------- |
+| `Example()`                 | Package itself                |
+| `ExampleCalculatePrice()`   | `CalculatePrice` function     |
+| `ExampleStore_Get()`        | `Get` method of `Store`       |
+| `ExampleStore_Get_cached()` | Named variant of same method  |
 
-The suffix after the second underscore MUST start with a lowercase letter — otherwise Go reads it as a type or method name and the example is orphaned.
+Suffix after second underscore MUST start lowercase. Otherwise Go reads it as type or method name and orphans example.
 
 ## Output directives
 
 - `// Output:` — stdout MUST match exactly (leading/trailing whitespace is trimmed).
-- `// Unordered output:` — lines may arrive in any order. Use it for map iteration and concurrent producers, which have no stable order.
-- **No output comment** — the example is compiled but not run. Useful for code that needs a live dependency, but it stops verifying behavior, so prefer a real output assertion.
+- `// Unordered output:` — lines may arrive in any order. Use for map iteration and concurrent producers (no stable order).
+- **No output comment** — example compiles but does not run. Fits code needing live dependency, but stops verifying behavior; prefer real output assertion.
 
 ## Placement
 
-Examples live in `_test.go` files. Put them in the `package foo_test` external test package: an example that only compiles against the exported API proves the public surface is usable, which is the point of the example.
+Examples live in `_test.go` files, in `package foo_test` external test package. Example compiling only against exported API proves public surface is usable, which is its point.

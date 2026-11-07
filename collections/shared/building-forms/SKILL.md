@@ -5,25 +5,15 @@ description: Builds form components and data collection interfaces including con
 
 # Form Systems & Input Patterns
 
-Build accessible, user-friendly forms with systematic component selection, validation strategies, and UX best practices.
-
-## Purpose
-
-Forms are the primary mechanism for user data input in web applications. This skill provides systematic guidance for:
-- Selecting appropriate input types based on data requirements
-- Implementing validation strategies that enhance user experience
-- Ensuring WCAG 2.1 AA accessibility compliance
-- Creating complex patterns (multi-step wizards, conditional fields, dynamic forms)
-
 ## When to Use This Skill
 
 **Triggers:**
-- Building contact forms, login/registration flows, checkout processes
-- Implementing surveys, questionnaires, or settings pages
-- Adding validation to user inputs
-- Creating multi-step workflows or wizards
-- Ensuring form accessibility
-- Collecting structured data (addresses, credit cards, dates)
+- Contact forms, login/registration flows, checkout processes
+- Surveys, questionnaires, settings pages
+- Validation on user inputs
+- Multi-step workflows or wizards
+- Form accessibility
+- Structured data collection (addresses, credit cards, dates)
 
 **Common Requests:**
 - "Create a registration form with validation"
@@ -38,8 +28,6 @@ Forms are the primary mechanism for user data input in web applications. This sk
 
 **The Golden Rule:** Data Type → Input Component → Validation Pattern
 
-Start by identifying the data type to collect, then select the appropriate component:
-
 **Quick Reference:**
 - **Short text** (<100 chars) → Text input, Email input, Password input
 - **Long text** (>100 chars) → Textarea, Rich text editor, Code editor
@@ -51,7 +39,7 @@ Start by identifying the data type to collect, then select the appropriate compo
 - **File/Media** → File upload, Image upload
 - **Structured** → Address input, Credit card input, Phone number input
 
-**For detailed decision tree:** See `references/decision-tree.md`
+**Detailed decision tree:** See `references/decision-tree.md`
 
 ### Validation Timing Strategies
 
@@ -66,61 +54,64 @@ On fix: Show success immediately
 ```
 
 **Validation Modes:**
-1. **On Submit** - Validate when form submitted (simple forms)
+1. **On Submit** - Validate on form submit (simple forms)
 2. **On Blur** - Validate when field loses focus (RECOMMENDED for most forms)
 3. **On Change** - Validate as user types (password strength, availability checks)
 4. **Debounced** - Validate after user stops typing (API-based validation)
-5. **Progressive** - Start with on-blur, switch to on-change after first error
+5. **Progressive** - Start on-blur, switch to on-change after first error
 
-**For complete validation guide:** See `references/validation-concepts.md`
+**Full validation guide:** See `references/validation-concepts.md`
 
 ### Accessibility Requirements (WCAG 2.1 AA)
 
-**Critical Accessibility Patterns:**
+**Critical Patterns:**
+
+Start with semantic HTML: native `<input>`, `<select>`, `<textarea>` when possible.
 
 **Labels and Instructions:**
-- Every input must have an associated `<label>` or `aria-label`
-- Labels must be visible and descriptive
-- Required fields clearly indicated (not by color alone)
+- Every input must have associated `<label>` or `aria-label`
+- Labels must be visible, descriptive
+- Required fields clearly marked (not by color alone)
 - Never use placeholder text as label replacement
-- Provide help text for complex inputs
+- Help text for complex inputs
 
 **Keyboard Navigation:**
 - Logical, sequential tab order
 - All inputs keyboard accessible
 - Custom components support arrow keys
-- Escape key dismisses modals/popovers
-- Focus visible (outline or custom indicator)
+- Escape dismisses modals/popovers
+- Visible focus (outline or custom indicator)
 
 **Error Handling:**
-- Errors programmatically associated with inputs (`aria-describedby`)
-- Error messages clear and actionable
-- Errors announced by screen readers (`aria-live`)
+- Errors programmatically tied to inputs (`aria-describedby`)
+- Error messages clear, actionable
+- Screen readers announce errors (`aria-live`)
 - Focus moves to first error on submit
 - Errors not conveyed by color alone
 
 **ARIA Attributes:**
 - `aria-required="true"` for required fields
 - `aria-invalid="true"` when validation fails
-- `aria-describedby` linking to help/error text
+- `aria-describedby` links help/error text
 - `role="group"` for related inputs
 - `aria-live="polite"` for validation messages
+- Test with screen readers: confirm ARIA attributes work
 
-**For complete accessibility checklist:** See `references/accessibility-forms.md`
+**Full accessibility checklist:** See `references/accessibility-forms.md`
 
 ### UX Best Practices
 
 **Modern Form UX Principles (2024-2025):**
 
-1. **Progressive Disclosure** - Show only essential fields initially, reveal advanced options on demand
-2. **Smart Defaults** - Pre-fill known information, suggest values based on context
-3. **Inline Validation with Positive Feedback** - Show green checkmark on valid input, provide helpful error messages
-4. **Mobile-First** - Large touch targets (44px minimum), appropriate keyboard types
-5. **Reduce Cognitive Load** - Group related fields, use clear labels, provide examples
-6. **Error Prevention** - Constraints prevent invalid input, autocomplete reduces typos
-7. **Autosave and Recovery** - Save draft state automatically, warn before losing data
+1. **Progressive Disclosure** - Show only essential fields first, reveal advanced options on demand
+2. **Smart Defaults** - Pre-fill known info, suggest values from context
+3. **Inline Validation with Positive Feedback** - Green checkmark on valid input, helpful error messages
+4. **Mobile-First** - Large touch targets (44px minimum), fitting keyboard types
+5. **Reduce Cognitive Load** - Group related fields, clear labels, examples
+6. **Error Prevention** - Constraints block invalid input, autocomplete cuts typos
+7. **Autosave and Recovery** - Auto-save draft state (never passwords or card data), warn before data loss
 
-**For detailed UX patterns:** See `references/ux-patterns.md`
+**Detailed UX patterns:** See `references/ux-patterns.md`
 
 ### Error Message Best Practices
 
@@ -147,8 +138,6 @@ On fix: Show success immediately
 - Actionable, not just descriptive
 
 ## Language-Specific Implementations
-
-This skill provides universal form concepts above, with language-specific implementations below.
 
 ### JavaScript/React (PRIMARY)
 
@@ -197,17 +186,17 @@ function LoginForm() {
 }
 ```
 
-**Detailed JavaScript/React Documentation:**
-- `references/javascript/react-hook-form.md` - Complete React Hook Form guide
+**JavaScript/React docs:**
+- `references/javascript/react-hook-form.md` - Full React Hook Form guide
 - `references/javascript/zod-validation.md` - Zod schema validation patterns
-- `examples/` - Working React code examples (`examples/javascript/` for async validation and file upload)
+- `examples/` - Working React examples (`examples/javascript/` for async validation and file upload)
 
 ### Python (PRIMARY)
 
 **Recommended Stack:**
 - **Pydantic** - Data validation and settings management (runtime validation, type-safe)
-- **FastAPI** - Modern async web framework with automatic validation
-- **WTForms** - Flask/Django form handling (when using traditional frameworks)
+- **FastAPI** - Modern async web framework, automatic validation
+- **WTForms** - Flask/Django form handling (with traditional frameworks)
 
 **Quick Start (FastAPI + Pydantic v2):**
 ```python
@@ -250,10 +239,10 @@ async def login(form_data: LoginForm):
 # }
 ```
 
-**Detailed Python Documentation:**
+**Python docs:**
 - `references/python/pydantic-forms.md` - Pydantic validation patterns
 - `references/python/wtforms.md` - WTForms for Flask/Django
-- `examples/python/` - Working Python code examples
+- `examples/python/` - Working Python examples
 
 ### Rust (FUTURE)
 
@@ -261,15 +250,11 @@ async def login(form_data: LoginForm):
 - **validator** - Struct field validation
 - **Leptos** / **Yew** - Reactive web frameworks
 
-*Rust implementation will be added when needed.*
-
 ### Go (FUTURE)
 
 **Planned Libraries:**
 - **Templ** - Type-safe HTML templating
 - **html/template** - Standard library templating
-
-*Go implementation will be added when needed.*
 
 ## Component Tiers
 
@@ -278,12 +263,12 @@ async def login(form_data: LoginForm):
 **Text-Based:**
 - Text field (single-line)
 - Textarea (multi-line)
-- Email input (with validation)
-- Password input (with visibility toggle)
-- Number input (with step controls)
-- Tel input (with formatting)
-- URL input (with protocol validation)
-- Search input (with clear button)
+- Email input (validation)
+- Password input (visibility toggle)
+- Number input (step controls)
+- Tel input (formatting)
+- URL input (protocol validation)
+- Search input (clear button)
 
 **Selection:**
 - Radio group (2-7 options)
@@ -295,7 +280,7 @@ async def login(form_data: LoginForm):
 **Date & Time:**
 - Date picker (calendar interface)
 - Time picker (hour/minute)
-- Date range picker (start and end)
+- Date range picker (start, end)
 - DateTime picker (combined)
 
 ### Tier 2: Rich Input Components
@@ -342,11 +327,11 @@ async def login(form_data: LoginForm):
 - Bulk editing (multiple records)
 - Autosave (periodic or on change)
 - Optimistic updates
-- Undo/redo functionality
+- Undo/redo
 
 ## Integration with Design Tokens
 
-Style form components with design tokens (CSS custom properties) so they support theme switching (light/dark/high-contrast/custom brands); the theming-components skill covers the token system.
+Style form components with design tokens (CSS custom properties) for theme switching (light/dark/high-contrast/custom brands).
 
 **Key Token Categories:**
 - **Color** - Input backgrounds, borders, text, error/success states
@@ -355,7 +340,7 @@ Style form components with design tokens (CSS custom properties) so they support
 - **Borders** - Border width, radius, focus ring
 - **Shadows** - Focus indicators, elevation
 
-**See:** the theming-components skill for complete theming documentation.
+**See:** theming-components skill for full theming docs.
 
 ## Common Use Cases
 
@@ -391,42 +376,10 @@ Style form components with design tokens (CSS custom properties) so they support
 
 ## Quick Decision Guide
 
-**Question: What input should I use?**
-→ See `references/decision-tree.md` for complete decision tree
-
-**Question: When should I validate?**
-→ Use on-blur with progressive enhancement (on-change after first error)
-→ See `references/validation-concepts.md` for all strategies
-
-**Question: How do I make my form accessible?**
-→ Use semantic HTML, label all inputs, support keyboard navigation
-→ See `references/accessibility-forms.md` for WCAG 2.1 checklist
-
-**Question: How do I handle complex validation?**
-→ Use schema validation (Zod for TypeScript, Yup for JavaScript)
+**Question: How to handle complex validation?**
+→ Schema validation (Zod for TypeScript, Yup for JavaScript)
 → See `references/javascript/zod-validation.md` for patterns
 
-**Question: How do I build a multi-step form?**
-→ Use state management with progress tracking
+**Question: How to build multi-step form?**
+→ State management with progress tracking
 → See `examples/multi-step-wizard.tsx`
-
-## Best Practices Summary
-
-1. **Start with semantic HTML** - Use native `<input>`, `<select>`, `<textarea>` when possible
-2. **Label everything** - Every input needs a visible, descriptive label
-3. **Validate on blur** - Best UX balance for most forms
-4. **Provide helpful errors** - Explain what's wrong and how to fix it
-5. **Support keyboard navigation** - Tab order, arrow keys, escape to dismiss
-6. **Mobile-first** - Large touch targets, appropriate keyboards
-7. **Progressive disclosure** - Don't overwhelm with all fields at once
-8. **Autosave when possible** - Prevent data loss
-9. **Test with screen readers** - Ensure ARIA attributes work correctly
-10. **Use design tokens** - Consistent styling, theme support
-
-## Additional Resources
-
-- `references/decision-tree.md` - Complete component selection framework
-- `references/validation-concepts.md` - All validation strategies and patterns
-- `references/accessibility-forms.md` - WCAG 2.1 AA compliance checklist
-- `references/ux-patterns.md` - Modern form UX best practices
-- `references/javascript/` - JavaScript/React implementation guides

@@ -7,42 +7,7 @@ allowed-tools: []
 
 # Java Generics
 
-Master Java's generics system for writing type-safe, reusable code with
-compile-time type checking, generic classes, methods, wildcards, and
-type bounds.
-
 ## Introduction to Generics
-
-Generics enable types to be parameters when defining classes, interfaces,
-and methods, providing compile-time type safety.
-
-**Basic generic class:**
-
-```java
-public class Box<T> {
-    private T content;
-
-    public void set(T content) {
-        this.content = content;
-    }
-
-    public T get() {
-        return content;
-    }
-
-    public static void main(String[] args) {
-        // Type-safe box for String
-        Box<String> stringBox = new Box<>();
-        stringBox.set("Hello");
-        String value = stringBox.get(); // No casting needed
-
-        // Type-safe box for Integer
-        Box<Integer> intBox = new Box<>();
-        intBox.set(42);
-        Integer number = intBox.get();
-    }
-}
-```
 
 **Generic with multiple type parameters:**
 
@@ -69,7 +34,7 @@ public class Pair<K, V> {
 
 ## Generic Methods
 
-Generic methods can be defined independently of generic classes.
+Generic methods need no generic class.
 
 **Basic generic method:**
 
@@ -128,7 +93,7 @@ public class MultiplTypeParams {
 
 ## Bounded Type Parameters
 
-Type bounds restrict the types that can be used as type arguments.
+Bounds restrict which types can be type arguments.
 
 **Upper bounded type parameters:**
 
@@ -190,8 +155,6 @@ public class NumberBox<T extends Number> {
 
 ## Wildcards
 
-Wildcards provide flexibility when working with generic types.
-
 **Unbounded wildcard:**
 
 ```java
@@ -220,61 +183,9 @@ public class UnboundedWildcard {
 }
 ```
 
-**Upper bounded wildcard:**
-
-```java
-public class UpperBoundedWildcard {
-    // Accept List of Number or any subclass
-    public static double sum(List<? extends Number> numbers) {
-        double total = 0;
-        for (Number num : numbers) {
-            total += num.doubleValue();
-        }
-        return total;
-    }
-
-    public static void main(String[] args) {
-        List<Integer> integers = List.of(1, 2, 3);
-        List<Double> doubles = List.of(1.5, 2.5);
-        List<Number> numbers = List.of(1, 2.5, 3);
-
-        System.out.println(sum(integers)); // 6.0
-        System.out.println(sum(doubles));  // 4.0
-        System.out.println(sum(numbers));  // 6.5
-    }
-}
-```
-
-**Lower bounded wildcard:**
-
-```java
-public class LowerBoundedWildcard {
-    // Accept List of Integer or any superclass
-    public static void addIntegers(List<? super Integer> list) {
-        for (int i = 1; i <= 5; i++) {
-            list.add(i);
-        }
-    }
-
-    public static void main(String[] args) {
-        List<Integer> integers = new ArrayList<>();
-        addIntegers(integers);
-        System.out.println(integers); // [1, 2, 3, 4, 5]
-
-        List<Number> numbers = new ArrayList<>();
-        addIntegers(numbers);
-        System.out.println(numbers); // [1, 2, 3, 4, 5]
-
-        List<Object> objects = new ArrayList<>();
-        addIntegers(objects);
-        System.out.println(objects); // [1, 2, 3, 4, 5]
-    }
-}
-```
-
 ## PECS Principle
 
-Producer Extends, Consumer Super - guideline for using wildcards.
+Producer Extends, Consumer Super - wildcard guideline.
 
 **PECS in action:**
 
@@ -317,8 +228,6 @@ public class PECSExample {
 ```
 
 ## Generic Interfaces
-
-Interfaces can be generic, providing contracts for generic types.
 
 **Generic interface:**
 
@@ -403,7 +312,7 @@ public class Person implements Comparable<Person> {
 
 ## Type Erasure
 
-Java generics use type erasure - generic type information is removed at
+Java generics use type erasure. Generic type information is removed at
 runtime.
 
 **Understanding type erasure:**
@@ -465,7 +374,7 @@ public class ErasureConsequences<T> {
 
 ## Generic Builders
 
-Builder pattern with generics for fluent APIs.
+Generic builder pattern for fluent APIs.
 
 **Generic builder:**
 
@@ -516,7 +425,7 @@ public class Query<T> {
 
 ## Recursive Type Bounds
 
-Type bounds can reference the type parameter itself.
+Type bound may reference its own type parameter.
 
 **Enum with recursive bound:**
 
@@ -609,45 +518,24 @@ public class Person {
 }
 ```
 
-## When to Use This Skill
-
-Use java-generics when you need to:
-
-- Write reusable code that works with multiple types
-- Enforce compile-time type safety
-- Eliminate casting and type errors at runtime
-- Create generic collections, algorithms, or utilities
-- Build type-safe APIs and frameworks
-- Implement generic design patterns
-- Work with Java Collections Framework
-- Define flexible method signatures with type parameters
-- Create bounded type hierarchies
-- Implement builder or factory patterns with type safety
-
 ## Best Practices
 
 - Use meaningful type parameter names (T, E, K, V)
-- Prefer bounded type parameters over raw types
-- Use wildcards for flexibility in method parameters
+- Use wildcards in method parameters for flexibility
 - Apply PECS principle (Producer Extends, Consumer Super)
 - Avoid raw types in new code
 - Use @SuppressWarnings("unchecked") sparingly
-- Document generic type constraints clearly
+- Document generic type constraints
 - Prefer generic methods over generic classes when possible
-- Use bounded wildcards for maximum API flexibility
-- Consider type erasure implications
 
 ## Common Pitfalls
 
-- Using raw types instead of parameterized types
 - Confusing extends and super wildcards
-- Trying to create arrays of generic types
-- Not understanding type erasure limitations
-- Overusing wildcards making code unreadable
-- Incorrect variance with wildcards
-- Forgetting that generics are compile-time only
-- Not handling unchecked warnings properly
-- Creating unnecessarily complex generic hierarchies
+- Creating arrays of generic types
+- Not understanding type erasure limits
+- Overusing wildcards until code is unreadable
+- Not handling unchecked warnings
+- Needlessly complex generic hierarchies
 - Misusing instanceof with generic types
 
 ## Resources

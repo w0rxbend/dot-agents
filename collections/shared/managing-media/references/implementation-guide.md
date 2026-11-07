@@ -1,33 +1,29 @@
 # Media Implementation Guide
 
-## Decision Framework
-
-This guide helps select the appropriate media implementation based on requirements.
-
 ## File Upload Selection
 
 ### Basic Upload (<10MB)
-- Single file upload
+- Single file
 - Simple validation
-- Preview capability
+- Preview
 - Progress indicator
 
 ### Advanced Upload (>10MB)
 - Chunked uploads
-- Resume capability
+- Resume
 - Queue management
 - Multiple files
 
 ### Cloud Direct Upload
 - Large files (>100MB)
-- Reduced server load
+- Less server load
 - CDN integration
 - Client-side signing
 
 ## Image Display Selection
 
 ### Static Gallery
-- Fixed number of images
+- Fixed image count
 - Grid layout
 - Click to expand
 
@@ -38,7 +34,7 @@ This guide helps select the appropriate media implementation based on requiremen
 
 ### Carousel/Slider
 - Sequential display
-- Auto-play option
+- Optional auto-play
 - Navigation controls
 
 ## Video Implementation Selection
@@ -54,7 +50,7 @@ This guide helps select the appropriate media implementation based on requiremen
 - Adaptive streaming
 
 ### Cloud Video (Vimeo/YouTube)
-- Hosted solution
+- Hosted
 - No transcoding
 - Embed controls
 

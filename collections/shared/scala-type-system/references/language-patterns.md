@@ -1,25 +1,6 @@
 # Scala Type System
 
-## Introduction
-
-Scala features one of the most sophisticated type systems among mainstream
-programming languages, combining object-oriented and functional programming
-concepts. This advanced type system enables precise modeling of domain concepts,
-compile-time verification of complex constraints, and highly reusable abstractions.
-
-Key features include parametric polymorphism (generics), variance annotations,
-type bounds, implicit conversions and parameters, type classes, higher-kinded
-types, path-dependent types, and abstract type members. These features enable
-expressive APIs while maintaining type safety.
-
-This skill covers generics and variance, upper and lower type bounds, view and
-context bounds, implicit conversions, type classes, higher-kinded types,
-path-dependent types, and practical type-level programming patterns.
-
 ## Generics and Type Parameters
-
-Type parameters enable writing reusable code that works with multiple types while
-maintaining type safety.
 
 ```scala
 // Basic generic class
@@ -101,13 +82,7 @@ val userAges: StringMap[Int] = Map("Alice" -> 30, "Bob" -> 25)
 val point: IntPair = (10, 20)
 ```
 
-Generics enable writing code once and reusing it with multiple types while
-maintaining compile-time type safety.
-
 ## Variance Annotations
-
-Variance controls how parameterized types relate to each other based on their
-type parameters' subtyping relationships.
 
 ```scala
 // Covariance (+T): if A <: B, then Container[A] <: Container[B]
@@ -182,13 +157,7 @@ val rightInt: Either[String, Int] = Right(42)
 val rightAny: Either[String, Any] = rightInt  // Valid
 ```
 
-Variance annotations make parameterized types more flexible while maintaining
-type safety, especially for immutable containers.
-
 ## Type Bounds
-
-Type bounds constrain type parameters to specific type hierarchies, enabling
-type-safe operations on generic types.
 
 ```scala
 // Upper type bound (T <: Upper)
@@ -299,22 +268,19 @@ println(display(42))        // "42"
 println(display("hello"))   // "\"hello\""
 ```
 
-Type bounds enable precise constraints on generic types while maintaining
-flexibility and type safety.
-
 ## Implicit Conversions and Parameters
 
 Scala 2 uses one keyword, `implicit`, for four different jobs. Scala 3 splits
-them into separate features; Scala 3 still accepts most Scala 2 implicits for
-migration, but new Scala 3 code should use the dedicated syntax.
+them into separate features and still accepts most Scala 2 implicits for
+migration. New Scala 3 code: use dedicated syntax.
 
 | Job | Scala 2 | Scala 3 |
 |-----|---------|---------|
-| Provide a type class instance | `implicit val/object/def` | `given` |
-| Require an instance | `(implicit ev: T)`, context bound `[A: Show]` | `(using ev: T)`, context bound `[A: Show]` |
-| Fetch an instance | `implicitly[Show[A]]` | `summon[Show[A]]` |
-| Add methods to a type | `implicit class X(val a: A) extends AnyVal` | `extension (a: A) def ...` |
-| Convert between types | `implicit def a2b(a: A): B` | `given Conversion[A, B]` + `import scala.language.implicitConversions` at the use site |
+| Provide type class instance | `implicit val/object/def` | `given` |
+| Require instance | `(implicit ev: T)`, context bound `[A: Show]` | `(using ev: T)`, context bound `[A: Show]` |
+| Fetch instance | `implicitly[Show[A]]` | `summon[Show[A]]` |
+| Add methods to type | `implicit class X(val a: A) extends AnyVal` | `extension (a: A) def ...` |
+| Convert between types | `implicit def a2b(a: A): B` | `given Conversion[A, B]` + `import scala.language.implicitConversions` at use site |
 
 **Extension methods** (safe, preferred over conversions):
 
@@ -334,7 +300,7 @@ extension (s: String)
 10.squared  // 100
 ```
 
-**Context parameters for type classes** (the legitimate use of implicits):
+**Context parameters for type classes** (legitimate use of implicits):
 
 ```scala
 trait Monoid[T]:
@@ -357,9 +323,9 @@ combineAll(List("a", "b", "c"))   // "abc"
 ```
 
 Scala 2 equivalent: `implicit val intMonoid: Monoid[Int] = new Monoid[Int] { ... }`
-in the companion and `(implicit m: Monoid[T])` on the method.
+in companion, `(implicit m: Monoid[T])` on method.
 
-**Evidence parameters** (type-level constraints) work the same in both versions:
+**Evidence parameters** (type-level constraints) work same in both versions:
 
 ```scala
 def listToString[T](list: List[T])(using ev: T =:= String): String = list.mkString(", ")
@@ -384,21 +350,17 @@ implicit val defaultTimeout: Int = 5000
 // parameter.
 ```
 
-Scala 3 warns at the definition site of an implicit conversion unless
-`scala.language.implicitConversions` is imported, and the use site needs the
-same import. Reserve conversions for narrow, well-known lifts such as
-`Int => Rational` in a numeric library, and even then prefer an explicit
-constructor or an extension (`3.toRational`).
+Scala 3 warns at definition site of implicit conversion unless
+`scala.language.implicitConversions` is imported. Use site needs same import.
+Reserve conversions for narrow, well-known lifts such as `Int => Rational` in
+numeric library. Even then, prefer explicit constructor or extension
+(`3.toRational`).
 
 ## Type Classes
 
-Type classes provide ad-hoc polymorphism, enabling extension of types without
-modification and separation of concerns.
-
-The examples in this section use Scala 2 syntax. In Scala 3 write instances as
-`given Show[Int] with ...`, require them with `using` or a context bound, fetch
-with `summon`, and add syntax with `extension` (see the table above and
-"Scala 3 Type Features" below).
+Examples in this section use Scala 2 syntax. Scala 3: write instances as `given Show[Int] with ...`,
+require with `using` or context bound, fetch with `summon`, add syntax with
+`extension` (see table above and "Scala 3 Type Features" below).
 
 ```scala
 // Define type class
@@ -552,13 +514,7 @@ println(fold(List(1, 2, 3)))           // 6
 println(fold(List("a", "b", "c")))     // "abc"
 ```
 
-Type classes enable adding functionality to existing types without modification
-and provide compile-time polymorphism.
-
 ## Higher-Kinded Types
-
-Higher-kinded types abstract over type constructors, enabling generic programming
-over container types.
 
 ```scala
 // Higher-kinded type parameter (F[_])
@@ -653,13 +609,7 @@ case class FlatMap[F[_], A, B](fa: Free[F, A], f: A => Free[F, B])
 case class Suspend[F[_], A](fa: F[A]) extends Free[F, A]
 ```
 
-Higher-kinded types enable abstracting over effect types and writing highly
-generic, reusable code.
-
 ## Path-Dependent Types and Abstract Type Members
-
-Path-dependent types tie type definitions to specific instances, enabling
-precise type relationships.
 
 ```scala
 // Path-dependent types
@@ -759,13 +709,10 @@ class DirectedGraph extends Graph {
 }
 ```
 
-Path-dependent types and abstract type members enable sophisticated type
-relationships and family polymorphism patterns.
-
 ## Scala 3 Type Features
 
-These have no direct Scala 2 equivalent; mention the Scala 2 workaround when a
-project cross-builds.
+No direct Scala 2 equivalent. Mention Scala 2 workaround when project
+cross-builds.
 
 ```scala
 // Opaque types: zero-cost newtypes (Scala 2: AnyVal value classes or tagged types)
@@ -810,90 +757,69 @@ type Elem[X] = X match
   case Iterable[t] => t
 ```
 
-Reach for match types, type lambdas and inline/macros only when a library API
-genuinely needs them; application code rarely does.
+Use match types, type lambdas and inline/macros only when library API needs
+them. Application code rarely does.
 
 ## Best Practices
 
-1. **Use variance annotations appropriately** on immutable containers for
-   flexibility while avoiding on mutable ones
+1. **Use variance annotations appropriately**: on immutable containers for
+   flexibility; avoid on mutable ones
 
-2. **Prefer abstract type members** over type parameters when modeling families
-   of related types
+2. **Prefer abstract type members** over type parameters for families of
+   related types
 
-3. **Apply context bounds** for type class constraints to keep signatures clean
-   and readable
+3. **Apply context bounds** for type class constraints; keeps signatures clean
 
-4. **Use extension methods** (Scala 3 `extension`, Scala 2 implicit classes)
-   rather than implicit conversions
+4. **Never take implicit/using parameters of common types** such as `Int` or
+   `String`. Wrap them in dedicated type
 
-5. **Never take implicit/using parameters of common types** such as `Int` or
-   `String`; wrap them in a dedicated type
-
-6. **Leverage type bounds** to constrain generic types and enable type-safe
-   operations
-
-7. **Define type classes in companion objects** to enable automatic implicit
+5. **Define type classes in companion objects** for automatic implicit
    resolution
 
-8. **Use sealed traits with case classes** for ADTs to ensure exhaustive pattern
+6. **Use sealed traits with case classes** for ADTs; ensures exhaustive pattern
    matching
 
-9. **Apply higher-kinded types** when abstracting over effect types like Future,
-   Option, or Either
+7. **Apply higher-kinded types** when abstracting over effect types like Future,
+   Option or Either
 
-10. **Keep implicit scope small** to avoid resolution conflicts and maintain
-    predictability
+8. **Keep implicit scope small** to avoid resolution conflicts, stay
+   predictable
 
 ## Common Pitfalls
 
-1. **Overusing implicits** makes code hard to understand and debug due to hidden
-   conversions
+1. **Overusing implicits** hides conversions; code gets hard to read and debug
 
-2. **Forgetting variance annotations** on immutable containers loses flexibility
-   in APIs
-
-3. **Using upper bounds exclusively** when lower bounds needed causes compilation
+2. **Using upper bounds exclusively** when lower bounds needed causes compile
    errors
 
-4. **Creating ambiguous implicits** in scope causes resolution failures and
-   confusing errors
+3. **Not marking implicit conversions** with clear naming makes code unclear
 
-5. **Not marking implicit conversions** with proper naming conventions makes code
-   unclear
-
-6. **Applying covariance to mutable containers** breaks type safety and enables
+4. **Applying covariance to mutable containers** breaks type safety, allows
    runtime errors
 
-7. **Overcomplicating with higher-kinded types** prematurely adds complexity
-   without clear benefits
+5. **Overcomplicating with higher-kinded types** prematurely adds complexity
+   without clear benefit
 
-8. **Not using type aliases** for complex generic types reduces readability
-   significantly
+6. **Not using type aliases** for complex generic types hurts readability
 
-9. **Mixing path-dependent types** carelessly causes type incompatibility issues
+7. **Mixing path-dependent types** carelessly causes type incompatibility
 
-10. **Forgetting type class coherence** by defining multiple instances causes
-    unpredictable behavior
+8. **Forgetting type class coherence**: multiple instances cause unpredictable
+   behavior
 
 ## When to Use This Skill
 
-Apply advanced type system features when building reusable libraries and
-frameworks requiring flexibility.
+Use advanced type features for reusable libraries and frameworks that need
+flexibility.
 
-Use variance annotations when designing immutable container types or APIs that
-should accept subtypes.
+Use variance annotations for immutable container types or APIs that should
+accept subtypes.
 
-Leverage type classes when extending third-party types without modification or
-providing ad-hoc polymorphism.
+Use type classes to extend third-party types without modifying them, or for
+ad-hoc polymorphism.
 
-Apply higher-kinded types when abstracting over effect types in functional
-programming patterns.
-
-Use path-dependent types when modeling relationships between types tied to
-specific instances.
-
-Employ abstract type members when designing APIs with families of related types.
+Use path-dependent types to model relationships between types tied to specific
+instances.
 
 ## Resources
 

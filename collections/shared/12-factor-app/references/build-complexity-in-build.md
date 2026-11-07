@@ -7,7 +7,7 @@ tags: build, runtime, compilation, optimization
 
 ## Push Complexity Into Build Stage Keep Run Stage Minimal
 
-The run stage should have as few moving parts as possible. Complex operations like compilation, asset bundling, dependency resolution, and code generation happen in the build stage. The run stage simply starts processes from a pre-built artifact.
+Minimize moving parts in run stage. Do compilation, asset bundling, dependency resolution, code generation in build stage. Run stage only starts processes from pre-built artifact.
 
 **Incorrect (complexity at runtime):**
 
@@ -68,14 +68,8 @@ kubectl exec -it deployment/myapp -- python manage.py migrate
 - Code generation
 
 **What belongs in run stage:**
-- Starting the application process
+- Starting app process
 - Reading environment config
 - Binding to port
-
-**Benefits:**
-- App starts in seconds, not minutes
-- Failures happen in CI, not at 3AM restart
-- Crashed processes can restart immediately
-- Horizontal scaling is fast (new instances ready quickly)
 
 Reference: [The Twelve-Factor App - Build, Release, Run](https://12factor.net/build-release-run)

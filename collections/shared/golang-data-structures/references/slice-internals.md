@@ -2,13 +2,13 @@
 
 ## Memory Layout
 
-A slice is a 24-byte header (3 machine words):
+Slice is 24-byte header (3 machine words):
 
 - **Pointer** — points to backing array (heap-allocated)
 - **Length** — number of elements in use
 - **Capacity** — allocated size of backing array
 
-Assigning or passing a slice copies the 24-byte header, not the backing array. Both the original and copy point to the same underlying data—mutations are visible to both.
+Assigning or passing slice copies 24-byte header, not backing array. Both share underlying data; mutations visible to both.
 
 ## Capacity Growth
 
@@ -19,7 +19,7 @@ When `append` exceeds capacity:
 
 ### Growth Cost
 
-Each growth is O(n) — the entire array is copied to a new location. For a slice growing from 0 to N elements one at a time, the amortized cost per append is O(1), but the total copies are roughly 2N. **Preallocation eliminates all intermediate copies:**
+Each growth is O(n): whole array copied to new location. Growing 0 to N elements one at a time: amortized O(1) per append, but roughly 2N total copies. **Preallocation eliminates all intermediate copies:**
 
 ```go
 // Known size — direct indexing

@@ -149,7 +149,7 @@ metadata:
   namespace: production
 rules:
 - apiGroups: ["", "apps", "batch"]
-  resources: ["*"]
+  resources: ["*"]  # includes secrets; list resources explicitly, or bind built-in `view` ClusterRole (excludes secrets)
   verbs: ["get", "list", "watch"]
 ```
 
@@ -243,13 +243,13 @@ metadata:
 ```
 
 **Enforcement Modes:**
-- **enforce:** Block pod creation if violates standard
-- **audit:** Log violations but allow
-- **warn:** Show warning but allow
+- **enforce:** Block pod creation on violation
+- **audit:** Log violations, allow pod
+- **warn:** Show warning, allow pod
 
 **Security Levels:**
 - **privileged:** Unrestricted (system workloads only)
-- **baseline:** Minimally restrictive (prevents known escalations)
+- **baseline:** Minimally restrictive (blocks known escalations)
 - **restricted:** Most secure (removes all privilege escalations)
 
 ### Restricted Pod Configuration
@@ -302,18 +302,6 @@ spec:
 
 ### Security Context Options
 
-**runAsNonRoot:**
-```yaml
-securityContext:
-  runAsNonRoot: true  # Prevent root user
-```
-
-**readOnlyRootFilesystem:**
-```yaml
-securityContext:
-  readOnlyRootFilesystem: true  # Immutable filesystem
-```
-
 **Capabilities:**
 ```yaml
 securityContext:
@@ -322,13 +310,6 @@ securityContext:
     - ALL  # Drop all capabilities
     add:
     - NET_BIND_SERVICE  # Add only specific capability
-```
-
-**seccomp Profile:**
-```yaml
-securityContext:
-  seccompProfile:
-    type: RuntimeDefault  # Apply default seccomp profile
 ```
 
 **AppArmor:**
@@ -474,7 +455,10 @@ spec:
 
 **Installation:**
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/master/deploy/gatekeeper.yaml
+# Pinned release tag, never master; review manifest, then apply (GH_TELEMETRY=false: gh sends usage telemetry by default)
+GH_TELEMETRY=false gh api 'repos/open-policy-agent/gatekeeper/contents/deploy/gatekeeper.yaml?ref=v3.23.1' \
+  -H 'Accept: application/vnd.github.raw' > gatekeeper.yaml
+kubectl apply -f gatekeeper.yaml
 ```
 
 **Constraint Template:**
@@ -530,14 +514,15 @@ spec:
 
 **Create Secret:**
 ```bash
+# Password from file (mode 600, no trailing newline, not in git): keeps it out of argv and shell history
 kubectl create secret generic db-credentials \
   --from-literal=username=admin \
-  --from-literal=password=securepassword \
+  --from-file=password=./db-password.txt \
   --namespace production
 ```
 
 ```yaml
-# YAML definition
+# YAML definition: never commit plaintext; in Git use External Secrets, SealedSecrets or SOPS
 apiVersion: v1
 kind: Secret
 metadata:
@@ -546,7 +531,7 @@ metadata:
 type: Opaque
 stringData:
   username: admin
-  password: securepassword
+  password: <password>
 ```
 
 **Use in Pod:**
@@ -663,6 +648,8 @@ spec:
 
 **Trivy (Open Source):**
 ```bash
+export TRIVY_DISABLE_TELEMETRY=true TRIVY_SKIP_VERSION_CHECK=true  # Trivy sends usage data by default
+
 # Scan image
 trivy image myapp:latest
 
@@ -704,12 +691,11 @@ spec:
 ### Image Pull Secrets
 
 ```bash
-# Create registry secret
-kubectl create secret docker-registry regcred \
-  --docker-server=myregistry.azurecr.io \
-  --docker-username=myuser \
-  --docker-password=mypassword \
-  --docker-email=myemail@example.com \
+# Prefer node/workload identity for registry pulls (ECR, ACR, GAR).
+# Else build from a docker config file (inline auths, mode 600, not in git); never put the password in argv
+kubectl create secret generic regcred \
+  --type=kubernetes.io/dockerconfigjson \
+  --from-file=.dockerconfigjson=./registry-config.json \
   --namespace production
 ```
 
@@ -766,7 +752,9 @@ spec:
 
 **cert-manager Installation:**
 ```bash
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
+# Pinned release (v1.13 is EOL); review, then apply
+GH_TELEMETRY=false gh release download v1.21.3 -R cert-manager/cert-manager -p cert-manager.yaml
+kubectl apply -f cert-manager.yaml
 ```
 
 **ClusterIssuer:**
@@ -806,24 +794,19 @@ spec:
 ## Summary
 
 **Security Checklist:**
-- [ ] Enable RBAC and follow least-privilege principle
+- [ ] Enable RBAC, follow least privilege
 - [ ] Create dedicated ServiceAccounts (don't use default)
 - [ ] Enforce Pod Security Standards (Restricted for apps)
-- [ ] Implement policy enforcement (Kyverno or OPA)
+- [ ] Enforce policy (Kyverno or OPA)
 - [ ] Use External Secrets Operator for sensitive data
 - [ ] Enable encryption at rest for Secrets
 - [ ] Scan images for vulnerabilities
 - [ ] Use image pull secrets for private registries
-- [ ] Implement NetworkPolicies (default-deny)
+- [ ] Add NetworkPolicies (default-deny)
 - [ ] Enable TLS for ingress traffic (cert-manager)
-- [ ] Regularly audit RBAC permissions
+- [ ] Audit RBAC permissions regularly
 - [ ] Monitor security events and policy violations
 
 **Recommended Tools:**
-- **RBAC:** Built-in Kubernetes
-- **Pod Security:** Pod Security Standards (built-in)
 - **Policy:** Kyverno (easier) or OPA Gatekeeper (more powerful)
-- **Secrets:** External Secrets Operator + cloud provider
-- **Image Scanning:** Trivy
-- **TLS:** cert-manager
 - **Audit:** Falco, kube-bench

@@ -1,7 +1,5 @@
 # GCP ML/AI Services Reference
 
-Patterns for Vertex AI, AutoML, and pre-trained AI services.
-
 ## Table of Contents
 
 1. [Vertex AI](#vertex-ai)
@@ -349,10 +347,8 @@ model.fit(train_dataset, epochs=10, validation_data=val_dataset)
 ## Best Practices
 
 - Start with pre-trained APIs for standard tasks
-- Use AutoML for custom models with limited ML expertise
-- Use Vertex AI custom training for advanced use cases
 - Enable Vertex AI Model Monitoring for production models
 - Use Feature Store for reusable features
-- Implement ML pipelines for reproducibility
-- Use TPUs for large-scale transformer model training
+- Build ML pipelines for reproducibility
+- Use TPUs for large-scale transformer training
 - Monitor prediction costs and latency

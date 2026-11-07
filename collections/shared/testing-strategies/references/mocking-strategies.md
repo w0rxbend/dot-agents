@@ -12,8 +12,6 @@
 
 ## Overview
 
-Mocking is the practice of replacing real dependencies with controlled substitutes during testing. Effective mocking enables fast, isolated tests while maintaining confidence in system behavior.
-
 ### The Mocking Decision Matrix
 
 | Dependency | Unit Test | Integration Test | E2E Test |
@@ -34,11 +32,11 @@ Mocking is the practice of replacing real dependencies with controlled substitut
 ✅ **External API calls**:
 - Third-party services (payment, shipping, email)
 - Avoid rate limits and costs
-- Ensure deterministic responses
+- Deterministic responses
 - Test error scenarios (API down, timeout)
 
 ✅ **Slow operations**:
-- File I/O (unless testing file handling specifically)
+- File I/O (unless testing file handling)
 - Network requests
 - Heavy computations (not core to test)
 
@@ -55,14 +53,14 @@ Mocking is the practice of replacing real dependencies with controlled substitut
 
 ✅ **Database operations** (integration tests):
 - Use ephemeral database (Docker, in-memory SQLite)
-- Test actual SQL queries
+- Test real SQL queries
 - Validate transaction behavior
 - Ensure data integrity
 
 ✅ **Internal services** (integration tests):
 - Test component interactions
 - Validate interface contracts
-- Ensure data flow correctness
+- Check data flow correctness
 
 ✅ **File operations** (integration tests):
 - Use temporary directories
@@ -71,17 +69,11 @@ Mocking is the practice of replacing real dependencies with controlled substitut
 
 ✅ **Core business logic**:
 - Never mock the system under test
-- Never mock what you're trying to validate
+- Never mock what you're validating
 
 ## Mocking External APIs
 
 ### TypeScript/JavaScript: Mock Service Worker (MSW)
-
-**Why MSW?**
-- Intercepts requests at network level (realistic)
-- Same handlers for tests and development
-- Framework-agnostic (works with any test library)
-- TypeScript support
 
 **Basic Setup**:
 ```typescript
@@ -213,7 +205,8 @@ def test_api_error_handling(httpserver):
 ```python
 import vcr
 
-@vcr.use_cassette('fixtures/vcr_cassettes/user_123.yaml')
+# Cassettes get committed: filter auth headers, scrub other secrets (cookies, key params) first
+@vcr.use_cassette('fixtures/vcr_cassettes/user_123.yaml', filter_headers=['authorization'])
 def test_fetch_user():
     # First run: Makes real API call, records response
     # Subsequent runs: Replays recorded response
@@ -224,11 +217,11 @@ def test_fetch_user():
 **Benefits**:
 - Real API responses (realistic data)
 - No mocking code needed
-- Offline testing (no network required)
+- Offline testing (no network)
 
 **Drawbacks**:
-- Cassettes can become stale
-- Doesn't test error scenarios easily
+- Cassettes can go stale
+- Error scenarios not easy to test
 - Large responses bloat repository
 
 ### Go: httptest
@@ -689,23 +682,8 @@ beforeEach(() => {
 
 ## Summary
 
-**Key Takeaways**:
-
-1. **Mock external dependencies**: APIs, time, randomness
-2. **Use real dependencies for integration tests**: Databases (ephemeral), internal services
-3. **Never mock the system under test**: Test real behavior, not mocks
-4. **Choose the right test double**: Dummy, stub, spy, mock, fake
-5. **Avoid over-mocking**: Only mock what's necessary
-6. **Reset mocks between tests**: Prevent test pollution
-
 **Tools by Language**:
 - **TypeScript/JavaScript**: MSW (APIs), Vitest mocks/spies, useFakeTimers
 - **Python**: pytest-httpserver, VCR.py, freezegun, unittest.mock
 - **Go**: httptest (stdlib), testify/mock
 - **Rust**: mockito, mockall
-
-**Next Steps**:
-- Identify slow/flaky tests caused by external dependencies
-- Replace with appropriate mocks (MSW for APIs, Docker for databases)
-- Verify mocks are reset between tests
-- Refactor over-mocked tests to test behavior, not implementation

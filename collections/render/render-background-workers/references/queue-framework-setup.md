@@ -1,8 +1,8 @@
 # Queue framework setup on Render
 
-Minimal patterns for running each stack as a **`type: worker`** service. Replace regions, plans, and commands to match your repo.
+Minimal patterns for running each stack as `type: worker` service. Replace regions, plans and commands to match repo.
 
-**Shared Key Value (Redis-style) wiring** — add once, reference from every consumer that needs the broker:
+**Shared Key Value (Redis-style) wiring** — add once; reference from every consumer needing broker:
 
 ```yaml
 services:
@@ -24,7 +24,7 @@ envVars:
       property: connectionString
 ```
 
-Set Key Value **maxmemory policy** to **`noeviction`** in the Dashboard so queue keys are never evicted like cache entries.
+Set Key Value maxmemory policy to **`noeviction`** in Dashboard so queue keys never get evicted like cache entries.
 
 ---
 
@@ -230,7 +230,7 @@ func main() {
 
 ## Oban (Elixir)
 
-Oban uses **PostgreSQL** as its queue store—**not** Redis. Provision a Render **PostgreSQL** database and wire **`DATABASE_URL`**.
+Oban stores its queue in PostgreSQL, **not** Redis. Provision Render PostgreSQL database; wire `DATABASE_URL`.
 
 **Config** (`config/runtime.exs` or `config/prod.exs` pattern):
 
@@ -269,4 +269,4 @@ services:
           property: connectionString
 ```
 
-Do **not** point Oban at Key Value unless you are using an **experimental or custom** backend; default Oban is **Postgres-only**.
+Do **not** point Oban at Key Value unless using experimental or custom backend.

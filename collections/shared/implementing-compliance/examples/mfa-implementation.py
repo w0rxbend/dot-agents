@@ -83,7 +83,8 @@ class MFAService:
     @staticmethod
     def verify_token(secret: str, token: str, window: int = 1) -> bool:
         """
-        Verify TOTP token
+        Verify TOTP token. Caller must reject a token already used in its
+        time step (replay) and rate-limit attempts.
 
         Args:
             secret: User's TOTP secret
@@ -99,7 +100,8 @@ class MFAService:
     @staticmethod
     def generate_backup_codes(count: int = 10) -> List[str]:
         """
-        Generate one-time backup codes for account recovery
+        Generate one-time backup codes for account recovery. Show once;
+        store only salted hashes; invalidate each code on use.
 
         Args:
             count: Number of backup codes to generate
@@ -120,23 +122,23 @@ if __name__ == "__main__":
 
     # Generate secret
     secret = MFAService.generate_secret()
-    print(f"Secret: {secret}")
-    print("Store this securely in your database!")
+    print(f"Secret generated ({len(secret)} chars)")
+    print("Store it encrypted at rest (KMS); never log it.")
 
-    # Generate provisioning URI
+    # Generate provisioning URI (embeds the secret; demo only, never log in production)
     uri = MFAService.get_provisioning_uri(secret, user_email, issuer)
-    print(f"\nProvisioning URI: {uri}")
+    print(f"\nProvisioning URI (add to authenticator): {uri}")
 
     # Generate QR code
     qr_bytes = MFAService.generate_qr_code(uri)
     print(f"\nQR code generated ({len(qr_bytes)} bytes)")
     print("Display this QR code to the user for scanning")
 
-    # Generate backup codes
+    # Generate backup codes (show to user once, persist only hashes)
     backup_codes = MFAService.generate_backup_codes()
-    print(f"\nBackup codes:")
+    print(f"\n{len(backup_codes)} backup codes generated (masked):")
     for i, code in enumerate(backup_codes, 1):
-        print(f"  {i}. {code}")
+        print(f"  {i}. ****{code[-2:]}")
 
     # Verify token (example)
     test_token = input("\nEnter 6-digit token from authenticator app: ")

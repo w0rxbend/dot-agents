@@ -2,7 +2,7 @@
 
 ## Struct Scanning with sqlx
 
-Tag struct fields with `db:"column_name"` for sqlx:
+sqlx: tag struct fields with `db:"column_name"`:
 
 ```go
 type User struct {
@@ -23,7 +23,7 @@ err := db.SelectContext(ctx, &users, "SELECT id, name, email, deleted_at FROM us
 
 ## Struct Scanning with pgx
 
-With pgx (v5+), use `pgx.CollectRows` for automatic struct mapping:
+pgx (v5+): `pgx.CollectRows` maps structs automatically:
 
 ```go
 rows, err := pool.Query(ctx, "SELECT id, name, email FROM users WHERE active = true")
@@ -35,7 +35,7 @@ users, err := pgx.CollectRows(rows, pgx.RowToStructByName[User])
 
 ## JSON Marshaling
 
-Struct tags for both database and JSON work together. Pointer fields marshal to `null` in JSON when NULL in the database:
+Database and JSON tags coexist. Pointer fields marshal to `null` in JSON when NULL in database:
 
 ```go
 type User struct {
@@ -49,7 +49,7 @@ type User struct {
 
 ## NULLable Columns
 
-Three approaches, from most to least recommended:
+Three approaches, most to least recommended:
 
 **1. Pointer fields (recommended)** — clean, works with JSON marshaling:
 
@@ -62,7 +62,7 @@ type User struct {
 // Check: if user.DeletedAt != nil { ... }
 ```
 
-**2. `sql.NullXxx` types** or `sql.Null[T]` generic — explicit but verbose, requires custom JSON marshaling:
+**2. `sql.NullXxx` types** or `sql.Null[T]` generic — explicit but verbose, needs custom JSON marshaling:
 
 ```go
 type User struct {
@@ -72,7 +72,7 @@ type User struct {
 // Check: if user.Bio.Valid { use(user.Bio.String) }
 ```
 
-**3. `COALESCE` in SQL** — moves NULL handling to the query:
+**3. `COALESCE` in SQL** — NULL handling moves into query:
 
 ```sql
 SELECT id, COALESCE(bio, '') AS bio FROM users WHERE id = $1

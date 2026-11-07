@@ -4,7 +4,7 @@ description: "Use this skill when understanding how PixiJS v8 renders frames: th
 license: MIT
 ---
 
-Foundational model for how PixiJS v8 gets pixels on the screen: the renderer decides which GPU backend to use, the render loop drives per-frame work, and the environment layer adapts the library to browser, Web Worker, or SSR contexts. For the scene graph itself (Containers, transforms, destroy), see `pixijs-scene-container` and its `references/scene-core-concepts.md`.
+How PixiJS v8 draws pixels: renderer picks GPU backend, render loop drives per-frame work, environment layer adapts to browser, Web Worker or SSR. Scene graph (Containers, transforms, destroy): see `pixijs-scene-container` and its `references/scene-core-concepts.md`.
 
 ## Quick Start
 
@@ -20,9 +20,9 @@ const tex = app.renderer.extract.texture({ target: app.stage });
 app.renderer.render({ container: app.stage });
 ```
 
-`app.renderer` is the `WebGLRenderer`, `WebGPURenderer`, or `CanvasRenderer` chosen by `autoDetectRenderer`. The TickerPlugin drives `renderer.render()` automatically; call it manually only with `autoStart: false`. Backend selection happens in `Application.init({ preference })`; see `pixijs-application` for setup.
+`app.renderer` is `WebGLRenderer`, `WebGPURenderer` or `CanvasRenderer`, picked by `autoDetectRenderer`. TickerPlugin calls `renderer.render()` automatically; call it manually only with `autoStart: false`. Backend selection happens in `Application.init({ preference })`.
 
-**Related skills:** `pixijs-application` (Application construction and lifecycle), `pixijs-ticker` (per-frame logic, priorities, FPS capping), `pixijs-scene-container` (scene graph basics).
+**Related skills:** `pixijs-application` (Application setup and lifecycle), `pixijs-ticker` (per-frame logic, priorities, FPS capping), `pixijs-scene-container` (scene graph basics).
 
 ## Topics
 
@@ -31,32 +31,32 @@ app.renderer.render({ container: app.stage });
 | Choosing a backend  | [references/renderers.md](references/renderers.md)     | Preference forms, per-renderer options, systems and pipes |
 | Per-frame execution | [references/render-loop.md](references/render-loop.md) | Priority order, time units, manual rendering              |
 
-For deep dives into any single topic, open the corresponding reference file. Non-browser targets (`DOMAdapter`, `WebWorkerAdapter`, custom adapters, strict CSP) are summarized in the Decision guide below; there is no separate environments skill in this collection.
+Non-browser targets (`DOMAdapter`, `WebWorkerAdapter`, custom adapters, strict CSP): see Decision guide below. No separate environments skill in this collection.
 
 ## Decision guide
 
-- **Setting up an Application?** Start with `pixijs-application`. This skill explains what the renderer does under the hood.
-- **Choosing between WebGL and WebGPU?** Use `['webgpu', 'webgl']` as your preference array. WebGPU is fastest where available; WebGL is the reliable fallback. See `references/renderers.md`.
-- **Running in a Web Worker?** Set `DOMAdapter.set(WebWorkerAdapter)` before `app.init`, and pass an `OffscreenCanvas` (transferred from the main thread with `transferControlToOffscreen()`) as the `canvas` option. Features that need the real DOM (pointer events from the canvas, `DOMContainer`, accessibility overlays) are not available in a worker; forward input from the main thread yourself. See the [WebWorkerAdapter API](https://pixijs.download/release/docs/environment.WebWorkerAdapter.html.md).
-- **Need manual control over when rendering happens?** Set `autoStart: false` and call `app.renderer.render({ container: app.stage })` from your own loop. See `references/render-loop.md`.
-- **Integrating with a physics library?** Add your update at `UPDATE_PRIORITY.HIGH` so physics runs before the render at `LOW`. See `references/render-loop.md`.
-- **Writing a custom renderable?** Implement a `RenderPipe` and register it through the extensions system (outline in `references/renderers.md`; full detail is not covered by these skills, see the [RenderPipe API](https://pixijs.download/release/docs/rendering.RenderPipe.html.md)).
-- **Rendering into a texture or a custom render target?** Pass `target` to `renderer.render()`, or build a `RenderTarget` with explicit color and depth attachments. See `references/renderers.md`.
-- **Running under strict CSP?** Import `'pixi.js/unsafe-eval'` before creating the renderer; it replaces the shader and uniform code generation that needs `new Function`.
+- **Setting up an Application?** Start with `pixijs-application`. This skill covers renderer internals.
+- **Choosing between WebGL and WebGPU?** Use preference `['webgpu', 'webgl']`: WebGPU fastest where available, WebGL reliable fallback. See `references/renderers.md`.
+- **Running in a Web Worker?** Call `DOMAdapter.set(WebWorkerAdapter)` before `app.init`. Pass `OffscreenCanvas` (from main thread via `transferControlToOffscreen()`) as `canvas` option. Real-DOM features (pointer events from canvas, `DOMContainer`, accessibility overlays) not available in a worker; forward input from main thread yourself. See [WebWorkerAdapter API](https://pixijs.download/release/docs/environment.WebWorkerAdapter.html.md).
+- **Need manual control over when rendering happens?** Set `autoStart: false`, call `app.renderer.render({ container: app.stage })` from own loop. See `references/render-loop.md`.
+- **Integrating with a physics library?** Add update at `UPDATE_PRIORITY.HIGH` so physics runs before render at `LOW`. See `references/render-loop.md`.
+- **Writing a custom renderable?** Implement `RenderPipe`, register via extensions (outline in `references/renderers.md`; full detail not covered by these skills, see [RenderPipe API](https://pixijs.download/release/docs/rendering.RenderPipe.html.md)).
+- **Rendering into a texture or a custom render target?** Pass `target` to `renderer.render()`, or build `RenderTarget` with explicit color and depth attachments. See `references/renderers.md`.
+- **Running under strict CSP?** Import `'pixi.js/unsafe-eval'` before creating renderer; replaces shader and uniform code generation needing `new Function`.
 
 ## Quick concepts
 
 ### Renderer = systems + pipes
 
-Each renderer is composed of `Systems` (lifecycle services: textures, buffers, state, filters, masks) and `RenderPipes` (per-renderable instruction builders: sprite, graphics, mesh, particle, text, tiling). Writing a custom renderable means implementing a `RenderPipe` and registering it via extensions. Backend-specific systems and pipes can be dynamic-imported through a renderer loader extension (`WebGLLoader`, `WebGPULoader`, `CanvasLoader`); see `references/renderers.md`.
+Renderer built from `Systems` (lifecycle services: textures, buffers, state, filters, masks) and `RenderPipes` (per-renderable instruction builders: sprite, graphics, mesh, particle, text, tiling). Renderer loader extensions (`WebGLLoader`, `WebGPULoader`, `CanvasLoader`) can dynamic-import backend-specific systems and pipes. See `references/renderers.md`.
 
 ### The render loop
 
-`app.ticker.add(fn)` registers a callback that runs every frame. The `TickerPlugin` registers `app.render()` at `UPDATE_PRIORITY.LOW`, so ticker callbacks at `NORMAL` or `HIGH` run before the draw. Disable the plugin with `autoStart: false` for manual control.
+`TickerPlugin` registers `app.render()` at `UPDATE_PRIORITY.LOW`, so callbacks at `NORMAL` or `HIGH` run before draw.
 
 ### Environments
 
-`DOMAdapter` abstracts every DOM call PixiJS makes (canvas creation, image loading, fetch, XML parsing). Swap with `DOMAdapter.set(WebWorkerAdapter)` for Workers or implement a custom `Adapter` for Node/SSR. Must be done before `Application.init`.
+`DOMAdapter` abstracts every DOM call PixiJS makes (canvas creation, image loading, fetch, XML parsing). Swap with `DOMAdapter.set(WebWorkerAdapter)` for Workers, or implement custom `Adapter` for Node/SSR. Must be done before `Application.init`.
 
 ## Common Mistakes
 
@@ -78,7 +78,7 @@ await app.init({ width: 800, height: 600 });
 console.log(app.renderer.name); // 'webgl' | 'webgpu' | 'canvas'
 ```
 
-`Application.init()` is async. `app.renderer`, `app.canvas`, and `app.screen` do not exist until after the promise resolves.
+`Application.init()` is async. `app.renderer`, `app.canvas` and `app.screen` do not exist until promise resolves.
 
 ### [HIGH] Setting DOMAdapter after Application.init
 
@@ -98,7 +98,7 @@ const app = new Application();
 await app.init({ width: 800, height: 600 });
 ```
 
-The adapter abstracts DOM calls the renderer makes during construction (canvas creation, image loading, fetch). Swap it before `init()` or the wrong adapter is baked into the renderer.
+Adapter abstracts DOM calls renderer makes during construction (canvas creation, image loading, fetch). Swap it before `init()`, or wrong adapter gets baked into renderer.
 
 ### [MEDIUM] Treating `preference` as a guarantee
 
@@ -119,7 +119,7 @@ if (app.renderer.name === "webgpu") {
 }
 ```
 
-`preference` is a hint, not a demand. If the browser lacks WebGPU support, PixiJS falls back to WebGL (or Canvas). Always branch on `renderer.name` for backend-specific code.
+`preference` is a hint, not a demand. If browser lacks WebGPU, PixiJS falls back to WebGL (or Canvas). Always branch on `renderer.name` for backend-specific code.
 
 ## API Reference
 

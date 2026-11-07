@@ -9,7 +9,7 @@
 
 ## Defer Close Immediately
 
-`defer Close()` MUST be called immediately after opening — NEVER delay. This prevents leaks when code is modified later and new return paths are added:
+`defer Close()` MUST be called immediately after opening — NEVER delay. Prevents leaks when later edits add new return paths:
 
 ```go
 // Good — defer is right next to open
@@ -28,7 +28,7 @@ if err != nil {
 f.Close() // might never run if a new return is added above
 ```
 
-This applies to all closeable resources: files, SQL rows, HTTP response bodies, gzip readers, bufio scanners wrapping readers, etc.
+Applies to all closeable resources: files, SQL rows, HTTP response bodies, gzip readers, bufio scanners wrapping readers, etc.
 
 ```go
 resp, err := http.Get(url)
@@ -62,15 +62,15 @@ func NewResource() *Resource {
 }
 ```
 
-`AddCleanup` is preferred because:
+Why `AddCleanup`:
 
-- Multiple cleanups can be attached to the same object
-- The cleanup function receives a copy of the value, not the object itself — no resurrection risk
-- Cleanups run even if the object is part of a cycle
+- Multiple cleanups can attach to same object
+- Cleanup function receives a copy of the value, not the object itself — no resurrection risk
+- Cleanups run even if object is part of a cycle
 
 ## Resource Pools
 
-Resource pools SHOULD use channels with a fixed capacity for bounded allocation. Use channel-based pools or `sync.Pool` to manage limited resources between consumers. Always set a maximum size:
+Resource pools SHOULD use fixed-capacity channels for bounded allocation. Use channel-based pools or `sync.Pool` to manage limited resources between consumers. Always set maximum size:
 
 ```go
 type ConnPool struct {
@@ -112,7 +112,7 @@ func (p *ConnPool) Put(conn *Conn) {
 
 ## Graceful Shutdown
 
-Graceful shutdown MUST use `signal.NotifyContext` for clean termination. All resources (connections, files, channels) MUST be drained before process exit. Use `os/signal` and context cancellation:
+Graceful shutdown MUST use `signal.NotifyContext`. All resources (connections, files, channels) MUST be drained before process exit. Use `os/signal` and context cancellation:
 
 ```go
 func main() {
@@ -150,12 +150,12 @@ func main() {
 }
 ```
 
-This pattern applies to any long-running service — gRPC servers, message consumers, background workers. The key elements are:
+Pattern applies to any long-running service — gRPC servers, message consumers, background workers. Key elements:
 
 1. Capture OS signals with `signal.NotifyContext`
-2. Start the server in a goroutine
+2. Start server in goroutine
 3. Block on context cancellation
-4. Shut down with a timeout to drain in-flight requests
+4. Shut down with timeout to drain in-flight requests
 5. Close all remaining resources in order
 
-For goroutine shutdown patterns, see the `samber/cc-skills-golang@golang-concurrency` skill.
+Goroutine shutdown patterns: see `samber/cc-skills-golang@golang-concurrency` skill.

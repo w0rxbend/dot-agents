@@ -3,7 +3,6 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [ARIA Live Regions](#aria-live-regions)
   - [Understanding Live Regions](#understanding-live-regions)
   - [Implementation Patterns](#implementation-patterns)
@@ -21,7 +20,6 @@
   - [Descriptive Labels](#descriptive-labels)
 - [ARIA Patterns](#aria-patterns)
   - [Alert Dialog](#alert-dialog)
-  - [Status Messages](#status-messages)
   - [Loading States](#loading-states)
 - [Color and Contrast](#color-and-contrast)
   - [High Contrast Support](#high-contrast-support)
@@ -33,10 +31,6 @@
   - [Accessibility Testing Checklist](#accessibility-testing-checklist)
   - [Automated Testing](#automated-testing)
 - [Best Practices](#best-practices)
-
-## Overview
-
-Ensuring feedback components are accessible means they can be perceived, understood, and interacted with by all users, including those using assistive technologies.
 
 ## ARIA Live Regions
 
@@ -493,28 +487,6 @@ function AlertDialog({ isOpen, title, message, onConfirm, onCancel }) {
 }
 ```
 
-### Status Messages
-```tsx
-function StatusMessage({ type, message }) {
-  const role = type === 'error' ? 'alert' : 'status';
-  const ariaLive = type === 'error' ? 'assertive' : 'polite';
-
-  return (
-    <div
-      role={role}
-      aria-live={ariaLive}
-      aria-atomic="true"
-      className={`status status-${type}`}
-    >
-      <span className="status-icon" aria-hidden="true">
-        {getStatusIcon(type)}
-      </span>
-      <span className="status-message">{message}</span>
-    </div>
-  );
-}
-```
-
 ### Loading States
 ```tsx
 function LoadingState({ isLoading, loadingText = 'Loading...' }) {
@@ -715,13 +687,13 @@ describe('Toast Accessibility', () => {
 
 ## Best Practices
 
-1. **Always use semantic HTML**: Prefer native elements over ARIA
+1. **Always use semantic HTML**: Native elements over ARIA
 2. **Test with real assistive technology**: Screen readers, keyboard only
 3. **Provide multiple cues**: Don't rely on color or sound alone
 4. **Respect user preferences**: Reduced motion, high contrast
 5. **Keep focus visible**: Never remove focus indicators
 6. **Announce changes**: Use live regions for dynamic content
-7. **Manage focus properly**: Trap in modals, restore on close
+7. **Manage focus**: Trap in modals, restore on close
 8. **Provide escape routes**: Always allow keyboard dismissal
-9. **Test at different zoom levels**: Ensure 200% zoom works
-10. **Document accessibility features**: Help users understand available features
+9. **Test at multiple zoom levels**: 200% zoom must work
+10. **Document accessibility features**: Tell users what exists

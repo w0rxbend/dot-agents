@@ -13,7 +13,7 @@
  *
  * Usage:
  * - Set API_KEY environment variable
- * - Run: npx tsx advanced-client.ts
+ * - Run: npx tsx@4.23.15 advanced-client.ts
  */
 
 // Error hierarchy
@@ -233,7 +233,7 @@ class AdvancedUsersResource {
   }
 
   async retrieve(id: string) {
-    return this.client.request('GET', `/users/${id}`)
+    return this.client.request('GET', `/users/${encodeURIComponent(id)}`)
   }
 
   // Pagination with async iterator

@@ -1,44 +1,42 @@
 # Units of measure
 
-Usage guidelines for units of measure, plus abbreviations and symbols for frequently used units.
-
 ## Usage guidelines
 
-**When to spell out:** In user documentation, spell out units of measure and give the abbreviation in parentheses on first occurrence. Repeat the spelled-out version in new sections and chapters if the unit symbol or abbreviation is obscure and if the audience requires it.
+**When to spell out:** In user documentation, spell out units on first occurrence, abbreviation in parentheses. Repeat spelled-out form in new sections and chapters if unit symbol or abbreviation is obscure and audience requires it.
 
 > 20 gigabytes (GB) of memory
 > Subsequent occurrences: 20 GB of memory
 
-Always spell out **nonmetric** units of measure in text (for example, *17-inch display*). It's OK to abbreviate such units in tables and technical specifications (`Display size: 17 in.`).
+Always spell out **nonmetric** units in text (for example, *17-inch display*). Abbreviating them is OK in tables and technical specifications (`Display size: 17 in.`).
 
-**Noun:** When you use a unit symbol or abbreviation as a noun, insert a space between the number and the abbreviation, and use the preposition *of* before the unit the value quantifies.
+**Noun:** For unit symbol or abbreviation as noun, put space between number and abbreviation. Use *of* before the unit the value quantifies.
 
 > 20 GB of memory
 
-Note that Apple Marketing Communications style for many abbreviations is to close up the number and the abbreviation (`20GB of memory`).
+Apple Marketing Communications style closes up number and abbreviation for many abbreviations (`20GB of memory`).
 
-**Adjective:** When you use a spelled-out unit of measure in a compound adjective, hyphenate the compound.
+**Adjective:** Hyphenate spelled-out unit in compound adjective.
 
 > 17-inch display
 > 3-meter cable
 
-When you use a unit symbol or abbreviation in a compound adjective, don't hyphenate; add a space between the number and the abbreviation.
+Unit symbol or abbreviation in compound adjective: don't hyphenate; put space between number and abbreviation.
 
 > 20 nA battery
 > 30 GB capacity
 
-**Capitalization:** With the exception of degrees Celsius, Fahrenheit, and Rankine, units of measure derived from a proper name aren't capitalized when spelled out, but their unit symbols are capitalized. (For example, the unit symbol for *joule* is *J*.)
+**Capitalization:** Units derived from a proper name aren't capitalized when spelled out, except degrees Celsius, Fahrenheit, and Rankine. Their unit symbols are capitalized (unit symbol for *joule* is *J*).
 
-**Plurals:** Unit symbols and abbreviations are unaltered in the plural forms (for example, `lb.`, not `lbs.`).
+**Plurals:** Unit symbols and abbreviations don't change in plural (for example, `lb.`, not `lbs.`).
 
-**International System of Units:** Use the unit symbol for SI units after first occurrence. If the unit symbol for *meter* could be confused with another term in your document, spell out *meter*.
+**International System of Units:** Use unit symbol for SI units after first occurrence. Spell out *meter* if its unit symbol could be confused with another term in your document.
 
 > The maximum size for a memory card is 35 mm.
 > The Ethernet cable is 40 meters long.
 
-Don't use a period after an SI unit (unless the unit appears at the end of a sentence).
+No period after SI unit, unless unit ends a sentence.
 
-**Mixing symbols and names:** Don't mix unit symbols and names (`m/second`) or unit symbols and abbreviations (`J/sec.`). Don't mix a prefix name with a unit symbol (`kiloHz`), or a prefix symbol with a unit name (`khertz`).
+**Mixing symbols and names:** Don't mix unit symbols and names (`m/second`) or unit symbols and abbreviations (`J/sec.`). Don't mix prefix name with unit symbol (`kiloHz`), or prefix symbol with unit name (`khertz`).
 
 ## Prefixes for units of measure
 
@@ -67,7 +65,7 @@ Don't use a period after an SI unit (unless the unit appears at the end of a sen
 
 ## Names and unit symbols
 
-When a unit symbol includes a nonalphanumeric character, the keystrokes that generate the character are included in brackets after the symbol.
+If unit symbol includes a nonalphanumeric character, brackets after it give the keystrokes that generate that character.
 
 | Unit | Symbol | Quantity |
 |------|--------|----------|

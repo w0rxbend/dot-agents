@@ -1,7 +1,5 @@
 # ArgoCD Implementation Patterns
 
-Complete guide to implementing ArgoCD for GitOps workflows.
-
 ## Table of Contents
 
 1. [Installation and Configuration](#installation-and-configuration)
@@ -20,13 +18,16 @@ Complete guide to implementing ArgoCD for GitOps workflows.
 # Create namespace
 kubectl create namespace argocd
 
-# Install ArgoCD
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# Install ArgoCD from a pinned release (ARGOCD_VERSION, default v3.6.1; never
+# the moving `stable` branch). Bundled script downloads, confirms, applies:
+scripts/install-argocd.sh
 
 # Access UI via port-forward
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 
-# Get initial admin password
+# Get initial admin password: user runs this in their own terminal; an agent
+# must not print it into the session. Change it after first login, then
+# delete argocd-initial-admin-secret.
 kubectl -n argocd get secret argocd-initial-admin-secret \
   -o jsonpath="{.data.password}" | base64 -d
 ```
@@ -34,8 +35,8 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
 ### High Availability Installation
 
 ```bash
-# Install HA version with multiple replicas
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/ha/install.yaml
+# Install HA version with multiple replicas (pinned manifests/ha/install.yaml)
+ARGOCD_HA=true scripts/install-argocd.sh
 ```
 
 ### Ingress Configuration
@@ -453,7 +454,7 @@ spec:
     spec:
       containers:
       - name: test
-        image: curlimages/curl:latest
+        image: curlimages/curl:8.23.0
         command: ["/bin/sh"]
         args:
         - -c
@@ -479,7 +480,7 @@ spec:
     spec:
       containers:
       - name: notify
-        image: curlimages/curl:latest
+        image: curlimages/curl:8.23.0
         command: ["/bin/sh"]
         args:
         - -c
@@ -618,10 +619,10 @@ argocd cluster rm https://prod-cluster.example.com
 ### Repository Management
 
 ```bash
-# Add Git repository
+# Add Git repository (token from env, not typed inline; or --ssh-private-key-path)
 argocd repo add https://github.com/myorg/myapp.git \
   --username myuser \
-  --password mytoken
+  --password "$GIT_TOKEN"
 
 # Add Helm repository
 argocd repo add https://charts.example.com \
@@ -660,30 +661,29 @@ argocd app patch myapp \
 
 ### Application Organization
 
-- Use ApplicationSets for multi-environment deployments
+- ApplicationSets for multi-environment deployments
 - One Application per microservice
-- Group related apps using labels
-- Use meaningful application names
+- Group related apps by label
 
 ### Sync Strategy
 
-- Enable automated sync for dev/staging
-- Use manual sync for production
-- Enable selfHeal for stability
-- Configure retry policies
+- Automated sync for dev/staging
+- Manual sync for production
+- Enable selfHeal; configure retry policies
 
 ### Resource Management
 
-- Use resource limits in manifests
+- Resource limits in manifests
 - Enable prune to clean up deleted resources
-- Use sync waves for ordered deployment
-- Implement health checks
+- Sync waves for ordered deployment
+- Add health checks
 
 ### Security
 
-- Use Projects for multi-tenancy
+- Projects for multi-tenancy
 - Configure RBAC policies
-- Store secrets using Sealed Secrets or ESO
+- Store secrets with Sealed Secrets or ESO
+- Pin install manifests, charts and images to versions or digests, not `stable`/`latest`
 - Enable audit logging
 
 ### Monitoring

@@ -7,7 +7,7 @@ tags: proc, stateless, processes, scaling
 
 ## Execute the Application as Stateless Processes
 
-A twelve-factor app runs as one or more stateless processes. Processes are stateless and share-nothing - any data that needs to persist must be stored in a stateful backing service like a database. This enables horizontal scaling and resilience.
+Twelve-factor app runs as one or more stateless, share-nothing processes. Any data that must persist must be stored in a stateful backing service, such as a database. Enables horizontal scaling and resilience.
 
 **Incorrect (stateful processes):**
 
@@ -33,7 +33,7 @@ def complete_upload(upload_id):
     file_data = upload_cache.get(upload_id)  # KeyError or None
 ```
 
-**Correct (stateless processes with external state):**
+**Correct (stateless processes, external state):**
 
 ```python
 import redis
@@ -70,11 +70,5 @@ def complete_upload(upload_id):
     file_data = response['Body'].read()
     # Process the file...
 ```
-
-**Benefits:**
-- Any request can be handled by any process
-- Processes can be killed and restarted without data loss
-- Horizontal scaling: just add more processes
-- Zero-downtime deploys: drain old processes while new ones start
 
 Reference: [The Twelve-Factor App - Processes](https://12factor.net/processes)

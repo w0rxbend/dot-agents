@@ -19,9 +19,9 @@ Production-ready backend for system monitoring dashboards.
 ```bash
 docker run -d \
   --name timescaledb \
-  -p 5432:5432 \
-  -e POSTGRES_PASSWORD=password \
-  timescale/timescaledb:latest-pg16
+  -p 127.0.0.1:5432:5432 \
+  -e POSTGRES_PASSWORD="$PGPASSWORD" \
+  timescale/timescaledb:2.16.1-pg16 -c timescaledb.telemetry_level=off
 ```
 
 ### 2. Create Schema
@@ -39,8 +39,8 @@ pip install fastapi uvicorn psycopg2-binary
 ### 4. Run API Server
 
 ```bash
-python api.py
-# Server runs on http://localhost:8000
+DASHBOARD_ORIGINS=http://localhost:3000 python api.py  # comma-separated CORS/WebSocket origins
+# Server runs on http://127.0.0.1:8000 (no auth: keep local, or add auth+TLS before exposing)
 ```
 
 ## API Endpoints
@@ -186,7 +186,7 @@ import psycopg2
 from datetime import datetime, timedelta
 import random
 
-conn = psycopg2.connect(host="localhost", database="postgres", user="postgres", password="password")
+conn = psycopg2.connect(host="localhost", database="postgres", user="postgres")  # password: PGPASSWORD
 cur = conn.cursor()
 
 # Insert 1 week of data (1 point every 10 seconds)

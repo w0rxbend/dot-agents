@@ -32,9 +32,10 @@ k8s-argocd/
 ## Setup ArgoCD
 
 ```bash
-# Install ArgoCD
+# Install ArgoCD from pinned release tag (not mutable `stable` branch): render, review, then apply
 kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl kustomize 'github.com/argoproj/argo-cd/manifests/cluster-install?ref=v3.6.1' > argocd-install.yaml
+kubectl apply -n argocd --server-side --force-conflicts -f argocd-install.yaml
 
 # Wait for ArgoCD to be ready
 kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd
@@ -42,8 +43,9 @@ kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -
 # Access ArgoCD UI
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 
-# Get initial admin password
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+# Initial admin password: user runs this in own terminal (agent never prints secrets),
+# then changes password and deletes argocd-initial-admin-secret
+argocd admin initial-password -n argocd
 ```
 
 ## Deploy Application with ArgoCD

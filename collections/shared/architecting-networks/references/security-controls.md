@@ -1,21 +1,19 @@
 # Security Controls
 
-Network security control mechanisms for cloud environments.
-
 ## Security Groups vs Network ACLs
 
 ### Security Groups (Recommended)
 
 **Characteristics:**
-- Stateful (return traffic automatically allowed)
+- Stateful (return traffic allowed automatically)
 - Instance-level control
 - Allow rules only (implicit deny)
 - Can reference other security groups
 
 **Best Practices:**
-- Use descriptive names
+- Descriptive names
 - Reference other SGs instead of CIDR blocks
-- Keep rules minimal and specific
+- Minimal, specific rules
 - One security group per service
 
 ### Network ACLs
@@ -29,11 +27,11 @@ Network security control mechanisms for cloud environments.
 **When to Use:**
 - Explicit deny rules (block specific IPs)
 - Compliance requirements
-- Additional layer beyond security groups
+- Extra layer beyond security groups
 
 **Important:**
-- Remember ephemeral ports (1024-65535)
-- Test thoroughly (stateless nature causes issues)
+- Account for ephemeral ports (1024-65535)
+- Test thoroughly (statelessness causes issues)
 
 ## Decision Matrix
 

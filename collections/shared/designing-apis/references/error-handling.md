@@ -1,7 +1,5 @@
 # API Error Handling Standards
 
-Comprehensive guide to error response design using RFC 7807 Problem Details standard.
-
 ## Table of Contents
 
 1. [RFC 7807 Problem Details](#rfc-7807-problem-details)
@@ -14,12 +12,12 @@ Comprehensive guide to error response design using RFC 7807 Problem Details stan
 
 ### Standard Structure
 
-RFC 7807 defines a standard format for HTTP API error responses.
+RFC 7807 defines standard format for HTTP API error responses.
 
 **Content-Type:** `application/problem+json`
 
 **Required Fields:**
-- `type`: URI identifying the error type
+- `type`: URI identifying error type
 - `title`: Short, human-readable summary
 - `status`: HTTP status code
 
@@ -29,21 +27,9 @@ RFC 7807 defines a standard format for HTTP API error responses.
 
 **Custom Extensions:** Additional fields allowed
 
-### Basic Example
-
-```json
-{
-  "type": "https://api.example.com/errors/not-found",
-  "title": "Resource Not Found",
-  "status": 404,
-  "detail": "User with id '123' does not exist",
-  "instance": "/api/v1/users/123"
-}
-```
-
 ### Error Type URIs
 
-Error type URIs should be dereferenceable documentation:
+Make error type URIs dereferenceable documentation:
 
 ```
 https://api.example.com/errors/validation
@@ -223,25 +209,6 @@ Content-Type: application/problem+json
 
 ## Validation Errors
 
-### Single Field Error
-
-```json
-{
-  "type": "https://api.example.com/errors/validation",
-  "title": "Validation Error",
-  "status": 400,
-  "detail": "Email field validation failed",
-  "errors": [
-    {
-      "field": "email",
-      "message": "Must be a valid email address",
-      "code": "INVALID_EMAIL_FORMAT",
-      "rejectedValue": "not-an-email"
-    }
-  ]
-}
-```
-
 ### Multiple Field Errors
 
 ```json
@@ -377,7 +344,7 @@ Separate code from message for internationalization:
 }
 ```
 
-Client can use `messageKey` for localization:
+Client uses `messageKey` for localization:
 ```javascript
 const messages = {
   en: { "validation.email.invalid": "Must be a valid email address" },
@@ -464,7 +431,7 @@ Tell users what to do:
 
 ### Error Documentation
 
-Each error type URI should link to documentation:
+Link each error type URI to documentation:
 
 ```markdown
 # https://api.example.com/errors/validation
@@ -497,11 +464,11 @@ Review the `errors` array for specific field issues.
 
 - [ ] Use RFC 7807 Problem Details format
 - [ ] Set Content-Type to `application/problem+json`
-- [ ] Include type, title, and status in all errors
-- [ ] Use dereferenceable URIs for error types
-- [ ] Provide actionable error messages
+- [ ] Include type, title and status in all errors
+- [ ] Dereferenceable URIs for error types
+- [ ] Actionable error messages
 - [ ] Never expose sensitive information
-- [ ] Use machine-readable error codes
-- [ ] Support internationalization with message keys
-- [ ] Include trace IDs for debugging
+- [ ] Machine-readable error codes
+- [ ] Message keys for internationalization
+- [ ] Trace IDs for debugging
 - [ ] Document all error types

@@ -1,7 +1,5 @@
 # Layer 4 vs Layer 7 Load Balancing Comparison
 
-Comprehensive comparison of transport layer (L4) and application layer (L7) load balancing to guide architecture decisions.
-
 ## Table of Contents
 
 1. [Fundamental Differences](#fundamental-differences)
@@ -17,13 +15,13 @@ Comprehensive comparison of transport layer (L4) and application layer (L7) load
 
 **Layer 4 (Transport Layer):**
 - Operates on TCP/UDP packets
-- Routing decisions based on: Source IP, destination IP, source port, destination port
+- Routes by: source IP, destination IP, source port, destination port
 - No visibility into application data
 - No understanding of HTTP, headers, URLs
 
 **Layer 7 (Application Layer):**
 - Operates on HTTP/HTTPS requests
-- Routing decisions based on: URLs, headers, cookies, request method, request body
+- Routes by: URLs, headers, cookies, request method, request body
 - Full visibility into application data
 - Understands HTTP semantics
 
@@ -66,7 +64,7 @@ Client ←→ L7 LB    L7 LB ←→ Backend Server
 ```
 - Two separate connections
 - LB terminates client connection
-- LB initiates new connection to backend
+- LB opens new connection to backend
 - Client IP in `X-Forwarded-For` header
 
 ## L4 Load Balancing Deep Dive
@@ -74,8 +72,8 @@ Client ←→ L7 LB    L7 LB ←→ Backend Server
 ### Routing Mechanisms
 
 **TCP Connection Forwarding:**
-1. Client initiates TCP handshake with LB
-2. LB selects backend based on algorithm
+1. Client starts TCP handshake with LB
+2. LB picks backend by algorithm
 3. LB forwards packets to backend (NAT mode) or routes directly (DSR mode)
 4. Backend sees client IP (DSR) or LB IP (NAT)
 
@@ -96,19 +94,19 @@ Response: Backend → Client (bypasses LB)
 ### Performance Characteristics
 
 **Throughput:**
-- Handles millions of requests per second
+- Millions of requests per second
 - Minimal CPU overhead (no deep packet inspection)
 - Example: AWS NLB handles 100M+ requests per second
 
 **Latency:**
-- Sub-millisecond latency added
+- Adds sub-millisecond latency
 - No SSL handshake at LB (passthrough)
-- Faster than L7 by 2-10x
+- 2-10x faster than L7
 
 **Resource Usage:**
 - Low memory footprint
 - Minimal CPU per connection
-- Can handle 100K+ concurrent connections per instance
+- 100K+ concurrent connections per instance
 
 ### L4 Algorithms
 
@@ -116,7 +114,7 @@ Response: Backend → Client (bypasses LB)
 ```
 hash(client_ip) % num_servers → server_index
 ```
-- Provides natural stickiness
+- Natural stickiness
 - Poor distribution with NAT/proxies
 - No application awareness
 
@@ -133,15 +131,15 @@ random() % num_servers → server_index
 select server with min(active_connections)
 ```
 - Tracks TCP connection count
-- Better than round-robin for varying request durations
-- Small overhead for connection tracking
+- Beats round-robin for varying request durations
+- Small connection-tracking overhead
 
 ### L4 Use Cases
 
 **Database Load Balancing:**
 - MySQL, PostgreSQL connection pooling
 - Protocol: TCP (not HTTP)
-- Client IP preservation important for auditing
+- Client IP preservation matters for auditing
 - High throughput, low latency critical
 
 **Real-Time Protocols:**
@@ -208,18 +206,18 @@ Cookie: session_id=*      → Sticky session routing
 - Decrypts HTTPS traffic
 - Inspects plaintext HTTP
 - Re-encrypts to backend (optional)
-- Offloads CPU from application servers
+- Offloads CPU from app servers
 
 **Request/Response Transformation:**
 - Add/remove headers
 - Rewrite URLs
 - Inject custom headers (`X-Forwarded-For`, `X-Real-IP`)
-- Response header modification
+- Modify response headers
 
 **Content Caching:**
 - Cache static responses at LB
-- Reduce backend load
-- Faster response times
+- Less backend load
+- Faster responses
 - Cache invalidation support
 
 **Web Application Firewall (WAF):**
@@ -233,7 +231,7 @@ Cookie: session_id=*      → Sticky session routing
 - OAuth/JWT validation at LB
 - API key verification
 - Client certificate validation
-- Integration with identity providers
+- Identity provider integration
 
 ### L7 Algorithms
 
@@ -258,14 +256,14 @@ else:
 select server with min(active_requests)
 ```
 - Counts HTTP requests (not just connections)
-- Better than least connections for HTTP/2 multiplexing
+- Beats least connections for HTTP/2 multiplexing
 
 **Weighted Response Time:**
 ```
 select server with min(avg_response_time * weight)
 ```
 - Performance-based routing
-- Adapts to server health dynamically
+- Adapts dynamically to server health
 
 ### L7 Use Cases
 
@@ -277,7 +275,7 @@ select server with min(avg_response_time * weight)
 /payments/*  → Payment service
 ```
 - Different services on different paths
-- Service-specific routing
+- Per-service routing
 - Canary deployments per service
 
 **Multi-Tenant SaaS:**
@@ -294,7 +292,7 @@ Cookie: experiment=B → Variant B servers (10%)
 Default              → Variant A servers (90%)
 ```
 - Traffic splitting for experiments
-- User-consistent experience
+- Consistent experience per user
 
 **Geographic Content Delivery:**
 ```
@@ -331,12 +329,12 @@ Header: Accept-Language: en → English content servers
 **L4 Load Balancer:**
 - Memory: ~1KB per connection
 - CPU: <1% per 10K connections
-- Can run on small instances (2 vCPU, 4GB RAM)
+- Runs on small instances (2 vCPU, 4GB RAM)
 
 **L7 Load Balancer:**
 - Memory: ~10KB per connection (HTTP parsing, buffering)
 - CPU: 5-10% per 10K requests/second
-- Requires larger instances (4+ vCPU, 8+ GB RAM)
+- Needs larger instances (4+ vCPU, 8+ GB RAM)
 
 ## Use Case Decision Matrix
 
@@ -358,12 +356,12 @@ Header: Accept-Language: en → English content servers
 - Security logging and auditing
 - Geographic restriction enforcement
 - Rate limiting by client IP
-- Legacy applications expecting client IP
+- Legacy apps expecting client IP
 
 **Simplicity preferred:**
 - No advanced routing needed
-- Simple round-robin sufficient
-- Minimize configuration complexity
+- Simple round-robin enough
+- Minimal configuration complexity
 
 ### Choose L7 When:
 
@@ -391,8 +389,8 @@ Header: Accept-Language: en → English content servers
 - Authentication at LB
 
 **Application intelligence wanted:**
-- Session affinity based on cookies
-- Routing based on headers
+- Cookie-based session affinity
+- Header-based routing
 - Response transformation
 - Health checks with body validation
 
@@ -408,9 +406,8 @@ Internet → L4 NLB → L7 ALB → Application Servers
 
 **Benefits:**
 - L4 absorbs volumetric DDoS attacks
-- Static IP addresses from NLB
-- L7 provides intelligent routing
-- Best of both worlds
+- Static IPs from NLB
+- L7 does intelligent routing
 
 **AWS Example:**
 ```
@@ -436,7 +433,6 @@ Global DNS → CloudFlare (L7 Global) → Regional NLB (L4) → Apps
 **Benefits:**
 - Global L7 for edge caching and security
 - Regional L4 for low-latency local routing
-- Optimal performance and protection
 
 ### L4 for Internal, L7 for External
 
@@ -449,11 +445,7 @@ Internal services → L4 NLB → Application
 **Rationale:**
 - External needs WAF, SSL termination, content routing
 - Internal needs high throughput, low latency
-- Different requirements warrant different LBs
 
 ## Summary
 
-**L4 strengths:** Performance, simplicity, protocol agnostic, low latency
-**L7 strengths:** Intelligent routing, security features, HTTP awareness, flexibility
-
-**Decision guideline:** Default to L7 for HTTP applications unless performance requirements demand L4. Consider hybrid approaches for large-scale deployments.
+**Decision guideline:** Default to L7 for HTTP apps unless performance demands L4. Consider hybrid approaches for large-scale deployments.

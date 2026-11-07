@@ -1,7 +1,5 @@
 # Migration Principles
 
-> Safe migration strategy for zero-downtime changes.
-
 ## Safe Migration Strategy
 
 ```

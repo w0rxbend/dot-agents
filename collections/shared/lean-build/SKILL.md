@@ -5,16 +5,16 @@ description: Build feature work with high overbuilding risk. Use for new behavio
 
 # Lean build
 
-Native Core and Core safety are defined in `references/native-core.md`; read it first unless it is already in context.
+Native Core and Core safety live in `references/native-core.md`. Read it first unless already in context.
 
-Native Core's architecture-first simplicity remains mandatory. Turn feature into complete narrow outcome fitting system.
+Native Core architecture-first simplicity stays mandatory. Turn feature into complete narrow outcome fitting system.
 
 - Derive observable acceptance and explicit non-goals from request and repository.
 - Trace entry point through layers owning invariants.
-- Deliver coherent end-to-end path across responsible layers; never force work into one file, direct expression, or local patch.
+- Deliver coherent end-to-end path across responsible layers. Never force work into one file, direct expression, or local patch.
 - Reuse fitting seam. Refactor when patching duplicates behavior, weakens ownership, or hides root cause.
-- Omit modes, providers, config, extensibility, and polish unless acceptance needs them.
-- Add surface, dependency, service, config, or migration only for lifecycle design or acceptance; state material tradeoff.
-- Keep work runnable; preserve Core safety.
+- Omit modes, providers, config, extensibility, polish unless acceptance needs them.
+- Add surface, dependency, service, config, or migration only for lifecycle design or acceptance. State material tradeoff.
+- Keep work runnable. Preserve Core safety.
 
 Exercise path. Run focused proof. Stop when acceptance passes. Report only material omissions and trigger.

@@ -1,9 +1,9 @@
 # Building Fillable Forms: spec format and workflow
 
-The same JSON spec drives both `pdf_form_layout.py` (design lint) and
-`pdf_make_form.py` (AcroForm build). Coordinates are PDF points, origin
-at the bottom-left of the page (1 pt = 1/72 inch; A4 is 595.27 x 841.89,
-letter is 612 x 792).
+One JSON spec drives `pdf_form_layout.py` (design lint) and
+`pdf_make_form.py` (AcroForm build). Coordinates are PDF points, origin at
+page bottom-left (1 pt = 1/72 inch; A4 is 595.27 x 841.89, letter is
+612 x 792).
 
 ## Spec shape
 
@@ -37,41 +37,40 @@ letter is 612 x 792).
 ```
 
 - `page_size`: `"A4"`, `"letter"`, or `[width, height]` in points.
-- `page_count`: optional; extended automatically to the highest field page.
+- `page_count`: optional; auto-extended to highest field page.
 - Boxes are `[x0, y0, x1, y1]` with `x0 < x1`, `y0 < y1`.
-- `label` is drawn as static text near `label_box`; omit it (and
+- `label`: static text drawn near `label_box`. Omit it (and
   `label_box`) for unlabeled fields.
-- `radio`: the buttons are laid out left-to-right inside `entry_box`,
-  one slot per option, each with a small static caption. `value`
-  pre-selects an option by its export name.
-- `dropdown` maps to an AcroForm choice (combo) field.
+- `radio`: buttons laid left-to-right inside `entry_box`, one slot per
+  option, each with small static caption. `value` pre-selects option by
+  export name.
+- `dropdown` maps to AcroForm choice (combo) field.
 
 ## Field types → what pdf_read.py --fields reports
 
 | Spec type | /FT | value format after fill |
 |---|---|---|
-| text | /Tx (`text`) | the string |
+| text | /Tx (`text`) | string |
 | checkbox | /Btn (`button`) | `/Yes` or `/Off` |
 | radio | /Btn (`button`) | `/<export>`, e.g. `/red` |
-| dropdown | /Ch (`choice`) | the option string |
+| dropdown | /Ch (`choice`) | option string |
 
-When filling with `pdf_fill_form.py`, checkboxes accept `true`/`false`;
-radio values need the leading slash (`"/red"`); dropdown values are the
-plain option string.
+Filling with `pdf_fill_form.py`: checkboxes accept `true`/`false`; radio
+values need leading slash (`"/red"`); dropdown values are plain option
+string.
 
 ## Layout lint rules (pdf_form_layout.py)
 
 Per field, on its declared page:
 
-- boxes must be well-formed and inside the page bounds;
+- boxes must be well-formed and inside page bounds;
 - entry boxes must be at least 8x8 pt (12 pt tall for text/dropdown);
-- no two entry boxes on the same page may overlap (the second and later
-  fields of an overlapping cluster are flagged);
-- a label must sit within 150 pt of its entry box and must not overlap it.
+- no two entry boxes on same page may overlap (second and later fields
+  of overlapping cluster get flagged);
+- label must sit within 150 pt of its entry box and must not overlap it.
 
-Exit code 0 = clean, 1 = at least one problem; the JSON report lists
-per-field `problems`. Lint the spec BEFORE building — fixing numbers in
-JSON is cheaper than debugging a rendered PDF.
+Exit code 0 = clean, 1 = at least one problem. JSON report lists
+per-field `problems`. Lint spec BEFORE building.
 
 ## Visual review loop
 
@@ -80,20 +79,18 @@ python3 scripts/pdf_form_layout.py spec.json --render-overlay overlay.png [--pdf
 ```
 
 Red rectangles = entry boxes (with field names), blue = label boxes.
-Without `--pdf` the overlay is drawn on a blank page (PIL-only, always
-works); with `--pdf` the real page is rasterized underneath
-(needs pypdfium2 or pdftoppm — otherwise the report says
-`"rendered": false` with install hints). Feed the PNG to `vision_analyze`
-and ask specifically about collisions, alignment, and stray labels.
+Without `--pdf`, overlay goes on blank page (PIL-only, always works).
+With `--pdf`, real page is rasterized underneath (needs pypdfium2 or
+pdftoppm; otherwise report says `"rendered": false` with install hints).
+Feed PNG to `vision_analyze`; ask specifically about collisions,
+alignment, stray labels.
 
 ## Radio-group quirks (reportlab + pypdf)
 
-- reportlab requires at least two `radio()` calls per group; a
-  single-option radio group produces a broken field.
-- Pre-selecting is done at build time via `"value"`; changing selection
-  later via `pdf_fill_form.py` needs the slashed export name (`"/red"`).
-- Some viewers render reportlab radio appearances inconsistently after a
-  pypdf fill; verify with `--fields` (data truth) plus a rendered page
-  image (visual truth) rather than either alone.
-- Flattening radio groups is the least reliable flatten case — check the
-  output image before shipping.
+- reportlab requires at least two `radio()` calls per group.
+  Single-option radio group produces broken field.
+- Some viewers render reportlab radio appearances inconsistently after
+  pypdf fill. Verify with `--fields` (data truth) plus rendered page
+  image (visual truth), not either alone.
+- Flattening radio groups is least reliable flatten case. Check output
+  image before shipping.

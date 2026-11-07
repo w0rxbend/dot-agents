@@ -3,7 +3,6 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
 - [Types of Empty States](#types-of-empty-states)
   - [First Use Empty State](#first-use-empty-state)
   - [No Results Empty State](#no-results-empty-state)
@@ -34,10 +33,6 @@
   - [Screen Reader Support](#screen-reader-support)
   - [Keyboard Navigation](#keyboard-navigation)
 - [Best Practices](#best-practices)
-
-## Overview
-
-Empty states appear when there's no data to display. They're opportunities to guide users, explain features, and encourage action rather than showing blank screens.
 
 ## Types of Empty States
 
@@ -662,12 +657,11 @@ function KeyboardFriendlyEmpty() {
 ## Best Practices
 
 1. **Be helpful**: Explain why it's empty and how to fix it
-2. **Stay positive**: Use friendly, encouraging language
+2. **Stay positive**: Friendly, encouraging language
 3. **Provide actions**: Always include at least one clear action
 4. **Keep it simple**: Don't overwhelm with too many options
-5. **Use illustrations**: Visual elements make empty states less stark
-6. **Consider context**: Tailor message to specific situation
-7. **Progressive disclosure**: Start simple, reveal complexity as needed
-8. **Mobile-friendly**: Ensure responsive design and touch targets
-9. **Educate users**: Use empty states to teach features
-10. **Test variations**: A/B test different messages and designs
+5. **Use illustrations**: Visuals make empty states less stark
+6. **Progressive disclosure**: Start simple, reveal complexity as needed
+7. **Mobile-friendly**: Responsive layout, adequate touch targets
+8. **Educate users**: Teach features through empty states
+9. **Test variations**: A/B test messages and designs

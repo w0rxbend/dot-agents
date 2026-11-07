@@ -4,7 +4,7 @@ description: "Use this skill when profiling or optimizing a PixiJS v8 app for FP
 license: MIT
 ---
 
-Profile before optimizing. PixiJS handles a lot of content well out of the box; browser DevTools Performance + GPU profiling should be your first move. Once you've found the bottleneck, apply the targeted pattern below (destroy, pool, batch, cache, or cull).
+Profile first, with browser DevTools Performance and GPU profiling. Once bottleneck is found, apply matching pattern below (destroy, pool, batch, cache, or cull).
 
 ## Quick Start
 
@@ -44,15 +44,15 @@ sprite.destroy();
 sprite.destroy({ children: true, texture: true, textureSource: true });
 ```
 
-When done with a loaded asset entirely:
+Fully done with loaded asset:
 
 ```ts
 Assets.unload("character.png");
 ```
 
-This removes it from the cache and unloads the GPU resource.
+Removes it from cache and unloads GPU resource.
 
-Objects you build for custom rendering clean up the same way: call `geometry.destroy()` and `renderTarget.destroy()` on the ones you create. Destroying a container also destroys the batchers cached for its render group.
+Custom rendering objects clean up same way: call `geometry.destroy()` and `renderTarget.destroy()` on ones you create. Destroying container also destroys its render group's cached batchers.
 
 ### Application destroy/recreate cycle
 
@@ -66,11 +66,9 @@ const newApp = new Application();
 await newApp.init({ width: 800, height: 600 });
 ```
 
-Without `releaseGlobalResources: true`, pooled objects (batches, textures) from the old app leak into the new one, causing flickering and corruption.
-
 ### Texture garbage collection
 
-PixiJS auto-collects unused textures and GPU resources (including WebGPU bind groups) via `GCSystem`. Defaults: checks every 30 seconds, removes resources idle for 60 seconds. These are time-based (milliseconds).
+`GCSystem` auto-collects unused textures and GPU resources (including WebGPU bind groups). Defaults: check every 30 seconds, remove resources idle 60 seconds. Both options take milliseconds.
 
 ```ts
 import { Application } from "pixi.js";
@@ -84,7 +82,7 @@ await app.init({
 });
 ```
 
-For manual control:
+Manual control:
 
 ```ts
 texture.source.unload(); // immediate GPU memory release
@@ -113,24 +111,24 @@ await app.renderer.prepare.upload(app.stage);
 app.start();
 ```
 
-`prepare.upload()` accepts a Container (uploads all textures, text, and graphics in the subtree) or individual resources.
+`prepare.upload()` accepts Container (uploads all textures, text, and graphics in subtree) or individual resources.
 
 ### cacheAsTexture for performance
 
-`cacheAsTexture()` renders a container's subtree to a single texture, reducing draw calls for complex static content. Internally it creates a render group and caches the result.
+`cacheAsTexture()` renders container subtree to one texture, cutting draw calls for complex static content. Internally creates render group and caches result.
 
 **When to use:**
 
 - Many static children (UI panels, decorative backgrounds, complex Graphics)
-- Containers with expensive filters (cache the filter result)
-- Large subtrees that rarely change
+- Expensive filters (caches filter result)
+- Large, rarely changing subtrees
 
 **Tradeoffs:**
 
-- Uses GPU memory for the cached texture (larger containers = more memory)
-- Max texture size is GPU-dependent (typically 4096x4096 or larger). No PixiJS property exposes it, so query the backend directly:
+- Cached texture costs GPU memory (grows with container size)
+- Max texture size depends on GPU (typically 4096x4096 or larger). No PixiJS property exposes it; query backend directly:
 - Must call `updateCacheTexture()` after modifying children
-- Combining with masks is fragile (masking basics: `pixijs-scene-container`, `references/scene-core-concepts.md`)
+- Fragile with masks (masking basics: `pixijs-scene-container`, `references/scene-core-concepts.md`)
 
 ```ts
 import type { WebGLRenderer, WebGPURenderer } from "pixi.js";
@@ -160,11 +158,11 @@ panel.cacheAsTexture(false);
 panel.destroy();
 ```
 
-**Avoid:** toggling on/off repeatedly (constant re-caching negates benefits), caching sparse containers (negligible gain), caching containers larger than 4096x4096.
+**Avoid:** repeated on/off toggling (re-caching negates benefit), sparse containers (negligible gain), containers larger than 4096x4096.
 
 ### Object recycling
 
-Reuse objects by changing their properties instead of destroy/recreate:
+Reuse objects by changing properties, not destroy/recreate:
 
 ```ts
 import { Sprite, Container, Texture } from "pixi.js";
@@ -203,14 +201,14 @@ class BulletPool {
 }
 ```
 
-Destroying and recreating is significantly more expensive than toggling `visible` and updating properties. GPU resources stay allocated; only scene graph visibility changes.
+GPU resources stay allocated; only scene graph visibility changes.
 
 ### Batching optimization
 
-PixiJS batches similar consecutive objects into single draw calls. Batch breaks occur on:
+PixiJS batches similar consecutive objects into one draw call. Batch breaks on:
 
 - Object type change (Sprite vs Graphics)
-- Texture source change (beyond the per-batch texture limit, typically 16)
+- Texture source change (beyond per-batch texture limit, typically 16)
 - Blend mode change
 - Topology change
 
@@ -234,7 +232,7 @@ good.addChild(new Graphics().rect(0, 0, 10, 10).fill(0xff0000));
 good.addChild(new Graphics().rect(0, 0, 10, 10).fill(0x00ff00));
 ```
 
-Same principle applies to blend modes: `screen/normal/screen/normal` = 4 draws; `screen/screen/normal/normal` = 2 draws.
+Same for blend modes: `screen/normal/screen/normal` = 4 draws; `screen/screen/normal/normal` = 2 draws.
 
 ### Spritesheets over individual textures
 
@@ -250,13 +248,11 @@ const enemy = new Sprite(sheet.textures["enemy.png"]);
 const coin = new Sprite(sheet.textures["coin.png"]);
 ```
 
-Individual textures each require their own GPU upload and break batches when the texture limit is exceeded. Spritesheets consolidate many frames into one atlas texture.
-
 Use `@0.5x` filename suffix on half-resolution sheets so PixiJS auto-scales them.
 
 ### Text performance
 
-Text and HTMLText re-render to a canvas and re-upload to the GPU on every change. Never update them per frame unconditionally:
+Text and HTMLText re-render to canvas and re-upload to GPU on every change. Never update them unconditionally per frame:
 
 ```ts
 import { BitmapText, Text } from "pixi.js";
@@ -277,9 +273,9 @@ app.ticker.add(() => {
 });
 ```
 
-BitmapText renders from a pre-generated glyph atlas. Updates only reposition quads; no canvas re-render or GPU upload. Use it for scores, timers, counters, and anything that changes frequently.
+BitmapText draws from pre-generated glyph atlas. Updates only reposition quads: no canvas re-render, no GPU upload. Use for scores, timers, counters, anything changing often.
 
-If you must use canvas Text, guard updates so they only happen when the value changes:
+If canvas Text is required, update only when value changes:
 
 ```ts
 app.ticker.add(() => {
@@ -290,11 +286,11 @@ app.ticker.add(() => {
 });
 ```
 
-Text resolution matches the renderer resolution by default. Lower it independently via `text.resolution = 1` to reduce GPU memory on high-DPI displays.
+Text resolution defaults to renderer resolution. Lower it per text via `text.resolution = 1` to cut GPU memory on high-DPI displays.
 
 ### Graphics performance
 
-Graphics objects are fastest when their shape doesn't change (transforms, alpha, and tint are fine). Small Graphics (under ~100 points) are batched like Sprites. Complex Graphics with hundreds of shapes are slow; convert them to textures instead:
+Graphics are fastest when shape doesn't change (transforms, alpha, tint are fine). Small Graphics (under ~100 points) batch like Sprites. Complex Graphics with hundreds of shapes are slow; convert to textures:
 
 ```ts
 import { Graphics, Sprite } from "pixi.js";
@@ -309,7 +305,7 @@ const sprite = new Sprite(texture);
 
 ### Culling
 
-PixiJS skips rendering objects outside the visible area when `cullable` is set. Disabled by default because it trades CPU cost (bounds checking) for GPU savings. Culling only runs when the `CullerPlugin` is registered:
+With `cullable` set, PixiJS skips rendering objects outside visible area. Off by default: trades CPU cost (bounds checking) for GPU savings. Culling only runs with `CullerPlugin` registered:
 
 ```ts
 import { extensions, CullerPlugin, Culler, Rectangle } from "pixi.js";
@@ -330,7 +326,7 @@ uiRoot.cullableChildren = false;
 Culler.shared.cull(app.stage, app.renderer.screen);
 ```
 
-`cullableChildren` on a container stops the culler from recursing into its descendants; a large win for static UI panels with many children. `Culler.shared.cull(container, rect)` runs the same logic manually for custom render pipelines. Use culling when you're GPU-bound; avoid it when CPU-bound, since the per-object bounds check adds overhead.
+`cullableChildren` on container stops culler recursing into descendants; big win for static UI panels with many children. `Culler.shared.cull(container, rect)` runs same logic manually for custom render pipelines. Cull when GPU-bound. Avoid it when CPU-bound: per-object bounds check adds overhead.
 
 ### Resolution and antialias tradeoffs
 
@@ -347,7 +343,7 @@ await app.init({
 });
 ```
 
-`resolution: 2` quadruples the pixel count. On mobile, this can halve frame rate. Profile to find the right balance.
+`resolution: 2` quadruples pixel count; on mobile it can halve frame rate.
 
 ### Low-level rendering optimizations
 
@@ -364,7 +360,7 @@ buffer.update(changedBytes, offsetBytes);
 bufferImageSource.update(100, 116);
 ```
 
-On a tile-based WebGPU GPU (`renderer.device.extensions.tileBased`: every phone GPU and Apple silicon) the multisample colour buffer of every antialiased target is already discarded instead of written back, and a pass that reopens the target restores it from the resolved image; the buffer may not be allocated at all when `renderer.device.extensions.transientAttachment` is true. `transient: true` additionally discards the multisample depth/stencil buffer, and the colour buffer on other GPUs. Only use it on textures rendered in a single pass and never re-entered with `clear: false` or wrapped by a filter or mask. For static custom draw sequences on WebGPU, record a render bundle once and replay it each frame (custom rendering is not covered by these skills).
+On tile-based WebGPU GPU (`renderer.device.extensions.tileBased`: every phone GPU and Apple silicon), every antialiased target already discards its multisample colour buffer instead of writing it back. A pass reopening the target restores that buffer from resolved image. Buffer may not be allocated at all when `renderer.device.extensions.transientAttachment` is true. `transient: true` also discards multisample depth/stencil buffer, and colour buffer on other GPUs. Only use it on textures rendered in single pass and never re-entered with `clear: false` or wrapped by filter or mask. For static custom draw sequences on WebGPU, record render bundle once and replay it each frame (custom rendering not covered by these skills).
 
 ### Stagger bulk texture destruction
 
@@ -390,14 +386,12 @@ function staggerDestroy(textures: Texture[], perFrame: number = 5): void {
 }
 ```
 
-Destroying many textures in one frame causes a freeze. Spread the cost across frames.
-
 ### Filters and masks cost
 
-- Set `container.filterArea = new Rectangle(x, y, w, h)` when you know the bounds. Without it, PixiJS measures bounds every frame.
+- Set `container.filterArea = new Rectangle(x, y, w, h)` when bounds are known. Without it, PixiJS measures bounds every frame.
 - Release filter memory: `container.filters = null`.
-- Full-screen filter textures are pooled at screen size, but padding (the `BlurFilter` default) pushes the request past the screen and up to the next power of two. Set `repeatEdgePixels: true` on full-screen blurs to keep them screen-sized.
-- Mask cost (cheapest to most expensive): axis-aligned Rectangle masks (scissor rect) < Graphics masks (stencil buffer) < Sprite/alpha masks (filter pipeline). Hundreds of masks will slow things down regardless of type; prefer rectangle masks when bounds are axis-aligned.
+- Full-screen filter textures pool at screen size. Padding (`BlurFilter` default) pushes request past screen, up to next power of two. Set `repeatEdgePixels: true` on full-screen blurs to keep them screen-sized.
+- Mask cost (cheapest to most expensive): axis-aligned Rectangle masks (scissor rect) < Graphics masks (stencil buffer) < Sprite/alpha masks (filter pipeline). Hundreds of masks slow rendering regardless of type; prefer rectangle masks for axis-aligned bounds.
 - Set `interactiveChildren = false` on containers with no interactive children.
 - Set `hitArea` on large containers to skip recursive child hit testing.
 
@@ -410,7 +404,7 @@ parent.removeChild(sprite);
 sprite.destroy();
 ```
 
-Destroying while the render pipeline still holds a reference causes null-pointer crashes. If destruction must happen mid-frame, defer it:
+Destroying while render pipeline still holds reference causes null-pointer crashes. If destruction must happen mid-frame, defer it:
 
 ```ts
 app.ticker.addOnce(() => {
@@ -437,46 +431,39 @@ app.destroy({ releaseGlobalResources: true });
 const newApp = new Application();
 ```
 
-Without this flag, stale pooled batches and textures from the old app persist in global pools and get reused by the new app, causing flickering and visual corruption.
-
+Without this flag, old app's stale pooled batches and textures stay in global pools. New app reuses them, causing flickering and visual corruption.
 
 ### [HIGH] Interleaving object types in scene graph
 
-`sprite / graphic / sprite / graphic` = 4 draw calls.
-`sprite / sprite / graphic / graphic` = 2 draw calls.
-
-Group same object types together in the child order to minimize batch breaks. Same applies to blend mode ordering.
-
+Group same object types in child order to minimize batch breaks. Same for blend modes.
 
 ### [HIGH] Destroying and recreating objects instead of recycling
 
-Destroy/recreate is expensive: it deallocates GPU resources, triggers garbage collection, and requires fresh GPU uploads. Reuse objects by updating `texture`, `position`, `visible`, and other properties. Use an object pool pattern for frequently spawned/despawned entities.
-
+Destroy/recreate is expensive: deallocates GPU resources, triggers garbage collection, requires fresh GPU uploads. Reuse objects by updating `texture`, `position`, `visible`, and other properties. Pool frequently spawned/despawned entities.
 
 ### [HIGH] Loading many individual textures instead of spritesheets
 
-Each separate texture consumes its own GPU memory slot and breaks batching when the per-batch texture limit is reached. Spritesheets consolidate textures into atlases. Also avoid textures exceeding 4096px on either axis, as they fail on some mobile GPUs.
-
+Each separate texture needs own GPU upload and memory slot, and breaks batching once per-batch texture limit is reached. Spritesheets pack textures into atlases. Avoid textures over 4096px on either axis; they fail on some mobile GPUs.
 
 ### [HIGH] Updating Text or HTMLText every frame
 
-Each update re-renders the full string to a canvas and uploads to the GPU. At 60fps this creates massive overhead. Use BitmapText for dynamic content (scores, timers, counters). If canvas Text is required, only update when the value actually changes.
+Each update re-renders full string to canvas and uploads to GPU. At 60fps, overhead is massive.
 
 ### [HIGH] Using complex Graphics instead of textures
 
-Hundreds of complex Graphics objects are slow to render. Small Graphics (under ~100 points) batch efficiently like Sprites, but complex ones do not. Render complex static shapes to a texture with `renderer.generateTexture()` and display as a Sprite.
+Hundreds of complex Graphics objects render slowly. Render complex static shapes to texture with `renderer.generateTexture()` and display as Sprite.
 
 ### [MEDIUM] Not staggering bulk texture destruction
 
-Destroying dozens of textures in a single frame causes a visible freeze. Spread destruction across multiple frames (e.g., 5 per frame via a ticker callback).
+Destroying dozens of textures in one frame causes visible freeze. Spread destruction across frames (e.g., 5 per frame via ticker callback).
 
 ### [MEDIUM] Not using PrepareSystem for large scenes
 
-Without `renderer.prepare.upload()`, textures upload to the GPU on first render, causing frame hitches. For loading screens or scene transitions, upload before displaying. Requires `import 'pixi.js/prepare'` (not included even in the default bundle; always import it explicitly).
+Without `renderer.prepare.upload()`, textures upload to GPU on first render, causing frame hitches. For loading screens or scene transitions, upload before displaying. Requires `import 'pixi.js/prepare'` (not included even in default bundle; always import it explicitly).
 
 ### [MEDIUM] Using high resolution or antialias without profiling
 
-`resolution: 2` quadruples the pixel count. `antialias: true` adds GPU cost. Both degrade performance on mobile devices. Always profile on target hardware before enabling. Source: performance-tips.md
+`resolution: 2` quadruples pixel count. `antialias: true` adds GPU cost. Both degrade mobile performance. Always profile on target hardware before enabling. Source: performance-tips.md
 
 ## API Reference
 

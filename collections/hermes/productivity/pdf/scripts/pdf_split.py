@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 
 
@@ -41,7 +42,8 @@ def main() -> int:
                         help="Rotate extracted pages clockwise (multiple of 90)")
     parser.add_argument("--compress", action="store_true",
                         help="Deflate content streams (modest savings; does not recompress images)")
-    parser.add_argument("--password", help="Password if the input is encrypted")
+    parser.add_argument("--password", default=os.environ.get("PDF_PASSWORD"),
+                        help="Password if the input is encrypted (default: $PDF_PASSWORD)")
     args = parser.parse_args()
 
     if args.rotate % 90 != 0:

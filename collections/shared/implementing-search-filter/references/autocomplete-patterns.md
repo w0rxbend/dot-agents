@@ -130,7 +130,8 @@ interface HighlightMatchProps {
 export function HighlightMatch({ text, query }: HighlightMatchProps) {
   if (!query) return <>{text}</>;
 
-  const parts = text.split(new RegExp(`(${query})`, 'gi'));
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const parts = text.split(new RegExp(`(${escaped})`, 'gi'));
 
   return (
     <>

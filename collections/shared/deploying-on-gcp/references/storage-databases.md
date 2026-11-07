@@ -1,7 +1,5 @@
 # GCP Storage and Database Services Reference
 
-Detailed patterns for Google Cloud Platform storage and database services.
-
 ## Table of Contents
 
 1. [Cloud Storage](#cloud-storage)
@@ -12,8 +10,6 @@ Detailed patterns for Google Cloud Platform storage and database services.
 6. [AlloyDB](#alloydb)
 7. [Memorystore](#memorystore)
 8. [Service Selection Guide](#service-selection-guide)
-
----
 
 ## Cloud Storage
 
@@ -87,13 +83,11 @@ resource "google_storage_bucket_iam_member" "viewer" {
 }
 ```
 
----
-
 ## Cloud SQL
 
 ### When to Use Cloud SQL
 
-- Standard relational database needs (PostgreSQL, MySQL, SQL Server)
+- Standard relational DB (PostgreSQL, MySQL, SQL Server)
 - Up to 96TB storage
 - Regional deployment
 - Read replicas and HA required
@@ -163,8 +157,6 @@ resource "google_sql_database_instance" "replica" {
 }
 ```
 
----
-
 ## Cloud Spanner
 
 ### When to Use Cloud Spanner
@@ -210,16 +202,14 @@ resource "google_spanner_database" "database" {
 }
 ```
 
----
-
 ## Firestore
 
 ### When to Use Firestore
 
-- Mobile and web applications
-- Real-time synchronization required
+- Mobile and web apps
+- Real-time sync required
 - Offline support needed
-- Document-based data model
+- Document data model
 - Flexible schema
 
 ### Configuration
@@ -283,8 +273,6 @@ for i in range(100):
 batch.commit()
 ```
 
----
-
 ## Bigtable
 
 ### When to Use Bigtable
@@ -339,16 +327,14 @@ resource "google_bigtable_table" "time_series" {
 }
 ```
 
----
-
 ## AlloyDB
 
 ### When to Use AlloyDB
 
-- PostgreSQL migration from on-premises
-- Need 4x faster performance than standard PostgreSQL
+- Migrating PostgreSQL from on-premises
+- Need 4x faster than standard PostgreSQL
 - Analytical queries on transactional data
-- Machine learning integration required
+- ML integration required
 
 ### Configuration
 
@@ -387,13 +373,11 @@ resource "google_alloydb_instance" "primary" {
 }
 ```
 
----
-
 ## Memorystore
 
 ### When to Use Memorystore
 
-- Application caching
+- App caching
 - Session storage
 - Real-time analytics
 - Leaderboards and counters
@@ -428,8 +412,6 @@ resource "google_redis_instance" "cache" {
   }
 }
 ```
-
----
 
 ## Service Selection Guide
 

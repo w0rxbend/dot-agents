@@ -3,7 +3,6 @@ name: effect-schema
 user-invocable: false
 description: "Effect-TS v3: define schemas with effect/Schema (Struct, Union, Class, TaggedError, brands), decode unknown input and encode output, write filters and transformations, and format ParseError messages. Use when validating or transforming data at a boundary in Effect code; for fp-ts io-ts or Zod codebases keep their existing validator."
 allowed-tools:
-  - Bash
   - Read
   - Write
   - Edit
@@ -11,30 +10,26 @@ allowed-tools:
 
 # Effect Schema
 
-> **Version:** examples target the `Schema` module bundled in `effect` 3.10+
-> (`import { Schema } from "effect"`, checked against 3.22). Projects on older
-> releases import the standalone `@effect/schema` package with the same
-> concepts; keep that import only in an existing older project. Effect 4
-> reworks Schema (new modules and signatures); follow its migration guide
-> rather than assuming these signatures carry over. Check the installed
-> version first.
+> **Version:** examples target `Schema` module bundled in `effect` 3.10+
+> (`import { Schema } from "effect"`, checked against 3.22). Older releases
+> import standalone `@effect/schema` package, same concepts; keep that import
+> only in an existing older project. Effect 4 reworks Schema (new modules and
+> signatures); follow its migration guide instead of assuming these signatures
+> carry over. Check installed version first.
 
-A `Schema<Type, Encoded, R>` describes both a runtime validator and a two-way
+`Schema<Type, Encoded, R>` is both runtime validator and two-way
 transformation: **decode** turns `Encoded` (wire/JSON shape) into `Type`
-(domain shape); **encode** goes back. For plain validation `Type = Encoded`.
+(domain shape); **encode** goes back. Plain validation: `Type = Encoded`.
 
 ## Workflow
 
-1. Define the schema once, next to the domain type; derive the type with
-   `typeof X.Type` (or `Schema.Schema.Type<typeof X>`) instead of writing an
-   interface by hand.
-2. Decode at the boundary (HTTP body, env, message, file) with
-   `Schema.decodeUnknown` inside Effect code, or `decodeUnknownSync` /
-   `decodeUnknownEither` outside it.
-3. Encode when sending data out (`Schema.encode`), so transformations (Date ->
-   string) run in reverse.
-4. Turn `ParseError` into a domain error or an HTTP 400 with a formatted
-   message.
+1. Define schema once, next to domain type. Derive type with `typeof X.Type`
+   (or `Schema.Schema.Type<typeof X>`) instead of hand-writing an interface.
+2. Decode at boundary (HTTP body, env, message, file): `Schema.decodeUnknown`
+   inside Effect code, `decodeUnknownSync` / `decodeUnknownEither` outside it.
+3. Encode outgoing data (`Schema.encode`) so transformations (Date -> string)
+   run in reverse.
+4. Turn `ParseError` into domain error or HTTP 400 with formatted message.
 
 ## Core schemas
 
@@ -83,8 +78,8 @@ const WithTimestamps = Schema.Struct({ ...Address.fields, updatedAt: Schema.Date
 | Nullable value | `Schema.NullOr(S)`, `Schema.UndefinedOr(S)`, `Schema.NullishOr(S)` |
 | Optional tuple element | `Schema.Tuple(A, Schema.optionalElement(B))` |
 | Non-empty array | `Schema.NonEmptyArray(S)` |
-| Recursive schema | `Schema.suspend(() => Node)` with an explicit type annotation |
-| Extend a struct | spread `X.fields` into a new `Struct`, or `Schema.extend` |
+| Recursive schema | `Schema.suspend(() => Node)` with explicit type annotation |
+| Extend a struct | spread `X.fields` into new `Struct`, or `Schema.extend` |
 
 ## Built-in transformations
 
@@ -99,8 +94,8 @@ const WithTimestamps = Schema.Struct({ ...Address.fields, updatedAt: Schema.Date
 | `Schema.Redacted(S)` | value hidden from logs |
 | `Schema.BigInt` | string -> `bigint` |
 
-Rule of thumb: the `...FromSelf` variants validate an already-typed value;
-the plain names decode from a JSON-friendly encoding.
+Rule of thumb: `...FromSelf` variants validate already-typed value; plain
+names decode from JSON-friendly encoding.
 
 ## Filters, brands, custom transformations
 
@@ -199,43 +194,41 @@ const ok = Schema.decodeUnknownSync(Body)({ name: "Ada", age: "36" }) // { name:
 
 | Option | Effect |
 | --- | --- |
-| `errors: "all"` | report every issue, not just the first (good for forms) |
+| `errors: "all"` | report every issue, not only the first (good for forms) |
 | `onExcessProperty: "error"` | reject unknown keys (default: strip them) |
 | `onExcessProperty: "preserve"` | keep unknown keys |
 
-`ParseError` has an `issue` tree, not an `errors` array; use
-`TreeFormatter` for humans and `ArrayFormatter` for field-level API errors.
+`ParseError` has `issue` tree, not `errors` array. Use `TreeFormatter` for
+humans, `ArrayFormatter` for field-level API errors.
 
 ## Interop
 
 - `JSONSchema.make(S)` produces JSON Schema (for OpenAPI or LLM tools).
-- `Schema.standardSchemaV1(S)` (v3.13+) exposes a Standard Schema validator
-  for libraries that accept one (form libraries, tRPC, etc.).
+- `Schema.standardSchemaV1(S)` (v3.13+) exposes Standard Schema validator for
+  libraries that accept one (form libraries, tRPC, etc.).
 - `Arbitrary.make(S)` produces fast-check arbitraries for property tests.
-- `Schema.Config` reads and validates a config value with a schema.
+- `Schema.Config` reads and validates config value with schema.
 
 ## Pitfalls
 
-- Using `decodeUnknownSync` in request handlers: it throws; use the Effect or
-  Either variant.
-- Declaring a TS interface and a schema separately: they drift. Derive the
-  type from the schema.
-- Using `Schema.Date` when the input is already a `Date` (use `DateFromSelf`)
-  or vice versa.
+- `decodeUnknownSync` in request handlers: throws. Use Effect or Either
+  variant.
+- `Schema.Date` when input is already `Date` (use `DateFromSelf`), or vice
+  versa.
 - Encoding with `JSON.stringify(value)` instead of `Schema.encode`: skips
   reverse transformations (Dates, brands, bigint).
-- Union order: put the more specific member first when members overlap
-  (prefer tagged unions, which are unambiguous).
+- Union order: put more specific member first when members overlap (prefer
+  tagged unions, which are unambiguous).
 - Old `@effect/schema` snippets: `Schema.filter` predicates returning
   `{ message, test }` objects, `ParseError.errors`, and some renamed
-  combinators do not exist in v3; check the API reference.
+  combinators do not exist in v3. Check API reference.
 
 ## Done when
 
-- Every external input is decoded through a schema before use, with
+- Every external input decoded through schema before use, with
   `errors: "all"` where users need all messages.
-- Domain types are derived from schemas (`typeof S.Type`).
-- Outgoing data is encoded with the same schema; round-trip tests
+- Domain types derived from schemas (`typeof S.Type`).
+- Outgoing data encoded with same schema; round-trip tests
   (`encode(decode(x))`) pass for transforming schemas.
 
 ## Related skills

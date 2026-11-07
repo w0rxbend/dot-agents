@@ -1,7 +1,5 @@
 # Linux Hardening Reference
 
-Comprehensive guide to hardening Linux operating systems using kernel parameters, SSH configuration, user management, and file system controls.
-
 ## Table of Contents
 
 1. [Kernel Hardening (sysctl)](#kernel-hardening-sysctl)
@@ -16,7 +14,7 @@ Comprehensive guide to hardening Linux operating systems using kernel parameters
 
 ## Kernel Hardening (sysctl)
 
-Configure kernel parameters in `/etc/sysctl.d/99-hardening.conf`:
+Set kernel parameters in `/etc/sysctl.d/99-hardening.conf`:
 
 ```bash
 # Network Security
@@ -120,17 +118,17 @@ sysctl kernel.randomize_va_space
 
 Configure SSH in `/etc/ssh/sshd_config.d/00-hardening.conf`.
 
-**Avoid locking yourself out (remote hosts):**
-1. Confirm key login works *before* the change, from a second terminal:
+**Avoid lockout on remote hosts:**
+1. Confirm key login works *before* the change, from second terminal:
    `ssh -o PreferredAuthentications=publickey -o PasswordAuthentication=no user@host`.
-   Keep your current session open until step 5.
-2. Name the drop-in `00-hardening.conf`. sshd keeps the **first** value it reads for most
-   keywords, so a file that sorts after `50-cloud-init.conf` loses to cloud-init's
-   `PasswordAuthentication yes`. The main `sshd_config` must `Include /etc/ssh/sshd_config.d/*.conf`
-   near its top (RHEL 8 and older distros do not ship that line).
-3. Run `sshd -t` and fix any error before reloading.
-4. Reload (not restart) the right unit: `ssh` on Debian/Ubuntu, `sshd` elsewhere.
-5. Check the effective values with `sshd -T` and open a **new** session before closing the old one.
+   Keep current session open until step 5.
+2. Name drop-in `00-hardening.conf`. For most keywords, sshd keeps the **first** value it reads.
+   A file sorting after `50-cloud-init.conf` loses to cloud-init's `PasswordAuthentication yes`.
+   Main `sshd_config` must `Include /etc/ssh/sshd_config.d/*.conf` near its top
+   (RHEL 8 and older distros do not ship that line).
+3. Run `sshd -t`. Fix any error before reloading.
+4. Reload (not restart) correct unit: `ssh` on Debian/Ubuntu, `sshd` elsewhere.
+5. Check effective values with `sshd -T`. Open a **new** session before closing the old one.
 
 ```bash
 
@@ -312,8 +310,6 @@ enforce_for_root
 
 ### Lock System Accounts
 
-System accounts should not allow interactive login:
-
 ```bash
 #!/bin/bash
 # Lock all system accounts
@@ -396,11 +392,11 @@ tmpfs /tmp tmpfs defaults,noexec,nosuid,nodev,size=2G 0 0
 tmpfs /dev/shm tmpfs defaults,noexec,nosuid,nodev,size=1G 0 0
 ```
 
-**Mount options explained:**
-- `noexec`: Prevent execution of binaries
+**Mount options:**
+- `noexec`: Block binary execution
 - `nosuid`: Ignore SUID/SGID bits
-- `nodev`: Prevent device files
-- `ro`: Read-only (for specific use cases)
+- `nodev`: Block device files
+- `ro`: Read-only (specific use cases)
 
 **Apply mount options:**
 ```bash
@@ -412,8 +408,6 @@ mount | grep "/tmp"
 ```
 
 ### File Permissions
-
-Set secure permissions on critical files:
 
 ```bash
 #!/bin/bash
@@ -450,8 +444,6 @@ chown root:utmp /var/log/wtmp /var/log/btmp
 
 ### Disable Core Dumps
 
-Prevent core dumps from containing sensitive information:
-
 ```bash
 # In /etc/security/limits.conf
 * hard core 0
@@ -470,8 +462,6 @@ EOF
 ---
 
 ## Service Minimization
-
-Disable unnecessary services to reduce attack surface:
 
 ```bash
 #!/bin/bash
@@ -501,7 +491,7 @@ done
 systemctl list-unit-files --state=enabled --no-pager
 ```
 
-**Services to keep enabled:**
+**Keep enabled:**
 - `sshd.service` (if remote access needed)
 - `systemd-*` (system services)
 - `networking.service` / `NetworkManager.service`
@@ -541,7 +531,8 @@ restorecon -Rv /path/to/directory
 # Check SELinux denials
 ausearch -m avc -ts recent
 
-# Generate policy from denials
+# Generate policy from denials; read mymodule.te before installing
+# (-a allows EVERY logged denial, attack attempts included)
 audit2allow -a -M mymodule
 semodule -i mymodule.pp
 

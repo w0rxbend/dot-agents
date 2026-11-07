@@ -9,9 +9,9 @@ metadata:
     url: "https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md"
 ---
 
-If the repository has its own PR template (for example `.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE/`, or `.gitlab/merge_request_templates/`), follow that template instead and only borrow sections from this one that it does not cover.
+If repository has own PR template (for example `.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE/`, or `.gitlab/merge_request_templates/`), follow that template instead. Borrow from this one only sections that template does not cover.
 
-Otherwise, use this template for writing the PR body:
+Otherwise, use this template for PR body:
 
 ```markdown
 ## Summary
@@ -36,13 +36,13 @@ Otherwise, use this template for writing the PR body:
 
 ## Sections
 
-Skip all preambles and keep prose brief. Use the user's domain language from `GLOSSARY.md`.
+Skip all preambles. Keep prose brief. Use user's domain language from `GLOSSARY.md`.
 
 ### Summary
 
-Pick the smallest view that makes the key point clear.
+Pick smallest view that makes key point clear.
 
-- Show logic or an algorithm as pseudocode:
+- Show logic or algorithm as pseudocode:
 
 ```text
 on(save)
@@ -52,7 +52,7 @@ on(save)
   return fresh result
 ```
 
-- Show runtime control flow as a call tree:
+- Show runtime control flow as call tree:
 
 ```text
 submitForm
@@ -62,7 +62,7 @@ submitForm
   navigateToSession
 ```
 
-- Show UI structure as a component tree, including state and module boundaries that matter:
+- Show UI structure as component tree, with state and module boundaries that matter:
 
 ```text
 <SessionPage> (apps/example/src/routes/session.tsx)
@@ -71,7 +71,7 @@ submitForm
     <RunSkillButton> (packages/ui)
 ```
 
-- Show file responsibility or a broad refactor as a shallow file tree:
+- Show file responsibility or broad refactor as shallow file tree:
 
 ```text
 src/
@@ -92,9 +92,9 @@ sequenceDiagram
     Daemon-->>UI: stream result
 ```
 
-- Use `diff` when the point is what changes and the surrounding shape already exists. Match the diff shape to the topic.
+- Use `diff` when point is what changes and surrounding shape already exists. Match diff shape to topic.
 
-For a component change:
+For component change:
 
 ```diff
  <SessionPage>
@@ -105,7 +105,7 @@ For a component change:
 +    <SkillResultCard />
 ```
 
-For a file-layout change:
+For file-layout change:
 
 ```diff
  src/
@@ -118,7 +118,7 @@ For a file-layout change:
 +    └── stream.ts
 ```
 
-For a call-tree or call-stack change:
+For call-tree or call-stack change:
 
 ```diff
  submitForm
@@ -131,7 +131,7 @@ For a call-tree or call-stack change:
 +    subscribeToEvents
 ```
 
-For a state or control-flow change:
+For state or control-flow change:
 
 ```diff
  on(save)
@@ -142,7 +142,7 @@ For a state or control-flow change:
 +  invalidate cache
 ```
 
-- Show the whole block when most of it is new, when omitted context would hide ownership or order, or when the user needs a copyable target shape:
+- Show whole block when most of it is new, when omitted context would hide ownership or order, or when user needs copyable target shape:
 
 ```ts
 function expandSkill(command: string): string {
@@ -153,20 +153,22 @@ function expandSkill(command: string): string {
 
 #### Guidance
 
-Place each visual next to the short text it supports. Keep only the calls, files, props, states, and boundaries needed to answer the user's current question or the options to resolve the current discussion point.
+Place each visual next to short text it supports. Keep only calls, files, props, states, and boundaries needed to answer user's current question or options to resolve current discussion point.
 
-You may use one of these, you may use several, it is unlikely you will use all of them. Use your judgement and don't overwhelm the user.
+Use one view or several; rarely all. Do not overwhelm user.
 
 ### Evidence
 
-Concrete evidence that the change works. Show a before and after.
+Concrete evidence change works. Show before and after.
 
-Screenshots are S-tier - when the environment is set up for it and the change is visual.
+Screenshots are S-tier when environment is set up for them and change is visual.
 
-Execution-based evidence is A-tier. Test results, console output. Show the exact test that now fails and passes, using pseudocode.
+Execution-based evidence is A-tier: test results, console output. Show exact test that now fails and passes, using pseudocode.
+
+Before pasting output or screenshots, redact tokens, keys, env dumps, internal hostnames and personal data.
 
 ### Merge Danger
 
-Describe whether it's a one-way or two-way door. You can walk back through two-way doors, but not one-way doors. A PR that is cheap to roll back is lower risk. Changes that involve destructive actions or hard-to-reverse decisions are one-way doors.
+Describe whether PR is one-way or two-way door. Two-way doors can be walked back; one-way doors cannot. PR cheap to roll back is lower risk. Destructive actions or hard-to-reverse decisions are one-way doors.
 
-The blast radius is the potential impact or scope of the changes introduced by this PR. Consider all possibilities. Examples are layout shift, breakages for consumers, mobile responsiveness, etc.
+Blast radius is potential impact or scope of changes this PR introduces. Consider all possibilities. Examples: layout shift, breakages for consumers, mobile responsiveness, etc.

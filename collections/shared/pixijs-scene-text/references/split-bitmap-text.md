@@ -1,6 +1,6 @@
 # SplitBitmapText (experimental)
 
-The bitmap counterpart to `SplitText`. Wraps a `BitmapText` and exposes `lines`, `words`, and `chars` as independently-animatable containers. Use `SplitBitmapText` when you want per-character animation on long strings, many simultaneous instances, or text that changes frequently; scenarios where `SplitText`'s per-char canvas rasterization would be too expensive.
+Bitmap counterpart to `SplitText`. Wraps `BitmapText` and exposes `lines`, `words` and `chars` as independently-animatable containers. Use `SplitBitmapText` for per-character animation on long strings, many simultaneous instances, or frequently changing text: cases where `SplitText`'s per-char canvas rasterization would cost too much.
 
 ## Quick Start
 
@@ -28,7 +28,7 @@ split.chars.forEach((char, i) => {
 });
 ```
 
-The API mirrors `SplitText` exactly; the only difference is the underlying text engine. Install a bitmap font (or load one from a `.fnt` file) before creating the instance.
+Install bitmap font (or load one from `.fnt` file) before creating instance.
 
 ## Construction
 
@@ -52,20 +52,20 @@ const full = new SplitBitmapText({
 
 ### SplitBitmapTextOptions
 
-`SplitBitmapText` uses the same option shape as `SplitText`: all splitting fields are inherited from `AbstractSplitOptions`, and the only concrete difference is that `style` drives a `BitmapText` render instead of a `Text` render. Like `SplitText`, it is a `Container`, not a `ViewContainer`; the top-level options do NOT include `anchor`, `resolution`, `roundPixels`, `textureStyle`, or `autoGenerateMipmaps`.
+`SplitBitmapText` uses same option shape as `SplitText`. All splitting fields inherit from `AbstractSplitOptions`. Only concrete difference: `style` drives `BitmapText` render instead of `Text` render. Like `SplitText`, it is a `Container`, not a `ViewContainer`; top-level options do NOT include `anchor`, `resolution`, `roundPixels`, `textureStyle` or `autoGenerateMipmaps`.
 
-| Option       | Type                                     | Default | Description                                                                                                                                                                                    |
-| ------------ | ---------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `text`       | `string`                                 | —       | Text content to render and segment. Required.                                                                                                                                                  |
-| `style`      | `TextStyle \| Partial<TextStyleOptions>` | —       | TextStyle instance or style options; `fill` defaults to `0xffffff` when unset, matching `BitmapText`. See `references/bitmap-text.md` for which fields the bitmap pipeline respects. Required. |
-| `autoSplit`  | `boolean`                                | `true`  | Automatically re-split when `text` or `style` changes; set `false` to batch updates and call `split.split()` manually.                                                                         |
-| `lineAnchor` | `number \| PointData`                    | `0`     | Normalized transform origin (0–1) for each line container.                                                                                                                                     |
-| `wordAnchor` | `number \| PointData`                    | `0`     | Normalized transform origin for each word container.                                                                                                                                           |
-| `charAnchor` | `number \| PointData`                    | `0`     | Normalized transform origin for each character container.                                                                                                                                      |
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `text` | `string` | — | Text content to render and segment. Required. |
+| `style` | `TextStyle \| Partial<TextStyleOptions>` | — | TextStyle instance or style options; `fill` defaults to `0xffffff` when unset, matching `BitmapText`. See `references/bitmap-text.md` for fields bitmap pipeline respects. Required. |
+| `autoSplit` | `boolean` | `true` | Re-split automatically when `text` or `style` changes; set `false` to batch updates and call `split.split()` manually. |
+| `lineAnchor` | `number \| PointData` | `0` | Normalized transform origin (0–1) for each line container. |
+| `wordAnchor` | `number \| PointData` | `0` | Normalized transform origin for each word container. |
+| `charAnchor` | `number \| PointData` | `0` | Normalized transform origin for each character container. |
 
-All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) are also valid here — see the constructor-options table in `references/scene-core-concepts.md` of the `pixijs-scene-container` skill.
+All `Container` options (`position`, `scale`, `tint`, `label`, `filters`, `zIndex`, etc.) also valid here. See constructor-options table in `references/scene-core-concepts.md` of `pixijs-scene-container` skill.
 
-> `SplitBitmapText.defaultOptions` overrides the defaults globally for every new `SplitBitmapText` instance. `SplitBitmapText.from(existingBitmapText, options?)` builds an instance by cloning the source's text and style — `tagStyles` on the source are discarded (bitmap text does not support them) and a warning is logged.
+> `SplitBitmapText.defaultOptions` overrides defaults globally for every new `SplitBitmapText` instance. `SplitBitmapText.from(existingBitmapText, options?)` builds instance by cloning source's text and style. Source `tagStyles` are discarded (bitmap text does not support them) and a warning is logged.
 
 ## Core Patterns
 
@@ -87,17 +87,7 @@ Each `lines[i]`, `words[i]`, `chars[i]` is a Container wrapping a `BitmapText` i
 
 ### Transform origins
 
-```ts
-const split = new SplitBitmapText({
-  text: "Wave motion",
-  style: { fontFamily: "GameFont", fontSize: 48 },
-  lineAnchor: 0.5,
-  wordAnchor: { x: 0, y: 0.5 },
-  charAnchor: { x: 0.5, y: 1 },
-});
-```
-
-Same normalized 0–1 anchors as `SplitText`: line, word, and char containers each get a separate transform origin. Set once at construction; the anchors apply to every future re-split.
+Set anchors once at construction; they apply to every future re-split.
 
 ### Stagger animation
 
@@ -115,7 +105,7 @@ app.ticker.add((ticker) => {
 });
 ```
 
-Reveal characters one at a time. Because each char is a cheap BitmapText, this scales to long strings without dropping frames.
+Reveals characters one at a time. Each char is a cheap BitmapText, so this scales to long strings without dropping frames.
 
 ### Constructing from an existing BitmapText
 
@@ -128,15 +118,13 @@ const label = new BitmapText({
 const animatable = SplitBitmapText.from(label);
 ```
 
-`SplitBitmapText.from(existingBitmapText)` copies content and style, then splits. Useful for attaching per-character animation to a text that was already laid out elsewhere.
-
 ### Updating content
 
 ```ts
 split.text = "New string";
 ```
 
-`autoSplit` (default `true`) rebuilds the segment arrays on every text/style change. Per-segment animations attached via `onRender` persist across re-splits as long as you re-apply them in the update step.
+Per-segment animations attached via `onRender` persist across re-splits as long as you re-apply them in update step.
 
 ## Common Mistakes
 
@@ -151,7 +139,7 @@ const split = new SplitBitmapText({
 });
 ```
 
-The above works; dynamic bitmap fonts auto-generate; but for known game fonts prefer pre-installing:
+Above works (dynamic bitmap fonts auto-generate), but for known game fonts prefer pre-installing:
 
 Correct:
 
@@ -166,17 +154,17 @@ const split = new SplitBitmapText({
 });
 ```
 
-Pre-installation avoids first-render latency and gives you control over the atlas.
+Pre-installation avoids first-render latency and gives control over atlas.
 
 
 ### [MEDIUM] Expecting CJK or emoji support
 
-`SplitBitmapText` inherits BitmapText's limitations: the glyph atlas must contain every character, and very large character sets exceed GPU texture size. For per-character animation on CJK or emoji-heavy text, use `SplitText` (which accepts the performance cost) or pre-generate a targeted atlas covering only the characters you'll use.
+`SplitBitmapText` inherits BitmapText's limitations: glyph atlas must contain every character, and very large character sets exceed GPU texture size. For per-character animation on CJK or emoji-heavy text, use `SplitText` (accepting performance cost) or pre-generate targeted atlas covering only characters you'll use.
 
 
 ### [MEDIUM] Missing glyphs silently dropped
 
-If a character isn't in the font atlas, its segment is skipped and no error is thrown. Array indices may not line up one-to-one with source character positions if glyphs are missing. Always test your font against the full string content.
+If a character isn't in font atlas, its segment is skipped and no error is thrown. With missing glyphs, array indices may not line up one-to-one with source character positions. Always test font against full string content.
 
 
 ## API Reference

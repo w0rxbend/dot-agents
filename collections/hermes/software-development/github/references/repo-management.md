@@ -1,10 +1,11 @@
 # GitHub Repository Management
 
-Create, clone, fork, configure, and manage GitHub repositories. Each section shows `gh` first, then the `git` + `curl` fallback.
+Each section shows `gh` first, then `git` + `curl` fallback.
 
 ## Prerequisites
 
-- Authenticated with GitHub (see `references/auth.md` in this skill)
+- Authenticated with GitHub (see this skill's `references/auth.md`)
+- Confirm with user before: creating repos (name, owner, visibility; default private), changing visibility, editing branch protection, setting/deleting secrets, publishing releases (prefer `--draft`), public gists, dispatching workflows.
 
 ### Setup
 
@@ -17,7 +18,7 @@ else
     if _hermes_env="${HERMES_HOME:-$HOME/.hermes}/.env"; [ -f "$_hermes_env" ] && grep -q "^GITHUB_TOKEN=" "$_hermes_env"; then
       GITHUB_TOKEN=$(grep "^GITHUB_TOKEN=" "$_hermes_env" | head -1 | cut -d= -f2 | tr -d '\n\r')
     elif grep -q "github.com" ~/.git-credentials 2>/dev/null; then
-      GITHUB_TOKEN=$(uv run python "$GH_SKILL_DIR/scripts/git-credential-token.py")
+      GITHUB_TOKEN=$(python3 -I "$GH_SKILL_DIR/scripts/git-credential-token.py")
     fi
   fi
 fi
@@ -26,11 +27,11 @@ fi
 if [ "$AUTH" = "gh" ]; then
   GH_USER=$(gh api user --jq '.login')
 else
-  GH_USER=$(curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/user | python -c "import sys,json; print(json.load(sys.stdin)['login'])")
+  GH_USER=$(curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/user | python3 -I -c "import sys,json; print(json.load(sys.stdin)['login'])")
 fi
 ```
 
-If you're inside a repo already:
+Already inside repo:
 
 ```bash
 REMOTE_URL=$(git remote get-url origin)
@@ -43,10 +44,10 @@ REPO=$(echo "$OWNER_REPO" | cut -d/ -f2)
 
 ## 1. Cloning Repositories
 
-Cloning is pure `git` — works identically either way:
+Pure `git`, same either way:
 
 ```bash
-# Clone via HTTPS (works with credential helper or token-embedded URL)
+# Clone via HTTPS (works with credential helper)
 git clone https://github.com/owner/repo-name.git
 
 # Clone into a specific directory
@@ -83,9 +84,9 @@ gh repo create my-new-project --private --description "A useful tool" --license 
 # Under an organization
 gh repo create my-org/my-new-project --public --clone
 
-# From existing local directory
+# From existing local directory (review `git status` for secrets first)
 cd /path/to/existing/project
-gh repo create my-project --source . --public --push
+gh repo create my-project --source . --private --push
 ```
 
 **With git + curl:**
@@ -98,7 +99,7 @@ curl -s -X POST \
   -d '{
     "name": "my-new-project",
     "description": "A useful tool",
-    "private": false,
+    "private": true,
     "auto_init": true,
     "license_template": "mit"
   }'
@@ -111,12 +112,13 @@ cd my-new-project
 cd /path/to/existing/project
 git init
 git add .
+git status   # review staged files; unstage .env, keys, credentials before commit
 git commit -m "Initial commit"
 git remote add origin https://github.com/$GH_USER/my-new-project.git
 git push -u origin main
 ```
 
-To create under an organization:
+Under organization:
 
 ```bash
 curl -s -X POST \
@@ -200,7 +202,7 @@ gh search repos "machine learning" --language python --sort stars
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$OWNER/$REPO \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 r = json.load(sys.stdin)
 print(f\"Name: {r['full_name']}\")
@@ -213,7 +215,7 @@ print(f\"Language: {r['language']}\")"
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   "https://api.github.com/user/repos?per_page=20&sort=updated" \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 for r in json.load(sys.stdin):
     vis = 'private' if r['private'] else 'public'
@@ -222,7 +224,7 @@ for r in json.load(sys.stdin):
 # Search repos
 curl -s \
   "https://api.github.com/search/repositories?q=machine+learning+language:python&sort=stars&per_page=10" \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 for r in json.load(sys.stdin)['items']:
     print(f\"  {r['full_name']:40}  ★{r['stargazers_count']:6}  {r['description'][:60] if r['description'] else ''}\")"
@@ -233,7 +235,8 @@ for r in json.load(sys.stdin)['items']:
 **With gh:**
 
 ```bash
-gh repo edit --description "Updated description" --visibility public
+gh repo edit --description "Updated description"
+gh repo edit --visibility public --accept-visibility-change-consequences   # exposes whole repo; confirm with user
 gh repo edit --enable-wiki=false --enable-issues=true
 gh repo edit --default-branch main
 gh repo edit --add-topic "machine-learning,python"
@@ -291,15 +294,15 @@ curl -s -X PUT \
 **With gh:**
 
 ```bash
-gh secret set API_KEY --body "your-secret-value"
-gh secret set SSH_KEY < ~/.ssh/id_rsa
+gh secret set API_KEY < secret.txt        # stdin/file; never the value in argv
+gh secret set SSH_KEY < ci_deploy_key     # dedicated deploy key, not personal ~/.ssh key
 gh secret list
 gh secret delete API_KEY
 ```
 
 **With curl:**
 
-Secrets require encryption with the repo's public key — more involved via API:
+Secrets need encryption with repo public key:
 
 ```bash
 # Get the repo's public key for encrypting secrets
@@ -311,7 +314,7 @@ curl -s \
 python -c "
 from base64 import b64encode
 from nacl import encoding, public
-import json, sys
+import json, os, sys
 
 # Get the public key
 key_id = '<key_id_from_above>'
@@ -320,7 +323,7 @@ public_key = '<base64_key_from_above>'
 # Encrypt
 sealed = public.SealedBox(
     public.PublicKey(public_key.encode('utf-8'), encoding.Base64Encoder)
-).encrypt('your-secret-value'.encode('utf-8'))
+).encrypt(os.environ['SECRET_VALUE'].encode('utf-8'))  # from env, not literal
 print(json.dumps({
     'encrypted_value': b64encode(sealed).decode('utf-8'),
     'key_id': key_id
@@ -336,13 +339,13 @@ curl -s -X PUT \
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$OWNER/$REPO/actions/secrets \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 for s in json.load(sys.stdin)['secrets']:
     print(f\"  {s['name']:30}  updated: {s['updated_at']}\")"
 ```
 
-Note: For secrets, `gh secret set` is dramatically simpler. If setting secrets is needed and `gh` isn't available, recommend installing it for just that operation.
+Note: for secrets, `gh secret set` is far simpler. If secrets needed and `gh` isn't available, recommend installing it only for that operation.
 
 ## 8. Releases
 
@@ -376,7 +379,7 @@ curl -s -X POST \
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$OWNER/$REPO/releases \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 for r in json.load(sys.stdin):
     tag = r.get('tag_name', 'no tag')
@@ -413,7 +416,7 @@ gh workflow run deploy.yml -f environment=staging
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$OWNER/$REPO/actions/workflows \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 for w in json.load(sys.stdin)['workflows']:
     print(f\"  {w['id']:10}  {w['name']:30}  {w['state']}\")"
@@ -422,7 +425,7 @@ for w in json.load(sys.stdin)['workflows']:
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   "https://api.github.com/repos/$OWNER/$REPO/actions/runs?per_page=10" \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 for r in json.load(sys.stdin)['workflow_runs']:
     print(f\"  Run {r['id']}  {r['name']:30}  {r['conclusion'] or r['status']}\")"
@@ -458,7 +461,7 @@ curl -s -X POST \
 **With gh:**
 
 ```bash
-gh gist create script.py --public --desc "Useful script"
+gh gist create script.py --desc "Useful script"   # secret by default; --public only on request
 gh gist list
 ```
 
@@ -471,7 +474,7 @@ curl -s -X POST \
   https://api.github.com/gists \
   -d '{
     "description": "Useful script",
-    "public": true,
+    "public": false,
     "files": {
       "script.py": {"content": "print(\"hello\")"}
     }
@@ -481,23 +484,9 @@ curl -s -X POST \
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/gists \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 for g in json.load(sys.stdin):
     files = ', '.join(g['files'].keys())
     print(f\"  {g['id']}  {g['description'] or '(no desc)':40}  {files}\")"
 ```
-
-## Quick Reference Table
-
-| Action | gh | git + curl |
-|--------|-----|-----------|
-| Clone | `gh repo clone o/r` | `git clone https://github.com/o/r.git` |
-| Create repo | `gh repo create name --public` | `curl POST /user/repos` |
-| Fork | `gh repo fork o/r --clone` | `curl POST /repos/o/r/forks` + `git clone` |
-| Repo info | `gh repo view o/r` | `curl GET /repos/o/r` |
-| Edit settings | `gh repo edit --...` | `curl PATCH /repos/o/r` |
-| Create release | `gh release create v1.0` | `curl POST /repos/o/r/releases` |
-| List workflows | `gh workflow list` | `curl GET /repos/o/r/actions/workflows` |
-| Rerun CI | `gh run rerun ID` | `curl POST /repos/o/r/actions/runs/ID/rerun` |
-| Set secret | `gh secret set KEY` | `curl PUT /repos/o/r/actions/secrets/KEY` (+ encryption) |

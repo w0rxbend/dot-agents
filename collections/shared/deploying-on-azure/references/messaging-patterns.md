@@ -1,19 +1,8 @@
 # Azure Messaging Patterns Reference
 
-Comprehensive guide to Azure messaging and event services.
-
-## Table of Contents
-
-1. [Azure Service Bus](#azure-service-bus)
-2. [Azure Event Grid](#azure-event-grid)
-3. [Azure Event Hubs](#azure-event-hubs)
-4. [Storage Queues](#storage-queues)
-
----
-
 ## Azure Service Bus
 
-Enterprise messaging service with queues and publish-subscribe topics.
+Enterprise messaging: queues and publish-subscribe topics.
 
 ### Queue vs. Topic
 
@@ -26,13 +15,13 @@ Enterprise messaging service with queues and publish-subscribe topics.
 
 ### Sessions for Ordered Processing
 
-Enable sessions for FIFO (first-in-first-out) message processing within a session.
+Enable sessions for FIFO (first-in-first-out) processing within a session.
 
 ---
 
 ## Azure Event Grid
 
-Event routing service for reactive programming.
+Event routing for reactive programming.
 
 ### Event Domains
 
@@ -40,7 +29,7 @@ Group related topics for multi-tenant scenarios.
 
 ### Advanced Filtering
 
-Filter events by subject, data fields, and event type before delivery.
+Filter events by subject, data fields and event type before delivery.
 
 ---
 
@@ -54,13 +43,13 @@ Partition by key (e.g., device ID) for ordered processing within partition.
 
 ### Capture Feature
 
-Automatically archive events to Blob Storage or Data Lake.
+Archives events to Blob Storage or Data Lake automatically.
 
 ---
 
 ## Storage Queues
 
-Simple queue for asynchronous messaging.
+Simple queue for async messaging.
 
 **When to Use:**
 - Simple task queues

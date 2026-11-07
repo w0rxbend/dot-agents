@@ -3,7 +3,6 @@ name: effect-core-patterns
 user-invocable: false
 description: "Effect-TS v3: the Effect<A, E, R> type, constructors (succeed, fail, sync, try, tryPromise, async), composing with Effect.gen/Effect.fn and pipe, and running effects at the program edge. Start here for any Effect code; for fp-ts (pipe/TaskEither) code use the fp-* skills instead."
 allowed-tools:
-  - Bash
   - Read
   - Write
   - Edit
@@ -18,33 +17,32 @@ allowed-tools:
 
 ## The Effect type
 
-`Effect<A, E, R>` is a lazy, immutable description of a program:
+`Effect<A, E, R>` is lazy, immutable program description:
 
 | Param | Meaning | `never` means |
 | --- | --- | --- |
-| `A` | success value | it never succeeds (e.g. `Effect.never`, infinite loop) |
-| `E` | expected, typed failures | it cannot fail with an expected error |
-| `R` | services it needs from context | it is ready to run |
+| `A` | success value | never succeeds (e.g. `Effect.never`, infinite loop) |
+| `E` | expected, typed failures | cannot fail with expected error |
+| `R` | services needed from context | ready to run |
 
-Nothing runs until a `run*` function executes it. Unexpected failures (thrown
-exceptions, bugs) are *defects* and do not appear in `E`.
+Nothing runs until `run*` function executes it. Unexpected failures (thrown
+exceptions, bugs) are *defects*. They do not appear in `E`.
 
 ## Choosing a constructor
 
 | Situation | Use |
 | --- | --- |
-| Pure value already in hand | `Effect.succeed(x)` / `Effect.void` |
+| Pure value in hand | `Effect.succeed(x)` / `Effect.void` |
 | Expected failure | `Effect.fail(new MyError(...))` |
-| Sync side effect that cannot throw | `Effect.sync(() => ...)` |
-| Sync code that may throw | `Effect.try({ try, catch })` |
-| Promise that cannot reject | `Effect.promise(() => ...)` |
-| Promise that may reject | `Effect.tryPromise({ try: (signal) => ..., catch })` |
+| Sync side effect, cannot throw | `Effect.sync(() => ...)` |
+| Sync code, may throw | `Effect.try({ try, catch })` |
+| Promise, cannot reject | `Effect.promise(() => ...)` |
+| Promise, may reject | `Effect.tryPromise({ try: (signal) => ..., catch })` |
 | Callback API | `Effect.async<A, E>((resume, signal) => ...)` |
 | Build lazily / recursion | `Effect.suspend(() => ...)` |
 
-A throw inside `sync`/`promise` (or a rejected `promise`) becomes a defect, not
-a typed error. Use `try`/`tryPromise` whenever the call can fail for an
-expected reason.
+Throw inside `sync`/`promise` (or rejected `promise`) becomes defect, not typed
+error. Use `try`/`tryPromise` for expected failures.
 
 ```typescript
 import { Data, Effect } from "effect"
@@ -81,15 +79,14 @@ const sleepMs = (ms: number) =>
   })
 ```
 
-`Effect.tryPromise(() => p)` without `catch` fails with `UnknownException`;
-prefer the object form so `E` stays meaningful. Tagged error classes are
-covered in **effect-error-handling**.
+`Effect.tryPromise(() => p)` without `catch` fails with `UnknownException`.
+Prefer object form so `E` stays meaningful.
 
 ## Composing with Effect.gen
 
-`Effect.gen` reads like async/await: `yield*` an effect to get its value; the
-first failure short-circuits. Errors and requirements of every yielded effect
-are unioned into the result type.
+`Effect.gen` reads like async/await: `yield*` effect to get its value. First
+failure short-circuits. Result type unions errors and requirements of every
+yielded effect.
 
 ```typescript
 import { Data, Effect } from "effect"
@@ -115,18 +112,16 @@ const program = Effect.gen(function* () {
 
 Rules:
 
-- Always `return yield* Effect.fail(...)` (or `return yield* new TaggedErr()`);
-  a bare `yield*` without `return` leaves the code after it reachable in the
-  types.
+- Always `return yield* Effect.fail(...)` (or `return yield* new TaggedErr()`).
+  Bare `yield*` without `return` leaves code after it reachable in types.
 - Do not `await` inside `Effect.gen`; wrap promises with `tryPromise`.
-- Independent steps written one after another run *sequentially*. Use
-  `Effect.all` (see **effect-concurrency**) when they can run in parallel.
+- Consecutive independent steps run *sequentially*. Use `Effect.all` (see
+  **effect-concurrency**) to run them in parallel.
 
 ### Effect.fn for named functions
 
-For functions that return effects, `Effect.fn` (v3.11+) combines `gen` with a
-tracing span named after the function, which shows up in stack traces and
-OpenTelemetry:
+For effect-returning functions, `Effect.fn` (v3.11+) combines `gen` with tracing
+span named after function, visible in stack traces and OpenTelemetry:
 
 ```typescript
 import { Effect } from "effect"
@@ -140,19 +135,19 @@ const getUserName = Effect.fn("getUserName")(function* (id: string) {
 
 ## Pipelines
 
-Use `pipe`/`.pipe` for short transformations; switch to `Effect.gen` once
-there are more than two or three dependent steps.
+Use `pipe`/`.pipe` for short transformations. Switch to `Effect.gen` past two or
+three dependent steps.
 
 | Operator | Does |
 | --- | --- |
 | `Effect.map(f)` | transform success value |
-| `Effect.flatMap(f)` | next step depends on the value and returns an effect |
-| `Effect.andThen(x)` | flexible sequencing; `x` may be a value, a function, a promise-returning function or an effect |
-| `Effect.tap(f)` | run a side effect, keep the original value |
-| `Effect.mapError(f)` | transform the error |
+| `Effect.flatMap(f)` | next step depends on value, returns effect |
+| `Effect.andThen(x)` | flexible sequencing; `x` may be value, function, promise-returning function or effect |
+| `Effect.tap(f)` | run side effect, keep original value |
+| `Effect.mapError(f)` | transform error |
 | `Effect.mapBoth({ onFailure, onSuccess })` | transform both channels |
 | `Effect.orElse(() => fallback)` | replace any failure with another effect |
-| `Effect.as(v)` / `Effect.asVoid` | replace the value |
+| `Effect.as(v)` / `Effect.asVoid` | replace value |
 
 ```typescript
 import { Effect } from "effect"
@@ -167,15 +162,15 @@ const program = Effect.succeed("hello").pipe(
 
 ## Running effects
 
-Run once, at the edge (main, request handler, test). Inside effects, compose;
-never call `runPromise` from within an effect.
+Run once, at edge (main, request handler, test). Inside effects, compose; never
+call `runPromise` there.
 
 | Runner | Use when | On failure |
 | --- | --- | --- |
-| `Effect.runPromise(e)` | async entry point, `R` must be `never` | rejects with a `FiberFailure` wrapper |
-| `Effect.runPromiseExit(e)` | you need the typed error or cause | resolves with `Exit` |
-| `Effect.runSync(e)` | effect is fully synchronous | throws; also throws if it hits async work |
-| `Effect.runFork(e)` | fire-and-forget, get a `RuntimeFiber` | observe via the fiber |
+| `Effect.runPromise(e)` | async entry point, `R` must be `never` | rejects with `FiberFailure` wrapper |
+| `Effect.runPromiseExit(e)` | need typed error or cause | resolves with `Exit` |
+| `Effect.runSync(e)` | effect fully synchronous | throws, also on async work |
+| `Effect.runFork(e)` | fire-and-forget, get `RuntimeFiber` | observe via fiber |
 | `NodeRuntime.runMain(e)` (`@effect/platform-node`) | Node CLI/server main | logs, sets exit code, handles SIGINT |
 
 ```typescript
@@ -188,28 +183,25 @@ if (Exit.isFailure(exit)) {
 }
 ```
 
-Do not `try/catch` around `runPromise` and expect your tagged error: the
-rejection is a `FiberFailure`. Handle errors inside the effect, or use
-`runPromiseExit`. If `R` is not `never`, provide layers first (see
-**effect-dependency-injection**); a missing service is a compile-time error,
-not a runtime one.
+Do not `try/catch` around `runPromise` expecting your tagged error: rejection is
+`FiberFailure`. Handle errors inside effect, or use `runPromiseExit`. If `R` is
+not `never`, provide layers first (see **effect-dependency-injection**). Missing
+service is compile-time error, not runtime one.
 
 ## Pitfalls
 
-- `Effect.runSync` on an effect that sleeps, awaits a promise or uses async
-  callbacks throws ("cannot be resolved synchronously").
+- `Effect.runSync` on effect that sleeps, awaits promise or uses async callbacks
+  throws ("cannot be resolved synchronously").
 - Side effects outside constructors (`const x = Date.now()` at module level)
-  run once at import, not on each execution. Wrap in `Effect.sync`.
-- `Effect.promise` around a call that can reject hides the failure as a defect.
-- Long `pipe(flatMap(... flatMap(...)))` chains: rewrite with `Effect.gen`.
-- Using plain objects `{ _tag: "X" }` as errors works with `catchTag`, but
-  `Data.TaggedError` gives stack traces, `instanceof`, and structural equality.
+  run once at import, not per execution. Wrap in `Effect.sync`.
+- Plain objects `{ _tag: "X" }` as errors work with `catchTag`, but
+  `Data.TaggedError` gives stack traces, `instanceof`, structural equality.
 
 ## Done when
 
-- Every async/throwing boundary is wrapped in `try`/`tryPromise` with a typed
-  error, and the `E` channel lists only meaningful failures.
-- `run*` is called only at the program edge with `R = never`.
+- Every async/throwing boundary wrapped in `try`/`tryPromise` with typed error.
+  `E` channel lists only meaningful failures.
+- `run*` called only at program edge with `R = never`.
 - `tsc --noEmit` passes without `any` casts on effect types.
 
 ## Related skills

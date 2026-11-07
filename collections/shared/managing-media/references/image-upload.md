@@ -1,8 +1,5 @@
 # Image Upload Patterns
 
-Client-side image upload with validation, preview, and optimization.
-
-
 ## Table of Contents
 
 - [Basic Upload with Preview](#basic-upload-with-preview)
@@ -167,10 +164,8 @@ function UploadWithProgress({ file }: { file: File }) {
 ## Best Practices
 
 1. **Validate client-side** - File type, size, dimensions
-2. **Show preview** - Let users confirm before upload
-3. **Compress images** - Reduce bandwidth
-4. **Progress indicator** - For uploads >1MB
-5. **Allow removal** - Before submission
-6. **Handle errors** - Network failures, validation
-7. **Multiple files** - Support batch upload
-8. **Drag and drop** - Better UX than file picker
+2. **Show preview** - Users confirm before upload
+3. **Progress indicator** - For uploads >1MB
+4. **Allow removal** - Before submission
+5. **Handle errors** - Network failures, validation
+6. **Drag and drop** - Better UX than file picker

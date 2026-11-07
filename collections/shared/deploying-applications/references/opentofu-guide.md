@@ -1,6 +1,6 @@
 # OpenTofu Reference Guide
 
-Comprehensive guide to OpenTofu, the open-source Terraform alternative under CNCF governance.
+Guide to OpenTofu, open-source Terraform alternative under CNCF governance.
 
 ## Table of Contents
 
@@ -17,25 +17,18 @@ Comprehensive guide to OpenTofu, the open-source Terraform alternative under CNC
 
 ## Overview
 
-OpenTofu is a CNCF project providing open-source Infrastructure as Code (IaC) with Terraform compatibility. Forked from Terraform 1.5.x, OpenTofu maintains HashiCorp Configuration Language (HCL) syntax while ensuring open governance under the Mozilla Public License 2.0.
-
-**Key Characteristics**:
-- **CNCF Project**: Linux Foundation governance
-- **MPL-2.0 License**: Open-source with community control
-- **Terraform Compatible**: Drop-in replacement for Terraform 1.5.x and earlier
-- **Active Development**: Regular releases with community contributions
-- **Provider Support**: Uses same provider ecosystem as Terraform
+OpenTofu: CNCF project (Linux Foundation governance) for open-source Infrastructure as Code (IaC), Terraform-compatible. Forked from Terraform 1.5.x. Keeps HashiCorp Configuration Language (HCL) syntax, with open governance under Mozilla Public License 2.0.
 
 **When to Use OpenTofu**:
-- Require open-source governance guarantees
+- Need open-source governance guarantees
 - Migrating from Terraform to avoid license concerns
 - Prefer HCL syntax over TypeScript (otherwise use Pulumi)
 - Need Terraform compatibility with open governance
 
 **When to Use Alternatives**:
 - **Pulumi**: Prefer TypeScript/Python/Go over HCL
-- **SST**: Building AWS serverless applications
-- **Terraform**: Require HashiCorp enterprise support
+- **SST**: AWS serverless applications
+- **Terraform**: Need HashiCorp enterprise support
 
 ## OpenTofu vs Terraform
 
@@ -47,7 +40,6 @@ OpenTofu is a CNCF project providing open-source Infrastructure as Code (IaC) wi
 | **Governance** | CNCF (community) | HashiCorp (corporate) |
 | **Compatibility** | Terraform 1.5.x baseline | Latest HashiCorp features |
 | **State Encryption** | Built-in (native) | Enterprise only |
-| **Community** | Open contribution model | HashiCorp-controlled |
 | **Commercial Support** | Third-party vendors | HashiCorp only |
 
 ### Feature Parity
@@ -55,20 +47,13 @@ OpenTofu is a CNCF project providing open-source Infrastructure as Code (IaC) wi
 **Identical Features**:
 - HCL syntax and language features
 - Provider ecosystem (same registry)
-- State file format (compatible)
 - Module structure and composition
 - Workspaces and remote backends
 
-**OpenTofu Enhancements**:
-- Native state encryption (client-side)
-- Enhanced testing framework (planned)
-- Community-driven feature roadmap
-- No vendor lock-in
+**OpenTofu Enhancements**: native client-side state encryption, enhanced testing framework (planned).
 
 **Terraform Exclusive**:
 - Terraform Cloud integration (use Spacelift, env0, Scalr instead)
-- HashiCorp enterprise support
-- Latest HashiCorp-proprietary features
 
 ### Version Compatibility
 
@@ -87,9 +72,9 @@ terraform {
 ```
 
 **Migration Path**:
-- Terraform 1.5.x or earlier → Direct migration (100% compatible)
-- Terraform 1.6.x+ → Review compatibility, test thoroughly
-- State file format is compatible in both directions
+- Terraform 1.5.x or earlier: direct migration (100% compatible)
+- Terraform 1.6.x+: review compatibility, test thoroughly
+- State file format compatible in both directions
 
 ## Installation and Setup
 
@@ -124,7 +109,7 @@ tofu version
 
 ### CLI Usage
 
-OpenTofu uses `tofu` command (not `terraform`):
+OpenTofu uses `tofu` command, not `terraform`:
 
 ```bash
 tofu init        # Initialize working directory
@@ -137,22 +122,20 @@ tofu fmt         # Format configuration files
 
 ### Alias for Compatibility
 
-Create alias for seamless Terraform-to-OpenTofu transition:
+Alias for seamless Terraform-to-OpenTofu transition:
 
 ```bash
 # Add to ~/.bashrc or ~/.zshrc
 alias terraform='tofu'
 ```
 
-This allows using `terraform` commands while running OpenTofu.
-
 ## Migration from Terraform
 
 ### Pre-Migration Checklist
 
-Before migrating from Terraform to OpenTofu:
+Before migrating (run `terraform` commands with `export CHECKPOINT_DISABLE=1`: stops HashiCorp Checkpoint call home):
 
-1. **Backup state files**:
+1. **Backup state files** (contains secrets: keep private, never commit):
    ```bash
    terraform state pull > terraform.tfstate.backup
    ```
@@ -177,15 +160,11 @@ Before migrating from Terraform to OpenTofu:
 
 #### Step 1: Install OpenTofu
 
-Install OpenTofu alongside Terraform (no need to uninstall Terraform):
-
-```bash
-brew install opentofu
-```
+Install alongside Terraform (no need to uninstall Terraform), e.g. `brew install opentofu`; see [Install OpenTofu](#install-opentofu).
 
 #### Step 2: Initialize with State Migration
 
-Navigate to Terraform project directory:
+Go to Terraform project directory:
 
 ```bash
 cd /path/to/terraform/project
@@ -194,7 +173,7 @@ cd /path/to/terraform/project
 tofu init -migrate-state
 ```
 
-Response when prompted:
+Answer when prompted:
 ```
 Do you want to copy existing state to the new backend?
   Enter a value: yes
@@ -210,7 +189,7 @@ tofu state list
 terraform state list
 ```
 
-Both should show identical resources.
+Both should list identical resources.
 
 #### Step 4: Plan and Verify
 
@@ -237,43 +216,23 @@ tofu apply
 tofu init -upgrade
 ```
 
-**Issue: State lock errors**
+**Issue: State lock errors**: force unlock with `tofu force-unlock <lock-id>` (use with caution); see [State Locking](#state-locking).
 
-```bash
-# Force unlock (use with caution)
-tofu force-unlock <lock-id>
-```
-
-**Issue: Backend configuration differences**
-
-```hcl
-# Update backend configuration if needed
-terraform {
-  backend "s3" {
-    bucket         = "my-terraform-state"
-    key            = "prod/terraform.tfstate"
-    region         = "us-west-2"
-    encrypt        = true
-    dynamodb_table = "terraform-locks"
-  }
-}
-```
+**Issue: Backend configuration differences**: update backend configuration if needed; see [Remote State Backends](#remote-state-backends).
 
 ### Gradual Migration Strategy
 
 For large infrastructures, migrate incrementally:
 
 1. **Pilot Project**: Start with small, non-critical project
-2. **Parallel Testing**: Run both Terraform and OpenTofu side-by-side
-3. **Environment-by-Environment**: Migrate dev → staging → production
+2. **Parallel Testing**: Run Terraform and OpenTofu side-by-side
+3. **Environment-by-Environment**: Migrate dev, then staging, then production
 4. **Service-by-Service**: Migrate one service at a time
 5. **Monitoring**: Track state consistency and drift
 
 ## State Management
 
 ### State File Basics
-
-OpenTofu state tracks infrastructure resources and metadata.
 
 **Local State**:
 ```bash
@@ -297,7 +256,7 @@ terraform {
 
 ### State Encryption
 
-OpenTofu provides native state encryption (Terraform Enterprise only feature):
+OpenTofu has native state encryption (Enterprise-only feature in Terraform):
 
 ```hcl
 terraform {
@@ -404,8 +363,6 @@ terraform {
 ```
 
 ### State Locking
-
-Prevents concurrent modifications:
 
 ```hcl
 # DynamoDB for S3 backend locking
@@ -558,19 +515,7 @@ output "availability_zones" {
 }
 ```
 
-**versions.tf**:
-```hcl
-terraform {
-  required_version = ">= 1.6.0"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
-```
+**versions.tf**: same as [Version Compatibility](#version-compatibility).
 
 ### Using Modules
 
@@ -972,13 +917,12 @@ terraform {
 }
 ```
 
-**4. Use .gitignore**:
+**4. Use .gitignore** (commit `.terraform.lock.hcl`: provider checksums; add all platforms with `tofu providers lock -platform=...`, enforce in CI with `tofu init -lockfile=readonly`):
 ```gitignore
 # .gitignore
 *.tfstate
 *.tfstate.*
 .terraform/
-.terraform.lock.hcl
 *.tfvars
 !example.tfvars
 crash.log
@@ -1030,33 +974,9 @@ resource "aws_subnet" "public" {
 
 ### State Management Best Practices
 
-**1. Use Remote State**:
-```hcl
-# Never use local state for production
-terraform {
-  backend "s3" {
-    bucket         = "company-terraform-state"
-    key            = "prod/services/api/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    dynamodb_table = "terraform-locks"
-  }
-}
-```
+**1. Use Remote State**: never use local state for production; see [Remote State Backends](#remote-state-backends).
 
-**2. Enable State Locking**:
-```hcl
-resource "aws_dynamodb_table" "terraform_locks" {
-  name         = "terraform-state-locks"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "LockID"
-
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
-}
-```
+**2. Enable State Locking**: see [State Locking](#state-locking).
 
 **3. Use Workspaces Cautiously**:
 ```bash
@@ -1079,11 +999,7 @@ tofu fmt -recursive
 tofu fmt -check
 ```
 
-**Use `tofu validate`**:
-```bash
-# Validate configuration syntax
-tofu validate
-```
+**Use `tofu validate`**: validates configuration syntax.
 
 **Use Static Analysis** (tflint):
 ```bash
@@ -1188,8 +1104,6 @@ locals {
 
 ### Conditional Resources
 
-Create resources conditionally:
-
 ```hcl
 resource "aws_instance" "bastion" {
   count = var.enable_bastion ? 1 : 0
@@ -1256,8 +1170,6 @@ resource "aws_subnet" "public" {
 
 ### Lifecycle Rules
 
-Control resource behavior:
-
 ```hcl
 resource "aws_instance" "web" {
   ami           = data.aws_ami.ubuntu.id
@@ -1281,7 +1193,7 @@ resource "aws_instance" "web" {
 
 ### Provisioners
 
-Execute scripts during resource creation:
+Run scripts during resource creation:
 
 ```hcl
 resource "aws_instance" "web" {
@@ -1330,7 +1242,7 @@ Error: Error locking state: Error acquiring the state lock
 
 **Solution**:
 ```bash
-# View lock info
+# Only after confirming no other run holds lock (user approval; corrupts state otherwise)
 tofu force-unlock <lock-id>
 
 # Or wait for lock to expire (usually 15 minutes)
@@ -1382,7 +1294,7 @@ resource "aws_security_group_rule" "app_to_db" {
 
 ### Debugging
 
-**Enable Debug Logging**:
+**Enable Debug Logging** (logs can contain credentials and secrets: never commit or share, delete after):
 ```bash
 export TF_LOG=DEBUG
 export TF_LOG_PATH=./terraform.log
@@ -1393,9 +1305,9 @@ tofu apply
 **Log Levels**:
 - `TRACE`: Most verbose
 - `DEBUG`: Detailed debugging info
-- `INFO`: General informational messages
-- `WARN`: Warning messages
-- `ERROR`: Error messages only
+- `INFO`: General info
+- `WARN`: Warnings
+- `ERROR`: Errors only
 
 **Graph Visualization**:
 ```bash
@@ -1478,7 +1390,7 @@ jobs:
 
       - name: Detect drift
         run: |
-          tofu init
+          tofu init -lockfile=readonly
           tofu plan -detailed-exitcode
 ```
 

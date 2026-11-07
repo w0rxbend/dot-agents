@@ -1,6 +1,6 @@
 # Progress Tracking
 
-`Assets.load` and `Assets.loadBundle` accept a progress callback that fires as each asset completes. Use it to drive loading bars, percentage readouts, or spinner state updates during long loads. The progress value is normalized `[0, 1]` across the entire call.
+`Assets.load` and `Assets.loadBundle` take progress callback, fired as each asset completes. Drives loading bars, percentage readouts, spinner state during long loads. Value normalized `[0, 1]` across whole call.
 
 ## Quick Start
 
@@ -14,8 +14,6 @@ await Assets.load(["hero.png", "enemy.png", "map.json"], (progress) => {
 });
 ```
 
-The callback is invoked after each asset resolves. Final invocation reaches `1.0` just before the promise resolves.
-
 ## Core Patterns
 
 ### Progress on a single asset
@@ -26,7 +24,7 @@ await Assets.load("large-atlas.json", (progress) => {
 });
 ```
 
-Even for a single asset, the callback fires (typically once, reaching `1.0`). For most cases, progress for a single call is not useful; prefer progress on bundles or arrays.
+Fires even for one asset (typically once, reaching `1.0`). Single-call progress is rarely useful; prefer bundles or arrays.
 
 ### Progress on an array
 
@@ -37,7 +35,7 @@ const assets = await Assets.load(
 );
 ```
 
-Progress is distributed evenly across the N assets. When the third asset in a four-asset array finishes, progress is `0.75`.
+Progress splits evenly across N assets. Third of four assets done: progress is `0.75`.
 
 ### Progress on a bundle
 
@@ -47,7 +45,7 @@ await Assets.loadBundle("level1", (progress) => {
 });
 ```
 
-Each asset in the bundle contributes equally. If the bundle has 10 entries, each contributes `0.1` to the total.
+Each bundle asset counts equally: 10 entries contribute `0.1` each.
 
 ### Progress via `LoadOptions.onProgress`
 
@@ -61,7 +59,7 @@ await Assets.load("game.json", {
 });
 ```
 
-Instead of a callback as the second argument, pass a `LoadOptions` object. This is the preferred form when you also need error handling or retry strategies. Note that `onError` receives `string | ResolvedAsset`; guard before accessing `.src`.
+Pass `LoadOptions` object instead of callback as second argument. Preferred when you also need error handling or retry strategies. `onError` receives `string | ResolvedAsset`; guard before accessing `.src`.
 
 ### Global progress across multiple loads
 
@@ -82,7 +80,7 @@ await loadAllWithTotal([
 ]);
 ```
 
-Progress callbacks are scoped per call. If you need a single bar across several sequential loads, wrap the calls manually and count completions yourself.
+Callbacks are scoped per call. For one bar over several sequential loads, wrap calls and count completions yourself.
 
 ## Common Mistakes
 
@@ -105,12 +103,12 @@ await Assets.load("hero.png", (progress) => updateBar(progress));
 showHero();
 ```
 
-`progress === 1` may fire slightly before the returned promise resolves. Always use the `await` or `.then()` to know when loading is truly complete. The progress callback is for UI updates only.
+`progress === 1` may fire slightly before returned promise resolves. Always use `await` or `.then()` to know loading truly finished. Callback is for UI updates only.
 
 
 ### [MEDIUM] Progress not updating smoothly
 
-Each asset contributes a discrete step. If your bundle has three assets, progress jumps `0 -> 0.33 -> 0.66 -> 1.0`. For a smoother bar, split large bundles into smaller ones, or animate the bar width toward the target value:
+Each asset is one discrete step: three assets jump `0 -> 0.33 -> 0.66 -> 1.0`. For smoother bar, split large bundles into smaller ones, or animate bar width toward target value:
 
 ```ts
 let target = 0;
@@ -132,7 +130,7 @@ Wrong:
 Assets.backgroundLoadBundle("game", (p) => updateBar(p));
 ```
 
-Background loading has no progress callback. For visible progress, use `Assets.loadBundle` (foreground). See `references/background.md`.
+Background loading has no progress callback. For visible progress, use foreground `Assets.loadBundle`. See `references/background.md`.
 
 
 ## API Reference

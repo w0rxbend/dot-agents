@@ -6,9 +6,9 @@ tags: micro, inline, variable, simplification
 
 ## Inline Trivial Variables
 
-When a variable is used only once and its expression is just as clear, inline it. Extra variables add cognitive overhead without adding clarity.
+Inline variable used only once when its expression is equally clear.
 
-**Incorrect (unnecessary intermediate variables):**
+**Incorrect (needless intermediate variables):**
 
 ```typescript
 function isValidOrder(order: Order): boolean {
@@ -35,7 +35,7 @@ function getDiscount(customer: Customer): number {
 }
 ```
 
-**Correct (inlined trivial expressions):**
+**Correct (trivial expressions inlined):**
 
 ```typescript
 function isValidOrder(order: Order): boolean {
@@ -54,12 +54,12 @@ function getDiscount(customer: Customer): number {
 ```
 
 **When NOT to inline:**
-- Variable name adds significant clarity to a complex expression
-- Variable is used multiple times
-- Expression has side effects (should only execute once)
-- Debugging benefits from inspecting intermediate values
+- Name adds significant clarity to complex expression
+- Variable used multiple times
+- Expression has side effects (should run only once)
+- Inspecting intermediate values helps debugging
 
-**Keep the variable when it documents intent:**
+**Keep variable when name documents intent:**
 
 ```typescript
 // Keep - the name adds meaning

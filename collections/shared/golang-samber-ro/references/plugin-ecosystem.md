@@ -1,6 +1,6 @@
 # Plugin Ecosystem
 
-samber/ro ships 40+ plugins that extend the core library with domain-specific operators. Plugins are separate Go modules — install only what you need.
+samber/ro ships 40+ plugins extending core library with domain-specific operators. Plugins are separate Go modules — install only what you need.
 
 ```bash
 go get github.com/samber/ro/plugins/<category>/<name>
@@ -157,11 +157,9 @@ ro.Pipe1(workStream, ro.TakeUntil[Work, os.Signal](shutdown))
 
 ## Plugin Design Convention
 
-All plugins follow the same pattern:
+All plugins follow same pattern:
 
-1. Import the plugin package
-2. Use plugin-provided operators in `Pipe` chains
-3. Plugin operators return `func(Observable[T]) Observable[R]` — standard operator signature
-4. No global state — each operator instance is independent
+1. Plugin operators return `func(Observable[T]) Observable[R]` — standard operator signature, used in `Pipe` chains
+2. No global state — each operator instance is independent
 
-Plugins are documented individually in their package directories. API details for each plugin are available at `pkg.go.dev/github.com/samber/ro/plugins/...`.
+Each plugin documented in its own package directory. Per-plugin API details at `pkg.go.dev/github.com/samber/ro/plugins/...`.

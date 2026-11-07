@@ -14,35 +14,34 @@
 ### Features
 - Responsive columns
 - Lazy loading
-- Click to lightbox
+- Click to open lightbox
 - Keyboard navigation
 
 ## Masonry Layout
 
 ### Pinterest-Style
-- Variable height items
-- Optimal packing
+- Variable-height items
+- Tight packing
 - Libraries: Masonry.js, react-masonry-css
 
 ### Implementation Considerations
 - More complex than grid
 - Better for varied aspect ratios
-- Performance impact with many images
+- Performance cost with many images
 
 ## Lightbox
 
 ### Core Features
 - Overlay background
-- Full-size image display
+- Full-size image
 - Previous/next navigation
 - Zoom and pan
 - Close on ESC or click outside
 
 ### Accessibility
-- Focus trap within lightbox
+- Focus trapped in lightbox
 - Arrow key navigation
-- ESC to close
-- Keyboard accessible controls
+- Keyboard-accessible controls
 
 ## Lazy Loading
 
@@ -84,12 +83,11 @@ const observer = new IntersectionObserver((entries) => {
 ## Performance Optimization
 
 - Load thumbnails first
-- Lazy load off-screen images
-- Use WebP with JPG fallback
+- WebP with JPG fallback
 - Preload next/previous in lightbox
 - Limit initial gallery size
 
 ## See Also
-- `carousel-patterns.md` - Carousel implementations
-- `image-optimization.md` - Image optimization strategies
+- `carousel-patterns.md` - Carousels
+- `image-optimization.md` - Image optimization
 - `accessibility-images.md` - Image accessibility

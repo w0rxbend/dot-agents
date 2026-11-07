@@ -6,25 +6,25 @@
 3. In gateway: `/restart`. In CLI: exit and relaunch.
 
 ### Tool not available
-1. `hermes tools` — check if toolset is enabled for your platform
-2. Some tools need env vars (check `.env`)
+1. `hermes tools` — toolset enabled for your platform?
+2. Some tools need env vars (check `.env` key names, never values; see below)
 3. `/reset` after enabling tools
 
 ### Model/provider issues
 1. `hermes doctor` — check config and dependencies
 2. `hermes auth` — re-authenticate OAuth providers (or `hermes auth add <provider>`)
-3. Check `.env` has the right API key
-4. **Copilot 403**: `gh auth login` tokens do NOT work for Copilot API. You must use the Copilot-specific OAuth device code flow via `hermes model` → GitHub Copilot.
+3. Check `.env` defines expected key name, names only: `grep -o '^[A-Za-z_][A-Za-z0-9_]*=' "${HERMES_HOME:-$HOME/.hermes}/.env"`. Never print, echo or ask user to paste values; validate with `hermes doctor`.
+4. **Copilot 403**: `gh auth login` tokens do NOT work for Copilot API. Use Copilot-specific OAuth device code flow: `hermes model` → GitHub Copilot.
 
 ### Changes not taking effect
-- **Tools/skills:** `/reset` starts a new session with updated toolset
+- **Tools/skills:** `/reset` starts new session with updated toolset
 - **Config changes:** In gateway: `/restart`. In CLI: exit and relaunch.
-- **Code changes:** Restart the CLI or gateway process
+- **Code changes:** Restart CLI or gateway process
 
 ### web_extract shows a stale page (result caching)
-`web_search`/`web_extract` cache results for 20 minutes (PR #94618) — a
-repeat fetch of the same URL within the TTL is served from cache, which
-can look like "my website changes aren't showing up."
+`web_search`/`web_extract` cache results for 20 minutes (PR #94618). Repeat
+fetch of same URL within TTL hits cache; looks like "my website changes
+aren't showing up."
 
 Automatic carveouts (always fetched live, never cached):
 - localhost / 127.0.0.1 / `*.local` / `*.localhost` / single-label LAN
@@ -33,9 +33,9 @@ Automatic carveouts (always fetched live, never cached):
 - URLs matched by `security.website_blocklist`
 - failed responses and keyless-rescue-served responses
 
-Developing a site tested over the PUBLIC internet (Vercel/Netlify
-preview, ngrok/cloudflared tunnel, staging domain)? Public DNS isn't
-auto-carved-out — list the host in config.yaml:
+Site tested over PUBLIC internet (Vercel/Netlify preview, ngrok/cloudflared
+tunnel, staging domain)? Public DNS not auto-carved-out; list host in
+config.yaml:
 
 ```yaml
 web:
@@ -51,7 +51,7 @@ Blunt instruments: `web.cache_ttl_minutes: 1` (min) or
 ### Skills not showing
 1. `hermes skills list` — verify installed
 2. `hermes skills config` — check platform enablement
-3. Load explicitly: `hermes -s name` (or the skill's own `/<name>` slash command)
+3. Load explicitly: `hermes -s name` (or skill's own `/<name>` slash command)
 
 ### Gateway issues
 Check logs first:
@@ -61,21 +61,21 @@ grep -i "failed to send\|error" ~/.hermes/logs/gateway.log | tail -20
 
 Common gateway problems:
 - **Gateway dies on SSH logout**: Enable linger: `sudo loginctl enable-linger $USER`
-- **Gateway dies on WSL2 close**: WSL2 requires `systemd=true` in `/etc/wsl.conf` for systemd services to work. Without it, gateway falls back to `nohup` (dies when session closes).
-- **Gateway crash loop**: Reset the failed state: `systemctl --user reset-failed hermes-gateway`
+- **Gateway dies on WSL2 close**: WSL2 systemd services need `systemd=true` in `/etc/wsl.conf`. Without it, gateway falls back to `nohup` (dies when session closes).
+- **Gateway crash loop**: Reset failed state: `systemctl --user reset-failed hermes-gateway`
 
 ### Platform-specific issues
 - **Discord bot silent**: Must enable **Message Content Intent** in Bot → Privileged Gateway Intents.
-- **Slack bot only works in DMs**: Must subscribe to `message.channels` event. Without it, the bot ignores public channels.
+- **Slack bot only works in DMs**: Must subscribe to `message.channels` event; without it bot ignores public channels.
 - **Windows-specific issues** (`Alt+Enter` newline, WinError 10106, UTF-8 BOM config, line endings): see `references/windows-quirks.md`.
 
 ### Auxiliary models not working
-If `auxiliary` tasks (vision, compression, session_search) fail silently, the `auto` provider can't find a backend. Either set `OPENROUTER_API_KEY` or `GOOGLE_API_KEY`, or explicitly configure each auxiliary task's provider:
+`auxiliary` tasks (vision, compression, session_search) failing silently: `auto` provider found no backend. Set `OPENROUTER_API_KEY` or `GOOGLE_API_KEY`, or configure each auxiliary task's provider explicitly:
 ```bash
 hermes config set auxiliary.vision.provider <your_provider>
 hermes config set auxiliary.vision.model <model_name>
 ```
 
 ### "Reset permissions" / auto-approving everything
-See `references/security-privacy.md` — wipe the "Always allow" stores, don't touch yolo mode.
+See `references/security-privacy.md` — wipe "Always allow" stores, don't touch yolo mode.
 

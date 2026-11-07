@@ -11,7 +11,7 @@
 
 ## Supported file formats
 
-Viper detects format from file extension. Supported extensions:
+Viper detects format from file extension. Supported:
 
 | Format     | Extensions      |
 | ---------- | --------------- |
@@ -23,7 +23,7 @@ Viper detects format from file extension. Supported extensions:
 | Properties | `.properties`   |
 | dotenv     | `.env`          |
 
-Force a format when there is no extension:
+Force format for file without extension:
 
 ```go
 viper.SetConfigType("yaml")
@@ -54,7 +54,7 @@ fmt.Println("Using config:", viper.ConfigFileUsed())
 
 ## Merging multiple config files
 
-`MergeInConfig` merges a second config file into the current state. Later values override earlier ones for the same key.
+`MergeInConfig` merges another config file into current state. Later values win for same key.
 
 ```go
 viper.SetConfigFile("base.yaml")
@@ -64,11 +64,11 @@ viper.SetConfigFile("override.yaml")
 viper.MergeInConfig()  // keys from override.yaml win on collision
 ```
 
-Pattern: ship a base config with the binary, let users drop an override in `~/.myapp/override.yaml`.
+Pattern: ship base config with binary; users drop override in `~/.myapp/override.yaml`.
 
 ## Multiple config files via SetConfigFile
 
-For environment-based config loading:
+Environment-based loading:
 
 ```go
 env := os.Getenv("APP_ENV")
@@ -81,7 +81,7 @@ viper.ReadInConfig()
 
 ## Remote KV stores (etcd, Consul)
 
-Viper supports remote KV stores via the `viper/remote` sub-package. This keeps remote config behind an opt-in import:
+Remote KV support lives in `viper/remote` sub-package, behind opt-in import:
 
 ```go
 import _ "github.com/spf13/viper/remote"
@@ -97,9 +97,9 @@ viper.SetConfigType("json")
 viper.ReadRemoteConfig()
 ```
 
-**Caution:** Remote config adds network latency to startup and a runtime dependency. Use it only when you need centralized config across many service instances. For most applications, files + env vars are sufficient.
+**Caution:** Remote config adds startup network latency and runtime dependency. Use only for centralized config across many service instances. Files + env vars suffice for most applications.
 
-Watch for remote changes:
+Watch remote changes:
 
 ```go
 go func() {
@@ -113,7 +113,7 @@ go func() {
 
 ## Embedding config with go:embed
 
-Load config from embedded assets (for self-contained binaries):
+Load config from embedded assets (self-contained binaries):
 
 ```go
 //go:embed config.yaml
@@ -125,4 +125,4 @@ func init() {
 }
 ```
 
-`ReadConfig` accepts any `io.Reader`. This is useful for shipping default config inside the binary, then layering user overrides on top via `MergeInConfig`.
+`ReadConfig` accepts any `io.Reader`. Ship default config inside binary, then layer user overrides on top via `MergeInConfig`.

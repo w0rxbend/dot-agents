@@ -1,6 +1,6 @@
 # Key Value Connection Examples
 
-All examples use the internal URL via the `REDIS_URL` environment variable. Wire `REDIS_URL` in your Blueprint with `fromService`:
+All examples use internal URL via `REDIS_URL` environment variable. Wire `REDIS_URL` in Blueprint with `fromService`:
 
 ```yaml
 envVars:
@@ -111,11 +111,12 @@ func main() {
 
 ## External connections (local development)
 
-External connections require TLS (`rediss://` scheme) and authentication. Enable external access in the Dashboard first (add your IP to the allow list).
+External connections require TLS (`rediss://` scheme) and authentication. Enable external access in Dashboard first (add your IP to allow list).
 
 ```bash
-# Connect via redis-cli
-redis-cli --tls -u rediss://red-xxx:6379 -a YOUR_PASSWORD
+# Connect via redis-cli; password via env, not argv (-a leaks to history/ps)
+read -rs REDISCLI_AUTH && export REDISCLI_AUTH   # or --askpass
+redis-cli --tls -u rediss://red-xxx:6379
 ```
 
-For local development, consider using a local Redis/Valkey instance and only connecting to the Render instance in staging/production.
+For local development, consider local Redis/Valkey instance; connect to Render instance only in staging/production.

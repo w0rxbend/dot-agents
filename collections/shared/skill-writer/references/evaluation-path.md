@@ -1,15 +1,15 @@
 # Evaluation Path
 
-Use evaluation to decide whether the skill actually changes agent behavior.
+Evaluate to decide whether skill changes agent behavior.
 
 ## Lightweight qualitative check
 
-Run this by default:
+Run by default:
 
-1. Read the skill as an agent would.
+1. Read skill as an agent would.
 2. Simulate one realistic task.
-3. Confirm the output contract is clear.
-4. Check that validation is possible.
+3. Confirm output contract is clear.
+4. Check validation is possible.
 5. List residual gaps.
 
 ## Depth rubric
@@ -25,4 +25,4 @@ Score each dimension as pass, partial, or fail:
 
 ## Baseline comparison
 
-Only run a deeper baseline-vs-with-skill comparison when requested or when risk is high. Use the same task, same inputs, and a holdout case that was not used while editing.
+Run deeper baseline-vs-with-skill comparison only when requested or risk is high. Use same task, same inputs, and a holdout case not used while editing.

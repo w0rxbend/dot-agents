@@ -2,12 +2,12 @@
 
 ## Definition
 
-Identify points of predicted variation or instability and assign responsibilities to create a stable interface around them.
+Identify predicted variation or instability points. Assign responsibilities that wrap them in a stable interface.
 
 ## When to Apply
 
 - External systems may change
-- Business rules are volatile
+- Volatile business rules
 - Multiple implementations needed
 - Technology choices may evolve
 

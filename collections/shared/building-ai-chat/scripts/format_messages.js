@@ -161,8 +161,11 @@ class MessageFormatter {
         </div>
 `;
 
+    // Only http(s)/mailto links and http(s)/data:image sources; drops javascript: URLs
+    const safeUrl = (url, allowed) => (allowed.test(String(url).trim()) ? String(url).trim() : null);
+
     this.messages.forEach(msg => {
-      const role = msg.role;
+      const role = escapeHtml(msg.role);
       const time = msg.timestamp ? new Date(msg.timestamp).toLocaleString() : '';
 
       html += `        <div class="message ${role}">
@@ -190,8 +193,10 @@ class MessageFormatter {
         content = content.replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
         // Links
-        content = content.replace(/\[([^\]]+)\]\(([^)]+)\)/g,
-          '<a href="$2" target="_blank">$1</a>');
+        content = content.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+          const href = safeUrl(url, /^(https?:|mailto:)/i);
+          return href ? `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>` : text;
+        });
 
         html += content;
       } else if (Array.isArray(msg.content)) {
@@ -199,7 +204,8 @@ class MessageFormatter {
           if (item.type === 'text') {
             html += escapeHtml(item.text);
           } else if (item.type === 'image') {
-            html += `<img src="${item.image}" style="max-width: 100%; border-radius: 5px;" />`;
+            const src = safeUrl(item.image, /^(https?:|data:image\/)/i);
+            if (src) html += `<img src="${escapeHtml(src)}" style="max-width: 100%; border-radius: 5px;" />`;
           } else if (item.type === 'code') {
             html += `<pre><code>${escapeHtml(item.code)}</code></pre>`;
           }

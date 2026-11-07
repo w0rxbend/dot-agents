@@ -6,12 +6,12 @@ license: MIT
 
 # Mixed JVM module graphs
 
-Start with the real module dependency graph and public binary interfaces. Prefer Mill for new builds in this user's environment; respect an existing build and explicit language/tool choices. Do not promise a universal three-language joint compiler inside one source module.
+Start from real module dependency graph and public binary interfaces. New builds in this user's environment: prefer Mill. Respect existing builds and explicit language/tool choices. Do not promise universal three-language joint compiler in one source module.
 
-Read [mixed-jvm.md](references/mixed-jvm.md) for the tested Java → Kotlin → Scala → Java graph, interop boundaries, target alignment, and refactoring choices. Read [configuration.md](references/configuration.md) for source layouts, test inheritance, annotation processing, KSP/Kapt, and mixed declarative/programmable definitions. `assets/mixed-jvm` is a runnable Mill 1.1.10 example.
+[mixed-jvm.md](references/mixed-jvm.md): tested Java → Kotlin → Scala → Java graph, interop boundaries, target alignment, refactoring choices. [configuration.md](references/configuration.md): source layouts, test inheritance, annotation processing, KSP/Kapt, mixed declarative/programmable definitions. `assets/mixed-jvm`: runnable Mill 1.1.10 example.
 
-Use `JavaModule`, `ScalaModule`, and `KotlinModule` for appropriate compilation units. Add typed `moduleDeps`; do not splice another module's `out/` directory into a classpath. Import `DepSyntax` explicitly when using narrow module imports, and qualify `TestModule` in mixed-language build files.
+Compilation units: `JavaModule`, `ScalaModule`, `KotlinModule`. Link with typed `moduleDeps`; do not splice another module's `out/` directory into classpath. Narrow module imports need explicit `DepSyntax` import. Qualify `TestModule` in mixed-language build files.
 
-Align the chosen JDK with Java `--release`, Scala release settings, and Kotlin JVM target. Mill's build JVM, application compiler/toolchain JVM, and produced bytecode target are separate decisions. Verify the runtime minimum and framework requirements, especially VSS Java 25 versus a Java 21 library boundary.
+Align JDK with Java `--release`, Scala release settings, Kotlin JVM target. Mill build JVM, application compiler/toolchain JVM, bytecode target: separate decisions. Check runtime minimum and framework requirements, especially VSS Java 25 versus Java 21 library boundary.
 
-After editing the graph, compile the downstream application, run tests that cross the interop boundary, inspect its classpath, and run its packaged artifact. For large graphs, also prove unrelated modules remain independent and use selective execution against a prepared baseline. Separate an interface module from implementations to remove cycles; test helpers should not force production code to depend on test modules.
+After graph edits: compile downstream application, run cross-boundary tests, inspect application classpath, run packaged artifact. Large graphs: also prove unrelated modules stay independent; use selective execution against prepared baseline. Split interface module from implementations to break cycles. Test helpers should not make production code depend on test modules.

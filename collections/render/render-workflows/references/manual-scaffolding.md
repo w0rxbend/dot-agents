@@ -1,6 +1,6 @@
 # Manual Scaffolding (Fallback)
 
-Use this path only if `render workflows init` is not available. Follow these steps in order.
+Use only if `render workflows init` is not available. Follow steps in order.
 
 ## Contents
 
@@ -9,13 +9,13 @@ Use this path only if `render workflows init` is not available. Follow these ste
 - Step 3: Install dependencies
 - Step 4: Verify setup
 
-> **IMPORTANT:** Do NOT modify the project's root `package.json` or `requirements.txt`. Do NOT run `npm install <package>` or `pip install <package>` at the project root. The `workflows/` directory is a self-contained service with its own dependency files.
+> **IMPORTANT:** Do NOT modify project's root `package.json` or `requirements.txt`. Do NOT run `npm install <package>` or `pip install <package>` at project root. `workflows/` is self-contained service with own dependency files.
 
-> **The official starter templates have likely changed since this skill was written.**
-> Always check the real template before scaffolding:
+> **Official starter templates likely changed since this skill was written.**
+> Always check real template before scaffolding:
 > - **Python:** [render-examples/workflows-template-python](https://github.com/render-examples/workflows-template-python)
 >
-> If the user already has the SDK installed, inspect it for up-to-date signatures:
+> If SDK already installed, inspect it for current signatures:
 > ```bash
 > # Python: check SDK source
 > SDK_ROOT=$(pip show render_sdk | grep Location | cut -d' ' -f2)/render_sdk
@@ -27,34 +27,34 @@ Use this path only if `render workflows init` is not available. Follow these ste
 >
 > **Official examples:** [Python](https://github.com/render-oss/sdk/tree/main/python/example) | [TypeScript](https://github.com/render-oss/sdk/tree/main/typescript/examples)
 >
-> The inline snippets in this skill are a fallback. The official repos are the source of truth.
+> Inline snippets here are fallback. Official repos are source of truth.
 
 ## Step 1: Detect Language
 
-**Principle:** If the user named the language in their prompt, use it directly. Auto-detect from config files next. Only ask if genuinely ambiguous.
+**Principle:** If user named language in prompt, use it. Else auto-detect from config files. Ask only if genuinely ambiguous.
 
-Check the project for language indicators:
+Check project for language indicators:
 
 | Indicator | Language |
 |-----------|----------|
 | `requirements.txt`, `pyproject.toml`, `Pipfile`, `*.py` | Python |
 | `package.json`, `tsconfig.json`, `*.ts` | TypeScript |
 
-If both are present or neither is found, ask the user which language to use.
+If both present or neither found, ask user which language.
 
 ## Step 2: Create the `workflows/` Directory
 
-Use the official Render starter templates as the source of truth for file structure and contents:
+Official Render starter templates are source of truth for file structure and contents:
 
 - **Python:** [render-examples/workflows-template-python](https://github.com/render-examples/workflows-template-python)
 - **TypeScript:** [render-examples/workflows-template-ts](https://github.com/render-examples/workflows-template-ts)
 
-Fetch the template contents (clone, download, or read from the repo) and place them in a `workflows/` directory at the project root. At minimum, the directory should contain:
+Fetch template contents (clone, download, or read from repo) into `workflows/` at project root. Fetch only from these official repos (no tags: record commit SHA used). Show user fetched `requirements.txt` / `package.json` (deps, install scripts); get OK before Step 3. Minimum contents:
 
 **Python:** `main.py`, `requirements.txt`
 **TypeScript:** `index.ts` (or `main.ts`), `package.json`, `tsconfig.json`
 
-Key patterns to follow from the templates:
+Key template patterns:
 
 **Python entry point** (`main.py`):
 ```python
@@ -87,11 +87,11 @@ task(
 );
 ```
 
-Each template includes a zero-argument `ping` task so the user can immediately verify the setup works.
+Each template has zero-argument `ping` task for instant setup check.
 
 ## Step 3: Install Dependencies
 
-After all files from Step 2 are created, install dependencies.
+Install dependencies after all Step 2 files exist.
 
 **Python:**
 ```bash
@@ -105,25 +105,23 @@ npm install --prefix workflows
 
 ## Step 4: Verify Setup
 
-Check that setup succeeded before handing off:
+Confirm setup succeeded before handing off:
 
-- [ ] `workflows/` directory exists with the expected files
+- [ ] `workflows/` exists with expected files
 - [ ] Dependencies installed without errors
 
-Then present the user with these verification commands to run in their own terminal:
+Then give user these commands to run in their own terminal:
 
-**Verification checklist:**
-
-- [ ] Start the local task server:
+- [ ] Start local task server:
   - Python: `render workflows dev -- python workflows/main.py`
   - TypeScript: `render workflows dev -- npx tsx workflows/main.ts`
-- [ ] In a second terminal: `render workflows tasks list --local`
+- [ ] In second terminal: `render workflows tasks list --local`
 - [ ] Select `ping`, choose `run`, enter `[]` as input
-- [ ] Verify the result is `"pong"`
+- [ ] Verify result is `"pong"`
 
-Do NOT start the dev server or run test commands yourself. Present the checklist for the user to run.
+Do NOT start dev server or run test commands yourself.
 
 **If verification fails:**
 - **Task server won't start:** check CLI version (`render --version`, needs 2.11.0+) and start command. See [Troubleshooting > Task Server Issues](troubleshooting.md#task-server-issues).
-- **`ping` task not listed:** ensure the entry point imports the task file. See [Task Registration Issues](troubleshooting.md#task-registration-issues).
-- **Dependency install errors:** confirm you ran install inside `workflows/`, not the project root.
+- **`ping` task not listed:** entry point must import task file. See [Task Registration Issues](troubleshooting.md#task-registration-issues).
+- **Dependency install errors:** confirm install ran inside `workflows/`, not project root.

@@ -6,58 +6,56 @@ description: Run Behavior-Driven Development end to end, from discovery (Three A
 
 # Behavior-Driven Development
 
-BDD is a collaboration practice first and a test format second. Concrete examples, agreed by business, development and testing, become executable scenarios that double as living documentation.
-
 ```
 Discovery (conversation) -> Formulation (Gherkin) -> Automation (step definitions) -> Delivery
 ```
 
 ## When to Use
 
-- A feature has business rules that stakeholders need to read and approve.
-- The repository already uses Cucumber, SpecFlow/Reqnroll, behave, pytest-bdd, Godog or a similar runner.
-- Requirements are vague and need concrete examples before anyone builds anything.
+- Business rules stakeholders must read and approve.
+- Project already uses Cucumber, SpecFlow/Reqnroll, behave, pytest-bdd, Godog or similar runner.
+- Vague requirements need concrete examples before anyone builds.
 
-**Do not use** for pure technical internals (parsers, caches, algorithms). Write unit tests for those with `test-driven-development`. Do not add a Gherkin toolchain to a project that does not have one unless the user asks for it.
+**Do not use** for pure technical internals (parsers, caches, algorithms). Unit-test those with `test-driven-development`. Do not add Gherkin toolchain to project without one unless user asks.
 
 ## Phase 1: Discovery
 
 ### Three Amigos
 
-Before writing scenarios, get three perspectives on the story:
+Before writing scenarios, get three perspectives:
 
 | Perspective | Questions |
 |---|---|
-| Business (PO/BA) | What problem does this solve? What are the rules? What value does it deliver? |
-| Development | What are the constraints? Which edge cases come from the implementation? |
-| Testing | What could go wrong? What is missing? How will we know it works? |
+| Business (PO/BA) | Which problem does it solve? Which rules? What value? |
+| Development | Which constraints? Which edge cases come from implementation? |
+| Testing | What could go wrong? What is missing? How do we know it works? |
 
-Example outcome for "password reset": tokens expire after 1 hour; a new request invalidates older tokens; unknown emails get the same success message (no account enumeration); requests are rate-limited. Each of these answers becomes a scenario.
+Example, "password reset": tokens expire after 1 hour; new request invalidates older tokens; unknown emails get same success message (no account enumeration); requests rate-limited. Each answer becomes a scenario.
 
-When working with an agent alone, play the three roles explicitly and send the open questions to the user instead of inventing the business answers.
+Agent working alone: play all three roles explicitly. Send open questions to user; do not invent business answers.
 
 ### Example Mapping
 
-A short session that produces four kinds of cards for one story:
+Short session producing four card types for one story:
 
 | Card | Meaning |
 |---|---|
-| Story (yellow) | The feature being explored |
-| Rule (blue) | An acceptance criterion |
-| Example (green) | A concrete case that illustrates a rule |
-| Question (red) | An unresolved uncertainty |
+| Story (yellow) | Feature being explored |
+| Rule (blue) | Acceptance criterion |
+| Example (green) | Concrete case illustrating a rule |
+| Question (red) | Unresolved uncertainty |
 
-Signals: many red cards mean the story is not ready. Many blue cards mean the story is too big and should be split. A rule with no examples is not understood yet.
+Signals: many red cards: story not ready. Many blue cards: story too big, split it. Rule without examples: not yet understood.
 
 ### Ubiquitous language
 
-Use the domain's words in scenarios ("Member places an order", not "user submits form; row inserted"). Keep a short glossary when terms could be confused (Member vs Guest, Cart vs Order) and reuse the same terms in code.
+Use domain words in scenarios ("Member places an order", not "user submits form; row inserted"). Keep short glossary for confusable terms (Member vs Guest, Cart vs Order). Reuse same terms in code.
 
 ## Phase 2: Formulation (Gherkin)
 
 ### Scenario quality
 
-A good scenario is **specific** (one behavior), **declarative** (what, not how), in **domain language**, and **independent** (no reliance on other scenarios' state). Aim for 3-7 steps.
+Good scenario: **specific** (one behavior), **declarative** (what, not how), **domain language**, **independent** (no reliance on other scenarios' state). Aim for 3-7 steps.
 
 ```gherkin
 # Good: declarative, one behavior
@@ -110,16 +108,16 @@ Feature: Shopping cart
       | abcdefgh1  | Password accepted       |
 ```
 
-- Use `Background` only for setup shared by every scenario in the file, and keep it short.
-- Group criteria with `Rule:` (Gherkin 6+). Check the runner version before using it.
-- Use `Scenario Outline` for the same behavior with different data. Do not use it to hide different behaviors in one table.
+- `Background` only for setup shared by every scenario in file. Keep short.
+- Group criteria with `Rule:` (Gherkin 6+). Check runner version first.
+- `Scenario Outline`: same behavior, different data. Do not hide different behaviors in one table.
 
 ### Edge cases checklist
 
-Start with the happy path, then add scenarios for each of these that applies:
+Start with happy path, then add scenarios for each that applies:
 
 - Duplicate or conflicting data (existing email, double submit)
-- Invalid format and empty required input
+- Invalid format, empty required input
 - Boundaries (limits, exactly-at-threshold, expiry times)
 - Permissions and ownership (another user's resource)
 - Repeated or concurrent actions (second reset request, retry)
@@ -136,11 +134,11 @@ Feature: Login
   Scenario: Two-factor authentication
 ```
 
-Use tags for selection in CI (smoke vs full suite), ownership, and quarantining work in progress. With Cucumber-style tag expressions: `--tags "@smoke and not @wip"`. Check the runner's own syntax.
+Tags serve CI selection (smoke vs full suite), ownership, quarantining work in progress. Cucumber-style expression: `--tags "@smoke and not @wip"`. Check runner's own syntax.
 
 ## Phase 3: Automation (step definitions)
 
-Bind steps in the framework the repository already uses. Cucumber (Ruby) example:
+Bind steps in repository's existing framework. Cucumber (Ruby) example:
 
 ```ruby
 Given('a registered user with email {string}') do |email|
@@ -161,34 +159,30 @@ end
 
 Rules for steps:
 
-- Keep step text business-level and put UI or API mechanics inside the step code (or in page objects or helpers).
-- Reuse step definitions through parameters. Do not copy near-identical steps.
-- Prefer driving the system through its API or service layer. Use the UI only for scenarios that are about the UI.
-- Each scenario creates and cleans up its own state.
+- Step text stays business-level. UI or API mechanics go in step code, page objects or helpers.
+- Reuse step definitions via parameters. Do not copy near-identical steps.
+- Prefer driving system through API or service layer. Use UI only for UI scenarios.
+- Each scenario creates and cleans up own state.
 
 ## Outside-In Development
 
-1. Write a failing scenario (acceptance level).
-2. Drop to the outermost layer, write a failing unit test, and make it pass (`test-driven-development`).
+1. Write failing acceptance scenario.
+2. Drop to outermost layer: write failing unit test, make it pass (`test-driven-development`).
 3. Move inward layer by layer, refactoring as you go.
-4. Stop when the scenario passes.
+4. Stop when scenario passes.
 
-BDD answers "what should we build?" from the outside in. TDD answers "how do we build it?" from the inside out. They complement each other. Not every scenario needs automation: automate high-value behaviors and cover the details with unit tests.
+Not every scenario needs automation: automate high-value behaviors, cover details with unit tests.
 
 ## Common Pitfalls
 
 | Pitfall | Fix |
 |---|---|
-| Scenarios written after the code, by one person | Run discovery first, and review scenarios with stakeholders |
-| UI-scripted steps ("click", "select") | Describe intent, and move mechanics into step code |
-| Several behaviors in one scenario | Split per behavior/rule |
-| Huge outlines mixing behaviors | One outline per behavior |
-| Scenarios depending on each other | Independent setup per scenario |
-| Feature files left stale | Treat them as code: update them with the behavior change |
-| "BDD = Cucumber" | Conversation and examples are the point; the tool is optional |
+| Scenarios written after code, by one person | Discovery first; review scenarios with stakeholders |
+| Feature files left stale | Treat as code; update with behavior change |
+| "BDD = Cucumber" | Conversation and examples matter; tool optional |
 
 ## Done When
 
-- Every rule has at least one example, and open questions are resolved or listed for the user.
-- Scenarios are declarative, independent, and cover the happy path plus the relevant edge cases.
-- Step definitions reuse existing steps and run in the repository's runner, and the new scenarios fail before the change and pass after it.
+- Every rule has at least one example. Open questions resolved or listed for user.
+- Scenarios declarative, independent, covering happy path plus relevant edge cases.
+- Step definitions reuse existing steps and run in repository's runner. New scenarios fail before change, pass after.

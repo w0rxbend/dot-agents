@@ -4,32 +4,28 @@
 
 ## Scene Design Philosophy
 
-Scenes are storytelling units, not effect demos. Every scene needs:
-- A **concept** — what is happening visually? Not "plasma + rings" but "emergence from void" or "crystallization"
-- An **arc** — how does it change over its duration? Build, decay, transform, reveal?
-- A **role** — how does it serve the larger video narrative? Opening tension, peak energy, resolution?
+Scenes are storytelling units, not effect demos. Each scene needs:
+- A **concept**: what happens visually? Not "plasma + rings" but "emergence from void" or "crystallization"
+- An **arc**: how it changes over its duration. Build, decay, transform, reveal?
+- A **role**: how it serves larger video narrative. Opening tension, peak energy, resolution?
 
-The design patterns below provide compositional techniques. The scene examples show them in practice at increasing complexity. The protocol section covers the technical contract.
-
-Good scene design starts with the concept, then selects effects and parameters that serve it. The design patterns section shows *how* to compose layers intentionally. The examples section shows complete working scenes at every complexity level. The protocol section covers the technical contract that all scenes must follow.
+Good scene design starts with concept, then picks effects and parameters that serve it.
 
 ---
 
 ## Scene Design Patterns
 
-Higher-order patterns for composing scenes that feel intentional rather than random. These patterns use the existing building blocks (value fields, blend modes, shaders, feedback) but organize them with compositional intent.
+Higher-order patterns for scenes that feel intentional, not random. They use existing building blocks (value fields, blend modes, shaders, feedback), organized with compositional intent.
 
 ## Layer Hierarchy
 
-Every scene should have clear visual layers with distinct roles:
+Give every scene clear visual layers with distinct roles:
 
 | Layer | Grid | Brightness | Purpose |
 |-------|------|-----------|---------|
 | **Background** | xs or sm (dense) | 0.1–0.25 | Atmosphere, texture. Never competes with content. |
-| **Content** | md (balanced) | 0.4–0.8 | The main visual idea. Carries the scene's concept. |
+| **Content** | md (balanced) | 0.4–0.8 | Main visual idea. Carries scene's concept. |
 | **Accent** | lg or sm (sparse) | 0.5–1.0 (sparse coverage) | Highlights, punctuation, sparse bright points. |
-
-The background sets mood. The content layer is what the scene *is about*. The accent adds visual interest without overwhelming.
 
 ```python
 def fx_example(r, f, t, S):
@@ -57,13 +53,13 @@ def fx_example(r, f, t, S):
 
 ## Directional Parameter Arcs
 
-Parameters should *go somewhere* over the scene's duration — not oscillate aimlessly with `sin(t * N)`.
+Make parameters *go somewhere* over scene duration, not oscillate aimlessly with `sin(t * N)`.
 
-**Bad:** `twist = 3.0 + 2.0 * math.sin(t * 0.6)` — wobbles back and forth, feels aimless.
+**Bad:** `twist = 3.0 + 2.0 * math.sin(t * 0.6)`: wobbles back and forth, feels aimless.
 
-**Good:** `twist = 2.0 + progress * 5.0` — starts gentle, ends intense. The scene *builds*.
+**Good:** `twist = 2.0 + progress * 5.0`: starts gentle, ends intense. Scene *builds*.
 
-Use `progress = min(local / duration, 1.0)` (0→1 over the scene) to drive directional change:
+Drive directional change with `progress = min(local / duration, 1.0)` (0→1 over the scene):
 
 | Pattern | Formula | Feel |
 |---------|---------|------|
@@ -73,7 +69,7 @@ Use `progress = min(local / duration, 1.0)` (0→1 over the scene) to drive dire
 | Step reveal | `np.clip((progress - 0.5) / 0.25, 0, 1)` | Nothing until 50%, then fades in |
 | Build + plateau | `min(1.0, progress * 1.5)` | Reaches full at 67%, holds |
 
-Oscillation is fine for *secondary* parameters (saturation shimmer, hue drift). But the *defining* parameter of the scene should have a direction.
+Oscillation fine for *secondary* parameters (saturation shimmer, hue drift). Scene's *defining* parameter needs a direction.
 
 ### Examples of Directional Arcs
 
@@ -88,14 +84,14 @@ Oscillation is fine for *secondary* parameters (saturation shimmer, hue drift). 
 
 ## Scene Concepts
 
-Each scene should be built around a *visual idea*, not an effect name.
+Build each scene around a *visual idea*, not an effect name.
 
-**Bad:** "fx_plasma_cascade" — named after the effect. No concept.
-**Good:** "fx_emergence" — a point of light expands into a field. The name tells you *what happens*.
+**Bad:** "fx_plasma_cascade": named after effect. No concept.
+**Good:** "fx_emergence": point of light expands into field. Name tells *what happens*.
 
 Good scene concepts have:
-1. A **visual metaphor** (emergence, descent, collision, entropy)
-2. A **directional arc** (things change from A to B, not oscillate)
+1. **Visual metaphor** (emergence, descent, collision, entropy)
+2. **Directional arc** (things change from A to B, not oscillate)
 3. **Motivated layer choices** (each layer serves the concept)
 4. **Motivated feedback** (transform direction matches the metaphor)
 
@@ -103,15 +99,15 @@ Good scene concepts have:
 |---------|----------|-------------------|-----|
 | Emergence | Birth, expansion | zoom-out | Past frames expand outward |
 | Descent | Falling, acceleration | zoom-in | Past frames rush toward center |
-| Inferno | Rising fire | shift-up | Past frames rise with the flames |
-| Entropy | Decay, dissolution | none | Clean, no persistence — things disappear |
+| Inferno | Rising fire | shift-up | Past frames rise with flames |
+| Entropy | Decay, dissolution | none | Clean, no persistence; things disappear |
 | Crescendo | Accumulation | zoom + hue_shift | Everything compounds and shifts |
 
 ## Compositional Techniques
 
 ### Counter-Rotating Dual Systems
 
-Two instances of the same effect rotating in opposite directions create visual interference:
+Two instances of same effect rotating in opposite directions create visual interference:
 
 ```python
 # Primary spiral (clockwise)
@@ -124,11 +120,11 @@ s2_val = vf_spiral(g_accent, f, -t * 1.2, S, n_arms=n_arms_2, tightness=tightnes
 canvas = blend_canvas(canvas_with_s1, c2, "screen", 0.7)
 ```
 
-Works with spirals, vortexes, rings. The counter-rotation creates constantly shifting interference patterns.
+Works with spirals, vortexes, rings.
 
 ### Wave Collision
 
-Two wave fronts converging from opposite sides, meeting at a collision point:
+Two wave fronts converge from opposite sides, meet at collision point:
 
 ```python
 collision_phase = abs(progress - 0.5) * 2  # 1→0→1 (0 at collision)
@@ -147,7 +143,7 @@ combined = wave_a * 0.5 + wave_b * 0.5 + np.abs(wave_a - wave_b) * (1 - collisio
 
 ### Progressive Fragmentation
 
-Voronoi with cell count increasing over time — visual shattering:
+Voronoi with cell count rising over time gives visual shattering:
 
 ```python
 n_pts = int(8 + progress * 30)  # 8 cells → 38 cells
@@ -155,11 +151,11 @@ n_pts = int(8 + progress * 30)  # 8 cells → 38 cells
 px = base_x[:n_pts] + np.sin(t * 0.3 + np.arange(n_pts) * 0.7) * (3 + progress * 3)
 ```
 
-The edge glow width can also increase with progress to emphasize the cracks.
+Edge glow width can also grow with progress to emphasize cracks.
 
 ### Entropy / Consumption
 
-A clean geometric pattern being overtaken by an organic process:
+Clean geometric pattern overtaken by organic process:
 
 ```python
 # Geometry fades out
@@ -192,23 +188,21 @@ s3 = layer_strength(4.0)
 # Screen blend between layers so they accumulate light
 ```
 
-For a 15-second crescendo, 7 layers entering every 2 seconds works well. Use different blend modes (screen for most, add for energy, colordodge for the final wash).
+For 15-second crescendo, 7 layers entering every 2 seconds works well. Use different blend modes (screen for most, add for energy, colordodge for final wash).
 
 ## Scene Ordering
 
-For a multi-scene reel or video:
-- **Vary mood between adjacent scenes** — don't put two calm scenes next to each other
-- **Randomize order** rather than grouping by type — prevents "effect demo" feel
-- **End on the strongest scene** — crescendo or something with a clear payoff
-- **Open with energy** — grab attention in the first 2 seconds
+For multi-scene reel or video:
+- **Vary mood between adjacent scenes**: do not put two calm scenes next to each other
+- **Randomize order** instead of grouping by type. Prevents "effect demo" feel
+- **End on the strongest scene**: crescendo or something with clear payoff
+- **Open with energy**: grab attention in first 2 seconds
 
 ---
 
 ## Scene Protocol
 
-Scenes are the top-level creative unit. Each scene is a time-bounded segment with its own effect function, shader chain, feedback configuration, and tone-mapping gamma.
-
-### Scene Protocol (v2)
+Scenes are top-level creative unit. Each is a time-bounded segment with own effect function, shader chain, feedback configuration and tone-mapping gamma.
 
 ### Function Signature
 
@@ -226,7 +220,7 @@ def fx_scene_name(r, f, t, S) -> canvas:
     """
 ```
 
-**Local time convention:** Scene functions receive `t` starting at 0.0 for the first frame of the scene, regardless of where the scene appears in the timeline. The render loop subtracts the scene's start time before calling the function:
+**Local time convention:** scene functions get `t` starting at 0.0 on scene's first frame, wherever scene sits in timeline. Render loop subtracts scene start time before calling function:
 
 ```python
 # In render_clip:
@@ -234,13 +228,13 @@ t_local = fi / FPS - scene_start
 canvas = fx_fn(r, feat, t_local, S)
 ```
 
-This makes scenes reorderable without modifying their code. Compute scene progress as:
+Scenes stay reorderable without code changes. Compute scene progress as:
 
 ```python
 progress = min(t / scene_duration, 1.0)  # 0→1 over the scene
 ```
 
-This replaces the v1 protocol where scenes returned `(chars, colors)` tuples. The v2 protocol gives scenes full control over multi-grid rendering and pixel-level composition internally.
+This v2 protocol replaces v1, where scenes returned `(chars, colors)` tuples. v2 gives scenes full internal control over multi-grid rendering and pixel-level composition.
 
 ### The Renderer Class
 
@@ -264,18 +258,7 @@ class Renderer:
         return self.g
 ```
 
-**Key difference from v1**: scenes call `r.get_grid("sm")`, `r.get_grid("lg")`, etc. to access multiple grids. Each grid is lazy-initialized and cached. The `set_grid()` method still works for single-grid scenes.
-
-### Minimal Scene (Single Grid)
-
-```python
-def fx_simple_rings(r, f, t, S):
-    """Single-grid scene: rings with distance-mapped hue."""
-    canvas = _render_vf(r, "md",
-        lambda g, f, t, S: vf_rings(g, f, t, S, n_base=8, spacing_base=3),
-        hf_distance(0.3, 0.02), PAL_STARS, f, t, S, sat=0.85)
-    return canvas
-```
+**Key difference from v1**: scenes call `r.get_grid("sm")`, `r.get_grid("lg")`, etc. for multiple grids. Each grid is lazy-initialized and cached. `set_grid()` still works for single-grid scenes.
 
 ### Standard Scene (Two Grids + Blend)
 
@@ -358,7 +341,7 @@ def fx_rings_explosion(r, f, t, S):
 
 ### Scene with Custom Character Rendering (Matrix Rain)
 
-When you need per-cell control beyond what `_render_vf()` provides:
+For per-cell control beyond what `_render_vf()` provides:
 
 ```python
 def fx_matrix_layered(r, f, t, S):
@@ -408,7 +391,7 @@ def fx_matrix_layered(r, f, t, S):
 
 ## Scene Table
 
-The scene table defines the timeline: which scene plays when, with what configuration.
+Scene table defines timeline: which scene plays when, with what configuration.
 
 ### Structure
 
@@ -469,7 +452,7 @@ energy = features["rms"]
 
 ### `render_clip()` — The Render Loop
 
-This function renders one scene to a clip file:
+Renders one scene to a clip file:
 
 ```python
 def render_clip(seg, features, clip_path):
@@ -542,7 +525,7 @@ for i, scene in enumerate(SCENES):
 
 ### Parallel Rendering
 
-Scenes are independent units dispatched to a process pool:
+Scenes are independent units dispatched to process pool:
 
 ```python
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -563,7 +546,7 @@ with ProcessPoolExecutor(max_workers=N_WORKERS) as pool:
 
 ### Test-Frame Mode
 
-Render a single frame at a specific timestamp to verify visuals without a full render:
+Render single frame at specific timestamp to verify visuals without full render:
 
 ```python
 if args.test_frame >= 0:
@@ -591,21 +574,21 @@ CLI: `python reel.py --test-frame 10.0`
 
 For each scene:
 
-1. **Choose 2-3 grid sizes** — different scales create interference
-2. **Choose different value fields** per layer — don't use the same effect on every grid
-3. **Choose different hue fields** per layer — or at minimum different hue offsets
-4. **Choose different palettes** per layer — mixing PAL_RUNE with PAL_BLOCKS looks different from PAL_RUNE with PAL_DENSE
-5. **Choose a blend mode** that matches the energy — screen for bright, difference for psychedelic, exclusion for subtle
-6. **Add conditional effects** on beat — kaleidoscope, mirror, glitch
-7. **Configure feedback** for trailing/recursive looks — or None for clean cuts
+1. **Choose 2-3 grid sizes**: different scales create interference
+2. **Choose different value fields** per layer: do not use same effect on every grid
+3. **Choose different hue fields** per layer, or at minimum different hue offsets
+4. **Choose different palettes** per layer: PAL_RUNE with PAL_BLOCKS looks different from PAL_RUNE with PAL_DENSE
+5. **Choose a blend mode** matching energy: screen for bright, difference for psychedelic, exclusion for subtle
+6. **Add conditional effects** on beat: kaleidoscope, mirror, glitch
+7. **Configure feedback** for trailing/recursive looks, or None for clean cuts
 8. **Set gamma** if using destructive shaders (solarize, posterize)
-9. **Test with --test-frame** at the scene's midpoint before full render
+9. **Test with --test-frame** at scene midpoint before full render
 
 ---
 
 ## Scene Examples
 
-Copy-paste-ready scene functions at increasing complexity. Each is a complete, working v2 scene function that returns a pixel canvas. See the Scene Protocol section above for the scene protocol and `composition.md` for blend modes and tonemap.
+Copy-paste-ready scene functions at increasing complexity. Each is a complete, working v2 scene function returning a pixel canvas. See Scene Protocol section above for protocol and `composition.md` for blend modes and tonemap.
 
 ---
 
@@ -613,7 +596,7 @@ Copy-paste-ready scene functions at increasing complexity. Each is a complete, w
 
 ### Breathing Plasma
 
-One grid, one value field, one hue field. The simplest possible scene.
+One grid, one value field, one hue field. Simplest possible scene.
 
 ```python
 def fx_breathing_plasma(r, f, t, S):
@@ -662,7 +645,7 @@ def fx_sdf_rings(r, f, t, S):
 
 ### Tunnel Through Noise
 
-Two grids at different densities, screen blended. The fine noise texture shows through the coarser tunnel characters.
+Two grids at different densities, screen blended. Fine noise texture shows through coarser tunnel characters.
 
 ```python
 def fx_tunnel_noise(r, f, t, S):
@@ -680,7 +663,7 @@ def fx_tunnel_noise(r, f, t, S):
 
 ### Voronoi Cells + Spiral Overlay
 
-Voronoi cell edges with a spiral arm pattern overlaid.
+Voronoi cell edges with spiral arm pattern overlaid.
 
 ```python
 def fx_voronoi_spiral(r, f, t, S):
@@ -699,7 +682,7 @@ def fx_voronoi_spiral(r, f, t, S):
 
 ### Domain-Warped fBM
 
-Two layers of the same fBM, one domain-warped, difference-blended for psychedelic organic texture.
+Two layers of same fBM, one domain-warped, difference-blended for psychedelic organic texture.
 
 ```python
 def fx_organic_warp(r, f, t, S):
@@ -722,7 +705,7 @@ def fx_organic_warp(r, f, t, S):
 
 ### Psychedelic Cathedral
 
-Three-grid composition with beat-triggered kaleidoscope and feedback zoom tunnel. The most visually complex pattern.
+Three-grid composition with beat-triggered kaleidoscope and feedback zoom tunnel. Most visually complex pattern.
 
 ```python
 def fx_cathedral(r, f, t, S):
@@ -765,7 +748,7 @@ def fx_cathedral(r, f, t, S):
 
 ### Masked Reaction-Diffusion with Attractor Overlay
 
-Reaction-diffusion visible only through an animated iris mask, with a strange attractor density field underneath.
+Reaction-diffusion visible only through animated iris mask, with strange attractor density field underneath.
 
 ```python
 def fx_masked_life(r, f, t, S):
@@ -806,7 +789,7 @@ def fx_masked_life(r, f, t, S):
 
 ### Morphing Field Sequence with Eased Keyframes
 
-Demonstrates temporal coherence: smooth morphing between effects with keyframed parameters.
+Shows temporal coherence: smooth morphing between effects with keyframed parameters.
 
 ```python
 def fx_morphing_journey(r, f, t, S):
@@ -870,7 +853,7 @@ def fx_life(r, f, t, S):
 
 ### Boids Flock Over Voronoi
 
-Emergent swarm movement over a cellular background.
+Emergent swarm movement over cellular background.
 
 ```python
 def fx_boid_swarm(r, f, t, S):
@@ -979,7 +962,7 @@ def fx_portrait_rain_quote(r, f, t, S):
 
 ### Scene Table Template
 
-Wire scenes into a complete video:
+Wire scenes into complete video:
 
 ```python
 SCENES = [

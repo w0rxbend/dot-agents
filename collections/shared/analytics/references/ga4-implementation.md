@@ -1,7 +1,5 @@
 # GA4 Implementation Reference
 
-Detailed implementation guide for Google Analytics 4.
-
 ## Contents
 - Configuration (data streams, enhanced measurement events, recommended events)
 - Custom Events (gtag.js implementation, Google Tag Manager)
@@ -34,7 +32,7 @@ Detailed implementation guide for Google Analytics 4.
 
 ### Recommended Events
 
-Use Google's predefined events when possible for enhanced reporting:
+Use Google's predefined events when possible; they get enhanced reporting:
 
 **All properties:**
 - login, sign_up
@@ -139,8 +137,8 @@ dataLayer.push({
 
 ### Creating Conversions
 
-1. **Collect the event** - Ensure event is firing in GA4
-2. **Mark as key event** - Admin > Events > Mark as key event (GA4 calls conversions "key events" since 2024; "conversion" now refers to the Google Ads side)
+1. **Collect the event** - Confirm event fires in GA4
+2. **Mark as key event** - Admin > Events > Mark as key event (GA4 calls conversions "key events" since 2024; "conversion" now refers to Google Ads side)
 3. **Set counting method**:
    - Once per session (leads, signups)
    - Every event (purchases)
@@ -148,15 +146,7 @@ dataLayer.push({
 
 ### Conversion Values
 
-```javascript
-// Event with conversion value
-gtag('event', 'purchase', {
-  'value': 99.99,
-  'currency': 'USD'
-});
-```
-
-Or set a default value in GA4 Admin when marking the key event.
+Send `value` and `currency` on event (see purchase example above), or set default value in GA4 Admin when marking key event.
 
 ---
 
@@ -165,7 +155,7 @@ Or set a default value in GA4 Admin when marking the key event.
 ### When to Use
 
 **Custom dimensions:**
-- Properties you want to segment/filter by
+- Properties to segment/filter by
 - User attributes (plan type, industry)
 - Content attributes (author, category)
 
@@ -250,7 +240,7 @@ Reports > Real-time
 - Data still processing (24-48 hrs)
 
 **Conversions not recording:**
-- Event not marked as a key event
+- Event not marked as key event
 - Event name doesn't match
 - Counting method (once vs. every)
 
@@ -294,7 +284,7 @@ Admin > Data streams > [Stream] > Configure tag settings
 
 ### Audience Export
 
-Audiences created in GA4 can be used in Google Ads for:
+GA4 audiences work in Google Ads for:
 - Remarketing campaigns
 - Customer match
 - Similar audiences

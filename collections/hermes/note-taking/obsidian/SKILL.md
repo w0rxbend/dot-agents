@@ -13,56 +13,54 @@ metadata:
 
 # Obsidian Vault
 
-Use this skill for filesystem-first Obsidian vault work: reading notes, listing notes, searching note files, creating notes, appending content, and adding wikilinks.
+Use for filesystem-first Obsidian vault work.
 
 ## Vault path
 
-Use a known or resolved vault path before calling file tools.
+Convention: `OBSIDIAN_VAULT_PATH` environment variable, for example from `${HERMES_HOME:-~/.hermes}/.env`. If unset, use `~/Documents/Obsidian Vault`.
 
-The documented vault-path convention is the `OBSIDIAN_VAULT_PATH` environment variable, for example from `${HERMES_HOME:-~/.hermes}/.env`. If it is unset, use `~/Documents/Obsidian Vault`.
+File tools do not expand shell variables. Do not pass paths containing `$OBSIDIAN_VAULT_PATH` to `read_file`, `write_file`, `patch`, or `search_files`. Resolve vault path first, pass concrete absolute path. Vault paths may contain spaces: another reason to prefer file tools over shell commands.
 
-File tools do not expand shell variables. Do not pass paths containing `$OBSIDIAN_VAULT_PATH` to `read_file`, `write_file`, `patch`, or `search_files`; resolve the vault path first and pass a concrete absolute path. Vault paths may contain spaces, which is another reason to prefer file tools over shell commands.
-
-If the vault path is unknown, `terminal` is acceptable for resolving `OBSIDIAN_VAULT_PATH` or checking whether the fallback path exists. Once the path is known, switch back to file tools.
+If vault path unknown, `terminal` is fine for resolving `OBSIDIAN_VAULT_PATH` or checking fallback path exists. Once path known, switch back to file tools.
 
 ## Read a note
 
-Use `read_file` with the resolved absolute path to the note. Prefer this over `cat` because it provides line numbers and pagination.
+`read_file` with resolved absolute path. Prefer over `cat`: gives line numbers and pagination.
 
 ## List notes
 
-Use `search_files` with `target: "files"` and the resolved vault path. Prefer this over `find` or `ls`.
+`search_files` with `target: "files"` and resolved vault path. Prefer over `find` or `ls`.
 
-- To list all markdown notes, use `pattern: "*.md"` under the vault path.
-- To list a subfolder, search under that subfolder's absolute path.
+- All markdown notes: `pattern: "*.md"` under vault path.
+- Subfolder: search under its absolute path.
 
 ## Search
 
-Use `search_files` for both filename and content searches. Prefer this over `grep`, `find`, or `ls`.
+`search_files` covers filename and content searches. Prefer over `grep`, `find`, or `ls`.
 
-- For filenames, use `search_files` with `target: "files"` and a filename `pattern`.
-- For note contents, use `search_files` with `target: "content"`, the content regex as `pattern`, and `file_glob: "*.md"` when you want to restrict matches to markdown notes.
+- Filenames: `search_files` with `target: "files"` and filename `pattern`.
+- Note contents: `search_files` with `target: "content"` and content regex as `pattern`. Add `file_glob: "*.md"` to restrict matches to markdown notes.
 
 ## Create a note
 
-Use `write_file` with the resolved absolute path and the full markdown content. Prefer this over shell heredocs or `echo` because it avoids shell quoting issues and returns structured results.
+`write_file` with resolved absolute path and full markdown content. Prefer over shell heredocs or `echo`: no shell quoting issues, structured results.
 
 ## Append to a note
 
-Prefer a native file-tool workflow when it is not awkward:
+Prefer native file tools when not awkward:
 
-- Read the target note with `read_file`.
-- Use `patch` for an anchored append when there is stable context, such as adding a section after an existing heading or appending before a known trailing block.
-- Use `write_file` when rewriting the whole note is clearer than constructing a fragile patch.
+- Read target note with `read_file`.
+- `patch` for anchored append when stable context exists, such as new section after existing heading or before known trailing block.
+- `write_file` when rewriting whole note is clearer than fragile patch.
 
-For an anchored append with `patch`, replace the anchor with the anchor plus the new content.
+Anchored append with `patch`: replace anchor with anchor plus new content.
 
-For a simple append with no stable context, `terminal` is acceptable if it is the clearest safe option.
+Simple append with no stable context: `terminal` acceptable if clearest safe option.
 
 ## Targeted edits
 
-Use `patch` for focused note changes when the current content gives you stable context. Prefer this over shell text rewriting.
+`patch` for focused note changes when current content gives stable context. Prefer over shell text rewriting.
 
 ## Wikilinks
 
-Obsidian links notes with `[[Note Name]]` syntax. When creating notes, use these to link related content.
+Obsidian links notes with `[[Note Name]]` syntax. When creating notes, use wikilinks to link related content.

@@ -2,11 +2,10 @@
 
 → See `samber/cc-skills-golang@golang-context` skill for propagating context across service boundaries. → See `samber/cc-skills-golang@golang-samber-oops` skill for structured errors with stack traces in spans.
 
-When using the OpenTelemetry Go SDK, refer to the library's official documentation for up-to-date API signatures and examples.
+For OpenTelemetry Go SDK, check official library docs for current API signatures and examples.
 
 ## Table of Contents
 
-- [Why Tracing](#why-tracing)
 - [OTel SDK Setup](#otel-sdk-setup)
 - [Creating Spans](#creating-spans)
 - [HTTP Middleware with `otelhttp`](#http-middleware-with-otelhttp)
@@ -15,13 +14,9 @@ When using the OpenTelemetry Go SDK, refer to the library's official documentati
 - [Trace Sampling](#trace-sampling)
 - [Cost of Tracing](#cost-of-tracing)
 
-## Why Tracing
-
-When a request crosses multiple services, logs from each service are isolated. Tracing connects them: a single trace shows the full request path with timing for every operation. This is how you answer "why was this request slow?" in a microservices architecture.
-
 ## OTel SDK Setup
 
-Set up the TracerProvider early in your application. On new projects, do this first — then add spans everywhere incrementally.
+Set up TracerProvider early. On new projects, do it first, then add spans everywhere incrementally.
 
 ```go
 import (
@@ -63,8 +58,6 @@ func initTracer(ctx context.Context) (func(), error) {
 
 ## Creating Spans
 
-Every meaningful operation should have a span. Think of spans as the building blocks of a trace — they show where time was spent.
-
 ```go
 import "go.opentelemetry.io/otel"
 
@@ -104,7 +97,7 @@ func (r *OrderRepo) Insert(ctx context.Context, order Order) (*Order, error) {
 }
 ```
 
-**Where to add spans** — spans MUST be created for:
+**Where to add spans** — MUST create spans for:
 
 - Every service method (business logic layer)
 - Every database query
@@ -114,7 +107,7 @@ func (r *OrderRepo) Insert(ctx context.Context, order Order) (*Order, error) {
 
 ## HTTP Middleware with `otelhttp`
 
-Automatically creates spans for incoming and outgoing HTTP requests:
+Creates spans automatically for incoming and outgoing HTTP requests:
 
 ```go
 import "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -147,9 +140,9 @@ if err != nil {
 
 ## Structured Errors with `samber/oops`
 
-Standard Go errors lose critical debugging information: there's no stack trace, no structured context, and no way to attach request-scoped metadata. When an error surfaces in a trace, you see `"connection refused"` but not where it originated or which user/tenant was affected.
+Standard Go errors lose critical debug data: no stack trace, no structured context, no request-scoped metadata. Trace shows `"connection refused"` but not its origin or affected user/tenant.
 
-[`samber/oops`](https://github.com/samber/oops) is a drop-in error library that fills these gaps. Every `oops` error carries a stack trace, structured attributes, and integrates naturally with both OpenTelemetry spans and `slog`:
+[`samber/oops`](https://github.com/samber/oops) is drop-in error library filling these gaps. Every `oops` error carries stack trace and structured attributes, and works with OpenTelemetry spans and `slog`:
 
 ```go
 import "github.com/samber/oops"
@@ -173,13 +166,13 @@ func (s *OrderService) Create(ctx context.Context, req CreateOrderRequest) (*Ord
 }
 ```
 
-When this error is logged or recorded on a span, you get the full stack trace, the domain (`order-service`), an error code (`order_insert_failed`), and structured attributes (`order_id`, `user_id`) — all machine-parseable and searchable in your observability platform.
+Logged or recorded on span, this error gives full stack trace, domain (`order-service`), error code (`order_insert_failed`), and structured attributes (`order_id`, `user_id`).
 
-`oops` errors work with `span.RecordError()`, `errors.Is`/`errors.As`, and `slog` — see the `samber/cc-skills-golang@golang-error-handling` and `samber/cc-skills-golang@golang-samber-oops` skills for full usage patterns.
+`oops` errors work with `span.RecordError()`, `errors.Is`/`errors.As`, and `slog`. See `samber/cc-skills-golang@golang-error-handling` and `samber/cc-skills-golang@golang-samber-oops` skills for full usage patterns.
 
 ## Trace Sampling
 
-In high-throughput services, tracing every request is expensive. Use sampling to control the volume:
+Tracing every request in high-throughput services is expensive. Sample to control volume:
 
 ```go
 tp := sdktrace.NewTracerProvider(
@@ -190,20 +183,18 @@ tp := sdktrace.NewTracerProvider(
 )
 ```
 
-For more nuanced control, use `sdktrace.ParentBased()` to respect the parent's sampling decision — this keeps traces complete across service boundaries.
+For finer control, use `sdktrace.ParentBased()` to respect parent's sampling decision. Keeps traces complete across service boundaries.
 
 ## Cost of Tracing
 
-Tracing can be one of the most expensive observability signals. Every span generates data that must be serialized, transmitted, stored, and indexed. In a microservices architecture, a single user request can produce dozens or hundreds of spans across services.
-
 **Cost factors:**
 
-- **Span volume** — a service handling 10k req/s with 5 spans per request generates 50k spans/s. At 100% sampling, this is enormous.
-- **Span attributes** — each attribute adds to the payload size. Large attributes (request/response bodies) multiply cost.
-- **Storage and indexing** — tracing backends (Jaeger, Tempo, Datadog) charge by volume. Unsampled traces can easily become the largest line item in your observability bill.
+- **Span volume** — service at 10k req/s with 5 spans per request emits 50k spans/s. Enormous at 100% sampling.
+- **Span attributes** — each attribute grows payload. Large attributes (request/response bodies) multiply cost.
+- **Storage and indexing** — tracing backends (Jaeger, Tempo, Datadog) charge by volume. Unsampled traces can easily become largest line item in observability bill.
 
 **Mitigation:**
 
-- Use sampling (see above) — start with 10% (`TraceIDRatioBased(0.1)`) and adjust based on traffic volume and budget
-- For high-throughput services, consider head-based sampling (decide at trace start) or tail-based sampling (decide after the trace completes, keeping only interesting traces like errors or slow requests)
-- Avoid attaching large payloads as span attributes — log them instead and correlate via trace_id
+- Use sampling (see above): start with 10% (`TraceIDRatioBased(0.1)`), adjust by traffic volume and budget
+- For high-throughput services, consider head-based sampling (decide at trace start) or tail-based sampling (decide after trace completes; keep only interesting traces like errors or slow requests)
+- Avoid large payloads as span attributes: log them instead, correlate via trace_id

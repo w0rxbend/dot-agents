@@ -1,6 +1,6 @@
 # BullMQ Reference Guide
 
-Modern Node.js/TypeScript job queue built on Redis with advanced features like delayed jobs, rate limiting, and job prioritization.
+Node.js/TypeScript job queue on Redis.
 
 
 ## Table of Contents
@@ -31,8 +31,8 @@ Modern Node.js/TypeScript job queue built on Redis with advanced features like d
 ## When to Use BullMQ
 
 - TypeScript/Node.js ecosystem
-- Need advanced scheduling (cron, delayed, repeatable jobs)
-- Rate limiting per queue
+- Advanced scheduling (cron, delayed, repeatable jobs)
+- Per-queue rate limiting
 - Job prioritization
 - Horizontal scaling with workers
 
@@ -146,7 +146,7 @@ await queue.add('flaky-api-call', { url: '...' }, {
 // Worker error handling
 const worker = new Worker('api-calls', async (job) => {
   try {
-    await callAPI(job.data.url);
+    await callAPI(job.data.url);  // allow-list URL (SSRF), see SKILL.md
   } catch (error) {
     if (error.code === 'RATE_LIMIT') {
       throw error;  // Retry
@@ -215,10 +215,11 @@ createBullBoard({
   serverAdapter,
 });
 
-app.use('/admin/queues', serverAdapter.getRouter());
+// Auth required: board shows payloads and can retry/delete jobs
+app.use('/admin/queues', requireAdmin, serverAdapter.getRouter());
 ```
 
-Access dashboard: http://localhost:3000/admin/queues
+Dashboard: http://localhost:3000/admin/queues
 
 ## Job Patterns
 
@@ -265,22 +266,28 @@ await flow.add({
 
 ## Best Practices
 
-1. **Use job IDs for idempotency** - Prevent duplicate processing
-2. **Set reasonable timeouts** - Prevent stuck jobs
-3. **Monitor failed jobs** - Set up alerting
-4. **Use separate queues** - Different priorities/workers
-5. **Clean completed jobs** - Prevent Redis memory growth
-6. **Use concurrency wisely** - Based on I/O vs CPU
-7. **Handle errors gracefully** - Distinguish retryable vs fatal errors
+1. **Use job IDs for idempotency** - no duplicate processing
+2. **Set timeouts** - no stuck jobs
+3. **Monitor failed jobs** with alerting
+4. **Use separate queues** per priority or worker type
+5. **Clean completed jobs** - caps Redis memory
+6. **Size concurrency** to I/O-bound or CPU-bound work
+7. **Separate retryable from fatal errors**
 
 ## Common Patterns
 
 ### Webhook Processing
 
 ```typescript
-// Receive webhook
-app.post('/webhooks/stripe', async (req, res) => {
-  await webhookQueue.add('stripe-event', req.body, {
+// Receive webhook: verify signature on raw body before queueing (else forged events get processed)
+app.post('/webhooks/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, req.headers['stripe-signature'], process.env.STRIPE_WEBHOOK_SECRET);
+  } catch {
+    return res.status(400).send('invalid signature');
+  }
+  await webhookQueue.add('stripe-event', event, {
     attempts: 3,
     backoff: { type: 'exponential', delay: 1000 },
   });

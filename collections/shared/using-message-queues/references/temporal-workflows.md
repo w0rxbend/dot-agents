@@ -1,7 +1,6 @@
 # Temporal Workflows - Durable Execution
 
-Temporal provides **durable execution** for workflows that survive service crashes, network partitions, and code deployments. Critical for complex orchestration and long-running processes.
-
+Temporal gives **durable execution**: workflows survive service crashes, network partitions and code deployments.
 
 ## Table of Contents
 
@@ -25,12 +24,10 @@ Temporal provides **durable execution** for workflows that survive service crash
   - [Continue-as-New (Long-Running Workflows)](#continue-as-new-long-running-workflows)
 - [Observability](#observability)
   - [OpenTelemetry Integration](#opentelemetry-integration)
-  - [Workflow Logging](#workflow-logging)
 - [Best Practices](#best-practices)
   - [1. Workflows Must Be Deterministic](#1-workflows-must-be-deterministic)
   - [2. Use Activities for Side Effects](#2-use-activities-for-side-effects)
   - [3. Set Appropriate Timeouts](#3-set-appropriate-timeouts)
-  - [4. Use Queries for Status Checks](#4-use-queries-for-status-checks)
 - [Troubleshooting](#troubleshooting)
   - [Workflow Stuck](#workflow-stuck)
   - [Non-Deterministic Error](#non-deterministic-error)
@@ -58,12 +55,12 @@ Temporal provides **durable execution** for workflows that survive service crash
 **Workflow:** Orchestration logic (deterministic, retryable, durable)
 - Survives service restarts
 - Replayed from event history
-- Must be deterministic (no random(), datetime.now() directly)
+- Must be deterministic (no direct random() or datetime.now() calls)
 
-**Activity:** External side effects (non-deterministic, can be retried)
-- API calls, database writes, file I/O
-- Can fail and be retried with backoff
-- Can take hours/days with heartbeats
+**Activity:** External side effects (non-deterministic, retryable)
+- API calls, DB writes, file I/O
+- Failures retried with backoff
+- Can run hours/days with heartbeats
 
 ```
 Workflow (Orchestrator)
@@ -75,13 +72,13 @@ Workflow (Orchestrator)
 
 ### Signals and Queries
 
-**Signal:** External event that modifies workflow state
+**Signal:** External event that changes workflow state
 - Async, fire-and-forget
-- Use for: User actions, external triggers
+- Use for: user actions, external triggers
 
-**Query:** Read workflow state without modifying it
+**Query:** Reads workflow state without modifying it
 - Synchronous
-- Use for: Status checks, progress updates
+- Use for: status checks, progress updates
 
 ## Python Implementation
 
@@ -416,11 +413,11 @@ class ResearchWorkflow:
 ### Start Temporal Server
 
 ```bash
-# Using Docker
-docker run -p 7233:7233 -p 8233:8233 temporalio/auto-setup:latest
-
-# Or using Temporal CLI
+# Temporal CLI (preferred)
 temporal server start-dev
+
+# Or Docker: pinned tag, loopback ports
+docker run -p 127.0.0.1:7233:7233 -p 127.0.0.1:8233:8233 temporalio/auto-setup:1.29.7
 ```
 
 ### Worker Implementation
@@ -587,21 +584,6 @@ client = await Client.connect(
 # All workflow executions are now traced
 ```
 
-### Workflow Logging
-
-```python
-@workflow.defn
-class LoggingWorkflow:
-    @workflow.run
-    async def run(self, order_id: str) -> str:
-        workflow.logger.info(f"Starting workflow for {order_id}")
-        workflow.logger.debug(f"Debug info: {order_id}")
-        workflow.logger.warning(f"Warning: {order_id}")
-        workflow.logger.error(f"Error: {order_id}")
-
-        return "complete"
-```
-
 ## Best Practices
 
 ### 1. Workflows Must Be Deterministic
@@ -676,34 +658,6 @@ await workflow.execute_activity(
 )
 ```
 
-### 4. Use Queries for Status Checks
-
-```python
-@workflow.defn
-class TrackableWorkflow:
-    def __init__(self):
-        self.progress = 0
-        self.status = "pending"
-
-    @workflow.run
-    async def run(self) -> str:
-        for i in range(10):
-            self.progress = (i + 1) * 10
-            self.status = f"step_{i+1}"
-            await workflow.execute_activity(...)
-
-        self.status = "complete"
-        return "done"
-
-    @workflow.query
-    def get_progress(self) -> int:
-        return self.progress
-
-    @workflow.query
-    def get_status(self) -> str:
-        return self.status
-```
-
 ## Troubleshooting
 
 ### Workflow Stuck
@@ -711,7 +665,7 @@ class TrackableWorkflow:
 **Check:**
 1. Activity timeouts configured?
 2. Worker running and consuming from correct task queue?
-3. Check Temporal Web UI for errors
+3. Errors in Temporal Web UI?
 
 ### Non-Deterministic Error
 
@@ -728,12 +682,10 @@ class TrackableWorkflow:
 
 **Fix:**
 1. Check activity logs for errors
-2. Increase `maximum_attempts` in retry policy
-3. Implement DLQ for failed activities
+2. Raise `maximum_attempts` in retry policy
+3. Add DLQ for failed activities
 
 ## Related Patterns
 
-- **Saga Pattern**: Distributed transactions with compensation
 - **Event Sourcing**: Workflow events as immutable log
 - **CQRS**: Separate command workflows from query models
-- **Human-in-the-Loop**: Approval workflows with signals

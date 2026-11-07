@@ -52,7 +52,7 @@ project/
 
 ## Small Projects (Single Binary)
 
-For simple tools, keep it minimal:
+Simple tools stay minimal:
 
 ```
 my-tool/
@@ -93,11 +93,11 @@ my-library/
 
 - Put public API in root-level directories (e.g., `logger/`)
 - Use `internal/` for private implementation
-- Don't use `cmd/` (unless you have example binaries)
+- Don't use `cmd/` (unless example binaries exist)
 
 ## The cmd/ Directory Convention
 
-**CRITICAL**: All `main` packages must reside in `cmd/`. `cmd/` MUST contain only `main.go` with minimal logic — parse flags, wire dependencies, call `Run()`. NEVER put business logic in `cmd/` — it belongs in `internal/` or `pkg/`.
+**CRITICAL**: All `main` packages must reside in `cmd/`. `cmd/` MUST contain only `main.go` with minimal logic: parse flags, wire dependencies, call `Run()`. NEVER put business logic in `cmd/`; it belongs in `internal/` or `pkg/`.
 
 ### Single Application
 
@@ -109,7 +109,7 @@ cmd/
 
 ### Multiple Applications
 
-When you need multiple binaries (e.g., server, CLI tool, migration utility):
+Multiple binaries (e.g., server, CLI tool, migration utility):
 
 ```
 cmd/
@@ -122,12 +122,6 @@ cmd/
 └── migrate/
     └── main.go        // Database migration utility
 ```
-
-Each `main.go`:
-
-- Declares `package main`
-- Has its own `func main()`
-- Can be built independently: `go build ./cmd/...`
 
 **Building all binaries:**
 

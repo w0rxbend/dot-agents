@@ -1,7 +1,5 @@
 # GitOps with ArgoCD and Flux
 
-GitOps patterns for continuous deployment with ArgoCD and Flux.
-
 ## Table of Contents
 
 - [GitOps Principles](#gitops-principles)
@@ -12,7 +10,7 @@ GitOps patterns for continuous deployment with ArgoCD and Flux.
 
 ## GitOps Principles
 
-GitOps uses Git as the single source of truth for declarative infrastructure and applications.
+GitOps uses Git as single source of truth for declarative infrastructure and apps.
 
 **Core Principles**:
 1. **Declarative**: Entire system state described declaratively
@@ -21,15 +19,9 @@ GitOps uses Git as the single source of truth for declarative infrastructure and
 4. **Automated**: Changes automatically applied
 5. **Reconciled**: System continuously reconciles to desired state
 
-**Benefits**:
-- Audit trail (Git history)
-- Rollback capability (git revert)
-- Disaster recovery (redeploy from Git)
-- Developer experience (git push to deploy)
+**Benefits**: audit trail (Git history), rollback (git revert), disaster recovery (redeploy from Git), git push to deploy.
 
 ## ArgoCD Setup
-
-ArgoCD is a declarative, GitOps continuous delivery tool for Kubernetes.
 
 ### Installation
 
@@ -37,14 +29,16 @@ ArgoCD is a declarative, GitOps continuous delivery tool for Kubernetes.
 # Create namespace
 kubectl create namespace argocd
 
-# Install ArgoCD
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# Install ArgoCD from pinned release tag (not mutable `stable` branch): render, review, then apply
+kubectl kustomize 'github.com/argoproj/argo-cd/manifests/cluster-install?ref=v3.6.1' > argocd-install.yaml
+kubectl apply -n argocd --server-side --force-conflicts -f argocd-install.yaml
 
 # Access ArgoCD UI
 kubectl port-forward svc/argocd-server -n argocd 8080:443
 
-# Get initial admin password
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+# Initial admin password: user runs this in own terminal (agent never prints secrets),
+# then changes password and deletes argocd-initial-admin-secret
+argocd admin initial-password -n argocd
 ```
 
 ### Application Definition
@@ -144,7 +138,7 @@ spec:
 
 ### Health Checks
 
-ArgoCD automatically detects health based on resource type.
+ArgoCD detects health automatically by resource type.
 
 **Custom Health Check**:
 
@@ -196,8 +190,6 @@ argocd app set my-app --helm-set replicaCount=5
 ```
 
 ## Flux Setup
-
-Flux is a GitOps toolkit for Kubernetes.
 
 ### Installation
 
@@ -371,7 +363,7 @@ spec:
 - Need web UI for visibility
 - Centralized control plane
 - Multi-cluster management
-- Complex application dependencies
+- Complex app dependencies
 
 ### When to Choose Flux
 
@@ -422,9 +414,9 @@ infra-repo/           # Infrastructure configs
 # Install kubeseal
 brew install kubeseal
 
-# Create sealed secret
+# Create sealed secret (value from file, not argv; never commit password.txt)
 kubectl create secret generic my-secret \
-  --from-literal=password=mysecret \
+  --from-file=password=./password.txt \
   --dry-run=client -o yaml | \
   kubeseal -o yaml > sealed-secret.yaml
 
@@ -544,10 +536,13 @@ argocd app get my-app
 # View sync errors
 argocd app sync my-app --dry-run
 
-# Force sync (bypass hooks)
+# Destructive below: run `argocd app diff my-app` and `--dry-run` first,
+# show user what gets deleted/recreated, get explicit approval (never prod without it)
+
+# Force apply (may delete and recreate resources)
 argocd app sync my-app --force
 
-# Delete and recreate resources
+# Delete and recreate resources (PVCs/stateful data at risk)
 argocd app sync my-app --prune --replace
 ```
 
@@ -573,14 +568,15 @@ flux reconcile kustomization my-app --with-source
 ### Git Authentication Issues
 
 ```bash
+# Prefer SSH deploy key or GitHub App; else PAT from secret manager via env var (never literal)
 # ArgoCD: Add repository
 argocd repo add https://github.com/org/repo \
   --username git \
-  --password <PAT>
+  --password "$GIT_PAT"
 
 # Flux: Create secret
 flux create secret git git-credentials \
   --url=https://github.com/org/repo \
   --username=git \
-  --password=<PAT>
+  --password="$GIT_PAT"
 ```

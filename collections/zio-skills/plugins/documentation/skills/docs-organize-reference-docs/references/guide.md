@@ -1,37 +1,30 @@
 # Organizing Reference Docs
 
-A reference section that has grown past a dozen pages becomes a flat list nobody can scan. This groups
-those pages into categories: a category index page that says what the group is for, and a `sidebars.js`
-entry that nests the pages under it.
+Past a dozen pages, a reference section becomes an unscannable flat list.
 
-**You move no files.** That is the rule the whole design rests on, and the reason is in the next
-section.
+**You move no files.** Whole design rests on this.
 
 ## Why nothing moves
 
-A page's links are relative to where it sits. Move `docs/reference/chunk.md` into
-`docs/reference/collections/` and every `[Chunk](./chunk.md)` elsewhere in the tree breaks, every
-`../` inside the page resolves one level wrong, and `onBrokenLinks: 'throw'` fails the build with a
-list that does not say which move caused it.
+Links are relative to page location. Move `docs/reference/chunk.md` into `docs/reference/collections/`
+and every `[Chunk](./chunk.md)` elsewhere breaks. Every `../` inside resolves one level wrong.
+`onBrokenLinks: 'throw'` then fails the build without naming the move.
 
-So a category is a **sidebar grouping plus an index page**, not a directory. The pages stay where they
-are and keep their ids. If a request asks for pages to be relocated, say that relocation is out of
-bounds and offer the grouping instead.
+So a category is a **sidebar grouping plus an index page**, not a directory. Pages stay put and keep
+their ids. If asked to relocate pages, call it out of bounds; offer grouping instead.
 
-Two failures follow from getting this wrong, and both have precedent in this repo:
+Two failures from getting this wrong, both seen in this repo:
 
-- **A sidebar id for a path that does not exist.** A predecessor emitted ids as
-  `reference/<category>/<type>` while moving nothing, so its entries pointed at files it never created.
-  Derive every id from where the page actually is — `git ls-files` it or read it — never from the
-  category name.
-- **Creating a page so the build passes.** A sidebar entry pointing at a missing page is fixed by
-  removing the entry, never by writing the page. A stub is unreviewed content that ships and takes the
-  name the real page will want.
+- **A sidebar id for a path that does not exist.** A predecessor emitted `reference/<category>/<type>`
+  ids while moving nothing, pointing at files it never created. Derive each id from the page's real
+  location (`git ls-files` it or read it), never from category name.
+- **Creating a page so the build passes.** Fix an entry pointing at a missing page by removing it, never
+  by writing the page. A stub ships unreviewed and takes the real page's future name.
 
 ## Proposing the grouping
 
-Read the pages. A category is a claim about what a group of types is *for*, and that comes from the
-pages' own content — the opening definition of each, and its frontmatter `description` when it has one.
+Read the pages. A category claims what its types are *for*: take that from each page's opening
+definition and frontmatter `description`, if any.
 
 ```bash
 # the reference section's pages and their titles
@@ -40,45 +33,42 @@ git ls-files 'docs/reference/*.md' | while read -r f; do
 done
 ```
 
-Do **not** group by name substring. A predecessor's table matched "name contains chunk, list, vector"
-→ Collections, which puts anything called `ChunkBuilder` in the wrong place and cannot see that two
-differently-named types serve one purpose. Read what a page says the type is for.
+Do **not** group by name substring. A predecessor mapped "name contains chunk, list, vector" to
+Collections. That misfiles anything called `ChunkBuilder` and misses differently-named types sharing one
+purpose.
 
-Bounds on a proposal:
+Proposal bounds:
 
-- **Three pages minimum per category.** A category of one or two is noise in the sidebar; leave those
-  pages at the top level.
-- **Every page keeps exactly one home.** A page in two categories is a sidebar bug — Docusaurus will
-  render it twice and the second entry usually loses its label.
-- **Leftovers stay at the top level, uncategorized.** Never invent a "Miscellaneous" category to
-  achieve full coverage. Say in the receipt which pages you left ungrouped and why.
-- **Name the category for the reader's concern, not the implementation.** ✅ `Resource Management`
+- **Three pages minimum per category.** One or two is sidebar noise; leave them at top level.
+- **Every page keeps exactly one home.** A page in two categories is a sidebar bug: Docusaurus renders it
+  twice, and second entry usually loses its label.
+- **Leftovers stay at top level, uncategorized.** Never invent a "Miscellaneous" category for full
+  coverage. Receipt names ungrouped pages and why.
+- **Name category for reader's concern, not implementation.** ✅ `Resource Management`
   ❌ `Scope And Friends` ❌ `Core Types`
 
-When the request names the category and its members, verify the grouping still satisfies those bounds
-and say so if it does not — then follow the request.
+If request names category and members, check those bounds, flag any unmet, then follow the request.
 
 ## The category index page
 
-One per category, at `docs/reference/<category-kebab>/index.md` **only if pages already live in that
-directory**; otherwise at `docs/reference/<category-kebab>.md`. Use the plugin's page-metadata
-frontmatter contract (id, title, description, keywords — see `docs-backfill-metadata`), and keep the body
-short:
+One per category: `docs/reference/<category-kebab>/index.md` **only if pages already live in that
+directory**, else `docs/reference/<category-kebab>.md`. Use plugin's page-metadata frontmatter contract
+(id, title, description, keywords; see `docs-backfill-metadata`). Short body:
 
-- Two or three sentences on what this category covers and why these types are grouped — a reader
-  should be able to tell whether their problem is in here.
-- A list of the pages, each linking to where the page actually is, with a clause on what it does.
-- No API, no examples, no duplicated prose from the pages themselves.
+- Two or three sentences: what category covers, why these types group. Lets reader tell whether their
+  problem is here.
+- Pages list, each linked at its real location, with a clause on what it does.
+- No API, no examples, no prose duplicated from pages.
 
-Apply the `docs-writing-style` rules to it, as to any page — rule 7's link form governs and every link
-must resolve from the index's own directory.
+Apply `docs-writing-style` rules to it, as to any page. Rule 7's link form governs; every link must resolve from
+the index's own directory.
 
 ## Editing `sidebars.js`
 
-**Which file.** The git-tracked one, found with `git ls-files "*sidebars.js"` — never
-`website/docs/sidebars.js`, which is mdoc output and gitignored, so an edit there ships nothing.
+**Which file.** Git-tracked one: `git ls-files "*sidebars.js"`. Never `website/docs/sidebars.js`:
+mdoc output, gitignored, so edits there ship nothing.
 
-**The entry.** A category with a `link` to its index page and the pages as items:
+**The entry.** Category with `link` to its index page, pages as items:
 
 ```javascript
 {
@@ -89,47 +79,44 @@ must resolve from the index's own directory.
 }
 ```
 
-Every id is the page's real path minus the extension. Alphabetical within `items`, and alphabetical
-among categories in the section.
+Every id is page's real path minus extension. Alphabetical within `items` and among section categories.
 
-**Verify it still parses**, every time, before you go further:
+**Verify it still parses**, every time, before continuing:
 
 ```bash
 node -e "require('./$(git ls-files '*sidebars.js' | head -1)')"
 ```
 
-That catches a syntax error, which is what hand-editing usually breaks — but it is **not** proof the
-sidebar loaded. A repo whose `package.json` sets `"type": "module"` makes a `.js` sidebar ESM, and
-`require()` then returns `{}` for a file whose `module.exports` never took effect, with no error at all.
-So never enumerate ids by requiring the file; read them out of the text, as the verification below does.
+Catches syntax errors, the usual hand-edit breakage. Does **not** prove sidebar loaded. If
+`package.json` sets `"type": "module"`, a `.js` sidebar is ESM. `require()` then returns `{}` with no
+error, since `module.exports` never took effect. So never enumerate ids by requiring the file; read them
+from text, as below.
 
-**Never delete an entry that is not yours to delete.** A page you did not group keeps its existing
-entry exactly as it was. Removing a sibling's entry to tidy the file is the one edit here that loses
-work nobody can see is missing.
+**Never delete an entry that is not yours to delete.** Pages you did not group keep their entries
+exactly as they were. Removing a sibling's entry to tidy up is the one edit here that loses work invisibly.
 
 ## Verifying
 
-In this order, because each catches something the next cannot:
+In order; each catches something the next cannot:
 
-1. `sidebars.js` parses — the command above.
-2. Every id in the sidebar resolves to a page that exists. Text extraction, so it is unaffected by
-   whether the file loads as CJS or ESM, and it covers both the `id:` form and a bare items string:
+1. `sidebars.js` parses (command above).
+2. Every sidebar id resolves to an existing page. Text extraction works for CJS or ESM, covering both
+   `id:` form and bare items strings:
    ```bash
    grep -oE "(id|\"id\"): *['\"][^'\"]+['\"]|['\"](reference|guides)/[a-z0-9/-]+['\"]" docs/sidebars.js \
    | sed -E "s/.*['\"]([^'\"]+)['\"]$/\1/" | sort -u | while read -r id; do
        [ -f "docs/$id.md" ] || echo "MISSING docs/$id.md"
      done
    ```
-   Any `MISSING` line is a broken entry. Remove the entry — never create the page to satisfy it.
+   Any `MISSING` line is a broken entry. Remove it; never create the page to satisfy it.
 3. Every link in each index page you wrote resolves from that page's directory.
-4. The site build (`npm run build`, or whatever this repo's Docusaurus site uses). A broken link that
-   survives steps 2 and 3 is usually a link on some *other* page that pointed at a page whose sidebar
-   position changed; fix the link, and never by creating a file.
+4. Site build (`npm run build`, or this repo's Docusaurus build command). A broken link surviving steps 2
+   and 3 usually sits on some *other* page, pointing at a page whose sidebar position changed. Fix the
+   link, never by creating a file.
 
 ## The receipt
 
-Per category: its name, its index page path, and the pages it now holds. Then the pages you left
-ungrouped, with the reason. Then whether the build passed.
+Per category: name, index page path, pages held. Then ungrouped pages with reasons. Then build result.
 
-Say plainly when you propose no change. A reference section of eight pages does not need categories,
-and saying so is a better answer than grouping for the sake of it.
+Say plainly when proposing no change. Eight reference pages need no categories; saying so beats grouping
+for its own sake.

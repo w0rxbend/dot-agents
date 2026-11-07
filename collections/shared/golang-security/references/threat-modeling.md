@@ -1,7 +1,5 @@
 # Threat Modeling Guide
 
-Systematic methodology for identifying and prioritizing security threats in Go applications.
-
 ## Table of Contents
 
 - [STRIDE Methodology](#stride-methodology)
@@ -16,7 +14,7 @@ Systematic methodology for identifying and prioritizing security threats in Go a
 
 ## STRIDE Methodology
 
-Apply STRIDE to every element in your system's data flow diagram. Each element type is susceptible to specific threat categories:
+Apply STRIDE to every element in system data flow diagram. Each element type faces specific threat categories:
 
 ### STRIDE per Element Matrix
 
@@ -29,7 +27,7 @@ Apply STRIDE to every element in your system's data flow diagram. Each element t
 
 ### Go-Specific STRIDE Analysis
 
-**Spoofing** — Can an attacker impersonate a user or service?
+**Spoofing** — Can attacker impersonate user or service?
 
 ```go
 // Check: Is every endpoint behind authentication?
@@ -51,7 +49,7 @@ if !hmac.Equal(signature, expected) {
 }
 ```
 
-**Repudiation** — Can a user deny performing an action?
+**Repudiation** — Can user deny performing action?
 
 ```go
 // Check: Are all security-relevant actions logged with structured data?
@@ -72,7 +70,7 @@ logger.Info("action_performed",
 // Check: Are debug endpoints (pprof) disabled in production?
 ```
 
-**Denial of Service** — Can the service be overwhelmed?
+**Denial of Service** — Can service be overwhelmed?
 
 ```go
 // Check: Are timeouts set on the HTTP server?
@@ -85,7 +83,7 @@ server := &http.Server{
 }
 ```
 
-**Elevation of Privilege** — Can a user gain unauthorized access?
+**Elevation of Privilege** — Can user gain unauthorized access?
 
 ```go
 // Check: Is authorization checked server-side on every request?
@@ -101,7 +99,7 @@ if !user.HasPermission("admin:write") {
 
 ## DREAD Risk Scoring
 
-Score each identified threat to prioritize remediation:
+Score each identified threat to prioritize fixes:
 
 | Factor | 1-3 (Low) | 4-6 (Medium) | 7-10 (High) |
 | --- | --- | --- | --- |
@@ -109,7 +107,7 @@ Score each identified threat to prioritize remediation:
 | **R**eproducibility | Timing-dependent, hard to reproduce | Reproducible with some effort | Always reproducible, automated tools exist |
 | **E**xploitability | Custom exploit, advanced skills needed | Basic tools available | No skills required, public exploit exists |
 | **A**ffected users | Individual user | Subset of users | All users |
-| **D**iscoverability | Requires insider knowledge | Found via scanning | Publicly documented, obvious |
+| **D**iscoverability | Needs insider knowledge | Found via scanning | Publicly documented, obvious |
 
 **Score** = (D + R + E + A + D) / 5. Risk levels: **8-10 Critical**, **6-7.9 High**, **4-5.9 Medium**, **1-3.9 Low**.
 
@@ -129,7 +127,7 @@ Score each identified threat to prioritize remediation:
 
 ## Trust Boundary Analysis
 
-Map where untrusted data enters your Go application:
+Map where untrusted data enters Go application:
 
 ```
                         ┌─────────────────────────────────────┐
@@ -152,11 +150,11 @@ Internet ──→ [LB/WAF] ──→ [Go HTTP Server]                   │
                           External APIs (mTLS)
 ```
 
-Every arrow crossing the trust boundary needs:
+Every arrow crossing trust boundary needs:
 
-1. **Authentication** — who is making this request?
-2. **Input validation** — is the data well-formed and within bounds?
-3. **Authorization** — is this caller allowed to perform this action on this resource?
+1. **Authentication** — who makes this request?
+2. **Input validation** — is data well-formed and within bounds?
+3. **Authorization** — may this caller perform this action on this resource?
 
 ---
 
@@ -179,19 +177,19 @@ Every arrow crossing the trust boundary needs:
 
 ## Conducting a Threat Model
 
-1. **Scope** — identify system boundaries, assets to protect, and threat actors
-2. **Diagram** — draw a data flow diagram with trust boundaries (external entities, processes, data stores, data flows)
-3. **STRIDE** — apply STRIDE to each DFD element using the matrix above
+1. **Scope** — identify system boundaries, assets to protect, threat actors
+2. **Diagram** — draw data flow diagram with trust boundaries (external entities, processes, data stores, data flows)
+3. **STRIDE** — apply STRIDE to each DFD element using matrix above
 4. **Score** — rate each threat with DREAD
-5. **Prioritize** — fix Critical/High first; document accepted risks with explicit justification
+5. **Prioritize** — fix Critical/High first. Document accepted risks with explicit justification
 6. **Verify** — run `gosec ./...`, `govulncheck ./...`, `go test -race ./...` to validate mitigations
-7. **Iterate** — update the model when the system changes (new endpoints, new data flows, new integrations)
+7. **Iterate** — update model when system changes (new endpoints, new data flows, new integrations)
 
 ---
 
 ## Vulnerability Severity Matrix
 
-Use when no DREAD data is available — cross-reference impact with exploitability:
+Use when no DREAD data exists. Cross-reference impact with exploitability:
 
 | Impact \ Exploitability | Easy     | Moderate | Difficult |
 | ----------------------- | -------- | -------- | --------- |

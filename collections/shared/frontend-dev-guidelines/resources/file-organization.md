@@ -1,53 +1,21 @@
 # File Organization
 
-Proper file and directory structure for maintainable, scalable frontend code in the the application.
-
----
-
 ## features/ vs components/ Distinction
 
 ### features/ Directory
 
-**Purpose**: Domain-specific features with their own logic, API, and components
-
-**When to use:**
-- Feature has multiple related components
-- Feature has its own API endpoints
-- Feature has domain-specific logic
-- Feature has custom hooks/utilities
+**Purpose**: domain-specific features with own logic, API, components, custom hooks/utilities
 
 **Examples:**
 - `features/posts/` - Project catalog/post management
 - `features/forms/` - Form builder and rendering
 - `features/auth/` - Authentication flows
 
-**Structure:**
-```
-features/
-  my-feature/
-    api/
-      myFeatureApi.ts         # API service layer
-    components/
-      MyFeatureMain.tsx       # Main component
-      SubComponents/          # Related components
-    hooks/
-      useMyFeature.ts         # Custom hooks
-      useSuspenseMyFeature.ts # Suspense hooks
-    helpers/
-      myFeatureHelpers.ts     # Utility functions
-    types/
-      index.ts                # TypeScript types
-    index.ts                  # Public exports
-```
-
 ### components/ Directory
 
-**Purpose**: Truly reusable components used across multiple features
+**Purpose**: truly reusable components shared by multiple features
 
-**When to use:**
-- Component is used in 3+ places
-- Component is generic (no feature-specific logic)
-- Component is a UI primitive or pattern
+**When to use:** component used in 3+ places, generic (no feature-specific logic), UI primitive or pattern.
 
 **Examples:**
 - `components/SuspenseLoader/` - Loading wrapper
@@ -72,7 +40,7 @@ components/
 
 ### Complete Feature Example
 
-Based on `features/posts/` structure:
+Based on `features/posts/`:
 
 ```
 features/
@@ -122,10 +90,10 @@ features/
 
 #### api/ Directory
 
-**Purpose**: Centralized API calls for the feature
+**Purpose**: centralized API calls for feature
 
 **Files:**
-- `{feature}Api.ts` - Main API service
+- `{feature}Api.ts` - main API service
 
 **Pattern:**
 ```typescript
@@ -146,7 +114,7 @@ export const myFeatureApi = {
 
 #### components/ Directory
 
-**Purpose**: Feature-specific components
+**Purpose**: feature-specific components
 
 **Organization:**
 - Flat structure if <5 components
@@ -170,11 +138,7 @@ components/
 
 #### hooks/ Directory
 
-**Purpose**: Custom hooks for the feature
-
-**Naming:**
-- `use` prefix (camelCase)
-- Descriptive of what they do
+**Purpose**: custom hooks for feature
 
 **Examples:**
 ```
@@ -187,7 +151,7 @@ hooks/
 
 #### helpers/ Directory
 
-**Purpose**: Utility functions specific to the feature
+**Purpose**: feature-specific utility functions
 
 **Examples:**
 ```
@@ -246,32 +210,13 @@ import { SuspenseLoader } from '../../../components/SuspenseLoader';
 - Config: `@/config/theme`
 - Shared services: `@/services/authService`
 
-**~types (Type Imports)**:
-```typescript
-import type { Post } from '~types/post';
-import type { User, UserRole } from '~types/user';
-```
-
-**~components (Reusable Components)**:
-```typescript
-import { SuspenseLoader } from '~components/SuspenseLoader';
-import { CustomAppBar } from '~components/CustomAppBar';
-import { ErrorBoundary } from '~components/ErrorBoundary';
-```
-
-**~features (Feature Imports)**:
-```typescript
-import { postApi } from '~features/posts/api/postApi';
-import { useAuth } from '~features/auth/hooks/useAuth';
-```
-
 ---
 
 ## File Naming Conventions
 
 ### Components
 
-**Pattern**: PascalCase with `.tsx` extension
+**Pattern**: PascalCase, `.tsx` extension
 
 ```
 MyComponent.tsx
@@ -286,7 +231,7 @@ CustomAppBar.tsx
 
 ### Hooks
 
-**Pattern**: camelCase with `use` prefix, `.ts` extension
+**Pattern**: camelCase, `use` prefix, `.ts` extension
 
 ```
 useMyFeature.ts
@@ -297,7 +242,7 @@ useGridLayout.ts
 
 ### API Services
 
-**Pattern**: camelCase with `Api` suffix, `.ts` extension
+**Pattern**: camelCase, `Api` suffix, `.ts` extension
 
 ```
 myFeatureApi.ts
@@ -307,14 +252,7 @@ userApi.ts
 
 ### Helpers/Utilities
 
-**Pattern**: camelCase with descriptive name, `.ts` extension
-
-```
-myFeatureHelpers.ts
-validation.ts
-transformers.ts
-constants.ts
-```
+**Pattern**: camelCase, descriptive name, `.ts` extension
 
 ### Types
 
@@ -333,7 +271,7 @@ types/user.ts
 ### Create New Feature When:
 
 - Multiple related components (>3)
-- Has own API endpoints
+- Own API endpoints
 - Domain-specific logic
 - Will grow over time
 - Reused across multiple routes
@@ -351,7 +289,7 @@ types/user.ts
 - Logically grouped
 - Extends existing functionality
 
-**Example:** Adding export dialog to posts feature
+**Example:** adding export dialog to posts feature
 
 ### Create Reusable Component When:
 
@@ -404,7 +342,7 @@ import { myFeatureHelpers } from '../helpers/myFeatureHelpers';
 
 ### feature/index.ts
 
-Export public API from feature for clean imports:
+Export feature public API for clean imports:
 
 ```typescript
 // features/my-feature/index.ts
@@ -485,16 +423,6 @@ src/
 ```
 
 ---
-
-## Summary
-
-**Key Principles:**
-1. **features/** for domain-specific code
-2. **components/** for truly reusable UI
-3. Use subdirectories: api/, components/, hooks/, helpers/, types/
-4. Import aliases for clean imports (@/, ~types, ~components, ~features)
-5. Consistent naming: PascalCase components, camelCase utilities
-6. Export public API from feature index.ts
 
 **See Also:**
 - [component-patterns.md](component-patterns.md) - Component structure

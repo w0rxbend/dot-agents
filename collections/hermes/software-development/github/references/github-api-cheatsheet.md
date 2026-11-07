@@ -4,7 +4,7 @@ Base URL: `https://api.github.com`
 
 All requests need: `-H "Authorization: token $GITHUB_TOKEN"`
 
-Use the `gh-env.sh` helper to set `$GITHUB_TOKEN`, `$GH_OWNER`, `$GH_REPO` automatically:
+`gh-env.sh` helper sets `$GITHUB_TOKEN`, `$GH_OWNER`, `$GH_REPO` automatically:
 ```bash
 source "$GH_SKILL_DIR/scripts/gh-env.sh"
 ```
@@ -66,7 +66,7 @@ Merge methods: `"merge"`, `"squash"`, `"rebase"`
 | List labels | GET | `/repos/{owner}/{repo}/labels` |
 | Search issues | GET | `/search/issues?q={query}+repo:{owner}/{repo}` |
 
-Note: The Issues API also returns PRs. Filter with `"pull_request" not in item` when parsing.
+Note: Issues API also returns PRs. Filter with `"pull_request" not in item` when parsing.
 
 ## CI / GitHub Actions
 
@@ -115,7 +115,6 @@ Note: The Issues API also returns PRs. Filter with `"pull_request" not in item` 
 | Action | Method | Endpoint |
 |--------|--------|----------|
 | Get current user | GET | `/user` |
-| List user repos | GET | `/user/repos` |
 | List user gists | GET | `/gists` |
 | Create gist | POST | `/gists` |
 | Search repos | GET | `/search/repositories?q={query}` |
@@ -125,7 +124,7 @@ Note: The Issues API also returns PRs. Filter with `"pull_request" not in item` 
 Most list endpoints support:
 - `?per_page=100` (max 100)
 - `?page=2` for next page
-- Check `Link` header for `rel="next"` URL
+- `Link` header holds `rel="next"` URL
 
 ## Rate Limits
 
@@ -157,5 +156,5 @@ curl -s -X DELETE \
   https://api.github.com/repos/$GH_OWNER/$GH_REPO/issues/42/labels/bug
 
 # Parse JSON response with python3
-curl -s ... | python3 -c "import sys,json; data=json.load(sys.stdin); print(data['field'])"
+curl -s ... | python3 -I -c "import sys,json; data=json.load(sys.stdin); print(data['field'])"
 ```

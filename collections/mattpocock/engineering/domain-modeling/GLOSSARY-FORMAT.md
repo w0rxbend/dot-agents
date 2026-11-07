@@ -24,16 +24,16 @@ _Avoid_: Client, buyer, account
 
 ## Rules
 
-- **Be opinionated.** When multiple words exist for the same concept, pick the best one and list the others under `_Avoid_`.
+- **Be opinionated.** When multiple words exist for one concept, pick best one and list others under `_Avoid_`.
 - **Keep definitions tight.** One or two sentences max. Define what it IS, not what it does.
-- **Only include terms specific to this project's context.** General programming concepts (timeouts, error types, utility patterns) don't belong even if the project uses them extensively. Before adding a term, ask: is this a concept unique to this context, or a general programming concept? Only the former belongs.
-- **Group terms under subheadings** when natural clusters emerge. If all terms belong to a single cohesive area, a flat list is fine.
+- **Only include terms specific to this project's context.** General programming concepts (timeouts, error types, utility patterns) don't belong, even if project uses them heavily.
+- **Group terms under subheadings** when natural clusters emerge. If all terms belong to one cohesive area, flat list is fine.
 
 ## Single vs multi-context repos
 
-**Single context (most repos):** One `GLOSSARY.md` at the repo root.
+**Single context (most repos):** one `GLOSSARY.md` at repo root.
 
-**Multiple contexts:** A `GLOSSARY-MAP.md` at the repo root lists the contexts, where they live, and how they relate to each other:
+**Multiple contexts:** `GLOSSARY-MAP.md` at repo root lists contexts, where they live, and how they relate:
 
 ```md
 # Glossary Map
@@ -51,10 +51,6 @@ _Avoid_: Client, buyer, account
 - **Ordering ↔ Billing**: Shared types for `CustomerId` and `Money`
 ```
 
-The skill infers which structure applies:
+Infer structure: `GLOSSARY-MAP.md` exists → read it to find contexts; only root `GLOSSARY.md` → single context; neither → create root `GLOSSARY.md` lazily when first term is resolved.
 
-- If `GLOSSARY-MAP.md` exists, read it to find contexts
-- If only a root `GLOSSARY.md` exists, single context
-- If neither exists, create a root `GLOSSARY.md` lazily when the first term is resolved
-
-When multiple contexts exist, infer which one the current topic relates to. If unclear, ask.
+With multiple contexts, infer which one current topic belongs to. If unclear, ask.

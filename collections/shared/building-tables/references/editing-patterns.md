@@ -1,7 +1,5 @@
 # Table Editing Patterns
 
-Inline editing, validation, optimistic updates, and bulk editing for data grids.
-
 
 ## Table of Contents
 

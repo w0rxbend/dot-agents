@@ -1,25 +1,13 @@
 # Zod Validation: TypeScript-First Schema Validation
 
-**Zod is a TypeScript-first schema validation library that provides runtime validation with automatic type inference. It's the recommended validation solution for TypeScript projects.**
+**Zod: TypeScript-first schema validation library, zero dependencies. Compile-time AND runtime validation plus automatic type inference. Recommended validation for TypeScript projects.**
 
 ## Why Zod?
 
-**TypeScript Integration:**
-- **Automatic type inference** - Types generated from schema
-- **Type-safe** - Compile-time AND runtime validation
-- **Zero dependencies** - Lightweight, no external deps
-- **Composable** - Build complex schemas from simple ones
-
-**Developer Experience:**
-- **Excellent error messages** - Clear, customizable
-- **Schema as single source of truth** - Types + validation in one place
-- **Integrates with React Hook Form** - Via `@hookform/resolvers`
-- **Supports all primitives** - String, number, boolean, date, etc.
-
 **When to Use:**
-- ✅ TypeScript projects (primary benefit)
-- ✅ Need runtime validation
-- ✅ Want type inference from schema
+- ✅ TypeScript projects (main benefit)
+- ✅ Runtime validation needed
+- ✅ Type inference from schema wanted
 - ✅ Building APIs (validate request/response)
 - ✅ Complex validation rules
 
@@ -859,11 +847,7 @@ z.setErrorMap(customErrorMap);
 
 ## Best Practices
 
-1. **Use .infer for types** - Let Zod generate TypeScript types
-   ```typescript
-   const schema = z.object({ name: z.string() });
-   type Data = z.infer<typeof schema>; // ✅ Single source of truth
-   ```
+1. **Use .infer for types** - Zod generates TypeScript types
 
 2. **Validate at boundaries** - API requests, form submissions
    ```typescript
@@ -892,12 +876,6 @@ z.setErrorMap(customErrorMap);
    ```
 
 4. **Use discriminated unions** - For conditional schemas
-   ```typescript
-   const responseSchema = z.discriminatedUnion('status', [
-     z.object({ status: z.literal('success'), data: z.any() }),
-     z.object({ status: z.literal('error'), error: z.string() }),
-   ]);
-   ```
 
 5. **Transform and validate** - Clean data, then validate
    ```typescript
@@ -928,5 +906,5 @@ z.setErrorMap(customErrorMap);
 ## Next Steps
 
 - Use with React Hook Form → `react-hook-form.md`
-- See working examples → `../../examples/`
+- Working examples → `../../examples/`
 - Validation concepts → `../validation-concepts.md`

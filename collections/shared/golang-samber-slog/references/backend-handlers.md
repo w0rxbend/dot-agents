@@ -1,6 +1,6 @@
 # Backend Handlers
 
-All backend handlers implement `slog.Handler` and follow the `Option{}.NewXxxHandler()` constructor pattern.
+All implement `slog.Handler`; constructor pattern `Option{}.NewXxxHandler()`.
 
 ## Table of Contents
 
@@ -28,14 +28,14 @@ All backend handlers implement `slog.Handler` and follow the `Option{}.NewXxxHan
 
 ## Common Option Fields
 
-Every handler's `Option` struct includes:
+Every `Option` struct includes:
 
 | Field | Purpose |
 | --- | --- |
 | `Level` | Minimum log level (default: `slog.LevelDebug`) |
-| `AddSource` | Include source file/line in log output |
-| `ReplaceAttr` | Callback to modify attributes before emission |
-| `Converter` | Custom payload builder for the target format |
+| `AddSource` | Include source file/line in output |
+| `ReplaceAttr` | Callback modifying attributes before emission |
+| `Converter` | Custom payload builder for target format |
 | `AttrFromContext` | Slice of functions extracting attributes from `context.Context` |
 
 ## Cloud Backends
@@ -52,11 +52,11 @@ handler := slogdatadog.Option{
 defer handler.(interface{ Stop(context.Context) error }).Stop(context.Background()) // REQUIRED: flush buffered logs
 ```
 
-**Batch mode** is the default — logs are buffered and sent periodically (default 5s):
+**Batch mode** default: logs buffered, sent periodically (default 5s):
 
-- Call `Stop(ctx)` on shutdown or buffered logs are lost.
-- `Flush(ctx)` triggers a mid-lifecycle flush.
-- For synchronous delivery, check the Option configuration.
+- Call `Stop(ctx)` on shutdown, or buffered logs are lost.
+- `Flush(ctx)` flushes mid-lifecycle.
+- Synchronous delivery: check Option configuration.
 
 ### Sentry — `slog-sentry`
 
@@ -73,9 +73,9 @@ handler := slogsentry.Option{
 defer sentry.Flush(2 * time.Second)
 ```
 
-**Recognized attributes:** `error` (any error type), `request` (\*http.Request), `dist`, `environment`, `release`, `server_name`, `transaction`. Use `slog.Group("tags", ...)` for Sentry tags and `slog.Group("user", ...)` for user context.
+**Recognized attributes:** `error` (any error type), `request` (\*http.Request), `dist`, `environment`, `release`, `server_name`, `transaction`. `slog.Group("tags", ...)` for Sentry tags, `slog.Group("user", ...)` for user context.
 
-**Error keys:** Global `ErrorKeys = []string{"error", "err"}` — attributes with these keys are treated as error objects.
+**Error keys:** global `ErrorKeys = []string{"error", "err"}`; attributes with these keys treated as error objects.
 
 ### Loki — `slog-loki`
 
@@ -91,7 +91,7 @@ handler := slogloki.Option{
 }.NewLokiHandler()
 ```
 
-**Labels vs metadata:** By default, attributes are sent as Loki labels. For high-cardinality data (request IDs, trace IDs), enable `HandleRecordsWithMetadata: true` to send as structured metadata instead — this avoids label explosion that degrades Loki performance.
+**Labels vs metadata:** attributes go as Loki labels by default. High-cardinality data (request IDs, trace IDs): set `HandleRecordsWithMetadata: true` to send structured metadata instead. Avoids label explosion that degrades Loki performance.
 
 ### Graylog — `slog-graylog`
 
@@ -105,7 +105,7 @@ handler := sloggraylog.Option{
 }.NewGraylogHandler()
 ```
 
-Uses GELF (Graylog Extended Log Format) over UDP.
+GELF (Graylog Extended Log Format) over UDP.
 
 ## Messaging Backends
 
@@ -156,9 +156,11 @@ handler := sloglogstash.Option{
 defer conn.Close()
 ```
 
-Output format: JSON with `@timestamp`, `level`, `message`, `error`, `extra` fields.
+Output: JSON with `@timestamp`, `level`, `message`, `error`, `extra` fields.
 
 ## Notification Backends
+
+Webhook URLs and bot tokens are secrets: load from env or secret store; never hardcode, commit or log them.
 
 ### Slack — `slog-slack`
 
@@ -168,14 +170,14 @@ import slogslack "github.com/samber/slog-slack/v2"
 // Via webhook
 handler := slogslack.Option{
     Level:      slog.LevelError,
-    WebhookURL: "https://hooks.slack.com/services/...",
+    WebhookURL: os.Getenv("SLACK_WEBHOOK_URL"),
     Channel:    "alerts",
 }.NewSlackHandler()
 
 // Via bot token
 handler := slogslack.Option{
     Level:    slog.LevelError,
-    BotToken: "xoxb-...",
+    BotToken: os.Getenv("SLACK_BOT_TOKEN"),
     Channel:  "alerts",
 }.NewSlackHandler()
 ```
@@ -187,7 +189,7 @@ import slogtelegram "github.com/samber/slog-telegram/v2"
 
 handler := slogtelegram.Option{
     Level:    slog.LevelError,
-    Token:    "your-bot-token",
+    Token:    os.Getenv("TELEGRAM_BOT_TOKEN"),
     Username: "@your-channel",
 }.NewTelegramHandler()
 ```
@@ -199,7 +201,7 @@ import slogwebhook "github.com/samber/slog-webhook/v2"
 
 handler := slogwebhook.Option{
     Level:    slog.LevelError,
-    Endpoint: "https://webhook.site/your-id",
+    Endpoint: os.Getenv("LOG_WEBHOOK_URL"),
     Timeout:  10 * time.Second,
 }.NewWebhookHandler()
 ```
@@ -220,11 +222,11 @@ handler := slogparquet.Option{
 }.NewParquetHandler()
 ```
 
-Uses Thanos `objstore.Bucket` for cloud storage (S3, GCS, Azure). Records are buffered and written as Parquet files when either `maxRecords` or `maxInterval` is reached.
+Uses Thanos `objstore.Bucket` for cloud storage (S3, GCS, Azure). Buffers records; writes Parquet file when `maxRecords` or `maxInterval` is reached.
 
 ## Logging Bridges
 
-Bridge the `slog.Handler` interface to legacy logging frameworks. Use during incremental migration from Zap/Zerolog/Logrus to slog.
+Bridge `slog.Handler` to legacy logging frameworks, for incremental migration from Zap/Zerolog/Logrus to slog.
 
 ### slog-zap
 
@@ -265,7 +267,7 @@ handler := sloglogrus.Option{
 
 ## Graceful Shutdown Checklist
 
-Handlers that buffer records internally and MUST be closed on shutdown:
+Handlers buffering records internally; each MUST close on shutdown:
 
 | Handler | Shutdown method | What happens without it |
 | --- | --- | --- |
@@ -274,7 +276,7 @@ Handlers that buffer records internally and MUST be closed on shutdown:
 | `slog-kafka` | `writer.Close()` | Pending messages never sent |
 | `slog-parquet` | `buffer.Flush(true)` | Partial Parquet file not flushed to storage |
 
-For non-batched handlers (Sentry, Slack, Telegram, Webhook), logs are sent synchronously — no close required, but `sentry.Flush(timeout)` is recommended.
+Non-batched handlers (Sentry, Slack, Telegram, Webhook) send synchronously; no close required. `sentry.Flush(timeout)` still recommended.
 
 ```go
 // Production shutdown pattern

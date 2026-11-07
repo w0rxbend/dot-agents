@@ -61,100 +61,100 @@ Do you know your access pattern?
 
 **Constant:** `hot.LRU`
 
-Evicts the item that hasn't been accessed for the longest time. Simple doubly-linked list + hash map implementation.
+Evicts item idle longest. Simple doubly-linked list + hash map implementation.
 
-- **Strengths:** Simple mental model, predictable behavior, low overhead per operation
-- **Weaknesses:** Scan pollution — a single sequential scan evicts all hot items. No frequency awareness.
+- **Strengths:** Simple mental model, predictable behavior, low per-operation overhead
+- **Weaknesses:** Scan pollution — one sequential scan evicts all hot items. No frequency awareness.
 - **Ideal workload:** Time-windowed data (user sessions, recent search results, short-lived tokens)
-- **Degrades when:** A batch job or sequential scan touches many cold keys, evicting frequently-used items
+- **Degrades when:** Batch job or sequential scan touches many cold keys, evicting frequently-used items
 
 ### LFU (Least Frequently Used)
 
 **Constant:** `hot.LFU`
 
-Evicts the item with the fewest accesses. Tracks access counts per key.
+Evicts item with fewest accesses. Tracks per-key access counts.
 
-- **Strengths:** Keeps genuinely popular items regardless of access timing
-- **Weaknesses:** Stale popular items never evict — an item accessed 10,000 times yesterday blocks new hot items today. No frequency decay.
+- **Strengths:** Keeps popular items regardless of access timing
+- **Weaknesses:** Stale popular items never evict — item accessed 10,000 times yesterday blocks new hot items today. No frequency decay.
 - **Ideal workload:** Stable popularity rankings (DNS records, country code lookups, static configuration)
-- **Degrades when:** Popularity shifts over time or new items need to ramp up quickly
+- **Degrades when:** Popularity shifts over time or new items must ramp up quickly
 
 ### TinyLFU
 
 **Constant:** `hot.TinyLFU`
 
-Combines frequency estimation with a compact Count-Min Sketch instead of per-key counters. Includes frequency decay — old access counts fade over time.
+Estimates frequency via compact Count-Min Sketch instead of per-key counters. Includes frequency decay: old access counts fade over time.
 
-- **Strengths:** Low memory overhead for frequency tracking, handles popularity shifts via decay, good admission filtering
-- **Weaknesses:** Admission filter adds overhead on writes. Sketch approximation can cause rare false positives.
+- **Strengths:** Low memory for frequency tracking, decay handles popularity shifts, good admission filtering
+- **Weaknesses:** Admission filter adds write overhead. Sketch approximation can cause rare false positives.
 - **Ideal workload:** Read-heavy with moderate frequency bias (API response caching, content delivery metadata)
-- **Degrades when:** Write-heavy workloads where admission overhead exceeds the benefit
+- **Degrades when:** Write-heavy workloads where admission overhead exceeds benefit
 
 ### W-TinyLFU (Weighted TinyLFU)
 
 **Constant:** `hot.WTinyLFU`
 
-Adds a small "window" LRU in front of TinyLFU's admission filter. New items enter the window, and the admission filter decides whether they're promoted to the main cache. Balances recency and frequency automatically.
+Small "window" LRU in front of TinyLFU's admission filter. New items enter window; filter decides promotion to main cache. Balances recency and frequency automatically.
 
-- **Strengths:** Best general-purpose hit rate across diverse workloads. Self-adapting. Handles both recency and frequency patterns.
-- **Weaknesses:** Slightly more complex internals (harder to reason about eviction order during debugging)
+- **Strengths:** Best general-purpose hit rate across diverse workloads. Self-adapting to recency and frequency patterns.
+- **Weaknesses:** Slightly more complex internals (eviction order harder to reason about while debugging)
 - **Ideal workload:** Mixed or unknown access patterns, general-purpose caching
-- **Degrades when:** Rarely — it's the safest default. May underperform specialized algorithms on extreme workloads.
+- **Degrades when:** Rarely — safest default. May underperform specialized algorithms on extreme workloads.
 
 ### S3FIFO (Segmented Small-Size FIFO)
 
 **Constant:** `hot.S3FIFO`
 
-Three-segment FIFO design: small, main, and ghost queues. Items promoted from small to main only if accessed again. Ghost queue tracks recently evicted keys for scan resistance.
+Three FIFO segments: small, main, ghost queues. Items promoted small to main only if accessed again. Ghost queue tracks recently evicted keys for scan resistance.
 
-- **Strengths:** Excellent throughput (FIFO operations are cheaper than linked-list manipulations). Good scan resistance. Simple eviction path.
-- **Weaknesses:** Needs enough capacity for the segmented structure to work. Less effective on small caches.
+- **Strengths:** Excellent throughput (FIFO operations cheaper than linked-list manipulations). Good scan resistance. Simple eviction path.
+- **Weaknesses:** Segmented structure needs enough capacity. Less effective on small caches.
 - **Ideal workload:** High-throughput systems with large caches (>100k items), CDN-like access patterns
-- **Degrades when:** Cache is very small (<1000 items) — the segments don't have enough room to differentiate access patterns
+- **Degrades when:** Cache very small (<1000 items) — segments don't have room to differentiate access patterns
 
 ### ARC (Adaptive Replacement Cache)
 
 **Constant:** `hot.ARC`
 
-Maintains four internal lists: two for recency (recent and recent-ghost) and two for frequency (frequent and frequent-ghost). Dynamically adjusts the split between recency and frequency based on which ghost list sees more hits.
+Four internal lists: recency (recent, recent-ghost) and frequency (frequent, frequent-ghost). Dynamically adjusts recency/frequency split based on which ghost list sees more hits.
 
 - **Strengths:** Self-tuning — learns from misses whether to favor recency or frequency. No manual parameter tuning.
 - **Weaknesses:** ~2x memory overhead for ghost lists. More complex implementation.
-- **Ideal workload:** Workloads that shift between recency and frequency patterns (mixed database query caching)
-- **Degrades when:** Memory is constrained — the ghost lists consume significant space
+- **Ideal workload:** Workloads shifting between recency and frequency patterns (mixed database query caching)
+- **Degrades when:** Memory constrained — ghost lists consume significant space
 
 ### TwoQueue
 
 **Constant:** `hot.TwoQueue`
 
-Separates items into "hot" (frequently accessed) and "cold" (recently added) queues with independent eviction. Items graduate from cold to hot on second access.
+Splits items into "hot" (frequently accessed) and "cold" (recently added) queues, evicted independently. Items graduate cold to hot on second access.
 
-- **Strengths:** Good separation of one-hit wonders from genuinely useful items. Scan resistant.
-- **Weaknesses:** Requires understanding the hot/cold split ratio for optimal tuning
-- **Ideal workload:** Workloads with a clear hot/cold distinction (e.g., 20% of keys serve 80% of requests)
-- **Degrades when:** Access patterns are uniform with no clear hot/cold split
+- **Strengths:** Separates one-hit wonders from useful items well. Scan resistant.
+- **Weaknesses:** Optimal tuning requires understanding hot/cold split ratio
+- **Ideal workload:** Clear hot/cold distinction (e.g., 20% of keys serve 80% of requests)
+- **Degrades when:** Access patterns uniform with no clear hot/cold split
 
 ### SIEVE
 
 **Constant:** `hot.SIEVE`
 
-Modern eviction algorithm that uses a single bit per entry (visited/not-visited) with a circular "hand" pointer. Simple scan-resistant alternative to LRU.
+Modern algorithm: one bit per entry (visited/not-visited) plus circular "hand" pointer. Simple scan-resistant LRU alternative.
 
 - **Strengths:** Very low per-item overhead (1 bit). Scan-resistant. Simple implementation.
 - **Weaknesses:** Less sophisticated than W-TinyLFU or ARC for complex patterns
-- **Ideal workload:** When you want scan resistance with minimal complexity and overhead
-- **Degrades when:** Access patterns are highly skewed — specialized algorithms capture the skew better
+- **Ideal workload:** Scan resistance with minimal complexity and overhead
+- **Degrades when:** Access patterns highly skewed — specialized algorithms capture skew better
 
 ### FIFO (First In, First Out)
 
 **Constant:** `hot.FIFO`
 
-Evicts the oldest inserted item regardless of access pattern. No recency or frequency tracking.
+Evicts oldest inserted item, ignoring access pattern. No recency or frequency tracking.
 
 - **Strengths:** Simplest possible eviction. Predictable. Zero per-access overhead.
 - **Weaknesses:** No intelligence — ignores how often or recently items are accessed
-- **Ideal workload:** TTL-driven caches where all items have similar lifetimes and eviction order doesn't matter (log buffers, time-series windows)
-- **Degrades when:** Hit rate matters — any other algorithm will outperform FIFO on non-uniform access patterns
+- **Ideal workload:** TTL-driven caches with similar item lifetimes where eviction order doesn't matter (log buffers, time-series windows)
+- **Degrades when:** Hit rate matters — any other algorithm outperforms FIFO on non-uniform access patterns
 
 ## Comparison Matrix
 
@@ -172,7 +172,7 @@ Evicts the oldest inserted item regardless of access pattern. No recency or freq
 
 ## Measuring Hit Rate
 
-Enable Prometheus metrics and check hit ratio to validate your algorithm choice:
+Validate algorithm choice: enable Prometheus metrics, check hit ratio.
 
 ```go
 cache := hot.NewHotCache[string, *User](hot.WTinyLFU, 10_000).
@@ -196,11 +196,11 @@ rate(hot_cache_get_count{cache="user_cache"}[5m])
 rate(hot_cache_eviction_count{cache="user_cache"}[5m])
 ```
 
-If hit rate is below your SLO: increase capacity first, then try a different algorithm.
+If hit rate below SLO: increase capacity first, then try different algorithm.
 
 ## Switching Algorithms
 
-Changing the algorithm is a one-line change — the rest of the builder chain stays identical:
+Switching algorithm is one-line change. Rest of builder chain stays identical:
 
 ```go
 // Before

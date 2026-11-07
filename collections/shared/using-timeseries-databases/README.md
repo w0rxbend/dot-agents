@@ -124,10 +124,10 @@ React Dashboard (Recharts/visx)
 ```bash
 cd examples/metrics-dashboard-backend/
 
-# Start TimescaleDB
-docker run -d --name timescaledb -p 5432:5432 \
-  -e POSTGRES_PASSWORD=password \
-  timescale/timescaledb:latest-pg16
+# Start TimescaleDB (password from PGPASSWORD, telemetry off)
+docker run -d --name timescaledb -p 127.0.0.1:5432:5432 \
+  -e POSTGRES_PASSWORD="$PGPASSWORD" \
+  timescale/timescaledb:2.16.1-pg16 -c timescaledb.telemetry_level=off
 
 # Create schema
 psql -h localhost -U postgres -f schema.sql
@@ -146,8 +146,9 @@ curl "http://localhost:8000/api/metrics/cpu_usage?start=1h&points=1000"
 cd examples/iot-data-pipeline/
 
 # Start infrastructure
-docker run -d --name mosquitto -p 1883:1883 eclipse-mosquitto
-docker run -d --name influxdb -p 8086:8086 influxdb:3.0-alpine
+docker run -d --name mosquitto -p 127.0.0.1:1883:1883 eclipse-mosquitto:2.0.20
+docker run -d --name influxdb -p 127.0.0.1:8086:8086 \
+  -e INFLUXD_REPORTING_DISABLED=true influxdb:2.7-alpine
 
 # Run pipeline
 export INFLUX_TOKEN="your-token"

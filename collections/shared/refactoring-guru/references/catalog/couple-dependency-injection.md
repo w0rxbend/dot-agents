@@ -6,7 +6,7 @@ tags: couple, dependency-injection, testability, solid
 
 ## Use Dependency Injection
 
-Pass dependencies to a class rather than creating them internally. This makes classes testable and loosely coupled.
+Pass dependencies to a class instead of creating them internally.
 
 **Incorrect (hard-coded dependencies):**
 
@@ -64,10 +64,5 @@ const mockEmail = { send: jest.fn() }
 const mockLogger = { info: jest.fn() }
 const service = new OrderService(mockDatabase, mockEmail, mockLogger)
 ```
-
-**Benefits:**
-- Unit tests run without external services
-- Easy to swap implementations (PostgreSQL → MongoDB)
-- Dependencies are explicit in the constructor signature
 
 Reference: [Dependency Inversion Principle](https://en.wikipedia.org/wiki/Dependency_inversion_principle)

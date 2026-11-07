@@ -1,6 +1,6 @@
 # SLSA Security Framework
 
-Supply-chain Levels for Software Artifacts (SLSA) is a security framework for ensuring the integrity of software artifacts throughout the software supply chain.
+Supply-chain Levels for Software Artifacts (SLSA): security framework that protects artifact integrity across the software supply chain.
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@ Supply-chain Levels for Software Artifacts (SLSA) is a security framework for en
 
 ## SLSA Overview
 
-SLSA (pronounced "salsa") prevents tampering and unauthorized modifications to software packages. It provides:
+SLSA provides:
 
 - **Provenance**: Record of how software was built
 - **Integrity**: Cryptographic verification
@@ -22,11 +22,6 @@ SLSA (pronounced "salsa") prevents tampering and unauthorized modifications to s
 - **Auditability**: Complete build trail
 
 ### Why SLSA Matters
-
-**Supply Chain Attacks Are Real:**
-- SolarWinds (2020): Malicious code injected in build process
-- Codecov (2021): Bash Uploader script compromised
-- Log4Shell (2021): Vulnerability in widely-used library
 
 **Compliance Requirements:**
 - NIST SSDF (Secure Software Development Framework)
@@ -39,11 +34,7 @@ SLSA (pronounced "salsa") prevents tampering and unauthorized modifications to s
 
 **Requirements:**
 - Build process generates provenance
-- Provenance is available to artifact consumers
-
-**Provides:**
-- Basic record that artifact was built
-- Minimal security assurance
+- Provenance available to artifact consumers
 
 **Example:**
 ```yaml
@@ -70,11 +61,7 @@ jobs:
 - Service-generated provenance (tamper-resistant)
 - Authenticated provenance
 
-**Provides:**
-- Provenance cannot be modified by developers
-- Build environment is known
-
-**Example:** GitHub Actions automatically satisfies Level 2 (hosted build service)
+**Example:** GitHub Actions satisfies Level 2 automatically (hosted build service)
 
 ### Level 3: Hardened Build Platforms (RECOMMENDED)
 
@@ -83,11 +70,6 @@ jobs:
 - Non-falsifiable provenance (cryptographically signed)
 - Isolated build execution
 - Parameterless build definition
-
-**Provides:**
-- High confidence in artifact integrity
-- Verifiable chain of custody
-- Industry standard for production
 
 **Example:** See [GitHub Actions Integration](#github-actions-integration)
 
@@ -98,17 +80,13 @@ jobs:
 - Hermetic, reproducible builds
 - Dependencies fetched only from trusted sources
 
-**Provides:**
-- Maximum supply chain security
-- Fully reproducible builds
-
-**Status:** Future state, limited tooling availability
+**Status:** Future state; limited tooling
 
 ## Provenance Generation
 
 ### SLSA Provenance Format
 
-Provenance is a JSON document describing how an artifact was built:
+Provenance: JSON document describing how artifact was built:
 
 ```json
 {
@@ -164,7 +142,7 @@ Provenance is a JSON document describing how an artifact was built:
 - digest: Content hash (sha256)
 
 **builder.id**: Who built it
-- URI identifying the build system
+- URI identifying build system
 - Includes version/commit for reproducibility
 
 **invocation.configSource**: Build instructions
@@ -193,10 +171,14 @@ Provenance is a JSON document describing how an artifact was built:
 # Download container image
 docker pull ghcr.io/myorg/myapp@sha256:abcd1234...
 
-# Verify SLSA provenance with cosign
+# Verify SLSA provenance: trusted builder + expected source repo
+slsa-verifier verify-image ghcr.io/myorg/myapp@sha256:abcd1234... \
+  --source-uri github.com/myorg/myapp
+
+# cosign alternative (checks builder only). Anchor identity past org: bare org prefix matches lookalike orgs
 cosign verify-attestation \
   --type slsaprovenance \
-  --certificate-identity-regexp "^https://github.com/slsa-framework" \
+  --certificate-identity-regexp "^https://github.com/slsa-framework/slsa-github-generator" \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   ghcr.io/myorg/myapp@sha256:abcd1234...
 
@@ -405,7 +387,7 @@ jobs:
 
 ## GitLab CI Integration
 
-GitLab CI does not have native SLSA Level 3 support. Manual implementation required.
+GitLab CI has no native SLSA Level 3 support. Implement manually.
 
 ### Manual Provenance Generation
 
@@ -427,7 +409,7 @@ build:
 
 attest:
   stage: attest
-  image: gcr.io/projectsigstore/cosign:latest
+  image: gcr.io/projectsigstore/cosign:v3.1.4@sha256:0f06154836d2de34f887a5c273506d52ca43edaa1d9e53e6510fa78a48f69c2d  # pin signer by digest; never :latest
   script:
     - |
       cat > provenance.json <<EOF
@@ -450,12 +432,11 @@ attest:
         }
       }
       EOF
-    - cosign attest --key cosign.key --predicate provenance.json $CI_REGISTRY_IMAGE@sha256:$DIGEST
+    # COSIGN_PRIVATE_KEY: protected File-type CI/CD variable; COSIGN_PASSWORD: protected, masked. Never commit cosign.key.
+    - cosign attest --key "$COSIGN_PRIVATE_KEY" --predicate provenance.json $CI_REGISTRY_IMAGE@sha256:$DIGEST
 ```
 
 ## Cosign Integration
-
-Cosign is a tool for signing and verifying container images and other artifacts.
 
 ### Signing with Cosign
 
@@ -492,9 +473,9 @@ cosign attest --key cosign.key \
 # Verify with public key
 cosign verify --key cosign.pub ghcr.io/myorg/myapp@sha256:abcd1234...
 
-# Verify with OIDC (keyless)
+# Verify with OIDC (keyless); pin repo: bare "^https://github.com/myorg" also matches lookalike orgs
 cosign verify \
-  --certificate-identity-regexp "^https://github.com/myorg" \
+  --certificate-identity-regexp "^https://github.com/myorg/myapp" \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   ghcr.io/myorg/myapp@sha256:abcd1234...
 ```
@@ -556,7 +537,7 @@ jobs:
 ## Best Practices
 
 ### DO:
-- Achieve SLSA Level 3 for production artifacts
+- Reach SLSA Level 3 for production artifacts
 - Use OIDC (keyless signing) when possible
 - Verify provenance before deployment
 - Include SBOMs alongside provenance
@@ -567,7 +548,7 @@ jobs:
 - Use developer-generated provenance (Level 1 only)
 - Store signing keys in repositories
 - Trust artifacts without verification
-- Implement custom provenance formats (use SLSA standard)
+- Invent custom provenance formats (use SLSA standard)
 
 ## Resources
 

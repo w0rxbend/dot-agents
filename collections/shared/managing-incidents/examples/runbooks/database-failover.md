@@ -177,6 +177,7 @@ cd infrastructure/terraform/database
 echo 'primary_db_ip = "10.0.2.20"' >> terraform.tfvars
 
 # Apply change
+export CHECKPOINT_DISABLE=1  # disable Terraform checkpoint phone-home
 terraform plan -target=aws_route53_record.db_primary
 terraform apply -target=aws_route53_record.db_primary
 ```

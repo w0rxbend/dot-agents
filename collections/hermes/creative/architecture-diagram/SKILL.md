@@ -14,7 +14,7 @@ metadata:
 
 # Architecture Diagram Skill
 
-Generate professional, dark-themed technical architecture diagrams as standalone HTML files with inline SVG graphics. No external tools, no API keys, no rendering libraries — just write the HTML file and open it in a browser.
+Generate dark-themed technical architecture diagrams as standalone HTML files with inline SVG. No external tools, API keys or rendering libraries: write HTML file, open in browser.
 
 ## Scope
 
@@ -23,36 +23,36 @@ Generate professional, dark-themed technical architecture diagrams as standalone
 - Cloud infrastructure (VPC, regions, subnets, managed services)
 - Microservice / service-mesh topology
 - Database + API map, deployment diagrams
-- Anything with a tech-infra subject that fits a dark, grid-backed aesthetic
+- Any tech-infra subject fitting dark, grid-backed aesthetic
 
 **Look elsewhere first for:**
-- Physics, chemistry, math, biology, or other scientific subjects
+- Physics, chemistry, math, biology, other scientific subjects
 - Physical objects (vehicles, hardware, anatomy, cross-sections)
 - Floor plans, narrative journeys, educational / textbook-style visuals
-- Hand-drawn whiteboard sketches (use a whiteboard tool such as Excalidraw)
-- Animated explainers (consider an animation skill)
+- Hand-drawn whiteboard sketches (use whiteboard tool such as Excalidraw)
+- Animated explainers (consider animation skill)
 
-If a more specialized skill is available for the subject, prefer that. If none fits, this skill can also serve as a general SVG diagram fallback — the output will just carry the dark tech aesthetic described below.
+Prefer more specialized skill for subject if available. If none fits, use this skill as general SVG diagram fallback. Output keeps dark tech aesthetic described below.
 
 Based on [Cocoon AI's architecture-diagram-generator](https://github.com/Cocoon-AI/architecture-diagram-generator) (MIT).
 
 ## Workflow
 
-1. User describes their system architecture (components, connections, technologies)
-2. Generate the HTML file following the design system below
-3. Save with `write_file` to a `.html` file (e.g. `~/architecture-diagram.html`)
-4. User opens in any browser — no build step; offline it falls back from JetBrains Mono (Google Fonts) to the system monospace font
+1. User describes system architecture (components, connections, technologies)
+2. Generate HTML file following design system below
+3. Save with `write_file` to `.html` file (e.g. `~/architecture-diagram.html`)
+4. User opens in any browser. No build step
 
 ### Output Location
 
-Save diagrams to a user-specified path, or default to the current working directory:
+Save diagrams to user-specified path, else default to current working directory:
 ```
 ./[project-name]-architecture.html
 ```
 
 ### Preview
 
-After saving, suggest the user open it:
+After saving, suggest user open it:
 ```bash
 # macOS
 open ./my-architecture.html
@@ -64,7 +64,7 @@ xdg-open ./my-architecture.html
 
 ### Color Palette (Semantic Mapping)
 
-Use specific `rgba` fills and hex strokes to categorize components:
+Categorize components with these `rgba` fills and hex strokes:
 
 | Component Type | Fill (rgba) | Stroke (Hex) |
 | :--- | :--- | :--- |
@@ -77,9 +77,9 @@ Use specific `rgba` fills and hex strokes to categorize components:
 | **External** | `rgba(30, 41, 59, 0.5)` | `#94a3b8` (slate-400) |
 
 ### Typography & Background
-- **Font:** JetBrains Mono (Monospace), loaded from Google Fonts; keep the `monospace` fallback in `font-family` so it renders offline
+- **Font:** JetBrains Mono (Monospace) from Google Fonts. Keep `monospace` fallback in `font-family` so it renders offline
 - **Sizes:** 12px (Names), 9px (Sublabels), 8px (Annotations), 7px (Tiny labels)
-- **Background:** Slate-950 (`#020617`) with a subtle 40px grid pattern
+- **Background:** Slate-950 (`#020617`) with subtle 40px grid pattern
 
 ```svg
 <!-- Background Grid Pattern -->
@@ -91,14 +91,14 @@ Use specific `rgba` fills and hex strokes to categorize components:
 ## Technical Implementation Details
 
 ### Component Rendering
-Components are rounded rectangles (`rx="6"`) with 1.5px strokes. To prevent arrows from showing through semi-transparent fills, use a **double-rect masking technique**:
-1. Draw an opaque background rect (`#0f172a`)
-2. Draw the semi-transparent styled rect on top
+Components are rounded rectangles (`rx="6"`) with 1.5px strokes. Use **double-rect masking technique** so arrows do not show through semi-transparent fills:
+1. Draw opaque background rect (`#0f172a`)
+2. Draw semi-transparent styled rect on top
 
 ### Connection Rules
-- **Z-Order:** Draw arrows *early* in the SVG (after the grid) so they render behind component boxes
-- **Arrowheads:** Defined via SVG markers
-- **Security Flows:** Use dashed lines in rose color (`#fb7185`)
+- **Z-Order:** Draw arrows *early* in SVG (after grid) so they render behind component boxes
+- **Arrowheads:** Define via SVG markers
+- **Security Flows:** Dashed lines in rose color (`#fb7185`)
 - **Boundaries:**
   - *Security Groups:* Dashed (`4,4`), rose color
   - *Regions:* Large dashed (`8,4`), amber color, `rx="12"`
@@ -106,15 +106,15 @@ Components are rounded rectangles (`rx="6"`) with 1.5px strokes. To prevent arro
 ### Spacing & Layout Logic
 - **Standard Height:** 60px (Services); 80-120px (Large components)
 - **Vertical Gap:** Minimum 40px between components
-- **Message Buses:** Must be placed *in the gap* between services, not overlapping them
-- **Legend Placement:** **CRITICAL.** Must be placed outside all boundary boxes. Calculate the lowest Y-coordinate of all boundaries and place the legend at least 20px below it.
+- **Message Buses:** Must sit *in the gap* between services, not overlapping them
+- **Legend Placement:** **CRITICAL.** Must sit outside all boundary boxes. Find lowest Y-coordinate of all boundaries. Place legend at least 20px below it.
 
 ## Document Structure
 
-The generated HTML file follows a four-part layout:
-1. **Header:** Title with a pulsing dot indicator and subtitle
-2. **Main SVG:** The diagram contained within a rounded border card
-3. **Summary Cards:** A grid of three cards below the diagram for high-level details
+Generated HTML file uses four-part layout:
+1. **Header:** Title with pulsing dot indicator and subtitle
+2. **Main SVG:** Diagram inside rounded border card
+3. **Summary Cards:** Grid of three cards below diagram for high-level details
 4. **Footer:** Minimal metadata
 
 ### Info Card Pattern
@@ -134,15 +134,15 @@ The generated HTML file follows a four-part layout:
 ## Output Requirements
 - **Single File:** One self-contained `.html` file
 - **No External Dependencies:** All CSS and SVG must be inline (except Google Fonts)
-- **No JavaScript:** Use pure CSS for any animations (like pulsing dots)
+- **No JavaScript:** Pure CSS for any animations (like pulsing dots)
 - **Compatibility:** Must render correctly in any modern web browser
 
 ## Template Reference
 
-Load the full HTML template for the exact structure, CSS, and SVG component examples:
+Load full HTML template for exact structure, CSS, and SVG component examples:
 
 ```
 skill_view(name="architecture-diagram", file_path="templates/template.html")
 ```
 
-The template contains working examples of every component type (frontend, backend, database, cloud, security), arrow styles (standard, dashed, curved), security groups, region boundaries, and the legend — use it as your structural reference when generating diagrams.
+Template has working examples of every component type (frontend, backend, database, cloud, security), arrow styles (standard, dashed, curved), security groups, region boundaries, and legend.

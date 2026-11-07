@@ -1,10 +1,7 @@
 # Incident Response Workflow
 
-
 ## Table of Contents
 
-- [Overview](#overview)
-- [Incident Lifecycle Stages](#incident-lifecycle-stages)
 - [Stage Details](#stage-details)
   - [1. Detection](#1-detection)
   - [2. Triage & Severity Assignment](#2-triage-severity-assignment)
@@ -30,32 +27,6 @@
 - [Workflow Anti-Patterns](#workflow-anti-patterns)
 - [Further Reading](#further-reading)
 
-## Overview
-
-Standard incident lifecycle from detection through post-mortem. Follow this workflow to ensure consistent, effective incident response.
-
-## Incident Lifecycle Stages
-
-```
-1. Detection
-   ↓
-2. Triage & Severity Assignment
-   ↓
-3. Incident Declaration
-   ↓
-4. Investigation & Diagnosis
-   ↓
-5. Mitigation
-   ↓
-6. Resolution
-   ↓
-7. Monitoring
-   ↓
-8. Closure
-   ↓
-9. Post-Mortem
-```
-
 ## Stage Details
 
 ### 1. Detection
@@ -75,8 +46,8 @@ Standard incident lifecycle from detection through post-mortem. Follow this work
 **On-Call Assesses:**
 - What is broken?
 - How many customers affected?
-- Is core functionality impacted?
-- Is there a workaround?
+- Core functionality impacted?
+- Workaround exists?
 
 **Assign Severity:** SEV0, SEV1, SEV2, or SEV3 (use `python scripts/classify-severity.py`)
 
@@ -97,15 +68,15 @@ Standard incident lifecycle from detection through post-mortem. Follow this work
 
 **IC Coordinates:**
 - SMEs investigate logs, metrics, recent changes
-- Runbooks consulted if known failure scenario
-- Hypothesis formed about root cause
+- Consult runbooks if known failure scenario
+- Form root-cause hypothesis
 
 **Key Questions:**
 - When did this start?
 - What changed recently (deploys, config, traffic)?
-- Which systems are affected?
+- Which systems affected?
 
-**IC Decision:** Enough info to mitigate? If yes → Mitigation. If no → Continue investigation.
+**IC Decision:** Enough info to mitigate? If yes, go to Mitigation. If no, continue investigation.
 
 ### 5. Mitigation
 
@@ -130,19 +101,19 @@ Standard incident lifecycle from detection through post-mortem. Follow this work
 - Verify fix resolves issue
 - Test affected functionality
 
-**Example:** Mitigation was rollback → Resolution is fixing bug and deploying fixed version.
+**Example:** Mitigation was rollback. Resolution is fixing bug and deploying fixed version.
 
 ### 7. Monitoring
 
 **Duration:** 30+ minutes of stability before closure.
 
 **Monitor:**
-- Error rates returned to baseline
+- Error rates back to baseline
 - Latency normal
 - No new customer reports
 - All metrics green
 
-**IC Decision:** If stable → Proceed to Closure. If unstable → Return to Investigation.
+**IC Decision:** If stable, proceed to Closure. If unstable, return to Investigation.
 
 ### 8. Closure
 
@@ -152,12 +123,6 @@ Standard incident lifecycle from detection through post-mortem. Follow this work
 - Thank responders
 - Schedule post-mortem (within 48 hours)
 
-**Closure Criteria:**
-- Issue resolved and stable for 30+ minutes
-- Monitoring confirms normal metrics
-- No customer-reported issues
-- IC confident in stability
-
 ### 9. Post-Mortem
 
 **Timeline:** Within 48 hours of resolution.
@@ -165,10 +130,10 @@ Standard incident lifecycle from detection through post-mortem. Follow this work
 **Process:**
 - IC schedules post-mortem meeting
 - Scribe creates post-mortem document (use `examples/postmortem-template.md`)
-- Team conducts blameless review
-- Action items defined with owners and due dates
+- Team runs blameless review
+- Define action items with owners and due dates
 
-For detailed post-mortem facilitation process, consult the blameless post-mortems guide.
+For facilitation detail, see blameless post-mortems guide.
 
 ## Decision Points
 
@@ -176,9 +141,9 @@ For detailed post-mortem facilitation process, consult the blameless post-mortem
 
 **Declare if:**
 - Customer-facing impact occurring
-- Production issue requiring multiple people
+- Production issue needs multiple people
 - Severity SEV1 or higher
-- Uncertain about impact (declare, can always downgrade)
+- Impact uncertain (declare; can always downgrade)
 
 **Do NOT wait for certainty.** Declaring enables coordination.
 
@@ -188,9 +153,9 @@ For detailed post-mortem facilitation process, consult the blameless post-mortem
 - No progress after 30 minutes
 - Severity increases (SEV2 → SEV1)
 - Specialized expertise needed (database, security)
-- Incident extends beyond expected timeframe
+- Incident runs past expected timeframe
 
-Consult the escalation matrix for detailed escalation paths and contacts.
+See escalation matrix for escalation paths and contacts.
 
 ### When to Close
 
@@ -198,7 +163,7 @@ Consult the escalation matrix for detailed escalation paths and contacts.
 - Issue resolved and stable for 30+ minutes
 - Monitoring shows baseline metrics
 - No customer-reported issues
-- IC confirms no further action needed
+- IC confident in stability and confirms no further action needed
 
 **Do NOT close prematurely.** Closing too early risks recurrence.
 
@@ -206,27 +171,27 @@ Consult the escalation matrix for detailed escalation paths and contacts.
 
 ### SEV0 Workflow (All Hands)
 
-1. Detection → Immediate page to all hands
-2. Declare SEV0 → Assign IC, Communications Lead, Scribe
-3. War room → Video call for real-time coordination
-4. Executive notification → Within 15 minutes
-5. Status updates → Every 15 minutes
-6. Post-mortem → Within 24 hours (faster than normal)
+1. Detection: immediate page to all hands
+2. Declare SEV0: assign IC, Communications Lead, Scribe
+3. War room: video call for real-time coordination
+4. Executive notification: within 15 minutes
+5. Status updates: every 15 minutes
+6. Post-mortem: within 24 hours (faster than normal)
 
 ### SEV2 Workflow (Single Responder)
 
-1. Detection → Alert to on-call
-2. Single responder investigates → No IC needed
-3. Fix applied → Standard response
+1. Detection: alert to on-call
+2. Single responder investigates; no IC needed
+3. Fix applied: standard response
 4. Update status page if customer-visible
 5. Post-mortem optional (recommended if novel issue)
 
 ### SEV3 Workflow (Ticket)
 
-1. Detection → Create ticket, no alert
-2. Triage → Assign to backlog
-3. Plan fix → Next sprint
-4. No post-mortem → Track in regular sprint retrospective
+1. Detection: create ticket, no alert
+2. Triage: assign to backlog
+3. Plan fix: next sprint
+4. No post-mortem: track in regular sprint retrospective
 
 ## Communication During Workflow
 
@@ -252,26 +217,18 @@ Next Update: [TIMESTAMP]
 
 ### External Communication
 
-- Status page updated: Investigating → Identified → Monitoring → Resolved
-- Customer email: Post-resolution (within 24 hours for SEV0/SEV1)
+- Status page: Investigating → Identified → Monitoring → Resolved
+- Customer email: post-resolution (within 24 hours for SEV0/SEV1)
 
 ## Workflow Anti-Patterns
-
-**Delayed Declaration:**
-- Waiting for certainty before declaring
-- Fix: Declare early, can always downgrade
 
 **IC Doing Hands-On Debugging:**
 - IC loses strategic view
 - Fix: IC delegates all debugging to SMEs
 
 **No Status Updates:**
-- Stakeholders uninformed, anxiety increases
-- Fix: Set timer for regular updates
-
-**Premature Closure:**
-- Closing before confirming stability
-- Fix: Monitor for 30+ minutes before closure
+- Stakeholders uninformed, anxiety rises
+- Fix: set timer for regular updates
 
 ## Further Reading
 

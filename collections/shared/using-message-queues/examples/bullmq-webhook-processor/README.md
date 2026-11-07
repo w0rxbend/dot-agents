@@ -39,7 +39,7 @@ bullmq-webhook-processor/
 
 ```bash
 npm install
-docker run -p 6379:6379 redis  # Start Redis
+docker run -p 127.0.0.1:6379:6379 redis:7.4-alpine  # Start Redis (pinned, loopback only)
 npm run dev
 ```
 
@@ -150,7 +150,8 @@ createBullBoard({
   serverAdapter,
 });
 
-app.use('/admin/queues', serverAdapter.getRouter());
+// Auth required: board shows payloads and can retry/delete jobs
+app.use('/admin/queues', requireAdmin, serverAdapter.getRouter());
 ```
 
 Access: http://localhost:3000/admin/queues

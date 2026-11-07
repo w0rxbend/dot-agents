@@ -14,7 +14,7 @@
 
 ### Thumbs Up/Down Implementation
 
-Quick, frictionless feedback collection:
+Quick, frictionless feedback:
 
 ```tsx
 interface FeedbackData {
@@ -93,7 +93,7 @@ function SimpleFeedback({ message, onFeedback }) {
 
 ### Copy and Share Actions
 
-Enable users to save and share useful responses:
+Let users save and share useful responses:
 
 ```tsx
 function ResponseActions({ message }) {
@@ -204,7 +204,7 @@ function ResponseActions({ message }) {
 
 ### Basic Regeneration
 
-Simple retry with same prompt:
+Retry with same prompt:
 
 ```tsx
 function RegenerationControl({ message, onRegenerate }) {
@@ -259,8 +259,6 @@ function RegenerationControl({ message, onRegenerate }) {
 ```
 
 ### Advanced Regeneration with Options
-
-Regenerate with modified parameters:
 
 ```tsx
 function AdvancedRegeneration({ message, onRegenerate, availableModels }) {
@@ -368,7 +366,7 @@ function AdvancedRegeneration({ message, onRegenerate, availableModels }) {
 
 ### Version Comparison
 
-Compare multiple regenerations:
+Compare regenerations:
 
 ```tsx
 function ResponseVersions({ versions, currentVersion, onSelectVersion }) {
@@ -470,8 +468,6 @@ function ResponseVersions({ versions, currentVersion, onSelectVersion }) {
 
 ### Edit and Resubmit
 
-Allow users to modify their prompts:
-
 ```tsx
 function EditableMessage({ message, onEdit, onResubmit }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -564,7 +560,7 @@ function EditableMessage({ message, onEdit, onResubmit }) {
 
 ### Structured Feedback Form
 
-Collect specific improvement information:
+Collect specific improvement details:
 
 ```tsx
 interface DetailedFeedback {
@@ -693,8 +689,6 @@ function DetailedFeedbackForm({ message, onSubmit, onClose }) {
 
 ### Preference Collection
 
-Collect preferences for reinforcement learning:
-
 ```tsx
 function PreferenceComparison({ optionA, optionB, onPreference }) {
   const [selected, setSelected] = useState<'A' | 'B' | null>(null);
@@ -804,8 +798,6 @@ function PreferenceComparison({ optionA, optionB, onPreference }) {
 ## Quality Metrics
 
 ### Response Quality Dashboard
-
-Track and display quality metrics:
 
 ```tsx
 function QualityMetrics({ conversationId }) {
@@ -925,8 +917,6 @@ function MetricCard({ title, value, change, icon, color, inverse = false }) {
 ## A/B Testing Responses
 
 ### Experiment Framework
-
-Test different response strategies:
 
 ```tsx
 interface Experiment {
@@ -1061,13 +1051,5 @@ function ExperimentResults({ experiment }) {
 
 ## Best Practices Summary
 
-1. **Make feedback frictionless** - One-click thumbs up/down
-2. **Thank users** - Acknowledge feedback immediately
-3. **Allow regeneration** - Multiple attempts are normal
-4. **Support editing** - Users refine prompts iteratively
-5. **Collect detailed feedback optionally** - Don't force it
-6. **Track quality metrics** - Monitor satisfaction trends
-7. **Enable version comparison** - A/B testing for users
-8. **Implement RLHF** - Continuous improvement from preferences
-9. **Show impact** - Tell users how feedback helps
-10. **Test systematically** - A/B test response strategies
+1. **Collect detailed feedback optionally** - Don't force it
+2. **Show impact** - Tell users how feedback helps

@@ -1,7 +1,5 @@
 # Code Documentation Reference
 
-Comprehensive guide to code documentation across TypeScript, Python, Go, and Rust.
-
 ## Table of Contents
 
 1. [TypeScript: TypeDoc](#typescript-typedoc)
@@ -12,7 +10,7 @@ Comprehensive guide to code documentation across TypeScript, Python, Go, and Rus
 
 ## TypeScript: TypeDoc
 
-Generate API documentation from TypeScript code with TSDoc comments.
+Generate API docs from TypeScript code with TSDoc comments.
 
 ### Installation
 
@@ -289,13 +287,13 @@ export type ResponseHandler<T> = (response: Response<T>) => T | void;
 | `@param` | Document function parameter | `@param name - User's name` |
 | `@returns` | Document return value | `@returns The user object` |
 | `@throws` | Document exceptions | `@throws {@link Error} When...` |
-| `@example` | Provide code example | See above |
+| `@example` | Give code example | See above |
 | `@typeParam` | Document generic type | `@typeParam T - The data type` |
 | `@public` | Mark as public API | `@public` |
 | `@internal` | Mark as internal | `@internal` |
 | `@deprecated` | Mark as deprecated | `@deprecated Use newFunc instead` |
 | `@see` | Cross-reference | `@see {@link OtherClass}` |
-| `@remarks` | Additional notes | `@remarks This is experimental` |
+| `@remarks` | Extra notes | `@remarks This is experimental` |
 | `@defaultValue` | Document default value | `@defaultValue `true`` |
 
 ### Generate Documentation
@@ -321,14 +319,14 @@ npx typedoc --options typedoc.json
   "scripts": {
     "docs": "typedoc",
     "docs:watch": "typedoc --watch",
-    "docs:serve": "npx http-server docs"
+    "docs:serve": "npx http-server@14.1.1 docs"
   }
 }
 ```
 
 ## Python: Sphinx
 
-Generate documentation from Python docstrings.
+Generate docs from Python docstrings.
 
 ### Installation
 
@@ -607,7 +605,7 @@ sphinx-autobuild source build/html
 
 ## Go: godoc
 
-Document Go packages using doc comments (built-in).
+Document Go packages with doc comments (built-in).
 
 ### Package Documentation
 
@@ -928,15 +926,15 @@ cargo doc --no-deps && cargo deadlinks
 
 ### 1. Document Public APIs
 
-Focus on public interfaces. Internal implementation details can use inline comments.
+Focus on public interfaces. Inline comments suffice for internal implementation details.
 
 ### 2. Include Examples
 
-Working code examples are more valuable than descriptions.
+Working code examples beat descriptions.
 
 ### 3. Document Parameters and Returns
 
-Clearly describe inputs, outputs, and side effects.
+Describe inputs, outputs and side effects.
 
 ### 4. Document Errors
 
@@ -944,19 +942,19 @@ List all possible exceptions/errors and when they occur.
 
 ### 5. Keep Documentation Updated
 
-Update docs when code changes. Use CI to validate.
+Update docs when code changes. Validate with CI.
 
 ### 6. Use Consistent Style
 
-Choose one documentation style (Google, NumPy, TSDoc) and stick to it.
+Pick one documentation style (Google, NumPy, TSDoc) and stick to it.
 
 ### 7. Test Examples
 
-Ensure examples are runnable and correct.
+Keep examples runnable and correct.
 
 ### 8. Link Related Items
 
-Cross-reference related functions, classes, and types.
+Cross-reference related functions, classes and types.
 
 ### 9. Provide Context
 

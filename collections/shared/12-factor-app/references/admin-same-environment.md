@@ -7,7 +7,7 @@ tags: admin, environment, release, consistency
 
 ## Run Admin Processes Against a Release with Same Codebase and Config
 
-One-off admin processes must run against the same release as the app's regular processes. This means the same codebase version, the same config, and the same dependency isolation. Admin processes are NOT special - they're just short-lived processes of the same release.
+One-off admin processes must run against same release as regular processes: same code version, config, dependency isolation. Admin processes are NOT special, only short-lived processes of that release.
 
 **Incorrect (admin with different environment):**
 
@@ -29,7 +29,7 @@ python -c "import some_tool; some_tool.fix(db)"
 # Not in requirements.txt, behavior differs from app
 ```
 
-**Correct (admin from the release):**
+**Correct (admin from release):**
 
 ```bash
 # Run from the exact deployed release
@@ -46,7 +46,7 @@ heroku run python manage.py migrate
 
 # Docker: specify exact image
 docker run --rm \
-  -e DATABASE_URL="$DATABASE_URL" \
+  -e DATABASE_URL \
   myapp:v1.2.3 \
   python manage.py migrate
 ```
@@ -87,11 +87,5 @@ spec:
       restartPolicy: Never
   backoffLimit: 0
 ```
-
-**Benefits:**
-- Migrations match the deployed code
-- Admin scripts see same database schema assumptions
-- No "works locally" vs "fails in production" issues
-- Clear audit trail of what ran against what
 
 Reference: [The Twelve-Factor App - Admin processes](https://12factor.net/admin-processes)

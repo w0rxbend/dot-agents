@@ -11,75 +11,54 @@
 
 ### Backstage (Open Source, CNCF)
 
-**Overview:**
-- Created by Spotify, donated to CNCF
-- Open-source platform for building developer portals
-- Extensible plugin architecture
-
 **Core Features:**
 - Software Catalog: YAML metadata, API for programmatic access
-- Scaffolder: Cookiecutter-style templates, customizable actions
-- TechDocs: Markdown → static site generation (MkDocs)
+- Scaffolder: Cookiecutter-style templates, custom actions
+- TechDocs: Markdown to static site (MkDocs)
 - Plugin ecosystem: 100+ community plugins
-- Search: Full-text search across catalog and docs
+- Search: full-text across catalog and docs
 
 **Strengths:**
 - Deep customization and control (open source)
-- Large community, extensive plugin ecosystem
+- Large community, big plugin ecosystem
 - No vendor lock-in
-- Integrates with any tooling via plugins
-- Active development and frequent releases
+- Integrates any tooling via plugins
+- Active development, frequent releases
 
 **Challenges:**
-- Complex setup and ongoing maintenance
-- Requires dedicated platform engineering team
+- Complex setup, ongoing maintenance
+- Needs dedicated platform engineering team
 - Self-hosted infrastructure required
-- Learning curve for plugin development
-
-**Best For:**
-- Large enterprises (1000+ engineers)
-- Organizations with platform engineering expertise
-- Teams needing maximum flexibility
-- Open-source ecosystem preference
+- Plugin development learning curve
 
 **Estimated Costs:**
 - Licensing: Free (open source)
 - Infrastructure: $500-2000/month (Kubernetes cluster, databases)
 - Team: 5-10 platform engineers ($1M-2M/year)
-- Total: ~$1.5M-2.5M/year for 1000-engineer organization
+- Total: ~$1.5M-2.5M/year for 1000-engineer org
 
 ### Port (Commercial)
-
-**Overview:**
-- Commercial developer portal platform
-- Modern UI/UX, managed infrastructure
-- Self-service actions and workflows
 
 **Core Features:**
 - Service catalogs with custom entity modeling
 - Blueprints for entity types
+- Self-service actions and workflows
 - Workflows and automation
 - Dashboards and visualizations
 - Developer-facing APIs
-- Scorecard system for service quality
+- Scorecards for service quality
 
 **Strengths:**
 - Faster time-to-value than Backstage (3-6 months)
 - Managed infrastructure (no ops burden)
 - Modern UI/UX
 - Good workflow automation
-- Strong support and documentation
+- Strong support and docs
 
 **Challenges:**
 - Commercial licensing costs
-- Some vendor lock-in concerns
-- Less extensive ecosystem than Backstage
-
-**Best For:**
-- Mid-size to large organizations (100-1000 engineers)
-- Teams wanting managed solution
-- Faster implementation timeline required
-- Service catalog and workflow focus
+- Some vendor lock-in
+- Smaller ecosystem than Backstage
 
 **Estimated Costs:**
 - Licensing: $50-150 per developer/month
@@ -89,28 +68,18 @@
 
 ### Cortex (Commercial SaaS)
 
-**Overview:**
-- Enterprise-class IDP for software health tracking
-- Compliance and best practices enforcement
-- Leadership insights and reporting
-
 **Core Features:**
 - Service catalog with compliance scoring
-- Engineering best practices enforcement
-- Scorecards (track service quality metrics)
+- Engineering best-practice enforcement
+- Scorecards (service quality metrics)
 - Leadership dashboards (org-wide insights)
-- Integration with incident management (PagerDuty, Opsgenie)
+- Incident management integration (PagerDuty, Opsgenie)
 
 **Strengths:**
 - Compliance focus (SOC2, GDPR, HIPAA)
 - Service health scoring and tracking
-- Good for regulated industries
+- Fits regulated industries
 - Leadership visibility
-
-**Best For:**
-- Enterprises with strict compliance requirements
-- Organizations needing engineering standards enforcement
-- Leadership requiring org-wide insights
 
 **Estimated Costs:**
 - Enterprise pricing (contact for quote)
@@ -121,16 +90,15 @@
 ### Crossplane (Open Source, CNCF)
 
 **Overview:**
-- Universal control plane for Kubernetes
-- Manage cloud infrastructure via Kubernetes APIs
+- Manages cloud infrastructure via Kubernetes APIs
 - Composition functions for reusable abstractions
 
 **Core Features:**
-- Providers for AWS, Azure, GCP, GitHub, Datadog, and more
-- Compositions: Reusable infrastructure abstractions
+- Providers for AWS, Azure, GCP, GitHub, Datadog, more
+- Compositions: reusable infrastructure abstractions
 - Kubernetes-native (CRDs and controllers)
 - GitOps-friendly (declarative YAML)
-- Multi-cloud resource management from single control plane
+- Multi-cloud resources from one control plane
 
 **Strengths:**
 - Cloud-agnostic infrastructure management
@@ -140,52 +108,39 @@
 - Works with existing GitOps tools (Argo CD, Flux)
 
 **Challenges:**
-- Learning curve (Kubernetes expertise required)
+- Learning curve (needs Kubernetes expertise)
 - Provider maturity varies (AWS mature, others catching up)
-- Complexity for simple use cases
-
-**Best For:**
-- Multi-cloud abstractions
-- Organizations already using Kubernetes
-- GitOps-native operations
-- Platform teams building reusable infrastructure patterns
+- Too complex for simple use cases
 
 **Estimated Costs:**
 - Licensing: Free (open source)
-- Infrastructure: Runs on existing Kubernetes clusters
-- Learning investment: 2-4 weeks for team ramp-up
+- Infrastructure: runs on existing Kubernetes clusters
+- Learning investment: 2-4 weeks team ramp-up
 
 ### Humanitec (Commercial)
 
 **Overview:**
 - Platform Orchestrator for infrastructure standardization
-- Environment management and deployment automation
 - Complements developer portals (Backstage + Humanitec common)
 
 **Core Features:**
-- Live Resource Graph: Single source of truth for infrastructure
+- Live Resource Graph: single source of truth for infrastructure
 - Resource management (databases, caches, message queues)
 - Environment management (dev, staging, prod with inheritance)
 - Deployment pipelines with approval workflows
 - Resource matching (dev uses in-cluster, prod uses managed cloud)
 
 **Strengths:**
-- Strong environment management capabilities
+- Strong environment management
 - Infrastructure abstraction across clouds
 - Deployment standardization
-- Good documentation and support
-- Integration with Backstage and Port
+- Good docs and support
+- Integrates with Backstage and Port
 
 **Challenges:**
 - Commercial licensing
-- Requires integration with developer portal
+- Needs developer portal integration
 - Learning curve for platform orchestrator concepts
-
-**Best For:**
-- Organizations needing infrastructure orchestration layer
-- Teams with complex multi-cloud environments
-- Platform backend for Backstage/Port
-- Environment management complexity
 
 **Estimated Costs:**
 - Contact for pricing
@@ -194,8 +149,7 @@
 ### HCP Terraform (Commercial, formerly Terraform Cloud)
 
 **Overview:**
-- Managed Terraform service with workspace orchestration
-- Policy as code (Sentinel)
+- Managed Terraform with workspace orchestration
 - Remote state management
 
 **Core Features:**
@@ -208,89 +162,60 @@
 **Strengths:**
 - Mature IaC platform (Terraform ecosystem)
 - Strong multi-cloud support
-- Policy enforcement (Sentinel)
-- Cost estimation built-in
-
-**Best For:**
-- Organizations already using Terraform
-- Teams needing infrastructure policy enforcement
-- Multi-cloud IaC management
 
 **Estimated Costs:**
 - Free tier available
 - Team tier: $20 per user/month
-- Plus tier: Custom pricing for enterprise
+- Plus tier: custom enterprise pricing
 
 ## GitOps Continuous Delivery
 
 ### Argo CD (Open Source, CNCF) - RECOMMENDED
 
-**Overview:**
-- GitOps continuous delivery for Kubernetes
-- Declarative desired state in Git repositories
-- Industry-leading tool for Kubernetes deployments
-
 **Core Features:**
 - Declarative GitOps (Git as single source of truth)
-- Automated synchronization (Git → cluster)
+- Automated sync (Git to cluster)
 - Multi-cluster application management
-- ApplicationSets (template applications across clusters/environments)
+- ApplicationSets (template apps across clusters/environments)
 - Progressive delivery (canary, blue-green via Argo Rollouts)
 - Sync waves (ordered deployment steps)
-- Health assessment (verify app health, not just deployment)
+- Health assessment (checks app health, not just deployment)
 - RBAC and SSO integration
 
 **Strengths:**
-- Highest trust score (91.8/100) - industry-proven
-- Excellent documentation and community
-- Multi-cluster management built-in
+- Highest trust score (91.8/100), industry-proven
+- Excellent docs and community
 - Strong RBAC and security
-- Active development and frequent releases
-- Integration with Backstage and other portals
+- Active development, frequent releases
+- Integrates with Backstage and other portals
 
 **Challenges:**
 - Kubernetes-only (no other platforms)
 - Complex for very simple deployments
 
-**Best For:**
-- Kubernetes continuous delivery
-- Multi-cluster environments
-- Organizations wanting GitOps best practices
-- Integration with developer portals
-
 **Estimated Costs:**
 - Licensing: Free (open source)
-- Infrastructure: Runs on Kubernetes (minimal overhead)
-- Team: Works with existing platform team
+- Infrastructure: runs on Kubernetes (minimal overhead)
+- Team: works with existing platform team
 
 ### Flux (Open Source, CNCF)
-
-**Overview:**
-- GitOps toolkit for Kubernetes
-- Composable controllers for GitOps workflows
 
 **Core Features:**
 - Toolkit approach (composable controllers)
 - Source Controller (Git, Helm, Bucket sources)
 - Kustomize Controller (Kustomize builds)
 - Helm Controller (Helm releases)
-- Image automation (auto-update image tags in Git)
-- Notification system (alerts to Slack, GitHub)
+- Image automation (auto-updates image tags in Git)
+- Notifications (alerts to Slack, GitHub)
 
 **Strengths:**
 - Kubernetes-native (minimal CRDs)
 - Toolkit approach (use what you need)
-- Image automation built-in
 - Strong Kustomize integration
 
 **Challenges:**
-- Less comprehensive UI than Argo CD
-- Toolkit approach requires more assembly
-
-**Best For:**
-- GitOps-native Kubernetes operations
-- Teams wanting composable GitOps controllers
-- Organizations using Kustomize heavily
+- Less complete UI than Argo CD
+- Toolkit needs more assembly
 
 ## Tool Selection Matrix
 
@@ -304,7 +229,7 @@
 - Long-term investment (3+ years)
 
 **Choose Port when:**
-- Mid-size organization (100-1000 engineers)
+- Mid-size org (100-1000 engineers)
 - Faster time-to-value needed (3-6 months)
 - Managed solution preferred
 - Limited platform resources (<5 engineers)
@@ -321,18 +246,18 @@
 
 **Choose Humanitec when:**
 - Complex environment management needed
-- Want platform orchestrator backend
-- Budget supports commercial tool
+- Platform orchestrator backend wanted
+- Budget covers commercial tool
 
 **Choose HCP Terraform when:**
-- Already using Terraform extensively
-- Need policy enforcement (Sentinel)
+- Already using Terraform heavily
+- Policy enforcement needed (Sentinel)
 - Multi-cloud IaC management
 
 **Choose Argo CD when:**
 - Kubernetes continuous delivery needed
 - Multi-cluster management required
-- Want highest trust score tool (91.8/100)
+- Highest trust score tool wanted (91.8/100)
 - GitOps best practices desired
 
 **Choose Flux when:**
@@ -358,45 +283,42 @@
 - Portal: Backstage
 - Orchestration: Crossplane
 - GitOps: Argo CD
-- Best for: Large enterprises, maximum control, no vendor lock-in
+- Best for: large enterprises, maximum control, no vendor lock-in
 - Total cost: $1.5M-2.5M/year (mostly team costs)
 
 **Combination 2: Hybrid (Commercial Portal + Open Source Backend)**
 - Portal: Port
 - Orchestration: Crossplane
 - GitOps: Argo CD
-- Best for: Mid-size orgs, faster time-to-value for portal, open source backend
+- Best for: mid-size orgs, faster portal time-to-value, open source backend
 - Total cost: $700K-1.5M/year
 
 **Combination 3: Hybrid (Open Source Portal + Commercial Orchestration)**
 - Portal: Backstage
 - Orchestration: Humanitec
 - GitOps: Argo CD
-- Best for: Large orgs needing advanced environment management
+- Best for: large orgs needing advanced environment management
 - Total cost: $1.8M-3M/year
 
 **Combination 4: Full Commercial Stack**
 - Portal: Port
 - Orchestration: Humanitec
-- Best for: Mid-size orgs, fastest time-to-value, vendor support
+- Best for: mid-size orgs, fastest time-to-value, vendor support
 - Total cost: $1M-2M/year
 
 ### ROI Considerations
 
-**Measuring Platform ROI:**
-
 **Developer Productivity Gains:**
-- Reduced onboarding time: 2 weeks → 2 hours = 78 hours saved per developer
-- For 100 new hires/year: 7,800 hours = $400K saved (at $50/hour)
+- Onboarding time cut from 2 weeks to 2 hours: 78 hours saved per developer
+- 100 new hires/year: 7,800 hours = $400K saved (at $50/hour)
 
 **Deployment Velocity:**
-- Increased deployment frequency: 1x/week → 10x/day = 50x increase
-- Reduced lead time: 2 days → 2 hours = 12x faster
-- Business impact: Faster feature delivery, competitive advantage
+- Deployment frequency up from 1x/week to 10x/day: 50x increase
+- Lead time down from 2 days to 2 hours: 12x faster
 
 **Cost Optimization:**
 - Infrastructure right-sizing: 20-40% cloud cost savings
-- For $1M/month cloud spend: $200K-400K/month saved = $2.4M-4.8M/year
+- $1M/month cloud spend: $200K-400K/month saved = $2.4M-4.8M/year
 
 **Total ROI:**
 - Platform cost: $1M-2.5M/year
@@ -405,4 +327,4 @@
 - Net ROI: $1.8M-3.7M/year positive
 
 **Breakeven:**
-- Typically 6-18 months depending on organization size and platform costs
+- Typically 6-18 months, depending on org size and platform costs

@@ -17,14 +17,6 @@
 
 ## 1. Converting try-catch to Either/TaskEither
 
-### The Problem with try-catch
-
-Traditional try-catch blocks have several issues:
-- Error handling is implicit and easy to forget
-- The type system doesn't track which functions can throw
-- Control flow is non-linear and harder to reason about
-- Composing multiple fallible operations is verbose
-
 ### Pattern: Synchronous try-catch to Either
 
 #### Before (Imperative)
@@ -122,12 +114,12 @@ pipe(
 
 ### Step-by-Step Refactoring Guide
 
-1. **Identify the error type**: Determine what errors can occur and create appropriate error types
-2. **Change return type**: From `T` to `Either<E, T>` where `E` is your error type
-3. **Replace throw statements**: Convert `throw new Error(...)` to `E.left(new Error(...))`
-4. **Replace return statements**: Convert `return value` to `E.right(value)`
-5. **Remove try-catch blocks**: They're no longer needed
-6. **Update callers**: Use `pipe` with `E.flatMap` to chain operations
+1. **Identify the error type**: List possible errors; create matching error types
+2. **Change return type**: From `T` to `Either<E, T>`, where `E` is your error type
+3. **Replace throw statements**: `throw new Error(...)` becomes `E.left(new Error(...))`
+4. **Replace return statements**: `return value` becomes `E.right(value)`
+5. **Remove try-catch blocks**: No longer needed
+6. **Update callers**: Chain operations with `pipe` and `E.flatMap`
 
 ### Pattern: Async try-catch to TaskEither
 
@@ -244,7 +236,7 @@ const main = async () => {
 
 ### Helper: tryCatch Utility
 
-Create a reusable wrapper for functions that might throw:
+Reusable wrapper for functions that might throw:
 
 ```typescript
 import * as E from 'fp-ts/Either';
@@ -263,13 +255,6 @@ const tryCatchAsync = <A>(f: () => Promise<A>): TE.TaskEither<Error, A> =>
 
 
 ## 2. Converting null checks to Option
-
-### The Problem with null/undefined
-
-- TypeScript's strict null checks help, but null still spreads through code
-- Chained property access requires verbose null guards
-- The distinction between "missing" and "present but null" is unclear
-- Easy to forget null checks leading to runtime errors
 
 ### Pattern: Simple null checks to Option
 
@@ -426,7 +411,7 @@ const getManagerEmail = (
 2. **Wrap with fromNullable**: Convert nullable values to Option at system boundaries
 3. **Change return types**: From `T | null` to `Option<T>`
 4. **Replace null checks**: Use `O.map`, `O.flatMap`, `O.filter` instead of if statements
-5. **Handle at boundaries**: Use `O.getOrElse`, `O.match`, or `O.toNullable` when interfacing with non-fp code
+5. **Handle at boundaries**: Use `O.getOrElse`, `O.match`, or `O.toNullable` where code meets non-fp code
 
 ### Converting Between Option and Either
 
@@ -458,13 +443,6 @@ const getUser = (id: string): E.Either<Error, User> =>
 
 
 ## 3. Converting callbacks to Task
-
-### The Problem with Callbacks
-
-- Callback hell makes code hard to read
-- Error handling is inconsistent
-- Difficult to compose and sequence
-- No standard way to handle async operations
 
 ### Pattern: Node-style callbacks to Task
 
@@ -616,13 +594,6 @@ const readFileLegacy = (path: string): TE.TaskEither<Error, string> =>
 
 
 ## 4. Converting class-based DI to Reader
-
-### The Problem with Class-based DI
-
-- Tight coupling between classes and their dependencies
-- Testing requires mocking entire class hierarchies
-- Dependency injection containers add runtime complexity
-- Hard to trace data flow through the application
 
 ### Pattern: Service classes to Reader
 
@@ -1448,7 +1419,7 @@ const processUser = (input: string): User =>
 
 ### Strategy 1: Start at the Boundaries
 
-Begin by converting functions at the edges of your system:
+Convert functions at system edges first:
 - API response handlers
 - Database query results
 - File system operations
@@ -1478,7 +1449,7 @@ async function handleUserRequest(userId: string) {
 
 ### Strategy 2: Create Bridge Functions
 
-Build helpers to convert between fp-ts and imperative code:
+Helpers to convert between fp-ts and imperative code:
 
 ```typescript
 // Bridge from Either to thrown errors
@@ -1509,7 +1480,7 @@ const toPromise = <E, A>(te: TE.TaskEither<E, A>): Promise<A> =>
 2. **Add fp-ts types** to internal functions
 3. **Keep external API unchanged** initially
 4. **Test thoroughly** before moving on
-5. **Update external API** once internals are stable
+5. **Update external API** once internals stable
 
 ```typescript
 // Phase 1: Internal functions use fp-ts
@@ -1543,7 +1514,7 @@ export const getUser = (id: string): TE.TaskEither<UserError, User> =>
 
 ### Strategy 4: Type-Driven Development
 
-Use TypeScript's type system to guide the migration:
+Let TypeScript's type system guide migration:
 
 ```typescript
 // Step 1: Change type signature first
@@ -1559,7 +1530,7 @@ const getUser: NewGetUser = (id) => /* implement */;
 
 ### Strategy 5: Testing as Documentation
 
-Write tests that demonstrate the expected behavior:
+Write tests that show expected behavior:
 
 ```typescript
 describe('UserService', () => {
@@ -1590,7 +1561,7 @@ describe('UserService', () => {
 
 ### Simple Synchronous Code
 
-Don't refactor straightforward code that doesn't benefit from fp-ts:
+Don't refactor straightforward code that gains nothing from fp-ts:
 
 ```typescript
 // This is fine as-is
@@ -1608,7 +1579,7 @@ const formatName = (first: string, last: string): string =>
 
 ### Performance-Critical Loops
 
-fp-ts operations create intermediate arrays. For hot paths, keep imperative code:
+fp-ts operations create intermediate arrays. Keep imperative code for hot paths:
 
 ```typescript
 // Keep this for performance-critical code processing millions of items
@@ -1627,7 +1598,7 @@ const sumWithFpts = (numbers: number[]): number =>
 
 ### Third-Party Library Interfaces
 
-When working with libraries that expect specific patterns:
+Libraries that expect specific patterns:
 
 ```typescript
 // Express middleware must match Express's interface
@@ -1645,7 +1616,7 @@ app.get('/users/:id', async (req, res) => {
 
 ### Code Touched by Non-FP Team Members
 
-If your team isn't familiar with fp-ts, forced adoption will hurt productivity:
+If team isn't familiar with fp-ts, forced adoption hurts productivity:
 
 ```typescript
 // If team doesn't know fp-ts, this is harder to maintain
@@ -1668,25 +1639,9 @@ async function processOrder(order: Order): Promise<Result> {
 }
 ```
 
-### Trivial Null Checks
-
-Don't use Option for simple, one-off null checks:
-
-```typescript
-// This is fine
-const name = user?.name ?? 'Anonymous';
-
-// Overkill for simple cases
-const name = pipe(
-  O.fromNullable(user),
-  O.map((u) => u.name),
-  O.getOrElse(() => 'Anonymous')
-);
-```
-
 ### When the Error Type Doesn't Matter
 
-If you're going to throw/log anyway and don't need error composition:
+If you throw/log anyway and don't need error composition:
 
 ```typescript
 // If this is your error handling anyway...
@@ -1755,19 +1710,3 @@ describe('UserService', () => {
 | `new Class(deps)` | `R.asks()`, `RTE.ask()` |
 | `for...of` | `A.map()`, `A.reduce()` |
 | `while` | Recursion, `unfold()` |
-
----
-
-
-## Summary
-
-Migrating to fp-ts is a journey, not a destination. Key principles:
-
-1. **Start small**: Convert individual functions, not entire codebases
-2. **Be pragmatic**: Not everything needs to be functional
-3. **Type-driven**: Let the compiler guide your refactoring
-4. **Test thoroughly**: Each conversion should be verified
-5. **Document patterns**: Create team-specific guides for your codebase
-6. **Review benefits**: Ensure the added complexity provides value
-
-The goal is more maintainable, type-safe code—not functional programming for its own sake.

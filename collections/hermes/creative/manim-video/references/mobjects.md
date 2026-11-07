@@ -1,7 +1,5 @@
 # Mobjects Reference
 
-Everything visible on screen is a Mobject. They have position, color, opacity, and can be animated.
-
 ## Text
 
 ```python
@@ -93,7 +91,7 @@ mob.to_corner(UL, buff=0.5)               # corner
 
 ## VGroup vs Group
 
-**VGroup** is for collections of shapes (VMobjects only — Circle, Square, Arrow, Line, MathTex):
+**VGroup** is for collections of shapes (VMobjects only: Circle, Square, Arrow, Line, MathTex):
 ```python
 shapes = VGroup(circle, square, arrow)
 shapes.arrange(DOWN, buff=0.5)
@@ -147,8 +145,6 @@ class NetworkNode(Group):
 
 ## Matrix Mobjects
 
-Display matrices as grids of numbers or mobjects:
-
 ```python
 # Integer matrix
 m = IntegerMatrix([[1, 2], [3, 4]])
@@ -194,7 +190,7 @@ img.set_height(3).to_edge(RIGHT)
 self.play(FadeIn(img))
 ```
 
-Note: images cannot be animated with `.animate` (they're raster, not vector). Use `FadeIn`/`FadeOut` and `shift`/`scale` only.
+Note: images cannot be animated with `.animate` (raster, not vector). Use only `FadeIn`/`FadeOut` and `shift`/`scale`.
 
 ## Variable — Auto-Updating Display
 
@@ -244,8 +240,6 @@ right_angle = RightAngle(line1, Line(ORIGIN, UP * 2), length=0.3, color=WHITE)
 
 ## Boolean Operations (CSG)
 
-Combine, subtract, or intersect 2D shapes:
-
 ```python
 circle = Circle(radius=1.5, color=BLUE, fill_opacity=0.5).shift(LEFT * 0.5)
 square = Square(side_length=2, color=RED, fill_opacity=0.5).shift(RIGHT * 0.5)
@@ -269,7 +263,7 @@ arr = LabeledArrow(Text("force", font_size=18), start=LEFT, end=RIGHT, color=RED
 line = LabeledLine(Text("d = 5m", font_size=18), start=LEFT * 2, end=RIGHT * 2)
 ```
 
-Auto-handles label positioning — cleaner than manual `Arrow` + `Text().next_to()`.
+Cleaner than manual `Arrow` + `Text().next_to()`.
 
 ## Text Color/Font/Style Per-Substring (t2c, t2f, t2s, t2w)
 
@@ -293,11 +287,11 @@ text = Text("Normal and italic text", t2s={"italic": ITALIC})
 text = Text("Normal and bold text", t2w={"bold": BOLD})
 ```
 
-These are much cleaner than creating separate Text objects and grouping them.
+Much cleaner than grouping separate Text objects.
 
 ## Backstroke for Readability Over Backgrounds
 
-When text overlaps other content (graphs, diagrams, images), add a dark stroke behind it:
+When text overlaps other content (graphs, diagrams, images), add dark stroke behind it instead of BackgroundRectangle:
 
 ```python
 # CE syntax:
@@ -308,11 +302,9 @@ for mob in labels:
     mob.set_stroke(BLACK, width=4, background=True)
 ```
 
-This is how 3Blue1Brown keeps text readable over complex backgrounds without using BackgroundRectangle.
-
 ## Complex Function Transforms
 
-Apply complex functions to entire mobjects — transforms the plane:
+Apply complex functions to entire mobjects. Transforms the plane:
 
 ```python
 c_grid = ComplexPlane()
@@ -330,4 +322,4 @@ self.play(grid.animate.apply_function(
 ), run_time=5)
 ```
 
-**Critical:** Call `prepare_for_nonlinear_transform()` before applying nonlinear functions — without it, the grid has too few sample points and the deformation looks jagged.
+**Critical:** Call `prepare_for_nonlinear_transform()` before applying nonlinear functions. Without it, grid has too few sample points and deformation looks jagged.

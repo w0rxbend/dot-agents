@@ -1,6 +1,6 @@
 # testify/mock — Reference
 
-Mock interfaces to isolate the unit under test. Embed `mock.Mock`, implement methods with `m.Called()`, and always verify with `AssertExpectations(t)`.
+Mock interfaces to isolate unit under test. Embed `mock.Mock`, implement methods with `m.Called()`, always verify with `AssertExpectations(t)`.
 
 ## Quick example
 

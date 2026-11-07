@@ -5,22 +5,18 @@ description: Graph database implementation for relationship-heavy data models. U
 
 # Graph Databases
 
-## Purpose
-
-This skill guides selection and implementation of graph databases for applications where relationships between entities are first-class citizens. Unlike relational databases that model relationships through foreign keys and joins, graph databases natively represent connections as properties, enabling efficient traversal-heavy queries.
-
 ## When to Use This Skill
 
-Use graph databases when:
+Use graph databases for:
 - **Deep relationship traversals** (4+ hops): "Friends of friends of friends"
 - **Variable/evolving relationships**: Schema changes don't break existing queries
 - **Path finding**: Shortest route, network analysis, dependency chains
 - **Pattern matching**: Fraud detection, recommendation engines, access control
 
 **Do NOT use graph databases when**:
-- Fixed schema with shallow joins (2-3 tables) → Use PostgreSQL
-- Primarily aggregations/analytics → Use columnar databases
-- Key-value lookups only → Use Redis/DynamoDB
+- Fixed schema with shallow joins (2-3 tables): use PostgreSQL
+- Mostly aggregations/analytics: use columnar databases
+- Key-value lookups only: use Redis/DynamoDB
 
 ## Quick Decision Framework
 
@@ -47,17 +43,6 @@ DATA CHARACTERISTICS?
 
 ## Core Concepts
 
-### Property Graph Model
-
-Graph databases store data as:
-- **Nodes** (vertices): Entities with labels and properties
-- **Relationships** (edges): Typed connections with properties
-- **Properties**: Key-value pairs on nodes and relationships
-
-```
-(Person {name: "Alice", age: 28})-[:FRIEND {since: "2020-01-15"}]->(Person {name: "Bob"})
-```
-
 ### Query Languages
 
 | Language | Databases | Readability | Best For |
@@ -69,7 +54,7 @@ Graph databases store data as:
 
 ## Common Cypher Patterns
 
-Reference `references/cypher-patterns.md` for comprehensive examples.
+Full examples: `references/cypher-patterns.md`.
 
 ### Pattern 1: Basic Matching
 ```cypher
@@ -119,13 +104,11 @@ RETURN path, [r IN relationships(path) | r.amount] AS amounts
 
 ### Neo4j (Primary Recommendation)
 
-**Use for**: General-purpose graph applications
-
 **Strengths**:
 - Most mature (2007), largest community (2M+ developers)
 - 65+ graph algorithms (GDS library): PageRank, Louvain, Dijkstra
 - Best tooling: Neo4j Browser, Bloom visualization
-- Comprehensive Cypher support
+- Full Cypher support
 
 **Installation**:
 ```bash
@@ -143,42 +126,33 @@ Reference: `references/neo4j.md`
 
 ### ArangoDB
 
-**Use for**: Multi-model applications (documents + graph)
-
 **Strengths**:
-- Store documents AND graph in one database
 - AQL combines document and graph queries
-- Schema flexibility with relationships
+- Flexible schema with relationships
 
 Reference: `references/arangodb.md`
 
 ### Apache AGE
 
-**Use for**: Adding graph capabilities to existing PostgreSQL
-
 **Strengths**:
-- Extend PostgreSQL with graph queries
 - No new infrastructure needed
 - Query both relational and graph data
 
-Reference: Implementation details in examples/
+Reference: implementation details in examples/
 
 ### Amazon Neptune
 
-**Use for**: AWS-native, serverless deployments
-
 **Strengths**:
 - Fully managed, auto-scaling
-- Supports Gremlin AND SPARQL
 - AWS ecosystem integration
 
 ## Graph Data Modeling Patterns
 
-Reference `references/graph-modeling.md` for comprehensive patterns.
+Full patterns, incl. schema patterns (star/hub-and-spokes, hierarchical trees, `:NEXT` event sequences): `references/graph-modeling.md`.
 
 ### Best Practice 1: Relationships as First-Class Citizens
 
-**Anti-pattern** (storing relationships in node properties):
+**Anti-pattern** (relationships stored in node properties):
 ```cypher
 // BAD
 (:Person {name: 'Alice', friend_ids: ['b123', 'c456']})
@@ -287,7 +261,7 @@ Pattern detection in examples/
 
 ## Performance Optimization
 
-Reference `references/cypher-patterns.md` for detailed optimization.
+Optimization details: `references/cypher-patterns.md`.
 
 ### Indexing
 ```cypher
@@ -326,7 +300,7 @@ RETURN u.name, u.friend_count
 
 ### Python (Neo4j)
 
-Complete example in `examples/social-graph/python-neo4j/`
+Full example in `examples/social-graph/python-neo4j/`
 
 ```python
 from neo4j import GraphDatabase
@@ -358,7 +332,7 @@ friends = db.find_friends_of_friends("u123", max_depth=3)
 
 ### TypeScript (Neo4j)
 
-Complete example in `examples/social-graph/typescript-neo4j/`
+Full example in `examples/social-graph/typescript-neo4j/`
 
 ```typescript
 import neo4j, { Driver } from 'neo4j-driver'
@@ -419,55 +393,36 @@ func findFriendsOfFriends(db driver.Database, userId string, maxDepth int) ([]Us
 
 ## Schema Validation
 
-Use `scripts/validate_graph_schema.py` to check for:
+Run `scripts/validate_graph_schema.py` to check for:
 - Unbounded traversals (missing depth limits)
 - Missing indexes on frequently queried properties
-- Supernodes (nodes with excessive relationships)
+- Supernodes (nodes with too many relationships)
 - Relationship property consistency
 
-Run validation:
+Run validation (read-only session; password from `NEO4J_PASSWORD` env, prompted if unset):
 ```bash
-python scripts/validate_graph_schema.py --database neo4j://localhost:7687
+python scripts/validate_graph_schema.py --uri neo4j://localhost:7687 --user neo4j
 ```
 
 ## Integration with Other Skills
 
 ### With databases-vector (Hybrid Search)
-Combine vector similarity with graph context for AI/RAG applications.
+Combine vector similarity with graph context for AI/RAG apps.
 See `examples/knowledge-graph/`
 
 ### With search-filter
-Implement relationship-based queries: "Find all users within 3 degrees of connection"
+Relationship-based queries: "Find all users within 3 degrees of connection"
 
 ### With ai-chat
-Use knowledge graphs to enrich LLM context with structured relationships.
+Enrich LLM context with structured relationships from knowledge graphs.
 
 ### With auth-security (ReBAC)
-Implement relationship-based access control: "Can user X access resource Y through relation Z?"
-
-## Common Schema Patterns
-
-### Star Schema (Hub and Spokes)
-```cypher
-(:User)-[:PURCHASED]->(:Product)
-(:User)-[:VIEWED]->(:Product)
-(:User)-[:RATED]->(:Product)
-```
-
-### Hierarchical Schema (Trees)
-```cypher
-(:CEO)-[:MANAGES]->(:VP)-[:MANAGES]->(:Director)
-```
-
-### Temporal Schema (Event Sequences)
-```cypher
-(:Event {timestamp})-[:NEXT]->(:Event {timestamp})
-```
+Relationship-based access control: "Can user X access resource Y through relation Z?"
 
 ## Getting Started
 
 1. **Choose database**: Use decision framework above
-2. **Design schema**: Reference `references/graph-modeling.md`
+2. **Design schema**: See `references/graph-modeling.md`
 3. **Implement queries**: Use patterns from `references/cypher-patterns.md`
 4. **Validate**: Run `scripts/validate_graph_schema.py`
 5. **Optimize**: Add indexes, bound traversals, cache aggregations
@@ -476,7 +431,7 @@ Implement relationship-based access control: "Can user X access resource Y throu
 
 - `references/neo4j.md` - Neo4j setup, drivers, GDS algorithms
 - `references/arangodb.md` - ArangoDB multi-model patterns
-- `references/cypher-patterns.md` - Comprehensive Cypher query library
+- `references/cypher-patterns.md` - Cypher query library
 - `references/graph-modeling.md` - Data modeling best practices
-- `examples/social-graph/` - Complete social network implementation
+- `examples/social-graph/` - Full social network implementation
 - `examples/knowledge-graph/` - Hybrid vector + graph for AI/RAG

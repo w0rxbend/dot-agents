@@ -7,7 +7,7 @@ tags: config, environments, scaling, deployment
 
 ## Treat Environment Variables as Granular Controls Not Grouped Environments
 
-A twelve-factor app never groups config into named "environments" like development, staging, production. Instead, each environment variable is an independent control that can be set differently for each deploy. This scales cleanly as deploys multiply.
+Never group config into named "environments" (development, staging, production). Each env var is independent control, set per deploy.
 
 **Incorrect (grouped environments):**
 
@@ -74,10 +74,5 @@ FEATURE_NEW_UI="true"
 
 # No code changes needed for new deploys
 ```
-
-**Benefits:**
-- Adding a new deploy requires zero code changes
-- Each deploy can have unique configuration
-- No implicit coupling between unrelated settings
 
 Reference: [The Twelve-Factor App - Config](https://12factor.net/config)

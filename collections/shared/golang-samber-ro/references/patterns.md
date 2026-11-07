@@ -1,7 +1,5 @@
 # Reactive Patterns
 
-Real-world patterns for building production reactive pipelines with samber/ro.
-
 ## Table of Contents
 
 - [Pattern 1: Remote Call with Retry and Timeout](#pattern-1-remote-call-with-retry-and-timeout)
@@ -16,7 +14,7 @@ Real-world patterns for building production reactive pipelines with samber/ro.
 
 ## Pattern 1: Remote Call with Retry and Timeout
 
-Wrap a remote call (HTTP, gRPC, database) with automatic retry, exponential backoff, timeout, and fallback.
+Wrap remote call (HTTP, gRPC, database) with automatic retry, exponential backoff, timeout, fallback.
 
 ```go
 result := ro.Pipe3(
@@ -37,11 +35,9 @@ result := ro.Pipe3(
 user, err := ro.Collect(result)
 ```
 
-**Why ro over plain calls:** declarative retry + timeout + fallback in 10 lines vs manual for-loops with sleep, context, and error tracking.
-
 ## Pattern 2: Continuous Event Stream (Hot Observable)
 
-Share a single long-lived connection (WebSocket, SSE, message queue) across multiple consumers.
+Share one long-lived connection (WebSocket, SSE, message queue) across multiple consumers.
 
 ```go
 // Cold observable wrapping any event stream source
@@ -75,11 +71,11 @@ ro.Pipe1(shared, ro.Filter(func(e TickerEvent) bool {
 })).Subscribe(ro.OnNext(sendAlert))
 ```
 
-The `rohttp` plugin provides WebSocket and HTTP streaming observables (see [Plugin Ecosystem](./plugin-ecosystem.md)).
+`rohttp` plugin provides WebSocket and HTTP streaming observables (see [Plugin Ecosystem](./plugin-ecosystem.md)).
 
 ## Pattern 3: Fan-In from Multiple Sources
 
-Merge events from multiple independent sources, batch, and process.
+Merge events from multiple independent sources, batch, process.
 
 ```go
 combined := ro.Pipe2(
@@ -107,7 +103,7 @@ combined := ro.Pipe2(
 
 ## Pattern 4: Dependent Data Combination
 
-Combine data from multiple async sources that depend on each other.
+Combine data from interdependent async sources.
 
 ```go
 // Fetch user and their orders in parallel, combine
@@ -125,7 +121,7 @@ profile := ro.Pipe1(
 )
 ```
 
-For independent data where you need exactly one value from each:
+Independent data needing exactly one value from each:
 
 ```go
 // Zip: waits for one value from each, pairs them
@@ -134,7 +130,7 @@ configAndData := ro.Zip2(loadConfig(), loadData())
 
 ## Pattern 5: Running Aggregation with Scan
 
-Maintain running state across stream values — useful for dashboards, analytics, monitoring.
+Keep running state across stream values. Use for dashboards, analytics, monitoring.
 
 ```go
 type Stats struct {
@@ -159,11 +155,11 @@ statsStream := ro.Pipe2(
 )
 ```
 
-**Scan vs Reduce:** `Scan` emits every intermediate state (good for live dashboards). `Reduce` emits only the final accumulated value (good for batch summaries).
+**Scan vs Reduce:** `Scan` emits every intermediate state (good for live dashboards). `Reduce` emits only final accumulated value (good for batch summaries).
 
 ## Pattern 6: Error Recovery Cascade
 
-Layer multiple error recovery strategies.
+Layer several error recovery strategies.
 
 ```go
 resilient := ro.Pipe3(
@@ -212,7 +208,7 @@ watcher.Subscribe(ro.NewObserver(
 
 ## Pattern 8: Graceful Shutdown
 
-Use context or signal observable to cleanly terminate infinite streams.
+Use context or signal observable to terminate infinite streams cleanly.
 
 ```go
 import rosignal "github.com/samber/ro/plugins/signal"

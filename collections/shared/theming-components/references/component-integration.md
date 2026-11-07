@@ -29,8 +29,6 @@
   - [❌ Direct Primitive References](#direct-primitive-references)
 - [Resources](#resources)
 
-This guide shows component skills how to properly use design tokens for all visual styling.
-
 ---
 
 ## Quick Reference
@@ -98,25 +96,9 @@ function Button({ variant = 'primary', children }) {
 }
 ```
 
-**CSS:**
-```css
-.button {
-  background-color: var(--button-bg-primary);
-  color: var(--button-text-primary);
-  padding-inline: var(--button-padding-inline);
-  padding-block: var(--button-padding-block);
-  border-radius: var(--button-border-radius);
-  transition: var(--transition-fast);
-}
-
-.button:hover {
-  background-color: var(--button-bg-primary-hover);
-}
-```
-
 ### Step 3: Theme Switching Works Automatically
 
-No code changes needed - themes override token values:
+No code changes needed. Themes override token values:
 
 ```javascript
 setTheme('dark');  // All buttons become dark-themed
@@ -232,7 +214,7 @@ function SalesChart({ data }) {
 
 ## Integration Checklist
 
-When creating a component skill:
+For each new component skill:
 
 ### ✅ Design Phase
 - [ ] List all visual styling properties
@@ -249,8 +231,8 @@ When creating a component skill:
 ### ✅ Documentation Phase
 - [ ] Add "Styling & Theming" section to SKILL.md
 - [ ] List component tokens used
-- [ ] Provide custom theming example
-- [ ] Reference the theming-components tokens
+- [ ] Give custom theming example
+- [ ] Reference theming-components tokens
 
 ### ✅ Testing Phase
 - [ ] Test light theme
@@ -324,7 +306,7 @@ When creating a component skill:
 
 ## Complete Skill Documentation Template
 
-Add this to your component skill's SKILL.md:
+Add to component skill's SKILL.md:
 
 ```markdown
 ## Styling & Theming
@@ -411,4 +393,4 @@ See `../SKILL.md` for the complete theming documentation.
 
 - **`../tokens/components/`** - Example component token files
 - **`../examples/`** - Working code examples
-- **`../SKILL.md`** - Main theming-components skill documentation
+- **`../SKILL.md`** - Main theming-components skill docs

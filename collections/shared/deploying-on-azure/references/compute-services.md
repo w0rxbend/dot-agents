@@ -1,7 +1,5 @@
 # Azure Compute Services Reference
 
-Comprehensive guide to Azure compute service selection, configuration, and implementation patterns.
-
 ## Table of Contents
 
 1. [Azure Container Apps](#azure-container-apps)
@@ -15,7 +13,7 @@ Comprehensive guide to Azure compute service selection, configuration, and imple
 
 ## Azure Container Apps
 
-**Best For:** Microservices, APIs, background workers, event-driven applications
+**Best For:** Microservices, APIs, background workers, event-driven apps
 
 **Key Features:**
 - Fully managed container platform (no node management)
@@ -27,17 +25,17 @@ Comprehensive guide to Azure compute service selection, configuration, and imple
 ### When to Use Container Apps
 
 Choose Container Apps when:
-- Building microservices architecture
+- Building microservices
 - Need Kubernetes benefits without operational overhead
-- Event-driven scaling (HTTP, queue depth, custom metrics)
+- Need event-driven scaling (HTTP, queue depth, custom metrics)
 - Want lower cost than AKS
-- Dapr integration for distributed patterns
+- Want Dapr for distributed patterns
 
 Avoid Container Apps when:
 - Need full Kubernetes control plane access
-- Require custom CRDs or operators
-- Complex service mesh (Istio, Linkerd)
-- Existing Helm chart dependencies
+- Need custom CRDs or operators
+- Need complex service mesh (Istio, Linkerd)
+- Depend on existing Helm charts
 
 ### Bicep Implementation
 
@@ -311,29 +309,27 @@ resource "azurerm_container_app" "api" {
 
 ## Azure Kubernetes Service (AKS)
 
-**Best For:** Complex Kubernetes workloads, service mesh, multi-tenant clusters, custom operators
-
 **Key Features:**
 - Fully managed Kubernetes control plane
 - Multiple node pools with different VM sizes
 - Azure CNI or Kubenet networking
 - Workload Identity for pod-level authentication
-- Integrated monitoring with Azure Monitor
+- Azure Monitor integration
 
 ### When to Use AKS
 
 Choose AKS when:
 - Need full Kubernetes control plane access
 - Using Helm charts with complex dependencies
-- Implementing service mesh (Istio, Linkerd)
-- Require custom CRDs and operators
+- Running service mesh (Istio, Linkerd)
+- Need custom CRDs and operators
 - Multi-tenant cluster with advanced RBAC
-- Existing Kubernetes expertise
+- Team has Kubernetes expertise
 
 Avoid AKS when:
-- Simple container hosting needs
-- Limited Kubernetes knowledge
-- Want to minimize operational overhead
+- Hosting needs are simple
+- Kubernetes knowledge is limited
+- Want minimal operational overhead
 - Cost-sensitive (Container Apps cheaper for most workloads)
 
 ### Bicep Implementation
@@ -476,7 +472,7 @@ resource acrPullRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 - Consumption pricing (pay per execution)
 - Premium plan for VNet integration and longer timeouts
 - Durable Functions for stateful orchestrations
-- Python, Node.js, .NET, Java, PowerShell support
+- Supports Python, Node.js, .NET, Java, PowerShell
 
 ### Hosting Plans
 
@@ -623,23 +619,23 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
 
 ## Azure App Service
 
-**Best For:** Web applications, REST APIs, mobile backends
+**Best For:** Web apps, REST APIs, mobile backends
 
 **Key Features:**
 - Built-in CI/CD with GitHub Actions
 - Deployment slots for staging/production
-- Auto-scaling based on metrics
+- Metric-based auto-scaling
 - Custom domains and SSL certificates
-- Multiple language support (.NET, Node.js, Python, PHP, Java)
+- Multi-language support (.NET, Node.js, Python, PHP, Java)
 
 ### When to Use App Service
 
 Choose App Service when:
-- Building traditional web applications
+- Building traditional web apps
 - Need easy deployment slots (blue-green)
 - Want integrated CI/CD
-- Simple autoscaling requirements
-- Multi-language support needed
+- Autoscaling needs are simple
+- Need multi-language support
 
 ### Service Plan Tiers
 
@@ -788,18 +784,16 @@ resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
 
 ## Virtual Machines
 
-**Best For:** Legacy applications, specialized software, lift-and-shift migrations
-
 **When to Use VMs:**
-- Legacy applications requiring specific OS configurations
+- Legacy apps needing specific OS configuration
 - Third-party software with licensing requirements
 - Lift-and-shift migrations
-- Applications requiring VM-level access
+- Apps needing VM-level access
 
 **When to Avoid VMs:**
-- PaaS options available (Container Apps, App Service)
-- Modern cloud-native applications
-- Cost-sensitive workloads (VMs more expensive to operate)
+- PaaS option available (Container Apps, App Service)
+- Modern cloud-native apps
+- Cost-sensitive workloads (VMs cost more to operate)
 
 ### VM Size Selection
 
@@ -830,10 +824,10 @@ resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
 ### Cost Optimization Strategies
 
 1. **Use Reserved Instances:** 40-60% savings for predictable workloads (VMs, App Service)
-2. **Leverage Consumption Pricing:** Functions, Container Apps for variable traffic
-3. **Auto-scaling:** Scale down during off-hours
+2. **Leverage Consumption Pricing:** Functions and Container Apps for variable traffic
+3. **Auto-scaling:** Scale down off-hours
 4. **Spot VMs:** Up to 90% savings for fault-tolerant batch workloads
-5. **Right-sizing:** Monitor and resize VMs based on actual usage
+5. **Right-sizing:** Monitor and resize VMs by actual usage
 
 ---
 

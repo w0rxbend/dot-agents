@@ -1,6 +1,6 @@
 # Operators Guide
 
-samber/ro provides 150+ operators organized by category. All operators are generic functions that take and return `Observable[T]`, designed for chaining via `Pipe`.
+samber/ro has 150+ operators, grouped by category. All are generic functions taking and returning `Observable[T]`, built for chaining via `Pipe`.
 
 ## Table of Contents
 
@@ -41,11 +41,11 @@ values, err := ro.Collect(observable)
 
 ## Creation Operators
 
-Create observables from various sources. Typically the first argument to `Pipe`.
+Usually first argument to `Pipe`.
 
 | Operator | Signature | Purpose |
 | --- | --- | --- |
-| `Just` | `Just[T](values ...T) Observable[T]` | Emit specific values then complete |
+| `Just` | `Just[T](values ...T) Observable[T]` | Emit given values, then complete |
 | `Of` | `Of[T](values ...T) Observable[T]` | Alias for Just |
 | `FromSlice` | `FromSlice[T](items []T) Observable[T]` | Create from existing slice |
 | `FromChannel` | `FromChannel[T](ch <-chan T) Observable[T]` | Wrap Go channel as observable |
@@ -60,7 +60,7 @@ Create observables from various sources. Typically the first argument to `Pipe`.
 | `RepeatWithInterval` | `RepeatWithInterval[T](item T, count int64, d time.Duration) Observable[T]` | Repeat with delay |
 | `Defer` | `Defer[T](factory func() Observable[T]) Observable[T]` | Lazily create observable on subscription |
 | `Future` | `Future[T](factory func() (T, error)) Observable[T]` | Single async value from function |
-| `Start` | `Start(cb func() (any, error)) Observable[any]` | Execute callback and emit result |
+| `Start` | `Start(cb func() (any, error)) Observable[any]` | Run callback, emit result |
 | `Empty` | `Empty[T]() Observable[T]` | Complete immediately, no values |
 | `Never` | `Never[T]() Observable[T]` | Never emit or complete |
 | `Throw` | `Throw[T](err error) Observable[T]` | Immediately error |
@@ -77,15 +77,13 @@ obs := ro.NewObservable[int](func(ctx context.Context, observer ro.Observer[int]
 
 ## Transformation Operators
 
-Transform each value in the stream.
-
 | Operator | Purpose |
 | --- | --- |
 | `Map[T, R](fn func(T) R)` | Transform each value T -> R |
 | `MapI[T, R](fn func(T, int64) R)` | Map with index |
 | `MapErr[T, R](fn func(T) (R, error))` | Map that can fail — error propagates |
 | `MapWithContext[T, R](fn func(ctx, T) (ctx, R))` | Map with context access |
-| `MapTo[T, R](output R)` | Replace all values with a constant |
+| `MapTo[T, R](output R)` | Replace all values with constant |
 | `FlatMap[T, R](fn func(T) Observable[R])` | Map each value to observable, flatten results |
 | `MergeMap[T, R](fn func(T) Observable[R])` | Alias for FlatMap |
 | `Scan[T, R](fn func(R, T) R, seed R)` | Running accumulation, emit each intermediate |
@@ -118,8 +116,6 @@ ro.Pipe1(
 
 ## Filtering Operators
 
-Selectively emit values from the stream.
-
 | Operator | Purpose |
 | --- | --- |
 | `Filter[T](fn func(T) bool)` | Emit only values matching predicate |
@@ -137,18 +133,16 @@ Selectively emit values from the stream.
 | `SkipUntil[T, S](signal Observable[S])` | Skip until signal emits |
 | `Head[T]()` | First item only |
 | `Tail[T]()` | All items except first |
-| `ElementAt[T](n int)` | Item at specific index |
+| `ElementAt[T](n int)` | Item at index |
 | `ElementAtOrDefault[T](n int64, fallback T)` | Item at index or default |
 | `Find[T](fn func(T) bool)` | First value matching predicate |
 | `First[T](fn func(T) bool)` | First matching value (alias-like) |
 | `Last[T](fn func(T) bool)` | Last matching value |
 | `Contains[T](fn func(T) bool)` | Emit bool: whether any value matches |
 
-All filtering operators have `I` (indexed), `WithContext`, and `IWithContext` variants.
+All filtering operators have `I` (indexed), `WithContext`, `IWithContext` variants.
 
 ## Combining Operators
-
-Merge multiple observables into one.
 
 | Operator | Purpose |
 | --- | --- |
@@ -234,7 +228,7 @@ ro.RetryWithConfig[Response](ro.RetryConfig{
 
 ## Side Effects (Tap / Do)
 
-Execute code without changing the stream. `Do` is an alias for `Tap`.
+Run code without changing stream.
 
 | Operator                              | Purpose                     |
 | ------------------------------------- | --------------------------- |
@@ -283,10 +277,9 @@ ro.ShareConfig[T]{
 | --- | --- |
 | `All[T](fn func(T) bool)` | Emit bool: whether all values match |
 | `DefaultIfEmpty[T](value T)` | Emit default if source completes empty |
-| `ThrowIfEmpty[T](fn func() error)` | Error if empty |
 | `Iif[T](pred func() bool, a, b Observable[T])` | Choose between two observables |
 | `While[T](cond func() bool)` | Repeat while condition true |
-| `DoWhile[T](cond func() bool)` | Execute at least once, repeat while true |
+| `DoWhile[T](cond func() bool)` | Run at least once, repeat while true |
 | `SequenceEqual[T](obsB Observable[T])` | Emit bool: whether two streams match |
 
 ## Terminal Operators

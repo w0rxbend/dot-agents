@@ -1,8 +1,6 @@
 # Mobile Design Thinking
 
-> **This file prevents AI from using memorized patterns and forces genuine thinking.**
-> Mechanisms to prevent standard AI training defaults in mobile development.
-> **The mobile equivalent of frontend's layout decomposition approach.**
+> **Stops AI from reusing memorized patterns; forces real thinking.**
 
 ---
 
@@ -44,8 +42,7 @@
 
 ### Using These Patterns Automatically is FORBIDDEN!
 
-The following patterns are "defaults" that AIs learned from training data.
-Before using any of these, **QUESTION them and CONSIDER ALTERNATIVES!**
+Before using any, **QUESTION them and CONSIDER ALTERNATIVES!**
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -84,9 +81,7 @@ Before using any of these, **QUESTION them and CONSIDER ALTERNATIVES!**
 
 ## 🔍 COMPONENT DECOMPOSITION (MANDATORY)
 
-### Decomposition Analysis for Every Screen
-
-Before designing any screen, perform this analysis:
+Before designing any screen, run this analysis:
 
 ```
 SCREEN: [Screen Name]
@@ -126,34 +121,34 @@ SCREEN: [Screen Name]
 
 ## 🎯 PATTERN QUESTIONING MATRIX
 
-Ask these questions for every default pattern:
+Ask for every default pattern:
 
 ### Navigation Pattern Questioning
 
 | Assumption | Question | Alternative |
 |------------|----------|-------------|
-| "I'll use tab bar" | How many destinations? | 3 → minimal tabs, 6+ → drawer |
-| "5 tabs" | Are all equally important? | "More" tab? Drawer hybrid? |
+| "I'll use tab bar" | How many destinations? | 3: minimal tabs; 6+: drawer |
+| "5 tabs" | All equally important? | "More" tab? Drawer hybrid? |
 | "Bottom nav" | iPad/tablet support? | Navigation rail alternative |
-| "Stack navigation" | Did I consider deep links? | URL structure = navigation structure |
+| "Stack navigation" | Deep links considered? | URL structure = navigation structure |
 
 ### State Pattern Questioning
 
 | Assumption | Question | Alternative |
 |------------|----------|-------------|
-| "I'll use Redux" | How complex is the app? | Simple: Zustand, Server: TanStack |
-| "Global state" | Is this state really global? | Local lift, Context selector |
-| "Context Provider" | Will re-render be an issue? | Zustand, Jotai (atom-based) |
-| "BLoC pattern" | Is the boilerplate worth it? | Riverpod (less code) |
+| "I'll use Redux" | App complexity? | Simple: Zustand, Server: TanStack |
+| "Global state" | Is this state truly global? | Local lift, Context selector |
+| "Context Provider" | Re-renders an issue? | Zustand, Jotai (atom-based) |
+| "BLoC pattern" | Boilerplate worth it? | Riverpod (less code) |
 
 ### List Pattern Questioning
 
 | Assumption | Question | Alternative |
 |------------|----------|-------------|
-| "FlatList" | Is performance critical? | FlashList (faster) |
-| "Standard renderItem" | Is it memoized? | useCallback + React.memo |
+| "FlatList" | Performance critical? | FlashList (faster) |
+| "Standard renderItem" | Memoized? | useCallback + React.memo |
 | "Index key" | Does data order change? | Use item.id |
-| "ListView" | Are there separators? | ListView.separated |
+| "ListView" | Separators? | ListView.separated |
 
 ### UI Pattern Questioning
 
@@ -161,7 +156,7 @@ Ask these questions for every default pattern:
 |------------|----------|-------------|
 | "FAB bottom-right" | User handedness? | Accessibility settings |
 | "Pull-to-refresh" | Does this list need refresh? | Only when necessary |
-| "Modal bottom sheet" | How much content? | Full screen modal might be better |
+| "Modal bottom sheet" | How much content? | Full screen modal may fit better |
 | "Swipe actions" | Discoverability? | Visible button alternative |
 
 ---
@@ -202,8 +197,6 @@ Ask these questions for every default pattern:
 ---
 
 ## 📊 CONTEXT-BASED DECISION PROTOCOL
-
-### Think Differently Based on Project Type
 
 ```
 DETERMINE PROJECT TYPE:
@@ -248,8 +241,6 @@ DETERMINE PROJECT TYPE:
 
 ## 🔄 INTERACTION BREAKDOWN
 
-### Analysis for Every Gesture
-
 Before adding any gesture:
 
 ```
@@ -292,12 +283,10 @@ GESTURE: [Gesture Type]
 | ❌ Self-Deception | ✅ Honest Assessment |
 |-------------------|----------------------|
 | "Touch target is 44px" (but on edge, unreachable) | "Can user reach it one-handed?" |
-| "I used FlatList" (but didn't memoize) | "Is scroll smooth?" |
+| "I used FlatList" (but no memoization) | "Is scroll smooth?" |
 | "Platform-specific nav" (but only icons differ) | "Does iOS feel like iOS, Android like Android?" |
-| "Offline support exists" (but error message is generic) | "What can user actually do offline?" |
-| "Loading state exists" (but just a spinner) | "Does user know how long to wait?" |
-
-> 🔴 **Passing the checklist is NOT the goal. Creating great mobile UX IS the goal.**
+| "Offline support exists" (but generic error message) | "What can user actually do offline?" |
+| "Loading state exists" (but only a spinner) | "Does user know how long to wait?" |
 
 ---
 
@@ -351,7 +340,3 @@ Platform: iOS / Android / Both
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
-
----
-
-> **Remember:** If you chose a solution "because that's how it's always done," you chose WITHOUT THINKING. Every project is unique. Every context is different. Every user behavior is specific. **THINK, then code.**

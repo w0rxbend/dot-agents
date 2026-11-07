@@ -1,8 +1,5 @@
 # Redis Streams - Simple Message Queues
 
-Redis Streams provide lightweight message queue functionality with consumer groups. Best when already using Redis for caching.
-
-
 ## Table of Contents
 
 - [When to Use Redis Streams](#when-to-use-redis-streams)
@@ -39,7 +36,7 @@ Redis Streams provide lightweight message queue functionality with consumer grou
 ## When to Use Redis Streams
 
 **Best for:**
-- Simple job queues (already using Redis)
+- Simple job queues (Redis already in use)
 - Notification queues
 - Activity feeds
 - Moderate throughput (100K+ msg/s)
@@ -54,14 +51,14 @@ Redis Streams provide lightweight message queue functionality with consumer grou
 
 ### Streams
 
-**Stream:** Append-only log of messages
-- Each message has unique ID (timestamp-sequence)
-- Supports range queries
+**Stream:** Append-only message log
+- Unique ID per message (timestamp-sequence)
+- Range queries
 - Automatic trimming by count or time
 
 ### Consumer Groups
 
-**Consumer group:** Coordinates message consumption across consumers
+**Consumer group:** Coordinates consumption across consumers
 - Each message delivered to one consumer
 - Acknowledgments track processed messages
 - Pending entries list (PEL) tracks unacked messages
@@ -567,7 +564,7 @@ print(f"Consumers: {r.xinfo_consumers('orders', 'order-processors')}")
 ### Messages Piling Up
 
 **Check:**
-- Consumer processing too slow?
+- Processing too slow?
 - Consumer crashed with pending messages?
 - Need more consumers?
 
@@ -596,15 +593,12 @@ r.xtrim('orders', maxlen=10000, approximate=True)
 
 ## Performance Tips
 
-1. **Use approximate trimming** (`~` in Redis CLI) for better performance
-2. **Batch reads** with `count` parameter
+1. **Use approximate trimming** (`~` in Redis CLI): faster
+2. **Batch reads** with `count`
 3. **Connection pooling** for multiple consumers
 4. **Pipeline commands** for bulk operations
 5. **Monitor memory** with `INFO memory`
 
 ## Related Patterns
 
-- **Work Queue**: Consumer groups for load balancing
-- **Pub/Sub**: Use Redis pub/sub for fanout, streams for persistence
-- **Dead Letter Queue**: Custom implementation with retry tracking
-- **Priority Queues**: Multiple streams for different priorities
+- **Pub/Sub**: Redis pub/sub for fanout, streams for persistence

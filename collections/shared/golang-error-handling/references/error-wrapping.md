@@ -14,7 +14,7 @@
 
 ## Error Wrapping with `%w`
 
-Wrapping preserves the original error in a chain that callers can inspect with `errors.Is` and `errors.As`. Errors SHOULD be wrapped at each layer to build a readable chain.
+Wrapping keeps original error in a chain callers can inspect with `errors.Is` and `errors.As`. Errors SHOULD be wrapped at each layer for readable chain.
 
 ```go
 // ✓ Good — wraps with context, preserves the chain
@@ -29,7 +29,7 @@ func (s *UserService) GetUser(id string) (*User, error) {
 
 ### `%w` vs `%v`: controlling exposure
 
-Use `%w` within your module to preserve the error chain. Use `%v` at public API / system boundaries to prevent callers from depending on internal error types.
+Use `%w` inside your module to keep chain. Use `%v` at public API / system boundaries so callers cannot depend on internal error types.
 
 ```go
 // Internal layer — wrap to preserve chain
@@ -81,7 +81,7 @@ if ve, ok := errors.AsType[*ValidationError](err); ok {
 
 ## Combining Errors with `errors.Join`
 
-`errors.Join` (Go 1.20+) combines multiple independent errors into one. The combined error works with `errors.Is` and `errors.As` — each inner error is inspectable.
+`errors.Join` (Go 1.20+) combines independent errors into one. Result works with `errors.Is` and `errors.As`; each inner error stays inspectable.
 
 ### Use case: validating multiple fields
 

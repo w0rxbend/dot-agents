@@ -3,16 +3,16 @@
 ## Narrative Arc Structures
 
 ### Discovery Arc (most common)
-1. Hook -- pose a question or surprising result
+1. Hook -- pose question or surprising result
 2. Intuition -- build visual understanding
-3. Formalize -- introduce the equation/algorithm
-4. Reveal -- the "aha moment"
+3. Formalize -- introduce equation/algorithm
+4. Reveal -- "aha moment"
 5. Extend -- implications or generalizations
 
 ### Problem-Solution Arc
 1. Problem -- what's broken
 2. Failed attempt -- obvious approach fails
-3. Key insight -- the idea that works
+3. Key insight -- idea that works
 4. Solution -- implement it
 5. Result -- show improvement
 
@@ -39,10 +39,10 @@ self.wait(0.3)
 ```
 
 ### Carry-Forward
-Keep one element, fade the rest. Next scene starts with it still on screen.
+Keep one element, fade rest. Next scene opens with that element still on screen.
 
 ### Transform Bridge
-End scene with a shape, start next scene by transforming it.
+End scene with shape; start next scene by transforming it.
 
 ## Cross-Scene Consistency
 

@@ -1,10 +1,10 @@
 # Message Composition with MML (MIME Meta Language)
 
-Himalaya uses MML for composing emails. MML is a simple XML-based syntax that compiles to MIME messages.
+Himalaya composes emails with MML. MML is simple XML-based syntax that compiles to MIME messages.
 
 ## Basic Message Structure
 
-An email message is a list of **headers** followed by a **body**, separated by a blank line:
+Email message is list of **headers** followed by **body**, separated by blank line:
 
 ```
 From: sender@example.com
@@ -35,22 +35,6 @@ To: "John Doe" <john@example.com>
 To: user1@example.com, user2@example.com, "Jane" <jane@example.com>
 ```
 
-## Plain Text Body
-
-Simple plain text email:
-
-```
-From: alice@localhost
-To: bob@localhost
-Subject: Plain Text Example
-
-Hello, this is a plain text email.
-No special formatting needed.
-
-Best,
-Alice
-```
-
 ## MML for Rich Emails
 
 ### Multipart Messages
@@ -71,7 +55,7 @@ This is the plain text version.
 
 ### Attachments
 
-Attach a file:
+Attach file:
 
 ```
 From: alice@localhost
@@ -98,7 +82,7 @@ Multiple attachments:
 
 ### Inline Images
 
-Embed an image inline:
+Embed image inline:
 
 ```
 From: alice@localhost
@@ -137,15 +121,15 @@ Alice
 
 ### `<#multipart>`
 
-Groups multiple parts together.
+Groups multiple parts.
 
 - `type=alternative`: Different representations of same content
 - `type=mixed`: Independent parts (text + attachments)
-- `type=related`: Parts that reference each other (HTML + images)
+- `type=related`: Parts referencing each other (HTML + images)
 
 ### `<#part>`
 
-Defines a message part.
+Defines message part.
 
 - `type=<mime-type>`: Content type (e.g., `text/html`, `application/pdf`)
 - `filename=<path>`: File to attach
@@ -157,7 +141,7 @@ Defines a message part.
 
 ### Interactive compose
 
-Opens your `$EDITOR`:
+Opens `$EDITOR`:
 
 ```bash
 himalaya message write
@@ -193,7 +177,6 @@ himalaya message write \
 
 ## Tips
 
-- The editor opens with a template; fill in headers and body.
-- Save and exit the editor to send; exit without saving to cancel.
-- MML parts are compiled to proper MIME when sending.
-- Use `himalaya message export --full` to inspect the raw MIME structure of received emails.
+- Editor opens with template. Fill in headers and body.
+- Save and exit editor to send. Exit without saving to cancel.
+- Use `himalaya message export --full` to inspect raw MIME structure of received emails.

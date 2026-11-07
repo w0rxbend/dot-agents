@@ -1,18 +1,10 @@
 # Component Patterns
 
-Modern React component architecture for the application emphasizing type safety, lazy loading, and Suspense boundaries.
-
 ---
 
 ## React.FC Pattern (PREFERRED)
 
-### Why React.FC
-
-All components use the `React.FC<Props>` pattern for:
-- Explicit type safety for props
-- Consistent component signatures
-- Clear prop interface documentation
-- Better IDE autocomplete
+All components use `React.FC<Props>`.
 
 ### Basic Pattern
 
@@ -38,8 +30,7 @@ export default MyComponent;
 ```
 
 **Key Points:**
-- Props interface defined separately with JSDoc comments
-- `React.FC<Props>` provides type safety
+- Props interface defined separately, with JSDoc comments
 - Destructure props in parameters
 - Default export at bottom
 
@@ -51,9 +42,9 @@ export default MyComponent;
 
 Lazy load components that are:
 - Heavy (DataGrid, charts, rich text editors)
-- Route-level components
+- Route-level
 - Modal/dialog content (not shown initially)
-- Below-the-fold content
+- Below the fold
 
 ### How to Lazy Load
 
@@ -123,7 +114,6 @@ import { SuspenseLoader } from '@/components/SuspenseLoader';
 **What it does:**
 - Shows loading indicator while lazy component loads
 - Smooth fade-in animation
-- Consistent loading experience
 - Prevents layout shift
 
 ### Where to Place Suspense Boundaries
@@ -177,7 +167,7 @@ function Page() {
 }
 ```
 
-Each section loads independently, better UX.
+Each section loads independently.
 
 ---
 
@@ -306,7 +296,7 @@ export default MyComponent;
 
 ### When to Split Components
 
-**Split into multiple components when:**
+**Split into several components when:**
 - Component exceeds 300 lines
 - Multiple distinct responsibilities
 - Reusable sections
@@ -350,28 +340,11 @@ function ParentContainer() {
 
 ### Named Const + Default Export (PREFERRED)
 
-```typescript
-export const MyComponent: React.FC<Props> = ({ ... }) => {
-    // Component logic
-};
-
-export default MyComponent;
-```
+As in Basic Pattern above; lazy-load named exports as in How to Lazy Load.
 
 **Why:**
 - Named export for testing/refactoring
 - Default export for lazy loading convenience
-- Both options available to consumers
-
-### Lazy Loading Named Exports
-
-```typescript
-const MyComponent = React.lazy(() =>
-    import('./MyComponent').then(module => ({
-        default: module.MyComponent
-    }))
-);
-```
 
 ---
 
@@ -486,17 +459,11 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
 ## Summary
 
-**Modern Component Recipe:**
-1. `React.FC<Props>` with TypeScript
-2. Lazy load if heavy: `React.lazy(() => import())`
-3. Wrap in `<SuspenseLoader>` for loading
-4. Use `useSuspenseQuery` for data
-5. Import aliases (@/, ~types, ~components)
-6. Event handlers with `useCallback`
-7. Default export at bottom
-8. No early returns for loading states
+- Use `useSuspenseQuery` for data
+- Import aliases (@/, ~types, ~components)
+- No early returns for loading states
 
 **See Also:**
 - [data-fetching.md](data-fetching.md) - useSuspenseQuery details
 - [loading-and-error-states.md](loading-and-error-states.md) - Suspense best practices
-- [complete-examples.md](complete-examples.md) - Full working examples
+- [complete-examples.md](complete-examples.md) - full working examples

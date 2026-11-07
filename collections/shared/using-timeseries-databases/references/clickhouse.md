@@ -1,6 +1,6 @@
 # ClickHouse Reference Guide
 
-ClickHouse is a columnar database optimized for OLAP and analytics, delivering 100M-1B rows/sec query performance.
+ClickHouse: columnar OLAP and analytics database. Queries scan 100M-1B rows/sec.
 
 
 ## Table of Contents
@@ -18,7 +18,6 @@ ClickHouse is a columnar database optimized for OLAP and analytics, delivering 1
   - [Date/Time Types](#datetime-types)
   - [String Types](#string-types)
 - [Writing Data](#writing-data)
-  - [Single Insert](#single-insert)
   - [Batch Insert](#batch-insert)
   - [Insert from SELECT](#insert-from-select)
   - [Async Inserts (Batching)](#async-inserts-batching)
@@ -57,11 +56,11 @@ ClickHouse is a columnar database optimized for OLAP and analytics, delivering 1
 ```bash
 docker run -d \
   --name clickhouse-server \
-  -p 8123:8123 \
-  -p 9000:9000 \
+  -p 127.0.0.1:8123:8123 \
+  -p 127.0.0.1:9000:9000 \
   --ulimit nofile=262144:262144 \
   -v clickhouse-data:/var/lib/clickhouse \
-  clickhouse/clickhouse-server:latest
+  clickhouse/clickhouse-server:24.11
 ```
 
 ### Docker Compose (Cluster)
@@ -70,38 +69,38 @@ docker run -d \
 version: '3.8'
 services:
   clickhouse-01:
-    image: clickhouse/clickhouse-server:latest
+    image: clickhouse/clickhouse-server:24.11
     hostname: clickhouse-01
     volumes:
       - ./config/clickhouse-01:/etc/clickhouse-server
       - clickhouse-01-data:/var/lib/clickhouse
     ports:
-      - "8123:8123"
-      - "9000:9000"
+      - "127.0.0.1:8123:8123"
+      - "127.0.0.1:9000:9000"
 
   clickhouse-02:
-    image: clickhouse/clickhouse-server:latest
+    image: clickhouse/clickhouse-server:24.11
     hostname: clickhouse-02
     volumes:
       - ./config/clickhouse-02:/etc/clickhouse-server
       - clickhouse-02-data:/var/lib/clickhouse
 
   clickhouse-03:
-    image: clickhouse/clickhouse-server:latest
+    image: clickhouse/clickhouse-server:24.11
     hostname: clickhouse-03
     volumes:
       - ./config/clickhouse-03:/etc/clickhouse-server
       - clickhouse-03-data:/var/lib/clickhouse
 
   clickhouse-keeper:
-    image: clickhouse/clickhouse-keeper:latest
+    image: clickhouse/clickhouse-keeper:24.11
     volumes:
       - clickhouse-keeper-data:/var/lib/clickhouse-keeper
 ```
 
 ## Table Engines
 
-ClickHouse uses MergeTree family engines for time-series data.
+Time-series data uses MergeTree family engines.
 
 ### MergeTree (Basic)
 
@@ -118,9 +117,9 @@ ORDER BY (user_id, timestamp);
 ```
 
 Key concepts:
-- **PARTITION BY**: Groups data by month (enables efficient data dropping)
-- **ORDER BY**: Sorting key (used for range queries)
-- **PRIMARY KEY**: Subset of ORDER BY (optional, for sparse index)
+- **PARTITION BY**: Groups data by month (makes dropping data cheap)
+- **ORDER BY**: Sorting key, used for range queries
+- **PRIMARY KEY**: Optional subset of ORDER BY, for sparse index
 
 ### ReplacingMergeTree (Deduplication)
 
@@ -135,7 +134,7 @@ PARTITION BY toYYYYMMDD(timestamp)
 ORDER BY (sensor_id, timestamp);
 ```
 
-Deduplicates rows with same ORDER BY key (keeps last version).
+Deduplicates rows with same ORDER BY key, keeping last version.
 
 ### SummingMergeTree (Pre-aggregation)
 
@@ -150,7 +149,7 @@ PARTITION BY toYYYYMM(hour)
 ORDER BY (metric_name, hour);
 ```
 
-Automatically sums numeric columns when merging parts.
+Sums numeric columns on part merge.
 
 ### AggregatingMergeTree (Complex Aggregations)
 
@@ -219,13 +218,6 @@ LowCardinality(String)  -- Dictionary encoding (for repeated values)
 ```
 
 ## Writing Data
-
-### Single Insert
-
-```sql
-INSERT INTO events (timestamp, user_id, event_type, page, duration)
-VALUES (now(), 1234, 'page_view', '/dashboard', 5);
-```
 
 ### Batch Insert
 
@@ -381,7 +373,7 @@ FROM events
 GROUP BY hour, event_type;
 ```
 
-Now every insert to `events` automatically updates `events_hourly`.
+Each insert to `events` then updates `events_hourly`.
 
 ### Querying Materialized Views
 
@@ -550,7 +542,7 @@ PARTITION BY toYYYYMMDD(timestamp)
 PARTITION BY tuple()
 ```
 
-Partition by month for most time-series use cases. Use daily partitions if ingesting > 100M rows/day.
+Monthly partitions suit most time-series workloads. Use daily if ingesting > 100M rows/day.
 
 ### Index Optimization
 
@@ -589,8 +581,6 @@ SELECT * FROM events_hourly WHERE hour >= today() - 7;
 ```
 
 ## TTL (Time-to-Live)
-
-Automatically delete or move old data.
 
 ### Delete Old Data
 
@@ -632,7 +622,7 @@ SETTINGS storage_policy = 'tiered';
 
 ## Distributed Tables
 
-Shard data across multiple nodes for horizontal scaling.
+Shard data across nodes for horizontal scaling.
 
 ### Cluster Configuration
 
@@ -699,7 +689,7 @@ ORDER BY hour DESC;
 ### FastAPI Backend
 
 ```python
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from clickhouse_connect import get_client
 
 app = FastAPI()
@@ -722,8 +712,10 @@ async def get_daily_active_users(days: int = 30):
 
 @app.get("/api/analytics/events")
 async def get_event_counts(start: str = "7d"):
-    # Parse start (e.g., "7d", "30d", "1h")
-    interval = start
+    # Map start through allowlist; never interpolate raw request strings
+    interval = {"1h": "1 HOUR", "7d": "7 DAY", "30d": "30 DAY"}.get(start)
+    if interval is None:
+        raise HTTPException(400, "unsupported range")
 
     query = f"""
         SELECT
@@ -743,13 +735,8 @@ async def get_event_counts(start: str = "7d"):
 
 ## Best Practices
 
-1. **ORDER BY**: Choose columns used most in WHERE clauses (timestamp, user_id)
-2. **PARTITION BY**: Use monthly partitions for most use cases
-3. **Compression**: Use DoubleDelta for timestamps, Gorilla for floats
-4. **Materialized Views**: Pre-aggregate for fast dashboard queries
-5. **Batch Inserts**: Insert 10,000-100,000 rows per batch
-6. **Async Inserts**: Enable for automatic batching
-7. **TTL**: Set automatic data expiration to control storage costs
-8. **Distributed Tables**: Shard by user_id or device_id for even distribution
-9. **Query Patterns**: Always filter by ORDER BY columns first
-10. **Monitoring**: Track merge times, query duration, and replication lag
+1. **ORDER BY**: Columns used most in WHERE clauses (timestamp, user_id)
+2. **Batch Inserts**: 10,000-100,000 rows per batch
+3. **Async Inserts**: Enable for automatic batching
+4. **Distributed Tables**: Shard by user_id or device_id for even distribution
+5. **Monitoring**: Track merge times, query duration, replication lag

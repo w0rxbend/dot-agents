@@ -2,7 +2,7 @@
 
 ## container/list — Doubly-Linked List
 
-A general-purpose doubly-linked list. Elements hold `any` values (no type safety).
+General-purpose doubly-linked list. Elements hold `any` values (no type safety).
 
 ### Time Complexity
 
@@ -10,31 +10,29 @@ A general-purpose doubly-linked list. Elements hold `any` values (no type safety
 | --- | --- | --- |
 | **Insert at front/back** | O(1) | `PushFront()`, `PushBack()` |
 | **Remove front/back** | O(1) | `l.Remove(l.Front())`, `l.Remove(l.Back())` |
-| **Insert at arbitrary position** | O(1) | If you have the element reference (`*Element`) |
-| **Remove at arbitrary position** | O(1) | If you have the element reference |
-| **Access by index** | O(n) | Must walk the chain — no random access |
+| **Insert at arbitrary position** | O(1) | Given element reference (`*Element`) |
+| **Remove at arbitrary position** | O(1) | Given element reference |
+| **Access by index** | O(n) | Must walk chain; no random access |
 | **Search for value** | O(n) | Linear scan required |
 
 ### When to Use
 
-- LRU cache implementations (O(1) move-to-front)
+- LRU caches (O(1) move-to-front)
 - Ordered collections with frequent insertion/removal at arbitrary positions
-- When you need stable iterators that survive insertions
+- Stable iterators that survive insertions
 
 ### When NOT to Use
 
-Slices outperform linked lists for most use cases due to cache locality. If you only append/remove from the ends, use a slice or a deque. Also avoid if you need O(1) random access by index.
+Slices beat linked lists for most uses due to cache locality. If you only append/remove at ends, use slice or deque. Also avoid if O(1) random access by index needed.
 
 ### Use Cases
 
-- LRU cache implementations (O(1) move-to-front with element reference)
-- Ordered task queues with frequent arbitrary insertions/removals (if mutations happen frequently)
 - Undo/redo stacks with stable element references
-- Sliding window algorithms where elements are frequently added/removed from both ends
+- Sliding window algorithms with frequent add/remove at both ends
 
 ## container/heap — Priority Queue
 
-An interface-based min-heap. You provide a type implementing `heap.Interface` (which embeds `sort.Interface` plus `Push`/`Pop`).
+Interface-based min-heap. Provide type implementing `heap.Interface` (embeds `sort.Interface` plus `Push`/`Pop`).
 
 ### Time Complexity
 
@@ -45,11 +43,11 @@ An interface-based min-heap. You provide a type implementing `heap.Interface` (w
 | **heap.Init** | O(n) | Builds heap from unsorted slice in linear time |
 | **heap.Fix** | O(log n) | Re-heapifies after priority change |
 | **Peek (access root)** | O(1) | Direct access to `pq[0]` |
-| **Search for value** | O(n) | No indexed lookup — must scan all items |
+| **Search for value** | O(n) | No indexed lookup; must scan all items |
 
 ### Space Complexity
 
-O(n) — stores all items in a backing slice. The heap is an array-based structure, not a tree of pointers.
+O(n): stores all items in backing slice. Heap is array-based, not tree of pointers.
 
 ### Use Cases
 
@@ -62,7 +60,7 @@ O(n) — stores all items in a backing slice. The heap is an array-based structu
 
 ## container/ring — Circular Buffer
 
-A fixed-size circular linked list. Useful for rolling windows and round-robin scheduling.
+Fixed-size circular linked list. Use for rolling windows and round-robin scheduling.
 
 ```go
 // Rolling average of last 5 values
@@ -83,16 +81,16 @@ avg := sum / float64(r.Len())
 
 ## bufio — Buffered I/O
 
-`bufio` wraps `io.Reader` and `io.Writer` with an internal buffer, reducing system call overhead for frequent small reads/writes. Use `NewReader()` / `NewWriter()` for default 4096-byte buffers, or `NewReaderSize()` / `NewWriterSize()` for custom sizes.
+`bufio` wraps `io.Reader` and `io.Writer` in internal buffer, cutting system call overhead for frequent small reads/writes. Use `NewReader()` / `NewWriter()` for default 4096-byte buffers, `NewReaderSize()` / `NewWriterSize()` for custom sizes.
 
-**bufio.Reader & Writer:** Call `Flush()` explicitly on writers and check its error. Buffered data is not written until flush or the buffer is full; ignoring a flush error can silently lose data.
+**bufio.Reader & Writer:** Call `Flush()` explicitly on writers and check its error. Buffered data is not written until flush or full buffer. Ignoring flush error can silently lose data.
 
-**bufio.Scanner:** Convenient line-by-line reading with `scanner.Scan()` and `scanner.Text()`. Default max token size is 64 KB; call `scanner.Buffer()` to increase for larger lines.
+**bufio.Scanner:** Line-by-line reading with `scanner.Scan()` and `scanner.Text()`. Default max token size is 64 KB. Call `scanner.Buffer()` to raise it for larger lines.
 
 ## strings.Builder vs bytes.Buffer
 
-**strings.Builder:** Optimized for building strings by concatenating parts — `String()` returns the accumulated string without copying. `Reset()` discards the buffer.
+**strings.Builder:** Optimized for building strings from parts. `String()` returns accumulated string without copying. `Reset()` discards buffer.
 
-**bytes.Buffer:** Implements both `io.Reader` and `io.Writer`. Use for I/O operations, encoding/decoding, or when you need both read and write. `Reset()` reuses the allocated memory.
+**bytes.Buffer:** Implements both `io.Reader` and `io.Writer`. Use for I/O, encoding/decoding, or when both read and write needed. `Reset()` reuses allocated memory.
 
-**Choose Builder for string concatenation, Buffer for I/O operations or buffer reuse in pools.**
+**Choose Builder for string concatenation, Buffer for I/O or buffer reuse in pools.**

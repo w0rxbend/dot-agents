@@ -1,8 +1,8 @@
 # Slash Commands (In-Session)
 
-Registry of record: `hermes_cli/commands.py` (`COMMAND_REGISTRY`) — every
+Registry of record: `hermes_cli/commands.py` (`COMMAND_REGISTRY`). Every
 consumer (autocomplete, `/help`, Telegram menu, Slack mapping) derives from
-it. New commands land often; `/help` in-session is always authoritative.
+it. New commands land often; in-session `/help` always authoritative.
 (CLI) = interactive CLI/TUI only. (GW) = gateway platforms only.
 
 ### Session

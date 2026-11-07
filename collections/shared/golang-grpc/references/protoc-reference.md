@@ -15,7 +15,7 @@
 
 ## Directory Layout
 
-Organize proto files by domain with versioned directories. Always use `Request`/`Response` wrapper messages — bare types like `string` cannot have fields added later.
+Organize proto files by domain, in versioned directories. Always use `Request`/`Response` wrapper messages: bare types like `string` cannot gain fields later.
 
 ```
 proto/
@@ -65,9 +65,9 @@ message ListUsersResponse {
 
 ### `go_package` conventions
 
-- Format: `"import/path;alias"` — the alias becomes the Go package name
+- Format: `"import/path;alias"`. Alias becomes Go package name
 - Convention: lowercase version suffix (e.g. `userv1`, `orderv1`)
-- Generate into a `gen/` directory to keep generated code separate from hand-written code
+- Generate into `gen/` directory to keep generated code separate from hand-written code
 
 ## Code Generation with `protoc`
 
@@ -102,20 +102,22 @@ protoc -I proto -I third_party \
 
 ## Code Generation with `buf`
 
-`buf` is the recommended modern alternative to raw `protoc`. It manages dependencies, lints protos, and generates code from a single config.
+`buf` is recommended modern alternative to raw `protoc`. Manages dependencies, lints protos, generates code from single config.
 
 ### `buf.gen.yaml`
 
 ```yaml
 version: v2
 plugins:
-  - remote: buf.build/protocolbuffers/go
+  - remote: buf.build/protocolbuffers/go:v1.36.12
     out: gen
     opt: paths=source_relative
-  - remote: buf.build/grpc/go
+  - remote: buf.build/grpc/go:v1.6.2
     out: gen
     opt: paths=source_relative
 ```
+
+Pin remote plugin versions. Remote plugins upload protos to buf.build; for private APIs use `local: protoc-gen-go` / `local: protoc-gen-go-grpc`.
 
 ### `buf.yaml`
 
@@ -143,8 +145,6 @@ buf build                 # Validate proto files compile
 
 ## Generated Code Patterns
 
-After generation, import and use the generated code:
-
 ```go
 import (
     userv1 "github.com/mycompany/myservice/gen/user/v1"
@@ -160,4 +160,4 @@ client := userv1.NewUserServiceClient(conn)
 resp, err := client.GetUser(ctx, &userv1.GetUserRequest{UserId: "123"})
 ```
 
-Always embed `Unimplemented*Server` (not `Unsafe*Server`) — it provides forward compatibility when new RPCs are added to the proto definition.
+Always embed `Unimplemented*Server` (not `Unsafe*Server`). Gives forward compatibility when new RPCs are added to proto definition.

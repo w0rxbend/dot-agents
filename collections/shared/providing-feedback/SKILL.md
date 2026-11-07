@@ -5,24 +5,22 @@ description: Build UI feedback components in frontend apps (React examples) - to
 
 # Providing User Feedback and Notifications
 
-This skill implements comprehensive feedback and notification systems that enhance all other component skills by providing consistent patterns for communicating system state, displaying messages, and handling user confirmations.
-
 ## When to Use This Skill
 
-Activate this skill when:
+Use when:
 - Implementing toast notifications or snackbars
-- Displaying success, error, warning, or info messages
-- Creating modal dialogs or confirmation dialogs
+- Displaying success, error, warning or info messages
+- Creating modal or confirmation dialogs
 - Implementing progress indicators (spinners, progress bars, skeleton screens)
 - Designing empty states or zero-result displays
 - Adding tooltips or contextual help
-- Determining notification timing, stacking, or positioning
+- Setting notification timing, stacking or positioning
 - Implementing accessible feedback patterns with ARIA
-- Showing loading, success or failure state for a user action in the UI
+- Showing loading, success or failure state for user action in UI
 
 ## Feedback Type Decision Matrix
 
-Choose the appropriate feedback mechanism based on urgency and attention requirements:
+Pick feedback mechanism by urgency and attention needed:
 
 ```
 Critical + Blocking       → Modal Dialog
@@ -48,37 +46,35 @@ No Data                  → Empty State
 
 ### Step 1: Determine Feedback Type
 
-Assess the situation using these criteria:
-1. **Urgency**: How critical is the information?
+Assess with these criteria:
+1. **Urgency**: How critical is it?
 2. **Duration**: How long should it persist?
-3. **Action Required**: Does user need to respond?
-4. **Context**: Is it related to specific UI element?
+3. **Action Required**: Must user respond?
+4. **Context**: Tied to specific UI element?
 
 ### Step 2: Choose Implementation Pattern
 
 **For Toasts/Snackbars:**
 - Position: Bottom-right (recommended)
-- Duration: 3-4s (success), 5-7s (warning), 7-10s (error)
 - Stack limit: 3-5 maximum
-- See `references/toast-patterns.md` for detailed patterns
+- Detailed patterns: `references/toast-patterns.md`
 
 **For Modal Dialogs:**
-- Focus management: Trap focus within modal
 - Accessibility: ESC to close, proper ARIA labels
 - Backdrop: Click outside to close (optional)
-- See `references/modal-patterns.md` for implementation
+- Implementation: `references/modal-patterns.md`
 
 **For Progress Indicators:**
 - <100ms: No indicator needed
 - 100ms-5s: Spinner with message
 - 5s-30s: Progress bar (determinate if possible)
 - >30s: Progress bar + time estimate + cancel
-- See `references/progress-indicators.md` for patterns
+- Patterns: `references/progress-indicators.md`
 
 **For Empty States:**
 - Include: Illustration, headline, body text, CTA
 - Types: First use, zero results, error, permission denied
-- See `references/empty-states.md` for designs
+- Designs: `references/empty-states.md`
 
 ### Step 3: Implement with Recommended Libraries
 
@@ -120,7 +116,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 </Dialog.Root>
 ```
 
-See `references/library-comparison.md` for alternative libraries and selection criteria.
+Alternative libraries and selection criteria: `references/library-comparison.md`.
 
 ### Step 4: Apply Accessibility Patterns
 
@@ -143,11 +139,11 @@ See `references/library-comparison.md` for alternative libraries and selection c
 3. Trap focus within modal (Tab cycles)
 4. Restore focus to trigger on close
 
-See `references/accessibility-feedback.md` for complete patterns.
+Complete patterns: `references/accessibility-feedback.md`.
 
 ### Step 5: Integrate Design Tokens
 
-All feedback components should read colors, spacing and motion from design tokens (see the theming-components skill) for consistent theming:
+Read colors, spacing and motion for all feedback components from design tokens (see theming-components skill):
 
 ```css
 /* Example token usage */
@@ -177,17 +173,11 @@ Token categories used:
 - Error: 7-10 seconds or manual dismiss
 - With action button: 10+ seconds or no auto-dismiss
 
-**Progress indicator thresholds:**
-- <100ms: No indicator
-- 100ms-5s: Spinner
-- 5s-30s: Progress bar
-- >30s: Progress bar + cancel option
-
 ## Resources
 
 ### Scripts (Token-Free Execution)
 - `scripts/generate_toast_manager.js` - Generate toast configurations with timing and stacking
-- `scripts/format_messages.py` - Format user-facing messages based on context
+- `scripts/format_messages.py` - Format user-facing messages by context
 - `scripts/calculate_timing.js` - Calculate auto-dismiss timings
 
 ### References (Detailed Documentation)
@@ -212,8 +202,7 @@ Token categories used:
 
 ## Cross-Skill Integration
 
-This skill enhances all other component skills:
-
+Feedback per component skill:
 - **Forms**: Validation feedback, success confirmations
 - **Data Visualization**: Loading states, error messages
 - **Tables**: Bulk operation feedback, action confirmations
@@ -221,7 +210,6 @@ This skill enhances all other component skills:
 - **Dashboards**: Widget loading, system status
 - **Search/Filter**: Zero results, search progress
 - **Media**: Upload progress, processing status
-- **Design Tokens**: All visual styling via token system
 
 ## Library Quick Comparison
 
@@ -233,13 +221,11 @@ This skill enhances all other component skills:
 | **Radix UI** | Modal | Small | Design systems, headless |
 | **Headless UI** | Modal | Small | Tailwind projects |
 
-Choose based on project requirements. See `references/library-comparison.md` for detailed analysis.
-
 ## Key Principles
 
 1. **Match urgency to attention**: Don't use modals for non-critical info
 2. **Be consistent**: Same feedback type for similar actions
 3. **Provide context**: Explain what happened and what to do
-4. **Enable recovery**: Include undo, retry, or help options
+4. **Enable recovery**: Offer undo, retry or help options
 5. **Respect preferences**: Honor reduced motion settings
 6. **Test accessibility**: Verify with screen readers and keyboard

@@ -17,6 +17,7 @@ Usage:
 
 import os
 import requests
+from urllib.parse import quote
 from typing import Dict, Any, Optional, List
 
 
@@ -86,13 +87,13 @@ class UsersResource:
         return self._client.request('POST', '/users', body={'name': name, 'email': email})
 
     def retrieve(self, user_id: str) -> Dict[str, Any]:
-        return self._client.request('GET', f'/users/{user_id}')
+        return self._client.request('GET', f'/users/{quote(user_id, safe="")}')
 
     def update(self, user_id: str, **kwargs) -> Dict[str, Any]:
-        return self._client.request('PATCH', f'/users/{user_id}', body=kwargs)
+        return self._client.request('PATCH', f'/users/{quote(user_id, safe="")}', body=kwargs)
 
     def delete(self, user_id: str) -> Dict[str, Any]:
-        return self._client.request('DELETE', f'/users/{user_id}')
+        return self._client.request('DELETE', f'/users/{quote(user_id, safe="")}')
 
     def list(self, limit: int = 100) -> List[Dict[str, Any]]:
         response = self._client.request('GET', '/users', query={'limit': str(limit)})

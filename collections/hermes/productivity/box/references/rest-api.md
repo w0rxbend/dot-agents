@@ -1,8 +1,8 @@
 # REST API fallback
 
-Use `box request` to extend the CLI when it has no dedicated subcommand. It reuses the configured Box identity, so continue ordinary requested work without asking the user to choose a REST fallback. Confirm only for deletes, access or identity changes, broad or costly batches, or an ambiguous target or scope. Use direct REST only when the CLI is unavailable or application code needs a raw endpoint that an SDK cannot cover.
+`box request` covers operations without dedicated CLI subcommand, reusing configured Box identity. Continue ordinary requested work without asking user to choose REST fallback. Confirm only for deletes, access or identity changes, broad or costly batches, or ambiguous target or scope. Direct REST only when CLI is unavailable or application code needs raw endpoint an SDK cannot cover.
 
-Using REST does not bypass Box metadata safety rules: inspect metadata instances and existing schemas first, never create or change a metadata template, and retrieve and compare the metadata instance after every write. Never use a file description as an implicit metadata fallback.
+REST does not bypass Box metadata safety rules: inspect metadata instances and existing schemas first, never create or change metadata template, retrieve and compare instance after every write. Never use file description as implicit metadata fallback.
 
 ## CLI request escape hatch
 
@@ -14,7 +14,7 @@ box request /folders -X POST --body '{"name":"New folder","parent":{"id":"0"}}' 
 
 ## Create a native Box Note
 
-When asked to create a Box Note, create the native note with the Box Notes API; do not upload plain text with a `.boxnote` suffix. Use the intended parent folder (use `0` only when the user's target is unambiguously their root), then fetch the returned file to verify it:
+Box Note request: create native note with Box Notes API; do not upload plain text with `.boxnote` suffix. Use intended parent folder (`0` only when user's target is unambiguously their root), then fetch returned file to verify:
 
 ```bash
 box request /notes/convert -X POST \
@@ -24,11 +24,11 @@ box request /notes/convert -X POST \
 box files:get <RETURNED_FILE_ID> --json --fields id,name,type,parent
 ```
 
-`content` is Markdown and is limited to 1 MB. Report the returned file ID and its normal Box file link.
+`content` is Markdown, limited to 1 MB. Report returned file ID and normal Box file link.
 
 ## OAuth identity boundary
 
-`box request` uses the selected OAuth CLI environment. It does not bypass that user's Box permissions. If the CLI is unavailable, use an OAuth-authorized SDK client as described in [SDK development](sdk-development.md). Never echo, log, or commit OAuth tokens or client secrets.
+`box request` uses selected OAuth CLI environment; it does not bypass that user's Box permissions. CLI unavailable: OAuth-authorized SDK client per [SDK development](sdk-development.md). Never echo, log, or commit OAuth tokens or client secrets.
 
 ## Sources
 

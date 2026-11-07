@@ -1,6 +1,8 @@
 """
 DynamoDB + AWS Lambda Serverless Example
-Production-ready serverless API with single-table design.
+Demo serverless API with single-table design. Not production-ready: endpoints have
+no auth or ownership checks. Add an API Gateway authorizer and verify the caller
+owns each user/order before real use.
 """
 
 import json
@@ -35,6 +37,12 @@ def response(status_code: int, body: Dict[str, Any]) -> Dict[str, Any]:
         },
         'body': json.dumps(body, cls=DecimalEncoder)
     }
+
+
+def server_error(e: Exception) -> Dict[str, Any]:
+    """Log details to CloudWatch; return generic 500 (boto3 errors leak ARNs/account IDs)"""
+    print(f"ERROR: {e!r}")
+    return response(500, {'error': 'Internal server error'})
 
 
 def create_user(event, context):
@@ -72,7 +80,7 @@ def create_user(event, context):
     except table.meta.client.exceptions.ConditionalCheckFailedException:
         return response(409, {'error': 'User already exists'})
     except Exception as e:
-        return response(500, {'error': str(e)})
+        return server_error(e)
 
 
 def get_user(event, context):
@@ -94,7 +102,7 @@ def get_user(event, context):
         return response(200, result['Item'])
 
     except Exception as e:
-        return response(500, {'error': str(e)})
+        return server_error(e)
 
 
 def create_order(event, context):
@@ -164,7 +172,7 @@ def create_order(event, context):
         })
 
     except Exception as e:
-        return response(500, {'error': str(e)})
+        return server_error(e)
 
 
 def get_order(event, context):
@@ -201,7 +209,7 @@ def get_order(event, context):
         return response(200, order_data)
 
     except Exception as e:
-        return response(500, {'error': str(e)})
+        return server_error(e)
 
 
 def list_user_orders(event, context):
@@ -225,7 +233,7 @@ def list_user_orders(event, context):
         })
 
     except Exception as e:
-        return response(500, {'error': str(e)})
+        return server_error(e)
 
 
 def update_order_status(event, context):
@@ -269,7 +277,7 @@ def update_order_status(event, context):
     except table.meta.client.exceptions.ConditionalCheckFailedException:
         return response(404, {'error': 'Order not found'})
     except Exception as e:
-        return response(500, {'error': str(e)})
+        return server_error(e)
 
 
 def list_orders_by_status(event, context):
@@ -295,7 +303,7 @@ def list_orders_by_status(event, context):
         })
 
     except Exception as e:
-        return response(500, {'error': str(e)})
+        return server_error(e)
 
 
 def health_check(event, context):
@@ -309,7 +317,5 @@ def health_check(event, context):
             'tableName': table.table_name
         })
     except Exception as e:
-        return response(500, {
-            'status': 'unhealthy',
-            'error': str(e)
-        })
+        print(f"ERROR: {e!r}")
+        return response(500, {'status': 'unhealthy'})

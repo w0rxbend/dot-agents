@@ -1,7 +1,5 @@
 # OpenTelemetry SDK Setup by Language
 
-Complete setup guide for OpenTelemetry instrumentation across Python, Rust, Go, and TypeScript.
-
 ## Table of Contents
 
 - [Python](#python)
@@ -236,8 +234,8 @@ async fn get_user(
 }
 ```
 
-**Key Insight**: The `#[instrument]` macro automatically:
-- Creates a span with the function name
+**Key Insight**: `#[instrument]` macro automatically:
+- Creates span named after function
 - Includes specified fields (user_id)
 - Injects trace_id/span_id into logs
 - Handles async functions correctly
@@ -550,7 +548,7 @@ sdk.start();
 
 ## Environment Variables
 
-All SDKs support configuration via environment variables:
+All SDKs accept configuration via environment variables:
 
 ```bash
 # OTLP endpoint
@@ -587,9 +585,9 @@ node -r ./instrumentation.js -e "console.log('Tracing initialized')"
 ```
 
 **Verify in Grafana**:
-1. Navigate to Explore → Tempo
+1. Open Explore → Tempo
 2. Query: `{service.name="my-service"}`
-3. Should see traces appearing
+3. Traces should appear
 
 ---
 
@@ -608,16 +606,16 @@ node -r ./instrumentation.js -e "console.log('Tracing initialized')"
 ## Troubleshooting
 
 **Traces not appearing in Tempo**:
-- Check OTLP endpoint is reachable: `telnet localhost 4317`
-- Verify Grafana Alloy is running: `docker ps | grep alloy`
-- Check application logs for export errors
+- Check OTLP endpoint reachable: `telnet localhost 4317`
+- Verify Grafana Alloy running: `docker ps | grep alloy`
+- Check app logs for export errors
 
 **High memory usage**:
-- Reduce batch size in exporter configuration
+- Reduce exporter batch size
 - Enable sampling for high-traffic services
 - Use tail-based sampling in Grafana Alloy
 
 **Slow performance**:
 - Use gRPC exporter instead of HTTP (4317 vs 4318)
 - Enable async/batching exporters
-- Verify auto-instrumentation isn't over-instrumenting
+- Check auto-instrumentation is not over-instrumenting

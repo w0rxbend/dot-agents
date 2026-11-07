@@ -1,10 +1,10 @@
 # Component Patterns: Compound Components and List Virtualization
 
-Read this when a component needs a flexible multi-part API (tabs, accordions, menus, selects) or when a list or table may render hundreds of rows or more. Examples are React + TypeScript; adapt to the project's framework and existing primitives first. If the project already uses a headless library (Radix, React Aria, Headless UI, Ark), use its component instead of hand-rolling one.
+Read when component needs flexible multi-part API (tabs, accordions, menus, selects), or when list or table may render hundreds of rows or more. Examples use React + TypeScript; adapt to project's framework and existing primitives first. If project already uses headless library (Radix, React Aria, Headless UI, Ark), use its component instead of hand-rolling one.
 
 ## Compound components
 
-Use when consumers need to arrange the parts of one widget freely (`<Tabs><TabList><Tab/></TabList><TabPanel/></Tabs>`) while the parent owns the shared state. Share state through a context that fails loudly when a part is used outside its parent, and put the ARIA wiring in the parts so every consumer gets it.
+Use when consumers arrange parts of one widget freely (`<Tabs><TabList><Tab/></TabList><TabPanel/></Tabs>`) while parent owns shared state. Share state via context that fails loudly when a part is used outside its parent. Put ARIA wiring in parts so every consumer gets it.
 
 ```tsx
 import { createContext, useContext, useId, useState, type ReactNode } from 'react';
@@ -56,13 +56,13 @@ export function TabPanel({ id, children }: { id: string; children: ReactNode }) 
 }
 ```
 
-Complete the keyboard contract before shipping: Left/Right arrow keys move between tabs, Home/End jump to first/last (WAI-ARIA Authoring Practices "Tabs" pattern). Memoize the context value (`useMemo`) if the provider re-renders often.
+Complete keyboard contract before shipping: Left/Right arrow keys move between tabs, Home/End jump to first/last (WAI-ARIA Authoring Practices "Tabs" pattern). Memoize context value (`useMemo`) if provider re-renders often.
 
-When not to use: a widget with one fixed layout is simpler as a single component with props.
+When not to use: widget with one fixed layout is simpler as single component with props.
 
 ## Virtualizing long lists
 
-Render only the rows in view when a list can reach hundreds-plus items or each row is expensive. Measure first (React Profiler, Performance panel); pagination or simpler rows may be enough. Example with `@tanstack/react-virtual` (check the installed major version's docs):
+Render only visible rows when list can reach hundreds-plus items or rows are expensive. Measure first (React Profiler, Performance panel); pagination or simpler rows may suffice. Example with `@tanstack/react-virtual` (check installed major version's docs):
 
 ```tsx
 import { useRef } from 'react';
@@ -97,6 +97,6 @@ export function VirtualList<T>({ items, renderRow }: { items: T[]; renderRow: (i
 ```
 
 Trade-offs to check:
-- Browser find-in-page and screen readers only see rendered rows; provide search/filter and announce the total count (`aria-rowcount` / `aria-setsize` + `aria-posinset` where applicable).
-- Keep scroll position and focus stable when items are inserted or the list refetches; use stable keys from data IDs when rows can reorder (`getItemKey`).
-- Fixed-height rows are cheaper: drop `measureElement` when every row has the same height.
+- Browser find-in-page and screen readers only see rendered rows. Provide search/filter and announce total count (`aria-rowcount` / `aria-setsize` + `aria-posinset` where applicable).
+- Keep scroll position and focus stable when items are inserted or list refetches. Use stable keys from data IDs when rows can reorder (`getItemKey`).
+- Fixed-height rows are cheaper: drop `measureElement` when every row has same height.

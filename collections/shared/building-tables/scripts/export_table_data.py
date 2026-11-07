@@ -23,6 +23,14 @@ def generate_sample_data() -> List[Dict[str, Any]]:
         {"id": 3, "name": "Bob Johnson", "email": "bob@example.com", "role": "User", "status": "inactive"},
     ]
 
+def neutralize_formulas(data: List[Dict]) -> List[Dict]:
+    """Prefix cells starting with = + - @ tab or CR with ' so spreadsheets don't run them as formulas"""
+    return [
+        {k: "'" + v if isinstance(v, str) and v.startswith(("=", "+", "-", "@", "\t", "\r")) else v
+         for k, v in row.items()}
+        for row in data
+    ]
+
 def export_to_csv(data: List[Dict], output_path: str):
     """Export to CSV"""
     import csv
@@ -34,7 +42,7 @@ def export_to_csv(data: List[Dict], output_path: str):
     with open(output_path, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=data[0].keys())
         writer.writeheader()
-        writer.writerows(data)
+        writer.writerows(neutralize_formulas(data))
 
     print(f"✓ Exported {len(data)} rows to CSV: {output_path}")
 
@@ -54,7 +62,7 @@ def export_to_excel(data: List[Dict], output_path: str):
         print("Install: pip install pandas openpyxl")
         sys.exit(1)
 
-    df = pd.DataFrame(data)
+    df = pd.DataFrame(neutralize_formulas(data))
     df.to_excel(output_path, index=False, sheet_name='Data')
 
     print(f"✓ Exported {len(data)} rows to Excel: {output_path}")
@@ -64,7 +72,7 @@ def fetch_from_api(url: str) -> List[Dict]:
     import requests
 
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=30)
         response.raise_for_status()
         return response.json()
     except Exception as e:

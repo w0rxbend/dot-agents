@@ -1,20 +1,20 @@
 # Sections
 
-This skill is a **topic-organized editorial reference** distilled from the Apple Style Guide (June 2025). Unlike a code-style distillation skill (where each file is one rule with Incorrect/Correct code examples), each file here is a **topic catalog** containing 20-200 short usage entries.
+**Topic-organized editorial reference** distilled from Apple Style Guide (June 2025). Each file here is a **topic catalog** of 20-200 short usage entries.
 
-The "section ID" column below identifies the topic catalog. Files are named with topic-descriptive slugs rather than rule-prefix-name.md.
+The "section ID" column below identifies each topic catalog. Files use topic-descriptive slugs, not rule-prefix-name.md.
 
 ---
 
 ## 1. Voice & Tone (voice)
 
 **Impact:** CRITICAL
-**Description:** Active voice, present tense, second person. Verb-usage entries (*activate*/*turn on*, *appear* not *display*, *click* vs *tap*, contractions, future tense). The most-consulted topic for any user-facing prose.
+**Description:** Active voice, present tense, second person. Verb-usage entries (*activate*/*turn on*, *appear* not *display*, *click* vs *tap*, contractions, future tense). Most-consulted topic for any user-facing prose.
 
 ## 2. Punctuation (punct)
 
 **Impact:** HIGH
-**Description:** Periods, commas (serial), em dashes, en dashes, ellipses, parentheses, brackets, apostrophes, quotation marks, slashes, ampersands, colons, semicolons. Apple deviates from Chicago in a few specific places — those exceptions are called out inline.
+**Description:** Periods, commas (serial), em dashes, en dashes, ellipses, parentheses, brackets, apostrophes, quotation marks, slashes, ampersands, colons, semicolons. Apple deviates from Chicago in a few places; exceptions called out inline.
 
 ## 3. Capitalization (caps)
 
@@ -24,12 +24,12 @@ The "section ID" column below identifies the topic catalog. Files are named with
 ## 4. Hyphenation & Compounds (hyph)
 
 **Impact:** HIGH
-**Description:** Compound modifiers preceding a noun get hyphens (*user-friendly app*); following the verb they don't (*the app is user friendly*). Prefix rules (*e-*, *re-*, *non-*, *pre-*, *anti-*). The `(adj.)` / `(pred. adj.)` notation throughout the source maps to this topic.
+**Description:** Compound modifiers before a noun get hyphens (*user-friendly app*); after the verb they don't (*the app is user friendly*). Prefix rules (*e-*, *re-*, *non-*, *pre-*, *anti-*). Source's `(adj.)` / `(pred. adj.)` notation maps to this topic.
 
 ## 5. Numbers & Dates (nums)
 
 **Impact:** HIGH
-**Description:** When to spell out numbers, ranges, ordinals, fractions, percentages, time of day, dates, days of week, decades, *2D/3D*, *2K/4K/8K*, *24/7*. The *generation* entry.
+**Description:** When to spell out numbers, ranges, ordinals, fractions, percentages, time of day, dates, days of week, decades, *2D/3D*, *2K/4K/8K*, *24/7*. Also the *generation* entry.
 
 ## 6. Units of Measure (units)
 
@@ -39,7 +39,7 @@ The "section ID" column below identifies the topic catalog. Files are named with
 ## 7. Word Choice & Confusables (word)
 
 **Impact:** HIGH
-**Description:** Pairs and triples like *affect/effect*, *assure/ensure/insure*, *backup/back up*, *login/log in*, *setup/set up*, *email* (not *e-mail*), *online* (not *on-line*), *OK* (not *okay*). The largest catalog of one-off term decisions.
+**Description:** Pairs and triples like *affect/effect*, *assure/ensure/insure*, *backup/back up*, *login/log in*, *setup/set up*, *email* (not *e-mail*), *online* (not *on-line*), *OK* (not *okay*). Largest catalog of one-off term decisions.
 
 ## 8. Abbreviations & Acronyms (abbr)
 
@@ -49,7 +49,7 @@ The "section ID" column below identifies the topic catalog. Files are named with
 ## 9. UI Elements (ui)
 
 **Impact:** HIGH
-**Description:** Button, action sheet, popover, share sheet, sidebar, status bar, menu bar, More button, disclosure arrow, side button, top button, slider, stepper, switch, checkbox, radio button, text field, dialog, etc. — how to refer to onscreen controls.
+**Description:** Button, action sheet, popover, share sheet, sidebar, status bar, menu bar, More button, disclosure arrow, side button, top button, slider, stepper, switch, checkbox, radio button, text field, dialog, etc. How to refer to onscreen controls.
 
 ## 10. Apple Products (apple-hw)
 
@@ -75,8 +75,8 @@ The "section ID" column below identifies the topic catalog. Files are named with
 
 ## A-Z Lookup
 
-For single-term lookups, see [a-z-lookup.md](a-z-lookup.md) — alphabetical index of all 870+ entries pointing to the relevant topic catalog.
+For single-term lookups, see [a-z-lookup.md](a-z-lookup.md): alphabetical index of all 870+ entries, each pointing to its topic catalog.
 
 ## Note on validator misfit
 
-This skill's content shape (editorial micro-entries in topic catalogs) doesn't match the dev-skill validator's expected distillation schema (one rule per file with code-block examples). The validator will flag missing frontmatter and missing code blocks on each topic file — those flags are accurate for code-style skills and inappropriate here. See [../gotchas.md](../gotchas.md) for the full note.
+Skill's content shape (editorial micro-entries in topic catalogs) doesn't match dev-skill validator's expected distillation schema (one rule per file with code-block examples). Validator flags missing frontmatter and missing code blocks on each topic file. Those flags fit code-style skills, not this one. Full note: [../gotchas.md](../gotchas.md).

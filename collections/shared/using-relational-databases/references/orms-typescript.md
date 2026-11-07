@@ -44,11 +44,10 @@
 
 ## Prisma (Recommended for Best DX)
 
-**Docs:** https://www.prisma.io/docs
-
 ### Installation
 
 ```bash
+export CHECKPOINT_DISABLE=1 PRISMA_DISABLE_TELEMETRY=1  # Prisma CLI telemetry is on by default
 npm install prisma @prisma/client
 npx prisma init
 ```
@@ -185,8 +184,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json()
-  const user = await prisma.user.create({ data: body })
+  const { email, name } = await request.json()  // validate (e.g. zod); never pass raw body
+  const user = await prisma.user.create({ data: { email, name } })
   return NextResponse.json(user)
 }
 ```
@@ -196,16 +195,12 @@ export async function POST(request: Request) {
 ```bash
 npx prisma migrate dev --name add_users  # Development
 npx prisma migrate deploy  # Production
-npx prisma migrate reset  # Reset database
-npx prisma db push  # Prototype mode (skip migrations)
+npx prisma migrate reset  # Dev only: drops all data
+npx prisma db push  # Prototype only (skips migrations, can drop data)
 ```
 
 **Why Prisma?**
-- Best-in-class TypeScript types (autocomplete for everything)
 - Visual database browser (Prisma Studio: `npx prisma studio`)
-- Migrations built-in
-- Excellent documentation
-- Large community
 
 ## Drizzle ORM (Recommended for Performance)
 
@@ -328,16 +323,13 @@ export default {
 
 ```bash
 npx drizzle-kit generate:pg  # Generate migrations
-npx drizzle-kit push:pg  # Push schema directly (prototyping)
+npx drizzle-kit push:pg  # Push schema directly (prototyping only; can drop data)
 npx drizzle-kit studio  # Visual database browser
 ```
 
 **Why Drizzle?**
-- SQL-like syntax (easy migration from raw SQL)
 - Zero runtime overhead (no proxies, minimal abstractions)
 - ~14KB bundle size (vs Prisma's client generation)
-- Fully type-safe with excellent inference
-- Fast performance
 
 ## Kysely (Type-Safe SQL Builder)
 
@@ -438,15 +430,10 @@ await db.transaction().execute(async (trx) => {
 ```
 
 **Why Kysely?**
-- Pure SQL builder (no ORM magic)
-- Excellent TypeScript inference
 - Lightweight (~10KB)
 - Database-agnostic (PostgreSQL, MySQL, SQLite)
-- Type-safe query building
 
 ## TypeORM (Legacy)
-
-**Use when:** Maintaining existing TypeORM projects, prefer decorators.
 
 ```typescript
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm'

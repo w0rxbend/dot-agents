@@ -214,7 +214,7 @@ scaffolding:
 
       ### Prerequisites
 
-      - Terraform >= 1.5
+      - Terraform >= 1.5 (`export CHECKPOINT_DISABLE=1` turns off its HashiCorp update check)
       - Open Policy Agent (OPA)
       - Checkov for IaC scanning
       - AWS/GCP/Azure CLI (depending on cloud provider)
@@ -331,15 +331,13 @@ scaffolding:
 
       ```bash
       # Scan with Checkov
-      checkov -d ./terraform \
-        --check SOC2 --check HIPAA --check PCI --check GDPR \
-        --output cli --output json
+      checkov -d ./terraform --output cli --output json  # --check takes check IDs, not framework names
 
       # Scan with tfsec
       tfsec terraform/ --format json
 
       # Scan with Trivy
-      trivy config terraform/
+      TRIVY_DISABLE_TELEMETRY=true TRIVY_SKIP_VERSION_CHECK=true trivy config terraform/
       ```
 
       ## Evidence Collection

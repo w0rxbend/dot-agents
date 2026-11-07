@@ -1,6 +1,6 @@
 # graph-gophers/graphql-go Reference
 
-Schema-first, reflection-based — no codegen. Write SDL, bind Go resolver structs. Parse-time validation gives a fail-fast contract.
+Schema-first, reflection-based, no codegen. Write SDL, bind Go resolver structs. Parse-time validation gives fail-fast contract.
 
 ## Table of Contents
 
@@ -37,7 +37,7 @@ schema := graphql.MustParseSchema(sdlString, &RootResolver{},
 http.Handle("/graphql", &relay.Handler{Schema: schema})
 ```
 
-`MustParseSchema` panics on invalid SDL or resolver mismatch — catch it at startup, not at request time.
+`MustParseSchema` panics on invalid SDL or resolver mismatch. Catch it at startup, not at request time.
 
 ## Resolver Structure
 
@@ -64,7 +64,7 @@ func (r *QueryResolver) User(ctx context.Context, args struct{ ID graphql.ID }) 
 }
 ```
 
-Return resolver wrapper structs, not domain models directly — keeps GraphQL projection separate from persistence.
+Return resolver wrapper structs, not domain models directly. Keeps GraphQL projection separate from persistence.
 
 ## Type Mapping
 
@@ -72,7 +72,7 @@ Return resolver wrapper structs, not domain models directly — keeps GraphQL pr
 |GraphQL type|Go type|Notes|
 |---|---|---|
 |`ID`|`graphql.ID`|string alias|
-|`Int`|`int32`|**NOT `int`** — mismatch is a parse-time error|
+|`Int`|`int32`|**NOT `int`** — mismatch is parse-time error|
 |`Float`|`float64`||
 |`String`|`string`||
 |`Boolean`|`bool`||
@@ -81,10 +81,8 @@ Return resolver wrapper structs, not domain models directly — keeps GraphQL pr
 |Non-null `T!`|`T`|non-pointer|
 |Custom scalar|implement `UnmarshalGraphQL(input any) error` + `MarshalJSON() ([]byte, error)`||
 |Enum|typed string alias||
-|Input|exported struct with field tags optional||
+|Input|exported struct, field tags optional||
 |Interface/Union|Go interface returned; `ToConcreteType() (*T, bool)` discriminators||
-
-Common mistake: using `int` for an `Int!` field — the parser rejects it with a type mismatch error.
 
 ## Nullable vs Non-null Arguments
 
@@ -96,7 +94,7 @@ func (r *QueryResolver) Users(ctx context.Context, args struct {
 }) ([]*UserResolver, error) { ... }
 ```
 
-Forgetting `*` on a nullable argument causes unmarshal failure when clients send `null`.
+Missing `*` on nullable argument causes unmarshal failure when clients send `null`.
 
 ## Custom Scalar
 
@@ -198,7 +196,7 @@ func (e *AppError) Extensions() map[string]any {
 return nil, &AppError{msg: "user not found", code: "NOT_FOUND"}
 ```
 
-Panics in resolvers are caught automatically and converted to GraphQL errors.
+Resolver panics are caught automatically and converted to GraphQL errors.
 
 ## OpenTelemetry Tracing
 
@@ -210,7 +208,7 @@ schema := graphql.MustParseSchema(sdl, &RootResolver{},
 )
 ```
 
-Emits spans per request, validation, and field resolution with operation name and field path.
+Emits spans per request, validation and field resolution, with operation name and field path.
 
 ## Subscriptions
 
@@ -238,7 +236,7 @@ func (r *SubscriptionResolver) MessageAdded(ctx context.Context, args struct{ Ro
 }
 ```
 
-WebSocket transport is not bundled — pair with `gorilla/websocket` or use the relay handler with a WebSocket-aware mux.
+WebSocket transport is not bundled. Pair with `gorilla/websocket` or use relay handler with WebSocket-aware mux.
 
 ## Disabling Introspection
 
@@ -264,7 +262,7 @@ func TestUser(t *testing.T) {
 }
 ```
 
-For HTTP-level tests, drive `relay.Handler` with `httptest.NewRecorder()`.
+HTTP-level tests: drive `relay.Handler` with `httptest.NewRecorder()`.
 
 ## graph-gophers vs gqlgen Summary
 

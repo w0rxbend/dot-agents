@@ -15,9 +15,13 @@ Usage:
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 from typing import List, Dict, Any
+
+# ragas sends usage telemetry by default; opt out unless the caller set it
+os.environ.setdefault("RAGAS_DO_NOT_TRACK", "true")
 
 # Check dependencies
 try:

@@ -1,10 +1,8 @@
 # Secrets Management Security Rules
 
-Hardcoded secrets, credentials, and sensitive data in source code is a major security vulnerability.
-
 **Rules:**
 
-1. Secrets MUST be loaded from environment variables or secret managers.
+1. Secrets MUST load from environment variables or secret managers.
 2. NEVER commit secrets to VCS.
 3. `.gitignore` MUST exclude secret files (`.env`, `*.key`, `*.pem`).
 

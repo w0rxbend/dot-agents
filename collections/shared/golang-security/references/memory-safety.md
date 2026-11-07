@@ -1,7 +1,5 @@
 # Memory Safety Security Rules
 
-Memory safety vulnerabilities can lead to crashes, data corruption, and security compromises.
-
 **Rules:**
 
 1. Integer overflow MUST be checked at boundaries — NEVER trust unchecked arithmetic on external input.
@@ -21,8 +19,6 @@ Memory safety vulnerabilities can lead to crashes, data corruption, and security
 - [CWE References](#cwe-references)
 
 ## Integer Overflow — High
-
-Integer overflows can cause unexpected behavior and crashes.
 
 **Bad:**
 
@@ -69,7 +65,7 @@ func allocateBuffer(rows, cols int) ([]byte, error) {
 
 ## math/big.Rat Issues — Low
 
-Rat can consume large amounts of memory if denominators grow without bounds.
+Rat can use large memory if denominators grow without bound.
 
 **Bad:**
 
@@ -105,8 +101,6 @@ func safeFraction(operations int) (*big.Rat, error) {
 ---
 
 ## Memory Aliasing Vulnerability — Medium
-
-Memory aliasing can cause data corruption and race conditions.
 
 **Bad:**
 
@@ -149,8 +143,6 @@ func safeCopy(dest, src []byte) {
 
 ## Use of unsafe Package — High
 
-The unsafe package bypasses Go's type safety and memory safety.
-
 **Bad:**
 
 ```go
@@ -192,7 +184,7 @@ func Uint64ToFloat64(value uint64) float64 {
 
 ## Data Races — High
 
-Go's race detector is your primary defense.
+Race detector is primary defense.
 
 **Bad:**
 

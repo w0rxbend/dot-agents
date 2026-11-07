@@ -42,7 +42,7 @@ func main() {
 
 ### Pre-built binaries
 
-Download from [GitHub Releases](https://github.com/{owner}/{repo}/releases/latest).
+Download from [GitHub Releases](https://github.com/{owner}/{repo}/releases/latest), then verify against the release checksums: `sha256sum --check --ignore-missing checksums.txt`.
 
 | Platform | Architecture | Download                                                                                        |
 | -------- | ------------ | ----------------------------------------------------------------------------------------------- |
@@ -61,8 +61,8 @@ go install github.com/{owner}/{repo}@latest
 ### Docker
 
 ```bash
-docker pull {registry}/{owner}/{repo}:latest
-docker run --rm {registry}/{owner}/{repo}:latest --help
+docker pull {registry}/{owner}/{repo}:{version}
+docker run --rm {registry}/{owner}/{repo}:{version} --help
 ```
 
 ### Homebrew (macOS)

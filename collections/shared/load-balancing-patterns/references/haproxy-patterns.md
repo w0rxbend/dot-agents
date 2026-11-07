@@ -1,8 +1,5 @@
 # HAProxy Load Balancing Patterns
 
-Complete guide to HAProxy configuration for high-performance load balancing.
-
-
 ## Table of Contents
 
 - [Basic HTTP Load Balancing](#basic-http-load-balancing)
@@ -160,13 +157,7 @@ backend web_servers
 
 ### Source IP
 
-```haproxy
-backend web_servers
-    balance source
-    hash-type consistent
-    server web1 192.168.1.101:8080 check
-    server web2 192.168.1.102:8080 check
-```
+Same config as **Source IP Hash** above (`balance source` + `hash-type consistent`), with `check` on each server.
 
 ### Application Cookie
 
@@ -249,11 +240,11 @@ backend web_servers
 
 ```haproxy
 frontend stats
-    bind *:8404
+    bind 127.0.0.1:8404   # internal only, never public
     stats enable
     stats uri /stats
     stats refresh 30s
-    stats auth admin:password
+    stats auth "admin:${HAPROXY_STATS_PASSWORD}"   # from env, not in config
 ```
 
-Complete configuration examples available in `examples/haproxy/` directory.
+Full configuration examples in `examples/haproxy/`.

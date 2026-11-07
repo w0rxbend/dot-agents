@@ -1,11 +1,11 @@
 # GitHub Pull Request Workflow
 
-Complete guide for managing the PR lifecycle. Each section shows the `gh` way first, then the `git` + `curl` fallback for machines without `gh`.
+Each section shows `gh` first, then `git` + `curl` fallback for machines without `gh`.
 
 ## Prerequisites
 
-- Authenticated with GitHub (see `references/auth.md` in this skill)
-- Inside a git repository with a GitHub remote
+- Authenticated with GitHub (see this skill's `references/auth.md`)
+- Inside git repo with GitHub remote
 
 ### Quick Auth Detection
 
@@ -20,7 +20,7 @@ else
     if _hermes_env="${HERMES_HOME:-$HOME/.hermes}/.env"; [ -f "$_hermes_env" ] && grep -q "^GITHUB_TOKEN=" "$_hermes_env"; then
       GITHUB_TOKEN=$(grep "^GITHUB_TOKEN=" "$_hermes_env" | head -1 | cut -d= -f2 | tr -d '\n\r')
     elif grep -q "github.com" ~/.git-credentials 2>/dev/null; then
-      GITHUB_TOKEN=$(uv run python "$GH_SKILL_DIR/scripts/git-credential-token.py")
+      GITHUB_TOKEN=$(python3 -I "$GH_SKILL_DIR/scripts/git-credential-token.py")
     fi
   fi
 fi
@@ -29,7 +29,7 @@ echo "Using: $AUTH"
 
 ### Extracting Owner/Repo from the Git Remote
 
-Many `curl` commands need `owner/repo`. Extract it from the git remote:
+Many `curl` commands need `owner/repo`. Extract from git remote:
 
 ```bash
 # Works for both HTTPS and SSH remote URLs
@@ -44,7 +44,7 @@ echo "Owner: $OWNER, Repo: $REPO"
 
 ## 1. Branch Creation
 
-This part is pure `git` — identical either way:
+Pure `git`, same either way:
 
 ```bash
 # Make sure you're up to date
@@ -55,16 +55,16 @@ git checkout main && git pull origin main
 git checkout -b feat/add-user-authentication
 ```
 
-Branch naming conventions:
-- `feat/description` — new features
+Branch names:
+- `feat/description` — features
 - `fix/description` — bug fixes
-- `refactor/description` — code restructuring
+- `refactor/description` — restructuring
 - `docs/description` — documentation
 - `ci/description` — CI/CD changes
 
 ## 2. Making Commits
 
-Use the agent's file tools (`write_file`, `patch`) to make changes, then commit:
+Change files with agent file tools (`write_file`, `patch`), then commit:
 
 ```bash
 # Stage specific files
@@ -132,9 +132,9 @@ curl -s -X POST \
   }"
 ```
 
-The response JSON includes the PR `number` — save it for later commands.
+Response JSON has PR `number`. Save it for later commands.
 
-To create as a draft, add `"draft": true` to the JSON body.
+For draft, add `"draft": true` to JSON body.
 
 ## 4. Monitoring CI Status
 
@@ -160,7 +160,7 @@ SHA=$(git rev-parse HEAD)
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$OWNER/$REPO/commits/$SHA/status \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 data = json.load(sys.stdin)
 print(f\"Overall: {data['state']}\")
@@ -171,7 +171,7 @@ for s in data.get('statuses', []):
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$OWNER/$REPO/commits/$SHA/check-runs \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 data = json.load(sys.stdin)
 for cr in data.get('check_runs', []):
@@ -187,7 +187,7 @@ for i in $(seq 1 20); do
   STATUS=$(curl -s \
     -H "Authorization: token $GITHUB_TOKEN" \
     https://api.github.com/repos/$OWNER/$REPO/commits/$SHA/status \
-    | python -c "import sys,json; print(json.load(sys.stdin)['state'])")
+    | python3 -I -c "import sys,json; print(json.load(sys.stdin)['state'])")
   echo "Check $i: $STATUS"
   if [ "$STATUS" = "success" ] || [ "$STATUS" = "failure" ] || [ "$STATUS" = "error" ]; then
     break
@@ -198,7 +198,7 @@ done
 
 ## 5. Auto-Fixing CI Failures
 
-When CI fails, diagnose and fix. This loop works with either auth method.
+Loop works with either auth method.
 
 ### Step 1: Get Failure Details
 
@@ -221,7 +221,7 @@ BRANCH=$(git branch --show-current)
 curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   "https://api.github.com/repos/$OWNER/$REPO/actions/runs?branch=$BRANCH&per_page=5" \
-  | python -c "
+  | python3 -I -c "
 import sys, json
 runs = json.load(sys.stdin)['workflow_runs']
 for r in runs:
@@ -238,7 +238,7 @@ cd ~/.hermes/cache/scratch && unzip -o ci-logs.zip -d ci-logs && cat ci-logs/*.t
 
 ### Step 2: Fix and Push
 
-After identifying the issue, use file tools (`patch`, `write_file`) to fix it:
+Fix issue with file tools (`patch`, `write_file`):
 
 ```bash
 git add <fixed_files>
@@ -248,20 +248,22 @@ git push
 
 ### Step 3: Verify
 
-Re-check CI status using the commands from Section 4 above.
+Re-check CI with Section 4 commands.
 
 ### Auto-Fix Loop Pattern
 
-When asked to auto-fix CI, follow this loop:
+When asked to auto-fix CI, loop:
 
-1. Check CI status → identify failures
-2. Read failure logs → understand the error
-3. Use `read_file` + `patch`/`write_file` → fix the code
-4. `git add . && git commit -m "fix: ..." && git push`
-5. Wait for CI → re-check status
-6. Repeat if still failing (up to 3 attempts, then ask the user)
+1. Check CI status, find failures
+2. Read failure logs, understand error
+3. Fix code with `read_file` + `patch`/`write_file`
+4. `git add <fixed_files> && git commit -m "fix: ..." && git push`
+5. Wait for CI, re-check status
+6. Repeat if still failing (up to 3 attempts, then ask user)
 
 ## 6. Merging
+
+Merge, enable auto-merge or delete remote branch only on user's explicit instruction for this PR; first show PR number, base, method and check status.
 
 **With gh:**
 
@@ -306,7 +308,7 @@ Merge methods: `"merge"` (merge commit), `"squash"`, `"rebase"`
 PR_NODE_ID=$(curl -s \
   -H "Authorization: token $GITHUB_TOKEN" \
   https://api.github.com/repos/$OWNER/$REPO/pulls/$PR_NUMBER \
-  | python -c "import sys,json; print(json.load(sys.stdin)['node_id'])")
+  | python3 -I -c "import sys,json; print(json.load(sys.stdin)['node_id'])")
 
 curl -s -X POST \
   -H "Authorization: token $GITHUB_TOKEN" \
@@ -339,7 +341,7 @@ git push -u origin HEAD
 
 # 7. Monitor CI (see Section 4)
 
-# 8. Merge when green (see Section 6)
+# 8. Merge only after user approves (see Section 6)
 ```
 
 ## Useful PR Commands Reference

@@ -1,7 +1,5 @@
 # Caching Patterns
 
-The fastest code is code that doesn't run. Caching pre-computed results, deduplicating concurrent requests, and avoiding unnecessary work are often the highest-leverage performance improvements.
-
 ## Table of Contents
 
 - [Compiled Pattern Caching](#compiled-pattern-caching)
@@ -20,11 +18,11 @@ The fastest code is code that doesn't run. Caching pre-computed results, dedupli
 
 ## Compiled Pattern Caching
 
-**Diagnose:** 1- `go tool pprof` (CPU profile) — look for `regexp.Compile`, `regexp.MustCompile`, or `template.Parse` appearing in hot paths; their presence means patterns are being recompiled per call instead of once 2- `go test -bench -benchmem` — benchmark per-call compilation vs cached version; expect 10-12x improvement and allocs/op dropping to zero for the compilation step
+**Diagnose:** 1- `go tool pprof` (CPU profile) — `regexp.Compile`, `regexp.MustCompile` or `template.Parse` in hot paths means patterns recompile per call instead of once 2- `go test -bench -benchmem` — compare per-call vs cached compilation; expect 10-12x speedup and compilation allocs/op dropping to zero
 
 ### Regexp at package level
 
-`regexp.Compile` parses a pattern into a state machine — ~5,700ns per compilation. Match operations on a compiled regexp cost ~450ns. Compiling per-call wastes 10-12x:
+`regexp.Compile` builds state machine from pattern: ~5,700ns per compilation. Match on compiled regexp: ~450ns. Per-call compilation wastes 10-12x:
 
 ```go
 // Bad — compiled on every call
@@ -39,11 +37,11 @@ var emailRegex = regexp.MustCompile(`^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$`)
 func isValid(email string) bool { return emailRegex.MatchString(email) }
 ```
 
-Note: `regexp.MustCompile` panics on invalid patterns — fine for package-level constants (caught at startup). Use `regexp.Compile` for user-provided patterns. Go's regexp uses linear-time matching (no backtracking).
+Note: `regexp.MustCompile` panics on invalid patterns — fine for package-level constants (caught at startup). Use `regexp.Compile` for user-provided patterns. Go regexp matches in linear time (no backtracking).
 
 ### Template caching
 
-`template.Parse` is equally expensive. Parse once at startup:
+`template.Parse` equally expensive. Parse once at startup:
 
 ```go
 var reportTmpl = template.Must(template.ParseFiles("templates/report.html"))
@@ -51,7 +49,7 @@ var reportTmpl = template.Must(template.ParseFiles("templates/report.html"))
 
 ### Precomputed lookup tables
 
-When a computation is pure (same input → same output) and the input space is small, replace calculation with array lookup:
+Pure computation (same input → same output) over small input space: replace calculation with array lookup:
 
 ```go
 var hexDigit = [16]byte{'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'}
@@ -61,15 +59,15 @@ func byteToHex(b byte) (byte, byte) {
 }
 ```
 
-If the table fits in L1/L2 cache, lookup is faster than even simple computation.
+Table that fits in L1/L2 cache beats even simple computation.
 
 ## Request-Level Caching
 
-**Diagnose:** 1- `go tool pprof` (goroutine profile) — look for many goroutines blocked on the same external call (HTTP fetch, DB query); this signals a cache stampede where N goroutines all miss the cache simultaneously 2- `fgprof` — shows off-CPU wait time; look for the same fetch function dominating wall-clock time across many goroutines, confirming duplicated concurrent work 3- `go tool pprof -alloc_objects` — check if cache miss handling allocates heavily; high alloc counts on fetch functions confirm the stampede is also generating GC pressure
+**Diagnose:** 1- `go tool pprof` (goroutine profile) — many goroutines blocked on same external call (HTTP fetch, DB query) signal cache stampede: N goroutines miss cache at once 2- `fgprof` — shows off-CPU wait; same fetch function dominating wall-clock time across many goroutines confirms duplicated concurrent work 3- `go tool pprof -alloc_objects` — high alloc counts on fetch functions mean stampede also adds GC pressure
 
 ### singleflight for cache stampede prevention
 
-When a cache entry expires, many goroutines may simultaneously discover the miss and all request the same expensive computation. `singleflight` ensures only one goroutine fetches while others wait:
+On expiry, many goroutines may hit the miss at once and all start same expensive computation. `singleflight` lets only one goroutine fetch; others wait:
 
 ```go
 import "golang.org/x/sync/singleflight"
@@ -94,42 +92,40 @@ func GetWeather(city string) (string, error) {
 }
 ```
 
-→ See `samber/cc-skills-golang@golang-concurrency` skill for `singleflight` API details and `sync.Map` vs `RWMutex` decision guidance. → **Generics alternative:** Use `github.com/samber/go-singleflightx` to avoid interface{} boxing overhead; expect 2-4x faster result retrieval compared to the standard library's `singleflight.Group`.
+→ See `samber/cc-skills-golang@golang-concurrency` skill for `singleflight` API details and `sync.Map` vs `RWMutex` choice. → **Generics alternative:** `github.com/samber/go-singleflightx` avoids interface{} boxing overhead; expect 2-4x faster result retrieval than standard library `singleflight.Group`.
 
 ### LRU caches
 
-For bounded caches with eviction, the standard library's `container/list` works but has poor cache locality (each node is a separate heap allocation). For high-performance LRU:
+Standard library `container/list` works for bounded eviction caches but has poor cache locality (one heap allocation per node). For high-performance LRU:
 
 - **`github.com/hashicorp/golang-lru`** — thread-safe, simple API
 - **`github.com/elastic/go-freelru`** — merges hashmap and ringbuffer into contiguous memory, ~37x faster than sharded implementations
 
-When using third-party cache libraries, refer to the library's official documentation for current API signatures.
+For third-party cache libraries, check official docs for current API signatures.
 
 ## Algorithmic Complexity
 
-**Diagnose:** 1- `go tool pprof` (CPU profile) — look for functions with high cumulative time that contain nested loops or repeated linear scans; these are algorithmic complexity bottlenecks 2- `go test -bench` — benchmark with different input sizes (100, 1K, 10K, 100K); if time grows quadratically (10x input → 100x time), the algorithm is O(n²) and needs replacement
-
-Before micro-optimizing, check that the algorithm itself isn't the bottleneck. A constant-factor improvement on an O(n²) algorithm loses to a naive O(n log n) implementation at scale.
+**Diagnose:** 1- `go tool pprof` (CPU profile) — high cumulative time in functions with nested loops or repeated linear scans marks algorithmic bottleneck 2- `go test -bench` — benchmark at input sizes 100, 1K, 10K, 100K; quadratic growth (10x input → 100x time) means O(n²), replace algorithm
 
 **Common complexity traps in Go:**
 
 | Pattern | Complexity | Fix | Fixed complexity |
 | --- | --- | --- | --- |
-| `slices.Contains` in a loop | O(n·m) | Build `map[T]struct{}` first, then lookup | O(n+m) |
-| Nested loops for matching | O(n²) | Index with a map, sort+binary search, or `slices.BinarySearch` | O(n log n) or O(n) |
+| `slices.Contains` in loop | O(n·m) | Build `map[T]struct{}` first, then look up | O(n+m) |
+| Nested loops for matching | O(n²) | Index with map, sort+binary search, or `slices.BinarySearch` | O(n log n) or O(n) |
 | Repeated `append` without prealloc | O(n²) amortized copies | `make([]T, 0, n)` | O(n) |
 | String concatenation with `+=` | O(n²) total copies | `strings.Builder` | O(n) |
 | Linear scan for min/max/dedup | O(n) per query | Sort once, query many times | O(n log n) + O(log n) per query |
 
-**Think in Big-O first, then optimize constants.** A 10x constant-factor improvement matters; switching from O(n²) to O(n) matters more.
+**Think in Big-O first, then optimize constants.** 10x constant-factor gain matters; O(n²) to O(n) matters more.
 
 ## Work Avoidance
 
-**Diagnose:** 1- `go tool pprof` (CPU profile) — look for linear scan functions (`slices.Contains`, `slices.Index`) or iterator chains (`Filter`, `Map`) consuming CPU in hot paths 2- `go test -bench` — benchmark the current approach vs a map-based or early-return version; expect O(n) → O(1) for membership tests, significant improvement for short-circuit loops
+**Diagnose:** 1- `go tool pprof` (CPU profile) — linear scans (`slices.Contains`, `slices.Index`) or iterator chains (`Filter`, `Map`) burning CPU in hot paths 2- `go test -bench` — compare against map-based or early-return version; expect O(n) → O(1) for membership tests, big gains for short-circuit loops
 
 ### Map lookups over slice scanning
 
-`Contains(slice, element)` is O(n). Map lookups are O(1). When doing multiple membership tests against the same collection, build a map once:
+`Contains(slice, element)` is O(n); map lookup is O(1). For repeated membership tests on one collection, build map once:
 
 ```go
 // Bad — O(n*m), checking Contains per element
@@ -145,11 +141,11 @@ for _, item := range subset {
 }
 ```
 
-Use `struct{}` (0 bytes) instead of `bool` (1 byte) for set maps.
+Use `struct{}` (0 bytes), not `bool` (1 byte), for set maps.
 
 ### Early returns and short-circuit loops
 
-Return immediately when the answer is known. Finding the target on iteration 3 of 1000 saves 997 iterations:
+Return once answer is known. Match on iteration 3 of 1000 saves 997 iterations:
 
 ```go
 // Bad — always iterates full collection
@@ -168,7 +164,7 @@ return false
 
 ### Avoid iterator chains
 
-Chaining iterator operations (`Filter → Map → First`) creates closures and intermediate machinery. A direct loop is simpler and faster:
+Chained iterators (`Filter → Map → First`) build closures and extra machinery. Direct loop is simpler and faster:
 
 ```go
 // Bad — creates 2 iterators with closures
@@ -182,7 +178,7 @@ for i := range collection {
 
 ### Replace indirect function calls with direct loops
 
-When a function wraps another function (e.g., `FromSlicePtr` calling `Map` with a closure), the closure indirection prevents inlining. Replace with a direct loop:
+Wrapper calling another function through closure (e.g., `FromSlicePtr` calling `Map`) blocks inlining. Use direct loop:
 
 ```go
 // Bad — Map() with closure, per-element function call overhead

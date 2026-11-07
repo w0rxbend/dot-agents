@@ -3,24 +3,25 @@ name: ameba-custom-rules
 user-invocable: false
 description: Use when writing project-specific Ameba lint rules for Crystal - subclassing Ameba::Rule::Base, matching AST nodes, rule properties, autocorrection, testing with Ameba's spec helpers, and shipping a custom ameba binary. For configuring built-in rules use ameba-configuration; for running Ameba in CI use ameba-integration.
 allowed-tools:
-  - Bash
+  - Bash(crystal spec:*)
+  - Bash(crystal build:*)
+  - Bash(bin/ameba:*)
+  - Bash(ameba:*)
   - Read
 ---
 
 # Ameba Custom Rules
 
-Write custom Ameba rules that enforce project-specific conventions in Crystal code.
-
-The examples below were compiled and their specs run against Ameba 1.7.0 on Crystal 1.22 (Ameba 1.7 requires Crystal 1.19 or newer). The rule API is the same in 1.6.x except where noted. Ameba has no plugin loader: custom rules are compiled into your own `ameba` binary.
+Examples below compiled and spec-tested against Ameba 1.7.0 on Crystal 1.22 (Ameba 1.7 requires Crystal 1.19 or newer). Rule API same in 1.6.x except where noted. Ameba has no plugin loader: custom rules compile into your own `ameba` binary.
 
 ## How a rule works
 
-- Every rule is a class inheriting `Ameba::Rule::Base`. Subclasses register themselves automatically; there is no registry to update.
-- The rule name is `Group/ClassName`, where the group is the last module in the namespace. `Ameba::Rule::Project::NoSleep` is `Project/NoSleep`, and that is the key used in `.ameba.yml`, `--only` and `# ameba:disable`.
-- The default `test(source)` walks the AST with `AST::NodeVisitor` and calls `test(source, node)` for each node whose type has a matching overload. You only write the node overloads.
-- `issue_for(node, message)` reports an issue spanning that node; an optional block receives a `corrector` for `--fix`.
+- Every rule is class inheriting `Ameba::Rule::Base`. Subclasses self-register; no registry to update.
+- Rule name is `Group/ClassName`; group is last module in namespace. `Ameba::Rule::Project::NoSleep` is `Project/NoSleep`. That key is used in `.ameba.yml`, `--only` and `# ameba:disable`.
+- Default `test(source)` walks AST with `AST::NodeVisitor`. It calls `test(source, node)` for each node whose type has matching overload. Write only node overloads.
+- `issue_for(node, message)` reports issue spanning that node. Optional block receives `corrector` for `--fix`.
 
-The default visitor only dispatches these node types: `Alias`, `ArrayLiteral`, `Assign`, `Block`, `Call`, `Case`, `ClassDef`, `ClassVar`, `ControlExpression`, `Def`, `EnumDef`, `ExceptionHandler`, `Expressions`, `HashLiteral`, `If`, `InstanceVar`, `IsA`, `LibDef`, `MacroExpression`, `ModuleDef`, `MultiAssign`, `NilLiteral`, `ProcLiteral`, `Rescue`, `Select`, `StringInterpolation`, `StringLiteral`, `Union`, `Unless`, `Until`, `Var`, `When`, `While`. Overloads for other types (for example `Crystal::And`, `Crystal::Or`, `Crystal::NumberLiteral`) are never called; see "Custom traversal" below. The return value of `test(source, node)` is ignored, so it cannot stop traversal into children.
+Default visitor dispatches only these node types: `Alias`, `ArrayLiteral`, `Assign`, `Block`, `Call`, `Case`, `ClassDef`, `ClassVar`, `ControlExpression`, `Def`, `EnumDef`, `ExceptionHandler`, `Expressions`, `HashLiteral`, `If`, `InstanceVar`, `IsA`, `LibDef`, `MacroExpression`, `ModuleDef`, `MultiAssign`, `NilLiteral`, `ProcLiteral`, `Rescue`, `Select`, `StringInterpolation`, `StringLiteral`, `Union`, `Unless`, `Until`, `Var`, `When`, `While`. Overloads for other types (for example `Crystal::And`, `Crystal::Or`, `Crystal::NumberLiteral`) never called; see "Custom traversal" below. `test(source, node)` return value is ignored; it cannot stop traversal into children.
 
 ## Project layout
 
@@ -80,11 +81,11 @@ module Ameba::Rule::Project
 end
 ```
 
-The doc comment above the class is what `ameba --describe Project/NoSleep` prints.
+`ameba --describe Project/NoSleep` prints doc comment above class.
 
 ## Properties
 
-Each entry in `properties do ... end` defines a getter/setter and a YAML key (CamelCase of the name). The type is inferred from the default value.
+Each entry in `properties do ... end` defines getter/setter and YAML key (CamelCase of name). Type inferred from default value.
 
 ```crystal
 properties do
@@ -106,11 +107,11 @@ Project/MethodLength:
     - spec/**
 ```
 
-`Enabled`, `Severity` and `Excluded` exist on every rule without declaring them.
+`Enabled`, `Severity` and `Excluded` exist on every rule without declaration.
 
 ## Autocorrection
 
-Pass a block to `issue_for` to make the issue `[Correctable]` and fixable with `ameba --fix`:
+Pass block to `issue_for` to make issue `[Correctable]` and fixable with `ameba --fix`:
 
 ```crystal
 module Ameba::Rule::Project
@@ -136,11 +137,11 @@ module Ameba::Rule::Project
 end
 ```
 
-Note that `NumberLiteral` is not dispatched on its own, but it can be inspected as a child of a dispatched `Call`.
+`NumberLiteral` not dispatched on its own, but can be inspected as child of dispatched `Call`.
 
 ## Custom traversal
 
-For node types the default visitor does not dispatch, or when you need parent/child context, override `test(source)` and walk the AST yourself:
+For node types default visitor does not dispatch, or when parent/child context needed, override `test(source)` and walk AST yourself:
 
 ```crystal
 module Ameba::Rule::Project
@@ -179,7 +180,7 @@ module Ameba::Rule::Project
 end
 ```
 
-Here `visit` returning `false` does stop descent into that node's children, unlike `test(source, node)`. When state must be scoped to a subtree (for example "inside a `rescue`"), set it in `visit` and reset it in `end_visit(node)` for the same node type, or check the subtree directly from the parent node instead of keeping instance-variable flags.
+Unlike `test(source, node)`, `visit` returning `false` does stop descent into that node's children. When state must be scoped to subtree (for example "inside a `rescue`"), set it in `visit` and reset it in `end_visit(node)` for same node type. Or check subtree directly from parent node instead of keeping instance-variable flags.
 
 Line-based rules (like `Layout/LineLength`) override `test(source)` and iterate `source.lines` with `issue_for({line, column}, MSG)`.
 
@@ -195,11 +196,11 @@ Line-based rules (like `Layout/LineLength`) override `test(source)` and iterate 
 | `Crystal::ExceptionHandler` | `body`, `rescues`, `else`, `ensure` |
 | `Crystal::StringLiteral` | `value` |
 
-`node.location` and `node.end_location` give positions; `node.to_s` prints the source form. Look at Ameba's own rules in `lib/ameba/src/ameba/rule/` for many working patterns, and `include AST::Util` for helpers used there.
+`node.location` and `node.end_location` give positions. `node.to_s` prints source form. See Ameba's own rules in `lib/ameba/src/ameba/rule/` for working patterns. Use `include AST::Util` for helpers used there.
 
 ## Testing rules
 
-Ameba ships spec helpers. Require them in your spec helper:
+Ameba ships spec helpers. Require them in spec helper:
 
 ```crystal
 # spec/spec_helper.cr
@@ -208,7 +209,7 @@ require "../src/ameba_rules"
 require "ameba/spec/support"
 ```
 
-`expect_issue` takes source annotated with `# ^^^ error: <message>` under the reported span; `expect_no_issues` asserts a clean source; `expect_correction` checks the `--fix` output:
+`expect_issue` takes source annotated with `# ^^^ error: <message>` under reported span. `expect_no_issues` asserts clean source. `expect_correction` checks `--fix` output:
 
 ```crystal
 require "../spec_helper"
@@ -271,27 +272,23 @@ bin/ameba --only Project      # just your rules
 bin/ameba                     # built-in + custom rules
 ```
 
-Use this `bin/ameba` in hooks and CI (see ameba-integration). The official `crystal-ameba/github-action` runs its own Ameba image and will not see custom rules.
+Use this `bin/ameba` in hooks and CI (see ameba-integration). Official `crystal-ameba/github-action` runs its own Ameba image; it will not see custom rules.
 
 ### Sharing rules across projects
 
-Put the rules in a separate shard whose `src/<name>.cr` requires `ameba` and its rule files, add `ameba` as a regular dependency of that shard, and in each consuming project add the shard as a development dependency and `require "<name>"` before `require "ameba/cli"` in `bin/ameba.cr`. Keep the Ameba version constraint compatible with the projects that consume it.
+Put rules in separate shard whose `src/<name>.cr` requires `ameba` and its rule files. Add `ameba` as regular dependency of that shard. In each consuming project, add shard as development dependency. Then `require "<name>"` before `require "ameba/cli"` in `bin/ameba.cr`. Keep Ameba version constraint compatible with consuming projects.
 
 ## Best practices
 
-1. One rule per concern, with a clear `MSG` that says what to do instead.
-2. Start from the closest built-in rule's source and adapt it.
+1. One rule per concern, with clear `MSG` saying what to do instead.
+2. Start from closest built-in rule's source and adapt it.
 3. Write `expect_no_issues` cases for near-misses to keep false positives down.
 4. Make thresholds and name lists properties instead of constants.
-5. Only add autocorrection when the rewrite is always behaviour-preserving.
+5. Add autocorrection only when rewrite is always behaviour-preserving.
 
 ## Common pitfalls
 
-1. Writing an overload for a node type the default visitor never dispatches (`And`, `Or`, literals) and wondering why it never fires.
-2. Expecting a `false` return from `test(source, node)` to skip children; it is ignored.
-3. Keeping per-subtree state in instance variables without resetting it; rules are reused across files.
-4. Forgetting that the group name comes from the module (`Ameba::Rule::Project` gives `Project/...`).
-5. Using the official GitHub Action and expecting it to run custom rules.
+- Keeping per-subtree state in instance variables without resetting it; rules are reused across files.
 
 ## Resources
 

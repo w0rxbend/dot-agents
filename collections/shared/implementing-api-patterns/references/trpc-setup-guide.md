@@ -1,9 +1,5 @@
 # tRPC Setup Guide
 
-## Overview
-
-tRPC enables end-to-end type safety between TypeScript frontend and backend with zero codegen. This guide covers router patterns, middleware, validation, and React Query integration.
-
 **Context7:** `/trpc/trpc` (Trust: High, Score: 92.7, Snippets: 900)
 
 ## Table of Contents
@@ -21,27 +17,21 @@ tRPC enables end-to-end type safety between TypeScript frontend and backend with
 
 ### What is tRPC?
 
-tRPC allows you to build APIs with TypeScript that automatically share types between client and server. No code generation, no schema files, just TypeScript.
-
-**Key Benefits:**
-- **Type safety:** Frontend knows exact shape of backend responses
-- **Autocomplete:** Full IntelliSense for API calls
-- **Refactoring:** Rename backend function, frontend updates automatically
-- **DX:** Instant feedback on breaking changes
+tRPC builds TypeScript APIs that share types between client and server automatically. No code generation, no schema files, TypeScript only.
 
 ### When to Use tRPC
 
 ✅ **Use tRPC when:**
-- Full-stack TypeScript application
+- Full-stack TypeScript app
 - Same team owns frontend and backend
-- Want E2E type safety without codegen
-- Rapid development priority
+- E2E type safety wanted without codegen
+- Rapid development is priority
 
 ❌ **Avoid tRPC when:**
 - Public API for third-party developers (use REST + OpenAPI)
 - Multiple frontend frameworks (tRPC is TypeScript-only)
 - Different teams own frontend/backend
-- Need REST compatibility
+- REST compatibility needed
 
 ## Basic Setup
 
@@ -164,7 +154,7 @@ function App() {
 
 ### Nested Routers
 
-Organize routes by feature:
+Group routes by feature:
 
 ```typescript
 // server/routers/users.ts
@@ -245,7 +235,7 @@ const createUser = trpc.users.create.useMutation()
 
 ### Context Pattern
 
-Share data across all procedures (auth, database, etc.):
+Share data (auth, database, etc.) across all procedures:
 
 ```typescript
 // server/context.ts
@@ -658,7 +648,7 @@ function Component() {
 
 ## Subscriptions
 
-Real-time updates via WebSocket:
+Real-time updates over WebSocket:
 
 ```typescript
 // server/routers/posts.ts
@@ -712,13 +702,8 @@ function PostFeed() {
 ## Best Practices
 
 1. **Organize routers by feature** - `users`, `posts`, not `queries`, `mutations`
-2. **Use Zod for validation** - Type-safe input/output validation
-3. **Leverage middleware** - DRY for auth, logging, rate limiting
-4. **Type your context** - Makes procedures type-safe
-5. **Use React Query features** - Optimistic updates, infinite queries, caching
-6. **Handle errors properly** - Use appropriate error codes
-7. **Version breaking changes** - Nested routers make versioning easier
-8. **Document procedures** - JSDoc comments for IntelliSense
+2. **Version breaking changes** - Nested routers make versioning easier
+3. **Document procedures** - JSDoc comments for IntelliSense
 
 ## OpenAPI Integration
 

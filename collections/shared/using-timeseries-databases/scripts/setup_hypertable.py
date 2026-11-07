@@ -11,11 +11,31 @@ Creates a hypertable with best practices:
 
 Usage:
     python setup_hypertable.py --table metrics --time-column time --partition-interval 7d
+
+Password comes from PGPASSWORD or ~/.pgpass (never a CLI arg).
 """
 
 import psycopg2
 import argparse
+import re
 from typing import List, Optional
+
+
+# Values below are spliced into DDL; restrict them so CLI input cannot inject SQL.
+def _ident(value: str) -> str:
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", value):
+        raise argparse.ArgumentTypeError(f"invalid identifier: {value!r}")
+    return value
+
+
+def _ident_list(value: str) -> str:
+    return ",".join(_ident(v.strip()) for v in value.split(","))
+
+
+def _interval(value: str) -> str:
+    if not re.fullmatch(r"[0-9A-Za-z ]+", value):
+        raise argparse.ArgumentTypeError(f"invalid interval: {value!r}")
+    return value
 
 
 def create_hypertable(
@@ -252,24 +272,26 @@ def main():
     parser.add_argument("--port", type=int, default=5432, help="PostgreSQL port")
     parser.add_argument("--database", default="postgres", help="Database name")
     parser.add_argument("--user", default="postgres", help="PostgreSQL user")
-    parser.add_argument("--password", default="password", help="PostgreSQL password")
-    parser.add_argument("--table", required=True, help="Table name to convert")
-    parser.add_argument("--time-column", default="time", help="Time column name")
+    parser.add_argument("--table", required=True, type=_ident, help="Table name to convert")
+    parser.add_argument("--time-column", default="time", type=_ident, help="Time column name")
     parser.add_argument(
         "--partition-interval",
         default="7 days",
+        type=_interval,
         help="Chunk interval (e.g., '1 day', '7 days')",
     )
     parser.add_argument(
         "--compress-after",
         default="7 days",
+        type=_interval,
         help="Compress chunks after (e.g., '7 days')",
     )
     parser.add_argument(
-        "--retention", help="Delete data after (e.g., '90 days', omit to keep forever)"
+        "--retention", type=_interval, help="Delete data after (e.g., '90 days', omit to keep forever)"
     )
     parser.add_argument(
         "--segment-by",
+        type=_ident_list,
         help="Columns to segment by for compression (comma-separated)",
     )
     parser.add_argument(
@@ -284,7 +306,6 @@ def main():
         port=args.port,
         database=args.database,
         user=args.user,
-        password=args.password,
     )
 
     segment_by = args.segment_by.split(",") if args.segment_by else None

@@ -1,9 +1,5 @@
 # Architecture Examples
 
-> Real-world architecture decisions by project type.
-
----
-
 ## Example 1: MVP E-commerce (Solo Developer)
 
 ```yaml
@@ -31,8 +27,6 @@ Future Migration Path:
   - Team > 3 → Add Repository pattern
   - Social login requested → Add OAuth
 ```
-
----
 
 ## Example 2: SaaS Product (5-10 Developers)
 
@@ -62,8 +56,6 @@ Migration Path:
   - Domains conflict → Extract bounded contexts
   - Read performance issues → Add CQRS
 ```
-
----
 
 ## Example 3: Enterprise (100K+ Users)
 

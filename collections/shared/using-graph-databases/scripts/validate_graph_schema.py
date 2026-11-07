@@ -11,8 +11,10 @@ Validates Neo4j graph schemas for common anti-patterns and performance issues:
 """
 
 import argparse
+import getpass
+import os
 import sys
-from neo4j import GraphDatabase
+from neo4j import GraphDatabase, READ_ACCESS
 from typing import List, Dict, Any
 from dataclasses import dataclass
 from enum import Enum
@@ -34,6 +36,11 @@ class ValidationIssue:
     message: str
     details: Dict[str, Any]
     recommendation: str
+
+
+def _q(name: str) -> str:
+    """Backtick-quote a label/name read from the DB so it cannot inject Cypher."""
+    return "`" + name.replace("`", "``") + "`"
 
 
 class GraphSchemaValidator:
@@ -90,7 +97,7 @@ class GraphSchemaValidator:
         LIMIT 50
         """
 
-        with self.driver.session() as session:
+        with self.driver.session(default_access_mode=READ_ACCESS) as session:
             result = session.run(query, threshold=threshold)
             supernodes = list(result)
 
@@ -123,7 +130,7 @@ class GraphSchemaValidator:
         Analyzes node labels and suggests indexes.
         """
         # Get all indexes
-        with self.driver.session() as session:
+        with self.driver.session(default_access_mode=READ_ACCESS) as session:
             result = session.run("SHOW INDEXES")
             existing_indexes = set()
 
@@ -155,7 +162,7 @@ class GraphSchemaValidator:
                 if count > 100:  # Only check labels with significant data
                     # Get property keys for this label
                     prop_result = session.run(f"""
-                        MATCH (n:{label})
+                        MATCH (n:{_q(label)})
                         RETURN DISTINCT keys(n) AS props
                         LIMIT 1
                     """)
@@ -179,8 +186,8 @@ class GraphSchemaValidator:
                                             'node_count': count
                                         },
                                         recommendation=(
-                                            f"CREATE INDEX {label.lower()}_{prop} "
-                                            f"FOR (n:{label}) ON (n.{prop})"
+                                            f"CREATE INDEX {_q(f'{label.lower()}_{prop}')} "
+                                            f"FOR (n:{_q(label)}) ON (n.{prop})"
                                         )
                                     )
 
@@ -190,7 +197,7 @@ class GraphSchemaValidator:
 
         Ensures data integrity through constraints on IDs and emails.
         """
-        with self.driver.session() as session:
+        with self.driver.session(default_access_mode=READ_ACCESS) as session:
             # Get existing constraints
             result = session.run("SHOW CONSTRAINTS")
             existing_constraints = set()
@@ -214,7 +221,7 @@ class GraphSchemaValidator:
                           for c in existing_constraints):
                     # Check if id property exists
                     check = session.run(f"""
-                        MATCH (n:{label})
+                        MATCH (n:{_q(label)})
                         WHERE n.id IS NOT NULL
                         RETURN count(n) AS count
                         LIMIT 1
@@ -227,8 +234,8 @@ class GraphSchemaValidator:
                             message=f"Missing unique constraint on {label}.id",
                             details={'label': label, 'property': 'id'},
                             recommendation=(
-                                f"CREATE CONSTRAINT {label.lower()}_id_unique "
-                                f"FOR (n:{label}) REQUIRE n.id IS UNIQUE"
+                                f"CREATE CONSTRAINT {_q(label.lower() + '_id_unique')} "
+                                f"FOR (n:{_q(label)}) REQUIRE n.id IS UNIQUE"
                             )
                         )
 
@@ -237,7 +244,7 @@ class GraphSchemaValidator:
                     if not any(c[0] == label and 'email' in c[1] and 'UNIQUENESS' in c[2]
                               for c in existing_constraints):
                         check = session.run(f"""
-                            MATCH (n:{label})
+                            MATCH (n:{_q(label)})
                             WHERE n.email IS NOT NULL
                             RETURN count(n) AS count
                             LIMIT 1
@@ -250,8 +257,8 @@ class GraphSchemaValidator:
                                 message=f"Missing unique constraint on {label}.email",
                                 details={'label': label, 'property': 'email'},
                                 recommendation=(
-                                    f"CREATE CONSTRAINT {label.lower()}_email_unique "
-                                    f"FOR (n:{label}) REQUIRE n.email IS UNIQUE"
+                                    f"CREATE CONSTRAINT {_q(label.lower() + '_email_unique')} "
+                                    f"FOR (n:{_q(label)}) REQUIRE n.email IS UNIQUE"
                                 )
                             )
 
@@ -269,7 +276,7 @@ class GraphSchemaValidator:
         ORDER BY count DESC
         """
 
-        with self.driver.session() as session:
+        with self.driver.session(default_access_mode=READ_ACCESS) as session:
             result = session.run(query)
             orphaned = list(result)
 
@@ -303,7 +310,7 @@ class GraphSchemaValidator:
         RETURN rel_type, prop_sets
         """
 
-        with self.driver.session() as session:
+        with self.driver.session(default_access_mode=READ_ACCESS) as session:
             result = session.run(query)
             inconsistencies = list(result)
 
@@ -341,7 +348,7 @@ class GraphSchemaValidator:
             collect(relationshipType) AS rel_types
         """
 
-        with self.driver.session() as session:
+        with self.driver.session(default_access_mode=READ_ACCESS) as session:
             result = session.run(query)
             stats = result.single()
 
@@ -415,7 +422,8 @@ class GraphSchemaValidator:
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Validate Neo4j graph schema for best practices"
+        description="Validate Neo4j graph schema for best practices",
+        epilog="Password is read from NEO4J_PASSWORD (prompted if unset)."
     )
     parser.add_argument(
         '--uri',
@@ -428,11 +436,6 @@ def main():
         help='Neo4j username (default: neo4j)'
     )
     parser.add_argument(
-        '--password',
-        default='password',
-        help='Neo4j password (default: password)'
-    )
-    parser.add_argument(
         '--supernode-threshold',
         type=int,
         default=10000,
@@ -441,7 +444,8 @@ def main():
 
     args = parser.parse_args()
 
-    validator = GraphSchemaValidator(args.uri, args.user, args.password)
+    password = os.environ.get('NEO4J_PASSWORD') or getpass.getpass('Neo4j password: ')
+    validator = GraphSchemaValidator(args.uri, args.user, password)
 
     try:
         issue_count = validator.validate()

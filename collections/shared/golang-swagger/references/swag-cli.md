@@ -38,7 +38,7 @@ swag fmt -d ./handlers                         # format specific directory
 swag fmt --exclude ./vendor                    # skip directories
 ```
 
-`swag fmt` requires a standard Go doc comment (`// FuncName godoc`) immediately before the first `@` annotation — without it the formatter cannot determine indentation.
+`swag fmt` requires standard Go doc comment (`// FuncName godoc`) immediately before first `@` annotation. Without it, formatter cannot determine indentation.
 
 ## Framework Integration Packages
 
@@ -51,11 +51,11 @@ swag fmt --exclude ./vendor                    # skip directories
 | Buffalo                  | `github.com/swaggo/buffalo-swagger` |
 | Hertz                    | `github.com/hertz-contrib/swagger`  |
 
-The shared files package (`github.com/swaggo/files`) is required by all integrations.
+All integrations require shared files package (`github.com/swaggo/files`).
 
 ## Dynamic Configuration
 
-Override spec values at runtime — useful for multi-environment deployments where host and basepath differ between staging and production:
+Override spec values at runtime. Use for multi-environment deployments where host and basepath differ between staging and production:
 
 ```go
 import docs "yourmodule/docs"  // named import required to access docs.SwaggerInfo
@@ -87,7 +87,7 @@ Multiple type parameters:
 
 ## Nested Composition
 
-Embed or override fields in the documented schema without changing Go types:
+Embed or override fields in documented schema without changing Go types:
 
 ```go
 // @Success 200 {object} api.Envelope{data=model.User}
@@ -105,7 +105,7 @@ Embed or override fields in the documented schema without changing Go types:
 
 ## Function-Scoped Structs
 
-swag can parse structs defined inside handler functions:
+swag parses structs defined inside handler functions:
 
 ```go
 // @Param req body main.CreateUser.request true "Create user input"

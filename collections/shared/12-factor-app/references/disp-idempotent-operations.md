@@ -7,7 +7,7 @@ tags: disp, idempotency, retry, reliability
 
 ## Make Operations Idempotent to Safely Retry After Failures
 
-Operations should be safe to retry without side effects. If a process dies mid-operation and the operation is retried, the end result should be the same as if it succeeded once. This is critical for crash recovery and queue-based processing.
+Make operations safe to retry without side effects. If process dies mid-operation and operation is retried, end result must match a single success. Critical for crash recovery and queue-based processing: idempotent tasks let queue workers use acks_late and tolerate duplicate messages.
 
 **Incorrect (non-idempotent operations):**
 
@@ -107,11 +107,5 @@ stripe.Charge.create(idempotency_key=unique_key)
 UPDATE items SET stock = stock - 10
 WHERE id = 123 AND stock >= 10  # Only if we have stock
 ```
-
-**Benefits:**
-- Safe automatic retries
-- Queue workers can use acks_late
-- Duplicate messages don't cause problems
-- Simpler error handling
 
 Reference: [The Twelve-Factor App - Disposability](https://12factor.net/disposability)

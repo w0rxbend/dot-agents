@@ -5,6 +5,10 @@ Type inference per cell (disable with --no-infer):
   int, float, bool ("true"/"false", case-insensitive), ISO date
   (YYYY-MM-DD) and ISO datetime; everything else stays a string.
 
+Cells starting with '=' are stored as literal text, so an untrusted CSV
+cannot inject live formulas (e.g. =WEBSERVICE, =HYPERLINK). Pass
+--allow-formulas only for trusted input.
+
 Styling applied by default (disable with --plain):
   bold header row with a light fill, frozen top row, autofilter over the
   data range, and column widths sized to the longest cell (capped at 60).
@@ -60,6 +64,8 @@ def main(argv=None):
     ap.add_argument("--delimiter", default=",")
     ap.add_argument("--no-infer", action="store_true",
                     help="keep every cell as a string")
+    ap.add_argument("--allow-formulas", action="store_true",
+                    help="treat '=...' cells as live formulas (trusted CSV only)")
     ap.add_argument("--plain", action="store_true",
                     help="skip header styling / freeze / autofilter")
     args = ap.parse_args(argv)
@@ -70,11 +76,12 @@ def main(argv=None):
     wb = Workbook()
     ws = wb.active
     ws.title = args.sheet_name
-    for i, row in enumerate(rows):
-        if args.no_infer or i == 0:
-            ws.append(row)
-        else:
-            ws.append([infer(cell) for cell in row])
+    for r, row in enumerate(rows, start=1):
+        values = row if args.no_infer or r == 1 else [infer(c) for c in row]
+        for c, value in enumerate(values, start=1):
+            cell = ws.cell(row=r, column=c, value=value)
+            if cell.data_type == "f" and not args.allow_formulas:
+                cell.data_type = "s"  # keep CSV '=...' as literal text
 
     if rows and not args.plain:
         header_font = Font(bold=True)

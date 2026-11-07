@@ -1,11 +1,9 @@
 # Network/Web Security Rules
 
-Network and web security vulnerabilities can lead to data leakage and unauthorized access.
-
 **Rules:**
 
-1. Redirects MUST be validated against an allowlist of domains.
-2. HTTP servers MUST configure `ReadTimeout`, `WriteTimeout`, and `IdleTimeout`.
+1. Redirects MUST be validated against domain allowlist.
+2. HTTP servers MUST set `ReadTimeout`, `WriteTimeout`, `IdleTimeout`.
 3. Pprof endpoints MUST NEVER be exposed publicly.
 4. XML parsers MUST disable XXE — reject `<!DOCTYPE` and `<!ENTITY` declarations.
 
@@ -25,7 +23,7 @@ Network and web security vulnerabilities can lead to data leakage and unauthoriz
 
 ## Open Redirect Vulnerability — Medium
 
-Redirects to unvalidated URLs can be used for phishing.
+Redirects to unvalidated URLs enable phishing.
 
 **Bad:**
 
@@ -58,7 +56,7 @@ http.Redirect(w, r, target, http.StatusFound)
 
 ## Bind to All Interfaces — Medium
 
-Binding to 0.0.0.0 exposes services to all network interfaces.
+Binding to 0.0.0.0 exposes service on every network interface.
 
 **Bad:**
 
@@ -107,8 +105,6 @@ server := &http.Server{
 
 ## Insecure HTTP Server Configuration — Medium
 
-Running HTTP servers without proper security settings.
-
 **Bad:**
 
 ```go
@@ -131,8 +127,6 @@ server.ListenAndServeTLS("cert.pem", "key.pem")
 ---
 
 ## Observable Timing (Timing Attacks) — Medium
-
-Timing differences can leak sensitive information.
 
 **Bad:**
 
@@ -208,7 +202,7 @@ func startDebugServer() {
 
 ## XXE Vulnerability — High
 
-XML parsers that process external entity references.
+Risk: XML parsers that process external entity references.
 
 **Bad:**
 
@@ -234,8 +228,6 @@ decoder.Decode(&person)
 ---
 
 ## Permissive Regex Validation — Low
-
-Weak regex validation can allow malicious input.
 
 **Bad:**
 

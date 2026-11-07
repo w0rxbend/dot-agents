@@ -1,12 +1,8 @@
 # Cross-Service Wiring Patterns
 
-Complete examples for wiring services together in `render.yaml` via `envVars`.
-
----
-
 ## fromDatabase
 
-Reference a Managed Postgres database property:
+Reference Managed Postgres database property:
 
 ```yaml
 envVars:
@@ -27,13 +23,13 @@ Available properties:
 | `password` | Database password |
 | `database` | Database name |
 
-The `name` must match a database defined in the `databases` section of the same Blueprint, or an existing database in the workspace.
+`name` must match database in same Blueprint's `databases` section, or existing workspace database.
 
 ---
 
 ## fromService (Key Value)
 
-Reference a Key Value (Redis-compatible) instance:
+Reference Key Value (Redis-compatible) instance:
 
 ```yaml
 envVars:
@@ -57,7 +53,7 @@ Available properties:
 
 ## fromService (Private Service or Web Service)
 
-Reference another service's internal address or environment variable:
+Reference another service's internal address or env var:
 
 ```yaml
 envVars:
@@ -90,26 +86,26 @@ Available properties for `pserv` and `web`:
 | `host` | Internal hostname |
 | `hostport` | `host:port` combined |
 
-Use `envVarKey` to copy a specific environment variable value from the other service.
+`envVarKey` copies specific env var value from other service.
 
 ---
 
 ## fromGroup
 
-Link an entire environment group:
+Link entire environment group:
 
 ```yaml
 envVars:
   - fromGroup: shared-secrets
 ```
 
-This adds all variables from the named group to the service. The group must exist in the workspace or be defined in `envVarGroups`.
+Adds all variables from named group to service. Group must exist in workspace or be defined in `envVarGroups`.
 
 ---
 
 ## generateValue
 
-Generate a random base64-encoded 256-bit secret:
+Generate random base64-encoded 256-bit secret:
 
 ```yaml
 envVars:
@@ -117,13 +113,11 @@ envVars:
     generateValue: true
 ```
 
-The value is generated once on initial Blueprint creation and persists across syncs.
-
 ---
 
 ## sync: false
 
-Prompt the user to provide a value in the Dashboard:
+Prompt user for value in Dashboard:
 
 ```yaml
 envVars:
@@ -131,13 +125,13 @@ envVars:
     sync: false
 ```
 
-Use for secrets that should never appear in the Blueprint file.
+Use for secrets that should never appear in Blueprint file.
 
 ---
 
 ## Combined Example
 
-A web service wired to Postgres, Key Value, and a private service:
+Web service wired to Postgres, Key Value, and private service:
 
 ```yaml
 services:
@@ -179,9 +173,7 @@ services:
     name: cache
     plan: starter
     maxmemoryPolicy: allkeys-lru
-    ipAllowList:
-      - source: 0.0.0.0/0
-        description: everywhere
+    ipAllowList: []  # internal only; add specific CIDRs only if external access is needed
 
 databases:
   - name: db
@@ -198,8 +190,8 @@ envVarGroups:
 
 ## Edge Cases
 
-- **sync: false only prompts on initial Blueprint setup.** On subsequent syncs, existing `sync: false` values are preserved. Adding a new `sync: false` var to an existing Blueprint does not prompt.
+- **sync: false only prompts on initial Blueprint setup.** Later syncs preserve existing `sync: false` values. Adding new `sync: false` var to existing Blueprint does not prompt.
 - **sync: false is excluded from preview environments.** Users must set these values manually for each preview.
-- **sync: false is invalid in envVarGroups.** It is silently ignored if used in a group definition.
-- **fromService/fromDatabase can reference services outside the Blueprint** but the referenced service must already exist in the workspace.
-- **generateValue** generates once on initial create. It does not regenerate on subsequent Blueprint syncs.
+- **sync: false is invalid in envVarGroups.** Silently ignored if used in group definition.
+- **fromService/fromDatabase can reference services outside the Blueprint**, but referenced service must already exist in workspace.
+- **generateValue** generates once on initial create. Does not regenerate on later Blueprint syncs.

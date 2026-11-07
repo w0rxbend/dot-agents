@@ -20,11 +20,11 @@
 
 | Function | Description |
 | --- | --- |
-| `mo.Ok[T](value T)` | Creates a successful Result |
-| `mo.Err[T](err error)` | Creates a failed Result |
+| `mo.Ok[T](value T)` | Creates successful Result |
+| `mo.Err[T](err error)` | Creates failed Result |
 | `mo.Errf[T](format string, a ...any)` | Creates failed Result with formatted error message |
-| `mo.TupleToResult[T](value T, err error)` | Converts Go's (T, error) tuple — Ok if err is nil, Err otherwise |
-| `mo.Try[T](f func() (T, error))` | Executes function, wraps result — Ok on success, Err on error |
+| `mo.TupleToResult[T](value T, err error)` | Converts Go's (T, error) tuple: Ok if err is nil, Err otherwise |
+| `mo.Try[T](f func() (T, error))` | Runs function, wraps result: Ok on success, Err on error |
 
 ### Do Notation
 
@@ -37,17 +37,17 @@ result := mo.Do(func() int {
 // Ok(42)
 ```
 
-`mo.Do` executes a closure and catches any panic from `MustGet()` calls, converting them to `Err`. This enables imperative-style code with monadic error propagation.
+`mo.Do` runs a closure and catches any panic from `MustGet()` calls, converting it to `Err`.
 
 ## Query Methods
 
 | Method | Returns | Description |
 | --- | --- | --- |
 | `IsOk()` | `bool` | True if Result is successful |
-| `IsError()` | `bool` | True if Result is a failure |
-| `Error()` | `error` | Returns the error, or nil if Ok |
+| `IsError()` | `bool` | True if Result is failure |
+| `Error()` | `error` | Returns error, or nil if Ok |
 | `Get()` | `(T, error)` | Returns value and error (Go-style) |
-| `MustGet()` | `T` | Returns value or panics — use only inside `mo.Do` |
+| `MustGet()` | `T` | Returns value or panics. Use only inside `mo.Do` |
 
 ## Value Extraction
 
@@ -75,7 +75,7 @@ result := mo.Err[int](errors.New("fail")).
 // Err("fail")
 ```
 
-**Go limitation:** Result.Map takes `func(T) (T, error)` — the input and output types must be the same `T`. Returning a non-nil error converts Ok to Err. To change the type (e.g. `Result[[]byte]` to `Result[Config]`), use sub-package `result.Map` or `mo.Do` notation — see [Pipelines Reference](./pipelines.md).
+**Go limitation:** Result.Map takes `func(T) (T, error)`. Input and output types must be the same `T`. Returning non-nil error converts Ok to Err. To change type (e.g. `Result[[]byte]` to `Result[Config]`), use sub-package `result.Map` or `mo.Do` notation. See [Pipelines Reference](./pipelines.md).
 
 ### MapValue — transform without error possibility
 

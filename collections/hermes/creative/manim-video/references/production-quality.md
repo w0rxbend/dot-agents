@@ -1,15 +1,13 @@
 # Production Quality Checklist
 
-Standards and checks for ensuring animation output is publication-ready.
-
 ## Pre-Code Checklist
 
 Before writing any Manim code:
 
-- [ ] Narration script written with visual beats marked
-- [ ] Scene list with purpose, duration, and layout for each
-- [ ] Color palette defined with meaning assignments (`PRIMARY` = main concept, etc.)
-- [ ] `MONO = "Menlo"` set as the font constant
+- [ ] Narration script written, visual beats marked
+- [ ] Scene list with purpose, duration, layout for each
+- [ ] Palette colors mapped to meanings (`PRIMARY` = main concept, etc.)
+- [ ] `MONO = "Menlo"` set as font constant
 - [ ] Target resolution and aspect ratio decided
 
 ## Text Quality
@@ -31,7 +29,7 @@ self.play(Write(note2))                          # BAD — overlaps note1
 
 ### Width enforcement
 
-Long text strings overflow the frame:
+Long text overflows frame:
 
 ```python
 # RULE: Set max width for any text that might be long
@@ -61,7 +59,7 @@ Text("Code", font=MONO, font_size=18)
 
 ### The coordinate budget
 
-The visible frame is approximately 14.2 wide × 8.0 tall (default 16:9). With mandatory margins:
+Visible frame: about 14.2 wide × 8.0 tall (default 16:9). With mandatory margins:
 
 ```
 Usable area: x ∈ [-6.5, 6.5], y ∈ [-3.5, 3.5]
@@ -72,32 +70,32 @@ Main content: y ∈ [-2.5, 2.5], x ∈ [-6.0, 6.0]
 
 ### Fill the frame
 
-Empty scenes look unfinished. If the main content is small, add context:
-- A dimmed grid/axes behind the content
-- A title/subtitle at the top
-- A source citation at the bottom
+Empty scenes look unfinished. If main content is small, add context:
+- Dimmed grid/axes behind content
+- Title/subtitle at top
+- Source citation at bottom
 - Decorative geometry at low opacity
 
 ### Maximum simultaneous elements
 
-**Hard limit: 6 actively visible elements.** Beyond that, the viewer can't track everything. If you need more:
+**Hard limit: 6 actively visible elements.** Beyond that, viewer loses track. If you need more:
 - Dim old elements to opacity 0.3
-- Remove elements that have served their purpose
+- Remove elements that served their purpose
 - Split into two scenes
 
 ## Animation Quality
 
 ### Variety audit
 
-Check that no two consecutive scenes use the exact same:
-- Animation type (if Scene 3 uses Write for everything, Scene 4 should use FadeIn or Create)
-- Color emphasis (rotate through palette colors)
+Check no two consecutive scenes use exact same:
+- Animation type (if Scene 3 is all Write, Scene 4 should use FadeIn or Create)
+- Color emphasis (rotate palette colors)
 - Layout (center, left-right, grid — alternate)
-- Pacing (if Scene 2 was slow and deliberate, Scene 3 can be faster)
+- Pacing (after slow, deliberate Scene 2, Scene 3 can be faster)
 
 ### Tempo curve
 
-A good video follows a tempo curve:
+Good video follows a tempo curve:
 
 ```
 Slow ──→ Medium ──→ FAST (climax) ──→ Slow (conclusion)
@@ -114,13 +112,13 @@ Scene 5: Slow (conclusion, key takeaway)
 Between scenes:
 - **Clean exit**: `self.play(FadeOut(Group(*self.mobjects)), run_time=0.5)`
 - **Brief pause**: `self.wait(0.3)` after fadeout, before next scene's first animation
-- **Never hard-cut**: always animate the transition
+- **Never hard-cut**: always animate transition
 
 ## Color Quality
 
 ### Dimming on dark backgrounds
 
-Colors that look vibrant on white look muddy on dark backgrounds (#0D1117, #1C1C1C). Test your palette:
+Colors vibrant on white look muddy on dark backgrounds (#0D1117, #1C1C1C). Test palette:
 
 ```python
 # Colors that work well on dark backgrounds:
@@ -134,7 +132,7 @@ Colors that look vibrant on white look muddy on dark backgrounds (#0D1117, #1C1C
 
 ### Color meaning consistency
 
-Once a color is assigned a meaning, it keeps that meaning for the entire video:
+Color meaning, once assigned, holds for entire video:
 
 ```python
 # If PRIMARY (#58C4DD) means "the model" in Scene 1,
@@ -147,13 +145,13 @@ Once a color is assigned a meaning, it keeps that meaning for the entire video:
 ### Minimum requirements for charts
 
 - Axis labels on every axis
-- Y-axis range starts at 0 (or has a clear break indicator)
-- Bar/line colors match the legend
-- Numbers on notable data points (at least the maximum and the comparison point)
+- Y-axis range starts at 0 (or has clear break indicator)
+- Bar/line colors match legend
+- Numbers on notable data points (at least maximum and comparison point)
 
 ### Animated counters
 
-When showing a number changing:
+When showing a changing number:
 ```python
 # GOOD: DecimalNumber with smooth animation
 counter = DecimalNumber(0, font_size=48, num_decimal_places=0, font="Menlo")
@@ -171,20 +169,20 @@ Before running `manim -qh`:
 - [ ] Background color set in every scene (`self.camera.background_color = BG`)
 - [ ] `add_subcaption()` or `subcaption=` on every significant animation
 - [ ] No text smaller than font_size=18
-- [ ] No text using proportional fonts (use monospace)
+- [ ] No proportional-font text (use monospace)
 - [ ] buff >= 0.5 on all `.to_edge()` calls
 - [ ] Clean exit (FadeOut all) at end of every scene
 - [ ] `self.wait()` after every reveal
 - [ ] Color constants used (no hardcoded hex strings in scene code)
-- [ ] All scenes use the same quality flag (don't mix `-ql` and `-qh`)
+- [ ] All scenes use same quality flag (don't mix `-ql` and `-qh`)
 
 ## Post-Render Checklist
 
-After stitching the final video:
+After stitching final video:
 
-- [ ] Watch the complete video at 1x speed — does it feel rushed anywhere?
-- [ ] Is there a moment where two things animate simultaneously and it's confusing?
-- [ ] Does every text label have enough time to be read?
-- [ ] Are transitions between scenes smooth (no black frames, no jarring cuts)?
-- [ ] Is the audio in sync with the visuals (if using voiceover)?
-- [ ] Is the Gibbs-like "first impression" good? The first 5 seconds determine if someone keeps watching
+- [ ] Watch complete video at 1x speed — rushed anywhere?
+- [ ] Any moment where two simultaneous animations confuse?
+- [ ] Every text label on screen long enough to read?
+- [ ] Transitions between scenes smooth (no black frames, no jarring cuts)?
+- [ ] Audio in sync with visuals (if using voiceover)?
+- [ ] Gibbs-like "first impression" good? First 5 seconds determine if someone keeps watching

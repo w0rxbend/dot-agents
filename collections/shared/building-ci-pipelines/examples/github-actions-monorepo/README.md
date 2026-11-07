@@ -102,6 +102,7 @@ Building only affected packages:
 
 ```bash
 npm install turbo --save-dev
+npx turbo telemetry disable  # on by default; the workflow sets TURBO_TELEMETRY_DISABLED for CI
 ```
 
 ### 2. Configure Remote Caching

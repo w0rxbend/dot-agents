@@ -11,6 +11,8 @@
 
 ## Resource Requests and Limits
 
+Always set requests and limits to enable QoS.
+
 ### CPU Resources
 
 **CPU Units:**
@@ -20,13 +22,13 @@
 
 **CPU Requests:**
 - Minimum guaranteed CPU for scheduling
-- Scheduler finds nodes with available CPU
+- Scheduler picks nodes with free CPU
 - Pod can use more than request (up to limit)
 
 **CPU Limits:**
 - Maximum CPU pod can use
 - Enforced by throttling (CFS quota)
-- Pod slowed down, not killed
+- Pod slowed, not killed
 
 **Example:**
 ```yaml
@@ -46,12 +48,12 @@ resources:
 
 **Memory Requests:**
 - Minimum guaranteed memory for scheduling
-- Pod evicted if exceeds request under node pressure
+- Pod evicted if over request under node pressure
 
 **Memory Limits:**
 - Maximum memory pod can allocate
-- Pod killed (OOMKilled) if exceeds limit
-- No throttling like CPU
+- Pod killed (OOMKilled) if over limit
+- Not throttled like CPU
 
 **Example:**
 ```yaml
@@ -65,25 +67,23 @@ resources:
 ### Compressible vs. Incompressible Resources
 
 **Compressible (CPU):**
-- Can be throttled without killing pod
-- Degraded performance, but pod survives
+- Throttled without killing pod
 - Safer to overcommit
 
 **Incompressible (Memory):**
 - Cannot be reclaimed once allocated
-- Pod killed if exceeds limit or under pressure
-- Must be carefully sized
+- Must size carefully
 
 ## Quality of Service Classes
 
-Kubernetes assigns QoS classes automatically based on requests and limits:
+Kubernetes assigns QoS class automatically from requests and limits:
 
 ### Guaranteed QoS
 
 **Criteria:**
 - Every container has CPU and memory requests
 - Every container has CPU and memory limits
-- Requests equal limits for both CPU and memory
+- Requests equal limits for CPU and memory
 
 **Behavior:**
 - Highest priority
@@ -112,7 +112,7 @@ spec:
 
 **Use Cases:**
 - Critical production services (payments, auth)
-- Databases requiring stable performance
+- Databases needing stable performance
 - Real-time processing systems
 - Compliance-required workloads
 
@@ -156,11 +156,11 @@ spec:
 ### BestEffort QoS
 
 **Criteria:**
-- No requests or limits set for any container
+- No requests or limits on any container
 
 **Behavior:**
 - Lowest priority
-- First to be evicted under node pressure
+- First evicted under node pressure
 - No resource guarantees
 - Most cost-effective
 
@@ -201,7 +201,7 @@ Q1: Is this a critical production service?
 
 ### Namespace-Level Limits
 
-ResourceQuotas enforce limits at the namespace level for multi-tenancy:
+ResourceQuotas enforce per-namespace limits for multi-tenancy:
 
 ```yaml
 apiVersion: v1
@@ -230,7 +230,7 @@ spec:
 
 ### Quota Scopes
 
-Apply quotas to specific pod classes:
+Scope quotas to specific pod classes:
 
 ```yaml
 apiVersion: v1
@@ -280,7 +280,7 @@ kubectl describe resourcequota -n team-alpha
 
 ### Default Constraints per Container
 
-LimitRanges set defaults and boundaries for individual containers:
+LimitRanges set per-container defaults and bounds:
 
 ```yaml
 apiVersion: v1
@@ -332,7 +332,7 @@ spec:
 2. If no limit set → apply `default`
 3. Validate against `min` and `max`
 4. Validate `maxLimitRequestRatio`
-5. Reject pod if violations found
+5. Reject pod on any violation
 
 ## Vertical Pod Autoscaler
 
@@ -340,22 +340,22 @@ spec:
 
 **Off (Recommendations Only):**
 - Safest starting point
-- VPA calculates recommendations
+- VPA computes recommendations
 - No automatic changes
 - View recommendations: `kubectl describe vpa`
 
 **Initial:**
-- Apply recommendations only on pod creation
+- Applies recommendations only on pod creation
 - Existing pods unchanged
-- Useful for StatefulSets
+- Suits StatefulSets
 
 **Recreate:**
-- Update running pods (causes restart)
-- Evicts and recreates pods with new resources
-- Not suitable for single-replica workloads
+- Updates running pods (restarts them)
+- Evicts, recreates pods with new resources
+- Not for single-replica workloads
 
 **Auto (Future):**
-- Update requests in-place without restart
+- Updates requests in-place, no restart
 - Not yet available in production
 
 ### VPA Configuration
@@ -389,8 +389,6 @@ spec:
 
 ### VPA Recommendations
 
-View VPA recommendations:
-
 ```bash
 kubectl describe vpa my-app-vpa
 
@@ -412,14 +410,13 @@ kubectl describe vpa my-app-vpa
 ### VPA Best Practices
 
 **When to Use VPA:**
-- ✅ Stateless applications with predictable patterns
+- ✅ Stateless apps with predictable patterns
 - ✅ Long-running services (collect 7+ days of metrics)
-- ✅ Applications where restarts are acceptable
+- ✅ Apps where restarts are acceptable
 - ✅ Unknown resource requirements (let VPA learn)
 
 **When to Avoid VPA:**
-- ❌ Running with HPA on same metric (conflicts)
-- ❌ Stateful apps requiring stable resources
+- ❌ Stateful apps needing stable resources
 - ❌ Single-replica critical workloads
 - ❌ Short-lived jobs (insufficient data)
 
@@ -436,9 +433,9 @@ helm repo add fairwinds-stable https://charts.fairwinds.com/stable
 helm install vpa fairwinds-stable/vpa --namespace vpa --create-namespace
 
 # Or via manifest
-git clone https://github.com/kubernetes/autoscaler.git
+git clone --depth 1 --branch vertical-pod-autoscaler-1.8.1 https://github.com/kubernetes/autoscaler.git
 cd autoscaler/vertical-pod-autoscaler
-./hack/vpa-up.sh
+./hack/vpa-up.sh  # review script first
 ```
 
 ## Cost Optimization Patterns
@@ -477,8 +474,8 @@ kubectl describe vpa my-app-vpa
 
 **Phase 3: Optimization (Week 5+)**
 1. Apply VPA recommendations
-2. Monitor for OOMKilled or CPU throttling
-3. Adjust based on real behavior
+2. Watch for OOMKilled or CPU throttling
+3. Adjust to real behavior
 4. Iterate quarterly
 
 ```yaml
@@ -626,15 +623,3 @@ kube_pod_container_resource_requests{resource="memory"} == 0
   annotations:
     summary: "Pod {{ $labels.pod }} has no memory limit"
 ```
-
-## Summary
-
-**Key Takeaways:**
-1. Always set requests and limits to enable QoS
-2. Use Guaranteed QoS for critical services
-3. Use Burstable QoS for most applications
-4. Implement ResourceQuotas for multi-tenancy
-5. Use VPA for automated rightsizing
-6. Monitor actual usage vs. requests
-7. Iterate on resource sizing quarterly
-8. Label resources for cost allocation

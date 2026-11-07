@@ -15,62 +15,25 @@
 
 ### What is Benchmarking?
 
-Benchmarking measures performance of specific code or operations to establish baselines and compare implementations.
-
 **Benchmarking vs. Profiling vs. Load Testing:**
 
 | Type | Purpose | Scope | Output |
 |------|---------|-------|--------|
-| **Benchmarking** | Measure specific operation performance | Function or micro-operation | Operations/sec, latency |
-| **Profiling** | Identify bottlenecks | Application-wide | Flamegraph, hot functions |
-| **Load Testing** | Validate system capacity | System-wide | Throughput, p95 latency |
+| **Benchmarking** | Measure one operation | Function or micro-operation | Operations/sec, latency |
+| **Profiling** | Find bottlenecks | Application-wide | Flamegraph, hot functions |
+| **Load Testing** | Validate capacity | System-wide | Throughput, p95 latency |
 
 **Use cases:**
 - Compare two implementations (which is faster?)
-- Establish baselines (how fast is this operation?)
-- Regression detection (did performance degrade?)
-- Optimization validation (did change improve performance?)
+- Set baselines (how fast is this operation?)
+- Detect regressions (did performance degrade?)
+- Validate optimizations (did change help?)
 
 ### Benchmarking Best Practices
 
-**1. Run Multiple Iterations**
-```python
-# Bad: Single run (unreliable)
-start = time.time()
-result = my_function()
-duration = time.time() - start
+Run many iterations, warm up first, use realistic inputs: see [Avoiding Common Pitfalls](#avoiding-common-pitfalls).
 
-# Good: Multiple runs (average)
-durations = []
-for _ in range(1000):
-    start = time.time()
-    result = my_function()
-    durations.append(time.time() - start)
-
-avg_duration = sum(durations) / len(durations)
-```
-
-**2. Warm-Up Runs**
-```python
-# Warm-up (JIT compilation, caching)
-for _ in range(100):
-    my_function()
-
-# Now measure
-for _ in range(1000):
-    benchmark()
-```
-
-**3. Realistic Inputs**
-```python
-# Bad: Trivial input
-benchmark(data=[1, 2, 3])  # Not representative
-
-# Good: Realistic input
-benchmark(data=load_production_sample())  # Real-world data
-```
-
-**4. Isolate Variables**
+**Isolate Variables**
 ```python
 # Bad: Multiple changes at once
 def optimized_function():
@@ -93,7 +56,7 @@ def with_caching():
 
 ### Python (timeit)
 
-**Built-in module for benchmarking:**
+**Built-in benchmark module:**
 ```python
 import timeit
 
@@ -118,7 +81,7 @@ duration = timeit.timeit(
 
 ### Python (pytest-benchmark)
 
-**Advanced benchmarking with statistics:**
+**Benchmarks with statistics:**
 ```bash
 pip install pytest-benchmark
 ```
@@ -190,7 +153,6 @@ go test -bench=. -benchmem
 
 ### TypeScript (Benchmark.js)
 
-**Popular benchmarking library:**
 ```bash
 npm install benchmark
 ```
@@ -229,7 +191,6 @@ suite
 
 ### autocannon (Node.js/TypeScript)
 
-**Fast HTTP benchmarking tool:**
 ```bash
 npm install -g autocannon
 ```
@@ -273,10 +234,10 @@ ab -n 1000 -c 10 http://localhost:3000/api/users
 
 ### vegeta (Go)
 
-**Powerful load testing and benchmarking:**
+**Load testing and benchmarking:**
 ```bash
 # Install
-go install github.com/tsenart/vegeta@latest
+go install github.com/tsenart/vegeta/v12@v12.13.0
 ```
 
 **Usage:**
@@ -321,19 +282,21 @@ pgbench -c 10 -t 1000 -f test.sql mydb
 
 ### MySQL (sysbench)
 
-**Benchmarking tool for MySQL:**
 ```bash
 # Install
 sudo apt-get install sysbench
 
+# Credentials out of argv/shell history: chmod 600 file with lines mysql-user=... and mysql-password=...
+chmod 600 sysbench.cfg
+
 # Prepare test
-sysbench oltp_read_write --mysql-db=mydb --mysql-user=user --mysql-password=pass prepare
+sysbench oltp_read_write --config-file=sysbench.cfg --mysql-db=mydb prepare
 
 # Run benchmark
-sysbench oltp_read_write --mysql-db=mydb --mysql-user=user --mysql-password=pass --threads=10 --time=60 run
+sysbench oltp_read_write --config-file=sysbench.cfg --mysql-db=mydb --threads=10 --time=60 run
 
 # Cleanup
-sysbench oltp_read_write --mysql-db=mydb --mysql-user=user --mysql-password=pass cleanup
+sysbench oltp_read_write --config-file=sysbench.cfg --mysql-db=mydb cleanup
 ```
 
 ---
@@ -341,8 +304,6 @@ sysbench oltp_read_write --mysql-db=mydb --mysql-user=user --mysql-password=pass
 ## Comparing Implementations
 
 ### A/B Performance Testing
-
-**Compare two implementations:**
 
 **Python:**
 ```python
@@ -405,8 +366,6 @@ go test -bench=. -benchmem
 
 ### Regression Detection
 
-**Automated regression testing:**
-
 **GitHub Actions (Go benchmarks):**
 ```yaml
 name: Benchmark
@@ -416,6 +375,8 @@ on: [push, pull_request]
 jobs:
   benchmark:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
@@ -424,7 +385,7 @@ jobs:
         run: go test -bench=. -benchmem | tee benchmark.txt
 
       - name: Store benchmark result
-        uses: benchmark-action/github-action-benchmark@v1
+        uses: benchmark-action/github-action-benchmark@v1  # pin to a full commit SHA
         with:
           tool: 'go'
           output-file-path: benchmark.txt
@@ -438,7 +399,7 @@ jobs:
 
 ### Pitfall 1: Not Warming Up
 
-**Problem:** First run slower due to JIT compilation, caching.
+**Problem:** First run slower (JIT compilation, caching).
 
 ```python
 # Bad: Cold start measured
@@ -480,7 +441,7 @@ func BenchmarkSum(b *testing.B) {
 
 ### Pitfall 3: Unrealistic Inputs
 
-**Problem:** Benchmarking with trivial data.
+**Problem:** Trivial data.
 
 ```python
 # Bad: Tiny input (not representative)
@@ -492,7 +453,7 @@ timeit.timeit(lambda: sorted(list(range(10000, 0, -1))), number=1000)
 
 ### Pitfall 4: Measuring Setup Time
 
-**Problem:** Including setup in benchmark.
+**Problem:** Setup counted in benchmark.
 
 ```python
 # Bad: Includes list creation time
@@ -529,8 +490,8 @@ print(f'Mean: {mean:.4f}s, StdDev: {stddev:.4f}s')
 ## Benchmarking Checklist
 
 ### Before Benchmarking
-- [ ] Define what you're measuring (specific operation)
-- [ ] Prepare realistic inputs (production-like data)
+- [ ] Define what to measure (specific operation)
+- [ ] Use realistic inputs (production-like data)
 - [ ] Isolate variables (one change at a time)
 - [ ] Close other applications (reduce noise)
 
@@ -541,7 +502,7 @@ print(f'Mean: {mean:.4f}s, StdDev: {stddev:.4f}s')
 - [ ] Measure only relevant code (exclude setup)
 
 ### After Benchmarking
-- [ ] Calculate statistics (mean, stddev, percentiles)
-- [ ] Compare against baseline (regression detection)
-- [ ] Document results (for future reference)
+- [ ] Compute statistics (mean, stddev, percentiles)
+- [ ] Compare to baseline (regression detection)
+- [ ] Document results
 - [ ] Validate in production (synthetic ≠ real-world)

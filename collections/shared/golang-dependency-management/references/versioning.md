@@ -2,9 +2,9 @@
 
 ## Semantic Versioning (SemVer)
 
-Go modules use **`vMAJOR.MINOR.PATCH`** (the `v` prefix is required):
+Go modules use **`vMAJOR.MINOR.PATCH`** (`v` prefix required):
 
-- **MAJOR**: Breaking changes to the public API
+- **MAJOR**: Breaking changes to public API
 - **MINOR**: Backward-compatible new functionality
 - **PATCH**: Backward-compatible bug fixes
 
@@ -18,7 +18,7 @@ Go modules use **`vMAJOR.MINOR.PATCH`** (the `v` prefix is required):
 
 ### Major Version Suffix Rule
 
-For `v2` and above, the module path must include a `/vN` suffix. This is Go's import compatibility rule — different major versions are treated as entirely separate modules, allowing them to coexist in the same build:
+For `v2` and above, module path must include `/vN` suffix. Go's import compatibility rule treats different major versions as entirely separate modules, so they can coexist in one build:
 
 ```go
 // go.mod
@@ -28,30 +28,27 @@ module github.com/example/pkg/v2
 import "github.com/example/pkg/v2/subpkg"
 ```
 
-Tags: `v2.0.0`, `v2.1.0`, etc. The `v0` and `v1` versions have no suffix.
+Tags: `v2.0.0`, `v2.1.0`, etc. `v0` and `v1` have no suffix.
 
 ### Special Cases
 
 - **Pseudo-versions**: For untagged commits — `v0.0.0-20210101120000-abcdef123456` (base version + timestamp + commit hash)
-- **`+incompatible`**: Marks `v2+` modules that have not adopted the `/vN` path convention
-- **`gopkg.in`**: Always uses a version suffix with a dot — `gopkg.in/yaml.v3`
+- **`+incompatible`**: Marks `v2+` modules that have not adopted `/vN` path convention
+- **`gopkg.in`**: Always uses version suffix with dot — `gopkg.in/yaml.v3`
 
 ## Minimal Version Selection (MVS)
 
-Go's dependency resolution algorithm is fundamentally different from npm, pip, or cargo.
-
 ### How It Works
 
-Most package managers select the **latest** compatible version of each dependency. Go does the opposite: it selects the **minimum version that satisfies all requirements**. If module A requires `pkg@v1.2.0` and module B requires `pkg@v1.3.0`, MVS selects `v1.3.0` — the highest minimum required, not the latest available.
+Most package managers (npm, pip, cargo) pick **latest** compatible version of each dependency. Go instead picks **minimum version that satisfies all requirements**. If module A requires `pkg@v1.2.0` and module B requires `pkg@v1.3.0`, MVS selects `v1.3.0`: highest minimum required, not latest available.
 
 ### Why This Design
 
-- **Deterministic without a lock file**: Given the same `go.mod` inputs, MVS always produces the same build list. `go.sum` is just integrity verification.
-- **High fidelity**: Builds closely match what module authors tested against, since the nearest compatible version is selected rather than the latest.
-- **No solver needed**: The algorithm is simple graph traversal (under 50 lines of code), not an NP-hard constraint satisfaction problem.
-- **Reproducible across machines**: No "works on my machine" from different lock file states.
+- **Deterministic without a lock file**: Same `go.mod` inputs always yield same build list; `go.sum` only verifies integrity.
+- **High fidelity**: Builds closely match what module authors tested, since MVS picks nearest compatible version, not latest.
+- **No solver needed**: Simple graph traversal (under 50 lines of code), not NP-hard constraint satisfaction.
 
 ### Upgrades and Downgrades
 
-- **Upgrade**: `go get pkg@v1.5.0` adds an edge to `v1.5.0` in the module graph and reruns MVS. Only the minimum necessary changes propagate.
-- **Downgrade**: `go get pkg@v1.2.0` removes all versions above `v1.2.0` from the graph, then walks backward to find the latest remaining versions of affected dependencies.
+- **Upgrade**: `go get pkg@v1.5.0` adds edge to `v1.5.0` in graph and reruns MVS. Only minimum necessary changes propagate.
+- **Downgrade**: `go get pkg@v1.2.0` removes all versions above `v1.2.0` from graph, then walks back to latest remaining versions of affected dependencies.

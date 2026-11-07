@@ -5,20 +5,16 @@ description: "Implement API servers in code: choose and scaffold FastAPI, Hono, 
 
 # API Patterns Skill
 
-## Purpose
-
-Design and implement APIs using the optimal pattern and framework for the use case. Choose between REST, GraphQL, gRPC, and tRPC based on API consumers, performance requirements, and type safety needs.
-
 ## When to Use This Skill
 
 Use when:
-- Building backend APIs for web, mobile, or service consumers
+- Building backend APIs for web, mobile or service consumers
 - Connecting frontend components (forms, tables, dashboards) to databases
-- Implementing pagination, rate limiting, or caching strategies
-- Generating OpenAPI documentation automatically
-- Choosing between REST, GraphQL, gRPC, or tRPC patterns
+- Adding pagination, rate limiting or caching
+- Generating OpenAPI docs automatically
+- Choosing between REST, GraphQL, gRPC or tRPC
 - Integrating authentication and authorization
-- Optimizing API performance and scalability
+- Tuning API performance and scalability
 
 ## Quick Decision Framework
 
@@ -71,7 +67,7 @@ async def create_item(item: Item):
     return {"id": 1, **item.model_dump()}
 ```
 
-See `references/rest-design-principles.md` for FastAPI patterns and `examples/python-fastapi/`.
+FastAPI patterns: `references/rest-design-principles.md` and `examples/python-fastapi/`.
 
 ### TypeScript: Hono (Edge-First)
 
@@ -89,7 +85,7 @@ app.post('/items', zValidator('json', z.object({
 })), (c) => c.json({ id: 1, ...c.req.valid('json') }))
 ```
 
-See `references/rest-design-principles.md` for Hono patterns and `examples/typescript-hono/`.
+Hono patterns: `references/rest-design-principles.md` and `examples/typescript-hono/`.
 
 ### TypeScript: tRPC (Full-Stack Type Safety)
 
@@ -109,7 +105,7 @@ export const appRouter = t.router({
 export type AppRouter = typeof appRouter
 ```
 
-See `references/trpc-setup-guide.md` for setup patterns and `examples/typescript-trpc/`.
+Setup patterns: `references/trpc-setup-guide.md` and `examples/typescript-trpc/`.
 
 ### Rust: Axum (High Performance)
 
@@ -131,7 +127,7 @@ async fn create_item(Json(payload): Json<CreateItem>) -> Json<Item> {
 }
 ```
 
-See `references/rest-design-principles.md` for Axum patterns and `examples/rust-axum/`.
+Axum patterns: `references/rest-design-principles.md` and `examples/rust-axum/`.
 
 ### Go: Gin (Mature Ecosystem)
 
@@ -154,20 +150,20 @@ r.POST("/items", func(c *gin.Context) {
 })
 ```
 
-See `references/rest-design-principles.md` for Gin patterns and `examples/go-gin/`.
+Gin patterns: `references/rest-design-principles.md` and `examples/go-gin/`.
 
 ## Performance Benchmarks
 
 | Language | Framework | Relative throughput | Best For |
 |----------|-----------|---------------------|----------|
-| Rust | Actix-web / Axum | Highest | Maximum throughput, low memory |
+| Rust | Actix-web / Axum | Highest | Max throughput, low memory |
 | Go | Gin | High | Mature ecosystem |
 | TypeScript | Hono | Medium-high (runtime-dependent) | Edge deployment |
 | Python | FastAPI | Medium | Developer experience |
 | TypeScript | Express | Lower | Legacy systems |
 
 **Notes:**
-- This is a rough ordering, not measured numbers; published benchmarks (e.g. TechEmpower) vary widely by workload, runtime and configuration
+- Rough ordering, not measured numbers. Published benchmarks (e.g. TechEmpower) vary widely by workload, runtime and configuration
 - Benchmark your own workload before choosing a framework for performance reasons
 - Database and network I/O usually dominate real request latency
 
@@ -194,9 +190,9 @@ async def list_items(cursor: Optional[int] = None, limit: int = 20):
 
 ### Offset-Based (Simple Cases Only)
 
-Use only for static datasets (<10k records) with direct page access needs.
+Use only for static datasets (<10k records) that need direct page access.
 
-See `references/pagination-patterns.md` for complete patterns and frontend integration.
+Full patterns and frontend integration: `references/pagination-patterns.md`.
 
 ## OpenAPI Documentation
 
@@ -218,8 +214,8 @@ async def create_item(item: Item) -> Item:
 # Docs at /docs, /redoc, /openapi.json
 ```
 
-See `references/openapi-documentation.md` for framework-specific setup.
-Use `scripts/generate_openapi.py` to extract specs programmatically.
+Framework-specific setup: `references/openapi-documentation.md`.
+Extract specs programmatically with `scripts/generate_openapi.py`.
 
 ## Frontend Integration Patterns
 
@@ -271,7 +267,7 @@ const es = new EventSource(`/api/chat?message=${encodeURIComponent(message)}`)
 es.addEventListener('message', (e) => appendToChat(e.data))
 ```
 
-See `examples/` for complete integration examples with each frontend skill.
+Full integration examples per frontend skill: `examples/`.
 
 ## Rate Limiting
 
@@ -289,11 +285,9 @@ async def list_items():
     return {"items": []}
 ```
 
-See `references/rate-limiting-strategies.md` for sliding window, distributed patterns, and Redis implementation.
+Sliding window, distributed patterns and Redis implementation: `references/rate-limiting-strategies.md`.
 
 ## GraphQL Libraries
-
-Use when frontend needs flexible data fetching or mobile apps have bandwidth constraints.
 
 **By Language:**
 - **Python**: Strawberry (type-hint-based, async)
@@ -301,12 +295,12 @@ Use when frontend needs flexible data fetching or mobile apps have bandwidth con
 - **Go**: gqlgen (code generation from schema)
 - **TypeScript**: Pothos (type-safe builder, no codegen)
 
-See `references/graphql-schema-design.md` for schema patterns and N+1 prevention.
-See `examples/graphql-strawberry/` for complete Python example.
+Schema patterns and N+1 prevention: `references/graphql-schema-design.md`.
+Full Python example: `examples/graphql-strawberry/`.
 
 ## gRPC for Microservices
 
-Use for service-to-service communication with strong typing and high performance.
+Use for service-to-service calls needing strong typing and high performance.
 
 **By Language:**
 - **Rust**: Tonic (async, type-safe, code generation)
@@ -314,8 +308,8 @@ Use for service-to-service communication with strong typing and high performance
 - **Python**: grpcio (official implementation)
 - **TypeScript**: @connectrpc/connect (browser + Node.js)
 
-See `references/grpc-protobuf-guide.md` for Protocol Buffers guide.
-See `examples/grpc-tonic/` for complete Rust example.
+Protocol Buffers guide: `references/grpc-protobuf-guide.md`.
+Full Rust example: `examples/grpc-tonic/`.
 
 ## Additional Resources
 
@@ -324,9 +318,9 @@ See `examples/grpc-tonic/` for complete Rust example.
 - `references/graphql-schema-design.md` - Schema patterns, resolver optimization, N+1 prevention
 - `references/grpc-protobuf-guide.md` - Proto3 syntax, service definitions, streaming
 - `references/trpc-setup-guide.md` - Router patterns, middleware, Zod validation
-- `references/pagination-patterns.md` - Cursor vs offset with mathematical explanation
+- `references/pagination-patterns.md` - Cursor vs offset with math explanation
 - `references/rate-limiting-strategies.md` - Token bucket, sliding window, Redis
-- `references/caching-patterns.md` - HTTP caching, application caching strategies
+- `references/caching-patterns.md` - HTTP caching, application caching
 - `references/versioning-strategies.md` - URI, header, media type versioning
 - `references/openapi-documentation.md` - Swagger/OpenAPI best practices by framework
 
@@ -335,22 +329,12 @@ See `examples/grpc-tonic/` for complete Rust example.
 - `scripts/validate_api_spec.py` - Validate OpenAPI 3.1 compliance
 - `scripts/benchmark_endpoints.py` - Load test API endpoints
 
-### Examples
-- `examples/python-fastapi/` - Complete FastAPI REST API
-- `examples/typescript-hono/` - Hono edge-first API
-- `examples/typescript-trpc/` - tRPC E2E type-safe API
-- `examples/rust-axum/` - Axum REST API
-- `examples/go-gin/` - Gin REST API
-- `examples/graphql-strawberry/` - Python GraphQL
-- `examples/grpc-tonic/` - Rust gRPC
-
 ## Quick Reference
 
-**Choose REST when:** Public API, standard CRUD, need caching, OpenAPI docs required
-**Choose GraphQL when:** Frontend needs flexible queries, mobile bandwidth constraints, complex nested data
-**Choose gRPC when:** Service-to-service communication, high performance, bidirectional streaming
+**Choose REST when:** Public API, standard CRUD, caching needed, OpenAPI docs required
+**Choose GraphQL when:** Frontend needs flexible queries, mobile bandwidth limits, complex nested data
+**Choose gRPC when:** Service-to-service calls, high performance, bidirectional streaming
 **Choose tRPC when:** TypeScript full-stack, same team owns frontend + backend, E2E type safety
 
-**Pagination:** Always use cursor-based for production scale, offset-based only for simple cases
+**Pagination:** Always cursor-based at production scale, offset-based only for simple cases
 **Documentation:** Prefer frameworks with automatic OpenAPI generation (FastAPI, Hono)
-**Performance:** Rust (Axum) for max throughput, Go (Gin) for maturity, Python (FastAPI) for DX

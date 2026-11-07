@@ -4,7 +4,7 @@
  * Demonstrates: Baseline load testing to validate SLO compliance
  *
  * Usage:
- *   k6 run load-test.js
+ *   k6 run --no-usage-report load-test.js
  *
  * Scenario:
  *   - Ramp up to 20 virtual users over 30 seconds

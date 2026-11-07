@@ -5,16 +5,12 @@ description: "Choose a data platform architecture: lake vs warehouse vs lakehous
 
 # Data Architecture
 
-## Purpose
-
-Guide architects and platform engineers through strategic data architecture decisions for modern cloud-native data platforms.
-
 ## When to Use This Skill
 
-Invoke this skill when:
-- Designing a new data platform or modernizing legacy systems
-- Choosing between data lake, data warehouse, or data lakehouse
-- Deciding on data modeling approaches (dimensional, normalized, data vault, wide tables)
+Use when:
+- Designing new data platform or modernizing legacy systems
+- Choosing data lake, data warehouse or data lakehouse
+- Choosing data modeling approach (dimensional, normalized, data vault, wide tables)
 - Evaluating centralized vs data mesh architecture
 - Selecting open table formats (Apache Iceberg, Delta Lake, Apache Hudi)
 - Designing medallion architecture (bronze, silver, gold layers)
@@ -24,40 +20,49 @@ Invoke this skill when:
 
 ### 1. Storage Paradigms
 
-Three primary patterns for analytical data storage:
+Three patterns for analytical storage:
 
-**Data Lake:** Centralized repository for raw data at scale
+**Data Lake:** Central repository for raw data at scale
 - Schema-on-read, cost-optimized ($0.02-0.03/GB/month)
-- Use when: Diverse data sources, exploratory analytics, ML/AI training data
+- Use when: diverse sources, exploratory analytics, ML/AI training data
 
 **Data Warehouse:** Structured repository optimized for BI
 - Schema-on-write, ACID transactions, fast queries
-- Use when: Known BI requirements, strong governance needed
+- Use when: known BI requirements, strong governance needed
 
-**Data Lakehouse:** Hybrid combining lake flexibility with warehouse reliability
+**Data Lakehouse:** Hybrid of lake flexibility and warehouse reliability
 - Open table formats (Iceberg, Delta Lake), ACID on object storage
-- Use when: Mixed BI + ML workloads, cost optimization (60-80% cheaper than warehouse)
+- Use when: mixed BI + ML workloads, cost optimization (60-80% cheaper than warehouse)
 
-**Decision Framework:**
+**Step 1: Identify Primary Use Case**
 - BI/Reporting only + Known queries → Data Warehouse
 - ML/AI primary + Raw data needed → Data Lake or Lakehouse
 - Mixed BI + ML + Cost optimization → Data Lakehouse (recommended)
 - Exploratory/Unknown use cases → Data Lake
 
-For detailed comparison, see [references/storage-paradigms.md](references/storage-paradigms.md).
+**Step 2: Evaluate Budget**
+- High budget, known queries → Data Warehouse
+- Cost-sensitive, flexible → Data Lakehouse
+
+**By Org Size:**
+- Startup (<50): Data Warehouse (simplicity)
+- Growth (50-500): Data Lakehouse (balance)
+- Enterprise (>500): Hybrid or unified Lakehouse
+
+Comparison: [references/storage-paradigms.md](references/storage-paradigms.md). All 4 decision frameworks in detail: [references/decision-frameworks.md](references/decision-frameworks.md).
 
 ### 2. Data Modeling Approaches
 
-Four primary modeling patterns:
+Four modeling patterns:
 
 **Dimensional (Kimball):** Star/snowflake schemas for BI
-- Use when: Known query patterns, BI dashboards, trend analysis
+- Use when: known query patterns, BI dashboards, trend analysis
 
-**Normalized (3NF):** Eliminate redundancy for transactional systems
+**Normalized (3NF):** Removes redundancy for transactional systems
 - Use when: OLTP systems, frequent updates, strong consistency
 
-**Data Vault 2.0:** Flexible model with complete audit trail
-- Use when: Compliance requirements, multiple sources, agile warehousing
+**Data Vault 2.0:** Flexible model, complete audit trail
+- Use when: compliance requirements, multiple sources, agile warehousing
 
 **Wide Tables:** Denormalized, optimized for columnar storage
 - Use when: ML feature stores, data science notebooks, high-performance dashboards
@@ -68,7 +73,7 @@ Four primary modeling patterns:
 - Compliance/Audit → Data Vault 2.0
 - Data Science/ML → Wide Tables
 
-For detailed patterns, see [references/modeling-approaches.md](references/modeling-approaches.md).
+Patterns: [references/modeling-approaches.md](references/modeling-approaches.md).
 
 ### 3. Data Mesh Principles
 
@@ -76,7 +81,7 @@ Decentralized architecture for large organizations (>500 people).
 
 **Four Core Principles:**
 1. Domain-oriented decentralization
-2. Data as a product (SLAs, quality, documentation)
+2. Data as product (SLAs, quality, documentation)
 3. Self-serve data infrastructure
 4. Federated computational governance
 
@@ -92,13 +97,13 @@ Decentralized architecture for large organizations (>500 people).
 
 **Red Flags:** Small org (<100 people), unclear domains, no platform team, weak governance
 
-For full guide, see [references/data-mesh-guide.md](references/data-mesh-guide.md).
+Full guide: [references/data-mesh-guide.md](references/data-mesh-guide.md).
 
 ### 4. Medallion Architecture
 
 Standard lakehouse pattern: Bronze (raw) → Silver (cleaned) → Gold (business-level)
 
-**Bronze Layer:** Exact copy of source data, immutable, append-only
+**Bronze Layer:** Exact source copy, immutable, append-only
 
 **Silver Layer:** Validated, deduplicated, typed data
 
@@ -109,24 +114,24 @@ Standard lakehouse pattern: Bronze (raw) → Silver (cleaned) → Gold (business
 - Silver → Gold: Business rule validation, referential integrity
 - Gold: Anomaly detection, statistical checks
 
-For patterns, see [references/medallion-pattern.md](references/medallion-pattern.md).
+Patterns: [references/medallion-pattern.md](references/medallion-pattern.md).
 
 ### 5. Open Table Formats
 
-Enable ACID transactions on data lakes:
+Add ACID transactions to data lakes:
 
 **Apache Iceberg:** Multi-engine, vendor-neutral (Context7: 79.7 score)
-- Use when: Avoid vendor lock-in, multi-engine flexibility
+- Use when: avoiding vendor lock-in, multi-engine flexibility
 
 **Delta Lake:** Databricks ecosystem, Spark-optimized
-- Use when: Committed to Databricks
+- Use when: committed to Databricks
 
 **Apache Hudi:** Optimized for CDC and frequent upserts
 - Use when: CDC-heavy workloads
 
 **Recommendation:** Apache Iceberg for new projects (vendor-neutral, broadest support)
 
-For comparison, see [references/table-formats.md](references/table-formats.md).
+Comparison: [references/table-formats.md](references/table-formats.md).
 
 ### 6. Modern Data Stack
 
@@ -143,7 +148,7 @@ For comparison, see [references/table-formats.md](references/table-formats.md).
 - Snowflake vs Databricks: BI-focused vs ML-focused
 - dbt vs Spark: SQL-based vs large-scale processing
 
-For detailed recommendations, see [references/tool-recommendations.md](references/tool-recommendations.md) and [references/modern-data-stack.md](references/modern-data-stack.md).
+Details: [references/tool-recommendations.md](references/tool-recommendations.md), [references/modern-data-stack.md](references/modern-data-stack.md).
 
 ### 7. Data Governance
 
@@ -158,109 +163,21 @@ For detailed recommendations, see [references/tool-recommendations.md](reference
 - ABAC: Attribute-based (row-level security)
 - Column-level: Dynamic data masking for PII
 
-For governance patterns, see [references/governance-patterns.md](references/governance-patterns.md).
-
-## Decision Frameworks
-
-### Framework 1: Storage Paradigm Selection
-
-**Step 1: Identify Primary Use Case**
-- BI/Reporting only → Data Warehouse
-- ML/AI primary → Data Lake or Lakehouse
-- Mixed BI + ML → Data Lakehouse
-- Exploratory → Data Lake
-
-**Step 2: Evaluate Budget**
-- High budget, known queries → Data Warehouse
-- Cost-sensitive, flexible → Data Lakehouse
-
-**Recommendation by Org Size:**
-- Startup (<50): Data Warehouse (simplicity)
-- Growth (50-500): Data Lakehouse (balance)
-- Enterprise (>500): Hybrid or unified Lakehouse
-
-See [references/decision-frameworks.md](references/decision-frameworks.md#storage-paradigm).
-
-### Framework 2: Data Modeling Approach
-
-**Decision Tree:**
-- Analytical (BI) workload → Dimensional or Wide Tables
-- Transactional (OLTP) → Normalized (3NF)
-- Compliance/Audit → Data Vault 2.0
-- Data Science/ML → Wide Tables
-
-See [references/decision-frameworks.md](references/decision-frameworks.md#modeling-approach).
-
-### Framework 3: Data Mesh Readiness
-
-Use 6-factor assessment. Score interpretation:
-- 24-30: Proceed with data mesh
-- 18-23: Hybrid approach
-- 12-17: Build foundation first
-- 6-11: Centralized
-
-See [references/decision-frameworks.md](references/decision-frameworks.md#data-mesh-readiness).
-
-### Framework 4: Open Table Format Selection
-
-**Decision Tree:**
-- Multi-engine flexibility → Apache Iceberg
-- Databricks ecosystem → Delta Lake
-- Frequent upserts/CDC → Apache Hudi
-
-**Recommendation:** Apache Iceberg for new projects
-
-See [references/decision-frameworks.md](references/decision-frameworks.md#table-format).
+Patterns: [references/governance-patterns.md](references/governance-patterns.md).
 
 ## Common Scenarios
 
-### Startup Data Platform
+- **Startup** (50 people; PostgreSQL + MongoDB + Stripe): simple data warehouse. BigQuery or Snowflake, Airbyte or Fivetran, dbt, orchestration in dbt Cloud.
+- **Enterprise modernization** (legacy Oracle warehouse, cloud migration): Data Lakehouse (Databricks or Snowflake with Iceberg), incremental migration with CDC, medallion (bronze, silver, gold). Cost savings: 60-80%.
+- **Data mesh assessment** (200 people, 5-person central data team): NOT YET, build foundation first. Org too small (<500 recommended), central team not yet bottleneck; invest in self-serve platform and governance.
 
-**Context:** 50-person startup, PostgreSQL + MongoDB + Stripe
-
-**Recommendation:**
-- Storage: BigQuery or Snowflake
-- Ingestion: Airbyte or Fivetran
-- Transformation: dbt
-- Orchestration: dbt Cloud
-- Architecture: Simple data warehouse
-
-See [references/scenarios.md](references/scenarios.md#startup).
-
-### Enterprise Modernization
-
-**Context:** Legacy Oracle warehouse, need cloud migration
-
-**Recommendation:**
-- Storage: Data Lakehouse (Databricks or Snowflake with Iceberg)
-- Strategy: Incremental migration with CDC
-- Architecture: Medallion (bronze, silver, gold)
-- Cost Savings: 60-80%
-
-See [references/scenarios.md](references/scenarios.md#enterprise-modernization).
-
-### Data Mesh Assessment
-
-**Context:** 200-person company, 5-person central data team
-
-**Recommendation:** NOT YET. Build foundation first.
-- Organization too small (<500 recommended)
-- Central team not yet bottleneck
-- Invest in self-serve platform and governance
-
-See [references/scenarios.md](references/scenarios.md#data-mesh).
+Details: [references/scenarios.md](references/scenarios.md).
 
 ## Tool Recommendations
 
-### Research-Validated (Context7, December 2025)
-
-**dbt:** Score 87.0, 3,532+ code snippets
-- SQL-based transformations, version control, testing
-- Industry standard for data transformation
-
-**Apache Iceberg:** Score 79.7, 832+ code snippets
-- Open table format, multi-engine, vendor-neutral
-- Production-ready (Netflix, Apple, Adobe)
+**Research-validated (Context7, December 2025):**
+- **dbt:** Score 87.0, 3,532+ code snippets. SQL-based transformations, version control, testing; industry standard for transformation.
+- **Apache Iceberg:** Score 79.7, 832+ code snippets. Open table format, multi-engine, vendor-neutral; production-ready (Netflix, Apple, Adobe).
 
 **Tool Stack by Use Case:**
 
@@ -316,44 +233,38 @@ cleaned AS (
 SELECT * FROM cleaned
 ```
 
-For complete examples, see [examples/](examples/).
+Full examples: [examples/](examples/).
 
 ## Best Practices
 
 1. **Start simple:** Avoid over-engineering; begin with warehouse or basic lakehouse
 2. **Invest in governance early:** Catalog, lineage, quality from day one
-3. **Medallion architecture:** Use bronze-silver-gold for clear quality layers
-4. **Open table formats:** Prefer Iceberg or Delta Lake to avoid vendor lock-in
-5. **Assess mesh readiness:** Don't decentralize prematurely (<500 people)
-6. **Automate quality:** Integrate tests (Great Expectations, dbt) into CI/CD
-7. **Monitor pipelines:** Observability is critical (freshness, quality, health)
-8. **Document as code:** Use dbt docs, DataHub, YAML for self-service
-9. **Incremental loading:** Only load new/changed data (watermark columns)
-10. **Business alignment:** Align architecture to outcomes, not just technologies
+3. **Assess mesh readiness:** Don't decentralize prematurely (<500 people)
+4. **Automate quality:** Run tests (Great Expectations, dbt) in CI/CD
+5. **Monitor pipelines:** Observability critical (freshness, quality, health)
+6. **Document as code:** dbt docs, DataHub, YAML for self-service
+7. **Incremental loading:** Only load new/changed data (watermark columns)
 
 ## Anti-Patterns
 
 - ❌ Data swamp: Lake without governance or cataloging
-- ❌ Premature mesh: Mesh before organizational readiness
 - ❌ Tool sprawl: Too many tools without integration
-- ❌ No quality checks: "Garbage in, garbage out"
 - ❌ Centralized bottleneck: Single team in large org (>500 people)
 - ❌ Vendor lock-in: Proprietary formats without migration path
 - ❌ No lineage: Can't answer "where did this come from?"
-- ❌ Over-engineering: Complex architecture for simple use cases
 
 ## Integration with Other Skills
 
 **Direct dependencies:**
 - **ingesting-data:** ETL/ELT mechanics, Fivetran, Airbyte, dlt implementation
 - **data-engineering-data-pipeline:** Orchestration (Airflow/Prefect), dbt transformations, data-quality gates, table maintenance
-- **using-message-queues:** Kafka and other brokers feeding real-time pipelines
+- **using-message-queues:** Kafka and other brokers for real-time pipelines
 
 **Complementary:**
 - **using-relational-databases:** PostgreSQL, MySQL as source systems
 - **using-document-databases:** MongoDB, DynamoDB as sources
 - **database-design:** Operational (OLTP) schema and HA/DR decisions
-- **observability-and-instrumentation:** Monitoring pipeline health and data-quality metrics
+- **observability-and-instrumentation:** Pipeline health and data-quality monitoring
 
 **Downstream:**
 - **visualizing-data:** BI and dashboard patterns
@@ -375,7 +286,7 @@ data-engineering-data-pipeline (dbt features, Iceberg/Delta maintenance)
 ## Further Reading
 
 **Reference Files:**
-- [decision-frameworks.md](references/decision-frameworks.md) - All 4 decision frameworks in detail
+- [decision-frameworks.md](references/decision-frameworks.md) - All 4 decision frameworks, detailed
 - [storage-paradigms.md](references/storage-paradigms.md) - Lake vs warehouse vs lakehouse
 - [modeling-approaches.md](references/modeling-approaches.md) - Dimensional, normalized, data vault, wide
 - [data-mesh-guide.md](references/data-mesh-guide.md) - Data mesh principles and implementation

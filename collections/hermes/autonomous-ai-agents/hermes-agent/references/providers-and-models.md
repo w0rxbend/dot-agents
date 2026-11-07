@@ -1,7 +1,7 @@
 # Providers & Model Aliases
 
 Set via `hermes model` (picker) or `hermes setup`. 35+ provider profiles ship as
-plugins under `plugins/model-providers/`; user plugins of the same name override.
+plugins under `plugins/model-providers/`; user plugins of same name override.
 Full docs: https://hermes-agent.nousresearch.com/docs/integrations/providers
 
 ### Providers
@@ -27,16 +27,16 @@ Full docs: https://hermes-agent.nousresearch.com/docs/integrations/providers
 | huggingface | Token | `HF_TOKEN` |
 | fireworks / novita / nvidia / deepinfra / gmi / arcee / stepfun / upstage / kilocode / ai-gateway / opencode-zen / opencode-go / ollama-cloud | API key | `<NAME>_API_KEY` |
 | bedrock / vertex / azure-foundry | Cloud SDK / key | AWS SDK creds / Vertex ADC / `AZURE_FOUNDRY_API_KEY` |
-| custom | Config | `model.base_url` + `model.api_key` in config.yaml |
+| custom | Config | `model.base_url` + `model.api_key: "${VAR}"` in config.yaml (key in `.env`) |
 
-Multiple credentials per provider pool and rotate automatically (`hermes auth`).
-Fallback chain when the primary fails: `hermes fallback add|remove|list`.
+Multiple credentials per provider pool, rotate automatically (`hermes auth`).
+Fallback chain when primary fails: `hermes fallback add|remove|list`.
 
 ### User-defined model aliases
 
 Work with `/model <name>` in CLI and every gateway platform. Resolved by
-`hermes_cli/model_switch.py::resolve_alias()`; user aliases are checked BEFORE
-the built-in table, so a user `sonnet`/`grok` shadows the built-in.
+`hermes_cli/model_switch.py::resolve_alias()`. User aliases checked BEFORE
+built-in table: user `sonnet`/`grok` shadows built-in.
 
 ```yaml
 # Full form
@@ -63,12 +63,11 @@ model:
 
 `/model fav` — session-scoped; add `--global` to persist as default.
 
-An alias with its own `base_url` authenticates with its own credential
-(`api_key`, which also accepts a `"${VAR}"` reference, or `key_env`). With
-neither set the key is resolved from the alias HOST, never carried over from
-the provider that was active before the switch.
+Alias with own `base_url` uses own credential: `api_key` (accepts
+`"${VAR}"` reference) or `key_env`. Neither set: key resolves from alias
+HOST, never carried over from previously active provider.
 
-Built-in aliases (catalog-resolved against the active provider): `sonnet`,
+Built-in aliases (catalog-resolved against active provider): `sonnet`,
 `opus`, `haiku`, `claude`, `gpt5`, `gpt`, `codex`, `o3`, `o4`, `gemini`,
 `deepseek`, `grok`, `llama`, `qwen`, `minimax`, `nemotron`, `kimi`, `glm`,
 `step`, `mimo`, `trinity`.

@@ -1,21 +1,6 @@
 # Functional Programming in React - Detailed Guide
 
-## Quick Reference
-
-| Pattern | Use When |
-|---------|----------|
-| `Option` | Value might be missing (user not loaded yet) |
-| `Either` | Operation might fail (form validation) |
-| `TaskEither` | Async operation might fail (API calls) |
-| `RemoteData` | Need to show loading/error/success states |
-| `pipe` | Chaining multiple transformations |
-
----
-
-
 ## 1. State with Option (Maybe It's There, Maybe Not)
-
-Use `Option` instead of `null | undefined` for clearer intent.
 
 ### Basic Pattern
 
@@ -86,12 +71,9 @@ function getTheme(profile: Profile): string {
 }
 ```
 
----
-
-
 ## 2. Form Validation with Either
 
-Either is perfect for validation: `Left` = errors, `Right` = valid data.
+Either fits validation: `Left` = errors, `Right` = valid data.
 
 ### Simple Form Validation
 
@@ -220,12 +202,7 @@ function validateFormWithFieldErrors(form: SignupForm): E.Either<FieldErrors, Va
 {errors.email && <span className="error">{errors.email}</span>}
 ```
 
----
-
-
 ## 3. Data Fetching with TaskEither
-
-TaskEither = async operation that might fail. Perfect for API calls.
 
 ### Basic Fetch Hook
 
@@ -326,12 +303,7 @@ const fetchDashboardData = () => pipe(
 )
 ```
 
----
-
-
 ## 4. RemoteData Pattern (The Right Way to Handle Async State)
-
-Stop using `{ data, loading, error }` booleans. Use a proper state machine.
 
 ### The Pattern
 
@@ -419,12 +391,7 @@ type GoodState = RemoteData<Error, User>
 // Can only be: NotAsked | Loading | Failure | Success
 ```
 
----
-
-
 ## 5. Referential Stability (Preventing Re-renders)
-
-fp-ts values like `O.some(1)` create new objects each render. React sees them as "changed".
 
 ### The Problem
 
@@ -484,12 +451,7 @@ function StableComponent() {
 }
 ```
 
----
-
-
 ## 6. Dependency Injection with Context
-
-Use ReaderTaskEither for testable components with injected dependencies.
 
 ### Setup Dependencies
 
@@ -570,9 +532,6 @@ test('loads user on mount', async () => {
   expect(mockDeps.api.getUser).toHaveBeenCalledWith('1')
 })
 ```
-
----
-
 
 ## 7. React 19 Patterns
 
@@ -688,9 +647,6 @@ function TodoList({ todos }: { todos: Todo[] }) {
 }
 ```
 
----
-
-
 ## 8. Common Patterns Cheat Sheet
 
 ### Render Based on Option
@@ -767,13 +723,10 @@ const modalProps = {
 }
 ```
 
----
-
-
 ## Libraries
 
 - **[fp-ts](https://github.com/gcanti/fp-ts)** - Core library
 - **[fp-ts-react-stable-hooks](https://github.com/mblink/fp-ts-react-stable-hooks)** - Stable hooks
 - **[@devexperts/remote-data-ts](https://github.com/devexperts/remote-data-ts)** - RemoteData
 - **[io-ts](https://github.com/gcanti/io-ts)** - Runtime type validation
-- **[zod](https://github.com/colinhacks/zod)** - Schema validation (works great with fp-ts)
+- **[zod](https://github.com/colinhacks/zod)** - Schema validation (works with fp-ts)

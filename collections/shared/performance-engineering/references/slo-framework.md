@@ -13,18 +13,6 @@
 
 ## SLO Fundamentals
 
-### Definitions
-
-**SLI (Service Level Indicator):** Quantitative measure of service performance.
-- Examples: Response time (p95 latency), error rate, availability
-
-**SLO (Service Level Objective):** Target value for SLI.
-- Example: "p95 latency < 200ms" or "99.9% availability"
-
-**SLA (Service Level Agreement):** Customer-facing commitment with consequences.
-- Example: "99.99% uptime or customer gets refund"
-
-**Relationship:**
 ```
 SLI (what we measure) → SLO (internal target) → SLA (customer commitment)
 
@@ -33,25 +21,6 @@ SLI: p95 latency = 150ms
 SLO: p95 latency < 200ms (internal goal)
 SLA: p95 latency < 500ms (customer agreement)
 ```
-
-### Why SLOs Matter
-
-**Benefits:**
-1. **Objective Performance Targets:** No guessing, clear goals
-2. **Regression Detection:** Automated alerts when SLOs violated
-3. **Capacity Planning:** Know when to scale infrastructure
-4. **Prioritization:** Focus optimization efforts on SLO violations
-5. **Customer Expectations:** Align internal goals with user needs
-
-**Without SLOs:**
-- "The app feels slow" (subjective)
-- No objective way to detect regressions
-- Optimization efforts scattered
-
-**With SLOs:**
-- "p95 latency is 300ms, target is 200ms" (objective)
-- Automated alerts when threshold exceeded
-- Clear prioritization (fix SLO violations first)
 
 ---
 
@@ -69,15 +38,9 @@ p95: 50ms (accurate for 95% of users)
 p99: 5000ms (shows outlier issue)
 ```
 
-**Percentile definitions:**
-- **p50 (median):** 50% of requests faster, 50% slower
-- **p95:** 95% of requests faster (only 5% slower)
-- **p99:** 99% of requests faster (only 1% slower)
-- **p99.9:** 99.9% of requests faster (only 0.1% slower)
-
 **Which percentile to use?**
 - **p50:** Typical user experience (median)
-- **p95:** Good target for SLOs (balance performance and reliability)
+- **p95:** Good SLO target (balances performance and reliability)
 - **p99:** Stricter target for critical services
 - **p99.9:** Very strict (expensive to achieve)
 
@@ -85,24 +48,11 @@ p99: 5000ms (shows outlier issue)
 
 ### Availability
 
-**Definition:** Percentage of time service is operational.
-
 **Availability levels:**
 - **99%:** 3.65 days downtime/year (not acceptable for most services)
 - **99.9%:** 8.76 hours downtime/year
 - **99.99%:** 52.56 minutes downtime/year
 - **99.999%:** 5.26 minutes downtime/year (very expensive)
-
-**Calculation:**
-```
-Availability = (Uptime / Total Time) × 100
-
-Example:
-Total Time: 30 days = 43,200 minutes
-Downtime: 4 hours = 240 minutes
-Uptime: 43,200 - 240 = 42,960 minutes
-Availability: (42,960 / 43,200) × 100 = 99.44%
-```
 
 **Error Budget:**
 ```
@@ -118,8 +68,6 @@ Remaining Error Budget: 4.76 hours
 
 ### Throughput
 
-**Definition:** Requests per second (RPS) system can handle.
-
 **Why it matters:**
 - Capacity planning (how many servers needed?)
 - Load balancing (distribute traffic evenly)
@@ -133,22 +81,10 @@ Max Burst: 2,000 RPS for 5 minutes
 
 ### Error Rate
 
-**Definition:** Percentage of failed requests.
-
-**Types of errors:**
+**Error types:**
 - HTTP 5xx (server errors)
 - Timeouts (slow responses)
 - Connection failures
-
-**Calculation:**
-```
-Error Rate = (Failed Requests / Total Requests) × 100
-
-Example:
-Total Requests: 10,000
-Failed Requests: 5
-Error Rate: 0.05%
-```
 
 **Recommended SLO:**
 - **User-facing APIs:** < 0.1% error rate
@@ -184,7 +120,7 @@ User Research:
 ```
 
 **Step 3: Set Achievable Targets**
-At or slightly below the measured baseline (so the SLO is met from day one), aligned with user expectations; tighten as reliability improves.
+Set at or slightly below measured baseline, so SLO is met from day one. Align with user expectations. Tighten as reliability improves.
 
 ```
 SLOs:
@@ -195,12 +131,6 @@ SLOs:
 
 **Step 4: Iterate**
 Start conservative, tighten over time.
-
-```
-Quarter 1: p95 < 300ms (achievable)
-Quarter 2: p95 < 250ms (improvement)
-Quarter 3: p95 < 200ms (target)
-```
 
 ### SLO Hierarchy
 
@@ -303,7 +233,7 @@ export const options = {
 **Tools:**
 - **Prometheus:** Time-series metrics (latency, error rate, throughput)
 - **Grafana:** Visualization dashboards
-- **Datadog/New Relic:** Commercial APM solutions
+- **Datadog/New Relic:** Commercial APM
 
 **Example (Prometheus Metrics):**
 ```python
@@ -516,8 +446,8 @@ rationale:
 ### Review and Adjust
 
 **Monthly Review:**
-- Are we consistently meeting SLOs? (too easy, tighten)
-- Are we consistently missing SLOs? (too strict, relax)
+- Consistently meeting SLOs? Too easy; tighten.
+- Consistently missing SLOs? Too strict; relax.
 - Have user expectations changed?
 
 **Quarterly Adjustment:**
@@ -547,17 +477,17 @@ Priority: High (optimize to < 200ms)
 ## SLO Checklist
 
 ### Defining SLOs
-- [ ] Measure baseline performance (load tests or production metrics)
+- [ ] Measure baseline (load tests or production metrics)
 - [ ] Identify user expectations (user research, industry benchmarks)
-- [ ] Set targets at or slightly below the measured baseline; tighten later
+- [ ] Set targets at or slightly below measured baseline; tighten later
 - [ ] Define key metrics (latency, availability, error rate, throughput)
 - [ ] Prioritize endpoints (critical path stricter than background)
 
 ### Tracking SLOs
 - [ ] Collect metrics (Prometheus, Datadog, New Relic)
 - [ ] Build dashboards (Grafana, DataDog)
-- [ ] Set up alerts (violated SLOs)
-- [ ] Review weekly (SLO compliance)
+- [ ] Alert on violated SLOs
+- [ ] Review SLO compliance weekly
 - [ ] Adjust quarterly (tighten or relax based on performance)
 
 ### Enforcing SLOs

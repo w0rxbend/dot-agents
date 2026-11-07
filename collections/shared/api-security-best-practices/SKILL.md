@@ -8,32 +8,32 @@ date_added: "2026-02-27"
 
 # API Security Best Practices
 
-Review the request boundary from caller identity through authorization, validated
-input, storage and observable response. Preserve the application's actual identity
-provider and data model rather than introducing a second authentication system.
+Review request boundary: caller identity, authorization, validated input, storage,
+observable response. Keep app's actual identity provider and data model; do not add
+second authentication system.
 
 ## When to Use
 
-Use when adding a protected endpoint, reviewing object access, replacing permissive
-request parsing, or investigating an API abuse path. For a concrete defect, start
-with the failing route and its callers; do not deploy unrelated security infrastructure.
+Use when adding protected endpoint, reviewing object access, replacing permissive
+request parsing, or investigating API abuse path. For concrete defect, start at failing
+route and its callers. Do not deploy unrelated security infrastructure.
 
 ## Inputs and prerequisites
 
-Record the routes, caller/tenant model, identity provider, token contract, runtime and
-locked dependency versions, database schema, proxy topology and authorized test scope.
-Use synthetic identities in a test environment. Existing task authorization carries
-forward; production scans, account writes and message sends need their own authority.
-The Node examples below are integration sketches for Express, jsonwebtoken and Zod;
-application/database adapters are deliberately named rather than presented as a full
-runnable service. Confirm APIs against the installed versions before integrating.
+Record routes, caller/tenant model, identity provider, token contract, runtime, locked
+dependency versions, database schema, proxy topology, authorized test scope. Use
+synthetic identities in test environment. Existing task authorization carries forward.
+Production scans, account writes and message sends need own authority. Node examples
+below are integration sketches for Express, jsonwebtoken and Zod, not full runnable
+service: app/database adapters are only named. Confirm APIs against installed versions
+before integrating.
 
 ## 1. Authenticate the exact token contract
 
-Prefer the established provider/session middleware. When the service owns an HMAC
-JWT contract, require a strong server-owned key, a fixed algorithm, exact issuer and
-audience, and required runtime claims. Do not infer permissions from a decoded token
-before signature verification. Never accept a caller-selected verification algorithm.
+Prefer established provider/session middleware. If service owns HMAC JWT contract,
+require strong server-owned key, fixed algorithm, exact issuer and audience, required
+runtime claims. Do not infer permissions from decoded token before signature
+verification. Never accept caller-selected verification algorithm.
 
 ```javascript
 const jwt = require('jsonwebtoken');
@@ -60,32 +60,31 @@ function readBearer(header) {
 }
 ```
 
-Issue access tokens with the same issuer/audience/algorithm and a short application-
-approved expiration. Handle verification failure as a generic 401 without echoing the
-token or exception. Expiration alone does not revoke a token; define revocation or
-short-lived sessions according to the actual threat model. A service using asymmetric
-provider keys needs the provider's discovery/JWKS validation and key-rotation policy,
-not this HMAC example. Never reuse an access token as a refresh token.
+Issue access tokens with same issuer/audience/algorithm and short app-approved
+expiration. On verification failure, return generic 401 without echoing token or
+exception. Expiration alone does not revoke token: define revocation or short-lived
+sessions per actual threat model. Asymmetric provider keys need provider's
+discovery/JWKS validation and key-rotation policy, not this HMAC example. Never reuse
+access token as refresh token.
 
 ### Refresh sessions
 
-Use the provider's supported session flow or a server-side opaque refresh design:
-store only a digest, expiry, user/session family and revocation state. In one atomic
-transaction consume the old active token and create the replacement. Concurrent reuse
-must not issue two successors; defined reuse handling revokes the affected family.
-Check current user status and permissions when issuing new access tokens. Bind refresh
-to the intended client/session and protect cookie-based requests against CSRF. Do not
-log tokens, store them plaintext in a database, or return a refresh token through a URL.
-Test simultaneous refresh, expiry, replay, revocation and transaction failure before
-calling the flow complete. No database transaction adapter is bundled here.
+Use provider's supported session flow or server-side opaque refresh design. Store only
+digest, expiry, user/session family, revocation state. One atomic transaction consumes
+old active token and creates replacement. Concurrent reuse must not issue two
+successors; defined reuse handling revokes affected family. Recheck user status and
+permissions when issuing new access tokens. Bind refresh to intended client/session.
+Protect cookie-based requests against CSRF. Do not log tokens, store them plaintext in
+database, or return refresh token through URL. Before calling flow complete, test
+simultaneous refresh, expiry, replay, revocation and transaction failure. No database
+transaction adapter is bundled here.
 
 ## 2. Authorize the resource and operation
 
-Authentication identifies the caller; authorization decides the exact operation on
-an object and tenant. A role name does not automatically grant cross-tenant access.
-Apply the owner/tenant predicate in the database mutation to avoid a check-then-write
-race, and allowlist writable properties. Use 404/403 consistently with the product's
-resource-disclosure policy.
+Authentication identifies caller; authorization decides exact operation on object and
+tenant. Role name does not automatically grant cross-tenant access. Put owner/tenant
+predicate in database mutation to avoid check-then-write race. Allowlist writable
+properties. Use 404/403 consistently per product's resource-disclosure policy.
 
 ```javascript
 // Prisma-style sketch; id and tenant types must match your actual schema.
@@ -97,15 +96,15 @@ async function deleteOwnedPost(prisma, postId, principal) {
 }
 ```
 
-An administrator path needs an explicit separate policy and audit event; do not add
-an implicit admin bypass to every owner check. Test a valid user accessing another
-user's object, the same ID in another tenant, deleted memberships and bulk endpoints.
+Admin path needs explicit separate policy and audit event. Do not add implicit admin
+bypass to every owner check. Test: valid user on another user's object, same ID in
+another tenant, deleted memberships, bulk endpoints.
 
 ## 3. Parse once, then use the validated value
 
 Reject partial numeric parses (`12abc` is not ID 12), unsafe integers, unexpected
-properties and oversized requests. Use parameterized database queries. An ORM does
-not provide business authorization or make unsafe raw SQL safe.
+properties, oversized requests. Use parameterized database queries. ORM gives no
+business authorization and does not make unsafe raw SQL safe.
 
 ```javascript
 function parsePositiveId(raw) {
@@ -132,77 +131,77 @@ function validateBody(schema) {
 ```
 
 Set body limits before parsing. Zod shape validation is only one layer: check current
-ownership, allowed transitions and uniqueness in the transaction. For HTML allow only
-needed tags/attributes with a maintained sanitizer, then render with the destination's
-safe output API. For plain comments prefer plain text; sanitizing a string does not
-make it safe in every JavaScript, URL or HTML context. Validate upstream API responses
-as untrusted input too.
+ownership, allowed transitions and uniqueness in transaction. For HTML, allow only
+needed tags/attributes via maintained sanitizer, then render with destination's safe
+output API. Prefer plain text for plain comments. Sanitizing a string does not make it
+safe in every JavaScript, URL or HTML context. Validate upstream API responses as
+untrusted input too.
 
-For outbound URLs, define the allowed scheme/hosts, redirect behavior, resolved IP
-ranges, credentials policy, timeout and response size. A regex or a URL parser alone
-does not prevent SSRF or DNS rebinding. File uploads likewise need type/content checks,
-size limits, isolated storage and authorization on reads.
+For outbound URLs, define allowed scheme/hosts, redirect behavior, resolved IP ranges,
+credentials policy, timeout, response size. Regex or URL parser alone does not prevent
+SSRF or DNS rebinding. File uploads need type/content checks, size limits, isolated
+storage, authorization on reads.
 
 ## 4. Control abuse without claiming DDoS protection
 
-Use the existing gateway and maintained rate-limit store. Authenticate before deriving
-an authenticated-user key, and never trust a user-supplied tier. For anonymous traffic,
-use the library's supported IPv6-aware IP key handling and configure Express trust
-proxy to the actual trusted hops; do not blindly enable it for all callers.
+Use existing gateway and maintained rate-limit store. Authenticate before deriving
+authenticated-user key. Never trust user-supplied tier. For anonymous traffic, use
+library's supported IPv6-aware IP key handling. Set Express trust proxy to actual
+trusted hops; do not blindly enable it for all callers.
 
-For a distributed quota, use an atomic counter-plus-expiration implementation with
-defined store-outage behavior. Avoid a handwritten `INCR` followed by `EXPIRE`: a crash
-between them can leave a permanent key. Distinguish per-user quotas, per-IP abuse
-controls, concurrency limits and upstream service budgets. Record actual window/reset
-semantics and send an accurate Retry-After rather than a hardcoded full-window value.
-An in-memory limiter is per-process unless a shared store is configured.
+For distributed quota, use atomic counter-plus-expiration with defined store-outage
+behavior. Avoid handwritten `INCR` then `EXPIRE`: crash between them can leave
+permanent key. Separate per-user quotas, per-IP abuse controls, concurrency limits,
+upstream service budgets. Record actual window/reset semantics. Send accurate
+Retry-After, not hardcoded full-window value. In-memory limiter is per-process unless
+shared store is configured.
 
 Test concurrent requests, IPv4/IPv6, forged forwarding headers, unknown tiers, absent
-identity, Redis failure and expiration. Application rate limits cannot absorb network
-saturation. Helmet configures HTTP response headers; it is not DDoS protection, access
-control or a substitute for upstream capacity controls. Roll out CSP/HSTS against the
-actual deployment and subdomain policy; do not copy preload settings blindly.
+identity, Redis failure, expiration. App rate limits cannot absorb network saturation.
+Helmet sets HTTP response headers. It is not DDoS protection, access control or
+substitute for upstream capacity controls. Roll out CSP/HSTS against actual deployment
+and subdomain policy. Do not copy preload settings blindly.
 
 ## 5. Passwords, secrets and logging
 
-Use the established identity provider where possible. For stored passwords, use a
-maintained password-hashing scheme with calibrated parameters (prefer Argon2id for
-new designs). Check breached/common passwords and support passphrases. Do not impose
-arbitrary uppercase/symbol composition rules or silently truncate long passwords.
-Legacy bcrypt has an input-byte limit that must be accounted for explicitly during
-migration; password length in characters and UTF-8 bytes are different.
+Use established identity provider where possible. Store passwords with maintained
+password-hashing scheme and calibrated parameters (prefer Argon2id for new designs).
+Check breached/common passwords; support passphrases. Do not impose arbitrary
+uppercase/symbol composition rules or silently truncate long passwords. Legacy bcrypt
+has input-byte limit: handle it explicitly during migration. Character length differs
+from UTF-8 byte length.
 
-Keep secrets in the approved secret mechanism, check required configuration at startup
-without printing values, and rotate exposed credentials. Never include raw tokens,
-passwords, request bodies or complete database exceptions in routine logs. Log bounded
-event names, request correlation and safe status/error classes under an appropriate
+Keep secrets in approved secret mechanism. Check required configuration at startup
+without printing values. Rotate exposed credentials. Never put raw tokens, passwords,
+request bodies or complete database exceptions in routine logs. Log bounded event
+names, request correlation, safe status/error classes under appropriate
 retention/access policy. Sanitized errors should not return mass-assigned user objects.
-CORS controls browser cross-origin access; it is not API authentication or CSRF protection.
+CORS controls browser cross-origin access; not API authentication or CSRF protection.
 
 ## Worked example: a profile update boundary
 
-Given `PATCH /users/:id` with a string ID and an editable display name:
+Given `PATCH /users/:id` with string ID and editable display name:
 
-1. Record the authorized caller/tenant and current endpoint behavior in fixtures.
+1. Record authorized caller/tenant and current endpoint behavior in fixtures.
 2. Check missing/expired/wrong-audience tokens return 401 before storage access.
-3. Send `12abc`, an unsafe integer, an empty name and an extra `role` field; expect 400
-   and no database mutation. Send a padded valid name; confirm only the parsed trimmed
-   value reaches the owner-and-tenant-scoped update.
-4. Try a different user's valid ID and a cross-tenant ID; expect the documented denial
-   and no mutation. A valid owner request updates only the allowed property.
-5. Exercise quota/store failure and confirm logs contain no request token or name.
+3. Send `12abc`, unsafe integer, empty name, extra `role` field. Expect 400 and no
+   database mutation. Send padded valid name. Confirm only parsed trimmed value reaches
+   owner-and-tenant-scoped update.
+4. Try different user's valid ID and cross-tenant ID. Expect documented denial and no
+   mutation. Valid owner request updates only allowed property.
+5. Exercise quota/store failure. Confirm logs contain no request token or name.
 
-Return the route policy, reproduced failure cases, exact test command/output and
-remaining gaps. These are expected checks to execute in the target application, not
-claims that this repository has tested a deployed API.
+Return route policy, reproduced failure cases, exact test command/output, remaining
+gaps. These are checks to execute in target application, not claims that this
+repository has tested a deployed API.
 
 ## Limitations
 
-This guide is not a full identity service, certified security audit or penetration
-test. Snippets omit application adapters and integration error middleware. Unit tests
-of a parser do not verify database transactions, proxy behavior or provider sessions.
-Report any untested route, tenant path and failure mode explicitly. Do not infer a
-clean security posture from passing structural checks or from a risk metadata label.
+Not full identity service, certified security audit or penetration test. Snippets omit
+app adapters and integration error middleware. Parser unit tests do not verify database
+transactions, proxy behavior or provider sessions. Report any untested route, tenant
+path and failure mode explicitly. Do not infer clean security posture from passing
+structural checks or risk metadata label.
 
 ## References
 
@@ -212,4 +211,4 @@ clean security posture from passing structural checks or from a risk metadata la
 - [OWASP Password Storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
 - [Express production security](https://expressjs.com/en/advanced/best-practice-security.html)
 - [Zod basic parsing](https://zod.dev/basics)
-- Related skills: `designing-apis` (contract design), `api-security` (authorized testing of an API), `security-and-hardening` (general application hardening).
+- Related skills: `designing-apis` (contract design), `api-security` (authorized API testing), `security-and-hardening` (general app hardening).

@@ -26,7 +26,7 @@ manim -ql --format=gif script.py Scene1     # GIF output
 | `-qm` | 1280x720 | 30 | Preview (use for text-heavy scenes) |
 | `-qh` | 1920x1080 | 60 | Production |
 
-**Text rendering quality:** `-ql` (480p15) produces noticeably poor text kerning and readability. For scenes with significant text, preview stills at `-qm` to catch issues invisible at 480p. Use `-ql` only for testing layout and animation timing.
+**Text rendering quality:** `-ql` (480p15) gives poor text kerning and readability. For text-heavy scenes, preview stills at `-qm` to catch issues invisible at 480p. Use `-ql` only to test layout and animation timing.
 
 ## Output Structure
 
@@ -94,7 +94,7 @@ manim -ql --resolution 1080,1080 script.py Scene  # 1:1 square
 
 ## manim.cfg — Project Configuration
 
-Create `manim.cfg` in the project directory for per-project defaults:
+Create `manim.cfg` in project directory for per-project defaults:
 
 ```ini
 [CLI]
@@ -109,11 +109,11 @@ background_color = #0D1117
 tex_template_file = custom_template.tex
 ```
 
-This eliminates repetitive CLI flags and `self.camera.background_color` in every scene.
+Removes repetitive CLI flags and `self.camera.background_color` from every scene.
 
 ## Sections — Chapter Markers
 
-Mark sections within a scene for organized output:
+Mark sections inside a scene for organized output:
 
 ```python
 class LongVideo(Scene):
@@ -129,11 +129,11 @@ class LongVideo(Scene):
 ```
 
 Render individual sections: `manim --save_sections script.py LongVideo`
-This outputs separate video files per section — useful for long videos where you want to re-render only one part.
+Outputs separate video file per section. Useful for long videos when re-rendering only one part.
 
 ## manim-voiceover Plugin (Recommended for Narrated Videos)
 
-The official `manim-voiceover` plugin integrates TTS directly into scene code, auto-syncing animation duration to voiceover length. This is significantly cleaner than the manual ffmpeg muxing approach above.
+Official `manim-voiceover` plugin integrates TTS into scene code and auto-syncs animation duration to voiceover length.
 
 ### Installation
 
@@ -172,7 +172,7 @@ class NarratedScene(VoiceoverScene):
 - `tracker.time_until_bookmark("mark1")` — sync specific animations to specific words
 - Auto-generates subtitle `.srt` files
 - Caches audio locally — re-renders don't re-generate TTS
-- Works with: ElevenLabs, Azure, Google TTS, pyttsx3 (offline), and custom services
+- Works with: ElevenLabs, Azure, Google TTS, pyttsx3 (offline), custom services
 
 ### Bookmarks for Precise Sync
 
@@ -182,4 +182,4 @@ with self.voiceover(text='This is a <bookmark mark="circle"/>circle.') as tracke
     self.play(Create(Circle()), run_time=tracker.time_until_bookmark("circle", limit=1))
 ```
 
-This is the recommended approach for any video with narration. The manual ffmpeg muxing workflow above is still useful for adding background music or post-production audio mixing.
+Manual ffmpeg muxing workflow above still useful for background music or post-production audio mixing.

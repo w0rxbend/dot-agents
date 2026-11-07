@@ -1,9 +1,5 @@
 # Pagination Patterns
 
-## Overview
-
-Pagination divides large datasets into manageable chunks. This guide covers cursor-based, offset-based, and keyset pagination with implementation examples.
-
 ## Table of Contents
 
 - [Cursor-Based Pagination](#cursor-based-pagination)
@@ -16,30 +12,30 @@ Pagination divides large datasets into manageable chunks. This guide covers curs
 
 ### Advantages
 
-- **Scales to billions of records:** O(1) lookup regardless of dataset size
+- **Scales to billions of records:** O(1) lookup at any dataset size
 - **Handles real-time changes:** No skipped or duplicate records when data changes
-- **Consistent performance:** No degradation at high page numbers
+- **Consistent performance:** No slowdown at high page numbers
 - **Works with any sortable column:** Not limited to IDs
 
 ### Disadvantages
 
 - **No direct page access:** Can't jump to arbitrary page number
-- **Stateless cursors required:** Cursor must encode position completely
-- **More complex implementation:** Requires cursor encoding/decoding
+- **Stateless cursors required:** Cursor must fully encode position
+- **More complex implementation:** Needs cursor encoding/decoding
 
 ### When to Use
 
 ✅ **Use cursor pagination when:**
-- Dataset changes frequently (real-time data)
-- Dataset is large (>10,000 records)
-- Consistency is critical (no duplicates/skips acceptable)
-- Infinite scroll UX pattern
+- Data changes often (real-time data)
+- Large dataset (>10,000 records)
+- Consistency critical (no duplicates/skips acceptable)
+- Infinite scroll UX
 - API will scale to millions of records
 
 ❌ **Avoid cursor pagination when:**
-- Dataset is small and static
+- Small, static dataset
 - Direct page number access required
-- Implementation complexity not justified
+- Extra complexity not justified
 
 ### Implementation (FastAPI)
 
@@ -115,7 +111,7 @@ app.get('/items', async (c) => {
 
 ### Cursor Encoding (Opaque Cursors)
 
-For security and flexibility, encode cursor as base64 JSON:
+Encode cursor as base64 JSON for security and flexibility:
 
 ```python
 import base64
@@ -165,7 +161,7 @@ async def list_items(cursor: Optional[str] = None, limit: int = 20):
 
 ### Multi-Column Sorting
 
-For sorting by multiple columns (e.g., `ORDER BY created_at DESC, id ASC`):
+Sorting by multiple columns (e.g., `ORDER BY created_at DESC, id ASC`):
 
 ```python
 from sqlalchemy import and_, or_
@@ -196,27 +192,26 @@ async def list_items(cursor: Optional[str] = None, limit: int = 20):
 
 ### Advantages
 
-- **Simple to implement:** Just `OFFSET` and `LIMIT` in SQL
-- **Direct page access:** Can jump to any page number
+- **Simple to implement:** `OFFSET` and `LIMIT` in SQL
+- **Direct page access:** Jump to any page number
 - **Easy to understand:** Familiar "page 1, 2, 3..." UX
 
 ### Disadvantages
 
 - **Poor performance at high offsets:** `OFFSET 1000000` scans 1M rows
 - **Inconsistent results:** Skipped/duplicate records when data changes
-- **Not scalable:** Performance degrades with dataset size
 
 ### When to Use
 
 ✅ **Use offset pagination when:**
-- Dataset is small (<10,000 records)
-- Dataset is static (rarely changes)
+- Small dataset (<10,000 records)
+- Static dataset (rarely changes)
 - Direct page number access required
 - Implementation simplicity critical
 
 ❌ **Avoid offset pagination when:**
-- Dataset is large or growing
-- Data changes frequently
+- Large or growing dataset
+- Data changes often
 - Performance at scale matters
 
 ### Implementation (FastAPI)
@@ -257,7 +252,7 @@ SELECT * FROM items OFFSET 1000000 LIMIT 20;
 -- Scans 1,000,020 rows to return 20!
 ```
 
-**Solution:** Use keyset pagination (see below) or limit maximum offset:
+**Solution:** Use keyset pagination (below) or cap maximum offset:
 
 ```python
 MAX_OFFSET = 10000  # Limit to first 10,000 records
@@ -277,7 +272,7 @@ async def list_items(page: int = 1, per_page: int = 20):
 
 ## Keyset Pagination
 
-Keyset pagination is a variant of cursor-based pagination using the last seen value directly in the query.
+Variant of cursor-based pagination. Puts last seen value directly in query.
 
 ### Implementation
 
@@ -309,7 +304,7 @@ async def list_items(
 - Harder to change sort logic
 - Can't sort by multiple columns easily
 
-**Recommendation:** Use cursor-based with encoded cursors for production. Use keyset for simple internal APIs.
+**Recommendation:** Use cursor-based with encoded cursors in production. Use keyset for simple internal APIs.
 
 ## Comparison Matrix
 
@@ -459,7 +454,7 @@ function ItemList() {
 
 ### Integration with TanStack Table
 
-See tables skill for integration with table virtualization and sorting.
+See tables skill for table virtualization and sorting.
 
 ```typescript
 import { useInfiniteQuery } from '@tanstack/react-query'
@@ -541,7 +536,7 @@ function VirtualizedTable() {
 
 ## Database Indexing
 
-For optimal pagination performance, ensure proper indexing:
+Index sort columns for fast pagination:
 
 ```sql
 -- Cursor pagination on ID
@@ -556,24 +551,21 @@ CREATE INDEX idx_items_id ON items(id);
 
 ## Best Practices Summary
 
-1. **Use cursor pagination for production APIs** - Scales better, handles real-time data
-2. **Encode cursors as opaque tokens** - Security and flexibility
-3. **Return `has_more` flag** - Avoids extra count query
-4. **Limit maximum page size** - Prevent resource exhaustion (max 100 items)
-5. **Index sort columns** - Essential for performance
-6. **Document pagination in OpenAPI** - Include cursor/page parameters
-7. **Consistent ordering** - Always include tiebreaker (ID) for deterministic results
-8. **Cache count queries** - For offset pagination, cache total count
-9. **Avoid `COUNT(*)` when possible** - Expensive on large tables
-10. **Use virtualization on frontend** - For smooth infinite scroll experience
+1. **Return `has_more` flag** - Avoids extra count query
+2. **Cap page size** - Prevents resource exhaustion (max 100 items)
+3. **Document pagination in OpenAPI** - Include cursor/page parameters
+4. **Consistent ordering** - Always add tiebreaker (ID) for deterministic results
+5. **Cache count queries** - Offset pagination: cache total count
+6. **Avoid `COUNT(*)` when possible** - Expensive on large tables
+7. **Use virtualization on frontend** - Smooth infinite scroll
 
 ## Migration Path
 
 **From offset to cursor pagination:**
 
-1. Support both simultaneously with different endpoints or parameters
-2. Deprecate offset version over time
-3. Provide migration guide for API consumers
+1. Support both at once, via separate endpoints or parameters
+2. Deprecate offset version gradually
+3. Publish migration guide for API consumers
 
 ```python
 @app.get("/items")

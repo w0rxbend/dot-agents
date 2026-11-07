@@ -29,7 +29,6 @@
   - [From react-toastify to Sonner](#from-react-toastify-to-sonner)
   - [From react-modal to Radix UI](#from-react-modal-to-radix-ui)
 - [Performance Considerations](#performance-considerations)
-  - [Bundle Size Impact](#bundle-size-impact)
   - [Runtime Performance](#runtime-performance)
   - [Tree-Shaking](#tree-shaking)
 - [Accessibility Scores](#accessibility-scores)
@@ -44,24 +43,17 @@
 **Dependencies:** Zero
 
 **Strengths:**
-- Built for React 18+ with modern patterns
-- Zero dependencies
+- Built for React 18+, modern patterns
 - Beautiful default styling
 - Promise-based API for async operations
-- Excellent accessibility out of the box
-- Headless mode available
+- Excellent accessibility by default
+- Headless mode
 - Smooth animations
 
 **Weaknesses:**
 - Requires React 18+
 - Limited browser support for older versions
-- Less customization than some alternatives
-
-**Best For:**
-- Modern React applications
-- Projects prioritizing accessibility
-- Teams wanting beautiful defaults
-- Applications using shadcn/ui
+- Less customizable than some alternatives
 
 **Installation & Usage:**
 ```bash
@@ -97,7 +89,7 @@ toast('Message sent', {
 
 **Library:** `/timolins/react-hot-toast`
 **Trust Score:** 9.5/10
-**Bundle Size:** <5KB gzipped (including styles!)
+**Bundle Size:** <5KB gzipped (styles included)
 **Dependencies:** Zero
 
 **Strengths:**
@@ -105,19 +97,13 @@ toast('Message sent', {
 - Simple, intuitive API
 - Highly customizable
 - Good TypeScript support
-- Headless mode available
-- Fast performance
+- Headless mode
+- Fast
 
 **Weaknesses:**
-- Less feature-rich than alternatives
+- Fewer features than alternatives
 - Basic default styling
 - Limited animation options
-
-**Best For:**
-- Bundle size critical applications
-- Minimalist projects
-- Custom design systems
-- Performance-focused apps
 
 **Installation & Usage:**
 ```bash
@@ -162,25 +148,25 @@ toast.custom((t) => (
 **Dependencies:** 1 (clsx)
 
 **Strengths:**
-- Most mature and battle-tested
+- Most mature, battle-tested
 - Extensive features
 - RTL language support
 - Swipe to dismiss on mobile
 - Pause on hover/focus
 - Multiple containers
-- Detailed documentation
+- Detailed docs
 
 **Weaknesses:**
-- Larger bundle size
+- Larger bundle
 - More complex API
 - Older styling approach
-- Can be overkill for simple needs
+- Overkill for simple needs
 
 **Best For:**
-- Enterprise applications
+- Enterprise apps
 - RTL/international support needed
-- Mobile-first applications
-- Complex notification requirements
+- Mobile-first apps
+- Complex notification needs
 
 **Installation & Usage:**
 ```bash
@@ -235,7 +221,7 @@ toast.update(toastId, {
 **Dependencies:** Multiple Radix primitives
 
 **Strengths:**
-- Completely unstyled (headless)
+- Fully unstyled (headless)
 - WAI-ARIA compliant
 - Excellent focus management
 - Portal rendering
@@ -244,14 +230,8 @@ toast.update(toastId, {
 
 **Weaknesses:**
 - No default styles
-- Requires more setup
+- More setup
 - Steeper learning curve
-
-**Best For:**
-- Design systems
-- Custom styling requirements
-- Accessibility-critical applications
-- Teams wanting full control
 
 **Installation & Usage:**
 ```bash
@@ -305,7 +285,7 @@ function RadixModal() {
 - Simple API
 - Built-in transitions
 - Official Tailwind support
-- Good documentation
+- Good docs
 
 **Weaknesses:**
 - Best with Tailwind
@@ -315,7 +295,7 @@ function RadixModal() {
 **Best For:**
 - Tailwind CSS projects
 - Rapid prototyping
-- Teams familiar with Tailwind
+- Teams who know Tailwind
 - Simple modal needs
 
 **Installation & Usage:**
@@ -389,7 +369,7 @@ function HeadlessModal() {
 **Dependencies:** 2
 
 **Strengths:**
-- Mature and stable
+- Mature, stable
 - Good accessibility
 - Simple API
 - Well documented
@@ -398,13 +378,13 @@ function HeadlessModal() {
 **Weaknesses:**
 - Older patterns
 - Less flexible
-- Requires app element setup
+- Needs app element setup
 - Not headless
 
 **Best For:**
 - Legacy projects
 - Simple modal needs
-- Quick implementation
+- Quick to implement
 - Wide browser support needed
 
 ---
@@ -447,34 +427,34 @@ function HeadlessModal() {
 ## Decision Framework
 
 ### Choose Sonner if:
-- Building modern React 18+ application
-- Want beautiful defaults with minimal setup
-- Accessibility is a priority
+- Building modern React 18+ app
+- Want beautiful defaults, minimal setup
+- Accessibility is priority
 - Using shadcn/ui components
 - Need promise-based notifications
 
 ### Choose react-hot-toast if:
-- Bundle size is critical (<5KB)
+- Bundle size critical (<5KB)
 - Need simple, lightweight solution
 - Want full customization control
-- Building minimalist interface
+- Building minimalist UI
 
 ### Choose react-toastify if:
 - Need RTL language support
 - Building mobile app with swipe gestures
-- Want most features out of the box
-- Have complex notification requirements
+- Want most features built in
+- Complex notification needs
 
 ### Choose Radix UI Dialog if:
-- Building a design system
-- Need complete styling control
+- Building design system
+- Need full styling control
 - Want composable primitives
 - Accessibility is critical
 
 ### Choose Headless UI Dialog if:
 - Using Tailwind CSS
 - Want official Tailwind support
-- Need quick implementation
+- Need quick setup
 - Like utility-first CSS
 
 ---
@@ -506,7 +486,7 @@ npm install react-toastify react-modal
 ```bash
 npm install sonner @headlessui/react
 ```
-- Sonner (works great with Tailwind)
+- Sonner (pairs well with Tailwind)
 - Headless UI (designed for Tailwind)
 
 ---
@@ -551,17 +531,11 @@ toast.success('Success!', {
 
 ## Performance Considerations
 
-### Bundle Size Impact
-- **Smallest:** react-hot-toast (<5KB)
-- **Small:** Sonner (~5KB)
-- **Medium:** Headless UI (~12KB), react-modal (~14KB), Radix UI (~15KB)
-- **Large:** react-toastify (~16KB)
-
 ### Runtime Performance
 - **Fastest:** react-hot-toast (minimal overhead)
 - **Fast:** Sonner, Headless UI
 - **Good:** Radix UI, react-modal
-- **Moderate:** react-toastify (more features = more overhead)
+- **Moderate:** react-toastify (more features, more overhead)
 
 ### Tree-Shaking
 - **Best:** Radix UI (import only what you need)
@@ -572,7 +546,7 @@ toast.success('Success!', {
 
 ## Accessibility Scores
 
-Based on WAI-ARIA compliance and screen reader testing:
+From WAI-ARIA compliance and screen reader tests:
 
 1. **Radix UI Dialog:** 10/10 - Perfect accessibility
 2. **Headless UI Dialog:** 10/10 - Perfect accessibility

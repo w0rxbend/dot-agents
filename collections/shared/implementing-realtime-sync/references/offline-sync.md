@@ -1,8 +1,5 @@
 # Offline Sync Reference Guide
 
-Patterns for building offline-first applications with automatic sync on reconnection.
-
-
 ## Table of Contents
 
 - [The Offline Challenge](#the-offline-challenge)
@@ -26,23 +23,13 @@ Patterns for building offline-first applications with automatic sync on reconnec
 - [Testing Offline Scenarios](#testing-offline-scenarios)
   - [Simulate Offline Mode](#simulate-offline-mode)
   - [Simulate Flaky Connection](#simulate-flaky-connection)
-- [Best Practices](#best-practices)
 
 ## The Offline Challenge
-
-Mobile and web apps need to work without constant connectivity:
-
-**Problems:**
-1. User makes changes while offline
-2. Changes queue up locally
-3. Connection restored - how to sync?
-4. Conflicts with server state
-5. Other users made changes too
 
 **Requirements:**
 - Queue mutations locally
 - Apply optimistically to UI (instant feedback)
-- Sync when connection restored
+- Sync on reconnect
 - Resolve conflicts automatically
 - No data loss
 
@@ -83,7 +70,7 @@ Mobile and web apps need to work without constant connectivity:
 
 ## Yjs + IndexedDB Pattern
 
-Yjs with IndexedDB provides automatic offline support.
+Yjs with IndexedDB gives automatic offline support.
 
 ### Setup
 
@@ -257,7 +244,7 @@ function setupConnectionMonitor(provider: WebsocketProvider) {
 
 ## Pending Changes Counter
 
-Show number of unsynced changes.
+Show count of unsynced changes.
 
 ```typescript
 function setupPendingChangesMonitor(
@@ -302,7 +289,7 @@ function setupPendingChangesMonitor(
 
 ## Manual Sync Trigger
 
-Allow users to manually trigger sync.
+Let users trigger sync manually.
 
 ```typescript
 function setupManualSync(provider: WebsocketProvider) {
@@ -343,7 +330,7 @@ function setupManualSync(provider: WebsocketProvider) {
 
 ## Conflict Resolution
 
-CRDTs handle conflicts automatically, but you can detect when merges occur.
+CRDTs resolve conflicts automatically. Merges can still be detected:
 
 ```typescript
 doc.on('update', (update, origin, doc, transaction) => {
@@ -363,7 +350,7 @@ doc.on('update', (update, origin, doc, transaction) => {
 
 ## Last Sync Timestamp
 
-Track when document was last synced with server.
+Track when document last synced with server.
 
 ```typescript
 let lastSyncTime: number | null = null
@@ -411,7 +398,7 @@ setInterval(updateLastSyncUI, 60000)
 
 ## Data Reconciliation
 
-Handle cases where local and server state diverge significantly.
+Use when local and server state diverge significantly.
 
 ```typescript
 async function reconcileData(
@@ -447,7 +434,7 @@ async function reconcileData(
 
 ## Retry Strategy
 
-Implement exponential backoff for failed syncs.
+Exponential backoff for failed syncs.
 
 ```typescript
 class RetryableWebSocketProvider {
@@ -517,7 +504,7 @@ class RetryableWebSocketProvider {
 
 ### Background Sync (Service Worker)
 
-For PWAs, use Background Sync API to sync when connection restored.
+For PWAs, use Background Sync API to sync on reconnect.
 
 ```typescript
 // Register service worker
@@ -553,7 +540,7 @@ async function syncYjsDocument() {
 
 ### Low Battery Mode
 
-Reduce sync frequency when battery is low.
+Reduce sync frequency on low battery.
 
 ```typescript
 function setupBatteryOptimization(provider: WebsocketProvider) {
@@ -587,7 +574,7 @@ function setupBatteryOptimization(provider: WebsocketProvider) {
 
 ### Data Saver Mode
 
-Compress data when on cellular connection.
+Compress data on cellular connections.
 
 ```typescript
 if ('connection' in navigator) {
@@ -614,7 +601,7 @@ if ('connection' in navigator) {
 
 ## Storage Quota Management
 
-Monitor IndexedDB storage and warn when running low.
+Monitor IndexedDB storage. Warn when space runs low.
 
 ```typescript
 async function checkStorageQuota() {
@@ -642,7 +629,7 @@ provider.on('sync', checkStorageQuota)
 
 ## Clear Old Data
 
-Implement garbage collection for old documents.
+Garbage-collect old documents.
 
 ```typescript
 async function clearOldDocuments(maxAgeMs: number = 30 * 24 * 60 * 60 * 1000) {
@@ -719,16 +706,3 @@ setInterval(() => {
   }
 }, 10000)
 ```
-
-## Best Practices
-
-1. **Use Yjs + IndexedDB** - Automatic offline support
-2. **Show connection status** - Visual indicator for users
-3. **Display pending changes count** - User knows what's queued
-4. **Implement exponential backoff** - Don't hammer server during outages
-5. **Handle low battery** - Reduce sync frequency when battery low
-6. **Monitor storage quota** - Warn when running out of space
-7. **Garbage collect old data** - Delete documents not accessed in 30+ days
-8. **Test offline scenarios** - Simulate poor connections
-9. **Use service workers** - Background sync for PWAs
-10. **Provide manual sync button** - Let users force sync if needed

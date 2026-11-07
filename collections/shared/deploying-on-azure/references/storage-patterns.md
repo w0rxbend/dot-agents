@@ -1,19 +1,6 @@
 # Azure Storage Patterns Reference
 
-Comprehensive guide to Azure storage services, tier selection, and lifecycle management.
-
-## Table of Contents
-
-1. [Blob Storage](#blob-storage)
-2. [Azure Files](#azure-files)
-3. [Managed Disks](#managed-disks)
-4. [Data Lake Storage Gen2](#data-lake-storage-gen2)
-
----
-
 ## Blob Storage
-
-Azure Blob Storage provides scalable object storage for unstructured data with multiple access tiers.
 
 ### Storage Redundancy Options
 
@@ -28,7 +15,7 @@ Azure Blob Storage provides scalable object storage for unstructured data with m
 
 ## Azure Files
 
-Managed file shares with SMB and NFS protocols.
+Managed file shares over SMB and NFS.
 
 ### Service Tiers
 
@@ -43,8 +30,6 @@ Managed file shares with SMB and NFS protocols.
 
 ## Managed Disks
 
-Block storage for virtual machines.
-
 ### Disk Types
 
 | Type | Max IOPS | Max Throughput | Use Case |
@@ -58,10 +43,10 @@ Block storage for virtual machines.
 
 ## Data Lake Storage Gen2
 
-Hierarchical namespace for big data analytics built on Blob Storage.
+Hierarchical namespace on Blob Storage for big data analytics.
 
 **When to Use:**
 - Big data analytics (Spark, Databricks)
 - Data warehousing pipelines
 - Machine learning feature stores
-- Requires POSIX-compliant file system operations
+- Needs POSIX-compliant file system operations

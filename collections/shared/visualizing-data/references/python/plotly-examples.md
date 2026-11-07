@@ -1,7 +1,5 @@
 # Plotly Python Examples
 
-Complete examples for data visualization using Plotly in Python.
-
 ## Installation
 
 ```bash
@@ -438,5 +436,5 @@ def create_colorblind_safe_chart(data, palette=IBM_COLORBLIND_SAFE):
 
 ---
 
-**For Matplotlib examples, see `matplotlib-examples.md`**
-**For Seaborn statistical plots, see `seaborn-examples.md`**
+**Matplotlib examples: see `matplotlib-examples.md`**
+**Seaborn statistical plots: see `seaborn-examples.md`**

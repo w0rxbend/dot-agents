@@ -12,7 +12,7 @@
  *
  * Usage:
  * - Set API_KEY environment variable
- * - Run: npx tsx basic-client.ts
+ * - Run: npx tsx@4.23.15 basic-client.ts
  */
 
 // Types
@@ -91,15 +91,15 @@ class UsersResource {
   }
 
   async retrieve(id: string): Promise<User> {
-    return this.client.request<User>('GET', `/users/${id}`)
+    return this.client.request<User>('GET', `/users/${encodeURIComponent(id)}`)
   }
 
   async update(id: string, params: Partial<CreateUserParams>): Promise<User> {
-    return this.client.request<User>('PATCH', `/users/${id}`, { body: params })
+    return this.client.request<User>('PATCH', `/users/${encodeURIComponent(id)}`, { body: params })
   }
 
   async delete(id: string): Promise<void> {
-    await this.client.request<void>('DELETE', `/users/${id}`)
+    await this.client.request<void>('DELETE', `/users/${encodeURIComponent(id)}`)
   }
 
   async list(params?: { limit?: number }): Promise<User[]> {

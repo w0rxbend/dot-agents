@@ -5,16 +5,16 @@ description: Use when checking if documentation covers all public members of a S
 
 # Report Method Coverage
 
-Cross-checks the public members of a Scala data type against a reference doc page and reports any members that are not documented.
+Cross-checks public members of Scala data type against reference doc page. Reports members not documented.
 
-Paths: `<this-skill-dir>` is this skill's own directory (where this file lives); `<docs-data-type-list-members-skill-dir>` is the directory of the `docs-data-type-list-members` skill from the same zio-skills set (installed next to this one, e.g. as `zio-skills--docs-data-type-list-members`).
+Paths: `<this-skill-dir>` is this skill's own directory (where this file lives). `<docs-data-type-list-members-skill-dir>` is directory of `docs-data-type-list-members` skill from same zio-skills set, installed next to this one (e.g. as `zio-skills--docs-data-type-list-members`).
 
 ```bash
 bash <this-skill-dir>/check-method-coverage.sh \
   <TypeName> <doc-file.md> [members-file]
 ```
 
-Members may be supplied via `[members-file]` or piped on stdin (typically from the `docs-data-type-list-members` script):
+Supply members via `[members-file]` or pipe on stdin (typically from `docs-data-type-list-members` script):
 
 ```bash
 scala-cli <docs-data-type-list-members-skill-dir>/extract-members.scala -- Reader.scala Reader \
@@ -22,19 +22,19 @@ scala-cli <docs-data-type-list-members-skill-dir>/extract-members.scala -- Reade
       Reader docs/reference/reader.md
 ```
 
-Run the script with `--help` for the full usage.
+Run script with `--help` for full usage.
 
 **Exit codes:**
 
-| Code | Meaning                                                              |
-|------|----------------------------------------------------------------------|
-| `0`  | Full coverage — every public member is documented.                   |
-| `1`  | One or more members are missing from the documentation.              |
-| `2`  | Invocation error (missing arguments, file not found, no input).      |
+| Code | Meaning                                                         |
+|------|-----------------------------------------------------------------|
+| `0`  | Full coverage: every public member documented.                  |
+| `1`  | One or more members missing from documentation.                 |
+| `2`  | Invocation error (missing arguments, file not found, no input). |
 
 ## JSON Output
 
-For machine-readable output (e.g., CI gates, downstream filtering with `jq`), pass `--json`:
+For machine-readable output (CI gates, downstream filtering with `jq`), pass `--json`:
 
 ```bash
 bash <this-skill-dir>/check-method-coverage.sh \
@@ -55,4 +55,4 @@ JSON schema:
 }
 ```
 
-Categories with no input members are omitted from the `categories` object. Exit codes are unchanged in JSON mode.
+Categories with no input members omitted from `categories` object. Exit codes unchanged in JSON mode.

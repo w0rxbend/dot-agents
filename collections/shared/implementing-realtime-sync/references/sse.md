@@ -1,8 +1,5 @@
 # Server-Sent Events (SSE) Reference Guide
 
-SSE provides one-way server-to-client event streaming over HTTP.
-
-
 ## Table of Contents
 
 - [Protocol Overview](#protocol-overview)
@@ -31,8 +28,6 @@ SSE provides one-way server-to-client event streaming over HTTP.
 - [Best Practices](#best-practices)
 
 ## Protocol Overview
-
-SSE is a simple text-based protocol for pushing events from server to client.
 
 **HTTP Request:**
 ```
@@ -68,7 +63,7 @@ data: Event with ID
 data: This is a message
 
 ```
-Note: Two newlines (`\n\n`) terminate each message.
+Two newlines (`\n\n`) terminate each message.
 
 ### Multi-Line Message
 ```
@@ -103,12 +98,12 @@ retry: 10000
 
 ## Automatic Reconnection
 
-Browser's EventSource automatically reconnects after a network error.
+Browser EventSource reconnects automatically after network error.
 
 **Default Behavior:**
-- Reconnect delay: browser default (a few seconds), overridden by the server's `retry: <ms>` field
-- The spec defines a fixed delay; browsers may add their own backoff, so do not rely on one
-- A response with a non-200 status or wrong content type stops reconnection entirely
+- Reconnect delay: browser default (few seconds); server `retry: <ms>` field overrides it
+- Spec defines fixed delay. Browsers may add own backoff, so do not rely on backoff
+- Non-200 status or wrong content type stops reconnection entirely
 - Browser sends `Last-Event-ID` header on reconnect
 
 **Server-Side Resumption:**
@@ -137,8 +132,6 @@ async def stream(request: Request):
 
 ## Custom Retry Interval
 
-Override browser's reconnection delay:
-
 ```python
 async def generate():
     # First event sets retry interval
@@ -166,8 +159,6 @@ data: Message 1
 ```
 
 ## LLM Streaming Pattern
-
-Stream LLM tokens progressively to frontend.
 
 ### OpenAI/Anthropic Relay
 
@@ -392,8 +383,6 @@ export async function GET(request: Request) {
 
 ## Live Metrics Dashboard
 
-Push real-time metrics to dashboard.
-
 **Backend (Python):**
 ```python
 import asyncio
@@ -452,8 +441,6 @@ function LiveDashboard() {
 
 ## Notification Feed
 
-Push notifications to users.
-
 **Backend (Python with Redis Pub/Sub):**
 ```python
 import redis.asyncio as redis
@@ -462,6 +449,8 @@ redis_client = redis.from_url("redis://localhost")
 
 @app.get("/notifications/{user_id}")
 async def stream_notifications(user_id: str):
+    # Authenticate and confirm caller is user_id (see Authentication),
+    # else any client reads anyone's notifications
     async def generate():
         pubsub = redis_client.pubsub()
         await pubsub.subscribe(f"notifications:{user_id}")
@@ -478,6 +467,7 @@ async def stream_notifications(user_id: str):
 # Publish notification
 @app.post("/notify/{user_id}")
 async def notify_user(user_id: str, message: str):
+    # Restrict to authorized senders (internal service or admin auth)
     await redis_client.publish(
         f"notifications:{user_id}",
         json.dumps({"message": message, "timestamp": datetime.now().isoformat()})
@@ -512,8 +502,6 @@ function NotificationCenter({ userId }: { userId: string }) {
 ```
 
 ## Authentication
-
-SSE uses standard HTTP, so authentication follows HTTP patterns.
 
 ### Cookie-Based
 
@@ -570,7 +558,7 @@ async def stream(authorization: str = Header(None)):
 
 ## Compression
 
-Enable gzip compression for SSE responses.
+Enable gzip for SSE responses.
 
 **Nginx:**
 ```nginx
@@ -601,31 +589,19 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 ## Browser Compatibility
 
 **Supported:**
-- Chrome/Edge: ✅ Full support
-- Firefox: ✅ Full support
-- Safari: ✅ Full support
-- Opera: ✅ Full support
+- Chrome/Edge: full support
+- Firefox: full support
+- Safari: full support
+- Opera: full support
 
 **Not Supported:**
-- Internet Explorer: ❌ No support (use polyfill or WebSocket fallback)
-
-**Polyfill:**
-```typescript
-import { EventSourcePolyfill } from 'event-source-polyfill'
-
-// Use polyfill with custom headers
-const eventSource = new EventSourcePolyfill('/stream', {
-  headers: {
-    'Authorization': `Bearer ${token}`
-  }
-})
-```
+- Internet Explorer: no support (use polyfill or WebSocket fallback)
 
 ## Limitations
 
-1. **One-way only** - Server → Client (no client → server messages)
-2. **Text-based** - Binary data must be base64 encoded
-3. **No request headers** - Can't add headers after initial connection (without polyfill)
+1. **One-way only** - server to client; no client-to-server messages
+2. **Text-based** - binary data must be base64 encoded
+3. **No request headers** - cannot add headers after initial connection (without polyfill)
 4. **HTTP/1.1 connection limit** - 6-8 connections per domain (use HTTP/2)
 5. **Browser limit** - ~255 EventSource connections per domain
 
@@ -633,11 +609,9 @@ const eventSource = new EventSourcePolyfill('/stream', {
 
 1. **Include event IDs** for automatic resumption
 2. **Set retry interval** explicitly for predictable behavior
-3. **Use HTTP/2** to avoid connection limits
-4. **Disable buffering** in reverse proxies (Nginx, Apache)
-5. **Send heartbeat** every 30-60 seconds to keep connection alive
-6. **Close streams** when no longer needed to free resources
-7. **Handle errors** gracefully with automatic reconnection
-8. **Use compression** for large payloads
-9. **Monitor connection count** and set limits
-10. **Test with slow networks** to ensure proper buffering
+3. **Disable buffering** in reverse proxies (Nginx, Apache)
+4. **Send heartbeat** every 30-60 seconds to keep connection alive
+5. **Close streams** when no longer needed, to free resources
+6. **Use compression** for large payloads
+7. **Monitor connection count** and set limits
+8. **Test with slow networks** to verify buffering

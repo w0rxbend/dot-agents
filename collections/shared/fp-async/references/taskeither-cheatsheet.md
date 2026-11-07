@@ -1,6 +1,6 @@
 # TaskEither Quick Reference (fp-ts 2.x)
 
-`TaskEither<E, A>` is `() => Promise<Either<E, A>>`: a lazy async computation that never rejects; failure lives in `Left`. Nothing runs until you call it.
+`TaskEither<E, A>` is `() => Promise<Either<E, A>>`: lazy async computation that never rejects; failure lives in `Left`.
 
 `chain`, `chainW`, `chainFirst`, `chainEitherK` are legacy names (fp-ts 2.14+). Use `flatMap`, `tap`, `flatMapEither`.
 
@@ -21,13 +21,13 @@ TE.fromEither(either) / TE.fromOption(() => err)(opt)
 | Operator | Use when |
 |---|---|
 | `TE.map(f)` | `f` is sync and cannot fail |
-| `TE.mapLeft(f)` | Reshape or annotate the error |
-| `TE.flatMap(f)` | `f` returns a `TaskEither` (sequential; error types are unioned) |
-| `TE.flatMapEither(f)` | `f` returns a sync `Either` (validation step) |
-| `TE.tap(f)` | Side effect that can fail, keep the original value |
-| `TE.tapError(f)` | Log/observe a failure, keep the original error |
-| `TE.orElse(f)` | Recover from a `Left` with another `TaskEither` |
-| `TE.Do`, `TE.bind`/`TE.bindW`, `TE.apS`/`TE.apSW` | Build up context from several steps (`W` variants union differing error types) |
+| `TE.mapLeft(f)` | Reshape or annotate error |
+| `TE.flatMap(f)` | `f` returns `TaskEither` (sequential; error types unioned) |
+| `TE.flatMapEither(f)` | `f` returns sync `Either` (validation step) |
+| `TE.tap(f)` | Side effect that can fail; keep original value |
+| `TE.tapError(f)` | Log/observe failure; keep original error |
+| `TE.orElse(f)` | Recover from `Left` with another `TaskEither` |
+| `TE.Do`, `TE.bind`/`TE.bindW`, `TE.apS`/`TE.apSW` | Build context from several steps (`W` variants union differing error types) |
 
 ## Sequential vs parallel
 
@@ -66,9 +66,9 @@ await pipe(fetchUser('123'), TE.match(onError, onUser))()
 
 ## Pitfalls
 
-- Forgetting the final `()` - nothing runs.
-- `TE.getOrElse` expects a function returning a `Task`, not a plain value.
-- `TE.tryCatch(() => promise, ...)` - pass a thunk; creating the Promise outside starts it eagerly and loses laziness.
-- `throw` inside `TE.map` is not caught; use `flatMap` + `tryCatch` for code that can throw.
+- Forgetting final `()`: nothing runs.
+- `TE.getOrElse` expects function returning `Task`, not plain value.
+- `TE.tryCatch(() => promise, ...)`: pass thunk. Creating Promise outside starts it eagerly and loses laziness.
+- `throw` inside `TE.map` is not caught. Use `flatMap` + `tryCatch` for code that can throw.
 
 Full pipelines, retries and batching: [the fp-async skill](../SKILL.md) and [detailed-guide.md](detailed-guide.md). Error modeling: fp-errors.

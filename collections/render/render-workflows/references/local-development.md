@@ -1,7 +1,5 @@
 # Local Development
 
-Run workflow tasks locally for faster development and testing.
-
 ## Contents
 
 - Prerequisites
@@ -14,13 +12,13 @@ Run workflow tasks locally for faster development and testing.
 
 - **Render CLI 2.11.0+**: `render --version`
   - macOS: `brew install render`
-  - Linux/macOS without Homebrew: download a pinned release zip and its `SHA256SUMS` from the [CLI releases page](https://github.com/render-oss/cli/releases/), verify the checksum, and put the `cli_v<version>` binary on `PATH` as `render` (see the render-cli skill). Ask the user before installing anything; do not pipe the install script from `curl` into `sh`.
-  - Windows: download the executable from the [CLI releases page](https://github.com/render-oss/cli/releases/)
-- A workflow project with registered tasks
+  - Linux/macOS without Homebrew: download pinned release zip plus its `SHA256SUMS` from [CLI releases page](https://github.com/render-oss/cli/releases/), verify checksum, put `cli_v<version>` binary on `PATH` as `render` (see render-cli skill). Ask user before installing anything; do not pipe install script from `curl` into `sh`.
+  - Windows: download executable from [CLI releases page](https://github.com/render-oss/cli/releases/)
+- Workflow project with registered tasks
 
 ## Starting the Local Task Server
 
-From your project directory:
+From project directory:
 
 ```bash
 # Python
@@ -30,13 +28,13 @@ render workflows dev -- python workflows/main.py
 render workflows dev -- npx tsx workflows/main.ts
 ```
 
-The local server starts on port `8120`. Customize with `--port`:
+Server listens on port `8120`. Change with `--port`:
 
 ```bash
 render workflows dev --port 8121 -- python workflows/main.py
 ```
 
-The server picks up code changes automatically as you iterate.
+Server picks up code changes automatically.
 
 ## Triggering Task Runs
 
@@ -48,41 +46,36 @@ List and run tasks interactively:
 render workflows tasks list --local
 ```
 
-**The `--local` flag is required.** Without it, the CLI lists deployed (remote) tasks.
+**`--local` flag is required.** Without it, CLI lists deployed (remote) tasks.
 
-The interactive menu lets you:
-1. Select a task
+Interactive menu:
+1. Select task
 2. Choose `run`
-3. Provide input as a JSON array (e.g., `[5]` or `[]`)
+3. Give input as JSON array (e.g., `[5]` or `[]`)
 4. View live logs
 
 ### From Application Code
 
-Configure your app to target the local task server.
+Point app at local task server.
 
 **Python:**
 
-Set environment variables:
+Set env vars:
 ```bash
 RENDER_USE_LOCAL_DEV=true
 ```
 
-Or for a custom port:
+Or for custom port:
 ```bash
 RENDER_USE_LOCAL_DEV=true
 RENDER_LOCAL_DEV_URL=http://localhost:8121
 ```
 
-The SDK clients (`Render()` and `RenderAsync()`) automatically detect these and route requests to the local server.
+SDK clients (`Render()` and `RenderAsync()`) auto-detect these and route requests to local server.
 
 **TypeScript:**
 
-Same environment variables:
-```bash
-RENDER_USE_LOCAL_DEV=true
-```
-
-Or pass configuration directly:
+Same env vars, or pass config directly:
 ```typescript
 import { Render } from "@renderinc/sdk";
 
@@ -94,23 +87,23 @@ const render = new Render({
 
 **Render API (any language):**
 
-Swap the base URL for task endpoints:
+Swap base URL for task endpoints:
 ```
 http://localhost:8120
 ```
 
-The local task server only simulates task-related endpoints. Other Render API endpoints are not supported locally.
+Local server simulates only task endpoints. Other Render API endpoints not supported locally.
 
 ## Viewing Results
 
-After running a task via the CLI:
-1. Press **Esc** to go back to the command menu
-2. Select `runs` to see task runs
-3. Select a run and choose `results` to see output
+After running task via CLI:
+1. Press **Esc** for command menu
+2. Select `runs` to list task runs
+3. Select run, choose `results` to see output
 
 ## Limitations
 
-- Logs and results are stored **in memory** and lost on server shutdown
-- High volume of runs can increase memory usage; restart the server periodically
+- Logs and results live **in memory**, lost on server shutdown
+- Many runs raise memory use; restart server periodically
 - Task and run IDs are random UUIDs, not matching deployed identifiers
-- Subtasks run locally in the same server process
+- Subtasks run locally in same server process

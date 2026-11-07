@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -48,7 +49,8 @@ def main() -> int:
     parser.add_argument("--dpi", type=int, default=150, help="Render DPI (default 150)")
     parser.add_argument("--out-dir", required=True, help="Directory for PNG files")
     parser.add_argument("--prefix", default="page", help="Output filename prefix (default 'page')")
-    parser.add_argument("--password", help="Password for encrypted PDFs")
+    parser.add_argument("--password", default=os.environ.get("PDF_PASSWORD"),
+                        help="Password for encrypted PDFs (default: $PDF_PASSWORD)")
     args = parser.parse_args()
 
     sys.path.insert(0, str(Path(__file__).resolve().parent))

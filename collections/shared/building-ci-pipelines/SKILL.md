@@ -5,20 +5,16 @@ description: Design CI pipelines across GitHub Actions, GitLab CI and Argo Workf
 
 # Building CI Pipelines
 
-## Purpose
-
-CI/CD pipelines automate testing, building, and deploying software. This skill provides patterns for constructing robust, secure, and efficient pipelines across GitHub Actions, GitLab CI, Argo Workflows, and Jenkins. Focus areas: supply chain security (SLSA), monorepo optimization, caching, and parallelization.
-
 ## When to Use This Skill
 
-Invoke when:
-- Setting up continuous integration for new projects
-- Implementing automated testing workflows
-- Building container images with security provenance
-- Optimizing slow CI pipelines (especially monorepos)
-- Implementing SLSA supply chain security
-- Configuring multi-platform builds
-- Setting up GitOps automation
+Use for:
+- CI setup for new projects
+- Automated test workflows
+- Container images with security provenance
+- Slow CI pipelines (especially monorepos)
+- SLSA supply chain security
+- Multi-platform builds
+- GitOps automation
 - Migrating from legacy CI systems
 
 ## Platform Selection
@@ -38,7 +34,7 @@ Invoke when:
 
 ## Quick Start Patterns
 
-Examples use major-version tags for readability. In real workflows pin every third-party action to the full commit SHA of its current release with a `# vX.Y.Z` comment, and declare `permissions:` (see the `github-actions-advanced` skill).
+Examples use major-version tags for readability. Real workflows: pin every third-party action to full commit SHA of current release, with `# vX.Y.Z` comment, and declare `permissions:` (see `github-actions-advanced` skill).
 
 ### Pattern 1: Basic CI (Lint → Test → Build)
 
@@ -87,7 +83,7 @@ jobs:
       - run: npm run build
 ```
 
-Each job runs on a fresh runner, so every job installs its own toolchain and dependencies.
+Each job gets fresh runner, so installs own toolchain and dependencies.
 
 ### Pattern 2: Matrix Strategy (Multi-Platform)
 
@@ -106,7 +102,7 @@ test:
     - run: npm test
 ```
 
-6 jobs (3 OS × 2 Node LTS lines) run in parallel, so wall-clock time is roughly that of the slowest job. Keep the matrix on currently supported Node releases (see the Node.js release schedule).
+6 jobs (3 OS × 2 Node LTS lines) run in parallel; wall-clock time is about slowest job's. Keep matrix on currently supported Node releases (see Node.js release schedule).
 
 ### Pattern 3: Monorepo Affected (Turborepo)
 
@@ -130,6 +126,7 @@ build:
       env:
         TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
         TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+        TURBO_TELEMETRY_DISABLED: 1  # turbo sends anonymous telemetry by default
 ```
 
 60-80% CI time reduction for monorepos.
@@ -182,12 +179,10 @@ jobs:
       registry-password: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-Verification:
+Verification (`slsa-verifier` checks trusted builder and source repo; with cosign, never a bare org-prefix identity regexp: it matches lookalike orgs, see `references/slsa-security-framework.md`):
 ```bash
-cosign verify-attestation --type slsaprovenance \
-  --certificate-identity-regexp "^https://github.com/slsa-framework" \
-  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  ghcr.io/myorg/myapp@sha256:abcd...
+slsa-verifier verify-image ghcr.io/myorg/myapp@sha256:abcd... \
+  --source-uri github.com/myorg/myapp
 ```
 
 ### Pattern 5: OIDC Federation (No Credentials)
@@ -211,7 +206,7 @@ deploy:
       run: aws s3 sync ./dist s3://my-bucket
 ```
 
-Benefits: No stored credentials, 1-hour lifetime, full audit trail.
+Benefits: no stored credentials, 1-hour lifetime, full audit trail.
 
 ### Pattern 6: Security Scanning
 
@@ -230,6 +225,7 @@ security:
       uses: snyk/actions/node@<pinned-sha> # vX.Y.Z
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        SNYK_DISABLE_ANALYTICS: "1"  # snyk CLI sends usage analytics by default
 
     - name: SBOM generation
       uses: anchore/sbom-action@v0
@@ -250,7 +246,7 @@ security:
 - run: npm ci
 ```
 
-The `cache:` input is per setup action: `actions/setup-node` supports npm, yarn and pnpm; `actions/setup-python` supports pip, pipenv and poetry; `actions/setup-go` caches Go modules by default (`cache: true`). For Rust or anything else use `actions/cache` (below) or a dedicated action such as `Swatinem/rust-cache`.
+`cache:` input differs per setup action: `actions/setup-node` supports npm, yarn, pnpm; `actions/setup-python` supports pip, pipenv, poetry; `actions/setup-go` caches Go modules by default (`cache: true`). Rust or anything else: `actions/cache` (below) or dedicated action like `Swatinem/rust-cache`.
 
 ### Manual Cache Control
 
@@ -402,8 +398,8 @@ test:
 ### Security
 
 **DO:**
-- Use OIDC instead of long-lived credentials
-- Pin actions to a full commit SHA with a version comment: `actions/checkout@<sha> # vX.Y.Z`
+- Use OIDC, not long-lived credentials
+- Pin actions to full commit SHA with version comment: `actions/checkout@<sha> # vX.Y.Z`; pin CI job images by version and digest (`image:vX.Y.Z@sha256:...`), never `:latest`
 - Restrict permissions: `permissions: { contents: read }`
 - Scan secrets (Gitleaks) on every commit
 - Generate SLSA provenance for releases
@@ -417,29 +413,29 @@ test:
 
 **DO:**
 - Use affected detection for monorepos
-- Cache dependencies and build outputs
-- Parallelize independent jobs
 - Fail fast: `strategy.fail-fast: true`
 - Use remote caching (Turborepo/Nx Cloud)
 
 **DON'T:**
-- Rebuild everything on every commit
 - Run long tests in PR checks
 - Use generic cache keys
 
 ### Debugging
 
+Confirm with user before rerun: it can re-run deploy, publish or release jobs. `ACTIONS_STEP_DEBUG`/`ACTIONS_RUNNER_DEBUG` repo variables change every run repo-wide: confirm first, remove after.
+
 ```bash
+export GH_TELEMETRY=false  # gh sends usage telemetry by default
 # Rerun failed jobs with runner and step debug logging
 gh run rerun <run-id> --failed --debug
 # Or set repository variables ACTIONS_STEP_DEBUG=true / ACTIONS_RUNNER_DEBUG=true
 ```
 
-For diagnosing a specific failing run, use the `github-actions-debugger` skill.
+Specific failing run: use `github-actions-debugger` skill.
 
 ## Advanced Patterns
 
-Read the matching reference when the task goes deeper than the patterns above:
+Read matching reference when task goes past patterns above:
 
 - [references/github-actions-patterns.md](references/github-actions-patterns.md) - reusable workflows, composite actions, matrix strategies, OIDC setup
 - [references/slsa-security-framework.md](references/slsa-security-framework.md) - SLSA levels, provenance generation, cosign verification
@@ -450,18 +446,18 @@ Read the matching reference when the task goes deeper than the patterns above:
 
 - [examples/github-actions-basic/](examples/github-actions-basic/) - starter lint/test/build workflow
 - [examples/github-actions-monorepo/](examples/github-actions-monorepo/) - Turborepo with remote caching
-- [scripts/validate_workflow.py](scripts/validate_workflow.py) - validate workflow YAML and common best practices; `actionlint` is the more complete linter when installed
+- [scripts/validate_workflow.py](scripts/validate_workflow.py) - checks workflow YAML and common best practices; `actionlint` more complete when installed
 
 ## Done when
 
-- Pipeline stages run in dependency order with independent jobs parallel, and the critical path is measured before and after changes.
-- Dependency and build caches hit on a second run of an unchanged commit.
-- Credentials come from OIDC or scoped secrets, actions are SHA-pinned, and release artifacts carry provenance where required.
+- Stages run in dependency order, independent jobs in parallel. Critical path measured before and after changes.
+- Dependency and build caches hit on second run of unchanged commit.
+- Credentials from OIDC or scoped secrets. Actions SHA-pinned. Release artifacts carry provenance where required.
 
 ## Related Skills
 
 - `github-actions-advanced` - GitHub workflow syntax, hardening and self-hosted runners
-- `github-actions-debugger` - diagnosing a failing run
+- `github-actions-debugger` - diagnosing failing run
 - `testing-strategies` - what to run at which pipeline stage
 - `implementing-gitops` - continuous delivery to Kubernetes after CI
 - `dependency-scanning` - vulnerability and SBOM scanning stages

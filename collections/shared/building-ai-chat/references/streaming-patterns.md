@@ -15,8 +15,6 @@
 
 ### Token-by-Token Updates
 
-Stream tokens as they arrive from the AI model:
-
 ```tsx
 import { Streamdown } from 'streamdown';
 import type { UIMessage } from 'ai';
@@ -54,7 +52,7 @@ const cursorStyles = `
 
 ### Debounced Rendering
 
-Batch rapid token updates for performance:
+Batch rapid token updates to cut renders:
 
 ```tsx
 import { useMemo, useCallback } from 'react';
@@ -136,6 +134,7 @@ class MarkdownBuffer {
 Render partial markdown without breaking:
 
 ```tsx
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 
 function SafeMarkdownRenderer({ content, isStreaming }) {
@@ -163,10 +162,11 @@ function SafeMarkdownRenderer({ content, isStreaming }) {
         }
       }
 
-      return marked(safeText);
+      // Model output is untrusted: sanitize generated HTML before injecting it
+      return DOMPurify.sanitize(marked.parse(safeText, { async: false }) as string);
     } catch (error) {
-      // Fallback to plain text if parsing fails
-      return text;
+      // Fallback if parsing fails (still sanitized)
+      return DOMPurify.sanitize(text);
     }
   }, [isStreaming]);
 
@@ -182,8 +182,6 @@ function SafeMarkdownRenderer({ content, isStreaming }) {
 ## Auto-Scroll Management
 
 ### Intelligent Auto-Scroll Heuristic
-
-Only auto-scroll when appropriate:
 
 ```tsx
 function useAutoScroll(messagesContainerRef: RefObject<HTMLDivElement>) {
@@ -245,7 +243,7 @@ function useAutoScroll(messagesContainerRef: RefObject<HTMLDivElement>) {
 
 ### New Messages Indicator
 
-Show when new messages arrive off-screen:
+Flag new messages arriving off-screen:
 
 ```tsx
 function NewMessagesIndicator({ show, onClick, count }) {
@@ -299,7 +297,7 @@ const indicatorStyles = `
 
 ### Stop Button Implementation
 
-Always-visible stop control during streaming:
+Stop control stays visible during streaming:
 
 ```tsx
 function StopGenerationButton({ isStreaming, onStop }) {
@@ -357,8 +355,6 @@ function useStopShortcut(onStop: () => void, isStreaming: boolean) {
 
 ### Post-Stop Actions
 
-After stopping generation:
-
 ```tsx
 function PostStopActions({ message, onContinue, onRegenerate, onEdit }) {
   return (
@@ -393,7 +389,7 @@ function PostStopActions({ message, onContinue, onRegenerate, onEdit }) {
 
 ### Progressive Loading States
 
-Show appropriate feedback at each stage:
+Show fitting feedback per stage:
 
 ```tsx
 function LoadingStates({ status, duration }) {
@@ -472,8 +468,6 @@ const thinkingDotsStyles = `
 
 ### Timeout Handling
 
-Handle long-running requests:
-
 ```tsx
 function useRequestTimeout(onTimeout: () => void, timeoutMs = 30000) {
   const timeoutRef = useRef<NodeJS.Timeout>();
@@ -522,6 +516,7 @@ Critical for smooth 60fps streaming:
 
 ```tsx
 import { memo, useMemo } from 'react';
+import DOMPurify from 'dompurify';
 import { marked } from 'marked';
 
 // Parse markdown into blocks for individual memoization
@@ -539,7 +534,7 @@ function parseIntoBlocks(markdown: string): Block[] {
 const MemoizedBlock = memo(
   ({ block }: { block: Block }) => {
     const rendered = useMemo(
-      () => marked.parse(block.content),
+      () => DOMPurify.sanitize(marked.parse(block.content, { async: false }) as string),
       [block.hash]
     );
 
@@ -665,7 +660,7 @@ function useMarkdownWorker() {
     workerRef.current.addEventListener('message', (event) => {
       const { parsed, error } = event.data;
       if (!error) {
-        setParsed(parsed);
+        setParsed(DOMPurify.sanitize(parsed)); // workers have no DOM: sanitize on main thread
       }
     });
 
@@ -683,8 +678,6 @@ function useMarkdownWorker() {
 ## Streaming Cursor Behavior
 
 ### Smooth Cursor Animation
-
-Create a natural typing feel:
 
 ```tsx
 function StreamingCursor({ color = 'currentColor' }) {
@@ -762,25 +755,15 @@ const cursorStyles = `
 ## Best Practices Summary
 
 1. **Always use Streamdown or similar** for AI streaming (handles incomplete markdown)
-2. **Implement smart auto-scroll** - Respect user intent
-3. **Debounce updates** - Batch tokens for performance
-4. **Memoize aggressively** - Prevent unnecessary re-renders
-5. **Show clear loading states** - Users need feedback
-6. **Make stop button prominent** - Always accessible during streaming
-7. **Handle timeouts gracefully** - Long requests happen
-8. **Use virtual scrolling** for conversations >100 messages
-9. **Consider Web Workers** for heavy markdown processing
-10. **Test with slow connections** - Ensure graceful degradation
+2. **Use virtual scrolling** for conversations >100 messages
+3. **Test with slow connections** - Verify graceful degradation
 
 ## Additional Patterns
 
 ### Core Principles
 
 1. **Show immediate feedback** - Don't wait for first token
-2. **Stream progressively** - Append tokens as they arrive
-3. **Indicate completion** - Clear visual cue when done
-4. **Handle errors gracefully** - Don't leave users hanging
-5. **Enable interruption** - Allow users to stop generation
+2. **Indicate completion** - Clear visual cue when done
 
 ### Regenerate Response
 
@@ -835,17 +818,14 @@ async function streamWithRecovery(prompt: string) {
 ### Anti-Patterns
 
 **❌ Don't:**
-- Wait for complete response before displaying
-- Re-render entire component on every token
+- Wait for full response before displaying
+- Re-render whole component on every token
 - Scroll to top on each update
 - Block UI during streaming
 - Hide partial responses on error
-- Use polling instead of streaming
+- Poll instead of streaming
 
 **✅ Do:**
 - Stream progressively with SSE/WebSocket
 - Update UI efficiently (throttle, memo)
 - Auto-scroll smoothly to bottom
-- Allow interaction during streaming
-- Preserve partial content
-- Use proper streaming protocols

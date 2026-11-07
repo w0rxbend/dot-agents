@@ -7,7 +7,7 @@ tags: sec, ephemeral, stateless, twelve-factor
 
 ## Design Ephemeral, Stateless Containers
 
-Containers that store application state, user uploads, or logs on their local filesystem cannot be safely stopped, replaced, or horizontally scaled. If the container crashes or is rescheduled, the data is lost. If multiple replicas are running, each has a different view of the state. This creates data loss risks, prevents zero-downtime deployments, and blocks horizontal scaling. Following the Twelve-Factor App methodology, containers should be disposable processes that can be started and stopped at any moment.
+Containers keeping application state, uploads or logs on local filesystem cannot be safely stopped, replaced or horizontally scaled. Crash or reschedule loses data; replicas see diverging state. Twelve-Factor App: containers are disposable processes, startable or stoppable any moment.
 
 **Incorrect (state written to the container filesystem):**
 
@@ -26,8 +26,6 @@ RUN mkdir -p /app/uploads /app/sessions /app/logs
 EXPOSE 3000
 CMD ["node", "server.js"]
 ```
-
-(Uploads, sessions, and logs directories are created inside the container filesystem. Scaling to two replicas means half the requests see different uploads and different sessions. A container restart loses all accumulated data.)
 
 **Correct (state externalized, container is disposable):**
 
@@ -52,7 +50,7 @@ EXPOSE 3000
 CMD ["node", "server.js"]
 ```
 
-(The `/data/uploads` directory is created and owned by the `node` user. It is expected to be mounted at runtime via `docker run -v` or compose volumes — never via the `VOLUME` Dockerfile instruction, which creates untracked anonymous volumes. The application should store uploads in object storage (S3, GCS, MinIO), sessions in Redis or a database, and write logs to stdout for collection by the container runtime.)
+(Mount `/data/uploads` at runtime via `docker run -v` or compose volumes, never via `VOLUME` Dockerfile instruction (untracked anonymous volumes).)
 
 **Correct (Docker Compose with externalized state):**
 
@@ -83,15 +81,13 @@ volumes:
   pgdata:
 ```
 
-(The application service can scale to 3 replicas because no state lives inside the containers. PostgreSQL and Redis handle persistence, and the named volume provides a shared staging area for upload processing.)
-
 ### Ephemeral Container Checklist
 
 | Pattern | Incorrect | Correct |
 |---------|-----------|---------|
-| File uploads | Write to container filesystem | Object storage (S3, GCS, MinIO) |
+| File uploads | Container filesystem | Object storage (S3, GCS, MinIO) |
 | Sessions | In-memory or filesystem store | Redis, Memcached, or database |
-| Application logs | Write to file inside container | Stdout/stderr (12-factor logging) |
+| Application logs | File inside container | Stdout/stderr (12-factor logging) |
 | Cache | Local filesystem | Redis, Memcached, or CDN |
 | Scheduled state | Cron job writing to local file | Database or message queue |
 

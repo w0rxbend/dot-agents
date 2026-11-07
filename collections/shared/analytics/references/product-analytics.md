@@ -1,10 +1,10 @@
 # Product Analytics: Events, Funnels, Cohorts, North Star, Experiments
 
-Read this when the work is in-product analytics (activation, retention, feature adoption, experiments) rather than marketing-site tracking. All numbers below are illustrative, not benchmarks.
+Read when work is in-product analytics (activation, retention, feature adoption, experiments), not marketing-site tracking. All numbers below are illustrative, not benchmarks.
 
 ## Before instrumenting
 
-Record, in the tracking plan: the product decision the data informs, the source of truth (app DB, billing, analytics tool), the consent rules that apply, the reporting time zone, and the unit of analysis (user, account, device, session).
+Record in tracking plan: product decision the data informs, source of truth (app DB, billing, analytics tool), applicable consent rules, reporting time zone, unit of analysis (user, account, device, session).
 
 ## Event taxonomy by lifecycle stage
 
@@ -32,7 +32,7 @@ Do not put user-generated text (messages, search queries, form contents) in prop
 
 ## PostHog server-side capture (Python)
 
-Verified against `posthog` 7.x, where `capture` takes the event first and `distinct_id` as a keyword, and person properties are set with `set` (older SDKs used `capture(distinct_id, event, ...)` and `identify`). Check the installed version before copying.
+Verified against `posthog` 7.x: `capture` takes event first and `distinct_id` as keyword; person properties set with `set` (older SDKs used `capture(distinct_id, event, ...)` and `identify`). Check installed version before copying.
 
 ```python
 import os
@@ -53,7 +53,7 @@ track("user_123", "session_started", {"platform": "web", "days_since_last": 2})
 # call posthog.shutdown() on process exit so queued events are flushed
 ```
 
-Feature flags: in 7.x, `feature_enabled(key, distinct_id)` is deprecated in favor of evaluating once per request:
+Feature flags: in 7.x, `feature_enabled(key, distinct_id)` is deprecated; evaluate once per request instead:
 
 ```python
 flags = posthog.evaluate_flags(user_id)
@@ -63,19 +63,19 @@ else:
     show_old_onboarding()
 ```
 
-Do not send events or identify users before consent where the project requires it.
+Do not send events or identify users before consent where project requires it.
 
 ## Funnel analysis
 
 Illustrative activation funnel (hypothetical numbers): landing visit 100% -> clicked "try" 40% -> signed up 28% -> first value 17% -> returned next day 8.5% -> active 3+ days in week 3.4% -> converted to paid 0.7%.
 
-For each step whose drop-off is worse than your own baseline:
+For each step with drop-off worse than your own baseline:
 1. Locate where users leave (step and screen).
 2. Find out why (session recordings, surveys, error logs).
-3. Form a hypothesis for a change.
-4. Test it with a pre-registered experiment (see below).
-5. Measure over the predefined window and sample: effect with interval, data quality checks, guardrail metrics. Do not stop early on a favorable p-value; check for sample-ratio mismatch and tracking loss.
-6. Record what was learned even if the change failed.
+3. Form hypothesis for a change.
+4. Test with pre-registered experiment (see below).
+5. Measure over predefined window and sample: effect with interval, data quality checks, guardrail metrics. Do not stop early on favorable p-value. Check for sample-ratio mismatch and tracking loss.
+6. Record learnings even if change failed.
 
 ## Weekly cohort retention (pandas)
 
@@ -96,15 +96,15 @@ def weekly_cohort_retention(events: pd.DataFrame, activity_event: str = "session
     return counts.divide(counts[0], axis=0).mul(100).round(1)
 ```
 
-Report cohort size next to each row. A week that has not finished yet is unobserved (NaN), not zero retention; mask immature cells. Compare against mature cohorts of your own product, not published "benchmarks".
+Report cohort size next to each row. Unfinished week is unobserved (NaN), not zero retention. Mask immature cells. Compare against mature cohorts of your own product, not published "benchmarks".
 
 ## North Star metric
 
-1. What creates real value for the user? (e.g. completed conversations that lead to an action)
-2. State it as a hypothesis to validate: users with 3+ such sessions a week get recurring value.
+1. What creates real value for user? (e.g. completed conversations leading to an action)
+2. State it as hypothesis to validate: users with 3+ such sessions a week get recurring value.
 3. Define it precisely: "Weekly Active Conversationalists = users with >= 3 conversations of >= 2 minutes in the week."
 
-Compute it as one aggregate number per closed window, same time zone as the rest of reporting:
+Compute as one aggregate number per closed window, same time zone as rest of reporting:
 
 ```sql
 SELECT COUNT(*) AS wac
@@ -118,11 +118,11 @@ FROM (
 ) AS qualifying_users;
 ```
 
-Check: in a closed window where user A has three 120 s conversations, B has two, and C has four 60 s ones, the result is 1.
+Check: closed window where user A has three 120 s conversations, B has two, C has four 60 s ones. Result is 1.
 
 ## A/B significance check (two proportions)
 
-Before computing anything, record the randomization unit, primary metric, window, minimum detectable effect, stopping rule and guardrails.
+Before computing, record randomization unit, primary metric, window, minimum detectable effect, stopping rule and guardrails.
 
 ```python
 from scipy import stats
@@ -159,4 +159,4 @@ def ab_test_significance(control_conversions: int, control_visitors: int,
 # ab_test_significance(100, 1000, 130, 1000) -> p_value 0.0421, significant True
 ```
 
-A p-value alone does not measure product value, remove bias, or replace confidence intervals and experiment design. Treat the output as one input to a rollout decision, never as an automatic deploy trigger.
+P-value alone does not measure product value, remove bias, or replace confidence intervals and experiment design. Treat output as one input to rollout decision, never as automatic deploy trigger.

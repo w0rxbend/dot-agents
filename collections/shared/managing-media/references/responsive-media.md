@@ -1,7 +1,5 @@
 # Responsive Media Patterns
 
-Adaptive images and videos for different screen sizes and device capabilities.
-
 ## Responsive Images
 
 ### srcset and sizes
@@ -59,11 +57,10 @@ function AspectRatioBox({ ratio = 16/9, children }: Props) {
 
 ## Best Practices
 
-1. **srcset for resolution** - Serve appropriate size
-2. **Picture for art direction** - Different crops per breakpoint
-3. **Aspect ratio containers** - Prevent layout shift
-4. **Object-fit** - cover, contain, fill
-5. **Lazy loading** - Below-the-fold media
+1. **Picture for art direction** - Different crop per breakpoint
+2. **Aspect ratio containers** - Prevent layout shift
+3. **Object-fit** - cover, contain, fill
+4. **Lazy loading** - Below-the-fold media
 
 ## Resources
 

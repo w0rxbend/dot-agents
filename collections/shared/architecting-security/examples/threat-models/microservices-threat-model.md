@@ -159,6 +159,8 @@ Comprehensive threat model for microservices architecture using STRIDE methodolo
       - Block deployment of critical vulnerabilities
       - Daily rescans of running images
     code_example: |
+      # Trivy sends usage telemetry by default: opt out
+      export TRIVY_DISABLE_TELEMETRY=true TRIVY_SKIP_VERSION_CHECK=true
       trivy image --severity HIGH,CRITICAL \
         --exit-code 1 \
         gcr.io/project/service-a:v1.2.3

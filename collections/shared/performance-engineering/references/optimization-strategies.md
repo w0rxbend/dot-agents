@@ -18,23 +18,23 @@
 
 **Rule 1: Profile Before Optimizing**
 - Never optimize without profiling data
-- Intuition about bottlenecks is often wrong
+- Bottleneck intuition often wrong
 - "Premature optimization is the root of all evil" - Donald Knuth
 
 **Rule 2: Focus on Hot Paths**
 - Top 20% of code causes 80% of performance issues (Pareto Principle)
-- Optimize functions consuming most resources
-- Ignore infrequently called code (low impact)
+- Optimize functions using most resources
+- Ignore rarely called code (low impact)
 
 **Rule 3: Measure Impact**
-- Benchmark before and after optimization
+- Benchmark before and after
 - Quantify improvement (2x faster? 50% less memory?)
-- Re-profile to validate (ensure no regressions)
+- Re-profile to confirm no regressions
 
 **Rule 4: Consider Trade-offs**
 - Performance vs. maintainability (complex optimizations harder to maintain)
-- Memory vs. speed (caching uses memory for speed)
-- Consistency vs. latency (eventual consistency faster than strong consistency)
+- Memory vs. speed (caching trades memory for speed)
+- Consistency vs. latency (eventual consistency faster than strong)
 
 ### Optimization Priority
 
@@ -42,7 +42,7 @@
 2. **Caching** (avoid recomputation)
 3. **Database query optimization** (indexes, N+1 prevention)
 4. **I/O reduction** (batching, connection pooling)
-5. **Concurrency** (parallelization where safe)
+5. **Concurrency** (parallelize where safe)
 6. **Micro-optimizations** (last resort, minimal impact)
 
 ---
@@ -72,7 +72,7 @@ How complex is data generation?
 
 #### 1. Application-Level Caching (In-Memory)
 
-**Use case:** Frequently accessed objects, shared across requests.
+**Use case:** Often-accessed objects shared across requests.
 
 **Python (functools.lru_cache):**
 ```python
@@ -133,16 +133,16 @@ func getCached(key string, fn func() interface{}) interface{} {
 **Pros:**
 - Very fast (<1ms)
 - No network overhead
-- Simple implementation
+- Simple to build
 
 **Cons:**
 - Limited by process memory
 - Not shared across instances
-- Invalidation requires restart or TTL
+- Invalidation needs restart or TTL
 
 #### 2. Redis (Distributed Cache)
 
-**Use case:** Shared cache across multiple instances, session data, leaderboards.
+**Use case:** Cache shared across instances, session data, leaderboards.
 
 **Python (redis-py):**
 ```python
@@ -232,14 +232,14 @@ func getCachedData(key string, fn func() interface{}, ttl time.Duration) (interf
 
 **Cons:**
 - Network overhead
-- Additional infrastructure
+- Extra infrastructure
 - Cache invalidation complexity
 
 #### 3. CDN Caching
 
 **Use case:** Static assets, API responses for global users.
 
-**HTTP headers for CDN caching:**
+**CDN caching headers:**
 ```typescript
 // TypeScript (Express)
 app.get('/api/products', (req, res) => {
@@ -256,8 +256,8 @@ app.get('/api/products', (req, res) => {
 **Cache-Control directives:**
 - `public`: Cacheable by CDN and browsers
 - `private`: Cacheable by browsers only (not CDN)
-- `max-age=300`: Cache for 5 minutes (browser)
-- `s-maxage=600`: Cache for 10 minutes (CDN)
+- `max-age=300`: Cache 5 minutes (browser)
+- `s-maxage=600`: Cache 10 minutes (CDN)
 - `no-cache`: Revalidate before serving
 - `no-store`: Never cache
 
@@ -273,7 +273,7 @@ app.get('/api/products', (req, res) => {
 
 #### 4. Materialized Views (Database)
 
-**Use case:** Complex aggregations queried frequently.
+**Use case:** Complex aggregations queried often.
 
 **PostgreSQL:**
 ```sql
@@ -301,7 +301,7 @@ REFRESH MATERIALIZED VIEW daily_sales;
 **Cons:**
 - Stale data (refresh required)
 - Storage overhead
-- Refresh time (can be slow for large datasets)
+- Refresh time (can be slow on large datasets)
 
 ### Cache Invalidation Strategies
 
@@ -332,7 +332,7 @@ def update_product(product_id, data):
 ```
 
 **Pros:** Fresh data immediately.
-**Cons:** Requires code changes, cache stampede risk.
+**Cons:** Needs code changes, cache stampede risk.
 
 #### Write-Through Cache
 
@@ -419,9 +419,9 @@ db.Select(&result, `
 ### Indexing
 
 **When to add index:**
-- Column used in WHERE clause frequently
-- Column used in JOIN condition
-- Column used in ORDER BY
+- Column often in WHERE clause
+- Column in JOIN condition
+- Column in ORDER BY
 - Foreign keys
 
 **When NOT to add index:**
@@ -472,9 +472,7 @@ Index Scan using idx_orders_user_status on orders  -- GOOD: Index scan
 
 ### Connection Pooling
 
-**Problem:** Creating database connections is expensive (100ms+).
-
-**Solution:** Reuse connections via pooling.
+**Problem:** New database connections expensive (100ms+).
 
 **Python (SQLAlchemy):**
 ```python
@@ -518,19 +516,19 @@ db.SetConnMaxLifetime(5 * time.Minute)  // Max connection lifetime
 **Pool sizing:**
 - **CPU-bound:** connections = CPU cores
 - **I/O-bound:** connections = 2-3× CPU cores
-- **Start small:** 10-20 connections, increase if needed
+- **Start small:** 10-20 connections, grow if needed
 - **Monitor:** Connection utilization, wait times
 
 ### Query Optimization Checklist
 
-- [ ] Identify slow queries (query logs, APM)
+- [ ] Find slow queries (query logs, APM)
 - [ ] Run EXPLAIN ANALYZE
 - [ ] Add indexes to WHERE/JOIN/ORDER BY columns
 - [ ] Prevent N+1 queries (eager loading)
 - [ ] Use connection pooling
 - [ ] Limit result set size (pagination)
 - [ ] Avoid SELECT * (specify columns)
-- [ ] Use prepared statements (prevent SQL injection + performance)
+- [ ] Use prepared statements (prevent SQL injection, faster)
 
 ---
 
@@ -538,13 +536,9 @@ db.SetConnMaxLifetime(5 * time.Minute)  // Max connection lifetime
 
 ### Pagination
 
-**Problem:** Returning large datasets is slow and memory-intensive.
-
-**Solution:** Limit result set size.
+**Problem:** Large datasets slow and memory-intensive to return.
 
 #### Offset/Limit Pagination
-
-**Simple, but slow for large offsets.**
 
 ```typescript
 // TypeScript (Express)
@@ -570,8 +564,6 @@ app.get('/api/products', async (req, res) => {
 
 #### Cursor-Based Pagination
 
-**Fast, efficient for large datasets.**
-
 ```typescript
 // TypeScript (Express)
 app.get('/api/products', async (req, res) => {
@@ -592,19 +584,23 @@ app.get('/api/products', async (req, res) => {
 });
 ```
 
-**Pros:** Constant time complexity, efficient for large datasets.
+**Pros:** Constant time, efficient for large datasets.
 **Cons:** No direct page jumping (page 5), cursor must be opaque.
 
 ### Field Selection (Partial Responses)
 
-**Problem:** Returning all fields wastes bandwidth and serialization time.
-
-**Solution:** Allow clients to select fields.
+**Problem:** All fields waste bandwidth and serialization time.
 
 ```typescript
 // TypeScript (Express)
+const ALLOWED_FIELDS = new Set(['id', 'name', 'email', 'created_at']);
+
 app.get('/api/users', async (req, res) => {
   const fields = req.query.fields?.split(',') || ['id', 'name', 'email'];
+  // Column names can't be bound as parameters: allowlist them
+  if (fields.some((f) => !ALLOWED_FIELDS.has(f))) {
+    return res.status(400).json({ error: 'unknown field' });
+  }
 
   const query = `SELECT ${fields.join(', ')} FROM users`;
   const users = await db.query(query);
@@ -628,9 +624,7 @@ query {
 
 ### Batch Operations
 
-**Problem:** Multiple requests have overhead (latency, connection overhead).
-
-**Solution:** Combine multiple operations into single request.
+**Problem:** Each request adds overhead (latency, connection setup).
 
 ```typescript
 // Bad: Multiple requests
@@ -661,7 +655,7 @@ app.post('/api/users/batch', async (req, res) => {
 
 ### Response Compression
 
-**Enable gzip/brotli compression for responses.**
+**Enable gzip/brotli response compression.**
 
 ```typescript
 // TypeScript (Express)
@@ -673,11 +667,11 @@ app.use(compression({
 }));
 ```
 
-**Savings:** 60-80% reduction for JSON responses.
+**Savings:** 60-80% smaller JSON responses.
 
 ### API Performance Checklist
 
-- [ ] Implement pagination (cursor-based for large datasets)
+- [ ] Paginate (cursor-based for large datasets)
 - [ ] Allow field selection (reduce payload size)
 - [ ] Batch operations where possible
 - [ ] Enable response compression (gzip/brotli)
@@ -691,9 +685,7 @@ app.use(compression({
 
 ### HTTP Connection Pooling
 
-**Problem:** Creating HTTP connections is expensive (DNS, TCP handshake, TLS).
-
-**Solution:** Reuse connections via pooling.
+**Problem:** New HTTP connections expensive (DNS, TCP handshake, TLS).
 
 **Python (requests with Session):**
 ```python
@@ -834,14 +826,6 @@ wg.Wait()
 
 ### Time Complexity Matters
 
-**Common complexities:**
-- O(1): Constant time (hash table lookup)
-- O(log n): Logarithmic (binary search)
-- O(n): Linear (single loop)
-- O(n log n): Efficient sorting (merge sort)
-- O(n²): Quadratic (nested loops) - **AVOID**
-- O(2ⁿ): Exponential - **VERY BAD**
-
 **Example (remove duplicates):**
 ```python
 # Bad: O(n²)
@@ -878,15 +862,3 @@ allowed_ids = {1, 2, 3, 4, 5}
 if user_id in allowed_ids:  # O(1)
     pass
 ```
-
-### Optimization Checklist
-
-- [ ] Profile before optimizing (identify hot paths)
-- [ ] Fix algorithm complexity (O(n²) → O(n log n))
-- [ ] Cache expensive computations
-- [ ] Optimize database queries (indexes, N+1)
-- [ ] Use connection pooling
-- [ ] Implement pagination
-- [ ] Enable response compression
-- [ ] Parallelize I/O operations
-- [ ] Measure improvement (validate with benchmarks)

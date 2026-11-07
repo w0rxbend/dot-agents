@@ -2,7 +2,7 @@
 
 ## Type Constraints
 
-Use the tightest constraint that satisfies your needs:
+Use tightest constraint that fits:
 
 | Constraint | What It Allows | Use For |
 | --- | --- | --- |
@@ -26,7 +26,7 @@ type Stringer interface {
 }
 ```
 
-The `~` prefix includes all types whose underlying type matches (e.g., `~int` matches `type UserID int`).
+`~` prefix includes all types with matching underlying type (e.g., `~int` matches `type UserID int`).
 
 ## Generic Set Example
 
@@ -69,7 +69,7 @@ func InsertSorted[T cmp.Ordered](s []T, v T) []T {
 
 ## Constraint Composition
 
-Combine multiple constraints with embedded interfaces:
+Combine constraints with embedded interfaces:
 
 ```go
 type OrderedStringer interface {
@@ -80,11 +80,11 @@ type OrderedStringer interface {
 
 ## When NOT to Use Generics
 
-- **Single concrete type** — generics add complexity for no benefit
-- **`any` constraint with type switches** — you're just reimplementing `interface{}` with extra syntax
-- **Two or fewer instantiations** — the abstraction overhead isn't justified
-- **Complex type relationships** — Go's type system doesn't support higher-kinded types; if the constraints become convoluted, use interfaces instead
+- **Single concrete type** — added complexity, no benefit
+- **`any` constraint with type switches** — reimplements `interface{}` with extra syntax
+- **Two or fewer instantiations** — abstraction overhead not justified
+- **Complex type relationships** — Go's type system doesn't support higher-kinded types. If constraints get convoluted, use interfaces instead
 
-Generics shine for data structures (containers, sets, trees), algorithms (sort, search, transform), and utility functions (min, max, clamp) where the logic is identical across types.
+Generics shine for data structures (containers, sets, trees), algorithms (sort, search, transform), and utility functions (min, max, clamp) where logic is identical across types.
 
-→ See `samber/cc-skills-golang@golang-structs-interfaces` skill for generics vs `any` guidance and interface design.
+See `samber/cc-skills-golang@golang-structs-interfaces` skill for generics vs `any` guidance and interface design.

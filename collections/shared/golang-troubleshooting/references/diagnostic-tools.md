@@ -18,7 +18,7 @@
 
 ### Go documentation command
 
-Use `go doc`, not `go tool doc`. Go 1.26 removed the old `cmd/doc` / `go tool doc` path. Go 1.27 added `package@version` lookups (`go doc golang.org/x/tools/cmd/stringer@v0.30.0`) and an `-ex` flag that lists executable examples.
+Use `go doc`, not `go tool doc`. Go 1.26 removed old `cmd/doc` / `go tool doc` path. Go 1.27 added `package@version` lookups (`go doc golang.org/x/tools/cmd/stringer@v0.30.0`) and `-ex` flag listing executable examples.
 
 ### GC Tracing
 
@@ -53,7 +53,7 @@ GODEBUG=schedtrace=1000,scheddetail=1 ./app
 
 ### GOTRACEBACK
 
-Get full stack traces on panic:
+Full stack traces on panic:
 
 ```bash
 GOTRACEBACK=all ./app
@@ -73,7 +73,7 @@ GOTRACEBACK=all ./app
 ### Installation
 
 ```bash
-go install github.com/go-delve/delve/cmd/dlv@latest
+go install github.com/go-delve/delve/cmd/dlv@v1.27.2  # ask user before installing
 ```
 
 ### Basic Usage
@@ -81,7 +81,7 @@ go install github.com/go-delve/delve/cmd/dlv@latest
 ```bash
 dlv debug ./cmd/myapp          # debug a program
 dlv test ./mypackage           # debug a test
-dlv attach 12345               # attach to running process
+dlv attach 12345               # attach to running process (pauses it; confirm with user first)
 dlv exec ./myapp -- --flag=v   # execute binary with args
 ```
 
@@ -129,4 +129,4 @@ stack                # show stack trace
 
 ## Advanced Analysis
 
-→ See `samber/cc-skills-golang@golang-benchmark` skill (compiler-analysis.md) for detailed guides on escape analysis interpretation, assembly inspection, and compiler diagnostics (SSA dump, inlining decisions). See also trace.md for execution tracer analysis.
+→ See `samber/cc-skills-golang@golang-benchmark` skill (compiler-analysis.md) for escape analysis interpretation, assembly inspection, and compiler diagnostics (SSA dump, inlining decisions). See also trace.md for execution tracer analysis.

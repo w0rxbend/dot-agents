@@ -15,22 +15,20 @@
 
 ## When to Use
 
-Apply DDD when the business domain is complex enough that the code structure should mirror the business model — typically services with 5K+ lines, multiple bounded contexts, or rich business rules. Do NOT use for simple CRUD apps or CLI tools.
+Use when business domain is complex enough for code structure to mirror business model — typically services with 5K+ lines, multiple bounded contexts, or rich business rules. Do NOT use for simple CRUD apps or CLI tools.
 
 ## Building Blocks
 
 | Concept | Go Mapping | Purpose |
 | --- | --- | --- |
-| **Entity** | Struct with identity field | Has unique ID, mutable state, lifecycle |
-| **Value Object** | Immutable struct, compared by value | No identity — represents a measurement, quantity, or descriptor |
-| **Aggregate** | Entity + child entities/value objects | Consistency boundary — all mutations go through the root |
+| **Entity** | Struct with identity field | Unique ID, mutable state, lifecycle |
+| **Value Object** | Immutable struct, compared by value | No identity — represents measurement, quantity, or descriptor |
+| **Aggregate** | Entity + child entities/value objects | Consistency boundary — all mutations go through root |
 | **Repository** | Interface in domain, impl in infrastructure | Persistence abstraction for aggregates |
-| **Domain Service** | Function or struct in domain package | Logic that spans multiple aggregates |
-| **Domain Event** | Struct describing a fact that happened | Decouples bounded contexts |
+| **Domain Service** | Function or struct in domain package | Logic spanning multiple aggregates |
+| **Domain Event** | Struct describing fact that happened | Decouples bounded contexts |
 
 ## Project Structure
-
-Organize by **bounded context**, grouping domain, application, and adapters vertically. This scales across multiple contexts and clarifies ownership.
 
 ```
 order-service/
@@ -69,7 +67,6 @@ order-service/
 
 - Group each bounded context **vertically** (domain → application → adapters), not by technical role
 - Use `adapters/` instead of `infrastructure/` to be explicit about Hexagonal Architecture
-- Make cross-context boundaries explicit (see **Bounded Contexts** section below)
 - Place shared infrastructure (event bus, logging) at `internal/{shared}/` or `internal/events/`
 
 ## Code Examples
@@ -147,7 +144,7 @@ type Repository interface {
 }
 ```
 
-The implementation lives in `internal/order/adapters/persistence/postgres.go` and depends on the domain — never the reverse.
+Implementation lives in `internal/order/adapters/persistence/postgres.go` and depends on domain — never the reverse.
 
 ### Application Service — orchestrates a use case
 
@@ -188,9 +185,9 @@ func (h *PlaceOrderHandler) Handle(ctx context.Context, cmd PlaceOrderCommand) e
 
 ## Bounded Contexts
 
-Each bounded context maps to a top-level package under `internal/` with its own domain, application, and adapters. Contexts communicate through domain events or explicit anti-corruption layers — never by importing each other's internal types directly.
+Each bounded context maps to top-level package under `internal/` with own domain, application and adapters. Contexts communicate via domain events or explicit anti-corruption layers — never by importing each other's internal types directly.
 
-**Anti-corruption layer example:** If `billing/` needs to consume an `order.OrderPlaced` event, translate it to a billing-specific type:
+**Anti-corruption layer example:** if `billing/` consumes `order.OrderPlaced` event, translate it to billing-specific type:
 
 ```go
 // internal/billing/adapters/events/order_events.go
@@ -212,10 +209,8 @@ func (s *OrderPlacedSubscriber) OnOrderPlaced(evt events.OrderPlaced) error {
 }
 ```
 
-This prevents billing from depending on order's internal types.
-
-For large systems, each context can be its own Go module in a workspace (`go.work`). See the `samber/cc-skills-golang@golang-project-layout` skill for workspace setup.
+Large systems: each context can be its own Go module in workspace (`go.work`). See `samber/cc-skills-golang@golang-project-layout` skill for workspace setup.
 
 ## Wiring
 
-Wire dependencies in `cmd/server/main.go` using manual constructor injection. → See `samber/cc-skills-golang@golang-dependency-injection` skill for DI library alternatives.
+Wire dependencies in `cmd/server/main.go` with manual constructor injection. → See `samber/cc-skills-golang@golang-dependency-injection` skill for DI library alternatives.

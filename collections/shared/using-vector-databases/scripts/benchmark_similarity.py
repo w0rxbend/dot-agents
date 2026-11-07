@@ -10,7 +10,9 @@ Usage:
 """
 
 import argparse
+import os
 import time
+import uuid
 import statistics
 from typing import List, Dict
 import sys
@@ -38,15 +40,11 @@ def benchmark_qdrant(
 ) -> Dict:
     """Benchmark Qdrant performance."""
     client = QdrantClient(url, port=port)
-    collection_name = "benchmark_test"
+    # Unique name: never touch an existing collection
+    collection_name = f"benchmark_test_{uuid.uuid4().hex[:8]}"
 
     # Setup
-    print("Setting up Qdrant collection...")
-    try:
-        client.delete_collection(collection_name)
-    except Exception:
-        pass
-
+    print(f"Setting up Qdrant collection {collection_name}...")
     client.create_collection(
         collection_name=collection_name,
         vectors_config=VectorParams(
@@ -111,18 +109,20 @@ def benchmark_pgvector(
         return None
 
     if not connection_string:
-        connection_string = "postgresql://postgres:password@localhost/vectordb"
+        connection_string = os.getenv(
+            "PGVECTOR_URL", "postgresql://postgres:password@localhost/vectordb"
+        )
 
     conn = psycopg2.connect(connection_string)
     conn.autocommit = True
     register_vector(conn)
     cur = conn.cursor()
 
-    # Setup
-    print("Setting up pgvector table...")
-    cur.execute("DROP TABLE IF EXISTS benchmark_test")
+    # Setup (unique name: never drop an existing table)
+    table = f"benchmark_test_{uuid.uuid4().hex[:8]}"
+    print(f"Setting up pgvector table {table}...")
     cur.execute(f"""
-        CREATE TABLE benchmark_test (
+        CREATE TABLE {table} (
             id SERIAL PRIMARY KEY,
             embedding vector({len(vectors[0])})
         )
@@ -134,7 +134,7 @@ def benchmark_pgvector(
 
     for vec in vectors:
         cur.execute(
-            "INSERT INTO benchmark_test (embedding) VALUES (%s)",
+            f"INSERT INTO {table} (embedding) VALUES (%s)",
             (vec,)
         )
 
@@ -144,8 +144,8 @@ def benchmark_pgvector(
     # Create index
     print("Creating HNSW index...")
     start = time.time()
-    cur.execute("""
-        CREATE INDEX ON benchmark_test
+    cur.execute(f"""
+        CREATE INDEX ON {table}
         USING hnsw (embedding vector_cosine_ops)
     """)
     index_time = time.time() - start
@@ -158,9 +158,9 @@ def benchmark_pgvector(
     for query in queries:
         start = time.time()
         cur.execute(
-            """
+            f"""
             SELECT id, embedding <=> %s AS distance
-            FROM benchmark_test
+            FROM {table}
             ORDER BY embedding <=> %s
             LIMIT 10
             """,
@@ -170,7 +170,7 @@ def benchmark_pgvector(
         search_times.append(time.time() - start)
 
     # Cleanup
-    cur.execute("DROP TABLE benchmark_test")
+    cur.execute(f"DROP TABLE {table}")
     conn.close()
 
     return {
@@ -246,7 +246,7 @@ def main():
     )
     parser.add_argument(
         "--pgvector-conn",
-        help="PostgreSQL connection string"
+        help="PostgreSQL connection string (default: $PGVECTOR_URL; prefer env to keep passwords out of argv)"
     )
 
     args = parser.parse_args()

@@ -13,7 +13,7 @@
 
 ## Variables
 
-Name length SHOULD be **proportional to scope size**. Short names for small scopes, descriptive names for large scopes.
+Name length SHOULD be **proportional to scope size**: short for small scopes, descriptive for large.
 
 ```go
 // Small scope (1-7 lines): short names are fine
@@ -48,7 +48,7 @@ Common single-letter conventions:
 
 ### Avoid Type in the Name
 
-The name should describe what the value represents, not its type.
+Describe what value represents, not its type.
 
 ```go
 // Good
@@ -63,7 +63,7 @@ nameString := "hello"
 
 ### Avoid Repetition with Context
 
-Omit words already clear from the enclosing function, method, or type.
+Omit words already clear from enclosing function, method, or type.
 
 ```go
 // Good — "user" is clear from the method receiver
@@ -75,7 +75,7 @@ func (u *UserService) CreateUser(userName string) error { ... }
 
 ### Use Predictable Names
 
-The same concept MUST always use the same name across the codebase. If a user is called `user` in one function, it should not become `account`, `person`, or `u` in another. Consistency makes code searchable and reduces cognitive load.
+Same concept MUST always use same name across codebase. `user` in one function should not become `account`, `person`, or `u` in another.
 
 ```go
 // Good — same concept, same name everywhere
@@ -89,11 +89,11 @@ func UpdateAccount(acct *User) error { ... }   // why "acct"? it's a User
 func RemovePerson(id string) error { ... }      // why "person"? why "remove"?
 ```
 
-This applies to variables, parameters, functions, and fields. Pick one name per domain concept and stick with it: `order` not sometimes `order` / sometimes `purchase`; `userID` not sometimes `userID` / sometimes `uid` / sometimes `userId`.
+Applies to variables, parameters, functions, fields. One name per domain concept: `order` not sometimes `order` / sometimes `purchase`; `userID` not sometimes `userID` / sometimes `uid` / sometimes `userId`.
 
 ### Parameters
 
-Parameters double as documentation at the call site. When the type is descriptive, keep the name short. When the type is ambiguous, use a longer name to clarify intent.
+Parameters double as documentation at call site. Descriptive type: keep name short. Ambiguous type: use longer name to clarify intent.
 
 ```go
 // Good — type is descriptive, short name is fine
@@ -111,7 +111,7 @@ func HasPrefix(a, b string) bool    // which is the prefix?
 
 ## Booleans
 
-Boolean variables and fields should read naturally as true/false questions. This skill's house style uses prefixes like `is`, `has`, `can`, `allow`, `should` on **both variables and struct fields**; this is not an official Go rule (the stdlib often uses bare names such as `Closed`), so follow the existing codebase when it differs.
+Boolean variables and fields should read as true/false questions. House style: prefixes like `is`, `has`, `can`, `allow`, `should` on **both variables and struct fields**. Not an official Go rule (stdlib often uses bare names such as `Closed`); follow existing codebase when it differs.
 
 ```go
 // Good — struct fields use is/has prefix
@@ -131,11 +131,11 @@ type Client struct {
 }
 ```
 
-For exported boolean methods, the prefix becomes part of the method name: `IsValid()`, `HasPrefix()`, `CanRetry()`. The unexported field keeps the prefix too: `isConnected` field → `IsConnected()` method.
+Exported boolean methods carry prefix in name: `IsValid()`, `HasPrefix()`, `CanRetry()`. Unexported field keeps it too: `isConnected` field → `IsConnected()` method.
 
 ## Receivers
 
-Receivers MUST be **1-2 letter abbreviations** of the type name. Use the same name across all methods of a type.
+Receivers MUST be **1-2 letter abbreviations** of type name. Use same name across all methods of a type.
 
 ```go
 // Good — short, consistent
@@ -156,7 +156,7 @@ func (this *Server) Handle(r *Request) { ... }
 
 ## Acronyms and Initialisms
 
-Acronyms MUST be **all caps or all lower**, NEVER mixed. This preserves readability in MixedCaps names.
+Acronyms MUST be **all caps or all lower**, NEVER mixed.
 
 ```go
 // Good
@@ -173,4 +173,4 @@ HttpServer    // mixed case
 userId        // mixed case for ID
 ```
 
-When exporting a lowercase acronym, capitalize the whole thing: `url` → `URL`, `grpc` → `GRPC`, `ios` → `IOS`.
+When exporting lowercase acronym, capitalize all of it: `url` → `URL`, `grpc` → `GRPC`, `ios` → `IOS`.

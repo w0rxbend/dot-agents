@@ -21,12 +21,12 @@ Full reference: https://hermes-agent.nousresearch.com/docs/user-guide/configurat
 | `checkpoints` | `enabled`, `max_snapshots` (50) |
 | `curator` | `enabled`, `consolidate` (false, opt-in aux-model consolidation), `interval_hours`, `stale_after_days` |
 
-`hermes config check` reports sections missing from an older config.
+`hermes config check` reports sections missing from older config.
 
 ### Toolsets
 
 Enable/disable via `hermes tools` (interactive) or `hermes tools enable/disable NAME`.
-Full enumeration: `TOOLSETS` dict in `toolsets.py` (`_HERMES_CORE_TOOLS` is the default bundle most platforms inherit).
+Full enumeration: `TOOLSETS` dict in `toolsets.py` (`_HERMES_CORE_TOOLS` is default bundle most platforms inherit).
 
 | Toolset | What it provides |
 |---------|-----------------|
@@ -56,13 +56,13 @@ Full enumeration: `TOOLSETS` dict in `toolsets.py` (`_HERMES_CORE_TOOLS` is the 
 | `safe` | Minimal low-risk toolset for locked-down sessions |
 | `spotify`, `homeassistant`, `discord`, `discord_admin`, `feishu_doc`, `feishu_drive`, `yuanbao` | Service integrations (gated on their credentials) |
 
-Tool changes take effect on `/reset` (new session) — never mid-conversation, to preserve prompt caching.
+Tool changes take effect on `/reset` (new session), never mid-conversation. Preserves prompt caching.
 
 ## Voice
 
 ### STT (Voice → Text)
 
-Voice messages from messaging platforms are auto-transcribed.
+Voice messages from messaging platforms auto-transcribed.
 
 ```yaml
 stt:

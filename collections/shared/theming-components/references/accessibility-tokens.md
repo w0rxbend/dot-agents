@@ -1,8 +1,5 @@
 # Accessibility Token Reference
 
-**WCAG 2.1 compliant design tokens for accessible interfaces**
-
-
 ## Table of Contents
 
 - [WCAG Contrast Requirements](#wcag-contrast-requirements)
@@ -78,7 +75,7 @@ python scripts/validate_contrast.py
 
 ## High-Contrast Theme
 
-**For users with visual impairments:**
+**For visually impaired users:**
 
 ```css
 :root[data-theme="high-contrast"] {
@@ -99,7 +96,7 @@ python scripts/validate_contrast.py
 }
 ```
 
-**Auto-apply via system preference:**
+**Auto-apply from system preference:**
 ```css
 @media (prefers-contrast: high) {
   :root {
@@ -112,7 +109,7 @@ python scripts/validate_contrast.py
 
 ## Reduced Motion
 
-**Honor user's motion preference:**
+**Honor user motion preference:**
 
 ```css
 @media (prefers-reduced-motion: reduce) {
@@ -211,7 +208,7 @@ button:focus-visible {
 
 **Avoid red/green combinations:**
 - 8% of males have red-green colorblindness
-- Use blue/orange, purple/yellow instead
+- Use blue/orange or purple/yellow instead
 
 ### Don't Rely on Color Alone
 
@@ -233,24 +230,24 @@ button:focus-visible {
 ## Accessibility Checklist
 
 ### Token Design
-- [ ] Text/background combinations meet 4.5:1 (AA)
+- [ ] Text/background pairs meet 4.5:1 (AA)
 - [ ] UI components meet 3:1 contrast
-- [ ] High-contrast theme provides 7:1 (AAA)
-- [ ] Focus indicators are clearly visible
+- [ ] High-contrast theme gives 7:1 (AAA)
+- [ ] Focus indicators clearly visible
 - [ ] Reduced motion preference honored
 
 ### Implementation
 - [ ] Use semantic color tokens (not primitives)
-- [ ] Provide focus indicators on all interactive elements
+- [ ] Give every interactive element a focus indicator
 - [ ] Don't rely on color alone (use icons/patterns)
 - [ ] Test with colorblind simulators
 - [ ] Test keyboard navigation
 
 ### Testing Tools
-- **Chrome DevTools**: Contrast ratio checker, color vision deficiency simulator
+- **Chrome DevTools**: contrast ratio checker, color vision deficiency simulator
 - **Firefox**: Accessibility inspector
-- **WAVE**: Web accessibility evaluation tool
-- **axe DevTools**: Automated accessibility testing
+- **WAVE**: web accessibility evaluation tool
+- **axe DevTools**: automated accessibility testing
 
 ---
 
@@ -259,7 +256,3 @@ button:focus-visible {
 - **WCAG 2.1:** https://www.w3.org/WAI/WCAG21/quickref/
 - **Contrast Checker:** https://webaim.org/resources/contrastchecker/
 - **Color Blind Simulator:** Sim Daltonism (Mac), Color Oracle (cross-platform)
-
----
-
-**Validation script:** `scripts/validate_contrast.py`

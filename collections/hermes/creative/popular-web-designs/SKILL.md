@@ -18,37 +18,34 @@ triggers:
 
 # Popular Web Designs
 
-54 real-world design systems ready for use when generating HTML/CSS. Each template captures a
-site's complete visual language: color palette, typography hierarchy, component styles, spacing
-system, shadows, responsive behavior, and practical agent prompts with exact CSS values.
+Each template captures site's visual language: color palette, typography hierarchy, component
+styles, spacing system, shadows, responsive behavior, and agent prompts with exact CSS values.
 
 ## Related design skills
 
-- **`claude-design`** — use for the design *process and taste* (scoping a brief,
+- **`claude-design`** — use for design *process and taste* (scoping a brief,
   producing variants, verifying a local HTML artifact, avoiding AI-design slop).
-  Pair it with this skill when the user wants a thoughtfully-designed page styled
-  after a known brand: `claude-design` drives the workflow, this skill supplies
-  the visual vocabulary.
-- **`design-md`** — use when the deliverable is a formal DESIGN.md token spec
-  file, not a rendered artifact.
+  Pair with this skill when user wants a thoughtfully-designed page styled after
+  known brand: `claude-design` drives workflow, this skill supplies visual vocabulary.
+- **`design-md`** — use when deliverable is formal DESIGN.md token spec file,
+  not rendered artifact.
 
 ## How to Use
 
-1. Pick a design from the catalog below
+1. Pick design from catalog below
 2. Load it: `skill_view(name="popular-web-designs", file_path="templates/<site>.md")`
-3. Use the design tokens and component specs when generating HTML
-4. Preview locally (open the file in a browser, or `python3 -m http.server` in its directory).
-   Do not expose it publicly through a tunnel unless the user asks for that.
+3. Use its design tokens and component specs when generating HTML
+4. Preview locally (open file in browser, or `python3 -m http.server 8000 --bind 127.0.0.1 --directory <output-dir>`;
+   output dir holds only generated page). Do not expose it publicly through a tunnel unless user asks.
 
-**Brand safety:** the templates borrow a site's *visual language* (palette, type scale,
-spacing). Do not reproduce the brand's logo, name, wordmark, product names or copy, and
-do not build anything that could be mistaken for the real company's site (login pages,
-checkout, support pages). Use the user's own brand name and content.
+**Brand safety:** templates borrow site's *visual language* (palette, type scale, spacing).
+Do not reproduce brand's logo, name, wordmark, product names or copy. Do not build anything
+that could be mistaken for real company's site (login pages, checkout, support pages).
+Use user's own brand name and content.
 
-Each template includes a **Hermes Implementation Notes** block at the top with:
+Each template has **Hermes Implementation Notes** block at top with:
 - CDN font substitute and Google Fonts `<link>` tag (ready to paste)
 - CSS font-family stacks for primary and monospace
-- Reminders to use `write_file` for HTML creation and `browser_vision` for verification
 
 ## HTML Generation Pattern
 
@@ -86,13 +83,12 @@ Each template includes a **Hermes Implementation Notes** block at the top with:
 </html>
 ```
 
-Write the file with `write_file`, serve it locally, and verify the result with
-`browser_vision` to confirm visual accuracy.
+Write file with `write_file`, serve it locally, verify visual accuracy with `browser_vision`.
 
 ## Font Substitution Reference
 
-Most sites use proprietary fonts unavailable via CDN. Each template maps to a Google Fonts
-substitute that preserves the design's character. Common mappings:
+Most sites use proprietary fonts unavailable via CDN. Each template maps to Google Fonts
+substitute that keeps design's character. Common mappings:
 
 | Proprietary Font | CDN Substitute | Character |
 |---|---|---|
@@ -112,10 +108,9 @@ substitute that preserves the design's character. Common mappings:
 | IBM Plex Sans/Mono | IBM Plex Sans/Mono | Available on Google Fonts |
 | Rubik (Sentry) | Rubik | Available on Google Fonts |
 
-When a template's CDN font matches the original (Inter, IBM Plex, Rubik, Geist), no
-substitution loss occurs. When a substitute is used (DM Sans for Circular, Source Sans 3
-for sohne-var), follow the template's weight, size, and letter-spacing values closely —
-those carry more visual identity than the specific font face.
+If template's CDN font matches original (Inter, IBM Plex, Rubik, Geist), no substitution loss.
+If template uses a substitute (DM Sans for Circular, Source Sans 3 for sohne-var), follow its
+weight, size, and letter-spacing values closely. Those carry more visual identity than exact font face.
 
 ## Design Catalog
 
@@ -188,7 +183,7 @@ those carry more visual identity than the specific font face.
 | `coinbase.md` | Coinbase | Clean blue identity, trust-focused, institutional feel |
 | `kraken.md` | Kraken | Purple-accented dark UI, data-dense dashboards |
 | `revolut.md` | Revolut | Sleek dark interface, gradient cards, fintech precision |
-| `wise.md` | Wise | Bright green accent, friendly and clear |
+| `wise.md` | Wise | Bright green accent, friendly, clear |
 
 ### Enterprise & Consumer
 
@@ -205,7 +200,7 @@ those carry more visual identity than the specific font face.
 
 ## Choosing a Design
 
-Match the design to the content:
+Match design to content:
 
 - **Developer tools / dashboards:** Linear, Vercel, Supabase, Raycast, Sentry
 - **Documentation / content sites:** Mintlify, Notion, Sanity, MongoDB

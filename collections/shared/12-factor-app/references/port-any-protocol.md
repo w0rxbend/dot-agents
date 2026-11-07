@@ -7,7 +7,7 @@ tags: port, protocols, services, microservices
 
 ## Use Port Binding to Export Any Protocol Not Just HTTP
 
-The port-binding pattern applies to any protocol, not just HTTP. Applications can export services via SMTP, Redis protocol, gRPC, WebSocket, or any custom protocol. This enables one twelve-factor app to serve as a backing service for another.
+Port binding applies to any protocol, not just HTTP. Apps can export services via SMTP, Redis protocol, gRPC, WebSocket or any custom protocol. One twelve-factor app can then serve as backing service for another.
 
 **Incorrect (protocol-specific deployment requirements):**
 
@@ -61,27 +61,6 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
 ```
 
-**gRPC service:**
-
-```python
-# gRPC service on port
-import grpc
-from concurrent import futures
-import user_pb2_grpc
-
-class UserService(user_pb2_grpc.UserServiceServicer):
-    def GetUser(self, request, context):
-        return user_pb2.User(id=request.id, name="Alice")
-
-def serve():
-    port = os.environ.get('PORT', '50051')
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    user_pb2_grpc.add_UserServiceServicer_to_server(UserService(), server)
-    server.add_insecure_port(f'[::]:{port}')
-    server.start()
-    server.wait_for_termination()
-```
-
 **WebSocket service:**
 
 ```python
@@ -129,11 +108,5 @@ USER_SERVICE_URL = os.environ['USER_SERVICE_URL']  # grpc://user-service:50051
 # User service is an attached resource, just like a database
 # Can swap implementations without changing API gateway code
 ```
-
-**Benefits:**
-- Microservices can be backing services for each other
-- Service mesh handles routing regardless of protocol
-- Same deployment model for HTTP, gRPC, WebSocket, etc.
-- Easy to swap service implementations
 
 Reference: [The Twelve-Factor App - Port Binding](https://12factor.net/port-binding)

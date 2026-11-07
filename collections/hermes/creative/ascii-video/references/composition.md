@@ -1,14 +1,12 @@
 # Composition & Brightness Reference
 
-The composable system is the core of visual complexity. It operates at three levels: pixel-level blend modes, multi-grid composition, and adaptive brightness management. This document covers all three, plus the masking/stencil system for spatial control.
-
 > **See also:** architecture.md · effects.md · scenes.md · shaders.md · troubleshooting.md
 
 ## Pixel-Level Blend Modes
 
 ### The `blend_canvas()` Function
 
-All blending operates on full pixel canvases (`uint8 H,W,3`). Internally converts to float32 [0,1] for precision, blends, lerps by opacity, converts back.
+Blends full pixel canvases (`uint8 H,W,3`). Converts to float32 [0,1] for precision, blends, lerps by opacity, converts back.
 
 ```python
 def blend_canvas(base, top, mode="normal", opacity=1.0):
@@ -67,46 +65,32 @@ BLEND_MODES = {
 ### Blend Mode Selection Guide
 
 **Modes that brighten** (safe for dark inputs):
-- `screen` — always brightens. Two 50% gray layers screen to 75%. The go-to safe blend.
-- `add` — simple addition, clips at white. Good for sparkles, glows, particle overlays.
-- `colordodge` — extreme brightening at overlap zones. Can blow out. Use low opacity (0.3-0.5).
-- `linearlight` — aggressive brightening. Similar to add but with offset.
+- `screen` — always brightens. Two 50% gray layers screen to 75%. Go-to safe blend.
+- `add` — plain addition, clips at white. For sparkles, glows, particle overlays.
+- `colordodge` — extreme brightening at overlaps. Can blow out. Use low opacity (0.3-0.5).
+- `linearlight` — aggressive brightening. Like add, with offset.
 
 **Modes that darken** (avoid with dark inputs):
-- `multiply` — darkens everything. Only use when both layers are already bright.
-- `overlay` — darkens when base < 0.5, brightens when base > 0.5. Crushes dark inputs: `2 * 0.12 * 0.12 = 0.03`. Use `screen` instead for dark material.
-- `colorburn` — extreme darkening at overlap zones.
+- `multiply` — darkens everything. Use only when both layers already bright.
+- `overlay` — darkens when base < 0.5, brightens when base > 0.5. Crushes dark inputs: `2 * 0.12 * 0.12 = 0.03`. Use `screen` for dark material.
+- `colorburn` — extreme darkening at overlaps.
 
 **Modes that create contrast**:
-- `softlight` — gentle contrast. Good for subtle texture overlay.
-- `hardlight` — strong contrast. Like overlay but keyed on the top layer.
+- `softlight` — gentle contrast. For subtle texture overlay.
+- `hardlight` — strong contrast. Overlay keyed on top layer.
 - `vividlight` — very aggressive contrast. Use sparingly.
 
 **Modes that create color effects**:
-- `difference` — XOR-like patterns. Two identical layers difference to black; offset layers create wild colors. Great for psychedelic looks.
-- `exclusion` — softer version of difference. Creates complementary color patterns.
+- `difference` — XOR-like patterns. Identical layers give black; offset layers give wild colors. Great for psychedelic looks.
+- `exclusion` — softer difference. Complementary color patterns.
 - `hard_mix` — posterizes to pure black/white/saturated color at intersections.
 
 **Modes for texture blending**:
-- `grain_extract` / `grain_merge` — extract a texture from one layer, apply it to another.
-
-### Multi-Layer Chaining
-
-```python
-# Pattern: render layers -> blend sequentially
-canvas_a = _render_vf(r, "md", vf_plasma, hf_angle(0.0), PAL_DENSE, f, t, S)
-canvas_b = _render_vf(r, "sm", vf_vortex, hf_time_cycle(0.1), PAL_RUNE, f, t, S)
-canvas_c = _render_vf(r, "lg", vf_rings, hf_distance(), PAL_BLOCKS, f, t, S)
-
-result = blend_canvas(canvas_a, canvas_b, "screen", 0.8)
-result = blend_canvas(result, canvas_c, "difference", 0.6)
-```
-
-Order matters: `screen(A, B)` is commutative, but `difference(screen(A,B), C)` differs from `difference(A, screen(B,C))`.
+- `grain_extract` / `grain_merge` — extract texture from one layer, apply to another.
 
 ### Linear-Light Blend Modes
 
-Standard `blend_canvas()` operates in sRGB space — the raw byte values. This is fine for most uses, but sRGB is perceptually non-linear: blending in sRGB darkens midtones and shifts hues slightly. For physically accurate blending (matching how light actually combines), convert to linear light first.
+`blend_canvas()` works in sRGB space (raw byte values). Fine for most uses. sRGB is perceptually non-linear: blending in sRGB darkens midtones, shifts hues slightly. For physically accurate blending (how light combines), convert to linear light first.
 
 Uses `srgb_to_linear()` / `linear_to_srgb()` from `architecture.md` § OKLAB Color System.
 
@@ -135,12 +119,12 @@ def blend_canvas_linear(base, top, mode="normal", opacity=1.0):
 |----------|-----|-----|
 | Screen-blending two bright layers | `linear` | sRGB screen over-brightens highlights |
 | Add mode for glow/bloom effects | `linear` | Additive light follows linear physics |
-| Blending text overlay at low opacity | `srgb` | Perceptual blending looks more natural for text |
-| Multiply for shadow/darkening | `srgb` | Differences are minimal for darken ops |
+| Text overlay at low opacity | `srgb` | Perceptual blending looks more natural for text |
+| Multiply for shadow/darkening | `srgb` | Minimal difference for darken ops |
 | Color-critical work (matching reference) | `linear` | Avoids sRGB hue shifts in midtones |
 | Performance-critical inner loop | `srgb` | ~2x faster, good enough for most ASCII art |
 
-**Batch version** for compositing many layers (converts once, blends multiple, converts back):
+**Batch version** for many layers (converts once, blends all, converts back):
 
 ```python
 def blend_many_linear(layers, modes, opacities):
@@ -171,7 +155,7 @@ def blend_many_linear(layers, modes, opacities):
 
 ## Multi-Grid Composition
 
-This is the core visual technique. Rendering the same conceptual scene at different grid densities (character sizes) creates natural texture interference, because characters at different scales overlap at different spatial frequencies.
+Core visual technique. Render same conceptual scene at different grid densities (character sizes). Characters at different scales overlap at different spatial frequencies, giving natural texture interference.
 
 ### Why It Works
 
@@ -179,11 +163,9 @@ This is the core visual technique. Rendering the same conceptual scene at differ
 - `md` grid (16pt): 192x56 characters. Medium density.
 - `lg` grid (20pt): 160x45 characters. Coarse, chunky characters.
 
-When you render a plasma field on `sm` and a vortex on `lg`, then screen-blend them, the fine plasma texture shows through the gaps in the coarse vortex characters. The result has more visual complexity than either layer alone.
+Screen-blend plasma on `sm` with vortex on `lg`: fine plasma texture shows through gaps in coarse vortex characters.
 
 ### The `_render_vf()` Helper
-
-This is the workhorse function. It takes a value field + hue field + palette + grid, renders to a complete pixel canvas:
 
 ```python
 def _render_vf(r, grid_key, val_fn, hue_fn, pal, f, t, S, sat=0.8, threshold=0.03):
@@ -227,9 +209,9 @@ def _render_vf(r, grid_key, val_fn, hue_fn, pal, f, t, S, sat=0.8, threshold=0.0
 
 | Combination | Effect | Good For |
 |-------------|--------|----------|
-| `sm` + `lg` | Maximum contrast between fine detail and chunky blocks | Bold, graphic looks |
+| `sm` + `lg` | Max contrast between fine detail and chunky blocks | Bold, graphic looks |
 | `sm` + `md` | Subtle texture layering, similar scales | Organic, flowing looks |
-| `md` + `lg` + `xs` | Three-scale interference, maximum complexity | Psychedelic, dense |
+| `md` + `lg` + `xs` | Three-scale interference, max complexity | Psychedelic, dense |
 | `sm` + `sm` (different effects) | Same scale, pattern interference only | Moire, interference |
 
 ### Complete Multi-Grid Scene Example
@@ -263,21 +245,23 @@ def fx_psychedelic(r, f, t, S):
     return result
 ```
 
+Order matters: `screen(A, B)` is commutative, but `difference(screen(A,B), C)` differs from `difference(A, screen(B,C))`.
+
 ---
 
 ## Adaptive Tone Mapping
 
 ### The Brightness Problem
 
-ASCII characters are small bright dots on a black background. Most pixels in any frame are background (black). This means:
-- Mean frame brightness is inherently low (often 5-30 out of 255)
-- Different effect combinations produce wildly different brightness levels
-- A spiral scene might be 50 mean, while a fire scene is 9 mean
-- Linear multipliers (e.g., `canvas * 2.0`) either leave dark scenes dark or blow out bright scenes
+ASCII characters are small bright dots on black background; most pixels in any frame are background. So:
+- Mean frame brightness inherently low (often 5-30 out of 255)
+- Effect combinations vary wildly in brightness
+- Spiral scene might be 50 mean, fire scene 9
+- Linear multipliers (e.g., `canvas * 2.0`) either leave dark scenes dark or blow out bright ones
 
 ### The `tonemap()` Function
 
-Replaces linear brightness multipliers with adaptive per-frame normalization + gamma correction:
+Replaces linear brightness multipliers with adaptive per-frame normalization plus gamma correction:
 
 ```python
 def tonemap(canvas, target_mean=90, gamma=0.75, black_point=2, white_point=253):
@@ -319,11 +303,11 @@ input 0.39 -> output 0.50 (moderate lift)
 input 0.78 -> output 0.84 (gentle lift, no clipping)
 ```
 
-Gamma < 1 compresses the highlights and expands the shadows. This is exactly what we need: lift dark ASCII content into visibility without blowing out the bright parts.
+Gamma < 1 compresses highlights, expands shadows. Lifts dark ASCII content into view without blowing out bright parts.
 
 ### Pipeline Ordering
 
-The pipeline in `render_clip()` is:
+Pipeline in `render_clip()`:
 
 ```
 scene_fn(r, f, t, S)  ->  canvas
@@ -337,24 +321,24 @@ scene_fn(r, f, t, S)  ->  canvas
     ffmpeg pipe
 ```
 
-Tonemap runs BEFORE feedback and shaders. This means:
-- Feedback operates on normalized data (consistent behavior regardless of scene brightness)
-- Shaders like solarize, posterize, contrast operate on properly-ranged data
-- The brightness shader in the chain is no longer needed (tonemap handles it)
+Tonemap runs BEFORE feedback and shaders. So:
+- Feedback sees normalized data (consistent regardless of scene brightness)
+- Shaders like solarize, posterize, contrast get properly-ranged data
+- Brightness shader in chain unneeded (tonemap handles it)
 
 ### Per-Scene Gamma Tuning
 
-Default gamma is 0.75. Scenes that apply destructive post-processing need more aggressive lift because the destruction happens after tonemap:
+Default gamma 0.75. Destructive post-processing runs after tonemap, so those scenes need more aggressive lift:
 
 | Scene Type | Recommended Gamma | Why |
 |------------|-------------------|-----|
 | Standard effects | 0.75 | Default, works for most scenes |
-| Solarize post-process | 0.50-0.60 | Solarize inverts bright pixels, reducing overall brightness |
-| Posterize post-process | 0.50-0.55 | Posterize quantizes, often crushing mid-values to black |
-| Heavy difference blending | 0.60-0.70 | Difference mode creates many near-zero pixels |
-| Already bright scenes | 0.85-1.0 | Don't over-boost scenes that are naturally bright |
+| Solarize post-process | 0.50-0.60 | Inverts bright pixels, lowering overall brightness |
+| Posterize post-process | 0.50-0.55 | Quantizes, often crushing mid-values to black |
+| Heavy difference blending | 0.60-0.70 | Creates many near-zero pixels |
+| Already bright scenes | 0.85-1.0 | Don't over-boost naturally bright scenes |
 
-Configure via the scene table:
+Configure via scene table:
 
 ```python
 SCENES = [
@@ -384,14 +368,14 @@ Target ranges after tonemap + shaders:
 - Quiet/ambient scenes: mean 30-60
 - Active scenes: mean 40-100
 - Climax/peak scenes: mean 60-150
-- If mean < 20: gamma is too high or a shader is destroying brightness
-- If mean > 180: gamma is too low or add is stacking too much
+- If mean < 20: gamma too high or a shader destroys brightness
+- If mean > 180: gamma too low or add stacks too much
 
 ---
 
 ## FeedbackBuffer Spatial Transforms
 
-The feedback buffer stores the previous frame and blends it into the current frame with decay. Spatial transforms applied to the buffer before blending create the illusion of motion in the feedback trail.
+Buffer stores previous frame, blends it into current frame with decay. Spatial transforms on buffer before blending create illusion of motion in feedback trail.
 
 ### Implementation
 
@@ -523,7 +507,7 @@ class FeedbackBuffer:
 
 ## Masking / Stencil System
 
-Masks are float32 arrays `(rows, cols)` or `(VH, VW)` in range [0, 1]. They control where effects are visible: 1.0 = fully visible, 0.0 = fully hidden. Use masks to create figure/ground relationships, focal points, and shaped reveals.
+Masks: float32 arrays `(rows, cols)` or `(VH, VW)` in range [0, 1]. Control where effects show: 1.0 = fully visible, 0.0 = fully hidden. Use for figure/ground relationships, focal points, shaped reveals.
 
 ### Shape Masks
 
@@ -571,7 +555,7 @@ def mask_gradient_radial(g, cx_frac=0.5, cy_frac=0.5, inner=0.0, outer=0.5):
 
 ### Value Field as Mask
 
-Use any `vf_*` function's output as a spatial mask:
+Use any `vf_*` function's output as spatial mask:
 
 ```python
 def mask_from_vf(vf_result, threshold=0.5, feather=0.1):
@@ -589,7 +573,7 @@ def mask_select(mask, vf_a, vf_b):
 
 ### Text Stencil
 
-Render text to a mask. Effects are visible only through the letterforms:
+Render text to mask. Effects visible only through letterforms:
 
 ```python
 def mask_text(grid, text, row_frac=0.5, font=None, font_size=None):
@@ -639,7 +623,7 @@ def mask_text_block(grid, lines, start_row_frac=0.3, font=None):
 
 ### Animated Masks
 
-Masks that change over time for reveals, wipes, and morphing:
+Time-varying masks for reveals, wipes, morphing:
 
 ```python
 def mask_iris(g, t, t_start, t_end, cx_frac=0.5, cy_frac=0.5,
@@ -747,9 +731,7 @@ class PixelBlendStack:
 
 ## Text Backdrop (Readability Mask)
 
-When placing readable text over busy multi-grid ASCII backgrounds, the text will blend into the background and become illegible. **Always apply a dark backdrop behind text regions.**
-
-The technique: compute the bounding box of all text glyphs, create a gaussian-blurred dark mask covering that area with padding, and multiply the background by `(1 - mask * darkness)` before rendering text on top.
+Text over busy multi-grid ASCII backgrounds blends in, becomes illegible. **Always apply a dark backdrop behind text regions.**
 
 ```python
 from scipy.ndimage import gaussian_filter
@@ -787,8 +769,6 @@ def apply_text_backdrop(canvas, glyphs, padding=80, darkness=0.75):
 
 ### Usage in render pipeline
 
-Insert between background rendering and text rendering:
-
 ```python
 # 1. Render background (multi-grid ASCII effects)
 bg = render_background(cfg, t)
@@ -800,11 +780,11 @@ bg = apply_text_backdrop(bg, frame_glyphs, padding=80, darkness=0.75)
 bg = text_renderer.render(bg, frame_glyphs, color=(255, 255, 255))
 ```
 
-Combine with **reverse vignette** (see shaders.md) for scenes where text is always centered — the reverse vignette provides a persistent center-dark zone, while the backdrop handles per-frame glyph positions.
+Combine with **reverse vignette** (see shaders.md) when text is always centered. Reverse vignette gives persistent center-dark zone; backdrop handles per-frame glyph positions.
 
 ## External Layout Oracle Pattern
 
-For text-heavy videos where text needs to dynamically reflow around obstacles (shapes, icons, other text), use an external layout engine to pre-compute glyph positions and feed them into the Python renderer via JSON.
+For text-heavy videos where text dynamically reflows around obstacles (shapes, icons, other text): pre-compute glyph positions with external layout engine. Feed them to Python renderer via JSON.
 
 ### Architecture
 
@@ -851,20 +831,20 @@ Layout Engine (browser/Node.js)  →  layouts.json  →  Python ASCII Renderer
 
 ### When to use
 
-- Text that dynamically reflows around moving objects
+- Text dynamically reflowing around moving objects
 - Per-glyph animation (reveal, scatter, physics)
-- Variable typography that needs precise measurement
-- Any case where Python's Pillow text layout is insufficient
+- Variable typography needing precise measurement
+- Anywhere Python's Pillow text layout is insufficient
 
 ### When NOT to use
 
-- Static centered text (just use PIL `draw.text()` directly)
-- Text that only fades in/out without spatial animation
-- Simple typewriter effects (handle in Python with a character counter)
+- Static centered text (use PIL `draw.text()` directly)
+- Text only fading in/out without spatial animation
+- Simple typewriter effects (Python character counter handles them)
 
 ### Running the oracle
 
-Use Playwright to run the layout engine in a headless browser:
+Run layout engine in headless browser with Playwright:
 
 ```javascript
 // extract.mjs
@@ -889,4 +869,4 @@ for glyph in frame_data['glyphs']:
     draw.text((px, py), char, fill=(int(255*alpha),)*3, font=font)
 ```
 
-Obstacles from the JSON can also be rendered as glowing ASCII shapes (circles, rectangles) to visualize the reflow zones.
+JSON obstacles can also render as glowing ASCII shapes (circles, rectangles) to show reflow zones.

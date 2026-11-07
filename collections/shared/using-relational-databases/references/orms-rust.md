@@ -39,7 +39,7 @@
 
 ## SQLx (Recommended)
 
-**Key Feature:** Compile-time query validation - queries are checked against your database schema at build time.
+**Key Feature:** Compile-time query validation. Queries checked against database schema at build time.
 
 ### Installation
 
@@ -269,11 +269,7 @@ struct CreateUserPayload {
 ```
 
 **Why SQLx?**
-- Compile-time query validation (catch errors before runtime!)
-- Zero cost abstractions
-- Async-first with Tokio
 - PostgreSQL, MySQL, SQLite support
-- Excellent performance
 
 ## SeaORM (Full ORM)
 
@@ -360,10 +356,7 @@ async fn main() -> Result<(), DbErr> {
 ```
 
 **Why SeaORM?**
-- Full ORM features (relations, migrations, CLI)
 - Active Record + Data Mapper patterns
-- Async-first
-- Good documentation
 
 ## Diesel (Mature, Stable)
 
@@ -463,16 +456,13 @@ fn main() {
 ```
 
 **Why Diesel?**
-- Mature and stable (oldest Rust ORM)
-- Compile-time guarantees
-- Excellent performance
 - CLI for schema management
 
 ## Comparison
 
 ### Choose SQLx When:
 - Want compile-time query validation
-- Prefer writing SQL directly
+- Prefer writing raw SQL
 - Need maximum performance
 - Want minimal abstraction
 

@@ -18,7 +18,7 @@
 
 ## Nil Pointer Receivers
 
-MUST check for nil before calling methods on pointer receivers from external sources. A method call on a nil pointer does not always panic — it depends on whether the method dereferences the receiver:
+MUST check for nil before calling methods on pointer receivers from external sources. Method call on nil pointer does not always panic. Depends on whether method dereferences receiver:
 
 ```go
 type Logger struct {
@@ -40,11 +40,11 @@ l.IsEnabled() // false — works fine
 l.Log("test") // panic: nil pointer dereference
 ```
 
-Anyway, NEVER call a method on a nil pointer.
+Still, NEVER call method on nil pointer.
 
 ### Designing nil-safe receivers
 
-When a nil receiver is a valid state (e.g., optional components), guard against it explicitly:
+When nil receiver is valid state (e.g., optional components), guard against it explicitly:
 
 ```go
 func (l *Logger) Log(msg string) {
@@ -55,11 +55,11 @@ func (l *Logger) Log(msg string) {
 }
 ```
 
-This pattern is useful for optional dependencies, but use it sparingly — a nil receiver usually signals a bug, not an intentional state. Document when nil is an expected value.
+Useful for optional dependencies, but use sparingly. Nil receiver usually signals bug, not intentional state. Document when nil is expected value.
 
 ## Nil Function Values
 
-NEVER rely on nil function values — always validate before calling. Calling a nil `func` variable panics:
+NEVER rely on nil function values; always validate before calling. Calling nil `func` variable panics:
 
 ```go
 // ✗ Bad — panics if callback was never set
@@ -81,7 +81,7 @@ func (w *Worker) Finish(result string) {
 
 ### Default function pattern
 
-Provide a no-op default to avoid nil checks at every call site:
+Provide no-op default to avoid nil checks at every call site:
 
 ```go
 func NewWorker(opts ...Option) *Worker {
@@ -99,7 +99,7 @@ func NewWorker(opts ...Option) *Worker {
 
 ### Returning nil error correctly
 
-Interface comparisons with nil MUST account for the nil interface trap. A function returning `error` must return the untyped `nil`, not a typed nil pointer:
+Interface comparisons with nil MUST account for nil interface trap. Function returning `error` must return untyped `nil`, not typed nil pointer:
 
 ```go
 // ✗ Bad — returns non-nil error interface
@@ -122,13 +122,13 @@ func validate(s string) error {
 
 ### Checking error chains with nil
 
-`errors.Is(err, nil)` returns `true` only if `err` is truly nil. It does not help with the nil interface trap — the trap occurs before the error reaches `errors.Is`.
+`errors.Is(err, nil)` returns `true` only if `err` is truly nil. Does not help with nil interface trap: trap occurs before error reaches `errors.Is`.
 
 ## Nil in Generic Code
 
 ### The `comparable` constraint and nil
 
-Generic code MUST handle the zero value of type parameters correctly. Type parameters constrained by `comparable` can be compared with `==`, but nil is not always a valid value:
+Generic code MUST handle zero value of type parameters correctly. Type parameters constrained by `comparable` can be compared with `==`, but nil is not always valid value:
 
 ```go
 // ✗ Confusing — T may or may not be nillable
@@ -145,7 +145,7 @@ func IsNil[T interface{ ~*U }, U any](v T) bool {
 
 ### Nil checks with unconstrained type parameters
 
-You cannot compare an unconstrained type parameter to nil:
+Cannot compare unconstrained type parameter to nil:
 
 ```go
 // ✗ Does not compile
@@ -163,7 +163,7 @@ func IsNilPtr[T any](v *T) bool {
 
 ### Constructor with defaults
 
-Require initialization through a constructor, making the zero value impossible for external callers:
+Require initialization through constructor, so zero value is impossible for external callers:
 
 ```go
 type Client struct {
@@ -182,7 +182,7 @@ func NewClient(baseURL string) *Client {
 
 ### Lazy initialization for zero-value usability
 
-When you want the zero value to be usable but need internal resources:
+Use when zero value should be usable but type needs internal resources:
 
 ```go
 type Cache struct {

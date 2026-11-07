@@ -5,34 +5,34 @@ description: Use when extracting and categorizing public members from a Scala da
 
 # List Data Type Members
 
-Parses a Scala source file and prints public members of the named type, grouped into sections for easy auditing.
+Parses Scala source file, prints public members of named type, grouped into sections for auditing.
 
-Paths: `<this-skill-dir>` is this skill's own directory (where this file lives).
+Paths: `<this-skill-dir>` is this skill's directory (where this file lives).
 
 ```bash
 scala-cli <this-skill-dir>/extract-members.scala \
   -- <source-file> [<type-name>]
 ```
 
-Run with `--help` for the full usage.
+Run with `--help` for full usage.
 
-**Default text output sections** (each preceded by a header line ending in `===`):
-- **Companion Object Members** — factory methods, utilities, and static operations
-- **Public API** — instance methods on the type itself
-- **Inherited Methods** — methods from parent classes/traits (when cross-file analysis is available)
+**Default text output sections** (each preceded by header line ending in `===`):
+- **Companion Object Members** — factory methods, utilities, static operations
+- **Public API** — instance methods on type itself
+- **Inherited Methods** — methods from parent classes/traits (when cross-file analysis available)
 
 Excludes private/protected members and internal helpers.
 
 ## JSON Output
 
-For machine-readable output (e.g., when piping into other scripts or filtering with `jq`), pass `--json`:
+For machine-readable output (piping into other scripts, filtering with `jq`), pass `--json`:
 
 ```bash
 scala-cli <this-skill-dir>/extract-members.scala \
   -- --json <source-file> [<type-name>] | jq '.publicApi'
 ```
 
-The JSON schema is:
+JSON schema:
 
 ```json
 {
@@ -46,10 +46,10 @@ The JSON schema is:
 
 **Exit codes:**
 
-| Code | Meaning                                                          |
-|------|------------------------------------------------------------------|
-| `0`  | Success — at least one public member was extracted.              |
-| `1`  | No public members found in the file or named type.               |
-| `2`  | Invocation error (missing arguments, file not found).            |
+| Code | Meaning                                               |
+|------|-------------------------------------------------------|
+| `0`  | Success — at least one public member extracted.       |
+| `1`  | No public members found in file or named type.        |
+| `2`  | Invocation error (missing arguments, file not found). |
 
-Pipe the output into `/docs-report-method-coverage` to check whether all members appear in a reference doc.
+Pipe output into `/docs-report-method-coverage` to check whether all members appear in reference doc.

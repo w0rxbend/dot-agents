@@ -9,21 +9,21 @@ description: >
 
 ## Purpose
 
-Compress natural language files (CLAUDE.md, todos, preferences) into caveman-speak to reduce input tokens. Compressed version overwrites original. Human-readable backup saved as `<filename>.original.md`, but NOT beside the source file — it lives in an out-of-tree data dir (`$XDG_DATA_HOME/caveman-compress/backups/<parent-dir-name>/`, or `%LOCALAPPDATA%\caveman-compress\backups\<parent-dir-name>\` on Windows) so skill auto-loaders don't re-ingest it as a live file.
+Compress natural language files (CLAUDE.md, todos, preferences) into caveman-speak to cut input tokens. Compressed version overwrites original. Before overwrite, human-readable backup saved as `<filename>.original.md`, NOT beside source file. Backup lives in out-of-tree data dir: `$XDG_DATA_HOME/caveman-compress/backups/<parent-dir-name>/`, or `%LOCALAPPDATA%\caveman-compress\backups\<parent-dir-name>\` on Windows. Keeps skill auto-loaders from re-ingesting backup as live file.
 
 ## Trigger
 
-`/caveman-compress <filepath>` or when user asks to compress a memory file.
+`/caveman-compress <filepath>`, or user asks to compress memory file.
 
 ## Process
 
-1. The compression scripts live in `scripts/` (adjacent to this SKILL.md). If the path is not immediately available, search for `scripts/__main__.py` next to this SKILL.md.
+1. Compression scripts live in `scripts/`, next to this SKILL.md. If path not immediately available, search for `scripts/__main__.py` next to this SKILL.md.
 
-2. From the directory containing this SKILL.md, run:
+2. From directory containing this SKILL.md, run:
 
 python3 -m scripts <absolute_filepath>
 
-3. The CLI will:
+3. CLI will:
 - detect file type (no tokens)
 - call Claude to compress
 - validate output (no tokens)
@@ -56,17 +56,17 @@ python3 -m scripts <absolute_filepath>
 
 ### Preserve Structure
 - All markdown headings (keep exact heading text, compress body below)
-- Bullet point hierarchy (keep nesting level)
+- Bullet hierarchy (keep nesting level)
 - Numbered lists (keep numbering)
 - Tables (compress cell text, keep structure)
 - Frontmatter/YAML headers in markdown files
 
 ### Compress
-- Use short synonyms: "big" not "extensive", "fix" not "implement a solution for", "use" not "utilize"
+- Short synonyms: "big" not "extensive", "fix" not "implement a solution for", "use" not "utilize"
 - Fragments OK: "Run tests before commit" not "You should always run tests before committing"
-- Drop "you should", "make sure to", "remember to" — just state the action
-- Merge redundant bullets that say the same thing differently
-- Keep one example where multiple examples show the same pattern
+- Drop "you should", "make sure to", "remember to". State action directly.
+- Merge bullets that say same thing differently
+- Keep one example when several show same pattern
 
 CRITICAL RULE:
 Anything inside ``` ... ``` must be copied EXACTLY.
@@ -77,12 +77,11 @@ Do not:
 - shorten commands
 - simplify anything
 
-Inline code (`...`) must be preserved EXACTLY.
-Do not modify anything inside backticks.
+Preserve inline code (`...`) EXACTLY.
 
-If file contains code blocks:
+If file has code blocks:
 - Treat code blocks as read-only regions
-- Only compress text outside them
+- Compress only text outside them
 - Do not merge sections around code
 
 ## Pattern
@@ -103,7 +102,6 @@ Compressed:
 
 - ONLY compress natural language files (.md, .txt, .typ, .typst, .tex, extensionless)
 - NEVER modify: .py, .js, .ts, .json, .yaml, .yml, .toml, .env, .lock, .css, .html, .xml, .sql, .sh
-- If file has mixed content (prose + code), compress ONLY the prose sections
-- If unsure whether something is code or prose, leave it unchanged
-- Original file is backed up as FILE.original.md before overwriting — in the out-of-tree backup data dir (see Purpose), not beside the source file
+- If file mixes prose and code, compress ONLY prose sections
+- If unsure whether text is code or prose, leave it unchanged
 - Never compress FILE.original.md (skip it)

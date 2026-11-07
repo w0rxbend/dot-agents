@@ -121,7 +121,7 @@ self.play(g.animate.add_edges((1, 6)))
 self.play(g.animate.remove_vertices(3))
 ```
 
-Layout algorithms: `"spring"`, `"circular"`, `"kamada_kawai"`, `"planar"`, `"spectral"`, `"tree"` (for rooted trees, specify `root=`).
+Layout algorithms: `"spring"`, `"circular"`, `"kamada_kawai"`, `"planar"`, `"spectral"`, `"tree"` (for rooted trees, set `root=`).
 
 ## ArrowVectorField / StreamLines — Vector Fields
 

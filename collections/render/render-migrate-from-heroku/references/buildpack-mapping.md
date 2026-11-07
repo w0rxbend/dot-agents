@@ -2,7 +2,7 @@
 
 ## Buildpack → Render Runtime + Build Command
 
-Render needs explicit `buildCommand` and `startCommand`. Determine the runtime from local project files (dependency files, Procfile), or from Heroku buildpack URLs if available via MCP or `app.json`. Use these defaults, then refine based on the app's actual Procfile and package config.
+Render needs explicit `buildCommand` and `startCommand`. Determine runtime from local project files (dependency files, Procfile), or from Heroku buildpack URLs via MCP or `app.json`. Start from these defaults; refine per app's actual Procfile and package config.
 
 ### Node.js
 
@@ -19,6 +19,7 @@ Render needs explicit `buildCommand` and `startCommand`. Determine the runtime f
 - TypeScript without build script: `npm install && npx tsc`
 - Next.js: `npm install && npm run build` (start: `npm start` or `next start`)
 - Vite/CRA (static): use `create_static_site` instead, publishPath `dist` or `build`
+- Next.js/Gatsby builds send framework telemetry by default: add env var `NEXT_TELEMETRY_DISABLED=1` / `GATSBY_TELEMETRY_DISABLED=1` to generated service (tell user)
 
 ### Python
 
@@ -33,7 +34,7 @@ Render needs explicit `buildCommand` and `startCommand`. Determine the runtime f
 - Pipenv: `pip install pipenv && pipenv install`
 - Poetry: `pip install poetry && poetry install`
 - Django: look for `collectstatic` in Procfile or `django` in requirements
-- FastAPI/Flask: straightforward `pip install -r requirements.txt`
+- FastAPI/Flask: plain `pip install -r requirements.txt`
 
 ### Ruby
 
@@ -65,11 +66,11 @@ Render needs explicit `buildCommand` and `startCommand`. Determine the runtime f
 | Buildpack | Any not listed above |
 |-----------|----------------------|
 | Render runtime | `docker` |
-| Action | Tell user they need a Dockerfile. Offer to generate one. |
+| Action | Tell user a Dockerfile is needed. Offer to generate one. |
 
 ## Procfile Parsing
 
-Heroku Procfiles define process types. Extract these to map to Render services.
+Procfiles define process types. Map each to a Render service.
 
 ### Format
 ```
@@ -114,7 +115,7 @@ release: bundle exec rake db:migrate
 
 ### Runtime Version Handling
 
-Do not assume or fabricate specific runtime versions for Render. Instead, carry over the version the Heroku app already uses:
+Do not assume or fabricate runtime versions for Render. Carry over version Heroku app already uses:
 
 | Heroku file | What it contains | Render equivalent |
 |---|---|---|
@@ -124,28 +125,28 @@ Do not assume or fabricate specific runtime versions for Render. Instead, carry 
 | `.go-version` or `go.mod` | `1.21` | Render auto-detects from `go.mod` |
 
 **Rules:**
-- If the Heroku app pins a version via `runtime.txt` or similar, include the equivalent env var in the Blueprint
-- If no version is pinned, do not specify one — Render uses its own defaults
-- **Never state what Render's default version is** — it changes over time and any claim may be wrong
+- If Heroku app pins a version (`runtime.txt` or similar), add equivalent env var to Blueprint
+- If no version is pinned, do not specify one; Render uses own defaults
+- **Never state Render's default version** — it changes; any claim may be wrong
 
 ### PORT Handling
 
-Heroku sets `$PORT` dynamically. Render also sets `PORT` (default 10000). Most Procfile commands work as-is. If the command hardcodes a port, it needs updating.
+Heroku sets `$PORT` dynamically. Render also sets `PORT` (default 10000). Most Procfile commands work as-is. If command hardcodes a port, update it.
 
 - `--port $PORT` → works on both platforms
 - `--port 5000` → change to `--port $PORT` or `--port 10000`
-- Render auto-detects the port for common frameworks
+- Render auto-detects port for common frameworks
 
 ### Release Phase
 
-Heroku's `release:` process type runs before each deploy. Render has no direct equivalent. Options:
+Heroku's `release:` process type runs before each deploy. No direct Render equivalent. Options:
 1. Append to build command: `pip install -r requirements.txt && python manage.py migrate`
-2. Use Render's pre-deploy command feature (if available for the service type)
-3. Flag for the user to handle manually
+2. Use Render's pre-deploy command feature (if available for service type)
+3. Flag for user to handle manually
 
 ## Static Site Detection
 
-If the Heroku app is a static site (React, Vue, Gatsby, etc.), use `create_static_site` instead of `create_web_service`.
+Static Heroku app (React, Vue, Gatsby, etc.): use `create_static_site`, not `create_web_service`.
 
 **Indicators:**
 - Buildpack is `heroku-community/static` or `heroku/heroku-buildpack-static`

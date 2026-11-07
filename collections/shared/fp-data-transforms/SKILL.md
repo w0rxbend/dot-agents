@@ -19,21 +19,21 @@ tags:
 
 # Practical Data Transformations
 
-Reshape arrays and objects with small, composable, immutable steps. Native array methods and optional chaining handle most cases; reach for fp-ts (`fp-ts/Array`, `fp-ts/Record`, `Option`) when steps can miss, need composing, or must stay type-safe end to end.
+Reshape arrays and objects with small, composable, immutable steps. Native array methods and optional chaining cover most cases. Use fp-ts (`fp-ts/Array`, `fp-ts/Record`, `Option`) when steps can miss, need composing, or must stay type-safe end to end.
 
 ## Procedure
 
-1. Check the platform first: modern runtimes already have `Object.groupBy` / `Map.groupBy` (ES2024; Node 21+), `Array.prototype.toSorted` / `toReversed` / `with` (ES2023; non-mutating), and `structuredClone`. Do not hand-roll these if the target supports them (check `tsconfig` `lib` and the runtime version).
-2. Pick the tool with the "When to Use What" table below.
+1. Check platform first. Modern runtimes have `Object.groupBy` / `Map.groupBy` (ES2024; Node 21+), `Array.prototype.toSorted` / `toReversed` / `with` (ES2023; non-mutating), and `structuredClone`. Do not hand-roll these if target supports them (check `tsconfig` `lib` and runtime version).
+2. Pick tool from "When to Use What" table below.
 3. Keep every step pure: return new arrays/objects, never mutate inputs.
-4. Name intermediate pipelines (`const toRow = flow(...)`) once a pipeline exceeds about five steps.
-5. Measure before replacing a readable two-pass `filter().map()` with a single `reduce`.
+4. Name intermediate pipelines (`const toRow = flow(...)`) once pipeline exceeds about five steps.
+5. Measure before replacing readable two-pass `filter().map()` with single `reduce`.
 
 ## References
 
-Quick-lookup cheat sheets: [references/option-cheatsheet.md](references/option-cheatsheet.md) (Option operators, when Option beats `?.`/`??`) and [references/pipe-cheatsheet.md](references/pipe-cheatsheet.md) (`pipe` vs `flow`, data-last operators, gotchas).
+Cheat sheets: [references/option-cheatsheet.md](references/option-cheatsheet.md) (Option operators, when Option beats `?.`/`??`) and [references/pipe-cheatsheet.md](references/pipe-cheatsheet.md) (`pipe` vs `flow`, data-last operators, gotchas).
 
-Read [the detailed guide](references/detailed-guide.md) for imperative-vs-functional side-by-sides. Load only the section you need:
+[Detailed guide](references/detailed-guide.md): imperative-vs-functional side-by-sides. Load only needed section:
 
 | Task | Section |
 |---|---|
@@ -43,7 +43,7 @@ Read [the detailed guide](references/detailed-guide.md) for imperative-vs-functi
 | groupBy, countBy, sumBy, multi-metric aggregation | 4. Grouping and Aggregation |
 | `Option` vs `?.`, safe array/record lookups, combining optionals | 5. Null-Safe Access |
 
-Related: the Option and pipe cheat sheets under References; fp-errors when a transformation step can fail with a reason.
+Related: fp-errors when transformation step can fail with reason.
 
 ## Real-World Examples
 
@@ -296,10 +296,10 @@ const getDbConfig = (config: AppConfig) => ({
 
 ### Use Native Methods When:
 
-- **Simple transformations**: `.map()`, `.filter()`, `.reduce()` are perfectly good
-- **No composition needed**: You're doing a one-off transformation
-- **Team familiarity**: Everyone knows native methods
-- **Optional chaining suffices**: `obj?.prop?.value ?? default` handles your null-safety needs
+- **Simple transformations**: `.map()`, `.filter()`, `.reduce()` suffice
+- **No composition needed**: one-off transformation
+- **Team familiarity**: everyone knows native methods
+- **Optional chaining suffices**: `obj?.prop?.value ?? default` covers null-safety
 
 ```typescript
 // Native is fine here
@@ -310,10 +310,10 @@ const activeUserNames = users
 
 ### Use fp-ts When:
 
-- **Chaining operations that might fail**: Multiple steps where each can return nothing
-- **Composing transformations**: Building reusable transformation pipelines
-- **Type-safe error handling**: You want the compiler to track potential failures
-- **Complex data pipelines**: Many steps that benefit from explicit composition
+- **Chaining operations that might fail**: each step can return nothing
+- **Composing transformations**: reusable pipelines
+- **Type-safe error handling**: compiler tracks potential failures
+- **Complex data pipelines**: many steps gain from explicit composition
 
 ```typescript
 // fp-ts shines here
@@ -330,8 +330,8 @@ const result = pipe(
 ### Use Custom Utilities When:
 
 - **Domain-specific operations**: `groupBy`, `countBy`, `sumBy` for your data
-- **Repeated patterns**: You find yourself writing the same transformation many times
-- **Team conventions**: Establishing consistent patterns across the codebase
+- **Repeated patterns**: same transformation written many times
+- **Team conventions**: consistent patterns across codebase
 
 ```typescript
 // Custom utility pays off when used repeatedly
@@ -343,9 +343,8 @@ const revenueByRegion = sumBy(
 
 ### Performance Considerations
 
-- **Chaining creates intermediate arrays**: `arr.filter().map()` creates one array, then another
-- **For hot paths, consider `reduce`**: One pass through the data
-- **Measure before optimizing**: The readability cost of optimization is often not worth it
+- **Chaining creates intermediate arrays**: `arr.filter().map()` builds one array, then another
+- **For hot paths, try `reduce`**: one pass
 
 ```typescript
 // If performance matters (and you've measured!)
@@ -364,6 +363,6 @@ const result = items
 
 ## Done when
 
-- Inputs are not mutated (spot-check with `Object.freeze` in a test, or a readonly type).
-- Types flow through without `as` casts; missing values are `Option` or `?? default`, not `!`.
-- The result is checked by a unit test with an empty input, a single item, and a missing/nullable field.
+- Inputs not mutated (spot-check with `Object.freeze` in test, or readonly type).
+- Types flow through without `as` casts. Missing values are `Option` or `?? default`, not `!`.
+- Unit test checks result with empty input, single item, and missing/nullable field.

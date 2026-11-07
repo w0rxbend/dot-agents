@@ -1,7 +1,5 @@
 # Production Observability for Performance
 
-Third-party monitoring tools complement local profiling (pprof, benchmarks) by providing continuous monitoring, historical trends, and regression detection in production.
-
 ## Table of Contents
 
 - [Prometheus Metrics for Go](#prometheus-metrics-for-go)
@@ -15,9 +13,9 @@ Third-party monitoring tools complement local profiling (pprof, benchmarks) by p
 
 ## Prometheus Metrics for Go
 
-**Setup:** `github.com/prometheus/client_golang` — expose `/metrics` endpoint with `promhttp.Handler()`. Default collectors automatically export Go runtime metrics (`go_goroutines`, `go_memstats_*`, `go_gc_duration_seconds`, `process_cpu_seconds_total`, etc.).
+**Setup:** `github.com/prometheus/client_golang` — expose `/metrics` endpoint with `promhttp.Handler()`. Default collectors export Go runtime metrics automatically (`go_goroutines`, `go_memstats_*`, `go_gc_duration_seconds`, `process_cpu_seconds_total`, etc.).
 
-→ See `samber/cc-skills-golang@golang-benchmark` skill (investigation-session.md) for the full runtime metrics table, investigation session setup (scrape interval tuning, env-var toggling), and cost warnings for profiling tools.
+→ See `samber/cc-skills-golang@golang-benchmark` skill (investigation-session.md) for full runtime metrics table, investigation session setup (scrape interval tuning, env-var toggling) and profiling-tool cost warnings.
 
 ### PromQL Queries for Performance Diagnosis
 
@@ -26,50 +24,49 @@ Third-party monitoring tools complement local profiling (pprof, benchmarks) by p
 | PromQL | What to look for |
 | --- | --- |
 | `rate(go_gc_duration_seconds_count[5m])` | GC cycles/s — >2/s sustained suggests excessive allocation rate |
-| `rate(go_gc_duration_seconds_sum[5m]) / rate(go_gc_duration_seconds_count[5m])` | Average GC pause — increasing trend means heap is growing or has too many pointers |
-| `go_gc_duration_seconds{quantile="1"}` | Worst-case GC pause — spikes here cause tail latency |
+| `rate(go_gc_duration_seconds_sum[5m]) / rate(go_gc_duration_seconds_count[5m])` | Average GC pause — rising trend means heap growing or too many pointers |
+| `go_gc_duration_seconds{quantile="1"}` | Worst-case GC pause — spikes cause tail latency |
 
 #### Memory leaks
 
 | PromQL | What to look for |
 | --- | --- |
-| `go_memstats_alloc_bytes` | Should be roughly stable under constant load; continuous increase = memory leak |
-| `rate(go_memstats_alloc_bytes_total[5m])` | Allocation rate (bytes/s) — drives GC frequency; compare before/after deploy for regressions |
+| `go_memstats_alloc_bytes` | Roughly flat under constant load; continuous increase = memory leak |
+| `rate(go_memstats_alloc_bytes_total[5m])` | Allocation rate (bytes/s) — drives GC frequency |
 | `process_resident_memory_bytes - go_memstats_sys_bytes` | Gap = non-Go memory (cgo, mmap); growing gap = non-Go leak |
 
 #### Goroutine leaks
 
 | PromQL | What to look for |
 | --- | --- |
-| `go_goroutines` | Should correlate with load; growing independently of traffic = leak |
+| `go_goroutines` | Should track load; growth independent of traffic = leak |
 | `delta(go_goroutines[1h])` | Net goroutine change over 1h; positive without load increase = leak |
 
 #### CPU saturation
 
 | PromQL | What to look for |
 | --- | --- |
-| `rate(process_cpu_seconds_total[5m])` | CPU cores consumed; compare to GOMAXPROCS to detect saturation |
+| `rate(process_cpu_seconds_total[5m])` | CPU cores used; compare to GOMAXPROCS to detect saturation |
 | `rate(process_cpu_seconds_total[5m]) / <GOMAXPROCS>` | CPU utilization ratio; >0.8 sustained = CPU-saturated |
 
 #### Regression detection (after deploy)
 
 | PromQL | What to look for |
 | --- | --- |
-| `rate(go_memstats_alloc_bytes_total[5m])` | Compare before/after deploy; significant increase = new allocation pattern introduced |
-| `histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))` | p99 latency increase after deploy = regression (requires app-level histogram) |
+| `rate(go_memstats_alloc_bytes_total[5m])` | Compare before/after deploy; significant increase = new allocation pattern |
+| `histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))` | p99 latency rise after deploy = regression (requires app-level histogram) |
 
 ### Alerting rules (examples)
 
-[Example alerting rules](../assets/prometheus-alerts.yml) — adjust thresholds to your application; a high-throughput data pipeline will have different baselines than a lightweight API server.
-
+[Example alerting rules](../assets/prometheus-alerts.yml) — tune thresholds per application; high-throughput data pipeline and lightweight API server have different baselines.
 
 ### Grafana Dashboards
 
-→ See `samber/cc-skills-golang@golang-observability` skill for recommended community Grafana dashboards that visualize Go runtime metrics out of the box.
+→ See `samber/cc-skills-golang@golang-observability` skill for community Grafana dashboards showing Go runtime metrics out of the box.
 
 ## Continuous Profiling
 
-Continuous profiling collects low-overhead samples in production and stores them for historical comparison. Use it to detect regressions across deploys, compare flamegraphs over time, and feed PGO (see [Runtime Tuning](./runtime.md#profile-guided-optimization-pgo)).
+Continuous profiling collects low-overhead production samples and stores them for historical comparison. Use it to catch regressions across deploys, compare flamegraphs over time and feed PGO (see [Runtime Tuning](./runtime.md#profile-guided-optimization-pgo)).
 
 | Tool | Model | Overhead | Best for |
 | --- | --- | --- | --- |
@@ -99,13 +96,13 @@ pyroscope.Start(pyroscope.Config{
 
 ### Pyroscope pull mode (via Grafana Alloy)
 
-No code changes required — Alloy scrapes `/debug/pprof/*` endpoints periodically. Configure Alloy to target your service's pprof endpoint.
+No code changes required — Alloy scrapes `/debug/pprof/*` endpoints periodically. Point Alloy at service pprof endpoint; serve it on internal-only listener, never public mux.
 
-When using third-party profiling libraries, refer to the library's official documentation for current API signatures.
+For third-party profiling libraries, check official docs for current API signatures.
 
 ## Real-Time Visualization (Development)
 
 | Tool | What it does |
 | --- | --- |
-| **statsviz** (`github.com/arl/statsviz`) | Real-time browser dashboard at `/debug/statsviz` — heap, GC pauses, goroutines, scheduler. Register with `statsviz.Register(mux)`. Great for local development |
-| **expvar** (stdlib `expvar`) | JSON metrics at `/debug/vars` — lightweight, no dependencies. Integrates with Netdata, Telegraf, or custom dashboards |
+| **statsviz** (`github.com/arl/statsviz`) | Real-time browser dashboard at `/debug/statsviz` — heap, GC pauses, goroutines, scheduler. Register with `statsviz.Register(mux)`. Good for local development |
+| **expvar** (stdlib `expvar`) | JSON metrics at `/debug/vars` — lightweight, no dependencies. Integrates with Netdata, Telegraf or custom dashboards |

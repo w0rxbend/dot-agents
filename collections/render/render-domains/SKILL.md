@@ -18,16 +18,7 @@ metadata:
 
 # Render Custom Domains
 
-Render automatically provisions and renews TLS certificates (via Let's Encrypt and Google Trust Services) for all custom domains. All HTTP traffic is redirected to HTTPS. Custom domains work on **web services** and **static sites** only.
-
-## When to Use
-
-- Adding a **custom domain** to a web service or static site
-- Configuring **DNS records** (CNAME, A, or ALIAS) with a provider
-- Setting up a **wildcard domain** (`*.example.com`)
-- Troubleshooting **certificate issuance** or **domain verification** failures
-- Choosing between **apex** (`example.com`) and **www** (`www.example.com`)
-- **Disabling the `onrender.com` subdomain** after adding a custom domain
+Render auto-provisions and renews TLS certificates (via Let's Encrypt and Google Trust Services) for all custom domains. HTTP always redirects to HTTPS. Custom domains work on **web services** and **static sites** only.
 
 ## Domain Limits
 
@@ -40,24 +31,24 @@ Render automatically provisions and renews TLS certificates (via Let's Encrypt a
 
 ### 1. Add domain in Dashboard
 
-1. Go to your service's **Settings > Custom Domains**
+1. Open service **Settings > Custom Domains**
 2. Click **+ Add Custom Domain**
-3. Enter your domain (e.g. `app.example.com`)
+3. Enter domain (e.g. `app.example.com`)
 4. Click **Save**
 
-Adding a `www` subdomain automatically adds the root domain (and vice versa) with a redirect between them.
+Adding `www` subdomain auto-adds root domain (and vice versa), redirecting between them.
 
 ### 2. Configure DNS
 
-Add a DNS record with your provider pointing to your Render service:
+At DNS provider, point record to Render service:
 
 | Domain type | Record type | Name | Value |
 |-------------|-------------|------|-------|
 | **Subdomain** (`app.example.com`) | CNAME | `app` | `<service>.onrender.com` |
 | **Apex** (`example.com`) on Cloudflare | CNAME (flattened) | `@` | `<service>.onrender.com` |
-| **Apex** on other providers | A | `@` | Use Render-provided IP (see Dashboard) |
+| **Apex** on other providers | A | `@` | Render-provided IP (see Dashboard) |
 
-**Important:** Remove any `AAAA` (IPv6) records for your domain. Render uses IPv4, and stale `AAAA` records cause unexpected behavior.
+**Important:** Remove any `AAAA` (IPv6) records for domain. Render uses IPv4; stale `AAAA` records cause unexpected behavior.
 
 Provider-specific guides:
 - [Cloudflare](https://render.com/docs/configure-cloudflare-dns)
@@ -66,14 +57,14 @@ Provider-specific guides:
 
 ### 3. Verify domain
 
-Click **Verify** in the Dashboard. If verification fails, DNS may not have propagated yet—wait a few minutes and retry.
+Click **Verify** in Dashboard. If it fails, DNS may not have propagated yet: wait a few minutes, retry.
 
-Speed up verification by flushing DNS caches:
+Flush DNS caches to speed up verification:
 - [Google Public DNS](https://developers.google.com/speed/public-dns/cache)
 - [Cloudflare DNS](https://1.1.1.1/purge-cache/)
 - [OpenDNS](https://cachecheck.opendns.com/)
 
-After verification, Render issues a TLS certificate automatically.
+Once verified, Render issues TLS certificate automatically.
 
 ## Wildcard Domains
 
@@ -87,11 +78,11 @@ Requires **three CNAME records**:
 | `_acme-challenge` | `<service-id>.verify.renderdns.com` | Let's Encrypt validation |
 | `_cf-custom-hostname` | `<service-id>.hostname.renderdns.com` | Cloudflare DDoS validation |
 
-**Cloudflare users:** If you add `*.example.com` without adding the root domain to Render, disable proxying (gray cloud) for the root domain to avoid routing conflicts.
+**Cloudflare users:** If `*.example.com` is added without root domain on Render, disable proxying (gray cloud) for root domain. Avoids routing conflicts.
 
 ## CAA Records
 
-If your domain has `CAA` records, add entries for Render's certificate authorities:
+If domain has `CAA` records, add entries for Render's certificate authorities:
 
 ```
 example.com IN CAA 0 issue "letsencrypt.org"
@@ -104,15 +95,15 @@ Without these, TLS certificate issuance fails silently.
 
 ## Disabling the `onrender.com` Subdomain
 
-After adding at least one custom domain, you can disable the default `onrender.com` subdomain:
+Requires at least one custom domain:
 
 1. Settings > Custom Domains > **Render Subdomain** > toggle to **Disabled**
-2. All requests to the `onrender.com` URL receive a 404
-3. Can be re-enabled at any time
+2. All requests to `onrender.com` URL get 404
+3. Re-enable any time
 
 ## Blueprint Configuration
 
-Custom domains are specified in the `domains` field:
+Set custom domains in `domains` field:
 
 ```yaml
 services:
@@ -125,18 +116,14 @@ services:
       - www.example.com
 ```
 
-Blueprint `domains` only **declare** the domain association. You still need to configure DNS with your provider manually.
+Blueprint `domains` only **declare** domain association; configure DNS at provider manually.
 
 ## Common Mistakes
 
 | Mistake | Fix |
 |---------|-----|
-| AAAA records present | Remove all IPv6 AAAA records for the domain |
-| CAA records blocking issuance | Add `letsencrypt.org` and `pki.goog` entries |
 | Verifying too quickly | Wait 2-5 minutes for DNS propagation, then flush caches |
-| Cloudflare proxy + wildcard without root domain | Disable proxying (gray cloud) for the root domain |
-| Trying to add domain to a private service | Custom domains only work on web services and static sites |
-| 502 after verification | Routing rules are updating — wait a few minutes |
+| 502 after verification | Routing rules updating — wait a few minutes |
 
 ## References
 

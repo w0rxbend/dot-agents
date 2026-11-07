@@ -1,19 +1,8 @@
 # Azure Identity and Access Management Reference
 
-Comprehensive guide to Azure Entra ID, Managed Identity, and RBAC patterns.
-
-## Table of Contents
-
-1. [Managed Identity](#managed-identity)
-2. [Azure RBAC](#azure-rbac)
-3. [Entra ID (Azure AD)](#entra-id-azure-ad)
-4. [Conditional Access](#conditional-access)
-
----
-
 ## Managed Identity
 
-Azure-managed identity for applications to authenticate to Azure services without storing credentials.
+Azure-managed identity. Apps authenticate to Azure services without storing credentials.
 
 ### System-Assigned vs. User-Assigned
 
@@ -41,8 +30,6 @@ client = SecretClient(vault_url="https://mykv.vault.azure.net", credential=crede
 
 ## Azure RBAC
 
-Role-Based Access Control for fine-grained permissions.
-
 ### Built-In Roles
 
 | Role | Permissions | Use Case |
@@ -56,7 +43,7 @@ Role-Based Access Control for fine-grained permissions.
 ### Best Practices
 
 - Assign roles at Resource Group level (not subscription)
-- Use built-in roles when possible
+- Prefer built-in roles
 - Create custom roles only when necessary
 - Assign to Azure AD groups (not individual users)
 - Audit role assignments quarterly
@@ -64,8 +51,6 @@ Role-Based Access Control for fine-grained permissions.
 ---
 
 ## Entra ID (Azure AD)
-
-Cloud-based identity and access management service.
 
 ### Authentication Patterns
 
@@ -75,7 +60,7 @@ Cloud-based identity and access management service.
 
 ### Multi-Tenant Applications
 
-Register app in Entra ID for multi-org SaaS applications.
+Register app in Entra ID for multi-org SaaS apps.
 
 ---
 

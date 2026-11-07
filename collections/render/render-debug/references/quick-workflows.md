@@ -1,7 +1,5 @@
 # Quick Debugging Workflows
 
-Step-by-step MCP tool sequences for common debugging scenarios.
-
 ## Deploy Failures
 
 ### "Why did my deploy fail?"
@@ -34,7 +32,7 @@ list_logs(
 **Common causes:**
 - Missing dependencies in package.json/requirements.txt
 - Build command syntax errors
-- Missing environment variables during build
+- Env vars missing during build
 - Build timeout (>15 min on free tier)
 
 ---
@@ -71,7 +69,7 @@ get_service(serviceId: "<service-id>")
 
 **Common causes:**
 - Missing environment variables
-- Port binding to localhost instead of 0.0.0.0
+- Port bound to localhost instead of 0.0.0.0
 - Unhandled exceptions
 - Out of memory (exit code 137)
 
@@ -154,7 +152,7 @@ get_service(serviceId: "<service-id>")
 ```
 
 **Common causes:**
-- DATABASE_URL not set or incorrect
+- DATABASE_URL not set or wrong
 - Connection pool exhaustion
 - Database not provisioned yet
 - SSL configuration issues
@@ -210,7 +208,8 @@ list_logs(
 # 2. Check current service config
 get_service(serviceId: "<service-id>")
 
-# 3. Add missing variable
+# 3. Add missing variable (after user confirms; triggers redeploy;
+#    secrets: user sets in Dashboard, never via chat)
 update_environment_variables(
   serviceId: "<service-id>",
   envVars: [{"key": "MISSING_VAR", "value": "value"}]

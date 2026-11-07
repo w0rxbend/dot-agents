@@ -13,18 +13,18 @@
 
 **Indicators:**
 - ✅ Unique requirements not met by commercial/open-source solutions
-- ✅ Large engineering organization (1000+ engineers) with dedicated platform team (10+ engineers)
-- ✅ Strong internal expertise in platform technologies (Kubernetes, IaC, CI/CD)
-- ✅ Need for deep customization and control
-- ✅ Open-source ecosystem preference (avoid vendor lock-in)
+- ✅ Large organization (1000+ engineers), dedicated platform team (10+ engineers)
+- ✅ Strong in-house platform expertise (Kubernetes, IaC, CI/CD)
+- ✅ Need deep customization and control
+- ✅ Prefer open-source ecosystem (avoid vendor lock-in)
 - ✅ Long-term investment (3+ year horizon)
-- ✅ Existing infrastructure complex (multi-cloud, hybrid, legacy systems)
+- ✅ Complex existing infrastructure (multi-cloud, hybrid, legacy systems)
 
 **Risks:**
 - ⚠️ High upfront development cost (6-12 months to MVP)
-- ⚠️ Ongoing maintenance burden (dedicated team required)
-- ⚠️ Risk of building features that already exist in commercial products
-- ⚠️ Slower time-to-value compared to buying
+- ⚠️ Ongoing maintenance burden (needs dedicated team)
+- ⚠️ May build features commercial products already have
+- ⚠️ Slower time-to-value than buying
 
 **Recommended Approach:**
 - Start with Backstage (open source) as foundation
@@ -34,26 +34,25 @@
 
 **ROI Calculation:**
 - Platform team cost: 10 engineers × $200K = $2M/year
-- Upfront development: 6-12 months to MVP
-- Ongoing: Platform features, bug fixes, upgrades
-- Break-even: When (developer productivity gains × engineer count) > platform team cost
-- Typical: Organizations with 500+ engineers see positive ROI in 12-18 months
+- Ongoing: platform features, bug fixes, upgrades
+- Break-even: when (developer productivity gains × engineer count) > platform team cost
+- Typical: organizations with 500+ engineers see positive ROI in 12-18 months
 
 ### When to Buy Commercial IDP
 
 **Indicators:**
-- ✅ Mid-size organization (100-1000 engineers) with limited platform resources (<5 platform engineers)
+- ✅ Mid-size organization (100-1000 engineers), limited platform resources (<5 platform engineers)
 - ✅ Need fast time-to-value (3-6 months to production)
 - ✅ Prefer managed infrastructure and support
 - ✅ Standard use cases (web apps, microservices, CI/CD)
-- ✅ Budget available for tooling (vs. headcount)
-- ✅ Want to focus engineering on business value, not platform
+- ✅ Budget for tooling (vs. headcount)
+- ✅ Focus engineering on business value, not platform
 
 **Risks:**
 - ⚠️ Licensing costs (can be significant at scale)
-- ⚠️ Potential vendor lock-in (migration difficult)
-- ⚠️ Limited customization compared to open source
-- ⚠️ Reliance on vendor roadmap for new features
+- ⚠️ Possible vendor lock-in (migration hard)
+- ⚠️ Less customization than open source
+- ⚠️ New features depend on vendor roadmap
 
 **Recommended Approach:**
 - Evaluate Port, Humanitec, Cortex, or Harness
@@ -66,14 +65,13 @@
 - For 500 engineers: $30K-120K/month = $360K-1.44M/year
 - Small platform team: 2-3 engineers × $200K = $400K-600K/year
 - Total cost: $760K-2M/year (vs. $2M+ for build)
-- Faster time-to-value: 3-6 months vs. 6-12 months
-- Lower risk: Proven product, vendor support
+- Lower risk: proven product, vendor support
 
 ### When to Adopt Hybrid Approach
 
 **Indicators:**
-- ✅ Large organization needing both flexibility and speed
-- ✅ Complex infrastructure requiring orchestration backend
+- ✅ Large organization needing flexibility and speed
+- ✅ Complex infrastructure needing orchestration backend
 - ✅ Want open-source portal with commercial orchestration (or vice versa)
 - ✅ Willing to integrate multiple systems
 
@@ -82,10 +80,10 @@
 - **Orchestration:** Humanitec or Crossplane (infrastructure abstraction)
 - **GitOps:** Argo CD (open source, proven)
 - **Observability:** Commercial (Datadog, New Relic) or open source (Prometheus + Grafana)
-- Example: Many enterprises in 2025 using Backstage + Humanitec combination
+- Example: many enterprises in 2025 use Backstage + Humanitec
 
 **Integration Considerations:**
-- Ensure portals can integrate with orchestration backends (APIs, webhooks)
+- Check portals can integrate with orchestration backends (APIs, webhooks)
 - Backstage + Humanitec: Humanitec plugin for Backstage available
 - Backstage + Crossplane: Kubernetes plugin shows Crossplane resources
 - Unified authentication (SSO across all platform components)
@@ -139,12 +137,7 @@ Start: Need Internal Developer Platform?
 
 ### Principle: The 80/20 Rule
 
-Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
-
-**Why This Matters:**
-- Too rigid: Developers route around platform, create shadow IT
-- Too flexible: No productivity gains, duplicate effort across teams
-- Balanced: High adoption (easy path), innovation enabled (escape hatches)
+Golden paths cover 80% of use cases; remaining 20% get escape hatches.
 
 ### Spectrum of Control
 
@@ -153,37 +146,37 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 **When to Use:**
 - Regulated industries (finance, healthcare, government)
 - Security/compliance critical (SOC2, HIPAA, PCI-DSS)
-- High risk of misconfigurations leading to outages or vulnerabilities
+- High risk of misconfigurations causing outages or vulnerabilities
 - Junior engineering teams needing guardrails
 
 **Characteristics:**
 - Limited technology choices (approved list only)
 - Mandatory templates (cannot opt-out)
 - Policy enforcement via admission controllers (OPA, Kyverno)
-- Escape hatches require approval process (platform team review, architecture board)
+- Escape hatches need approval (platform team review, architecture board)
 
 **Examples:**
-- Must use approved base images (security scanning passed)
+- Must use approved base images (passed security scanning)
 - Cannot disable network policies (micro-segmentation enforced)
 - Required resource limits enforced (prevent noisy neighbor)
 - Mandatory observability instrumentation (metrics, logs, traces)
 
 **Implementation:**
-- OPA Gatekeeper policies: Reject deployments without required labels
-- Kyverno policies: Mutate deployments to add security context
-- Approval workflows: Production access requires manager + platform team approval
-- Template versioning: All services must use template v2.x or higher
+- OPA Gatekeeper policies: reject deployments without required labels
+- Kyverno policies: mutate deployments to add security context
+- Approval workflows: production access needs manager + platform team approval
+- Template versioning: all services must use template v2.x or higher
 
 **Risks:**
 - Stifles innovation (cannot experiment with new technologies)
-- Frustration from advanced engineers ("getting in the way")
+- Frustrates advanced engineers ("getting in the way")
 - Slower adoption of new best practices (approval process bottleneck)
 - Can drive engineers to workarounds or shadow IT
 
 **Mitigation:**
-- Clear documentation on why constraints exist
-- Fast-track approval process for trusted teams
-- Regular review of constraints (remove outdated ones)
+- Document clearly why constraints exist
+- Fast-track approval for trusted teams
+- Review constraints regularly (remove outdated ones)
 - Exemption process for justified cases
 
 #### Balanced Approach (Recommended for Most)
@@ -191,7 +184,7 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 **When to Use:**
 - Most organizations (standard risk tolerance)
 - Mix of junior and senior engineers
-- Want to encourage best practices without blocking innovation
+- Encourage best practices without blocking innovation
 
 **Characteristics:**
 - Recommended golden paths (easy, well-documented, supported)
@@ -200,13 +193,13 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 - Easy escalation for exceptions (self-service + platform team review if needed)
 
 **Examples:**
-- Recommended: Use approved frameworks (Node.js, Python, Go), but custom frameworks allowed with runbook
-- Default: Standard observability (Prometheus + Grafana), but custom metrics/logging allowed
-- Encouraged: Use templates for new projects, but manual setup possible
+- Recommended: approved frameworks (Node.js, Python, Go); custom frameworks allowed with runbook
+- Default: standard observability (Prometheus + Grafana); custom metrics/logging allowed
+- Encouraged: templates for new projects; manual setup possible
 - Documented: "If you deviate, you own support for that component"
 
 **Implementation:**
-- Templates are default in portal, but "advanced setup" option available
+- Templates default in portal; "advanced setup" option available
 - Policy engines in audit mode (warn, not block)
 - Documentation clearly marks "recommended" vs. "experimental"
 - Platform team office hours for discussing deviations
@@ -215,12 +208,11 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 - High adoption (golden paths are easiest option)
 - Innovation enabled (advanced users can experiment)
 - Clear expectations (deviations documented and owned)
-- Balanced autonomy and standardization
 
 **Success Metrics:**
 - 80%+ of services use golden paths
 - Advanced users happy (can deviate when needed)
-- Platform team not overwhelmed with support for custom setups
+- Platform team not overwhelmed supporting custom setups
 
 #### High Flexibility (Low Standardization)
 
@@ -236,13 +228,13 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 - Platform provides tools, not mandates
 
 **Examples:**
-- Choose any language, framework, database (platform-agnostic)
+- Any language, framework, database (platform-agnostic)
 - Custom infrastructure configurations allowed
 - Observability and security guidance provided, not enforced
 - Engineers own full stack for their services
 
 **Implementation:**
-- Portal provides templates as starting points
+- Portal offers templates as starting points
 - No policy engines (except security minimums)
 - Documentation is guidance, not rules
 - Platform team available for consultation, not enforcement
@@ -250,7 +242,7 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 **Risks:**
 - Inconsistency across teams (harder to support)
 - Security/compliance gaps (if not careful)
-- Duplicate effort (teams solving same problems differently)
+- Duplicate effort (teams solve same problems differently)
 - High cognitive load (engineers must know everything)
 
 **Mitigation:**
@@ -278,19 +270,17 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 - **Rationale:** Regulatory compliance (SOC2, PCI-DSS), audit requirements
 - **Implementation:**
   - Mandatory templates with strict policies
-  - Escape hatches require architecture review board approval
+  - Escape hatches need architecture review board approval
   - Policy-as-code enforced (OPA Gatekeeper)
   - All deployments logged and auditable
 - **Example Policy:** "All services must use approved base images from internal registry, pass security scanning, and enforce encryption at rest and in transit"
 
 **2. E-Commerce Platform:**
 - **Approach:** Balanced
-- **Rationale:** Mix of standard web apps and innovative features, junior to senior engineers
+- **Rationale:** Mix of standard web apps and innovative features; junior to senior engineers
 - **Implementation:**
   - Golden paths for web apps, APIs, data pipelines
-  - Custom solutions allowed with documentation and ownership
-  - Platform team provides guidance, not blockers
-  - Soft enforcement (warnings, not blocks)
+  - Platform team gives guidance, not blockers
 - **Example Policy:** "Recommended to use Node.js microservice template, but custom setups allowed if team documents architecture and owns support"
 
 **3. Early-Stage Startup:**
@@ -298,9 +288,7 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 - **Rationale:** Speed and innovation critical, senior engineers, limited platform resources
 - **Implementation:**
   - Minimal platform (CI/CD + monitoring basics)
-  - Engineers own full stack
   - Golden paths emerge over time from repeated patterns
-  - Platform team publishes guidance, not rules
 - **Example Policy:** "No required templates. Platform team provides example repos and is available for consultation."
 
 ## Platform Adoption Strategy
@@ -308,8 +296,8 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 ### Phase 1: Foundation (Months 1-3)
 
 **Goals:**
-- Establish platform vision and charter
-- Form platform team and assign roles
+- Set platform vision and charter
+- Form platform team, assign roles
 - Build executive sponsorship
 - Choose IDP technology stack
 
@@ -321,16 +309,16 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
   - Workflows: How do you currently deploy?
   - Tool preferences: What tools do you wish you had?
 - Audit existing infrastructure and tooling
-  - Inventory: Cloud resources, CI/CD pipelines, monitoring tools
+  - Inventory: cloud resources, CI/CD pipelines, monitoring tools
   - Gaps: What's missing? What's duplicated?
-- Identify quick wins (high-impact, low-effort improvements)
-  - Example: Centralized logging if currently scattered
+- Find quick wins (high-impact, low-effort improvements)
+  - Example: centralized logging if currently scattered
 
 **Strategy:**
 - Define platform vision and principles
   - Vision: "Enable developers to focus on business logic, not infrastructure"
-  - Principles: Self-service, secure by default, gradual adoption
-- Establish success metrics
+  - Principles: self-service, secure by default, gradual adoption
+- Set success metrics
   - Baseline DORA metrics (current deployment frequency, lead time)
   - Developer satisfaction (baseline survey)
   - Platform KPIs (adoption rate, self-service rate)
@@ -347,13 +335,13 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
   - Manually document top 20 services
   - Ownership, repository links, runbook links
 - Build first golden path template
-  - Identify most common use case (e.g., Node.js API)
-  - Scaffold: Repository structure, CI/CD, deployment config
+  - Pick most common use case (e.g., Node.js API)
+  - Scaffold: repository structure, CI/CD, deployment config
   - Test with pilot service
 
 **Success Criteria:**
-- Platform vision documented and communicated to engineering org
-- Platform team formed (3-5 initial members with clear roles)
+- Platform vision documented, communicated to engineering org
+- Platform team formed (3-5 initial members, clear roles)
 - Developer portal accessible to all engineers
 - 1 golden path template available and tested
 
@@ -363,43 +351,41 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 
 **Goals:**
 - Validate platform with pilot teams
-- Prove ROI (faster onboarding, reduced incidents, higher satisfaction)
-- Iterate based on feedback
+- Prove ROI (faster onboarding, fewer incidents, higher satisfaction)
+- Iterate on feedback
 
 **Activities:**
 
 **Pilot Selection:**
 - Choose 2-3 teams (15-30 total developers)
-  - Criteria: Friendly (willing to give feedback), representative of broader org, mix of greenfield and brownfield
-- Greenfield: New projects (test full workflow from scratch)
-- Brownfield: Existing services (test migration path)
+  - Criteria: friendly (willing to give feedback), representative of broader org, mix of greenfield and brownfield
+- Greenfield: new projects (test full workflow from scratch)
+- Brownfield: existing services (test migration path)
 - Committed to giving feedback and iterating
 
 **Enablement:**
 - White-glove onboarding for pilot teams
-  - Kickoff meeting: Platform overview, goals, feedback process
+  - Kickoff meeting: platform overview, goals, feedback process
   - Dedicated Slack channel for pilot teams
-  - Platform engineer embedded with each pilot team (first 2 weeks)
-- Weekly office hours (platform team available for questions)
-- Document feedback and pain points
-  - Feedback log: Issues, feature requests, confusion points
+  - Platform engineer embedded per pilot team (first 2 weeks)
+- Weekly office hours (platform team answers questions)
+- Log feedback and pain points
+  - Feedback log: issues, feature requests, confusion points
   - Prioritize by impact and frequency
 
 **Iteration:**
 - Rapid fixes for blockers (prioritize pilot team needs)
-  - Goal: Fix critical issues within 1-2 days
-  - Example: If CI/CD integration broken, fix immediately
-- Expand golden paths (2-3 additional templates)
+  - Goal: fix critical issues within 1-2 days
+- Expand golden paths (2-3 more templates)
   - Based on pilot team needs (e.g., Python service, React frontend)
 - Integrate key tools (CI/CD, monitoring, secrets)
   - Backstage plugins: GitHub Actions, Prometheus, Vault
-  - Single pane of glass for developers
 
 **Success Criteria:**
-- 3 pilot teams using platform successfully
+- 3 pilot teams succeed on platform
 - 50% reduction in onboarding time for new services (pilot teams)
-  - Measure: Time from code scaffold to production deployment
-- Positive feedback from pilot teams (satisfaction survey: >7/10)
+  - Measure: time from code scaffold to production deployment
+- Positive pilot team feedback (satisfaction survey: >7/10)
 - 3-5 golden path templates available
 
 **Timeline:** 3 months (Month 4: Pilot selection + onboarding, Months 5-6: Iteration + expansion)
@@ -409,7 +395,7 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 **Goals:**
 - Scale platform to broader organization (20-50% of teams)
 - Build internal champions and evangelists
-- Establish platform operations and support model
+- Set up platform operations and support model
 
 **Activities:**
 
@@ -421,18 +407,18 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
   - Monthly sessions, different topics (golden paths, self-service, troubleshooting)
 - Internal champions program (power users who help others)
   - Recruit 1-2 champions per team
-  - Champions get early access to features, direct line to platform team
+  - Champions get early feature access, direct line to platform team
   - Recognize champions (internal awards, blog posts)
 
 **Self-Service:**
 - Comprehensive documentation (getting started, recipes, troubleshooting)
   - Getting started: 15-minute quick start guide
-  - Recipes: Common tasks (deploy service, add database, configure monitoring)
+  - Recipes: common tasks (deploy service, add database, configure monitoring)
   - Troubleshooting: FAQ, common errors
 - Video tutorials and walkthroughs
-  - Screen recordings: Creating service from template, deploying to production
+  - Screen recordings: creating service from template, deploying to production
 - Slack/Teams channel for community support
-  - Platform team monitors, but community can answer questions
+  - Platform team monitors; community can answer questions
   - Knowledge base built from Q&A
 
 **Operations:**
@@ -444,18 +430,18 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
   - 24/7 coverage for production incidents
   - Escalation path: On-call → platform lead → director
 - Incident response playbooks
-  - Portal down: Steps to diagnose and recover
-  - Deployment failures: Troubleshooting guide
+  - Portal down: steps to diagnose and recover
+  - Deployment failures: troubleshooting guide
 
 **Expansion:**
-- Onboard 10-20 additional teams
+- Onboard 10-20 more teams
   - Self-service onboarding (documentation + videos)
   - Platform team office hours for questions
 - Expand service catalog (100+ services documented)
   - Automated discovery where possible (scan repositories)
 - Add advanced features (ephemeral environments, FinOps integration)
-  - Ephemeral environments: Per-PR preview deployments
-  - FinOps: Cost visibility per service/team
+  - Ephemeral environments: per-PR preview deployments
+  - FinOps: cost visibility per service/team
 
 **Success Criteria:**
 - 20-50% of engineering teams using platform
@@ -469,7 +455,7 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 
 **Goals:**
 - Platform as standard way of working (80%+ adoption)
-- Continuous improvement based on metrics and feedback
+- Continuous improvement from metrics, feedback
 - Platform team as product team (roadmap, OKRs, customer focus)
 
 **Activities:**
@@ -481,10 +467,9 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
   - Platform team initiatives
   - Prioritization: Impact × Effort matrix
 - Developer NPS surveys (measure satisfaction quarterly)
-  - Track trends, identify problem areas
 - Usage analytics (which features used, which neglected)
   - Instrument portal with analytics (page views, feature usage)
-  - Identify underutilized features (consider deprecation or improvement)
+  - Find underused features (consider deprecating or improving)
 
 **Advanced Capabilities:**
 - AI-assisted features (chatbots for common questions, recommendation engines)
@@ -494,13 +479,13 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 **Ecosystem:**
 - Contribute back to open-source community (Backstage plugins)
 - Partner integrations (third-party tools)
-- Internal marketplace (teams can publish reusable components)
+- Internal marketplace (teams publish reusable components)
 
 **Success Criteria:**
 - 80%+ of engineering teams using platform
-- Top-quartile DORA metrics (compared to industry benchmarks)
+- Top-quartile DORA metrics (vs. industry benchmarks)
 - High developer NPS (>50)
-- Platform team operates as product team (clear roadmap, customer focus)
+- Platform team runs as product team (clear roadmap, customer focus)
 
 **Timeline:** Ongoing (Year 2+)
 
@@ -521,14 +506,14 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 ### Model 1: Centralized Platform Team
 
 **Structure:**
-- Single platform team (5-20 engineers) serving entire organization
-- Team owns: Developer portal, infrastructure orchestration, CI/CD, observability integration
-- Team provides: Golden paths, support, strategic roadmap
+- One platform team (5-20 engineers) serves whole organization
+- Team owns: developer portal, infrastructure orchestration, CI/CD, observability integration
+- Team provides: golden paths, support, strategic roadmap
 
 **When to Use:**
 - Small to mid-size organizations (100-500 engineers)
-- Consistent technology stack across organization
-- Limited platform engineering expertise (need to concentrate talent)
+- Consistent technology stack organization-wide
+- Limited platform engineering expertise (concentrate talent)
 
 **Roles and Responsibilities:**
 
@@ -539,7 +524,7 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 
 **Platform Product Manager (0-1):**
 - Developer customer research
-- Feature prioritization based on impact
+- Feature prioritization by impact
 - Success metrics and analytics
 
 **Platform Engineers (3-10):**
@@ -560,12 +545,12 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 
 **Pros:**
 - ✅ Concentrated expertise (deep specialization)
-- ✅ Consistent platform experience across organization
-- ✅ Efficient resource utilization (no duplication)
+- ✅ Consistent platform experience organization-wide
+- ✅ Efficient resource use (no duplication)
 - ✅ Clear ownership and accountability
 
 **Cons:**
-- ❌ Risk of bottleneck (all requests go through one team)
+- ❌ Bottleneck risk (all requests go through one team)
 - ❌ May not understand all domain-specific needs
 - ❌ Can become ivory tower (disconnected from app teams)
 - ❌ Limited scalability (one team supporting 100s of developers)
@@ -577,7 +562,7 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 - Self-service focus (minimize ticket-based work)
   - Goal: 90%+ of actions self-service
 - Regular office hours and demos (stay connected to developers)
-  - Weekly office hours (drop-in for questions)
+  - Weekly office hours (drop-in questions)
   - Monthly demos (new features, best practices)
 
 **Scaling Limits:**
@@ -587,14 +572,14 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 ### Model 2: Federated Platform Model
 
 **Structure:**
-- Central platform team (5-10 engineers) sets standards and provides core capabilities
+- Central platform team (5-10 engineers) sets standards, provides core capabilities
 - Embedded platform engineers (1-2 per business unit/product area) customize for domains
-- Shared responsibility: Central team (core platform), embedded engineers (domain-specific integrations)
+- Shared responsibility: central team (core platform), embedded engineers (domain-specific integrations)
 
 **When to Use:**
 - Large organizations (500-2000+ engineers)
-- Multiple business units or product lines with different needs
-- Some platform expertise distributed across organization
+- Several business units or product lines, different needs
+- Some platform expertise spread across organization
 
 **Roles and Responsibilities:**
 
@@ -612,49 +597,47 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 - Feedback conduit to central team
 
 **Reporting Structure:**
-- Embedded engineers report to: Business unit lead (dotted line to central platform lead)
-- Or: Central platform lead (dotted line to business unit lead)
-- Key: Clear alignment on priorities and responsibilities
+- Embedded engineers report to: business unit lead (dotted line to central platform lead)
+- Or: central platform lead (dotted line to business unit lead)
+- Key: clear alignment on priorities and responsibilities
 
 **Pros:**
 - ✅ Scales well (distributed support across domains)
 - ✅ Domain expertise (embedded engineers understand specific needs)
-- ✅ Balance of consistency (central standards) and flexibility (domain customization)
-- ✅ Reduces bottlenecks (embedded engineers handle domain-specific work)
+- ✅ Balances consistency (central standards) and flexibility (domain customization)
+- ✅ Fewer bottlenecks (embedded engineers handle domain-specific work)
 
 **Cons:**
 - ❌ Coordination overhead (central + embedded teams must align)
-- ❌ Risk of fragmentation (domains diverge if not careful)
-- ❌ Requires more total headcount (embedded engineers across domains)
+- ❌ Fragmentation risk (domains diverge if not careful)
+- ❌ Needs more total headcount (embedded engineers across domains)
 
 **Best Practices:**
-- Clear charter: Central team owns platform core, embedded teams own integrations
-  - Written charter: What's centralized vs. domain-specific
-  - Decision log: When decisions made, rationale
+- Clear charter: central team owns platform core, embedded teams own integrations
+  - Written charter: what's centralized vs. domain-specific
+  - Decision log: when decisions made, rationale
 - Regular sync meetings (central + all embedded engineers)
-  - Bi-weekly: Share progress, discuss challenges
-  - Quarterly: Strategic planning, roadmap alignment
+  - Bi-weekly: share progress, discuss challenges
+  - Quarterly: strategic planning, roadmap alignment
 - Shared knowledge base (central team documents patterns, embedded teams contribute)
-  - Confluence/Notion: Platform architecture, best practices, recipes
+  - Confluence/Notion: platform architecture, best practices, recipes
 - Rotation program (embedded engineers rotate through central team 3-6 months)
-  - Cross-pollination of ideas
-  - Career development
 
 **Scaling Limits:**
 - Works well from 500 to 5000+ engineers
-- Number of embedded engineers scales with business units (not total headcount)
+- Embedded engineer count scales with business units (not total headcount)
 
 ### Model 3: Hub-and-Spoke Model
 
 **Structure:**
 - Central "hub" team (3-5 platform engineers) provides foundational platform
 - "Spoke" teams (app/product teams) contribute plugins, templates, integrations
-- Community-driven: Platform team curates, app teams contribute
+- Community-driven: platform team curates, app teams contribute
 
 **When to Use:**
 - Organizations with strong open-source culture
 - High engineering maturity (senior engineers across teams)
-- Want to distribute platform ownership (avoid bottleneck)
+- Distribute platform ownership (avoid bottleneck)
 
 **Roles and Responsibilities:**
 
@@ -663,20 +646,20 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 - Platform governance (quality standards for contributions)
 - Curate community contributions (review, merge, deprecate)
 - Strategic roadmap (platform direction)
-- Tooling and infrastructure for contribution (e.g., plugin development kit)
+- Contribution tooling and infrastructure (e.g., plugin development kit)
 
 **Spoke Teams (distributed):**
 - Contribute plugins for tools they use (e.g., Datadog plugin)
 - Build domain-specific templates (e.g., ML service template)
 - Share reusable components (libraries, scripts)
-- Dog-food platform, provide feedback
+- Dog-food platform, give feedback
 
 **Contribution Process:**
 - RFC (Request for Comments) for major features
 - Pull requests to platform repository
 - Code review by hub team
 - Documentation required for all contributions
-- Maintenance responsibility: Contributors own their plugins
+- Maintenance: contributors own their plugins
 
 **Pros:**
 - ✅ Distributes ownership (not reliant on one team)
@@ -687,7 +670,7 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
 **Cons:**
 - ❌ Quality control challenges (varied contribution quality)
 - ❌ Maintenance burden (who maintains old plugins?)
-- ❌ Requires strong governance (avoid chaos)
+- ❌ Needs strong governance (avoid chaos)
 - ❌ Not suitable for low-maturity orgs (needs senior engineers)
 
 **Best Practices:**
@@ -696,12 +679,12 @@ Golden paths should handle 80% of use cases; remaining 20% get escape hatches.
   - Documentation requirements
   - Testing requirements
 - Deprecation policy (sunset unused/unmaintained plugins)
-- Recognition for contributors (internal awards, blog posts, conference talks)
-- Hub team capacity reserved for governance (not building all features)
+- Recognize contributors (internal awards, blog posts, conference talks)
+- Reserve hub team capacity for governance (not building all features)
 
 **Scaling Limits:**
 - Works well for mature organizations (500+ engineers, strong open-source culture)
-- Requires active community management
+- Needs active community management
 
 ### Team Sizing Guidelines
 

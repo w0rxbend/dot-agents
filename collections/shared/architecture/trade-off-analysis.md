@@ -1,7 +1,5 @@
 # Trade-off Analysis & ADR
 
-> Document every architectural decision with trade-offs.
-
 ## Decision Framework
 
 For EACH architectural component, document:

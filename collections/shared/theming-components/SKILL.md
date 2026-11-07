@@ -5,32 +5,20 @@ description: Provides design token system and theming framework for consistent, 
 
 # Design Tokens & Theming System
 
-Comprehensive design token system providing the foundational styling architecture for all component skills, enabling brand customization, theme switching, RTL support, and consistent visual design.
+Design tokens are **single source of truth** for all visual design decisions.
 
-## Overview
-
-Design tokens are the **single source of truth** for all visual design decisions. This skill provides:
-
-1. **Complete Token Taxonomy**: 7 core categories (color, typography, spacing, borders, shadows, motion, z-index)
-2. **Theme Switching**: Light/dark mode, high-contrast, custom brand themes
-3. **RTL/i18n Support**: CSS logical properties for automatic right-to-left language support
-4. **Multi-Platform Export**: CSS variables, SCSS, iOS Swift, Android XML, JavaScript
-5. **Component Integration**: Skill chaining architecture for consistent styling across all components
-
-**Critical Architectural Principle:**
+**Critical architectural principle:**
 ```
 Component Skills (Behavior + Structure) → Use tokens for ALL visual styling
 Design Tokens (Styling Variables)       → Define colors, spacing, typography
 Theme Files (Token Overrides)           → Light, dark, brand-specific values
 ```
 
----
-
 ## Quick Start
 
 ### Using Tokens in Components
 
-**Step 1: Reference tokens in your component:**
+**Step 1: Reference tokens in component:**
 
 ```css
 .button {
@@ -43,7 +31,7 @@ Theme Files (Token Overrides)           → Light, dark, brand-specific values
 }
 ```
 
-**Step 2: Themes automatically apply:**
+**Step 2: Themes apply automatically:**
 
 ```html
 <!-- Light theme -->
@@ -57,7 +45,7 @@ Theme Files (Token Overrides)           → Light, dark, brand-specific values
 </html>
 ```
 
-**No code changes needed** - theme switching is automatic!
+**No code changes needed** - theme switching is automatic.
 
 ### Basic Theme Switching
 
@@ -75,8 +63,6 @@ function toggleTheme() {
 // Load saved theme on page load
 setTheme(localStorage.getItem('theme') || 'light');
 ```
-
----
 
 ## Token Taxonomy (7 Core Categories)
 
@@ -96,8 +82,6 @@ setTheme(localStorage.getItem('theme') || 'light');
 /* Component-specific */
 --button-bg-primary: var(--color-primary);
 ```
-
-**Complete color system:** See `references/color-system.md`
 
 ### 2. Spacing Tokens
 
@@ -160,13 +144,6 @@ setTheme(localStorage.getItem('theme') || 'light');
 --transition-fast: all var(--duration-fast) var(--ease-out);
 ```
 
-**Reduced motion support:**
-```css
-@media (prefers-reduced-motion: reduce) {
-  :root { --transition-fast: none; }
-}
-```
-
 ### 7. Z-Index Tokens
 
 ```css
@@ -175,8 +152,6 @@ setTheme(localStorage.getItem('theme') || 'light');
 --z-modal: 1050;
 --z-tooltip: 1070;
 ```
-
----
 
 ## Theme Architecture
 
@@ -208,13 +183,9 @@ setTheme(localStorage.getItem('theme') || 'light');
 }
 ```
 
-**Complete theme guide:** See `references/theme-switching.md`
-
----
-
 ## CSS Logical Properties (RTL Support)
 
-**Use logical properties for automatic RTL language support:**
+**Use logical properties for automatic RTL support:**
 
 | Physical (Avoid) | Logical (Use) |
 |------------------|---------------|
@@ -229,10 +200,6 @@ setTheme(localStorage.getItem('theme') || 'light');
   margin-inline-start: var(--spacing-sm);
 }
 ```
-
-**Complete RTL guide:** See `references/logical-properties.md`
-
----
 
 ## Component Integration
 
@@ -250,19 +217,7 @@ setTheme(localStorage.getItem('theme') || 'light');
 --chart-color-1
 ```
 
-**Components use tokens for ALL styling:**
-```css
-.button {
-  background-color: var(--button-bg-primary);
-  border-radius: var(--button-border-radius);
-}
-```
-
-Theme changes automatically update all components.
-
-**Complete integration guide:** See `references/component-integration.md`
-
----
+Components consume semantic and component tokens; theme changes update all components automatically.
 
 ## Accessibility
 
@@ -293,13 +248,9 @@ Theme changes automatically update all components.
 }
 ```
 
-**Complete accessibility guide:** See `references/accessibility-tokens.md`
-
----
-
 ## Platform Exports (Style Dictionary)
 
-**Transform tokens to any platform:**
+Exports CSS variables, SCSS, iOS Swift, Android XML, JavaScript.
 
 ```
 JSON Tokens → Style Dictionary → CSS Variables
@@ -307,14 +258,6 @@ JSON Tokens → Style Dictionary → CSS Variables
                                → Android XML
                                → JavaScript
 ```
-
-```bash
-npm run build-tokens
-```
-
-**Complete setup guide:** See `references/style-dictionary-setup.md`
-
----
 
 ## W3C Token Format
 
@@ -328,8 +271,6 @@ npm run build-tokens
   }
 }
 ```
-
----
 
 ## Scripts
 
@@ -347,12 +288,10 @@ python scripts/validate_contrast.py
 npm run build-tokens
 ```
 
----
-
 ## References
 
 **Core Systems:**
-- `references/color-system.md` - Complete color scales and semantics
+- `references/color-system.md` - Color scales and semantics
 - `references/typography-system.md` - Type scales and fonts
 - `references/spacing-system.md` - Spacing scale and rhythm
 
@@ -365,19 +304,4 @@ npm run build-tokens
 - `references/style-dictionary-setup.md` - Multi-platform build
 - `references/accessibility-tokens.md` - WCAG compliance
 
----
-
-## Key Takeaways
-
-1. **Design tokens are the foundation** - All visual styling flows from tokens
-2. **3-level hierarchy** - Primitive → Semantic → Component tokens
-3. **7 core categories** - Color, spacing, typography, borders, shadows, motion, z-index
-4. **Theme switching built-in** - Light, dark, high-contrast, custom brands
-5. **RTL support automatic** - CSS logical properties enable right-to-left languages
-6. **Accessibility first** - WCAG compliance, reduced motion, high contrast
-7. **Reusable by component code** - Components consume semantic and component tokens
-
----
-
-**Progressive disclosure:** This SKILL.md provides overview and quick start. Detailed documentation in `references/` directory.
-
+**Progressive disclosure:** SKILL.md has overview and quick start. Details in `references/`.

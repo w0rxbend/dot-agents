@@ -1,7 +1,5 @@
 # Hybrid Connectivity
 
-Comprehensive guide to connecting on-premises datacenters to cloud environments using VPN, Direct Connect, ExpressRoute, and Cloud Interconnect.
-
 ## Table of Contents
 
 1. [VPN Connectivity](#vpn-connectivity)
@@ -17,15 +15,15 @@ Comprehensive guide to connecting on-premises datacenters to cloud environments 
 ### Use Cases
 
 **Ideal For:**
-- Development and test environments
+- Dev and test environments
 - Temporary connections
-- Backup connectivity to dedicated link
-- Low-cost hybrid requirements
-- Quick setup needed (no contracts)
+- Backup for dedicated link
+- Low-cost hybrid needs
+- Quick setup (no contracts)
 
 **Not Suitable For:**
 - High-throughput production workloads (> 1.25 Gbps)
-- Low-latency requirements
+- Low-latency needs
 - Large data transfers
 - Mission-critical applications
 
@@ -109,7 +107,7 @@ resource "aws_vpn_gateway_route_propagation" "private" {
 
 ### Accelerated VPN (AWS)
 
-**Use When:** Internet connectivity is unreliable
+**Use When:** internet connectivity unreliable
 
 ```hcl
 resource "aws_vpn_connection" "accelerated" {
@@ -127,10 +125,10 @@ resource "aws_vpn_connection" "accelerated" {
 **Benefits:**
 - Routes over AWS global network (not public internet)
 - More stable performance
-- Reduced latency variability
+- Less latency variability
 
 **Costs:**
-- Additional $0.05/hour per tunnel
+- Extra $0.05/hour per tunnel
 - Accelerated data transfer charges
 
 ---
@@ -359,7 +357,7 @@ resource "google_compute_router_peer" "main" {
 
 ### Pattern: Hybrid with Transit Gateway + Direct Connect
 
-**Use Case:** Multiple VPCs need on-premises connectivity via single DX connection
+**Use Case:** multiple VPCs reach on-premises through one DX connection
 
 **Architecture:**
 
@@ -494,7 +492,7 @@ Two Direct Connect connections for redundancy
 - Active-active or active-passive
 
 **Cost:**
-- Double the Direct Connect port fees
+- Double Direct Connect port fees
 - Highest availability
 
 ---
@@ -510,22 +508,18 @@ Two Direct Connect connections for redundancy
 | VPN | Free | ~$37 (2 tunnels) | $920 ($0.09/GB) | ~$957 |
 | Direct Connect 1 Gbps | $0-2000 (one-time) | ~$220 (port) | $200 ($0.02/GB) | ~$420 |
 
-**Break-even:** Direct Connect cheaper if > 8 TB/month or need consistent performance
+**Break-even:** Direct Connect cheaper if > 8 TB/month or consistent performance needed
 
 ### Optimization Strategies
 
 1. **Use VPN for Dev/Test**
    - Direct Connect for production only
-   - Reduces costs 50%+
+   - Cuts costs 50%+
 
 2. **Right-size Direct Connect**
    - Start with 1 Gbps, upgrade if needed
    - Monitor utilization
 
-3. **Centralized Hybrid Connection**
-   - Single Direct Connect + Transit Gateway
-   - Multiple VPCs share one connection
-
-4. **Hosted Connections for Smaller Needs**
+3. **Hosted Connections for Smaller Needs**
    - 50 Mbps to 500 Mbps options
-   - Lower cost than dedicated
+   - Cheaper than dedicated

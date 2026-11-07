@@ -1,8 +1,8 @@
 # Metrics with Prometheus
 
-→ See `samber/cc-skills-golang@golang-troubleshooting` skill for using metrics to diagnose production issues.
+→ See `samber/cc-skills-golang@golang-troubleshooting` skill for diagnosing production issues with metrics.
 
-When using the Prometheus client library, refer to the library's official documentation for up-to-date API signatures and examples.
+Using Prometheus client library: check its official documentation for up-to-date API signatures and examples.
 
 ## Table of Contents
 
@@ -26,22 +26,20 @@ When using the Prometheus client library, refer to the library's official docume
 | --- | --- | --- | --- |
 | **Counter** | Cumulative total (only goes up) | Total requests, total errors | Counting events |
 | **Gauge** | Current value (goes up and down) | In-flight requests, queue size, temperature | Current state |
-| **Histogram** | Distribution of values in configurable buckets | Request duration, response size | Latency, sizes — when you need percentiles |
+| **Histogram** | Value distribution in configurable buckets | Request duration, response size | Latency, sizes — when you need percentiles |
 | **Summary** | Client-computed quantiles | Request duration (pre-computed P50, P99) | Rarely — prefer Histogram |
 
 ## Histogram vs Summary
 
-This is one of the most common sources of confusion. Both measure distributions, but they work very differently.
+**Histogram** stores observations in configurable buckets (e.g., 5ms, 10ms, 25ms, 50ms, 100ms, ...). Prometheus computes percentiles at query time via `histogram_quantile()`. Raw bucket counts live server-side, so histograms can be **aggregated across multiple instances**. Essential for multi-replica services.
 
-**Histogram** stores observations in configurable buckets (e.g., 5ms, 10ms, 25ms, 50ms, 100ms, ...). Percentiles are computed at query time by Prometheus using `histogram_quantile()`. Because the raw bucket counts are stored server-side, histograms can be **aggregated across multiple instances** — essential for services running multiple replicas.
+**Summary** computes quantiles (P50, P99, etc.) client-side before sending to Prometheus. Values are pre-baked and **cannot be aggregated**: P99 values from 10 instances cannot combine into meaningful overall P99.
 
-**Summary** computes quantiles (P50, P99, etc.) on the client side before sending them to Prometheus. This means the quantile values are pre-baked and **cannot be aggregated** — if you have 10 instances, you cannot combine their P99 values into a meaningful overall P99.
-
-**Recommendation**: Histogram SHOULD be preferred over Summary in almost all cases. Summary is only useful when you need exact quantiles for a single instance and don't care about cross-instance aggregation.
+**Recommendation**: Histogram SHOULD be preferred over Summary in almost all cases. Summary fits only when you need exact quantiles for single instance and don't care about cross-instance aggregation.
 
 ## Tracking Percentiles (P50, P90, P99, P99.9)
 
-Define a Histogram with appropriate buckets, then query percentiles with `histogram_quantile()`:
+Define Histogram with appropriate buckets, then query percentiles with `histogram_quantile()`:
 
 ```go
 import "github.com/prometheus/client_golang/prometheus"
@@ -73,34 +71,15 @@ func instrumentHandler(next http.Handler) http.Handler {
 }
 ```
 
-**PromQL queries for percentiles:**
-
-```promql
-# P50 (median) over the last 5 minutes
-histogram_quantile(0.50, rate(myapp_http_request_duration_seconds_bucket[5m]))
-
-# P90
-histogram_quantile(0.90, rate(myapp_http_request_duration_seconds_bucket[5m]))
-
-# P99
-histogram_quantile(0.99, rate(myapp_http_request_duration_seconds_bucket[5m]))
-
-# P99.9
-histogram_quantile(0.999, rate(myapp_http_request_duration_seconds_bucket[5m]))
-
-# P99 broken down by path
-histogram_quantile(0.99, sum(rate(myapp_http_request_duration_seconds_bucket[5m])) by (le, path))
-```
-
 ## Naming Conventions
 
-Metric names MUST follow the [Prometheus naming best practices](https://prometheus.io/docs/practices/naming/). The pattern is: `<namespace>_<subsystem>_<name>_<unit>`
+Metric names MUST follow [Prometheus naming best practices](https://prometheus.io/docs/practices/naming/). Pattern: `<namespace>_<subsystem>_<name>_<unit>`
 
 **Rules:**
 
-- Use a single-word application prefix (namespace) relevant to the domain
-- A metric must refer to a single unit and single quantity
-- Include the unit as a suffix, in **plural** form
+- Use single-word application prefix (namespace) relevant to domain
+- Metric must refer to single unit and single quantity
+- Include unit as suffix, in **plural** form
 - MUST use **base units** — not derived units
 
 **Always use base units:**
@@ -121,7 +100,7 @@ Metric names MUST follow the [Prometheus naming best practices](https://promethe
 | `_seconds` | Duration measurements | `myapp_http_request_duration_seconds` |
 | `_bytes` | Data sizes | `myapp_response_size_bytes` |
 | `_info` | Pseudo-metrics exposing metadata | `myapp_build_info` |
-| `_created` | Creation timestamp of a counter | `myapp_http_requests_created` |
+| `_created` | Counter creation timestamp | `myapp_http_requests_created` |
 
 ```go
 // ✓ Good — namespace, subsystem, descriptive name, base unit suffix
@@ -139,7 +118,7 @@ request_duration_ms       // milliseconds instead of seconds
 myapp_request_size_kb     // kilobytes instead of bytes
 ```
 
-**Label naming:** do not embed label names into the metric name. Use labels to differentiate characteristics:
+**Label naming:** do not embed label names in metric name. Use labels to differentiate characteristics:
 
 ```go
 // ✗ Bad — operation embedded in metric name
@@ -151,7 +130,7 @@ myapp_http_requests_total{method="GET"}
 myapp_http_requests_total{method="POST"}
 ```
 
-**Semantic consistency:** `sum()` or `avg()` over all label dimensions of a metric should be meaningful. If not, split into separate metrics.
+**Semantic consistency:** `sum()` or `avg()` over all label dimensions of metric should be meaningful. If not, split into separate metrics.
 
 ## Exposing Metrics
 
@@ -163,7 +142,7 @@ mux.Handle("/metrics", promhttp.Handler())
 
 ## Document Metrics with PromQL Comments
 
-EVERY METRIC declaration SHOULD include the relevant PromQL queries and alert rules as comments directly above the variable. This makes metrics self-documenting — when a developer reads the code, they immediately see how the metric is used in dashboards and alerts, without hunting through Grafana or alert configurations.
+EVERY METRIC declaration SHOULD carry relevant PromQL queries and alert rules as comments directly above variable.
 
 ```go
 // ✗ Bad — metric exists but nobody knows how to query or alert on it
@@ -177,15 +156,11 @@ var httpRequestsTotal = promauto.NewCounterVec(...)
 var httpRequestsTotal = promauto.NewCounterVec(...)
 ```
 
-This convention has practical benefits: PromQL queries are reviewed in PRs alongside the metric, queries stay in sync with metric changes (label renames, bucket changes), and new team members can understand the metric's purpose at a glance.
-
 ## Metric Examples and PromQL Queries
 
-Production-ready metrics covering all four types with comprehensive PromQL for dashboards and alerts.
+For infrastructure and dependency alerting (databases, caches, message brokers, reverse proxies, Kubernetes), [awesome-prometheus-alerts](https://samber.github.io/awesome-prometheus-alerts/) has ~500 curated, ready-to-use Prometheus alerting rules by technology. See [alerting.md](alerting.md) for integration details and Go runtime alerts.
 
-For infrastructure and dependency alerting (databases, caches, message brokers, reverse proxies, Kubernetes), [awesome-prometheus-alerts](https://samber.github.io/awesome-prometheus-alerts/) provides a curated collection of ~500 ready-to-use Prometheus alerting rules organized by technology. See [alerting.md](alerting.md) for integration details and Go runtime alerts.
-
-NEVER use `irate(...)` for alerts — use `rate(...)` instead.
+NEVER use `irate(...)` for alerts. Use `rate(...)` instead.
 
 ### Counters — tracking events
 
@@ -471,8 +446,6 @@ histogram_quantile(0.99, sum(rate(myapp_external_call_duration_seconds_bucket[5m
 
 ### Summary — client-side quantiles (use sparingly)
 
-Summaries compute quantiles on the client and cannot be aggregated across instances. Use them only for single-process diagnostics where exact quantiles matter. Prefer Histogram in all other cases.
-
 ```go
 // Dashboard: myapp_jobs_processing_seconds{quantile="0.5"}
 // Dashboard: myapp_jobs_processing_seconds{quantile="0.99"}
@@ -491,9 +464,9 @@ var jobProcessingDuration = promauto.NewSummary(
 
 ## Multi-Window Burn-Rate SLO Alerting
 
-For critical services, simple threshold alerts ("error rate > 1%") fire too late for fast incidents and too early for slow ones. Multi-window burn-rate alerting scales alert urgency to how fast you're consuming your error budget.
+For critical services, simple threshold alerts ("error rate > 1%") fire too late on fast incidents and too early on slow ones. Multi-window burn-rate alerting scales urgency to how fast you burn error budget.
 
-For a **99.9% availability SLO** (0.1% error budget over 30 days):
+For **99.9% availability SLO** (0.1% error budget over 30 days):
 
 | Window | Burn rate | Error rate | Severity | Meaning |
 | --- | --- | --- | --- | --- |
@@ -525,11 +498,9 @@ For a **99.9% availability SLO** (0.1% error budget over 30 days):
 )
 ```
 
-The short window catches the incident fast; the long window confirms it's sustained. Together they eliminate false positives from transient blips.
-
 ## High-Cardinality Labels
 
-NEVER use high-cardinality labels (user IDs, full URLs, request IDs). Every unique combination of label values creates a separate time series in Prometheus. Unbounded labels cause memory explosion on the Prometheus server, slow queries, and can crash the monitoring stack.
+NEVER use high-cardinality labels (user IDs, full URLs, request IDs). Each unique label-value combination is separate time series in Prometheus. Unbounded labels explode Prometheus server memory, slow queries, and can crash monitoring stack.
 
 ```go
 // ✗ Bad — unbounded cardinality (millions of unique values)
@@ -545,8 +516,6 @@ httpRequestsTotal.WithLabelValues(statusBucket)    // "2xx", "3xx", "4xx", "5xx"
 
 **How to limit cardinality:**
 
-- Use route templates (`/users/:id`) instead of actual paths (`/users/alice`)
-- Bucket status codes (`2xx`, `4xx`, `5xx`) instead of exact codes (200, 201, 204, 400, 401, ...)
-- Never use user IDs, request IDs, session IDs, or email addresses as labels
-- Use attributes/tags in traces instead — traces handle high cardinality naturally
-- **Rule of thumb**: if a label can have more than ~100 unique values, it's too many
+- Never use user IDs, request IDs, session IDs or email addresses as labels
+- Use attributes/tags in traces instead. Traces handle high cardinality naturally
+- **Rule of thumb**: label with more than ~100 unique values has too many

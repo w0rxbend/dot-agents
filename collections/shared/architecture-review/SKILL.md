@@ -21,25 +21,23 @@ risk: unknown
 
 # Architecture Review (Ontoly)
 
-Answer architecture and dependency questions from Ontoly's Software Graph instead of reading files: what the main modules are, who depends on what, where cycles are, and which boundaries are risky.
-
 ## When to Use
 
-- The repository has Ontoly available (`ontoly` on PATH, or an `ontoly mcp` server connected)
+- Ontoly available: `ontoly` on PATH, or `ontoly mcp` server connected
 - Questions such as: "What are the main packages and services?", "Which modules depend on X?", "What would a change to X affect?", "Are there dependency cycles?", "Who owns this request path?"
 
-If Ontoly is not installed, do not use this skill; use `architecture` for design trade-offs and ordinary code search for dependency questions.
+If Ontoly not installed, do not use this skill. Use `architecture` for design trade-offs, ordinary code search for dependency questions.
 
 ## Required Workflow
 
-Follow [the shared Ontoly workflow](reference/workflow.md). Also read [graph evidence rules](reference/graph.md), [MCP usage](reference/mcp.md), [best practices](reference/best-practices.md) and [fallback rules](reference/fallbacks.md) when the task requires detail.
+Follow [the shared Ontoly workflow](reference/workflow.md). When task needs detail, also read [graph evidence rules](reference/graph.md), [MCP usage](reference/mcp.md), [best practices](reference/best-practices.md) and [fallback rules](reference/fallbacks.md).
 
 In short:
 
-1. Ensure `.ontoly/SoftwareGraph.json` exists; if missing or stale run `ontoly build .`.
+1. Ensure `.ontoly/SoftwareGraph.json` exists. If missing or stale, run `ontoly build .`.
 2. Check graph trust with `ontoly coverage .` or `ontoly stats . --json`.
-3. Query `EvidencePack` first, then the capabilities for the mode below.
-4. Inspect repository files only when Ontoly cannot answer, confidence is low, or a source quote is needed.
+3. Query `EvidencePack` first, then capabilities for mode below.
+4. Inspect repository files only when Ontoly cannot answer, confidence is low, or source quote needed.
 
 ## Modes and Capabilities
 
@@ -48,7 +46,7 @@ In short:
 | Architecture review | Boundaries, topology, ownership, risk | `EvidencePack`, `ExplainArchitecture`, `GraphStatistics`, `FindCycles`, `FindDependencies` |
 | Dependency analysis | "What depends on X / what does X use / impact of changing X" | `EvidencePack`, `FindDependencies`, `FindDependents`, `FindCycles`, `GraphStatistics` |
 
-See [capability notes](reference/capabilities.md) for required evidence fields.
+Required evidence fields: [capability notes](reference/capabilities.md).
 
 ## Output Contract
 
@@ -56,7 +54,7 @@ Return:
 
 - answer or plan
 - capabilities invoked
-- graph evidence with node ids, edge types, source spans, and graph hash when available
+- graph evidence: node ids, edge types, source spans, graph hash when available
 - confidence: high, medium, or low
 - fallback reason if repository files were inspected
 
@@ -64,7 +62,7 @@ Templates: [architecture review](templates/architecture-review.md), [dependency 
 
 ## Boundaries
 
-Do not implement compiler, query, MCP, SDK, or business logic in the skill. Do not search repository files until Ontoly cannot answer or evidence must be confirmed. Separate graph facts from inference.
+Do not implement compiler, query, MCP, SDK, or business logic in skill. Separate graph facts from inference.
 
 ## Learn More
 

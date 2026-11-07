@@ -19,11 +19,11 @@ viper.OnConfigChange(func(e fsnotify.Event) {
 })
 ```
 
-`WatchConfig` starts a background goroutine that watches the config file using fsnotify. Call it after `ReadInConfig`.
+`WatchConfig` starts background goroutine watching config file via fsnotify. Call after `ReadInConfig`.
 
 ## The atomic-rename trap
 
-Most editors (vim, neovim, many CI tools) write config files by creating a new file and then renaming it over the old one. This replaces the inode that fsnotify is watching — the watch may not fire, or may fire with `Op: RENAME` instead of `Op: WRITE`, or may fire twice.
+Most editors (vim, neovim, many CI tools) save by writing new file and renaming it over old one. That replaces the inode fsnotify is watching: event may not fire, may fire as `Op: RENAME` instead of `Op: WRITE`, or may fire twice.
 
 **Test hot reload with direct file writes, not editor saves:**
 
@@ -35,11 +35,11 @@ os.WriteFile("config.yaml", newContent, 0644)
 // opening vim and :w — may trigger RENAME instead of WRITE
 ```
 
-In production, this is less of an issue if your config management tool (Kubernetes ConfigMap volume mount, Consul Template, etc.) is aware of inode behavior.
+In production, less of an issue if config management tool (Kubernetes ConfigMap volume mount, Consul Template, etc.) is aware of inode behavior.
 
 ## Race-safe reload pattern
 
-Config reload happens in a background goroutine. Any shared state updated in `OnConfigChange` must be synchronized:
+Reload runs in background goroutine. Synchronize any shared state updated in `OnConfigChange`:
 
 ```go
 type Config struct {
@@ -66,11 +66,11 @@ viper.OnConfigChange(func(e fsnotify.Event) {
 })
 ```
 
-Reads use `appCfg.mu.RLock()`. Never read directly from viper in hot paths during reload — the window between `OnConfigChange` firing and viper updating its internal state is non-deterministic.
+Reads use `appCfg.mu.RLock()`. Never read viper directly in hot paths during reload: gap between `OnConfigChange` firing and viper updating internal state is non-deterministic.
 
 ## Debouncing rapid changes
 
-Some filesystems fire multiple events per save. Debounce to avoid reloading multiple times:
+Some filesystems fire multiple events per save. Debounce to avoid repeated reloads:
 
 ```go
 var reloadTimer *time.Timer
@@ -90,7 +90,7 @@ viper.OnConfigChange(func(e fsnotify.Event) {
 
 ## Validating config before applying
 
-Always validate reloaded config before applying it — an invalid config mid-reload should keep the previous working config:
+Always validate reloaded config before applying. Invalid config mid-reload should keep previous working config:
 
 ```go
 viper.OnConfigChange(func(e fsnotify.Event) {
@@ -109,4 +109,4 @@ viper.OnConfigChange(func(e fsnotify.Event) {
 
 ## Stopping the watcher
 
-There is no documented way to stop `WatchConfig` once started. Design your application so that the watcher's lifetime matches the process lifetime. For testing, create a new `viper.New()` instance per test — the watcher is per-instance and is garbage-collected with the instance.
+No documented way to stop `WatchConfig` once started. Match watcher lifetime to process lifetime. In tests, create new `viper.New()` instance per test: watcher is per-instance, garbage-collected with it.

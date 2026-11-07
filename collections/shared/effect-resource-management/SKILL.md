@@ -3,7 +3,6 @@ name: effect-resource-management
 user-invocable: false
 description: "Effect-TS v3: acquire and release resources safely with Scope, acquireRelease, addFinalizer, acquireUseRelease and ensuring, pool them with the Pool module, and tie them to application lifetime with Layer.scoped. Use when Effect code opens connections, files, sockets, subscriptions or background fibers that must be cleaned up on success, failure and interruption."
 allowed-tools:
-  - Bash
   - Read
   - Write
   - Edit
@@ -13,24 +12,24 @@ allowed-tools:
 
 > **Version:** targets `effect` 3.x (examples checked against 3.22). Check
 > `effect` in package.json; Effect 4 keeps `Scope`/`acquireRelease` but renames
-> other APIs used nearby.
+> other nearby APIs.
 
-A `Scope` collects finalizers. When the scope closes (success, failure or
-interruption) its finalizers run in reverse order of registration. An effect
-that needs a scope has `Scope` in its `R` channel; `Effect.scoped` provides a
-fresh scope and closes it when the inner effect ends.
+`Scope` collects finalizers. When scope closes (success, failure or
+interruption), finalizers run in reverse registration order. Effect needing a
+scope has `Scope` in its `R` channel. `Effect.scoped` provides fresh scope and
+closes it when inner effect ends.
 
 ## Choosing the tool
 
 | Need | Use |
 | --- | --- |
-| Resource used inside one block of code | `Effect.acquireUseRelease(acquire, use, release)` |
-| Reusable "resource" effect that callers compose and scope | `Effect.acquireRelease(acquire, release)` -> `Effect<A, E, Scope>` |
-| Cleanup that is not tied to an acquired value | `Effect.addFinalizer((exit) => ...)` |
-| Always run something after an effect (no resource) | `Effect.ensuring(cleanup)`, `Effect.onExit`, `Effect.onInterrupt` |
-| Resource that lives as long as the app / a service | `Layer.scoped(Tag, acquireRelease(...))` (see **effect-dependency-injection**) |
+| Resource used inside one code block | `Effect.acquireUseRelease(acquire, use, release)` |
+| Reusable "resource" effect callers compose and scope | `Effect.acquireRelease(acquire, release)` -> `Effect<A, E, Scope>` |
+| Cleanup not tied to acquired value | `Effect.addFinalizer((exit) => ...)` |
+| Always run something after effect (no resource) | `Effect.ensuring(cleanup)`, `Effect.onExit`, `Effect.onInterrupt` |
+| Resource living as long as app / service | `Layer.scoped(Tag, acquireRelease(...))` (see **effect-dependency-injection**) |
 | N interchangeable expensive resources | `Pool.make` / `Pool.makeWithTTL` |
-| Background fiber that must stop with the scope | `Effect.forkScoped` (see **effect-concurrency**) |
+| Background fiber that must stop with scope | `Effect.forkScoped` (see **effect-concurrency**) |
 
 ## acquireRelease + scoped
 
@@ -63,12 +62,10 @@ const readFirstLine = (path: string) =>
 // Effect<string, FileError, never>; the file is closed before this returns
 ```
 
-- The scope ends where `Effect.scoped` ends. Returning the handle out of
-  `Effect.scoped` returns a closed handle: keep all use inside.
-- Several resources acquired in one scope are released in reverse order
-  (last acquired, first released), which matches dependency order.
-- `release` receives the `Exit` as a second argument when cleanup should differ
-  on failure (for example roll back vs commit).
+- Several resources in one scope release in reverse order (last acquired,
+  first released).
+- `release` gets `Exit` as second argument. Use it when cleanup differs on
+  failure (for example roll back vs commit).
 
 ## acquireUseRelease (bracket)
 
@@ -107,13 +104,13 @@ const tracked = Effect.gen(function* () {
 const program = Effect.scoped(tracked)
 ```
 
-`Exit` has only two cases, `Success` and `Failure`; interruption is a
-`Failure` whose cause is an interruption, detected with
+`Exit` has only two cases, `Success` and `Failure`. Interruption is a
+`Failure` whose cause is interruption. Detect it with
 `Cause.isInterruptedOnly` / `Exit.isInterrupted`.
 
 ## Pooling with the Pool module
 
-Do not hand-roll pools with a `Queue`; `Pool` handles concurrent borrowers,
+Do not hand-roll pools with `Queue`. `Pool` handles concurrent borrowers,
 lazy growth, invalidation and shutdown.
 
 ```typescript
@@ -148,10 +145,10 @@ const program = Effect.scoped(
 // closing the outer scope closes every pooled connection
 ```
 
-- `Pool.invalidate(pool, item)` drops a broken item; the pool replaces it.
-- Put the pool in a `Layer.scoped` service so the whole app shares one pool.
-- For keyed resources (one pool per tenant/host) use `KeyedPool`; for a single
-  shared, reference-counted resource use `RcRef`.
+- `Pool.invalidate(pool, item)` drops broken item; pool replaces it.
+- Put pool in `Layer.scoped` service so whole app shares one pool.
+- Keyed resources (one pool per tenant/host): use `KeyedPool`. Single shared,
+  reference-counted resource: use `RcRef`.
 
 ## Nested and parallel scopes
 
@@ -203,28 +200,29 @@ const WsLive = Layer.scoped(
 
 ## Pitfalls
 
-- **Unscoped acquisition:** calling `openFile(...)` and running it without
-  `Effect.scoped` (or a scoped layer) is a type error; do not silence it with
-  casts or by providing a never-closed scope.
-- **Scope confusion:** a resource returned from inside `Effect.scoped` is
-  already released. Widen the scope (or move work inside) instead.
-- **Failing finalizers:** a release that can fail turns cleanup errors into
-  defects; `Effect.ignore` or log in release.
-- **Slow finalizers:** finalizers are uninterruptible; bound them with
+- **Unscoped acquisition:** running `openFile(...)` without `Effect.scoped`
+  (or scoped layer) is a type error. Do not silence it with casts or by
+  providing a never-closed scope.
+- **Scope confusion:** scope ends where `Effect.scoped` ends, so a resource
+  returned from inside it is already released (closed handle). Keep all use
+  inside, or widen scope.
+- **Failing finalizers:** release that can fail turns cleanup errors into
+  defects. `Effect.ignore` or log in release.
+- **Slow finalizers:** finalizers are uninterruptible. Bound them with
   `Effect.timeout` if they do I/O.
-- **Acquire then register later:** registering a finalizer a few steps after
-  acquisition leaks on interruption in between; use `acquireRelease`, which
-  makes acquire+register atomic.
-- **Per-call `Effect.provide(LayerWithPool)`**: builds a new pool every call;
-  provide once at the edge.
+- **Acquire then register later:** registering finalizer a few steps after
+  acquisition leaks if interrupted in between. Use `acquireRelease`; it makes
+  acquire+register atomic.
+- **Per-call `Effect.provide(LayerWithPool)`**: builds new pool every call.
+  Provide once at the edge.
 
 ## Done when
 
-- Every acquired handle (file, socket, connection, subscription, fiber) is
-  created through `acquireRelease`, `acquireUseRelease`, `Layer.scoped` or a
-  `Pool`, and no code calls `close()` manually on the success path only.
-- A test interrupts or fails the using effect and asserts the finalizer ran
-  (see **effect-testing**).
+- Every acquired handle (file, socket, connection, subscription, fiber) comes
+  from `acquireRelease`, `acquireUseRelease`, `Layer.scoped` or `Pool`. No
+  code calls `close()` manually on success path only.
+- A test interrupts or fails the using effect and asserts finalizer ran (see
+  **effect-testing**).
 
 ## Related skills
 

@@ -1,7 +1,5 @@
 # SDK Versioning and Deprecation
 
-Guide to semantic versioning, deprecation strategies, and API version pinning.
-
 ## Semantic Versioning (SemVer)
 
 Follow `MAJOR.MINOR.PATCH`:

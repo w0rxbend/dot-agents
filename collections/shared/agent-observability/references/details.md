@@ -1,10 +1,8 @@
 # Details (moved from SKILL.md)
 
-> Extended reference content for `agent-observability`, kept under `references/` so the entrypoint stays within the audit budget.
-
 ## Structured Logging
 
-Emit JSON logs for every agent action so they can be ingested by Loki, Elasticsearch, or Datadog.
+Emit JSON logs per agent action for Loki, Elasticsearch or Datadog ingestion.
 
 ### Python Logging Configuration
 
@@ -123,14 +121,11 @@ Example log output:
 }
 ```
 
----
-
-
 ## Grafana Dashboards
 
 ### Agent Overview Dashboard
 
-Save this JSON as `agent-overview.json` and import it into Grafana.
+Save as `agent-overview.json` and import into Grafana.
 
 ```json
 {
@@ -269,9 +264,6 @@ Save this JSON as `agent-overview.json` and import it into Grafana.
 }
 ```
 
----
-
-
 ## Cost Tracking
 
 ### Per-Model Cost Calculation
@@ -319,7 +311,7 @@ def record_cost(model: str, prompt_tokens: int, completion_tokens: int, agent_na
 
 ### Budget Alerting -- Prometheus Rules
 
-Save as `agent-cost-alerts.yaml` and load it into Prometheus or Cortex ruler.
+Save as `agent-cost-alerts.yaml` and load into Prometheus or Cortex ruler.
 
 ```yaml
 # agent-cost-alerts.yaml
@@ -368,19 +360,16 @@ groups:
           summary: "Agent {{ $labels.agent_name }} cost spiked 3x above 24h average"
 ```
 
----
-
-
 ## Langfuse / Helicone Integration
 
 ### Langfuse (Self-hosted or Cloud)
 
-Langfuse provides trace-level visibility with prompt management and scoring. It can run alongside your existing OTel stack.
+Langfuse gives trace-level visibility, prompt management and scoring. Runs alongside existing OTel stack.
 
-Code below targets the current Langfuse Python SDK (OTel-based, v3+; checked against v5). The v2
+Targets current Langfuse Python SDK (OTel-based, v3+; checked against v5). v2
 `langfuse.decorators` / `langfuse_context` API no longer exists. `capture_input=False` / `capture_output=False`
-keep prompts and completions out of Langfuse, consistent with the no-prompt-logging rule above; set them to
-`True` only where policy allows, or pass a `mask=` function to `Langfuse(...)` to redact first.
+keep prompts and completions out of Langfuse, per no-prompt-logging rule above. Set them to
+`True` only where policy allows, or pass `mask=` function to `Langfuse(...)` to redact first.
 
 ```python
 # langfuse_integration.py
@@ -428,7 +417,7 @@ export LANGFUSE_HOST="https://cloud.langfuse.com"  # or your self-hosted URL
 
 ### Helicone (Proxy-based)
 
-Helicone acts as a logging proxy. Point your OpenAI base URL at Helicone and every prompt and completion transits and is stored by a third party. Only set this up with the user's explicit consent and after checking the data-handling policy; prefer the OTel or Langfuse (`capture_input=False`) routes when prompts may contain PII or secrets.
+Helicone is a logging proxy. With OpenAI base URL pointed at Helicone, every prompt and completion transits and is stored by a third party. Set up only with user's explicit consent, after checking data-handling policy. Prefer OTel or Langfuse (`capture_input=False`) routes when prompts may contain PII or secrets.
 
 ```python
 # helicone_integration.py
@@ -455,12 +444,7 @@ response = client.chat.completions.create(
 )
 ```
 
----
-
-
 ## SLO Definition
-
-Define Service Level Objectives for your agents and enforce them with Prometheus recording and alerting rules.
 
 ### Recording Rules
 
@@ -555,7 +539,7 @@ groups:
 
 ### Sloth SLO Spec (Alternative)
 
-If you use [Sloth](https://github.com/slok/sloth) to manage SLOs declaratively:
+If using [Sloth](https://github.com/slok/sloth) for declarative SLOs:
 
 ```yaml
 # agent-slo-sloth.yaml
@@ -583,21 +567,18 @@ slos:
           severity: warning
 ```
 
----
-
-
 ## Debugging Workflows
 
 ### Slow Agent Responses
 
-1. **Identify the bottleneck.** Open the Grafana dashboard and check whether p95 latency is driven by LLM calls or tool calls.
+1. **Find bottleneck.** In Grafana dashboard, check whether LLM calls or tool calls drive p95 latency.
 
    ```promql
    # Which component is slow?
    topk(5, histogram_quantile(0.95, sum(rate(agent_tool_call_duration_seconds_bucket[5m])) by (le, tool_name)))
    ```
 
-2. **Check token counts.** Bloated prompts cause proportionally slower responses.
+2. **Check token counts.** Bloated prompts slow responses proportionally.
 
    ```promql
    # Average tokens per request, by model
@@ -606,19 +587,19 @@ slos:
    (sum(rate(llm_call_duration_seconds_count[5m])) by (model) + 1e-10)
    ```
 
-3. **Look for retries.** Retries multiply latency.
+3. **Check retries.** Retries multiply latency.
 
    ```promql
    sum(rate(llm_retries_total[5m])) by (retry_reason)
    ```
 
-4. **Inspect traces.** Filter traces in Jaeger or Tempo by `agent_request_duration_seconds > 10s` and expand spans to find the slow step.
+4. **Inspect traces.** In Jaeger or Tempo, filter by `agent_request_duration_seconds > 10s`. Expand spans to find slow step.
 
 5. **Common fixes:**
-   - Reduce system prompt length or move static context into a cached prefix.
-   - Switch long-running tool calls to async execution with a timeout.
-   - Use a faster/smaller model for subtasks that do not need the flagship model.
-   - Enable streaming to reduce time-to-first-token perceived by users.
+   - Shorten system prompt or move static context into cached prefix.
+   - Make long-running tool calls async with timeout.
+   - Use faster/smaller model for subtasks that do not need flagship model.
+   - Stream responses to cut user-perceived time-to-first-token.
 
 ### High Token Usage
 
@@ -628,46 +609,44 @@ slos:
    topk(10, sum(rate(llm_prompt_tokens_total[1h])) by (agent_name))
    ```
 
-2. **Check for conversation-history bloat.** Agents that append full conversation history on every turn consume tokens quadratically.
+2. **Check conversation-history bloat.** Agents appending full history every turn consume tokens quadratically.
 
-3. **Verify RAG chunk sizes.** Oversized retrieval chunks inflate prompt tokens without improving quality.
+3. **Verify RAG chunk sizes.** Oversized chunks inflate prompt tokens without improving quality.
 
 4. **Common fixes:**
-   - Implement sliding-window or summarisation-based memory.
-   - Reduce the number of retrieved chunks (e.g., top-3 instead of top-10).
-   - Use prompt caching (Anthropic cache, OpenAI cached-tokens) to reduce cost even if token count stays high.
+   - Add sliding-window or summarisation-based memory.
+   - Retrieve fewer chunks (e.g., top-3 instead of top-10).
+   - Use prompt caching (Anthropic cache, OpenAI cached-tokens) to cut cost even if token count stays high.
 
 ### Tool Failures
 
-1. **Identify failing tools:**
+1. **Find failing tools:**
 
    ```promql
    sum(rate(agent_tool_calls_total{status="error"}[5m])) by (tool_name)
    ```
 
-2. **Correlate with traces.** Find traces where `tool.<name>` spans have `ERROR` status and read the recorded exception.
+2. **Correlate with traces.** Find `tool.<name>` spans with `ERROR` status. Read recorded exception.
 
-3. **Check for timeouts vs exceptions.** Timeouts suggest the downstream service is slow; exceptions suggest a contract change or auth issue.
+3. **Timeouts vs exceptions.** Timeouts suggest slow downstream service. Exceptions suggest contract change or auth issue.
 
 4. **Common fixes:**
    - Add circuit breakers around unreliable tools.
-   - Implement fallback tools (e.g., a cached search result when live search is down).
-   - Add input validation before executing the tool to catch malformed agent arguments.
-
----
-
+   - Add fallback tools (e.g., cached search result when live search is down).
+   - Validate input before running tool, catching malformed agent arguments.
 
 ## PII Redaction in Traces
 
-Scrub sensitive data before spans and logs leave the application boundary. This is critical for compliance with GDPR, HIPAA, and SOC 2.
+Scrub sensitive data before spans and logs leave application boundary. Critical for GDPR, HIPAA, SOC 2 compliance.
 
-### Span Processor for PII Redaction
+### Span Exporter Wrapper for PII Redaction
 
 ```python
 # pii_redactor.py
 import re
-from opentelemetry.sdk.trace import SpanProcessor, ReadableSpan
-from opentelemetry.sdk.trace.export import SpanExporter
+from opentelemetry.sdk.trace import Event, ReadableSpan
+from opentelemetry.sdk.trace.export import SpanExporter, SpanExportResult
+from opentelemetry.trace import Status
 
 # Patterns for common PII
 PII_PATTERNS = {
@@ -691,35 +670,47 @@ def redact_string(text: str) -> str:
     return text
 
 
-class PIIRedactingSpanProcessor(SpanProcessor):
-    """Wraps an exporter and redacts PII from span attributes before export."""
+def _redact_attrs(attrs):
+    """Redact str and str-sequence attribute values."""
+    return {
+        k: tuple(redact_string(x) for x in v) if isinstance(v, (list, tuple)) else redact_string(v)
+        for k, v in (attrs or {}).items()
+    }
+
+
+class PIIRedactingSpanExporter(SpanExporter):
+    """Wraps an exporter; exports redacted copies of spans (attributes, events, status)."""
 
     def __init__(self, exporter: SpanExporter):
         self._exporter = exporter
 
-    def on_start(self, span, parent_context=None):
-        pass
+    def export(self, spans) -> SpanExportResult:
+        # ReadableSpan is immutable: export sanitised copies, never the originals
+        return self._exporter.export([self._redact(s) for s in spans])
 
-    def on_end(self, span: ReadableSpan):
-        # ReadableSpan attributes are immutable, so we build a sanitised copy
-        sanitised_attrs = {}
-        for key, value in span.attributes.items():
-            if isinstance(value, str):
-                sanitised_attrs[key] = redact_string(value)
-            else:
-                sanitised_attrs[key] = value
-
-        # Export the span with redacted attributes
-        # In practice, you would use a custom exporter wrapper or
-        # monkey-patch the span. Here is a pragmatic approach using
-        # the BatchSpanProcessor pattern:
-        self._exporter.export([span])
+    @staticmethod
+    def _redact(span: ReadableSpan) -> ReadableSpan:
+        return ReadableSpan(
+            name=span.name,
+            context=span.context,
+            parent=span.parent,
+            resource=span.resource,
+            attributes=_redact_attrs(span.attributes),
+            # record_exception() stores exception.message / stacktrace in events
+            events=[Event(e.name, _redact_attrs(e.attributes), e.timestamp) for e in span.events],
+            links=span.links,
+            kind=span.kind,
+            status=Status(span.status.status_code, redact_string(span.status.description)),
+            start_time=span.start_time,
+            end_time=span.end_time,
+            instrumentation_scope=span.instrumentation_scope,
+        )
 
     def shutdown(self):
         self._exporter.shutdown()
 
-    def force_flush(self, timeout_millis=None):
-        self._exporter.force_flush(timeout_millis)
+    def force_flush(self, timeout_millis: int = 30000) -> bool:
+        return self._exporter.force_flush(timeout_millis)
 ```
 
 ### Using the Redactor in Setup
@@ -731,16 +722,16 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
-from pii_redactor import PIIRedactingSpanProcessor
+from pii_redactor import PIIRedactingSpanExporter
 
 def init_tracing_with_redaction(service_name: str, otlp_endpoint: str = "http://localhost:4317"):
     resource = Resource.create({"service.name": service_name})
     provider = TracerProvider(resource=resource)
 
-    exporter = OTLPSpanExporter(endpoint=otlp_endpoint, insecure=True)
-    # Wrap the exporter with PII redaction
-    redacting_processor = PIIRedactingSpanProcessor(exporter)
-    provider.add_span_processor(redacting_processor)
+    # Scheme picks transport: http:// = plaintext (local collector only); https:// = TLS for remote endpoints
+    exporter = OTLPSpanExporter(endpoint=otlp_endpoint)
+    # Every span is redacted before it reaches the real exporter
+    provider.add_span_processor(BatchSpanProcessor(PIIRedactingSpanExporter(exporter)))
 
     trace.set_tracer_provider(provider)
     return trace.get_tracer(service_name)
@@ -754,7 +745,7 @@ import logging
 from pii_redactor import redact_string
 
 class PIIRedactingFilter(logging.Filter):
-    """Logging filter that redacts PII from log messages and extra fields."""
+    """Redacts PII from log message and args (not `extra` fields or exception text: keep PII out of those)."""
 
     def filter(self, record: logging.LogRecord) -> bool:
         record.msg = redact_string(str(record.msg))
@@ -770,23 +761,17 @@ logger = logging.getLogger("agent")
 logger.addFilter(PIIRedactingFilter())
 ```
 
----
-
-
 ## Best Practices
 
-- **Separate high-cardinality labels.** Do not put `user_id` or `request_id` in Prometheus labels. Store those in traces and logs instead.
-- **Sample traces in production.** Use a head-based sampler (e.g., 10% of requests) plus a tail-based sampler that keeps all error traces.
-- **Keep a replayable request envelope.** Store the full prompt and response in a durable store (S3, GCS) keyed by trace ID for post-incident review.
-- **Alert on anomalies, not thresholds alone.** Combine static thresholds (SLO breach) with anomaly detection (cost spike relative to baseline).
-- **Version your prompts.** Tag each trace with the prompt template version so you can correlate quality regressions with prompt changes.
-- **Test observability in staging.** Run synthetic agent requests in staging and verify that traces, metrics, and alerts fire correctly before shipping to production.
-
----
-
+- **Separate high-cardinality labels.** Do not put `user_id` or `request_id` in Prometheus labels. Store them in traces and logs instead.
+- **Sample traces in production.** Head-based sampler (e.g., 10% of requests) plus tail-based sampler keeping all error traces.
+- **Replayable request envelope: opt-in only.** Where policy allows, redact secrets/PII, then store prompt and response encrypted and access-restricted (S3, GCS), keyed by trace ID, with a retention limit, for post-incident review.
+- **Alert on anomalies, not thresholds alone.** Combine static thresholds (SLO breach) with anomaly detection (cost spike versus baseline).
+- **Version prompts.** Tag each trace with prompt template version to correlate quality regressions with prompt changes.
+- **Test observability in staging.** Run synthetic agent requests in staging. Verify traces, metrics and alerts fire correctly before production.
 
 ## Related Skills
 
 - `observability-and-instrumentation` - general logging, metrics, tracing and alert design
-- `grafana-dashboards` - building and provisioning the dashboards above
-- `agent-orchestration-improve-agent` - using these traces to evaluate and improve an agent
+- `grafana-dashboards` - building and provisioning dashboards above
+- `agent-orchestration-improve-agent` - using these traces to evaluate and improve agent

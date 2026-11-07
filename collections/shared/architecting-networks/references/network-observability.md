@@ -1,25 +1,21 @@
 # Network Observability
 
-Monitoring, logging, and troubleshooting cloud network architectures.
-
 ## VPC Flow Logs
 
 ### Enable Flow Logs
 
-Configure flow logs to capture network traffic:
-
 **Traffic Type:**
-- ALL (recommended) - Capture accepted and rejected traffic
-- ACCEPT - Only accepted traffic
-- REJECT - Only rejected traffic
+- ALL (recommended) - accepted and rejected traffic
+- ACCEPT - only accepted traffic
+- REJECT - only rejected traffic
 
 **Aggregation Interval:**
-- 1 minute - Real-time monitoring (higher cost)
-- 10 minutes - Standard (balance cost/latency)
+- 1 minute - real-time monitoring (higher cost)
+- 10 minutes - standard (balance cost/latency)
 
 **Destination:**
-- CloudWatch Logs - Real-time analysis, alerting
-- S3 - Long-term storage, cost-effective
+- CloudWatch Logs - real-time analysis, alerting
+- S3 - long-term storage, cost-effective
 
 ### Monitoring Patterns
 
@@ -71,10 +67,10 @@ LIMIT 20
 2. **Slow Performance**
    - Check NAT Gateway metrics
    - Review cross-region traffic
-   - Analyze flow logs for bottlenecks
+   - Find bottlenecks in flow logs
 
 3. **High Costs**
    - Review data transfer patterns
    - Check NAT Gateway usage
    - Analyze cross-AZ traffic
-   - Optimize VPC Endpoints usage
+   - Optimize VPC Endpoint usage

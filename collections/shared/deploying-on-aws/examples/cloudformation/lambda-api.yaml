@@ -21,6 +21,14 @@ Parameters:
     Default: ''
     Description: ACM certificate ARN for custom domain (required if DomainName is specified)
 
+  JwtIssuer:
+    Type: String
+    Description: JWT issuer URL for the API authorizer (e.g. your Cognito user pool issuer)
+
+  JwtAudience:
+    Type: String
+    Description: Allowed JWT audience (e.g. Cognito app client ID)
+
 Conditions:
   HasCustomDomain: !Not [!Equals [!Ref DomainName, '']]
 
@@ -85,7 +93,6 @@ Resources:
                   - dynamodb:UpdateItem
                   - dynamodb:DeleteItem
                   - dynamodb:Query
-                  - dynamodb:Scan
                 Resource:
                   - !GetAtt ItemsTable.Arn
                   - !Sub '${ItemsTable.Arn}/index/*'
@@ -142,11 +149,19 @@ Resources:
                   http_method = event.get('requestContext', {}).get('http', {}).get('method')
                   path = event.get('rawPath', '')
                   path_params = event.get('pathParameters', {})
-                  query_params = event.get('queryStringParameters', {})
+                  # Caller identity comes from the verified JWT, never from client input
+                  claims = event.get('requestContext', {}).get('authorizer', {}).get('jwt', {}).get('claims', {})
+                  user_id = claims.get('sub')
 
                   # CORS preflight
                   if http_method == 'OPTIONS':
                       return response(200, {'message': 'OK'})
+
+                  if path == '/health' and http_method == 'GET':
+                      return response(200, {'status': 'healthy'})
+
+                  if not user_id:
+                      return response(401, {'error': 'Unauthorized'})
 
                   # Parse body for POST/PUT
                   body = {}
@@ -155,20 +170,18 @@ Resources:
 
                   # Route requests
                   if path == '/items' and http_method == 'GET':
-                      return get_items(query_params)
+                      return get_items(user_id)
                   elif path == '/items' and http_method == 'POST':
-                      return create_item(body)
+                      return create_item(user_id, body)
                   elif path.startswith('/items/') and http_method == 'GET':
                       item_id = path_params.get('id')
-                      return get_item(item_id)
+                      return get_item(user_id, item_id)
                   elif path.startswith('/items/') and http_method == 'PUT':
                       item_id = path_params.get('id')
-                      return update_item(item_id, body)
+                      return update_item(user_id, item_id, body)
                   elif path.startswith('/items/') and http_method == 'DELETE':
                       item_id = path_params.get('id')
-                      return delete_item(item_id)
-                  elif path == '/health' and http_method == 'GET':
-                      return response(200, {'status': 'healthy'})
+                      return delete_item(user_id, item_id)
                   else:
                       return response(404, {'error': 'Not found'})
 
@@ -176,23 +189,21 @@ Resources:
                   print(f"Error: {str(e)}")
                   return response(500, {'error': 'Internal server error'})
 
-          def get_items(query_params):
-              """List all items, optionally filtered by userId"""
-              try:
-                  user_id = query_params.get('userId')
+          def get_owned(user_id, item_id):
+              """Return item only if the caller owns it"""
+              item = table.get_item(Key={'itemId': item_id}).get('Item')
+              return item if item and item.get('userId') == user_id else None
 
-                  if user_id:
-                      # Query by GSI
-                      result = table.query(
-                          IndexName='UserIdIndex',
-                          KeyConditionExpression='userId = :userId',
-                          ExpressionAttributeValues={':userId': user_id},
-                          ScanIndexForward=False,
-                          Limit=100
-                      )
-                  else:
-                      # Scan all items
-                      result = table.scan(Limit=100)
+          def get_items(user_id):
+              """List the caller's items"""
+              try:
+                  result = table.query(
+                      IndexName='UserIdIndex',
+                      KeyConditionExpression='userId = :userId',
+                      ExpressionAttributeValues={':userId': user_id},
+                      ScanIndexForward=False,
+                      Limit=100
+                  )
 
                   return response(200, {
                       'items': result.get('Items', []),
@@ -202,34 +213,33 @@ Resources:
                   print(f"Error getting items: {str(e)}")
                   return response(500, {'error': 'Failed to get items'})
 
-          def get_item(item_id):
+          def get_item(user_id, item_id):
               """Get single item by ID"""
               try:
                   if not item_id:
                       return response(400, {'error': 'Missing itemId'})
 
-                  result = table.get_item(Key={'itemId': item_id})
-
-                  if 'Item' not in result:
+                  item = get_owned(user_id, item_id)
+                  if not item:
                       return response(404, {'error': 'Item not found'})
 
-                  return response(200, result['Item'])
+                  return response(200, item)
               except Exception as e:
                   print(f"Error getting item: {str(e)}")
                   return response(500, {'error': 'Failed to get item'})
 
-          def create_item(body):
+          def create_item(user_id, body):
               """Create new item"""
               try:
-                  if not body.get('userId') or not body.get('name'):
-                      return response(400, {'error': 'Missing required fields: userId, name'})
+                  if not body.get('name'):
+                      return response(400, {'error': 'Missing required field: name'})
 
                   item_id = str(uuid.uuid4())
                   timestamp = int(datetime.utcnow().timestamp())
 
                   item = {
                       'itemId': item_id,
-                      'userId': body['userId'],
+                      'userId': user_id,
                       'name': body['name'],
                       'description': body.get('description', ''),
                       'createdAt': timestamp,
@@ -243,15 +253,14 @@ Resources:
                   print(f"Error creating item: {str(e)}")
                   return response(500, {'error': 'Failed to create item'})
 
-          def update_item(item_id, body):
+          def update_item(user_id, item_id, body):
               """Update existing item"""
               try:
                   if not item_id:
                       return response(400, {'error': 'Missing itemId'})
 
-                  # Check if item exists
-                  existing = table.get_item(Key={'itemId': item_id})
-                  if 'Item' not in existing:
+                  # Check item exists and caller owns it
+                  if not get_owned(user_id, item_id):
                       return response(404, {'error': 'Item not found'})
 
                   timestamp = int(datetime.utcnow().timestamp())
@@ -281,15 +290,14 @@ Resources:
                   print(f"Error updating item: {str(e)}")
                   return response(500, {'error': 'Failed to update item'})
 
-          def delete_item(item_id):
+          def delete_item(user_id, item_id):
               """Delete item"""
               try:
                   if not item_id:
                       return response(400, {'error': 'Missing itemId'})
 
-                  # Check if item exists
-                  existing = table.get_item(Key={'itemId': item_id})
-                  if 'Item' not in existing:
+                  # Check item exists and caller owns it
+                  if not get_owned(user_id, item_id):
                       return response(404, {'error': 'Item not found'})
 
                   table.delete_item(Key={'itemId': item_id})
@@ -359,6 +367,20 @@ Resources:
       IntegrationUri: !GetAtt ApiFunction.Arn
       PayloadFormatVersion: '2.0'
 
+  # JWT Authorizer (Cognito or any OIDC provider)
+  JwtAuthorizer:
+    Type: AWS::ApiGatewayV2::Authorizer
+    Properties:
+      ApiId: !Ref HttpApi
+      Name: jwt
+      AuthorizerType: JWT
+      IdentitySource:
+        - '$request.header.Authorization'
+      JwtConfiguration:
+        Issuer: !Ref JwtIssuer
+        Audience:
+          - !Ref JwtAudience
+
   # API Routes
   HealthRoute:
     Type: AWS::ApiGatewayV2::Route
@@ -373,6 +395,8 @@ Resources:
       ApiId: !Ref HttpApi
       RouteKey: 'GET /items'
       Target: !Sub 'integrations/${LambdaIntegration}'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref JwtAuthorizer
 
   CreateItemRoute:
     Type: AWS::ApiGatewayV2::Route
@@ -380,6 +404,8 @@ Resources:
       ApiId: !Ref HttpApi
       RouteKey: 'POST /items'
       Target: !Sub 'integrations/${LambdaIntegration}'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref JwtAuthorizer
 
   GetItemRoute:
     Type: AWS::ApiGatewayV2::Route
@@ -387,6 +413,8 @@ Resources:
       ApiId: !Ref HttpApi
       RouteKey: 'GET /items/{id}'
       Target: !Sub 'integrations/${LambdaIntegration}'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref JwtAuthorizer
 
   UpdateItemRoute:
     Type: AWS::ApiGatewayV2::Route
@@ -394,6 +422,8 @@ Resources:
       ApiId: !Ref HttpApi
       RouteKey: 'PUT /items/{id}'
       Target: !Sub 'integrations/${LambdaIntegration}'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref JwtAuthorizer
 
   DeleteItemRoute:
     Type: AWS::ApiGatewayV2::Route
@@ -401,6 +431,8 @@ Resources:
       ApiId: !Ref HttpApi
       RouteKey: 'DELETE /items/{id}'
       Target: !Sub 'integrations/${LambdaIntegration}'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref JwtAuthorizer
 
   OptionsRoute:
     Type: AWS::ApiGatewayV2::Route

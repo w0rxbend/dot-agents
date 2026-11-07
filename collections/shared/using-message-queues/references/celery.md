@@ -1,6 +1,6 @@
 # Celery Reference Guide
 
-Distributed task queue for Python with support for scheduling, retries, and result backends.
+Distributed Python task queue: scheduling, retries, result backends.
 
 
 ## Table of Contents
@@ -24,7 +24,6 @@ Distributed task queue for Python with support for scheduling, retries, and resu
 - [Result Backends](#result-backends)
 - [Best Practices](#best-practices)
 - [Common Patterns](#common-patterns)
-  - [Image Processing](#image-processing)
   - [Email Campaigns](#email-campaigns)
 - [Resources](#resources)
 
@@ -34,7 +33,7 @@ Distributed task queue for Python with support for scheduling, retries, and resu
 - Complex task workflows (chains, groups, chords)
 - Scheduled tasks (cron-like)
 - Long-running background jobs
-- Need multiple queue backends (Redis, RabbitMQ, SQS)
+- Multiple queue backends (Redis, RabbitMQ, SQS)
 
 ## Installation
 
@@ -151,7 +150,7 @@ app.conf.beat_schedule = {
 }
 ```
 
-Start beat scheduler:
+Run beat scheduler:
 ```bash
 celery -A celery_app beat --loglevel=info
 ```
@@ -278,18 +277,14 @@ async def get_status(task_id: str):
 # Install
 pip install flower
 
-# Run dashboard
-celery -A celery_app flower --port=5555
+# Run dashboard: loopback + auth (it can revoke tasks, stop workers, shows task args)
+# Set FLOWER_BASIC_AUTH=user:pass in env (not argv) or use OAuth
+celery -A celery_app flower --address=127.0.0.1 --port=5555
 ```
 
 Access: http://localhost:5555
 
-Features:
-- Real-time task monitoring
-- Worker management
-- Task history and stats
-- Retry/revoke tasks
-- Task rate graphs
+Features: real-time task monitoring, worker management, task history and stats, retry/revoke tasks, task rate graphs.
 
 ## Result Backends
 
@@ -309,41 +304,16 @@ app = Celery(broker='redis://localhost', backend=None)
 
 ## Best Practices
 
-1. **Keep tasks small** - Break large jobs into smaller tasks
-2. **Use task routing** - Separate queues for different priorities
-3. **Set timeouts** - Prevent hanging tasks
-4. **Monitor task states** - Failed tasks need attention
-5. **Clean old results** - `result_expires` setting
-6. **Use idempotent tasks** - Safe to retry
-7. **Avoid task coupling** - Tasks shouldn't depend on each other's state
-8. **Use serializers wisely** - JSON (safe), pickle (faster but unsafe)
+1. **Keep tasks small** - split large jobs
+2. **Route tasks** - one queue per priority
+3. **Set timeouts** - no hanging tasks
+4. **Monitor task states** - failed tasks need attention
+5. **Clean old results** - set `result_expires`
+6. **Make tasks idempotent** - safe to retry
+7. **Avoid task coupling** - tasks should not depend on each other's state
+8. **Pick serializers carefully** - JSON safe; pickle faster but unsafe
 
 ## Common Patterns
-
-### Image Processing
-
-```python
-@app.task
-def process_uploaded_image(image_path):
-    # Optimize
-    optimized = optimize_image(image_path)
-
-    # Generate variants
-    thumbnail = generate_thumbnail(optimized)
-    webp = convert_to_webp(optimized)
-
-    # Upload to CDN
-    urls = upload_to_cdn([optimized, thumbnail, webp])
-
-    return {'urls': urls}
-
-# Usage in upload endpoint
-@app.post("/upload")
-async def upload_image(file: UploadFile):
-    path = await save_temp_file(file)
-    task = process_uploaded_image.delay(path)
-    return {"task_id": task.id}
-```
 
 ### Email Campaigns
 

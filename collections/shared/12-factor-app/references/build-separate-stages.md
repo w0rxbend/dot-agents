@@ -7,7 +7,7 @@ tags: build, release, deployment, ci-cd
 
 ## Strictly Separate Build, Release, and Run Stages
 
-A twelve-factor app has three distinct stages: build (compile code into executable), release (combine build with config), and run (launch processes). These stages are strictly separated - you cannot modify code at runtime, and each release is immutable.
+Three distinct stages: build (compile code into executable), release (combine build with config), run (launch processes). Keep them strictly separate: code cannot change at runtime, each release is immutable.
 
 **Incorrect (blurred stages):**
 
@@ -74,11 +74,5 @@ RUN python -m compileall .
 # RUN: container started with config
 # docker run -e DATABASE_URL="..." registry/myapp:abc123
 ```
-
-**Benefits:**
-- Build once, deploy many times (same artifact to staging and production)
-- Releases are numbered and trackable
-- Rollback = redeploy previous release
-- No "it worked when I deployed it manually" issues
 
 Reference: [The Twelve-Factor App - Build, Release, Run](https://12factor.net/build-release-run)

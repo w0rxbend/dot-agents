@@ -1,8 +1,5 @@
 # Cloud Load Balancers
 
-Complete configurations for AWS, GCP, and Azure managed load balancing services.
-
-
 ## Table of Contents
 
 - [AWS Load Balancers](#aws-load-balancers)
@@ -18,24 +15,23 @@ Complete configurations for AWS, GCP, and Azure managed load balancing services.
   - [Load Balancer](#load-balancer)
   - [Traffic Manager](#traffic-manager)
 - [Cost Comparison](#cost-comparison)
-- [Selection Guide](#selection-guide)
 - [Multi-Cloud Considerations](#multi-cloud-considerations)
 
 ## AWS Load Balancers
 
 ### Application Load Balancer (ALB)
 
-Layer 7 HTTP/HTTPS load balancer with advanced routing capabilities.
+Layer 7 HTTP/HTTPS load balancer with advanced routing.
 
 **Use cases:**
-- Web applications
+- Web apps
 - Microservices
-- Container-based applications
+- Container-based apps
 - Lambda functions
 
 **Key features:**
-- Path-based routing (`/api/*` → API servers)
-- Host-based routing (`api.example.com` → API servers)
+- Path-based routing (`/api/*` to API servers)
+- Host-based routing (`api.example.com` to API servers)
 - HTTP header routing
 - Query string parameter routing
 - WebSocket support
@@ -43,7 +39,7 @@ Layer 7 HTTP/HTTPS load balancer with advanced routing capabilities.
 - AWS WAF integration
 - Cognito authentication
 
-**Terraform example:** See `examples/aws/alb-terraform.tf`
+**Terraform example:** `examples/aws/alb-terraform.tf`
 
 ### Network Load Balancer (NLB)
 
@@ -51,36 +47,36 @@ Layer 4 TCP/UDP load balancer for ultra-low latency and high throughput.
 
 **Use cases:**
 - Non-HTTP protocols
-- Static IP addresses required
-- Extreme performance requirements (millions RPS)
+- Static IPs required
+- Extreme performance (millions RPS)
 - Client IP preservation critical
 
 **Key features:**
 - Static IP per availability zone
 - Elastic IP support
-- Preserves source client IP
+- Preserves client source IP
 - TLS termination
 - Cross-zone load balancing
 - PrivateLink support
 
-**Terraform example:** See `examples/aws/nlb-terraform.tf`
+**Terraform example:** `examples/aws/nlb-terraform.tf`
 
 ### Global Accelerator
 
-Global Layer 4 load balancer using AWS global network.
+Global Layer 4 load balancer on AWS global network.
 
 **Use cases:**
-- Multi-region applications
+- Multi-region apps
 - Global user base
 - DDoS protection
 - Automatic regional failover
 
 **Key features:**
-- Two static anycast IP addresses
+- Two static anycast IPs
 - AWS Shield Standard DDoS protection
 - Health checks per endpoint
 - Traffic dials (gradual migration)
-- Integration with ALB, NLB, EC2, EIP
+- Integrates with ALB, NLB, EC2, EIP
 
 ## GCP Load Balancing
 
@@ -116,7 +112,7 @@ Regional Layer 4 load balancer.
 
 ### Cloud Load Balancing
 
-Global load balancing service with single anycast IP.
+Global load balancing with single anycast IP.
 
 **Key features:**
 - Single global anycast IP
@@ -145,7 +141,7 @@ Layer 4 network load balancer.
 
 **SKUs:**
 - **Basic:** Simple load balancing, free tier
-- **Standard:** Production-ready with zone redundancy
+- **Standard:** Production-ready, zone redundant
 
 **Key features:**
 - TCP/UDP load balancing
@@ -161,11 +157,11 @@ DNS-based global load balancer.
 
 **Routing methods:**
 - **Priority:** Failover routing
-- **Weighted:** Distribute across endpoints
-- **Performance:** Lowest latency endpoint
-- **Geographic:** Based on DNS location
+- **Weighted:** Spread across endpoints
+- **Performance:** Lowest-latency endpoint
+- **Geographic:** By DNS location
 - **MultiValue:** Return multiple healthy endpoints
-- **Subnet:** Based on client subnet
+- **Subnet:** By client subnet
 
 ## Cost Comparison
 
@@ -175,36 +171,11 @@ DNS-based global load balancer.
 | GCP | Network LB | Application LB | Per hour + forwarding rules |
 | Azure | Load Balancer | Application Gateway | Per hour + data processed |
 
-## Selection Guide
-
-**Choose AWS ALB when:**
-- HTTP/HTTPS applications
-- Need AWS WAF integration
-- Lambda as backend targets
-- Path-based microservices routing
-
-**Choose AWS NLB when:**
-- Non-HTTP protocols
-- Static IPs required
-- Ultra-low latency critical
-- High throughput needs
-
-**Choose GCP Application LB when:**
-- Global HTTP(S) load balancing
-- Cloud CDN integration needed
-- Cloud Armor for DDoS/WAF
-
-**Choose Azure Application Gateway when:**
-- Azure-native web applications
-- WAF required
-- URL rewriting needed
-
 ## Multi-Cloud Considerations
 
-For multi-cloud deployments, consider:
 - Self-managed load balancers (NGINX, HAProxy)
 - Cloud-agnostic tools (Traefik, Envoy)
 - DNS-based global load balancing
-- Avoid cloud-specific features that lock you in
+- Avoid cloud-specific features that cause lock-in
 
-Complete configuration examples available in `examples/aws/`, `examples/gcp/`, and `examples/azure/` directories.
+Configuration examples in `examples/aws/`, `examples/gcp/` and `examples/azure/`.

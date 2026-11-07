@@ -7,6 +7,7 @@
 # it. Author the per-step stages below the marker.
 
 set -euo pipefail
+export GH_TELEMETRY=false # gh: no usage telemetry
 
 # ──────────────────────────────────────────────────────────────────────────
 # Wizard library: delightful, consistent UX, identical across every wizard.
@@ -136,10 +137,14 @@ ask_secret() {
 
 # write_env KEY VALUE upserts KEY='VALUE' into ENV_FILE (replaces any existing
 # line) and sets $KEY. Idempotent. Creates ENV_FILE at mode 0600; writes through
-# a symlink and keeps an existing file's mode.
+# a symlink and keeps an existing file's mode. Warns once if git doesn't ignore it.
 write_env() {
-  local key="$1" value="$2" tmp sq="'\\''"
+  local key="$1" value="$2" tmp sq="'\\''" rc=0
   [[ -e "$ENV_FILE" ]] || (umask 077 && : > "$ENV_FILE")
+  if (( ${#WRITTEN_ENV[@]} == 0 )); then
+    git check-ignore -q -- "$ENV_FILE" 2>/dev/null || rc=$?   # 1 = in a repo, not ignored
+    (( rc != 1 )) || { warn "$ENV_FILE isn't gitignored; don't commit it"; SKIPPED+=("add $ENV_FILE to .gitignore (holds secrets)"); }
+  fi
   tmp=$(mktemp)
   grep -vE "^${key}=" "$ENV_FILE" > "$tmp" || true
   printf "%s='%s'\n" "$key" "${value//\'/$sq}" >> "$tmp"

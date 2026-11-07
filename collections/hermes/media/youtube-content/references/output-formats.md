@@ -13,7 +13,7 @@
 
 ## Summary
 
-A 5-10 sentence overview covering the video's main points, key arguments, and conclusions. Written in third person, present tense.
+5-10 sentence overview of video's main points, key arguments, and conclusions. Third person, present tense.
 
 ## Chapter Summaries
 
@@ -44,7 +44,7 @@ A review of prior work in the field, covering approaches A, B, and C.
 Full article with:
 - Title
 - Introduction paragraph
-- H2 sections for each major topic
+- H2 sections per major topic
 - Key quotes (with timestamps)
 - Conclusion / takeaways
 

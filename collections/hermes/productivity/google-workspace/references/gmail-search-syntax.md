@@ -1,6 +1,6 @@
 # Gmail Search Syntax
 
-Standard Gmail search operators work in the `query` argument.
+Standard Gmail search operators work in `query` argument.
 
 ## Common Operators
 

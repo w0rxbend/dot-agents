@@ -1,7 +1,5 @@
 # Pipeline Patterns
 
-Complete code examples for every `slog-multi` composition pattern.
-
 ## Table of Contents
 
 - [Fanout — Broadcast to All](#fanout--broadcast-to-all)
@@ -16,7 +14,7 @@ Complete code examples for every `slog-multi` composition pattern.
 
 ## Fanout — Broadcast to All
 
-Sends every record to every handler sequentially. Latency = sum of all handler latencies.
+Every record to every handler, sequentially. Latency = sum of handler latencies.
 
 ```go
 import slogmulti "github.com/samber/slog-multi"
@@ -30,11 +28,11 @@ logger := slog.New(
 )
 ```
 
-**When to use:** Every destination must receive every record (audit logs, compliance). **When NOT to use:** Handlers have different record needs (use Router) or high latency (use Pool).
+**When to use:** every destination must receive every record (audit logs, compliance). **When NOT to use:** handlers need different records (use Router) or have high latency (use Pool).
 
 ## Router — Predicate-Based Routing
 
-Routes records to ALL handlers whose predicate matches. Unmatched records go nowhere unless a default handler is added.
+Sends records to ALL handlers whose predicate matches.
 
 ```go
 logger := slog.New(
@@ -85,11 +83,11 @@ logger := slog.New(
 )
 ```
 
-**Warning:** Records matching no predicate are silently dropped. Always add a catch-all handler (no predicate) unless you intentionally want to discard unmatched records.
+**Warning:** records matching no predicate are silently dropped. Always add catch-all handler (no predicate) unless discarding them is intended.
 
 ## FirstMatch — Short-Circuit Routing
 
-Like Router but stops at the first matching handler. Each record goes to exactly one destination.
+Router that stops at first matching handler. Each record reaches exactly one destination.
 
 ```go
 logger := slog.New(
@@ -102,7 +100,7 @@ logger := slog.New(
 )
 ```
 
-**When to use:** Priority-based routing where each record should be processed exactly once. Order matters — put the most specific handlers first.
+**When to use:** priority routing. Order matters: most specific handlers first.
 
 ## Failover — Sequential Fallback
 
@@ -118,11 +116,11 @@ logger := slog.New(
 )
 ```
 
-**When to use:** Network sinks that may be unreliable (Loki, Logstash, remote syslog). Primary handles 99.9% of traffic; fallback catches the rest.
+**When to use:** possibly unreliable network sinks (Loki, Logstash, remote syslog). Primary handles 99.9% of traffic; fallback catches rest.
 
 ## Pool — Load-Balanced Dispatch
 
-Randomly distributes each record to one handler from the pool. Useful when you have equivalent handlers and want to spread load.
+Sends each record to one random handler in pool.
 
 ```go
 logger := slog.New(
@@ -134,11 +132,11 @@ logger := slog.New(
 )
 ```
 
-**When to use:** Multiple equivalent sinks where you want throughput distribution. Latency = single handler latency (not sum like Fanout).
+**When to use:** multiple equivalent sinks, throughput distribution. Latency = single handler latency (not sum like Fanout).
 
 ## Pipe — Middleware Chain
 
-Chains middleware functions that intercept, transform, or enrich records before they reach the final handler.
+Chains middleware that intercepts, transforms or enriches records before final handler.
 
 ```go
 logger := slog.New(
@@ -157,7 +155,7 @@ logger := slog.New(
 
 ## Inline Handlers and Middleware
 
-Create quick handlers without defining a full struct.
+Quick handlers without full struct.
 
 ```go
 // Inline handler — for testing or simple consumers
@@ -179,7 +177,7 @@ middleware := slogmulti.NewHandleInlineMiddleware(
 
 ## AttrFromContext — Request-Scoped Attributes
 
-HTTP middlewares (`slog-gin`, `slog-echo`, etc.) inject request attributes into context. Backend handlers extract them via `AttrFromContext`.
+HTTP middlewares (`slog-gin`, `slog-echo`, etc.) inject request attributes into context; backend handlers extract them via `AttrFromContext`.
 
 ```go
 // Backend handler extracts trace_id from context
@@ -196,7 +194,7 @@ handler := slogsentry.Option{
 }.NewSentryHandler()
 ```
 
-**Important:** `AttrFromContext` only works when the context actually contains the expected values. This requires an HTTP middleware (like `slog-gin`) to populate the context first. Without the middleware, `AttrFromContext` silently returns nil.
+**Important:** `AttrFromContext` only works when context holds expected values, so HTTP middleware (like `slog-gin`) must populate context first. Without middleware, `AttrFromContext` silently returns nil.
 
 ## Full Production Pipeline
 

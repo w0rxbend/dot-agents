@@ -41,7 +41,7 @@
 
 Pointers from external sources MUST be checked before dereferencing.
 
-The most common Go panic. The stack trace tells you the exact line.
+Most common Go panic. Stack trace shows exact line.
 
 ```go
 // 1. Uninitialized struct field
@@ -66,9 +66,9 @@ n, ok := i.(int)    // ok == false, no panic
 
 ## Interface Nil Gotcha
 
-NEVER compare an interface to nil when it may contain a typed nil pointer.
+NEVER compare interface to nil when it may contain typed nil pointer.
 
-A typed nil pointer inside an interface is **not** a nil interface:
+Typed nil pointer inside interface is **not** a nil interface:
 
 ```go
 type MyError struct{ msg string }
@@ -94,7 +94,7 @@ func doWork() error {
 
 ## Variable Shadowing with `:=`
 
-The `:=` short declaration creates a new variable in the inner scope instead of assigning to the outer one. Especially dangerous when shadowing `err`, because error handling silently breaks.
+`:=` creates new inner-scope variable instead of assigning outer one. Worst when shadowing `err`: error handling silently breaks.
 
 ```go
 // BAD
@@ -125,7 +125,7 @@ func doWork() error {
 }
 ```
 
-**Detect:** run the `golang.org/x/tools/go/analysis/passes/shadow` analyzer through your lint setup. The old shadow flag is not part of standard `go vet`.
+**Detect:** run `golang.org/x/tools/go/analysis/passes/shadow` analyzer via your lint setup. Old shadow flag is not in standard `go vet`.
 
 ## Slice and Map Gotchas
 
@@ -193,7 +193,7 @@ func readFile() (err error) {
 
 ## Error Handling Pitfalls
 
-**Silent error swallowing** is the single most common source of "mysterious" bugs:
+**Silent error swallowing** is most common source of "mysterious" bugs:
 
 ```go
 // BAD — silent failure
@@ -213,8 +213,8 @@ if err != nil {
 ```bash
 go vet ./...
 
-# More thorough
-go get -tool github.com/kisielk/errcheck@latest
+# More thorough (ask user first: adds a tool dep to go.mod)
+go get -tool github.com/kisielk/errcheck@v1.30.0
 go tool errcheck ./...
 ```
 
@@ -272,7 +272,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 Maps MUST NOT be accessed concurrently without synchronization.
 
-Unlike most Go runtime errors, a concurrent map read/write is a **fatal error** — it **cannot be caught with `recover()`** and crashes the entire process. Hard to catch in tests because it depends on timing.
+Unlike most Go runtime errors, concurrent map read/write is **fatal error**: **cannot be caught with `recover()`**, crashes whole process. Hard to catch in tests: timing-dependent.
 
 ```go
 // BAD — fatal: concurrent map read and map write
@@ -293,9 +293,7 @@ go func() { mu.RLock(); _ = m["key"]; mu.RUnlock() }()
 
 ## Copying sync Types
 
-Sync types MUST NEVER be copied — use pointer receivers and pass by pointer.
-
-All `sync` types (`Mutex`, `RWMutex`, `WaitGroup`, `Once`, `Cond`, `Map`, `Pool`) must not be copied. Copying them via value receivers, function arguments, or struct assignment silently breaks synchronization.
+`sync` types (`Mutex`, `RWMutex`, `WaitGroup`, `Once`, `Cond`, `Map`, `Pool`) MUST NEVER be copied — use pointer receivers and pass by pointer. Copying via value receivers, function arguments, or struct assignment silently breaks synchronization.
 
 ```go
 // BAD — value receiver copies the Mutex
@@ -322,7 +320,7 @@ func (c *Counter) Increment() {
 
 ## WaitGroup.Add Inside Goroutine
 
-If `wg.Add(1)` is called inside the goroutine instead of before it, `wg.Wait()` may return before all goroutines start — a race condition that passes tests most of the time but fails intermittently.
+If `wg.Add(1)` runs inside goroutine instead of before it, `wg.Wait()` may return before all goroutines start. Race usually passes tests, fails intermittently.
 
 ```go
 // BAD
@@ -350,7 +348,7 @@ wg.Wait()
 
 ## Missing Return After HTTP Error Response
 
-After writing an error with `http.Error()`, execution continues. This can cause double writes, corrupted responses, or executing logic that should have been skipped.
+`http.Error()` does not stop execution. Risks double writes, corrupted responses, or running logic meant to be skipped.
 
 ```go
 // BAD
@@ -399,7 +397,7 @@ id, _ := result["id"].(json.Number).Int64()
 
 ### Unexported fields silently ignored
 
-Fields starting with lowercase are invisible to `encoding/json`. Marshal produces empty output, unmarshal skips them — no error in either case.
+Fields starting with lowercase are invisible to `encoding/json`. Marshal produces empty output, unmarshal skips them; no error either way.
 
 ```go
 // BAD
@@ -421,7 +419,7 @@ type User struct {
 
 ## `strings.Trim` vs `strings.TrimPrefix`
 
-`strings.Trim` treats its second argument as a **set of characters** to strip from both ends, not as a substring. This over-trims unexpectedly.
+`strings.Trim` treats second argument as **set of characters** to strip from both ends, not a substring. Over-trims unexpectedly.
 
 ```go
 // BAD
@@ -433,11 +431,11 @@ s := strings.TrimPrefix("application/json", "application/")
 // Result: "json"
 ```
 
-Use `strings.TrimPrefix`/`strings.TrimSuffix` to remove substrings. Only use `strings.Trim` when you intend to strip a set of characters.
+Use `strings.TrimPrefix`/`strings.TrimSuffix` to remove substrings. Use `strings.Trim` only to strip a set of characters.
 
 ## String Length and Indexing
 
-`len()` on strings returns bytes, not characters. Indexing returns a byte. For multi-byte UTF-8 characters, this gives wrong counts and corrupts data when slicing.
+`len()` on strings returns bytes, not characters. Indexing returns a byte. Multi-byte UTF-8 characters give wrong counts; slicing corrupts data.
 
 ```go
 s := "Hello, 世界"
@@ -457,7 +455,7 @@ for _, r := range s { ... } // iterates runes
 
 ## `break` in `select`/`switch` Inside `for` Loop
 
-A bare `break` inside a `select` or `switch` that is inside a `for` loop only exits the `select`/`switch`, not the loop.
+Bare `break` in `select` or `switch` inside `for` loop only exits the `select`/`switch`, not the loop.
 
 ```go
 // BAD
@@ -486,7 +484,7 @@ for {
 
 ## Enum Zero Value with `iota`
 
-When `iota` starts at 0, the zero value of the type (from uninitialized variables, zero-value struct fields, or missing JSON fields) is indistinguishable from the first constant.
+When `iota` starts at 0, type's zero value (from uninitialized variables, zero-value struct fields, or missing JSON fields) is indistinguishable from first constant.
 
 ```go
 // BAD
@@ -510,7 +508,7 @@ const (
 
 ## `recover()` Only Works in the Same Goroutine
 
-`recover()` can only catch panics in the goroutine where it's deferred. A panic in a child goroutine will crash the entire program — no parent goroutine can catch it.
+`recover()` only catches panics in the goroutine where it's deferred. Panic in child goroutine crashes the entire program; no parent goroutine can catch it.
 
 ```go
 // BAD — recover() in main cannot catch panic in child goroutine
@@ -542,7 +540,7 @@ func main() {
 
 ## `os.Exit` Skips Deferred Functions
 
-`os.Exit` terminates the process immediately. No deferred functions run — cleanup, flush, and close operations are skipped. `log.Fatal` calls `os.Exit(1)` internally and has the same problem.
+`os.Exit` ends process immediately. No deferred functions run: cleanup, flush, close skipped. `log.Fatal` calls `os.Exit(1)` internally, same problem.
 
 ```go
 // BAD — deferred cleanup never runs
@@ -573,7 +571,7 @@ func run() error {
 
 ## `time.Time` Comparison: `==` vs `.Equal()`
 
-`time.Time` includes a monotonic clock reading. Two `time.Time` values representing the same instant may not be `==` if one has a monotonic component and the other doesn't (e.g., one from `time.Now()`, the other deserialized from JSON/database).
+`time.Time` includes monotonic clock reading. Two `time.Time` values for same instant may not be `==` if one has monotonic component and other doesn't (e.g., one from `time.Now()`, other deserialized from JSON/database).
 
 ```go
 // BAD — may fail even for the same instant
@@ -592,9 +590,9 @@ t1 = t1.Round(0) // strips monotonic reading
 
 ## `sql.Rows` Must Be Closed
 
-`sql.Rows` MUST call `rows.Close()` — always defer it immediately after the query.
+`sql.Rows` MUST call `rows.Close()` — always defer it right after the query.
 
-Forgetting to close `sql.Rows` leaks database connections. The connection is held until `Rows` is garbage collected, but under load the connection pool exhausts first.
+Unclosed `sql.Rows` leaks database connections. Connection held until `Rows` is garbage collected; under load pool exhausts first.
 
 ```go
 // BAD — connection leak if rows aren't closed
@@ -617,11 +615,11 @@ if err := rows.Err(); err != nil { // don't forget to check rows.Err()
 }
 ```
 
-Also: use `db.QueryRow()` for single-row queries and `db.Exec()` for non-SELECT statements (INSERT, UPDATE, DELETE). Using `db.Query()` for non-SELECT leaks connections because the returned `Rows` is never iterated/closed.
+Also: use `db.QueryRow()` for single-row queries and `db.Exec()` for non-SELECT statements (INSERT, UPDATE, DELETE). `db.Query()` for non-SELECT leaks connections: returned `Rows` is never iterated/closed.
 
 ## Writing to a Closed Channel Panics
 
-Sending to a closed channel panics. Reading from a closed channel returns the zero value immediately (with `ok == false`).
+Sending to closed channel panics. Reading from closed channel returns zero value immediately (with `ok == false`).
 
 ```go
 // BAD — panic: send on closed channel
@@ -643,11 +641,11 @@ func producer(ch chan<- int, done <-chan struct{}) {
 }
 ```
 
-**Rule of thumb:** Only the sender closes the channel. If multiple senders, use a `sync.Once` or coordinate with a `sync.WaitGroup`.
+**Rule of thumb:** Only sender closes the channel. With multiple senders, use `sync.Once` or coordinate with `sync.WaitGroup`.
 
 ## Closed Channel in `select` Causes Busy Loop
 
-A closed channel is always ready to receive (returns zero value). In a `select`, this causes the case to fire continuously — a CPU-burning busy loop.
+Closed channel is always ready to receive (returns zero value). In `select`, its case fires continuously: CPU-burning busy loop.
 
 ```go
 // BAD — after ch is closed, this loops at 100% CPU
@@ -677,7 +675,7 @@ for {
 
 ## `select` with `default` Can Spin CPU
 
-A `select` with a `default` case never blocks. Inside a `for` loop, this creates a busy-wait spin loop that burns CPU.
+`select` with `default` case never blocks. Inside `for` loop, creates busy-wait spin loop that burns CPU.
 
 ```go
 // BAD — spins at 100% CPU waiting for a message
@@ -713,7 +711,7 @@ for {
 
 ## Integer Conversion Silently Truncates
 
-Go integer conversions don't check for overflow — they silently truncate. This is especially dangerous when converting from user input or external data.
+Go integer conversions silently truncate; no overflow check. Worst with user input or external data.
 
 ```go
 // BAD — silent truncation
@@ -736,7 +734,7 @@ func safeIntToInt32(n int64) (int32, error) {
 
 ## `filepath.Join` Does Not Prevent Path Traversal
 
-`filepath.Join` cleans the path (resolves `..`) but doesn't prevent escaping the base directory. User-supplied paths can traverse outside the intended root.
+`filepath.Join` cleans path (resolves `..`) but doesn't prevent escaping base directory. User-supplied paths can traverse outside root.
 
 ```go
 // BAD — user can escape the base directory
@@ -758,7 +756,7 @@ if err != nil {
 defer file.Close()
 ```
 
-For Go <1.24, use a lexical fallback only when `os.Root` is unavailable:
+For Go <1.24, use lexical fallback only when `os.Root` is unavailable:
 
 ```go
 func safePath(base, userInput string) (string, error) {
@@ -781,7 +779,7 @@ func safePath(base, userInput string) (string, error) {
 
 ## Pointer Receiver Interface Satisfaction
 
-A value of type `T` cannot satisfy an interface that requires methods with `*T` receivers. But `*T` satisfies interfaces requiring either `T` or `*T` methods.
+Value of type `T` cannot satisfy interface requiring methods with `*T` receivers. `*T` satisfies interfaces requiring either `T` or `*T` methods.
 
 ```go
 type Sizer interface {
@@ -801,9 +799,9 @@ s = &File{}  // OK — *File has the Size method
 
 ## `regexp.MustCompile` in Hot Path
 
-Long-lived regexp MUST be compiled once at package level — not inside functions called repeatedly. Short-lived regexp used once (e.g., in a CLI or test) are acceptable inline.
+Long-lived regexp MUST be compiled once at package level, not inside functions called repeatedly. Short-lived regexp used once (e.g., in CLI or test) are fine inline.
 
-`regexp.MustCompile` compiles a regex every call. In a hot path (loop, HTTP handler), this is expensive and wasteful.
+`regexp.MustCompile` compiles regex every call. Expensive in hot path (loop, HTTP handler).
 
 ```go
 // BAD — recompiles regex on every call
@@ -822,7 +820,7 @@ func isEmail(s string) bool {
 
 ## `init()` Ordering Is Fragile
 
-`init()` functions run in source file order within a package, and in dependency order across packages. But relying on this order creates brittle, hard-to-debug initialization sequences. Multiple `init()` in the same file run top-to-bottom, but across files it's alphabetical by filename — adding a file can change the order.
+`init()` functions run in source file order within a package, dependency order across packages. Relying on this order makes initialization brittle, hard to debug. Multiple `init()` in same file run top-to-bottom. Across files, order is alphabetical by filename, so adding a file can change it.
 
 ```go
 // BAD — init() depends on another init() having run first
@@ -841,11 +839,11 @@ func main() {
 }
 ```
 
-Prefer explicit initialization in `main()` over `init()`. Use `init()` only for truly self-contained setup (registering drivers, codecs).
+Prefer explicit initialization in `main()` over `init()`. Use `init()` only for self-contained setup (registering drivers, codecs).
 
 ## Map Iteration Order Is Random
 
-Go deliberately randomizes map iteration order. Code that assumes a specific order will produce inconsistent results.
+Go randomizes map iteration order on purpose. Code assuming an order gets inconsistent results.
 
 ```go
 // BAD — output order is random every run
@@ -865,11 +863,11 @@ for _, k := range keys {
 }
 ```
 
-This is especially dangerous in tests (non-deterministic output comparison), serialization (non-deterministic JSON/output), and logging (confusing diffs).
+Worst in tests (non-deterministic output comparison), serialization (non-deterministic JSON/output), logging (confusing diffs).
 
 ## `fallthrough` in `switch` Executes Unconditionally
 
-Unlike C, Go's `switch` cases don't fall through by default. But when you explicitly use `fallthrough`, it executes the **next case body unconditionally** — it does not check the next case's condition.
+Unlike C, Go's `switch` cases don't fall through by default. Explicit `fallthrough` executes **next case body unconditionally**; it does not check next case's condition.
 
 ```go
 // Surprising: fallthrough doesn't check the next condition

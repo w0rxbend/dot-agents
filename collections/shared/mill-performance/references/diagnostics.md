@@ -2,45 +2,45 @@
 
 ## Locate the cost
 
-Mill compiles build definitions, resolves modules/selectors, plans the task graph, executes it, and bootstraps meta-build layers. Each phase has different reuse behavior. Editing a `.mill` definition can trigger build compilation/classloader replacement; editing application source normally affects downstream compilation/tasks rather than the whole definition pipeline.
+Mill phases: compile build definitions, resolve modules/selectors, plan task graph, execute, bootstrap meta-build layers. Each reuses differently. Editing `.mill` definition can trigger build compilation/classloader replacement. Editing application source normally hits downstream compilation/tasks, not whole definition pipeline.
 
 | Observation | Evidence to inspect | Likely action |
 | --- | --- | --- |
-| Every invocation recompiles build definitions | Build source changes, meta-build inputs/classpath, profiles | Remove nondeterministic generated build inputs or reduce inappropriate shared dependencies |
-| Many unrelated tasks invalidate | Invalidation tree and changed root inputs | Split volatile conventions/input scopes or correct overly broad source roots |
-| Task stays cached after meaningful input change | Source/Input graph and implementation | Declare hidden file/env/tool input; don't simply delete `out/` in CI |
-| No-op invocation slow | Resolution/planning/daemon profiles | Inspect build object construction, selector expansion, or bootstrap/tool overhead |
-| Parallel build slower/OOM | Chrome profile, memory, workers/forks | Reduce jobs/fork budgets and isolate heavyweight tools |
-| CLI and IDE results differ | Version/BSP output/config/runtime | Align toolchain and inspect independent output/cache contexts |
+| Every invocation recompiles build definitions | Build source changes, meta-build inputs/classpath, profiles | Remove nondeterministic generated build inputs or cut inappropriate shared dependencies |
+| Many unrelated tasks invalidate | Invalidation tree, changed root inputs | Split volatile conventions/input scopes or narrow overly broad source roots |
+| Task stays cached after meaningful input change | Source/Input graph, implementation | Declare hidden file/env/tool input; don't delete `out/` in CI as workaround |
+| No-op invocation slow | Resolution/planning/daemon profiles | Inspect build object construction, selector expansion, bootstrap/tool overhead |
+| Parallel build slower/OOM | Chrome profile, memory, workers/forks | Cut jobs/fork budgets, isolate heavy tools |
+| CLI and IDE results differ | Version/BSP output/config/runtime | Align toolchain, inspect independent output/cache contexts |
 
 ## Output directory evidence
 
-Named tasks have metadata JSON, a destination, and logs under `out/`, with paths reflecting module/task names. Overridden `super` implementations may have separate paths. `show` is the supported way to get artifact values; downstream tasks should consume returned `PathRef`s rather than internal filenames.
+Named tasks keep metadata JSON, destination and logs under `out/`, at paths named by module/task. Overridden `super` implementations may get separate paths. `show` is supported way to get artifact values. Downstream tasks should consume returned `PathRef`s, not internal filenames.
 
-`mill-profile.json` includes task timing/cache information; `mill-chrome-profile.json` supports a timeline view. `mill-invalidation-tree.json` identifies root uncached inputs and downstream effects, including implementation changes where supported. Other version-specific files describe dependency graphs, selective snapshots, runner/daemon state, console tails, and bootstrap builds. Use them as diagnostic evidence; do not treat their schema as a stable public API without checking the version.
+`mill-profile.json`: task timing/cache information. `mill-chrome-profile.json`: timeline view. `mill-invalidation-tree.json`: root uncached inputs and downstream effects, including implementation changes where supported. Other version-specific files cover dependency graphs, selective snapshots, runner/daemon state, console tails, bootstrap builds. Use as diagnostic evidence. Do not treat their schema as stable public API without checking version.
 
-A no-change custom generator should retain its output; changing its tracked schema should regenerate and affect consumers. Validate these behaviors with output bytes/timestamps and application results. Returning an absolute path string without tracked contents, reading files directly inside a cached task without Source inputs, or mutating a returned destination can produce incorrect caching.
+Unchanged custom generator should keep its output. Tracked schema change should regenerate and affect consumers. Verify with output bytes/timestamps and application results. Can break caching: returning absolute path string without tracked contents, reading files directly in cached task without Source inputs, mutating returned destination.
 
 ## Reuse and purity
 
-Default tasks serialize/cache results; persistent tasks retain destination state for incremental machinery; workers retain live state in memory. These have different invalidation/lifetime semantics. The build must work whether a module is newly instantiated or reused and whether an independent task runs first or later. Keep filesystem effects inside tasks and avoid global mutable module registries.
+Default tasks serialize/cache results. Persistent tasks keep destination state for incremental machinery. Workers keep live state in memory. Invalidation/lifetime semantics differ. Build must work whether module is newly instantiated or reused, whatever order independent tasks run in. Keep filesystem effects inside tasks. Avoid global mutable module registries.
 
-Resolution-time external reads need the documented watch mechanism when that advanced pattern is unavoidable; normal values should become task inputs where possible. Worker keys must include the classpath/tool/options whose change invalidates state. Close classloaders/processes when replaced. Persistent destinations need stale-file cleanup: removing a generated source must not leave an obsolete class masquerading as a current output.
+Resolution-time external reads need documented watch mechanism when that advanced pattern is unavoidable. Make normal values task inputs where possible. Worker keys must include classpath/tool/options whose change invalidates state. Close replaced classloaders/processes. Persistent destinations need stale-file cleanup: removed generated source must not leave obsolete class posing as current output.
 
 ## Parallelism and daemon behavior
 
-Independent tasks can run concurrently, limited by jobs and graph structure. Adding threads cannot parallelize a long serial dependency chain. Build jobs, forked tests, compiler worker threads, external npm/pip processes, and framework concurrency all consume resources. Use representative peak measurements and a runner-specific jobs policy.
+Independent tasks can run concurrently, limited by jobs and graph structure. More threads cannot parallelize long serial dependency chain. Build jobs, forked tests, compiler worker threads, external npm/pip processes, framework concurrency all use resources. Base runner-specific jobs policy on representative peak measurements.
 
-Mill uses a launcher delegating to a reusable daemon in its current architecture. The daemon can retain compiled build classes and workers; non-daemon/interactive options change reuse/terminal behavior. Use `shutdown` and a supported `--no-daemon` run to isolate an apparent daemon issue, then investigate worker state or toolchain differences. Avoid killing unrelated Java processes or clearing all user caches as routine diagnosis.
+Current architecture: Mill launcher delegates to reusable daemon. Daemon can keep compiled build classes and workers. Non-daemon/interactive options change reuse/terminal behavior. Isolate apparent daemon issue with `shutdown` and supported `--no-daemon` run, then check worker state or toolchain differences. Avoid killing unrelated Java processes or clearing all user caches as routine diagnosis.
 
-Concurrent invocations and IDE/CLI builds can contend for outputs/locks. Read the version's process/parallelism docs and use supported separate BSP output settings when appropriate. Experimental in-task futures need correct separate destinations and explicit joins; they are not a default replacement for graph-level parallelism.
+Concurrent invocations and IDE/CLI builds can contend for outputs/locks. Read version's process/parallelism docs. Use supported separate BSP output settings when appropriate. Experimental in-task futures need correct separate destinations and explicit joins. Not default replacement for graph-level parallelism.
 
 ## Sandboxing and benchmark interpretation
 
-Mill redirects/guards filesystem access to encourage task output ownership; OS-Lib reads/writes and process working directories can expose accidental checkout-root assumptions. A subprocess that writes beside its input should receive a copy in the current destination or explicit output flags. Do not disable checks globally to preserve faulty task behavior. Tests need tracked resources and deliberate working directories.
+Mill redirects/guards filesystem access to encourage task output ownership. OS-Lib reads/writes and process working directories can expose accidental checkout-root assumptions. Subprocess writing beside its input should get copy in current destination or explicit output flags. Do not disable checks globally to keep faulty task behavior. Tests need tracked resources and deliberate working directories.
 
-The sandbox is not fully hermetic and cannot enforce all external tools/network behavior. Hidden remote state can remain outside fingerprints. For performance comparisons, distinguish cold downloads, clean compile, one-module incremental compile, no-op, application tests, and build-definition changes. Keep machines/JDKs/compiler flags/tasks comparable, include warm-up, and state whether caches and daemons were retained.
+Sandbox is not fully hermetic and cannot enforce all external tools/network behavior. Hidden remote state can stay outside fingerprints. In performance comparisons, separate cold downloads, clean compile, one-module incremental compile, no-op, application tests, build-definition changes. Keep machines/JDKs/compiler flags/tasks comparable. Include warm-up. State whether caches and daemons were retained.
 
-The design principles emphasize an explicit hierarchical task graph, caching by default, ordinary typed Scala abstractions, and controlled execution effects. Scala's static typing, traits, and JVM libraries help build authors express reusable behavior; those benefits do not justify exposing complex evaluator APIs in every simple build.
+Design principles: explicit hierarchical task graph, caching by default, ordinary typed Scala abstractions, controlled execution effects. Do not expose complex evaluator APIs in every simple build.
 
 Sources: [evaluation model](https://mill-build.org/mill/depth/evaluation-model.html), [caching](https://mill-build.org/mill/depth/caching.html), [parallelism](https://mill-build.org/mill/depth/parallelism.html), [process architecture](https://mill-build.org/mill/depth/process-architecture.html), [sandboxing](https://mill-build.org/mill/depth/sandboxing.html), [output directory](https://mill-build.org/mill/fundamentals/out-dir.html), [design principles](https://mill-build.org/mill/depth/design-principles.html), [why Scala](https://mill-build.org/mill/depth/why-scala.html), [performance comparisons](https://mill-build.org/mill/comparisons/performance.html).

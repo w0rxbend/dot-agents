@@ -78,6 +78,10 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         print(json.dumps({"error": "Usage: python3 lighthouse_audit.py <url>"}))
         sys.exit(2)
+    if not sys.argv[1].startswith(("http://", "https://")):
+        # Also stops a "--flag" value being parsed as a Lighthouse option (e.g. --chrome-path).
+        print(json.dumps({"error": "URL must start with http:// or https://"}))
+        sys.exit(2)
     summary = run_lighthouse(sys.argv[1])
     print(json.dumps(summary, indent=2))
     sys.exit(1 if "error" in summary else 0)

@@ -54,13 +54,16 @@ qdrant-python/
 ```bash
 POST /ingest
 {
-  "file_path": "path/to/document.md",
+  "file_path": "document.md",
   "metadata": {
     "source_type": "documentation",
     "product_version": "v2.0"
   }
 }
 ```
+
+`file_path` is resolved inside `INGEST_ROOT` (default `data/`); paths outside it are rejected.
+The API has no auth and listens on 127.0.0.1; add auth before setting `HOST` to expose it.
 
 ### Search
 ```bash
@@ -136,6 +139,10 @@ OPENAI_API_KEY=your-api-key-here
 QDRANT_URL=localhost
 QDRANT_PORT=6333
 
+# API: files /ingest may read; bind address
+INGEST_ROOT=data
+HOST=127.0.0.1
+
 # Embedding Model
 EMBEDDING_MODEL=text-embedding-3-large
 EMBEDDING_DIMENSIONS=1024
@@ -151,7 +158,7 @@ LLM_TEMPERATURE=0.1
 
 ## Production Deployment
 
-1. Enable Qdrant authentication
+1. Enable Qdrant authentication and add auth to this API
 2. Set up TLS/HTTPS
 3. Configure rate limiting
 4. Add monitoring (Prometheus/Grafana)

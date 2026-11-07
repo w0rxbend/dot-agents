@@ -1,7 +1,5 @@
 # VPC Design Patterns
 
-Comprehensive guide to cloud network architecture patterns with implementation details, use cases, and decision criteria.
-
 ## Table of Contents
 
 1. [Pattern 1: Flat (Single VPC) Architecture](#pattern-1-flat-single-vpc-architecture)
@@ -18,7 +16,7 @@ Comprehensive guide to cloud network architecture patterns with implementation d
 
 ### Description
 
-All resources deployed in a single VPC with subnet-level segmentation. This is the simplest network architecture pattern.
+All resources in one VPC, segmented by subnet. Simplest network architecture pattern.
 
 ### Architecture Diagram
 
@@ -43,18 +41,18 @@ All resources deployed in a single VPC with subnet-level segmentation. This is t
 ### Use Cases
 
 **Ideal For:**
-- Startups and small applications
+- Startups, small applications
 - Single environment (dev OR staging OR prod, not multiple)
-- Proof of concept projects
+- Proofs of concept
 - Teams < 10 engineers
-- Simple security requirements
+- Simple security needs
 - Low complexity tolerance
 
 **Not Suitable For:**
-- Multiple environments requiring isolation
-- Large teams with different access requirements
+- Multiple environments needing isolation
+- Large teams with differing access needs
 - Compliance requiring network-level separation
-- Applications requiring strong blast radius containment
+- Applications needing strong blast radius containment
 
 ### Pros and Cons
 
@@ -63,15 +61,15 @@ All resources deployed in a single VPC with subnet-level segmentation. This is t
 - ✓ No inter-VPC routing complexity
 - ✓ Lowest cost (no Transit Gateway fees)
 - ✓ Fastest to set up
-- ✓ Easy to troubleshoot network issues
+- ✓ Easy network troubleshooting
 
 **Disadvantages:**
 - ✗ Poor isolation between workloads
-- ✗ Difficult to enforce least privilege
+- ✗ Hard to enforce least privilege
 - ✗ CIDR exhaustion risks
 - ✗ Hard to scale as organization grows
 - ✗ Blast radius is entire VPC
-- ✗ Security group rules become complex at scale
+- ✗ Security group rules grow complex at scale
 
 ### Implementation Example (AWS)
 
@@ -104,7 +102,7 @@ module "vpc" {
 
 ### Description
 
-Separate VPCs per environment or workload with no direct connectivity. Each VPC is completely isolated.
+Separate VPC per environment or workload, no direct connectivity. Each VPC fully isolated.
 
 ### Architecture Diagram
 
@@ -131,14 +129,14 @@ No direct connectivity between VPCs
 
 **Ideal For:**
 - Multiple environments (dev, staging, prod)
-- Strong isolation requirements
-- Different teams managing different VPCs
+- Strong isolation needs
+- Separate team per VPC
 - Compliance requiring network-level separation
 - Independent security boundaries
-- Different cost centers
+- Separate cost centers
 
 **Not Suitable For:**
-- Workloads requiring frequent inter-VPC communication
+- Workloads needing frequent inter-VPC communication
 - Shared services needed across environments
 - Cost-sensitive environments (duplicate infrastructure)
 
@@ -147,17 +145,11 @@ No direct connectivity between VPCs
 **Advantages:**
 - ✓ Strong blast radius containment
 - ✓ Independent CIDR ranges (no overlap concerns)
-- ✓ Clear security boundaries
-- ✓ Easy cost allocation per VPC
-- ✓ Different teams can manage different VPCs independently
-- ✓ Compliance-friendly
 
 **Disadvantages:**
 - ✗ No cross-VPC communication without explicit setup
 - ✗ Management overhead (multiple VPCs)
 - ✗ Duplicate infrastructure (NAT, endpoints)
-- ✗ Higher costs
-- ✗ Shared services require duplication
 
 ---
 
@@ -165,7 +157,7 @@ No direct connectivity between VPCs
 
 ### Description
 
-Central hub VPC/Transit Gateway with spoke VPCs connecting to it. All inter-VPC traffic routes through the hub.
+Central hub VPC/Transit Gateway; spoke VPCs connect to it. All inter-VPC traffic routes through hub.
 
 ### Architecture Diagram
 
@@ -193,16 +185,16 @@ Central hub VPC/Transit Gateway with spoke VPCs connecting to it. All inter-VPC 
 ### Use Cases
 
 **Ideal For:**
-- 5+ VPCs need to communicate
+- 5+ VPCs communicating
 - Centralized security inspection required
 - Hybrid connectivity (on-premises to multiple VPCs)
 - Multi-account AWS Organizations setup
-- Need for network-level segmentation and policy
+- Network-level segmentation and policy
 - Shared services VPC (Active Directory, monitoring, etc.)
 
 **Not Suitable For:**
-- Small number of VPCs (< 5) where peering is sufficient
-- Ultra-low latency requirements (hub hop adds latency)
+- Few VPCs (< 5) where peering suffices
+- Ultra-low latency needs (hub hop adds latency)
 - Cost-sensitive projects (Transit Gateway fees)
 
 ### Routing Patterns
@@ -227,15 +219,13 @@ VPC-A → Transit Gateway → Egress VPC → Internet
 **Advantages:**
 - ✓ Simplified routing (spokes only connect to hub)
 - ✓ Centralized security inspection (firewall in hub)
-- ✓ Scales easily (add spokes without redesigning)
+- ✓ Scales easily (add spokes without redesign)
 - ✓ Works with AWS Resource Access Manager (RAM) for multi-account
-- ✓ Centralized hybrid connectivity
-- ✓ Reduces VPN/Direct Connect connections
+- ✓ Fewer VPN/Direct Connect connections
 
 **Disadvantages:**
 - ✗ Transit Gateway costs (~$0.05/hour + $0.02/GB)
-- ✗ Increased latency (traffic hairpins through hub)
-- ✗ Hub becomes potential bottleneck
+- ✗ Hub can become bottleneck
 - ✗ More complex than simple peering
 
 ### Implementation Example (AWS)
@@ -303,7 +293,7 @@ All spoke-to-spoke traffic routed through Inspection VPC firewall
 
 ### Description
 
-Every VPC directly connected to every other VPC via VPC peering connections.
+Every VPC peered directly with every other VPC.
 
 ### Architecture Diagram
 
@@ -342,8 +332,8 @@ Management complexity scales as O(n²):
 ### Use Cases
 
 **Ideal For:**
-- Small number of VPCs (2-5)
-- Low latency requirements (no hub hop)
+- Few VPCs (2-5)
+- Low latency needs (no hub hop)
 - No centralized inspection needed
 - Cost optimization (avoid Transit Gateway fees)
 - Simple connectivity needs
@@ -356,17 +346,10 @@ Management complexity scales as O(n²):
 ### Pros and Cons
 
 **Advantages:**
-- ✓ Lowest latency (direct VPC-to-VPC)
-- ✓ No Transit Gateway costs
-- ✓ Simple for small number of VPCs
 - ✓ No single point of failure
 
 **Disadvantages:**
-- ✗ Management complexity scales as O(n²)
-- ✗ No centralized security inspection
-- ✗ Difficult to add new VPCs
 - ✗ Route table management becomes unwieldy
-- ✗ Does not scale beyond ~10 VPCs
 
 ### Implementation Example (AWS)
 
@@ -407,7 +390,7 @@ resource "aws_route" "dev_to_prod" {
 
 ### Description
 
-Combination of patterns based on workload requirements. Most common: Hub-spoke for most VPCs + direct peering for latency-sensitive pairs.
+Patterns combined per workload needs. Most common: hub-spoke for most VPCs + direct peering for latency-sensitive pairs.
 
 ### Architecture Diagram
 
@@ -433,10 +416,10 @@ Combination of patterns based on workload requirements. Most common: Hub-spoke f
 ### Use Cases
 
 **Ideal For:**
-- Large enterprise with diverse requirements
+- Large enterprise, diverse needs
 - Some workloads need low latency (direct peering)
-- Other workloads need centralized inspection (hub-spoke)
-- Balancing cost, performance, and security
+- Others need centralized inspection (hub-spoke)
+- Balancing cost, performance, security
 - Complex multi-environment architectures
 
 ### Traffic Routing Examples
@@ -446,11 +429,11 @@ Combination of patterns based on workload requirements. Most common: Hub-spoke f
 - No hub hop for time-sensitive operations
 
 **Dev → Prod:**
-- Routed through Transit Gateway for inspection
+- Through Transit Gateway for inspection
 - Security team can audit cross-environment traffic
 
 **All → On-Premises:**
-- Routed through Transit Gateway
+- Through Transit Gateway
 - Single hybrid connection point
 
 ---
@@ -476,12 +459,12 @@ Combination of patterns based on workload requirements. Most common: Hub-spoke f
 ### Migrating from Flat to Hub-Spoke
 
 **Step 1:** Create Transit Gateway
-**Step 2:** Create separate VPCs for environments
+**Step 2:** Create separate VPC per environment
 **Step 3:** Migrate workloads incrementally
 **Step 4:** Attach new VPCs to Transit Gateway
 **Step 5:** Decommission flat VPC
 
-**Downtime:** Can be zero with proper planning
+**Downtime:** zero possible with proper planning
 
 ### Migrating from Mesh to Hub-Spoke
 
@@ -500,4 +483,4 @@ Combination of patterns based on workload requirements. Most common: Hub-spoke f
 **Step 3:** Configure routing policies
 **Step 4:** Test connectivity
 
-**Downtime:** None (VPCs remain functional during migration)
+**Downtime:** None (VPCs stay functional during migration)

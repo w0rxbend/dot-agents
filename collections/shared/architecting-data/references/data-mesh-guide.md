@@ -1,6 +1,6 @@
 # Data Mesh Guide
 
-Decentralized data architecture for large organizations. Addresses centralized bottlenecks through domain ownership.
+Decentralized data architecture for large organizations. Removes central-team bottlenecks through domain ownership.
 
 
 ## Table of Contents
@@ -18,10 +18,7 @@ Decentralized data architecture for large organizations. Addresses centralized b
 
 ### 1. Domain-Oriented Decentralization
 
-Each business domain owns its data:
-- Sales domain owns sales data
-- Marketing domain owns marketing data
-- Product domain owns product usage data
+Each business domain owns its data.
 
 **Traditional vs Mesh:**
 ```
@@ -32,11 +29,11 @@ Data Mesh:   Sales Domain → Sales Data Product → Consumers
 
 ### 2. Data as a Product
 
-Treat data like products with quality commitments:
+Treat data as product with quality commitments:
 - **SLAs:** Freshness, availability, quality guarantees
 - **Documentation:** Schema, use cases, examples
 - **Support:** Help channels, onboarding
-- **Consumers as customers:** Internal users treated like external customers
+- **Consumers as customers:** Treat internal users like external customers
 
 **Data Product Contract Example:**
 ```yaml
@@ -58,14 +55,14 @@ data_product:
 
 ### 3. Self-Serve Data Infrastructure
 
-Platform team provides tooling for domain autonomy:
+Platform team gives domains tooling for autonomy:
 - Infrastructure as code (Terraform, Pulumi)
 - CI/CD pipelines for data products
 - Observability (monitoring, alerting, lineage)
 - Data catalog (discovery)
 - Governance tooling
 
-**Domain teams can do (without platform team):**
+**Domain teams can (without platform team):**
 - Deploy new data pipeline
 - Update schema
 - Monitor data quality
@@ -74,7 +71,7 @@ Platform team provides tooling for domain autonomy:
 
 ### 4. Federated Computational Governance
 
-Global policies with local implementation:
+Global policies, local implementation:
 - **Global Policy:** "All PII must be encrypted at rest"
 - **Domain Implementation:** Sales team encrypts customer email
 - **Automated Check:** Platform scans for unencrypted PII
@@ -84,7 +81,7 @@ Global policies with local implementation:
 
 **Strong Candidates:**
 - Large organizations (>500 people)
-- Clear business domains with distinct ownership
+- Clear business domains, distinct ownership
 - Central data team is bottleneck
 - Domain teams have data engineering skills
 
@@ -96,7 +93,7 @@ Global policies with local implementation:
 
 ## Lakehouse Implementation
 
-Each domain owns bronze-silver-gold for their data products:
+Each domain owns bronze-silver-gold for its data products:
 
 ```
 Sales Domain:
@@ -111,7 +108,7 @@ Cross-Domain:
 
 ## Readiness Assessment
 
-Score 1-5 for each factor:
+Score each factor 1-5:
 1. Domain clarity
 2. Team maturity
 3. Platform capability
@@ -124,4 +121,4 @@ Score 1-5 for each factor:
 **12-17:** Build foundation first
 **6-11:** Centralized approach
 
-See [decision-frameworks.md](decision-frameworks.md#data-mesh-readiness) for full assessment.
+Full assessment: [decision-frameworks.md](decision-frameworks.md#data-mesh-readiness).

@@ -119,12 +119,12 @@ df = pl.read_parquet('abfs://container/path/data.parquet')
 
 ## Best Practices
 
-1. **Use appropriate file formats:**
+1. **Match file format to use case:**
    - Parquet for analytics (columnar, compressed)
    - JSON Lines for streaming/logs
    - CSV only for interchange with external systems
 
-2. **Implement resumable downloads:**
+2. **Make downloads resumable:**
    ```python
    def download_with_resume(bucket, key, local_path):
        existing_size = os.path.getsize(local_path) if os.path.exists(local_path) else 0
@@ -148,5 +148,5 @@ df = pl.read_parquet('abfs://container/path/data.parquet')
 
 4. **Handle rate limits:**
    - Use exponential backoff
-   - Implement request throttling
+   - Throttle requests
    - Consider S3 Inventory for large bucket listings

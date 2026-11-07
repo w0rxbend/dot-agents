@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 )
@@ -179,7 +180,7 @@ func (r *UsersResource) Create(ctx context.Context, req CreateUserRequest) (*Use
 
 // Retrieve retrieves a user by ID
 func (r *UsersResource) Retrieve(ctx context.Context, id string) (*User, error) {
-	result, err := r.client.request(ctx, "GET", "/users/"+id, nil)
+	result, err := r.client.request(ctx, "GET", "/users/"+url.PathEscape(id), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +193,7 @@ func (r *UsersResource) Retrieve(ctx context.Context, id string) (*User, error) 
 
 // Update updates a user
 func (r *UsersResource) Update(ctx context.Context, id string, updates map[string]interface{}) (*User, error) {
-	result, err := r.client.request(ctx, "PATCH", "/users/"+id, updates)
+	result, err := r.client.request(ctx, "PATCH", "/users/"+url.PathEscape(id), updates)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +206,7 @@ func (r *UsersResource) Update(ctx context.Context, id string, updates map[strin
 
 // Delete deletes a user
 func (r *UsersResource) Delete(ctx context.Context, id string) error {
-	_, err := r.client.request(ctx, "DELETE", "/users/"+id, nil)
+	_, err := r.client.request(ctx, "DELETE", "/users/"+url.PathEscape(id), nil)
 	return err
 }
 

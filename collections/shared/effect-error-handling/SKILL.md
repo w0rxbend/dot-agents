@@ -3,7 +3,6 @@ name: effect-error-handling
 user-invocable: false
 description: "Effect-TS v3: model expected failures as Data.TaggedError, recover with catchTag/catchTags/catchAll, convert with either/option, retry with Schedule, and handle defects and interruptions via Cause. Use when designing or fixing the E channel of Effect code; for fp-ts Either/TaskEither use fp-errors."
 allowed-tools:
-  - Bash
   - Read
   - Write
   - Edit
@@ -12,8 +11,8 @@ allowed-tools:
 # Effect Error Handling
 
 > **Version:** targets `effect` 3.x. In Effect 4, `Effect.catchAll` became
-> `Effect.catch`, `Effect.either` became `Effect.result` and `Either` became
-> `Result`; check `effect` in package.json first.
+> `Effect.catch`, `Effect.either` became `Effect.result`, `Either` became
+> `Result`. Check `effect` in package.json first.
 
 ## Errors vs defects vs interruption
 
@@ -23,10 +22,9 @@ allowed-tools:
 | Defect | `Cause` only (not in types) | throw inside `sync`/`promise`, `Effect.die`, `orDie` | `catchAllDefect`, `catchAllCause`, top-level logging |
 | Interruption | `Cause` only | timeout, race loser, `Fiber.interrupt` | finalizers, `onInterrupt` |
 
-Decision rule: if a caller can reasonably do something different because of
-the failure (show a 404, retry, fall back), it is an expected error with its
-own tag. If it means a bug or broken invariant, let it be a defect (`orDie`)
-and let the edge log it.
+Decision rule: if caller can reasonably act differently on the failure (show
+404, retry, fall back), make it an expected error with its own tag. If it means
+a bug or broken invariant, make it a defect (`orDie`) and let the edge log it.
 
 ## Define errors as tagged classes
 
@@ -50,9 +48,9 @@ const fetchUser = (id: string): Effect.Effect<User, NotFound | NetworkError> =>
   })
 ```
 
-`Data.TaggedError` gives a `_tag` for `catchTag`, a real `Error` with a stack,
-and lets you `yield*` the instance directly to fail. Use `Schema.TaggedError`
-instead when the error must be serialized (RPC, HTTP API).
+`Data.TaggedError` gives `_tag` for `catchTag` and a real `Error` with stack.
+`yield*` the instance directly to fail. Use `Schema.TaggedError` instead when
+error must be serialized (RPC, HTTP API).
 
 ## Recovering
 
@@ -91,14 +89,14 @@ const d = op.pipe(
 
 | Need | Operator |
 | --- | --- |
-| Handle one or a few tags | `catchTag`, `catchTags` |
+| Handle one or few tags | `catchTag`, `catchTags` |
 | Translate errors between layers | `mapError` |
 | Observe without handling (log, metric) | `tapError`, `tapErrorTag` |
 | Fallback effect on any error | `orElse`, `orElseSucceed` |
-| Get a value you can branch on | `Effect.either` (`Either<A, E>`), `Effect.option`, `Effect.exit` |
+| Value to branch on | `Effect.either` (`Either<A, E>`), `Effect.option`, `Effect.exit` |
 | Both channels into one handler | `Effect.match`, `Effect.matchEffect` |
 | Turn "impossible" errors into defects | `Effect.orDie`, `Effect.orDieWith` |
-| Fail if a value is bad | `Effect.filterOrFail` |
+| Fail on bad value | `Effect.filterOrFail` |
 
 ```typescript
 import { Effect, Either } from "effect"
@@ -138,14 +136,15 @@ const robust = call.pipe(
 )
 ```
 
-- `Effect.retry` re-runs the whole effect; make it idempotent first.
-- `Effect.timeout(d)` fails with `TimeoutException`; `timeoutFail` lets you
-  choose the error. The timed-out effect is interrupted, so its finalizers run.
-- Never retry validation/authorization errors; filter with `while`/`until`.
+- `Effect.retry` re-runs whole effect. Make it idempotent first (idempotency
+  key for writes).
+- `Effect.timeout(d)` fails with `TimeoutException`. `timeoutFail` picks the
+  error. Timed-out effect is interrupted, so its finalizers run.
+- Never retry validation/authorization errors. Filter with `while`/`until`.
 
 ## Collecting several errors
 
-`Effect.all` short-circuits on the first failure. To report every failure:
+`Effect.all` short-circuits on first failure. To report every failure:
 
 ```typescript
 import { Effect } from "effect"
@@ -163,7 +162,7 @@ const split = Effect.partition(fields, validateField)
 const each = Effect.all(fields.map(validateField), { mode: "either" })
 ```
 
-For parsing input, prefer `effect/Schema` with `{ errors: "all" }` (see
+To parse input, prefer `effect/Schema` with `{ errors: "all" }` (see
 **effect-schema**).
 
 ## Defects and causes
@@ -187,28 +186,26 @@ const safe = risky.pipe(
 const noCrash = risky.pipe(Effect.catchAllDefect((defect) => Effect.succeed(-3)))
 ```
 
-`Effect.sandbox` moves the full `Cause<E>` into the error channel and
-`Effect.unsandbox` reverses it; use it when you need cause-aware handling in
-the middle of a pipeline. Catching defects should be rare: at a request or job
-boundary, to log and convert to a 500/failed-job result.
+`Effect.sandbox` moves full `Cause<E>` into error channel. `Effect.unsandbox`
+reverses it. Use for cause-aware handling mid-pipeline. Catch defects rarely: at
+request or job boundary, to log and convert to 500/failed-job result.
 
 ## Pitfalls
 
-- `catchAll` early in a pipeline erases error types callers could have used.
-- Plain `throw` inside `Effect.sync`/`gen` is a defect; it will not be caught by
-  `catchTag`/`catchAll`.
-- `try/catch` around `Effect.runPromise` sees a `FiberFailure`, not your tagged
-  error; use `runPromiseExit` or handle inside the effect.
-- Error unions growing to many tags in a high-level function: map lower-level
-  errors to a domain error with `mapError` at module boundaries.
-- Retrying non-idempotent writes without an idempotency key.
+- `catchAll` early in pipeline erases error types callers could use.
+- Plain `throw` inside `Effect.sync`/`gen` is a defect. `catchTag`/`catchAll`
+  will not catch it.
+- `try/catch` around `Effect.runPromise` sees `FiberFailure`, not your tagged
+  error. Use `runPromiseExit` or handle inside the effect.
+- Error union grows to many tags in high-level function: map lower-level errors
+  to domain error with `mapError` at module boundaries.
 
 ## Done when
 
-- Each module exposes a small set of tagged errors in its signatures; no
+- Each module exposes small set of tagged errors in its signatures. No
   `unknown`/`Error` in `E` except at external boundaries being wrapped.
-- Every retry has a bounded schedule and an error filter.
-- Defects are logged once with `Cause.pretty` at the edge.
+- Every retry has bounded schedule and error filter.
+- Defects logged once with `Cause.pretty` at the edge.
 
 ## Related skills
 

@@ -5,17 +5,7 @@ description: Chooses and builds individual charts and graphs for data-driven int
 
 # Data Visualization Component Library
 
-Systematic guidance for selecting and implementing effective data visualizations, matching data characteristics with appropriate visualization types, ensuring clarity, accessibility, and impact.
-
-## Overview
-
-Data visualization transforms raw data into visual representations that reveal patterns, trends, and insights. This skill provides:
-
-1. **Selection Framework**: Systematic decision trees from data type + purpose → chart type
-2. **24+ Visualization Methods**: Organized by analytical purpose
-3. **Accessibility Patterns**: WCAG 2.1 AA compliance, colorblind-safe palettes
-4. **Performance Strategies**: Optimize for dataset size (<1000 to >100K points)
-5. **Multi-Language Support**: JavaScript/TypeScript (primary), Python, Rust, Go
+**Multi-Language Support**: JavaScript/TypeScript (primary), Python, Rust, Go
 
 ---
 
@@ -42,22 +32,21 @@ What story to tell? [comparison | trend | distribution | relationship | composit
 - Explore correlation → Scatter Plot
 - Show budget breakdown → Treemap or Stacked Bar
 
-**Complete decision trees:** See `references/selection-matrix.md`
+**Full decision trees:** see `references/selection-matrix.md`
 
 ### Step 4: Implement
 
-See language sections below for recommended libraries.
+Recommended libraries: see language sections below.
 
 ### Step 5: Apply Accessibility
 - Add text alternative (aria-label)
-- Ensure 3:1 color contrast minimum
+- Keep 3:1 minimum color contrast
 - Use colorblind-safe palette
-- Provide data table alternative
+- Offer data table alternative
 
 ### Step 6: Optimize Performance
-- <1000 points: Standard SVG rendering
-- >1000 points: Sampling or Canvas rendering
-- Very large: Server-side aggregation
+
+See Performance by Data Volume below.
 
 ---
 
@@ -81,9 +70,9 @@ See language sections below for recommended libraries.
 ## Visualization Catalog
 
 ### Tier 1: Fundamental Primitives
-General audiences, straightforward data stories:
+General audiences, simple data stories:
 - **Bar Chart**: Compare categories
-- **Line Chart**: Show trends over time
+- **Line Chart**: Trends over time
 - **Scatter Plot**: Explore relationships
 - **Pie Chart**: Part-to-whole (max 5-6 slices)
 - **Area Chart**: Emphasize magnitude over time
@@ -103,7 +92,7 @@ Complex data, sophisticated audiences:
 - **Temporal**: Gantt Chart, Calendar Heatmap, Candlestick
 - **Network**: Force-Directed Graph, Adjacency Matrix
 
-**Detailed descriptions:** See `references/chart-catalog.md`
+**Details:** see `references/chart-catalog.md`
 
 ---
 
@@ -119,7 +108,7 @@ Complex data, sophisticated audiences:
 ### Color Requirements
 - Non-text UI elements: 3:1 minimum contrast
 - Text: 4.5:1 minimum (or 3:1 for large text ≥24px)
-- Don't rely on color alone - use patterns/textures + labels
+- Do not rely on color alone. Add patterns/textures and labels.
 
 ### Colorblind-Safe Palettes
 
@@ -129,14 +118,14 @@ Complex data, sophisticated audiences:
 #FE6100 (Orange), #FFB000 (Yellow)
 ```
 
-**Avoid:** Red/Green combinations (8% of males have red-green colorblindness)
+**Avoid:** Red/Green combinations (8% of males are red-green colorblind)
 
 ### Keyboard Navigation
 - Tab through interactive elements
-- Enter/Space to activate tooltips
-- Arrow keys to navigate data points
+- Enter/Space activates tooltips
+- Arrow keys move between data points
 
-**Complete accessibility guide:** See `references/accessibility.md`
+**Full accessibility guide:** see `references/accessibility.md`
 
 ---
 
@@ -184,20 +173,20 @@ export function SalesChart() {
 ```
 
 ### D3.js (Custom Visualizations)
-Maximum flexibility, industry standard, unlimited chart types.
+Maximum flexibility, unlimited chart types.
 
 ```bash
 npm install d3
 ```
 
 ### Plotly (Scientific/Interactive)
-3D visualizations, statistical charts, interactive out-of-box.
+3D visualizations, statistical charts, interactive out of box.
 
 ```bash
 npm install react-plotly.js plotly.js
 ```
 
-**Detailed examples:** See `references/javascript/`
+**More examples:** see `references/javascript/`
 
 ---
 
@@ -218,7 +207,7 @@ npm install react-plotly.js plotly.js
 
 ## Integration with Design Tokens
 
-Reference the **design-tokens** skill for theming:
+For theming, see **design-tokens** skill:
 
 ```css
 --chart-color-primary
@@ -232,18 +221,18 @@ Reference the **design-tokens** skill for theming:
 <Line stroke="var(--chart-color-primary)" />
 ```
 
-Light/dark/high-contrast themes work automatically via design tokens.
+Light/dark/high-contrast themes work automatically through design tokens.
 
 ---
 
 ## Common Mistakes to Avoid
 
-1. **Chart-first thinking** - Choose based on data + purpose, not aesthetics
+1. **Chart-first thinking** - Choose by data + purpose, not aesthetics
 2. **Pie charts for >6 categories** - Use sorted bar chart instead
-3. **Dual-axis charts** - Usually misleading, use small multiples
-4. **3D when 2D sufficient** - Adds complexity, reduces clarity
+3. **Dual-axis charts** - Usually misleading; use small multiples
+4. **3D when 2D sufficient** - Adds complexity, cuts clarity
 5. **Rainbow color scales** - Not perceptually uniform, not colorblind-safe
-6. **Truncated y-axis** - Indicate clearly or start at zero
+6. **Truncated y-axis** - Mark clearly or start at zero
 7. **Too many colors** - Limit to 6-8 distinct categories
 8. **Missing context** - Always label axes, include units
 
@@ -283,7 +272,7 @@ Geographic (locations)
 
 **Selection Guides:**
 - `references/chart-catalog.md` - All 24+ visualization types
-- `references/selection-matrix.md` - Complete decision trees
+- `references/selection-matrix.md` - Full decision trees
 
 **Technical Guides:**
 - `references/accessibility.md` - WCAG 2.1 AA patterns
@@ -308,7 +297,7 @@ Geographic (locations)
 - `examples/javascript/scatter-plot.tsx`
 - `examples/javascript/accessible-chart.tsx`
 
-These are standalone React components, not a runnable project. To try one, copy it into any React app (for example a Vite React + TypeScript template) and install the dependency:
+Standalone React components, not a runnable project. To try one, copy it into any React app (for example a Vite React + TypeScript template) and install dependency:
 
 ```bash
 npm install recharts
@@ -328,4 +317,4 @@ scripts/validate_accessibility.py <chart-html>
 
 ---
 
-**Progressive disclosure:** This SKILL.md provides overview and quick start. Detailed documentation, code examples, and language-specific implementations in `references/` and `examples/` directories.
+**Progressive disclosure:** SKILL.md gives overview and quick start. Detailed docs, code examples and language-specific implementations live in `references/` and `examples/`.
