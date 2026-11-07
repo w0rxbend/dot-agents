@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-11-06T19:18:25.800530+00:00",
+  "reviewed_at": "2026-11-07T12:57:34.343346+00:00",
   "summary": {
     "baseline_catalog_skills": 501,
     "canonical_entrypoint_files_read": 583,
@@ -7569,7 +7569,7 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "9863252ec24df1a03a04a0a2d8c3e3f188c37c00a574a3e537f0e1584045a6be",
+      "sha256": "cfe369b1c30fc5888218b23dc758d8b42b3ac3893ab227a69350b4c22676cdda",
       "current_entry_sha256": "4888445f2c17f92a8b13cd79582a634516cd60de2438319eef9b0a42ce894ee6",
       "current_entry_words": 819,
       "post_review_changes": [
@@ -7597,6 +7597,11 @@
           "at": "2026-11-06T19:18:18.361219+00:00",
           "from_sha256": "7d9e8e4e261f6ea6dbdf0acf4915bb9cc0dbadf6db01c4c4a6d34bfeb81e1e63",
           "tree_sha256": "9863252ec24df1a03a04a0a2d8c3e3f188c37c00a574a3e537f0e1584045a6be"
+        },
+        {
+          "at": "2026-11-07T12:57:34.281976+00:00",
+          "from_sha256": "9863252ec24df1a03a04a0a2d8c3e3f188c37c00a574a3e537f0e1584045a6be",
+          "tree_sha256": "cfe369b1c30fc5888218b23dc758d8b42b3ac3893ab227a69350b4c22676cdda"
         }
       ],
       "review_log": [
@@ -7619,6 +7624,11 @@
           "at": "2026-11-06T19:18:25.800100+00:00",
           "note": "2026-11-06 owner-requested autonomous security hardening (no human in the loop). Reviewed by agents, not read by a human: 7 find rounds (24 batch auditors plus per-category sweeps), a per-skill fixer that verified each finding, then an independent reviewer agent per fixed skill that re-checked every edit, verified new version pins against registries and reverted bad edits (all reviews ok). Mechanical check 0 errors; changed scripts pass py_compile, bash -n and node --check. Includes the fast-uri 3.1.9 lockfile bump for the open Dependabot alert.",
           "sha256": "9863252ec24df1a03a04a0a2d8c3e3f188c37c00a574a3e537f0e1584045a6be"
+        },
+        {
+          "at": "2026-11-07T12:57:34.343197+00:00",
+          "note": "Merged upstream dependency bumps from main (#20, #21): example manifests only (pulumi-aws package.json/package-lock.json, fastapi-otel requirements.txt); no skill instructions changed.",
+          "sha256": "cfe369b1c30fc5888218b23dc758d8b42b3ac3893ab227a69350b4c22676cdda"
         }
       ]
     },
@@ -16785,7 +16795,7 @@
         "content_read": true,
         "heuristics_reviewed": []
       },
-      "sha256": "26361a2989af319e15446d8a4af615e99327d506ae92e475607e93af56858dc7",
+      "sha256": "dfd13bab8dd5dffbc235fb00fcc965ad02bfd8580d1b877e8d96cfee38aa6109",
       "current_entry_sha256": "edff36b97469c330d8d4973f4ffa7a3b9ce30d0b4d9e31ba3a6f93636f481502",
       "current_entry_words": 1205,
       "post_review_changes": [
@@ -16808,6 +16818,11 @@
           "at": "2026-11-06T19:18:18.382127+00:00",
           "from_sha256": "8e9faa4599d7e47475b204d5d6fd627d841cb0b809f217ce67a2d2198966a8f4",
           "tree_sha256": "26361a2989af319e15446d8a4af615e99327d506ae92e475607e93af56858dc7"
+        },
+        {
+          "at": "2026-11-07T12:57:34.282225+00:00",
+          "from_sha256": "26361a2989af319e15446d8a4af615e99327d506ae92e475607e93af56858dc7",
+          "tree_sha256": "dfd13bab8dd5dffbc235fb00fcc965ad02bfd8580d1b877e8d96cfee38aa6109"
         }
       ],
       "review_log": [
@@ -16825,6 +16840,11 @@
           "at": "2026-11-06T19:18:25.800277+00:00",
           "note": "2026-11-06 owner-requested autonomous security hardening (no human in the loop). Reviewed by agents, not read by a human: 7 find rounds (24 batch auditors plus per-category sweeps), a per-skill fixer that verified each finding, then an independent reviewer agent per fixed skill that re-checked every edit, verified new version pins against registries and reverted bad edits (all reviews ok). Mechanical check 0 errors; changed scripts pass py_compile, bash -n and node --check. Includes the fast-uri 3.1.9 lockfile bump for the open Dependabot alert.",
           "sha256": "26361a2989af319e15446d8a4af615e99327d506ae92e475607e93af56858dc7"
+        },
+        {
+          "at": "2026-11-07T12:57:34.343213+00:00",
+          "note": "Merged upstream dependency bumps from main (#20, #21): example manifests only (pulumi-aws package.json/package-lock.json, fastapi-otel requirements.txt); no skill instructions changed.",
+          "sha256": "dfd13bab8dd5dffbc235fb00fcc965ad02bfd8580d1b877e8d96cfee38aa6109"
         }
       ]
     },
