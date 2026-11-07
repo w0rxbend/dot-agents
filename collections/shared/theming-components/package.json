@@ -25,10 +25,10 @@
   "author": "Anton Coleman",
   "license": "MIT",
   "dependencies": {
-    "style-dictionary": "^5.7.1"
+    "style-dictionary": "^5.8.0"
   },
   "devDependencies": {
-    "@types/node": "^26.6.5"
+    "@types/node": "^26.6.6"
   },
   "files": [
     "build/",
