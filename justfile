@@ -15,22 +15,6 @@ test:
 catalog:
     python3 scripts/catalog.py
 
-# Deliberately refresh the snapshot from recognized global roots
-import-skills *args:
-    python3 scripts/import_skills.py --replace "$@"
-
-# Record skills whose tree changed since review
-refresh-review:
-    python3 scripts/refresh_review.py
-
-# List the skills that still need review
-review:
-    python3 scripts/refresh_review.py --list
-
-# Mark skills reviewed: just mark-reviewed all-changed "what was read and why it is fine"
-mark-reviewed ids note:
-    python3 scripts/refresh_review.py --mark-reviewed "$1" --note "$2"
-
 # Regenerate install.conf.yaml
 render:
     ./install.sh render

@@ -9,7 +9,7 @@ those examples. Review current alerts and update dependencies before running an 
 in the snapshot does not mean its dependencies have been audited or upgraded.
 
 The initial scan included a critical advisory for `qdrant-client` in
-`collections/shared/using-vector-databases/examples/qdrant-python/requirements.txt` and additional
+`skills/data/using-vector-databases/examples/qdrant-python/requirements.txt` and additional
 alerts in several upstream Python and visualization examples. Their original files are retained
 as reference material. Unused flowrite development sources and fixtures are excluded from the
 snapshot and installation catalog.

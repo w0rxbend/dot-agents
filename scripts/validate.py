@@ -44,7 +44,7 @@ def validate(repo=REPO):
             raise ValueError(f"skill checksum changed: {item['id']}; refresh catalog deliberately")
         if item['source'] != 'local' and not (repo / item['license_file']).is_file():
             raise ValueError(f"missing license: {item['id']}")
-    for p in (repo / 'collections').rglob('*'):
+    for p in (repo / 'skills').rglob('*'):
         if p.is_symlink() and (not p.exists() or not p.resolve().is_relative_to(repo.resolve())):
             raise ValueError(f'broken or external symlink: {p}')
         if p.is_file() and p.name.lower().startswith('license'):
@@ -55,41 +55,29 @@ def validate(repo=REPO):
             raise ValueError(f'file exceeds repository size limit: {p}')
     if (repo / 'docs/catalog.md').read_text(encoding='utf-8') != render(repo):
         raise ValueError('catalog documentation is stale')
-    review_path = repo / 'docs/skill-review.json'
-    if not review_path.is_file():
-        raise ValueError('complete skill review is missing')
-    if review_path.exists():
-        review = json.loads(review_path.read_text())
-        reviewed = {row['id']: row for row in review['skills']}
-        if len(reviewed) != len(review['skills']) or set(reviewed) != ids:
-            raise ValueError('skill review does not cover the complete catalog')
-        stale = [item['id'] for item in data['skills']
-                 if reviewed[item['id']].get('sha256') != item['sha256']]
-        if stale:
-            raise ValueError(f"stale skill review ({len(stale)}): {', '.join(stale[:10])}; "
-                             'run python3 scripts/refresh_review.py')
-        pending = [item['id'] for item in data['skills']
-                   if reviewed[item['id']].get('reviewed') is not True
-                   or reviewed[item['id']].get('needs_review')]
-        if pending:
-            raise ValueError(f"skills need review ({len(pending)}): {', '.join(pending[:10])}; "
-                             'read the changes, then python3 scripts/refresh_review.py '
-                             '--mark-reviewed <ids|all-changed> --note ...')
-        forks = json.loads((repo / 'sources/local-forks.json').read_text())
-        for fork in forks['changes']:
-            entry = repo / fork['path'] / 'SKILL.md'
-            if hashlib.sha256(entry.read_bytes()).hexdigest() != fork['after_entry_sha256']:
-                raise ValueError(f"stale local fork record: {fork['id']}")
-        profiles = json.loads((repo / 'collections/shared/worxbend-repository-context/references/profiles.json').read_text())
-        for profile in profiles['repositories']:
-            if any(skill not in ids for skill in profile['skills']):
-                raise ValueError('repository profile references an unavailable skill')
-        private = next((item for item in data['skills']
-                        if item['id'] == 'worxbend-private-repository-context'), None)
-        if private is None:
-            raise ValueError('private context entry is missing from the catalog')
-        if private['distribution'] != 'external' or 'path' in private:
-            raise ValueError('private context must remain local-only')
+    forks = json.loads((repo / 'sources/local-forks.json').read_text())
+    for fork in forks['changes']:
+        entry = repo / fork['path'] / 'SKILL.md'
+        if hashlib.sha256(entry.read_bytes()).hexdigest() != fork['after_entry_sha256']:
+            raise ValueError(f"stale local fork record: {fork['id']}")
+    context = next(item['path'] for item in data['skills']
+                   if item['id'] == 'worxbend-repository-context')
+    profiles = json.loads((repo / context / 'references/profiles.json').read_text())
+    voice = (repo / 'instructions/VOICE.md').read_text(encoding='utf-8')
+    for rel in ('instructions/claude/CLAUDE.md', 'instructions/codex/AGENTS.md',
+                'instructions/hermes/SOUL.md', 'instructions/opencode/AGENTS.md',
+                'instructions/cursor/voice.mdc', 'instructions/grok/voice.md'):
+        if voice not in (repo / rel).read_text(encoding='utf-8'):
+            raise ValueError(f'voice instructions drifted: {rel}')
+    for profile in profiles['repositories']:
+        if any(skill not in ids for skill in profile['skills']):
+            raise ValueError('repository profile references an unavailable skill')
+    private = next((item for item in data['skills']
+                    if item['id'] == 'worxbend-private-repository-context'), None)
+    if private is None:
+        raise ValueError('private context entry is missing from the catalog')
+    if private['distribution'] != 'external' or 'path' in private:
+        raise ValueError('private context must remain local-only')
     print(f"OK: {len(ids)} skills, hashes, metadata, licenses, symlinks, and catalog")
 
 

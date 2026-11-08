@@ -11,18 +11,16 @@ only `SKILL.md`. Copies are deduplicated only when the skill name and entire fol
 Sources include Addy Osmani's agent-skills, agentic-awesome-skills (formerly antigravity-awesome-skills),
 ai-design-components, claude-code-templates, The Bushido Collective's Han, Caveman, dot-skills,
 Vercel skills, Asyraf Hussin's agent-skills, design-patterns-skill, GoF patterns, Samber's Go skills,
-ZIO skills, scala-zio-skills, Hermes Agent, Anthropic knowledge-work-plugins, Codex built-ins,
-explicitly MIT-licensed Render skills, ciembor's agent-rules-books, and dykyi-roman's awesome-claude-code.
+ZIO skills, scala-zio-skills, Matt Pocock's skills, ciembor's agent-rules-books, and
+dykyi-roman's awesome-claude-code. Codex, Hermes, Claude, and Render system skills are not included.
 
 Han uses **FSL-1.1-ALv2**, a source-available license with permitted-purpose and competing-use restrictions
 and a future Apache-2.0 grant. Read its included license before reusing those skills commercially.
 Any local skills with no recorded upstream are labeled `LicenseRef-Local`; no additional upstream
 license is inferred for them.
 
-The Anthropic engineering, design, and productivity plugin skill files were compared with their
-public `anthropics/knowledge-work-plugins` versions and matched byte for byte at import time.
-Restricted hosted skills and other packages without established redistribution permission are listed
-as `external`, with setup guidance in [docs/providers.md](docs/providers.md).
+The VirtusLab direct-style Scala skill and private repository context stay external.
+Setup for those two is in [docs/providers.md](docs/providers.md).
 
 ## Mill and VirtusLab Scala Stack
 

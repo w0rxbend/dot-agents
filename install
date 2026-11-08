@@ -1,0 +1,4 @@
+#!/bin/sh
+# Dotfiles-style entrypoint. dotbot-go does the linking; see install.sh.
+cd "$(dirname "$0")" || exit 1
+exec ./install.sh "$@"

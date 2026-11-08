@@ -140,6 +140,19 @@ class InstallerTests(unittest.TestCase):
             self.assertIn(f'~/{rel}/test', rendered[0])
         self.assertNotIn(str(self.root), rendered[0])
 
+    def test_reference_config_links_voice_instructions(self):
+        config = installer.reference_config()
+        self.assertIn('~/.claude/CLAUDE.md: instructions/claude/CLAUDE.md', config)
+        self.assertIn('~/.codex/AGENTS.md:', config)
+        self.assertIn('if: test -d "$HOME/.codex"', config)
+        self.assertIn('~/.hermes/SOUL.md:', config)
+        self.assertIn('if: test -d "$HOME/.hermes"', config)
+        self.assertIn('~/.config/opencode/AGENTS.md:', config)
+        self.assertIn('~/.cursor/rules/voice.mdc:', config)
+        self.assertIn('~/.grok/rules/voice.md:', config)
+        self.assertIn('if: test -d "$HOME/.grok"', config)
+        self.assertNotIn('if: test -d "$HOME/.claude"', config)
+
     def test_render_rejects_agent_selection(self):
         with self.assertRaises(SystemExit):
             self.invoke(command='render', agents='agents')

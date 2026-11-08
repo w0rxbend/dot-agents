@@ -84,7 +84,7 @@ def check(root):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--skills-root', type=Path, default=REPO / 'collections/shared')
+    parser.add_argument('--skills-root', type=Path, default=REPO / 'skills' / 'mill')
     args = parser.parse_args()
     check(args.skills_root.resolve())
 

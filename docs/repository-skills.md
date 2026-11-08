@@ -8,7 +8,6 @@ contains **586 skills: 500 included and 86 external**.
 The review updated 92 existing skills and added 25 public skills. Private repository
 context is installed locally as one additional external entry. Provider entrypoints
 were reviewed locally; their caches and restricted text remain under provider control.
-The [per-skill report](skill-review.json) records retained skills as well as changes.
 [Local fork records](../sources/local-forks.json) preserve attribution, reasons,
 affected files, and before/after entrypoint hashes.
 
@@ -23,7 +22,7 @@ python3 ~/.agents/skills/worxbend-repository-context/scripts/repo_profile.py --c
 python3 ~/.agents/skills/worxbend-repository-context/scripts/repo_profile.py --cwd . --json
 ```
 
-The [public index](../collections/shared/worxbend-repository-context/references/profiles.json)
+The [public index](../skills/domain/worxbend-repository-context/references/profiles.json)
 contains build files, CI paths, observations, source evidence, frontend dependency
 versions, and relevant installed skills for every public repository. Load only the
 matching record and references needed for the task. Unknown origins require checkout
@@ -89,49 +88,25 @@ Representative source scenarios supplement that baseline; not every source line
 was read.
 
 No repository application, device flasher, fleet deployment, or live integration
-was executed. Verification covers 41 installer/profile unit tests, 17 independent
-profile scenarios, cross-reviewed domain scenarios, isolated Effect date/email
-examples, and the six existing Mill fixtures. Linux/macOS CI check hashes, review
-coverage, local forks, routing, installation, and distribution boundaries.
+was executed. `just check` covers catalog hashes, the installer tests, and
+`install.conf.yaml`. CI installs into a temporary home. The six Mill fixtures run
+in a separate job. Linux and macOS CI check hashes, local forks, installation,
+and distribution boundaries.
 
-## Refresh the evidence
+## Refresh a profile
 
-Authenticate GitHub CLI first. Keep evidence outside the public clone. The collector
-reads configuration/documentation and never executes repository code. Cache reuse
-requires matching commit, visibility, metadata, budget, selection, and file/tree hashes.
-
-```sh
-cd ~/.dot-agents
-python3 scripts/review_repositories.py \
-  --output ~/.local/share/dot-agents/repository-review --max-files 100
-python3 scripts/build_repository_profiles.py \
-  --evidence ~/.local/share/dot-agents/repository-review
-```
-
-Review any remaining candidates and representative source. The exporter accepts
-`--analysis FILE ...` but copies only approved public fields with matching commits.
-Without analyses, it produces structure-only profiles; preserve or refresh the richer
-observations before publishing. Update installed source folders deliberately, then
-run `scripts/import_skills.py --replace` and `scripts/catalog.py`. Refresh review and
-fork records too: `just check` rejects stale hashes or incomplete coverage. Compare
-upstream updates with `sources/local-forks.json` before overwriting personalized forks.
+Read the repository's current build, instruction, and CI files, then update its record in
+`skills/domain/worxbend-repository-context/references/profiles.json`. Refresh the
+catalog checksum afterwards. `just check` rejects a stale hash and any profile skill that
+is not in `catalog.json`. Compare upstream updates with `sources/local-forks.json` before
+overwriting an adapted skill.
 
 ## Private context on another machine
 
 Private names and observations stay outside public Git and release archives.
-The generic private skill is external; its directories use `0700` and files `0600`.
-
-```sh
-python3 scripts/review_repositories.py \
-  --output ~/.local/share/dot-agents/repository-review \
-  --include-private --max-files 100
-python3 scripts/build_private_profile.py \
-  --evidence ~/.local/share/dot-agents/repository-review
-./install.sh --agents all --include-local
-```
-
-The generator refuses output inside the public checkout. It preserves customized
-context; `--replace` creates a backup. For a private origin, select its local index:
+The private skill is external. Copy it onto the other machine outside this clone, then
+link it with `./install.sh --agents all --include-local`. For a private origin, select
+its local index:
 
 ```sh
 python3 ~/.agents/skills/worxbend-repository-context/scripts/repo_profile.py \

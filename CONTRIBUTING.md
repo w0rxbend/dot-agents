@@ -1,13 +1,13 @@
 # Maintaining dot-agents
 
-Keep imported skill instructions unchanged unless intentionally maintaining a local fork.
-Preserve scripts, references, assets, license files, and relative paths. Catalog entries distinguish
-redistributable files from provider-managed metadata. New provider-managed skills must remain external.
+This repository holds the maintained skills, `justfile`, and `install.sh`. Do not vendor Codex,
+Hermes, Claude, or Render system skills. Preserve scripts, references, assets, license files, and
+relative paths inside a skill. Adapted skills keep their upstream license and a record in
+`sources/local-forks.json`.
 
 Run `just check` before pushing. Installer tests use temporary homes; never run CI installation tests
-against your real home directory. Refresh the inventory with `scripts/import_skills.py --replace` only
-after reviewing local snapshot edits and adding any new upstream license records. This rebuilds the
-repository's `collections/`, not your installed skill sources.
+against your real home directory. Edit skills in `skills/`, then refresh catalog hashes and the
+rendered installer config. Do not rebuild `skills/` by scanning agent skill directories.
 
 The readable catalog is generated with `python3 scripts/catalog.py`. Checksum changes require an
 intentional catalog refresh. Imported legacy names are retained even when they are not lowercase kebab case.
@@ -40,12 +40,10 @@ python3 scripts/package.py --version "$(cat VERSION)"
 ## Reviewed local forks and repository context
 
 Preserve intentional fork changes recorded in `sources/local-forks.json` when updating
-upstream sources. Record reasons, affected files, attribution, and entrypoint hashes.
-Update the complete `docs/skill-review.json` for new or modified catalog entries;
-validation checks coverage and current hashes. Keep optional invocation policies and
-license notices intact. Do not repair provider caches by editing them locally.
+an adapted skill. Record reasons, affected files, attribution, and entrypoint hashes.
+Validation checks those hashes and the catalog checksums. Keep optional invocation
+policies and license notices intact.
 
-Follow [the repository review guide](docs/repository-skills.md) to refresh profiles.
-Evidence and account analyses belong outside the public clone. Public export must
-select explicitly public records and match reviewed commits. Private context is an
-external local skill and never enters `collections/` or a release archive.
+Follow [the repository review guide](docs/repository-skills.md) when editing public
+repository profiles. Private context is an external local skill and never enters
+`skills/` or a release archive.

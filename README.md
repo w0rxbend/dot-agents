@@ -1,209 +1,142 @@
-# dot-agents
+# 🧠 dot-agents
+
+Personal skills for Claude, Codex, Hermes, OpenCode, Cursor, Grok, and the shared `~/.agents` root.
 
 [![CI](https://github.com/w0rxbend/dot-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/w0rxbend/dot-agents/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/w0rxbend/dot-agents)](https://github.com/w0rxbend/dot-agents/releases)
 
-My global agent skills, with a portable installer, source inventory, and versioned releases.
-Supporting scripts, references, and assets are preserved alongside each skill.
-Browse the [full catalog](docs/catalog.md), the [Mill/VSS skills and setup guide](docs/mill-skills.md),
-the [repository adaptation and review guide](docs/repository-skills.md),
-or the [code quality and design patterns guide](docs/skill-discovery.md).
+One clone. [dotbot-go](https://github.com/worxbend/dotbot-go) symlinks each skill into the agents that are already on the machine. This repo stays the source of truth.
 
-## Clone and install
+## ⚡ Install
 
-Requires **Git, Python 3.10+, and curl** on Linux or macOS. No Python packages, Node.js, or sudo are needed.
+Git and Python 3.10+ on Linux or macOS. No extra Python packages and no sudo.
 
 ```sh
 git clone https://github.com/w0rxbend/dot-agents.git ~/.dot-agents
-cd ~/.dot-agents
-./install.sh
-./install.sh check
+~/.dot-agents/install
 ```
 
-If no [dotbot-go](https://github.com/worxbend/dotbot-go) binary is on `PATH` (set `DOTBOT=/path/to/dotbot`
-to use a specific one), the installer downloads the pinned release (v0.4.2) into `~/.local/bin/dotbot`
-and verifies its SHA-256 before using it. It then plans the links for the selected agents from
-`catalog.json`, renders exactly those links into a temporary dotbot-go configuration, and applies it
-with force linking: each included skill becomes a symlink from an agent's global skills directory into
-this repository, which is the source of truth. Real files, directories, and symlinks you made yourself
-that occupy a link destination are moved to `<home>/.local/share/dot-agents/backup/<timestamp>/` first
-(override with `DOTAGENTS_BACKUP`); nothing is silently deleted. Links into this repository that fall
-outside the current install scope (for example after a scope change) are removed. Restart your agents
-after installation.
+That is the whole install. `install` calls `install.sh`, which plans the links and hands them to dotbot-go. If `dotbot` is not on `PATH`, the script downloads the pinned [dotbot-go v0.4.2](https://github.com/worxbend/dotbot-go/releases/tag/v0.4.2) binary into `~/.local/bin/dotbot` and checks its SHA-256. Set `DOTBOT` to use another binary.
 
-By default the installer links `~/.agents/skills` and `~/.claude/skills`, plus every supported agent
-whose configuration directory already exists (Codex, Pi, Hermes, Cursor, Gemini, Copilot, OpenCode).
-Not every collection goes to every agent; see [Install scope](#install-scope).
-
-The committed [`install.conf.yaml`](install.conf.yaml) is a reference rendering that does not depend on
-the machine: it lists every agent, links `~/.agents/skills` and `~/.claude/skills` unconditionally, and
-gates every other agent with `if: test -d "$HOME/<agent dir>"`. `./install.sh render` regenerates it
-after a catalog change and `./install.sh render --check` verifies it; installing never rewrites it.
-
-For the official VirtusLab Scala skill with Mill preferred, restore its pinned upstream source
-and link it into the selected agents:
-
-```sh
-python3 scripts/install_vss.py
-./install.sh install --agents all --include-local
-./install.sh check --agents all --include-local
-```
-
-See [Mill/VSS setup](docs/mill-skills.md) for the 14 focused skills, examples, and version policy.
-
-`--agents` (a comma-separated list, or `all`) installs exactly those agents and creates their
-directories even when the agent is not installed yet. To do that for every supported agent:
-
-```sh
-./install.sh install --agents all
-./install.sh check --agents all
-```
-
-| Agent | Global skills directory |
-| --- | --- |
-| Shared (`agents`; read by Codex and Pi) | `~/.agents/skills` |
-| Claude Code (`claude`) | `~/.claude/skills` |
-| Codex (`codex`) | `~/.codex/skills` |
-| Pi (`pi`) | `~/.pi/agent/skills` |
-| Cursor | `~/.cursor/skills` |
-| Gemini CLI | `~/.gemini/skills` |
-| GitHub Copilot CLI | `~/.copilot/skills` |
-| OpenCode | `~/.config/opencode/skills` |
-| Hermes | `~/.hermes/skills` |
-
-The Codex and Claude Code locations follow their [Codex](https://learn.chatgpt.com/docs/build-skills)
-and [Claude Code](https://code.claude.com/docs/en/skills) documentation. Other targets provide conventional
-skills directories; discovery and required tools depend on each agent's version and configuration.
-Cowork and hosted sessions use their provider's skill settings rather than these local directories.
-Agents other than Shared and Claude Code are linked by default only when their directory exists
-(`~/.codex`, `~/.pi/agent`, `~/.hermes`, `~/.cursor`, `~/.gemini`, `~/.copilot`, `~/.config/opencode`).
-
-### Install scope
-
-`install.sh` (`COLLECTION_AGENTS` and `PI_SCOPED_COLLECTIONS`) limits some collections to some agents:
-
-| Collection | Installed into |
-| --- | --- |
-| `hermes` | Hermes only (`~/.hermes/skills`) |
-| `codex-system` | Codex only (`~/.codex/skills`) |
-| `claude-design`, `claude-engineering`, `claude-productivity` | every agent except Claude Code, which already loads them as plugins |
-| any collection other than `shared`, `agent-squad`, `zio-skills`, `scala-zio-skills` | not `~/.agents/skills` or `~/.pi/agent/skills`: Pi reads both and drops same-named skills |
-| everything else | every selected agent |
-
-The rules combine: the Claude plugin collections, for example, go to Codex, Hermes, Cursor, Gemini,
-Copilot, and OpenCode. Codex therefore sees the shared collections through `~/.agents/skills` and the
-rest through `~/.codex/skills` only when `~/.codex` exists or `--agents` includes `codex`.
-
-## Bootstrap migration
-
-For a machine whose skills directories currently point at `~/.ubuntu-bootstrap/dotfiles/agents/skills`,
-update the dotfiles link configuration first so it does not restore the old root symlinks, then:
-
-```sh
-./install.sh install --dry-run
-./install.sh install
-./install.sh check
-```
-
-The previous collection stays at its original path; a conflicting root symlink is moved into the
-timestamped backup directory.
-
-## Select agents
-
-```sh
-./install.sh install --agents agents,claude,hermes --dry-run
-```
-
-Use catalog **install IDs** (`docs/catalog.md`), not upstream display names. Namespaced IDs preserve
-different implementations with the same name. Their original frontmatter stays intact, so agents
-may display multiple skills with the same name; choose their directory-qualified entry.
-
-Keep the clone in place: installed symlinks point to it. Moving the clone requires rerunning
-`install.sh`; it refreshes every link.
-
-## Provider-managed skills
-
-The inventory also records installed hosted and bundled skills that cannot be redistributed or have
-no established redistribution permission. Their files are excluded from this public repository.
-Use the [provider setup guide](docs/providers.md) to restore them on a new machine.
-On a machine where their original files are already present, you can also link them locally:
-
-```sh
-./install.sh install --include-local --dry-run
-./install.sh install --include-local
-./install.sh check --include-local
-```
-
-This links existing files; it does not copy, download, enable plugins, or configure accounts.
-Plugin-specific connectors, credentials, runtime packages, and tools must be installed separately.
-Individual included skills can also require optional tools described in their own `SKILL.md`.
-
-## Update and uninstall
+Update later:
 
 ```sh
 cd ~/.dot-agents
 git pull --ff-only
-./install.sh
-./install.sh check
-./install.sh uninstall --dry-run
-./install.sh uninstall
+./install
 ```
 
-Pass the same `--agents` and `--include-local` options used for installation when updating or checking.
-Uninstall removes every symlink in the selected agents' skills directories that points into this
-repository (including dangling ones), plus, with `--include-local`, the links to the local
-provider-managed sources. It leaves your own files, directories, and other links untouched.
+A real file that sits on a link destination is moved to `~/.local/share/dot-agents/backup/<timestamp>/` first. Override that directory with `DOTAGENTS_BACKUP`. Restart the agents after install.
 
-## Install a release
-
-Download `dot-agents-VERSION.tar.gz` and `SHA256SUMS` from [Releases](https://github.com/w0rxbend/dot-agents/releases).
-For version 1.2.0, with GitHub CLI installed:
+Check the links, or preview without writing:
 
 ```sh
-gh release download v1.2.0 --repo w0rxbend/dot-agents --pattern 'dot-agents-*.tar.gz' --pattern SHA256SUMS
-sha256sum -c SHA256SUMS                 # macOS: shasum -a 256 -c SHA256SUMS
-tar -xzf dot-agents-1.2.0.tar.gz
-cd dot-agents-1.2.0
-./install.sh install --agents all
+./install check
+./install install --dry-run
 ```
 
-An extracted release works without Git. To update it, extract the next release to a permanent
-directory and rerun its installer.
-
-## Maintenance
-
-Maintenance tasks run through [just](https://github.com/casey/just) (`just --list` shows every recipe):
+Remove the links this repo created:
 
 ```sh
-just check                              # validate snapshot, test installer, verify rendered config
-just catalog                            # regenerate the readable catalog
-just import-skills                      # deliberately refresh from recognized global roots
-just refresh-review                     # record skills whose tree changed since review
-just review                             # list the skills that still need review
-just mark-reviewed all-changed "what was read and why it is fine"
-just render                             # regenerate install.conf.yaml
+./install uninstall
 ```
 
-Each row in `docs/skill-review.json` records the tree `sha256` it was reviewed at. `refresh_review.py`
-carries matching rows forward and marks changed and new skills `reviewed: false` with a `needs_review`
-reason; `validate.py` (and so `just check`) fails until a maintainer has read them and run
-`--mark-reviewed` with comma-separated install IDs or `all-changed` plus a `--note`, which is kept in
-the row's `review_log`.
+## 🗣️ Voice
 
-The import builds the new snapshot in `.collections.import/` and swaps it in only when it is complete.
-Global roots that are links into this repository (as after `./install.sh`) are skipped, an import that
-finds no vendorable skills keeps the existing snapshot, and one that would drop more than half of the
-vendored skills is refused unless `--allow-shrink` is passed.
+Always on. The linked files are a skill router. Every answer, PR description, review comment, code comment, commit message, and other agent output uses three skills together:
 
-The import command uses `~/.agents/skills`, `~/.codex/skills` (including the bundled `.system` and
-plugin caches), `~/.pi/agent/skills`, Claude synced/plugin roots, and `~/.hermes/skills`.
+| Skill | What it controls |
+| --- | --- |
+| 🎯 `i-have-adhd` | Shape. Next action first, numbered steps, short lists. |
+| 🪨 `caveman` | Words. Answer first, no fluff, no emoji. |
+| ✂️ `ponytail` | Size. Smallest complete change, plus what was skipped. |
 
-[CI](.github/workflows/ci.yml) validates checksums and metadata, tests conflict handling, and installs
-the full collection in temporary homes on Linux and macOS. Dependabot updates pinned Actions.
-[Tag releases](.github/workflows/release.yml) produce a versioned archive, SHA-256 checksums,
-and a GitHub release. See [CONTRIBUTING.md](CONTRIBUTING.md) for the release procedure.
+Their own "wait for the slash command" gates do not apply. Any code edit also loads `code-complete`, `clean-code-guard`, and the review and optimization skills named in the router. `./install` links:
 
-Repository scripts and documentation use MIT. Imported material retains its own terms, including
-MIT, Apache-2.0, and FSL-1.1-ALv2. See [THIRD_PARTY.md](THIRD_PARTY.md).
-Imported example applications can have flagged dependencies; review [SECURITY.md](SECURITY.md)
-before running their helper scripts or installing their packages.
+| Agent | File |
+| --- | --- |
+| Claude Code | `~/.claude/CLAUDE.md` |
+| Codex | `~/.codex/AGENTS.md` |
+| Hermes | `~/.hermes/SOUL.md` |
+| OpenCode | `~/.config/opencode/AGENTS.md` |
+| Cursor | `~/.cursor/rules/voice.mdc` |
+| Grok | `~/.grok/rules/voice.md` |
+
+Claude is always linked. The others link when that agent's config directory already exists (`~/.codex`, `~/.hermes`, `~/.config/opencode`, `~/.cursor`, `~/.grok`). Codex reads `AGENTS.override.md` instead of `AGENTS.md` when the override file exists. This installer does not write the override. An existing Hermes `SOUL.md` is backed up, then replaced with a symlink.
+
+The shared text is [`instructions/VOICE.md`](instructions/VOICE.md).
+
+## 📚 Skills
+
+348 skills live under [`skills/`](skills). Two more stay off Git and are linked only with `--include-local`. The full table is [`docs/catalog.md`](docs/catalog.md).
+
+| | Group | What is in it |
+| --- | --- | --- |
+| 🗣️ | [`voice`](skills/voice) | ADHD, caveman, ponytail, and the caveman companions. 14 skills. |
+| 🧰 | [`workflow`](skills/workflow) | How to plan, test, review, commit, and write. 43 skills. |
+| 🏗️ | [`architecture`](skills/architecture) | System shape, patterns, GRASP, sagas. 9 skills. |
+| 🖥️ | [`backend`](skills/backend) | APIs, CLIs, service structure. 9 skills. |
+| 🤖 | [`agents`](skills/agents) | Agent memory, traces, and scheduling. 4 skills. |
+| 📈 | [`ops`](skills/ops) | Performance, incidents, app observability. 6 skills. |
+| 🔐 | [`security`](skills/security) | App and infra hardening, audits, compliance. 12 skills. |
+| 🗄️ | [`data`](skills/data) | Databases, pipelines, analytics. 11 skills. |
+| ☁️ | [`platforms`](skills/platforms) | AWS, Azure, GCP, Docker, Kubernetes, GitHub Actions. 26 skills. |
+| 🎨 | [`frontend`](skills/frontend) | UI, Astro, dashboards, accessibility. 19 skills. |
+| 🎮 | [`pixi`](skills/pixi) | PixiJS v8. 9 skills. |
+| 🐹 | [`go`](skills/go) | Go modules, layout, CI, libraries. 46 skills. |
+| ☕ | [`scala`](skills/scala) | Scala collections, types, functional patterns. 9 skills. |
+| 🧱 | [`mill`](skills/mill) | Mill builds, including VirtusLab Scala Stack. 14 skills. |
+| 🔤 | [`languages`](skills/languages) | Java, Kotlin, Python, Lua, Nim, Rust, Effect, fp-ts, and more. 44 skills. |
+| 🏠 | [`domain`](skills/domain) | worxbend repo context and project-specific skills. 15 skills. |
+| 🧑 | [`mattpocock`](skills/mattpocock) | Adapted Matt Pocock skills. 29 skills. |
+| 📗 | [`zio`](skills/zio) | ZIO docs skills and the ZIO HTTP / core routers. 28 skills. |
+| 🧬 | [`scala-zio`](skills/scala-zio) | Direct ZIO reference pack. 1 skill. |
+
+Matt Pocock's `code-review` shares a name with the workflow skill. It is linked into Claude, Codex, Hermes, Cursor, Gemini, Copilot, and OpenCode. It is not linked into `~/.agents/skills` or Pi, because those hosts drop one of the two.
+
+## 🔌 Where skills land
+
+| Agent | Skills directory |
+| --- | --- |
+| Shared, also read by Codex and Pi | `~/.agents/skills` |
+| Claude Code | `~/.claude/skills` |
+| Codex | `~/.codex/skills` |
+| Pi | `~/.pi/agent/skills` |
+| Hermes | `~/.hermes/skills` |
+| Cursor | `~/.cursor/skills` |
+| Gemini CLI | `~/.gemini/skills` |
+| GitHub Copilot CLI | `~/.copilot/skills` |
+| OpenCode | `~/.config/opencode/skills` |
+
+Default install links `~/.agents/skills` and `~/.claude/skills`, plus every other agent whose config directory already exists. Force a set with `./install install --agents all` or `./install install --agents claude,hermes,grok`. `grok` links the voice rule only. Grok reads skills from `~/.agents/skills`.
+
+Codex, Hermes, Claude, and Render system skills are not in this repo. They stay with the agent that ships them.
+
+## 📦 Local-only skills
+
+VirtusLab direct-style Scala, and private repository context, stay off Git.
+
+```sh
+python3 scripts/install_vss.py
+./install install --include-local
+```
+
+`--include-local` only links files that are already on the machine. Details: [`docs/providers.md`](docs/providers.md). Mill setup: [`docs/mill-skills.md`](docs/mill-skills.md).
+
+## 🔧 Maintain
+
+```sh
+just check
+```
+
+That validates the catalog, runs the installer tests, and checks `install.conf.yaml`.
+
+Add or edit a skill under `skills/<group>/<name>/`. Then:
+
+```sh
+python3 scripts/catalog.py
+./install.sh render
+just check
+```
+
+Do not copy another agent's bundled skills into this repo. Adapted skills keep their upstream license. `sources/local-forks.json` records the ones that were changed from the original.

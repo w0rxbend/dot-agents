@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Install, check, and remove global agent skills with dotbot-go symlinks.
 
-This repository is the source of truth for the vendored skills in collections/.
+This repository is the source of truth for the vendored skills in skills/.
 `install.sh install` plans link rows from catalog.json for the selected agents,
 renders exactly those rows into a temporary dotbot-go configuration, and applies
-it. Real files, directories and foreign symlinks at a link destination are moved
-to a timestamped backup before dotbot's force linking replaces them.
+it. The same run links the global voice instructions. Real files, directories
+and foreign symlinks at a link destination are moved to a timestamped backup
+before dotbot's force linking replaces them.
 
 The committed `install.conf.yaml` is a home-independent reference rendering for
 every supported agent (optional agents gated by `if: test -d`); `render` writes
@@ -62,6 +63,19 @@ COLLECTION_AGENTS = {
     'codex-system': frozenset({'codex'}),
     **{name: frozenset(AGENTS) - {'claude'} for name in CLAUDE_PLUGIN_COLLECTIONS},
 }
+# Global voice files. Claude is always linked. The others link when their
+# config directory exists, or when --agents names them (including grok).
+# Codex reads AGENTS.md unless AGENTS.override.md is present; that override
+# is never written here.
+INSTRUCTIONS = (
+    ('claude', '.claude/CLAUDE.md', 'instructions/claude/CLAUDE.md', None),
+    ('codex', '.codex/AGENTS.md', 'instructions/codex/AGENTS.md', '.codex'),
+    ('hermes', '.hermes/SOUL.md', 'instructions/hermes/SOUL.md', '.hermes'),
+    ('opencode', '.config/opencode/AGENTS.md', 'instructions/opencode/AGENTS.md', '.config/opencode'),
+    ('cursor', '.cursor/rules/voice.mdc', 'instructions/cursor/voice.mdc', '.cursor'),
+    ('grok', '.grok/rules/voice.md', 'instructions/grok/voice.md', '.grok'),
+)
+INSTRUCTION_KEYS = {item[0] for item in INSTRUCTIONS}
 # The committed reference config covers every agent; it never depends on the
 # machine that rendered it.
 RENDER_HOME = Path('/nonexistent-home')
@@ -87,10 +101,10 @@ def select_agents(requested, home):
         return list(AGENTS)
     if requested:
         names = requested.split(',')
-        unknown = set(names) - set(AGENTS)
+        unknown = set(names) - set(AGENTS) - INSTRUCTION_KEYS
         if unknown:
             raise SystemExit('unknown agents: ' + ', '.join(sorted(unknown)))
-        return list(dict.fromkeys(names))
+        return [name for name in dict.fromkeys(names) if name in AGENTS]
     names = list(REQUIRED)
     names += [name for name, rel in AGENTS.items()
               if name not in names and (home / rel).parent.is_dir()]
@@ -123,6 +137,19 @@ def local_source(item, home):
     return None
 
 
+def select_instructions(requested, home, only_present=False):
+    """Return voice-instruction rows: (key, dest relative to home, source, gate dir)."""
+    chosen = []
+    for key, dest, source, gate in INSTRUCTIONS:
+        if only_present and not (REPO / source).is_file():
+            continue
+        if requested == 'all' or (requested and key in requested.split(',')):
+            chosen.append((key, dest, source, gate))
+        elif not requested and (gate is None or (home / gate).is_dir()):
+            chosen.append((key, dest, source, gate))
+    return chosen
+
+
 def plan(skills, agent_names, home, include_local=False):
     """Return link rows: (agent, destination Path, source, local_only)."""
     rows = []
@@ -143,7 +170,7 @@ def plan(skills, agent_names, home, include_local=False):
     return rows
 
 
-def render_config(rows, gated=True):
+def render_config(rows, gated=True, instructions=()):
     """Render the dotbot-go configuration for the given link rows.
 
     gated=True (the committed reference) installs optional agents only when
@@ -168,12 +195,20 @@ def render_config(rows, gated=True):
                       f'      if: test -d "$HOME/{parent}"']
         else:
             lines.append(f'    {target}: {source}')
+    for _, dest, source, gate in instructions:
+        target = f'~/{dest}'
+        if gated and gate:
+            lines += [f'    {target}:', f'      path: {source}',
+                      f'      if: test -d "$HOME/{gate}"']
+        else:
+            lines.append(f'    {target}: {source}')
     return '\n'.join(lines) + '\n'
 
 
 def reference_config():
     """The committed install.conf.yaml: every agent, vendored skills, no host state."""
-    return render_config(plan(load_catalog(), list(AGENTS), RENDER_HOME), gated=True)
+    return render_config(plan(load_catalog(), list(AGENTS), RENDER_HOME), gated=True,
+                         instructions=select_instructions('all', RENDER_HOME))
 
 
 def find_dotbot():
@@ -238,11 +273,12 @@ def ensure_dotbot():
     raise SystemExit('could not obtain a dotbot-go binary; set DOTBOT=/path/to/dotbot')
 
 
-def run_dotbot(dotbot, rows, home, dry_run=False):
+def run_dotbot(dotbot, rows, home, dry_run=False, instructions=()):
     """Apply a configuration rendered from exactly these rows (never the committed file)."""
     with tempfile.TemporaryDirectory(prefix='dot-agents-') as temp:
         config = Path(temp) / 'install.conf.yaml'
-        config.write_text(render_config(rows, gated=False), encoding='utf-8')
+        config.write_text(render_config(rows, gated=False, instructions=instructions),
+                          encoding='utf-8')
         command = [str(dotbot), '--base-directory', str(REPO), '--config-file', str(config)]
         if dry_run:
             command.append('--dry-run')
@@ -273,7 +309,7 @@ def is_ours(dest, source):
     return dest.exists() and dest.resolve() == source_path.resolve()
 
 
-def backup_conflicts(rows, home, dry_run=False):
+def backup_conflicts(rows, home, dry_run=False, extras=()):
     """Move anything at a link destination that is not our link into a backup.
 
     dotbot's force/relink would otherwise delete real files and directories and
@@ -291,6 +327,15 @@ def backup_conflicts(rows, home, dry_run=False):
             moved_roots.add(root)
     for _, dest, source, _ in rows:
         if dest.parent in moved_roots or is_ours(dest, source):
+            continue
+        if dest.is_symlink():
+            moved.append(dest)
+        elif dest.exists():
+            if dest.resolve().is_relative_to(REPO):
+                raise SystemExit(f'refusing to back up {dest}: it resolves into {REPO}')
+            moved.append(dest)
+    for dest, source in extras:
+        if is_ours(dest, source):
             continue
         if dest.is_symlink():
             moved.append(dest)
@@ -354,24 +399,42 @@ def command_render(args):
         print(f'wrote install.conf.yaml ({config.count(chr(10) + "    ~/")} links)')
 
 
+def instruction_extras(requested, home):
+    """Absolute destinations for voice files that exist in this checkout."""
+    return [(home / dest, source)
+            for _, dest, source, _ in select_instructions(requested, home, only_present=True)]
+
+
 def command_install(args):
     agent_names = select_agents(args.agents, args.home)
     rows = plan(load_catalog(), agent_names, args.home, include_local=args.include_local)
-    if not rows:
+    instructions = select_instructions(args.agents, args.home, only_present=True)
+    if not rows and not instructions:
         raise SystemExit('nothing to install')
     dotbot = ensure_dotbot()
-    backup_conflicts(rows, args.home, dry_run=args.dry_run)
+    extras = [(args.home / dest, source) for _, dest, source, _ in instructions]
+    backup_conflicts(rows, args.home, dry_run=args.dry_run, extras=extras)
     prune_stale(rows, agent_names, args.home, dry_run=args.dry_run)
-    run_dotbot(dotbot, rows, args.home, dry_run=args.dry_run)
-    print(f'{"would install" if args.dry_run else "installed"} {len(rows)} links via {dotbot}')
+    run_dotbot(dotbot, rows, args.home, dry_run=args.dry_run, instructions=instructions)
+    total = len(rows) + len(instructions)
+    print(f'{"would install" if args.dry_run else "installed"} {total} links via {dotbot}')
 
 
 def command_check(args):
     agent_names = select_agents(args.agents, args.home)
     rows = plan(load_catalog(), agent_names, args.home, include_local=args.include_local)
+    instructions = select_instructions(args.agents, args.home, only_present=True)
     problems = []
     for _, dest, source, _ in rows:
         source_path = Path(source) if os.path.isabs(source) else (REPO / source)
+        if not dest.is_symlink():
+            problems.append(f'missing link: {dest}')
+        elif not dest.exists():
+            problems.append(f'broken link: {dest} -> {os.readlink(dest)}')
+        elif dest.resolve() != source_path.resolve():
+            problems.append(f'changed link: {dest} -> {os.readlink(dest)}')
+    for dest, source in instruction_extras(args.agents, args.home):
+        source_path = REPO / source
         if not dest.is_symlink():
             problems.append(f'missing link: {dest}')
         elif not dest.exists():
@@ -382,8 +445,9 @@ def command_check(args):
     if problems:
         raise SystemExit('\n'.join(problems[:10]) +
                          (f'\n... and {len(problems) - 10} more' if len(problems) > 10 else ''))
-    run_dotbot(ensure_dotbot(), rows, args.home, dry_run=True)
-    print(f'OK: {len(rows)} links across {len(set(a for a, _, _, _ in rows))} agent(s)')
+    run_dotbot(ensure_dotbot(), rows, args.home, dry_run=True, instructions=instructions)
+    agents = {a for a, _, _, _ in rows}
+    print(f'OK: {len(rows) + len(instructions)} links across {len(agents)} agent(s)')
 
 
 def command_uninstall(args):
@@ -393,6 +457,8 @@ def command_uninstall(args):
     # an older install scope, plus local-only links to their planned source.
     targets = {link for link in stale_links([], agent_names, args.home)}
     targets |= {dest for _, dest, source, local in rows if local and is_ours(dest, source)}
+    targets |= {dest for dest, source in instruction_extras(args.agents, args.home)
+                if dest.is_symlink() and is_ours(dest, source)}
     for link in sorted(targets):
         if not args.dry_run:
             link.unlink()

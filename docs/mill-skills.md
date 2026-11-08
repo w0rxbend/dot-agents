@@ -35,22 +35,22 @@ The new skills are available on the next agent turn; restart an agent if it cach
 
 | Skill | Guidance |
 | --- | --- |
-| [mill-project-models](../collections/shared/mill-project-models/SKILL.md) | Declarative YAML, single-file scripts, programmable builds; when to use and change each |
-| [mill-cli-and-ide](../collections/shared/mill-cli-and-ide/SKILL.md) | Launcher, flags, queries, headers, IDE/BSP, Maven/Gradle/sbt migration |
-| [mill-jvm-modules](../collections/shared/mill-jvm-modules/SKILL.md) | One Scala + Java + Kotlin build, interop boundaries, source roots and JVM targets |
-| [mill-dependencies-and-toolchains](../collections/shared/mill-dependencies-and-toolchains/SKILL.md) | Dependency scopes, BOMs, Scala cross artifacts, private repos, compiler/JDK versions |
-| [mill-build-logic](../collections/shared/mill-build-logic/SKILL.md) | Tracked tasks, code generation, resources, output ownership and task lifetimes |
-| [mill-monorepo](../collections/shared/mill-monorepo/SKILL.md) | Shared traits, module ownership, multifile builds, cross matrices, selective CI and precompilation |
-| [mill-testing](../collections/shared/mill-testing/SKILL.md) | Runners, discovery, fixtures, integration suites and concurrency |
-| [mill-linting](../collections/shared/mill-linting/SKILL.md) | Format versus check, Scala/Java/Kotlin analyzers, coverage and API compatibility |
-| [mill-packaging-publishing](../collections/shared/mill-packaging-publishing/SKILL.md) | Assemblies, native images, containers, coordinates/POMs and releases |
-| [mill-scala-platforms](../collections/shared/mill-scala-platforms/SKILL.md) | Scala.js, Scala Native, web resources, Spark and cross-platform variants |
-| [mill-plugins](../collections/shared/mill-plugins/SKILL.md) | Imports, contrib/third-party integrations, workers, meta-build and plugin testing |
-| [mill-performance](../collections/shared/mill-performance/SKILL.md) | Evaluation phases, caching, parallelism, process architecture, sandbox and diagnostics |
-| [mill-polyglot](../collections/shared/mill-polyglot/SKILL.md) | Python, JS/TypeScript, Groovy and experimental Android integration |
-| [mill-vss](../collections/shared/mill-vss/SKILL.md) | VSS/Ox/synchronous Tapir with Mill preferred and starter configuration translation |
+| [mill-project-models](../skills/mill/mill-project-models/SKILL.md) | Declarative YAML, single-file scripts, programmable builds; when to use and change each |
+| [mill-cli-and-ide](../skills/mill/mill-cli-and-ide/SKILL.md) | Launcher, flags, queries, headers, IDE/BSP, Maven/Gradle/sbt migration |
+| [mill-jvm-modules](../skills/mill/mill-jvm-modules/SKILL.md) | One Scala + Java + Kotlin build, interop boundaries, source roots and JVM targets |
+| [mill-dependencies-and-toolchains](../skills/mill/mill-dependencies-and-toolchains/SKILL.md) | Dependency scopes, BOMs, Scala cross artifacts, private repos, compiler/JDK versions |
+| [mill-build-logic](../skills/mill/mill-build-logic/SKILL.md) | Tracked tasks, code generation, resources, output ownership and task lifetimes |
+| [mill-monorepo](../skills/mill/mill-monorepo/SKILL.md) | Shared traits, module ownership, multifile builds, cross matrices, selective CI and precompilation |
+| [mill-testing](../skills/mill/mill-testing/SKILL.md) | Runners, discovery, fixtures, integration suites and concurrency |
+| [mill-linting](../skills/mill/mill-linting/SKILL.md) | Format versus check, Scala/Java/Kotlin analyzers, coverage and API compatibility |
+| [mill-packaging-publishing](../skills/mill/mill-packaging-publishing/SKILL.md) | Assemblies, native images, containers, coordinates/POMs and releases |
+| [mill-scala-platforms](../skills/mill/mill-scala-platforms/SKILL.md) | Scala.js, Scala Native, web resources, Spark and cross-platform variants |
+| [mill-plugins](../skills/mill/mill-plugins/SKILL.md) | Imports, contrib/third-party integrations, workers, meta-build and plugin testing |
+| [mill-performance](../skills/mill/mill-performance/SKILL.md) | Evaluation phases, caching, parallelism, process architecture, sandbox and diagnostics |
+| [mill-polyglot](../skills/mill/mill-polyglot/SKILL.md) | Python, JS/TypeScript, Groovy and experimental Android integration |
+| [mill-vss](../skills/mill/mill-vss/SKILL.md) | VSS/Ox/synchronous Tapir with Mill preferred and starter configuration translation |
 
-The [full coverage map](../collections/shared/mill-project-models/references/coverage.md)
+The [full coverage map](../skills/mill/mill-project-models/references/coverage.md)
 addresses every requested documentation area and links the official sources.
 [The research manifest](mill-research.json) records 129 retained primary sources from 132
 fetches, including stable-version checks and excluding alternate-root/redirect duplicates.
@@ -62,12 +62,12 @@ the examples use stable **1.1.10**, which supports all three project models.
 
 | Example | What it proves |
 | --- | --- |
-| [Declarative](../collections/shared/mill-project-models/assets/declarative/build.mill.yaml) | Scala YAML settings compile and run |
-| [Single-file script](../collections/shared/mill-project-models/assets/script/Hello.scala) | Code and `//\|` configuration run as one Mill script |
-| [Programmable generation](../collections/shared/mill-build-logic/assets/codegen/build.mill) | Tracked input produces Java code, remains cached, and invalidates after a change |
-| [Mixed JVM](../collections/shared/mill-jvm-modules/assets/mixed-jvm/build.mill) | Java API → Kotlin implementation → Scala service → Java application, interop test and executable assembly |
-| [Multifile monorepo](../collections/shared/mill-monorepo/assets/multi-file/build.mill) | The same graph split into root conventions and module-owned `package.mill` files |
-| [VSS/Ox](../collections/shared/mill-vss/assets/ox-app/build.mill) | Scala 3 / Java 25 / Ox application starts through Mill |
+| [Declarative](../skills/mill/mill-project-models/assets/declarative/build.mill.yaml) | Scala YAML settings compile and run |
+| [Single-file script](../skills/mill/mill-project-models/assets/script/Hello.scala) | Code and `//\|` configuration run as one Mill script |
+| [Programmable generation](../skills/mill/mill-build-logic/assets/codegen/build.mill) | Tracked input produces Java code, remains cached, and invalidates after a change |
+| [Mixed JVM](../skills/mill/mill-jvm-modules/assets/mixed-jvm/build.mill) | Java API → Kotlin implementation → Scala service → Java application, interop test and executable assembly |
+| [Multifile monorepo](../skills/mill/mill-monorepo/assets/multi-file/build.mill) | The same graph split into root conventions and module-owned `package.mill` files |
+| [VSS/Ox](../skills/mill/mill-vss/assets/ox-app/build.mill) | Scala 3 / Java 25 / Ox application starts through Mill |
 
 Copy an asset directory to a project and add the official Mill 1.1.10 bootstrap launcher,
 as explained by `mill-cli-and-ide`. Example build headers explicitly use a locally installed
