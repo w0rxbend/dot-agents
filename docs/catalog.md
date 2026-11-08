@@ -1,6 +1,6 @@
 # Skill catalog
 
-350 unique installed skills: 348 included, 2 external (provider-managed, direct-source, or local-only).
+354 unique installed skills: 352 included, 2 external (provider-managed, direct-source, or local-only).
 
 Install IDs keep same-named skills from different collections in separate directories. The upstream `name` in each skill remains unchanged.
 
@@ -56,6 +56,7 @@ Install IDs keep same-named skills from different collections in separate direct
 | `clean-code-guard` | clean-code-guard | shared | MIT | [SKILL.md](../skills/workflow/clean-code-guard/SKILL.md) |
 | `code-audit` | code-audit | shared | MIT | [SKILL.md](../skills/security/code-audit/SKILL.md) |
 | `code-complete` | code-complete | shared | MIT | [SKILL.md](../skills/workflow/code-complete/SKILL.md) |
+| `code-perfection` | code-perfection | shared | MIT | [SKILL.md](../skills/workflow/code-perfection/SKILL.md) |
 | `code-refactoring-tech-debt` | code-refactoring-tech-debt | shared | MIT | [SKILL.md](../skills/workflow/code-refactoring-tech-debt/SKILL.md) |
 | `code-review` | code-review | shared | FSL-1.1-ALv2 | [SKILL.md](../skills/workflow/code-review/SKILL.md) |
 | `code-review-and-quality` | code-review-and-quality | shared | MIT | [SKILL.md](../skills/workflow/code-review-and-quality/SKILL.md) |
@@ -189,6 +190,7 @@ Install IDs keep same-named skills from different collections in separate direct
 | `kotlin-null-safety` | kotlin-null-safety | shared | FSL-1.1-ALv2 | [SKILL.md](../skills/languages/kotlin-null-safety/SKILL.md) |
 | `kubernetes-hardening` | kubernetes-hardening | shared | MIT | [SKILL.md](../skills/security/kubernetes-hardening/SKILL.md) |
 | `lean-build` | lean-build | shared | Apache-2.0 | [SKILL.md](../skills/workflow/lean-build/SKILL.md) |
+| `legacy-seams` | legacy-seams | shared | MIT | [SKILL.md](../skills/workflow/legacy-seams/SKILL.md) |
 | `load-balancing-patterns` | load-balancing-patterns | shared | MIT | [SKILL.md](../skills/platforms/load-balancing-patterns/SKILL.md) |
 | `lua-c-integration` | lua-c-integration | shared | FSL-1.1-ALv2 | [SKILL.md](../skills/languages/lua-c-integration/SKILL.md) |
 | `lua-coroutines` | lua-coroutines | shared | FSL-1.1-ALv2 | [SKILL.md](../skills/languages/lua-coroutines/SKILL.md) |
@@ -304,6 +306,8 @@ Install IDs keep same-named skills from different collections in separate direct
 | `sonarcloud-triage` | sonarcloud-triage | shared | LicenseRef-Local | [SKILL.md](../skills/domain/sonarcloud-triage/SKILL.md) |
 | `source-driven-development` | source-driven-development | shared | MIT | [SKILL.md](../skills/workflow/source-driven-development/SKILL.md) |
 | `spec-driven-development` | spec-driven-development | shared | MIT | [SKILL.md](../skills/workflow/spec-driven-development/SKILL.md) |
+| `stability-patterns` | stability-patterns | shared | MIT | [SKILL.md](../skills/backend/stability-patterns/SKILL.md) |
+| `strategic-ddd` | strategic-ddd | shared | MIT | [SKILL.md](../skills/architecture/strategic-ddd/SKILL.md) |
 | `streaming-integrations` | streaming-integrations | shared | MIT | [SKILL.md](../skills/domain/streaming-integrations/SKILL.md) |
 | `surgical-patch` | surgical-patch | shared | Apache-2.0 | [SKILL.md](../skills/workflow/surgical-patch/SKILL.md) |
 | `test-driven-development` | test-driven-development | shared | MIT | [SKILL.md](../skills/workflow/test-driven-development/SKILL.md) |

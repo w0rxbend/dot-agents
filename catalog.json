@@ -706,6 +706,21 @@
       "license_file": "licenses/upstream/ciembor--agent-rules-books.txt"
     },
     {
+      "id": "code-perfection",
+      "name": "code-perfection",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "c3129811e3bc2f72d83c251446d556b3251b27b51fee42adf0f7809d5591f285",
+      "local_globs": [
+        "~/.agents/skills/code-perfection",
+        "~/.hermes/skills/code-perfection"
+      ],
+      "path": "skills/workflow/code-perfection",
+      "distribution": "vendored",
+      "license_file": "skills/workflow/code-perfection/LICENSE"
+    },
+    {
       "id": "code-refactoring-tech-debt",
       "name": "code-refactoring-tech-debt",
       "collection": "shared",
@@ -2580,6 +2595,21 @@
       "upstream_ref": "bad48a0e1df55e05e3f52249afa35ecc1909ee76"
     },
     {
+      "id": "legacy-seams",
+      "name": "legacy-seams",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "c7e2a75597043fb0e083a82d740d419083a9c2ca8ce4bf8e57e12ca3916fcd5b",
+      "local_globs": [
+        "~/.agents/skills/legacy-seams",
+        "~/.hermes/skills/legacy-seams"
+      ],
+      "path": "skills/workflow/legacy-seams",
+      "distribution": "vendored",
+      "license_file": "skills/workflow/legacy-seams/LICENSE"
+    },
+    {
       "id": "load-balancing-patterns",
       "name": "load-balancing-patterns",
       "collection": "shared",
@@ -4265,6 +4295,36 @@
       "path": "skills/workflow/spec-driven-development",
       "distribution": "vendored",
       "license_file": "licenses/upstream/addyosmani--agent-skills.txt"
+    },
+    {
+      "id": "stability-patterns",
+      "name": "stability-patterns",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "ecdb2b088729144c4688f30551eebc740e9fec53775dfb5284a85cc8454e871d",
+      "local_globs": [
+        "~/.agents/skills/stability-patterns",
+        "~/.hermes/skills/stability-patterns"
+      ],
+      "path": "skills/backend/stability-patterns",
+      "distribution": "vendored",
+      "license_file": "skills/backend/stability-patterns/LICENSE"
+    },
+    {
+      "id": "strategic-ddd",
+      "name": "strategic-ddd",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "ed18b02939c95db82820ac7b27daff4403cc544dcb6d4f6c408f6b9d08ccdaff",
+      "local_globs": [
+        "~/.agents/skills/strategic-ddd",
+        "~/.hermes/skills/strategic-ddd"
+      ],
+      "path": "skills/architecture/strategic-ddd",
+      "distribution": "vendored",
+      "license_file": "skills/architecture/strategic-ddd/LICENSE"
     },
     {
       "id": "streaming-integrations",

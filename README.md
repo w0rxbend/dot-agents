@@ -51,7 +51,7 @@ Always on. The linked files are a skill router. Every answer, PR description, re
 | 🪨 `caveman` | Words. Answer first, no fluff, no emoji. |
 | ✂️ `ponytail` | Size. Smallest complete change, plus what was skipped. |
 
-Their own "wait for the slash command" gates do not apply. Any code edit also loads `code-complete`, `clean-code-guard`, and the review and optimization skills named in the router. `./install` links:
+Their own "wait for the slash command" gates do not apply. Any code edit also loads `code-complete`, `clean-code-guard`, `code-perfection`, and the review and optimization skills named in the router. `./install` links:
 
 | Agent | File |
 | --- | --- |
@@ -68,14 +68,14 @@ The shared text is [`instructions/VOICE.md`](instructions/VOICE.md).
 
 ## 📚 Skills
 
-348 skills live under [`skills/`](skills). Two more stay off Git and are linked only with `--include-local`. The full table is [`docs/catalog.md`](docs/catalog.md).
+352 skills live under [`skills/`](skills). Two more stay off Git and are linked only with `--include-local`. The full table is [`docs/catalog.md`](docs/catalog.md).
 
 | | Group | What is in it |
 | --- | --- | --- |
 | 🗣️ | [`voice`](skills/voice) | ADHD, caveman, ponytail, and the caveman companions. 14 skills. |
-| 🧰 | [`workflow`](skills/workflow) | How to plan, test, review, commit, and write. 43 skills. |
-| 🏗️ | [`architecture`](skills/architecture) | System shape, patterns, GRASP, sagas. 9 skills. |
-| 🖥️ | [`backend`](skills/backend) | APIs, CLIs, service structure. 9 skills. |
+| 🧰 | [`workflow`](skills/workflow) | How to plan, test, review, commit, and write. 45 skills. |
+| 🏗️ | [`architecture`](skills/architecture) | System shape, patterns, GRASP, sagas. 10 skills. |
+| 🖥️ | [`backend`](skills/backend) | APIs, CLIs, service structure. 10 skills. |
 | 🤖 | [`agents`](skills/agents) | Agent memory, traces, and scheduling. 4 skills. |
 | 📈 | [`ops`](skills/ops) | Performance, incidents, app observability. 6 skills. |
 | 🔐 | [`security`](skills/security) | App and infra hardening, audits, compliance. 12 skills. |

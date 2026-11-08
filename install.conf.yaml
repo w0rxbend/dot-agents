@@ -61,6 +61,7 @@
     ~/.agents/skills/clean-code-guard: skills/workflow/clean-code-guard
     ~/.agents/skills/code-audit: skills/security/code-audit
     ~/.agents/skills/code-complete: skills/workflow/code-complete
+    ~/.agents/skills/code-perfection: skills/workflow/code-perfection
     ~/.agents/skills/code-refactoring-tech-debt: skills/workflow/code-refactoring-tech-debt
     ~/.agents/skills/code-review: skills/workflow/code-review
     ~/.agents/skills/code-review-and-quality: skills/workflow/code-review-and-quality
@@ -193,6 +194,7 @@
     ~/.agents/skills/kotlin-null-safety: skills/languages/kotlin-null-safety
     ~/.agents/skills/kubernetes-hardening: skills/security/kubernetes-hardening
     ~/.agents/skills/lean-build: skills/workflow/lean-build
+    ~/.agents/skills/legacy-seams: skills/workflow/legacy-seams
     ~/.agents/skills/load-balancing-patterns: skills/platforms/load-balancing-patterns
     ~/.agents/skills/lua-c-integration: skills/languages/lua-c-integration
     ~/.agents/skills/lua-coroutines: skills/languages/lua-coroutines
@@ -279,6 +281,8 @@
     ~/.agents/skills/sonarcloud-triage: skills/domain/sonarcloud-triage
     ~/.agents/skills/source-driven-development: skills/workflow/source-driven-development
     ~/.agents/skills/spec-driven-development: skills/workflow/spec-driven-development
+    ~/.agents/skills/stability-patterns: skills/backend/stability-patterns
+    ~/.agents/skills/strategic-ddd: skills/architecture/strategic-ddd
     ~/.agents/skills/streaming-integrations: skills/domain/streaming-integrations
     ~/.agents/skills/surgical-patch: skills/workflow/surgical-patch
     ~/.agents/skills/test-driven-development: skills/workflow/test-driven-development
@@ -380,6 +384,7 @@
     ~/.claude/skills/clean-code-guard: skills/workflow/clean-code-guard
     ~/.claude/skills/code-audit: skills/security/code-audit
     ~/.claude/skills/code-complete: skills/workflow/code-complete
+    ~/.claude/skills/code-perfection: skills/workflow/code-perfection
     ~/.claude/skills/code-refactoring-tech-debt: skills/workflow/code-refactoring-tech-debt
     ~/.claude/skills/code-review: skills/workflow/code-review
     ~/.claude/skills/code-review-and-quality: skills/workflow/code-review-and-quality
@@ -512,6 +517,7 @@
     ~/.claude/skills/kotlin-null-safety: skills/languages/kotlin-null-safety
     ~/.claude/skills/kubernetes-hardening: skills/security/kubernetes-hardening
     ~/.claude/skills/lean-build: skills/workflow/lean-build
+    ~/.claude/skills/legacy-seams: skills/workflow/legacy-seams
     ~/.claude/skills/load-balancing-patterns: skills/platforms/load-balancing-patterns
     ~/.claude/skills/lua-c-integration: skills/languages/lua-c-integration
     ~/.claude/skills/lua-coroutines: skills/languages/lua-coroutines
@@ -627,6 +633,8 @@
     ~/.claude/skills/sonarcloud-triage: skills/domain/sonarcloud-triage
     ~/.claude/skills/source-driven-development: skills/workflow/source-driven-development
     ~/.claude/skills/spec-driven-development: skills/workflow/spec-driven-development
+    ~/.claude/skills/stability-patterns: skills/backend/stability-patterns
+    ~/.claude/skills/strategic-ddd: skills/architecture/strategic-ddd
     ~/.claude/skills/streaming-integrations: skills/domain/streaming-integrations
     ~/.claude/skills/surgical-patch: skills/workflow/surgical-patch
     ~/.claude/skills/test-driven-development: skills/workflow/test-driven-development
@@ -827,6 +835,9 @@
       if: test -d "$HOME/.codex"
     ~/.codex/skills/code-complete:
       path: skills/workflow/code-complete
+      if: test -d "$HOME/.codex"
+    ~/.codex/skills/code-perfection:
+      path: skills/workflow/code-perfection
       if: test -d "$HOME/.codex"
     ~/.codex/skills/code-refactoring-tech-debt:
       path: skills/workflow/code-refactoring-tech-debt
@@ -1224,6 +1235,9 @@
     ~/.codex/skills/lean-build:
       path: skills/workflow/lean-build
       if: test -d "$HOME/.codex"
+    ~/.codex/skills/legacy-seams:
+      path: skills/workflow/legacy-seams
+      if: test -d "$HOME/.codex"
     ~/.codex/skills/load-balancing-patterns:
       path: skills/platforms/load-balancing-patterns
       if: test -d "$HOME/.codex"
@@ -1569,6 +1583,12 @@
     ~/.codex/skills/spec-driven-development:
       path: skills/workflow/spec-driven-development
       if: test -d "$HOME/.codex"
+    ~/.codex/skills/stability-patterns:
+      path: skills/backend/stability-patterns
+      if: test -d "$HOME/.codex"
+    ~/.codex/skills/strategic-ddd:
+      path: skills/architecture/strategic-ddd
+      if: test -d "$HOME/.codex"
     ~/.codex/skills/streaming-integrations:
       path: skills/domain/streaming-integrations
       if: test -d "$HOME/.codex"
@@ -1871,6 +1891,9 @@
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/code-complete:
       path: skills/workflow/code-complete
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/code-perfection:
+      path: skills/workflow/code-perfection
       if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/code-refactoring-tech-debt:
       path: skills/workflow/code-refactoring-tech-debt
@@ -2268,6 +2291,9 @@
     ~/.config/opencode/skills/lean-build:
       path: skills/workflow/lean-build
       if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/legacy-seams:
+      path: skills/workflow/legacy-seams
+      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/load-balancing-patterns:
       path: skills/platforms/load-balancing-patterns
       if: test -d "$HOME/.config/opencode"
@@ -2613,6 +2639,12 @@
     ~/.config/opencode/skills/spec-driven-development:
       path: skills/workflow/spec-driven-development
       if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/stability-patterns:
+      path: skills/backend/stability-patterns
+      if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/strategic-ddd:
+      path: skills/architecture/strategic-ddd
+      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/streaming-integrations:
       path: skills/domain/streaming-integrations
       if: test -d "$HOME/.config/opencode"
@@ -2915,6 +2947,9 @@
       if: test -d "$HOME/.copilot"
     ~/.copilot/skills/code-complete:
       path: skills/workflow/code-complete
+      if: test -d "$HOME/.copilot"
+    ~/.copilot/skills/code-perfection:
+      path: skills/workflow/code-perfection
       if: test -d "$HOME/.copilot"
     ~/.copilot/skills/code-refactoring-tech-debt:
       path: skills/workflow/code-refactoring-tech-debt
@@ -3312,6 +3347,9 @@
     ~/.copilot/skills/lean-build:
       path: skills/workflow/lean-build
       if: test -d "$HOME/.copilot"
+    ~/.copilot/skills/legacy-seams:
+      path: skills/workflow/legacy-seams
+      if: test -d "$HOME/.copilot"
     ~/.copilot/skills/load-balancing-patterns:
       path: skills/platforms/load-balancing-patterns
       if: test -d "$HOME/.copilot"
@@ -3657,6 +3695,12 @@
     ~/.copilot/skills/spec-driven-development:
       path: skills/workflow/spec-driven-development
       if: test -d "$HOME/.copilot"
+    ~/.copilot/skills/stability-patterns:
+      path: skills/backend/stability-patterns
+      if: test -d "$HOME/.copilot"
+    ~/.copilot/skills/strategic-ddd:
+      path: skills/architecture/strategic-ddd
+      if: test -d "$HOME/.copilot"
     ~/.copilot/skills/streaming-integrations:
       path: skills/domain/streaming-integrations
       if: test -d "$HOME/.copilot"
@@ -3959,6 +4003,9 @@
       if: test -d "$HOME/.cursor"
     ~/.cursor/skills/code-complete:
       path: skills/workflow/code-complete
+      if: test -d "$HOME/.cursor"
+    ~/.cursor/skills/code-perfection:
+      path: skills/workflow/code-perfection
       if: test -d "$HOME/.cursor"
     ~/.cursor/skills/code-refactoring-tech-debt:
       path: skills/workflow/code-refactoring-tech-debt
@@ -4356,6 +4403,9 @@
     ~/.cursor/skills/lean-build:
       path: skills/workflow/lean-build
       if: test -d "$HOME/.cursor"
+    ~/.cursor/skills/legacy-seams:
+      path: skills/workflow/legacy-seams
+      if: test -d "$HOME/.cursor"
     ~/.cursor/skills/load-balancing-patterns:
       path: skills/platforms/load-balancing-patterns
       if: test -d "$HOME/.cursor"
@@ -4701,6 +4751,12 @@
     ~/.cursor/skills/spec-driven-development:
       path: skills/workflow/spec-driven-development
       if: test -d "$HOME/.cursor"
+    ~/.cursor/skills/stability-patterns:
+      path: skills/backend/stability-patterns
+      if: test -d "$HOME/.cursor"
+    ~/.cursor/skills/strategic-ddd:
+      path: skills/architecture/strategic-ddd
+      if: test -d "$HOME/.cursor"
     ~/.cursor/skills/streaming-integrations:
       path: skills/domain/streaming-integrations
       if: test -d "$HOME/.cursor"
@@ -5003,6 +5059,9 @@
       if: test -d "$HOME/.gemini"
     ~/.gemini/skills/code-complete:
       path: skills/workflow/code-complete
+      if: test -d "$HOME/.gemini"
+    ~/.gemini/skills/code-perfection:
+      path: skills/workflow/code-perfection
       if: test -d "$HOME/.gemini"
     ~/.gemini/skills/code-refactoring-tech-debt:
       path: skills/workflow/code-refactoring-tech-debt
@@ -5400,6 +5459,9 @@
     ~/.gemini/skills/lean-build:
       path: skills/workflow/lean-build
       if: test -d "$HOME/.gemini"
+    ~/.gemini/skills/legacy-seams:
+      path: skills/workflow/legacy-seams
+      if: test -d "$HOME/.gemini"
     ~/.gemini/skills/load-balancing-patterns:
       path: skills/platforms/load-balancing-patterns
       if: test -d "$HOME/.gemini"
@@ -5745,6 +5807,12 @@
     ~/.gemini/skills/spec-driven-development:
       path: skills/workflow/spec-driven-development
       if: test -d "$HOME/.gemini"
+    ~/.gemini/skills/stability-patterns:
+      path: skills/backend/stability-patterns
+      if: test -d "$HOME/.gemini"
+    ~/.gemini/skills/strategic-ddd:
+      path: skills/architecture/strategic-ddd
+      if: test -d "$HOME/.gemini"
     ~/.gemini/skills/streaming-integrations:
       path: skills/domain/streaming-integrations
       if: test -d "$HOME/.gemini"
@@ -6047,6 +6115,9 @@
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/code-complete:
       path: skills/workflow/code-complete
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/code-perfection:
+      path: skills/workflow/code-perfection
       if: test -d "$HOME/.hermes"
     ~/.hermes/skills/code-refactoring-tech-debt:
       path: skills/workflow/code-refactoring-tech-debt
@@ -6444,6 +6515,9 @@
     ~/.hermes/skills/lean-build:
       path: skills/workflow/lean-build
       if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/legacy-seams:
+      path: skills/workflow/legacy-seams
+      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/load-balancing-patterns:
       path: skills/platforms/load-balancing-patterns
       if: test -d "$HOME/.hermes"
@@ -6789,6 +6863,12 @@
     ~/.hermes/skills/spec-driven-development:
       path: skills/workflow/spec-driven-development
       if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/stability-patterns:
+      path: skills/backend/stability-patterns
+      if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/strategic-ddd:
+      path: skills/architecture/strategic-ddd
+      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/streaming-integrations:
       path: skills/domain/streaming-integrations
       if: test -d "$HOME/.hermes"
@@ -7091,6 +7171,9 @@
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/code-complete:
       path: skills/workflow/code-complete
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/code-perfection:
+      path: skills/workflow/code-perfection
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/code-refactoring-tech-debt:
       path: skills/workflow/code-refactoring-tech-debt
@@ -7488,6 +7571,9 @@
     ~/.pi/agent/skills/lean-build:
       path: skills/workflow/lean-build
       if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/legacy-seams:
+      path: skills/workflow/legacy-seams
+      if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/load-balancing-patterns:
       path: skills/platforms/load-balancing-patterns
       if: test -d "$HOME/.pi/agent"
@@ -7745,6 +7831,12 @@
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/spec-driven-development:
       path: skills/workflow/spec-driven-development
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/stability-patterns:
+      path: skills/backend/stability-patterns
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/strategic-ddd:
+      path: skills/architecture/strategic-ddd
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/streaming-integrations:
       path: skills/domain/streaming-integrations

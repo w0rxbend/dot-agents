@@ -14,16 +14,17 @@ Stop a layer only when the user says "stop adhd mode", "stop caveman", "stop pon
 
 ## Writing or changing code
 
-Always, including a one-line edit. Read these four before you edit, and apply them to the lines you change.
+Always, including a one-line edit. Read these five before you edit, and apply them to the lines you change.
 
 1. `code-complete` — routine shape, names, data, control flow, checks at trust boundaries.
 2. `clean-code-guard` — the clean-code pass. SOLID, DRY, KISS, YAGNI, swallowed errors, invented APIs, fake success.
-3. Review, every one that fits:
+3. `code-perfection` — smell and style gate. No known smell in new or changed lines. Worxbend Scala style on Scala.
+4. Review, every one that fits:
    - `code-review-and-quality` on every change.
    - `code-review` when the work is a PR, a diff, or a branch.
    - `code-audit` when the change crosses a trust boundary.
    - `doubt-driven-development` when a correctness claim is still shaky.
-4. Optimization, every one that fits:
+5. Optimization, every one that fits:
    - `code-simplification` on the code you touched.
    - `performance-optimization` when a path is slow, hot, or newly expensive.
    - `performance-engineering` when the task is load, soak, or an SLO.
