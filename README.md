@@ -51,7 +51,7 @@ Always on. The linked files are a skill router. Every answer, PR description, re
 | 🪨 `caveman` | Words. Answer first, no fluff, no emoji. |
 | ✂️ `ponytail` | Size. Smallest complete change, plus what was skipped. |
 
-Their own "wait for the slash command" gates do not apply. Any code edit also loads `code-complete`, `clean-code-guard`, `code-perfection`, and the review and optimization skills named in the router. `./install` links:
+Their own "wait for the slash command" gates do not apply. Any code edit also loads `code-complete`, `clean-code-guard`, `code-perfection`, and the review and optimization skills named in the router. What each one owns is in the Code section below. `./install` links:
 
 | Agent | File |
 | --- | --- |
@@ -73,9 +73,9 @@ The shared text is [`instructions/VOICE.md`](instructions/VOICE.md).
 | | Group | What is in it |
 | --- | --- | --- |
 | 🗣️ | [`voice`](skills/voice) | ADHD, caveman, ponytail, and the caveman companions. 14 skills. |
-| 🧰 | [`workflow`](skills/workflow) | How to plan, test, review, commit, and write. 45 skills. |
-| 🏗️ | [`architecture`](skills/architecture) | System shape, patterns, GRASP, sagas. 10 skills. |
-| 🖥️ | [`backend`](skills/backend) | APIs, CLIs, service structure. 10 skills. |
+| 🧰 | [`workflow`](skills/workflow) | Plan, test, review, commit, and the code gates. 45 skills. |
+| 🏗️ | [`architecture`](skills/architecture) | System shape, patterns, GRASP, sagas, strategic DDD. 10 skills. |
+| 🖥️ | [`backend`](skills/backend) | APIs, CLIs, service structure, and stability bounds. 10 skills. |
 | 🤖 | [`agents`](skills/agents) | Agent memory, traces, and scheduling. 4 skills. |
 | 📈 | [`ops`](skills/ops) | Performance, incidents, app observability. 6 skills. |
 | 🔐 | [`security`](skills/security) | App and infra hardening, audits, compliance. 12 skills. |
@@ -93,6 +93,21 @@ The shared text is [`instructions/VOICE.md`](instructions/VOICE.md).
 | 🧬 | [`scala-zio`](skills/scala-zio) | Direct ZIO reference pack. 1 skill. |
 
 Matt Pocock's `code-review` shares a name with the workflow skill. It is linked into Claude, Codex, Hermes, Cursor, Gemini, Copilot, and OpenCode. It is not linked into `~/.agents/skills` or Pi, because those hosts drop one of the two.
+
+## 🛠️ Code
+
+Every edit loads the first three, then the review and optimization skills in [`instructions/VOICE.md`](instructions/VOICE.md). The rest load only when the change matches.
+
+| Skill | Job |
+| --- | --- |
+| [`code-complete`](skills/workflow/code-complete) | Routine shape, names, data, control flow, checks at trust boundaries. |
+| [`clean-code-guard`](skills/workflow/clean-code-guard) | SOLID, DRY, KISS, YAGNI, swallowed errors, invented APIs. |
+| [`code-perfection`](skills/workflow/code-perfection) | No known smell in new or changed lines. Worxbend Scala style on Scala. |
+| [`legacy-seams`](skills/workflow/legacy-seams) | Untested code. Pin the current result, open one seam, leave the logic change for later. |
+| [`stability-patterns`](skills/backend/stability-patterns) | A remote call, pool, queue, or retry. One slow dependency must not exhaust the process. |
+| [`strategic-ddd`](skills/architecture/strategic-ddd) | Two models. Record the context map the code already has. Translate at the boundary. |
+| [`refactoring-guru`](skills/workflow/refactoring-guru) | One named structural refactor. |
+| [`architecture-patterns`](skills/architecture/architecture-patterns) | Layers, ports, or tactical DDD inside one context. |
 
 ## 🔌 Where skills land
 
