@@ -4357,6 +4357,21 @@
       "upstream_ref": "bad48a0e1df55e05e3f52249afa35ecc1909ee76"
     },
     {
+      "id": "teach-me",
+      "name": "teach-me",
+      "collection": "shared",
+      "source": "local",
+      "license": "MIT",
+      "sha256": "795da88f6918ef603326706cf7849254a5744f3f751e71b159d8bdc7f8b88743",
+      "local_globs": [
+        "~/.agents/skills/teach-me",
+        "~/.hermes/skills/teach-me"
+      ],
+      "path": "skills/workflow/teach-me",
+      "distribution": "vendored",
+      "license_file": "skills/workflow/teach-me/LICENSE"
+    },
+    {
       "id": "test-driven-development",
       "name": "test-driven-development",
       "collection": "shared",

@@ -285,6 +285,7 @@
     ~/.agents/skills/strategic-ddd: skills/architecture/strategic-ddd
     ~/.agents/skills/streaming-integrations: skills/domain/streaming-integrations
     ~/.agents/skills/surgical-patch: skills/workflow/surgical-patch
+    ~/.agents/skills/teach-me: skills/workflow/teach-me
     ~/.agents/skills/test-driven-development: skills/workflow/test-driven-development
     ~/.agents/skills/testing-strategies: skills/workflow/testing-strategies
     ~/.agents/skills/theming-components: skills/frontend/theming-components
@@ -637,6 +638,7 @@
     ~/.claude/skills/strategic-ddd: skills/architecture/strategic-ddd
     ~/.claude/skills/streaming-integrations: skills/domain/streaming-integrations
     ~/.claude/skills/surgical-patch: skills/workflow/surgical-patch
+    ~/.claude/skills/teach-me: skills/workflow/teach-me
     ~/.claude/skills/test-driven-development: skills/workflow/test-driven-development
     ~/.claude/skills/testing-strategies: skills/workflow/testing-strategies
     ~/.claude/skills/theming-components: skills/frontend/theming-components
@@ -1594,6 +1596,9 @@
       if: test -d "$HOME/.codex"
     ~/.codex/skills/surgical-patch:
       path: skills/workflow/surgical-patch
+      if: test -d "$HOME/.codex"
+    ~/.codex/skills/teach-me:
+      path: skills/workflow/teach-me
       if: test -d "$HOME/.codex"
     ~/.codex/skills/test-driven-development:
       path: skills/workflow/test-driven-development
@@ -2651,6 +2656,9 @@
     ~/.config/opencode/skills/surgical-patch:
       path: skills/workflow/surgical-patch
       if: test -d "$HOME/.config/opencode"
+    ~/.config/opencode/skills/teach-me:
+      path: skills/workflow/teach-me
+      if: test -d "$HOME/.config/opencode"
     ~/.config/opencode/skills/test-driven-development:
       path: skills/workflow/test-driven-development
       if: test -d "$HOME/.config/opencode"
@@ -3706,6 +3714,9 @@
       if: test -d "$HOME/.copilot"
     ~/.copilot/skills/surgical-patch:
       path: skills/workflow/surgical-patch
+      if: test -d "$HOME/.copilot"
+    ~/.copilot/skills/teach-me:
+      path: skills/workflow/teach-me
       if: test -d "$HOME/.copilot"
     ~/.copilot/skills/test-driven-development:
       path: skills/workflow/test-driven-development
@@ -4763,6 +4774,9 @@
     ~/.cursor/skills/surgical-patch:
       path: skills/workflow/surgical-patch
       if: test -d "$HOME/.cursor"
+    ~/.cursor/skills/teach-me:
+      path: skills/workflow/teach-me
+      if: test -d "$HOME/.cursor"
     ~/.cursor/skills/test-driven-development:
       path: skills/workflow/test-driven-development
       if: test -d "$HOME/.cursor"
@@ -5818,6 +5832,9 @@
       if: test -d "$HOME/.gemini"
     ~/.gemini/skills/surgical-patch:
       path: skills/workflow/surgical-patch
+      if: test -d "$HOME/.gemini"
+    ~/.gemini/skills/teach-me:
+      path: skills/workflow/teach-me
       if: test -d "$HOME/.gemini"
     ~/.gemini/skills/test-driven-development:
       path: skills/workflow/test-driven-development
@@ -6875,6 +6892,9 @@
     ~/.hermes/skills/surgical-patch:
       path: skills/workflow/surgical-patch
       if: test -d "$HOME/.hermes"
+    ~/.hermes/skills/teach-me:
+      path: skills/workflow/teach-me
+      if: test -d "$HOME/.hermes"
     ~/.hermes/skills/test-driven-development:
       path: skills/workflow/test-driven-development
       if: test -d "$HOME/.hermes"
@@ -7843,6 +7863,9 @@
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/surgical-patch:
       path: skills/workflow/surgical-patch
+      if: test -d "$HOME/.pi/agent"
+    ~/.pi/agent/skills/teach-me:
+      path: skills/workflow/teach-me
       if: test -d "$HOME/.pi/agent"
     ~/.pi/agent/skills/test-driven-development:
       path: skills/workflow/test-driven-development

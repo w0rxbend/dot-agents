@@ -69,12 +69,12 @@ The shared text is [`instructions/VOICE.md`](instructions/VOICE.md).
 
 ## 📚 Skills
 
-352 skills live under [`skills/`](skills). Two more stay off Git and are linked only with `--include-local`. The full table is [`docs/catalog.md`](docs/catalog.md).
+353 skills live under [`skills/`](skills). Two more stay off Git and are linked only with `--include-local`. The full table is [`docs/catalog.md`](docs/catalog.md).
 
 | | Group | What is in it |
 | --- | --- | --- |
 | 🗣️ | [`voice`](skills/voice) | ADHD, caveman, ponytail, and the caveman companions. 14 skills. |
-| 🧰 | [`workflow`](skills/workflow) | Plan, test, review, commit, and the code gates. 45 skills. |
+| 🧰 | [`workflow`](skills/workflow) | Plan, test, review, commit, teaching, and the code gates. 46 skills. |
 | 🏗️ | [`architecture`](skills/architecture) | System shape, patterns, GRASP, sagas, strategic DDD. 10 skills. |
 | 🖥️ | [`backend`](skills/backend) | APIs, CLIs, service structure, and stability bounds. 10 skills. |
 | 🤖 | [`agents`](skills/agents) | Agent memory, traces, and scheduling. 4 skills. |

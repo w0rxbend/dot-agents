@@ -1,6 +1,6 @@
 # Skill catalog
 
-354 unique installed skills: 352 included, 2 external (provider-managed, direct-source, or local-only).
+355 unique installed skills: 353 included, 2 external (provider-managed, direct-source, or local-only).
 
 Install IDs keep same-named skills from different collections in separate directories. The upstream `name` in each skill remains unchanged.
 
@@ -310,6 +310,7 @@ Install IDs keep same-named skills from different collections in separate direct
 | `strategic-ddd` | strategic-ddd | shared | MIT | [SKILL.md](../skills/architecture/strategic-ddd/SKILL.md) |
 | `streaming-integrations` | streaming-integrations | shared | MIT | [SKILL.md](../skills/domain/streaming-integrations/SKILL.md) |
 | `surgical-patch` | surgical-patch | shared | Apache-2.0 | [SKILL.md](../skills/workflow/surgical-patch/SKILL.md) |
+| `teach-me` | teach-me | shared | MIT | [SKILL.md](../skills/workflow/teach-me/SKILL.md) |
 | `test-driven-development` | test-driven-development | shared | MIT | [SKILL.md](../skills/workflow/test-driven-development/SKILL.md) |
 | `testing-strategies` | testing-strategies | shared | MIT | [SKILL.md](../skills/workflow/testing-strategies/SKILL.md) |
 | `theming-components` | theming-components | shared | MIT | [SKILL.md](../skills/frontend/theming-components/SKILL.md) |
