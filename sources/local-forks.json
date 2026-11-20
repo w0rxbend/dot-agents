@@ -7440,13 +7440,14 @@
       "before_entry_sha256": "88955c019bbb1419ff4b49dbb1f80a867467de6233d7865af2e06a7d7b76c7d3",
       "before_words": 1242,
       "reasons": [
-        "2026-11-05 compaction pass: SKILL.md and bundled reference markdown rewritten with caveman-compress rules (prose compressed, payload verbatim), then a ponytail pass (redundant, generic and repeated text cut), then an adversarial verify-and-restore pass against the pre-rewrite snapshot. Frontmatter, code blocks, links and bundled-file pointers checked mechanically."
+        "2026-11-05 compaction pass: SKILL.md and bundled reference markdown rewritten with caveman-compress rules (prose compressed, payload verbatim), then a ponytail pass (redundant, generic and repeated text cut), then an adversarial verify-and-restore pass against the pre-rewrite snapshot. Frontmatter, code blocks, links and bundled-file pointers checked mechanically.",
+        "2026-11-20: removed disable-model-invocation so the global skill router can load the skill; /i-have-adhd still works."
       ],
       "files": [
         "SKILL.md"
       ],
-      "after_entry_sha256": "39e928991244d0f06b84533c9eebb53a0c1d9915389d26c82235093cb461e0f3",
-      "after_words": 1135,
+      "after_entry_sha256": "b1b7db08dda882e133a290a07b2aee200efc746f331b4f805455b2fd3a089df0",
+      "after_words": 1133,
       "before_after": "Compacted wording; code blocks, commands, links and bundled files unchanged."
     },
     {

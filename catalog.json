@@ -2289,7 +2289,7 @@
       "collection": "shared",
       "source": "ayghri/i-have-adhd",
       "license": "MIT",
-      "sha256": "b880a28215e67c7f4fdf9705a6453613a451c723ef360f862dcd892603321669",
+      "sha256": "58e2f517361560088ad8043ba338cf7423ccea93a2c37dfd83b355da06d26220",
       "local_globs": [
         "~/.agents/skills/i-have-adhd"
       ],
