@@ -52,7 +52,6 @@ Reference files:
 - [references/review-checklist.md](references/review-checklist.md) — structured walk-through for review mode.
 - [references/law-of-demeter.md](references/law-of-demeter.md) — reaching through object chains; when it is and is not a coupling problem.
 - [references/fail-fast.md](references/fail-fast.md) — where to detect and report invalid state; read with imperative 16.
-- [references/sources.md](references/sources.md) — central bibliography for source URLs. Read only to verify or cite external source.
 
 ## Success criteria
 
@@ -132,7 +131,7 @@ After guard pass, show user it ran (guard-pass and live modes; review mode repor
 
 ## When the user pushes back on a rule
 
-Point to source name in relevant [references/](references/) file. Use [references/sources.md](references/sources.md) only when URL is needed. Rules are defensible: primary sources (Uncle Bob, Fowler, Hunt & Thomas, McCabe, Metz) plus published 2024–2026 research on LLM code generation. User has context-specific reason to override (e.g., constructor genuinely needs 8 params for config DTO)? Document exception in code comment naming overridden principle, reason and revisit trigger (condition for reconsidering). Exception comment without revisit trigger is itself finding on next pass: tradeoff with no exit is deferred debt.
+Point to source name in relevant [references/](references/) file. Rules are defensible: primary sources (Uncle Bob, Fowler, Hunt & Thomas, McCabe, Metz) plus published 2024–2026 research on LLM code generation. User has context-specific reason to override (e.g., constructor genuinely needs 8 params for config DTO)? Document exception in code comment naming overridden principle, reason and revisit trigger (condition for reconsidering). Exception comment without revisit trigger is itself finding on next pass: tradeoff with no exit is deferred debt.
 
 ## Troubleshooting
 

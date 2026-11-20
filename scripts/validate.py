@@ -2,7 +2,6 @@
 """Verify distribution boundaries, inventory checksums, metadata, and symlinks."""
 import re
 import json
-import hashlib
 import sys
 from pathlib import Path
 from common import IGNORED, REPO, frontmatter, load_catalog, tree_hash
@@ -55,11 +54,6 @@ def validate(repo=REPO):
             raise ValueError(f'file exceeds repository size limit: {p}')
     if (repo / 'docs/catalog.md').read_text(encoding='utf-8') != render(repo):
         raise ValueError('catalog documentation is stale')
-    forks = json.loads((repo / 'sources/local-forks.json').read_text())
-    for fork in forks['changes']:
-        entry = repo / fork['path'] / 'SKILL.md'
-        if hashlib.sha256(entry.read_bytes()).hexdigest() != fork['after_entry_sha256']:
-            raise ValueError(f"stale local fork record: {fork['id']}")
     context = next(item['path'] for item in data['skills']
                    if item['id'] == 'worxbend-repository-context')
     profiles = json.loads((repo / context / 'references/profiles.json').read_text())

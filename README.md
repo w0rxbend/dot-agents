@@ -155,4 +155,4 @@ python3 scripts/catalog.py
 just check
 ```
 
-Do not copy another agent's bundled skills into this repo. Adapted skills keep their upstream license. `sources/local-forks.json` records the ones that were changed from the original.
+Do not copy another agent's bundled skills into this repo. Adapted skills keep their upstream license.

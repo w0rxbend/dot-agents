@@ -52,9 +52,6 @@ The new skills are available on the next agent turn; restart an agent if it cach
 
 The [full coverage map](../skills/mill/mill-project-models/references/coverage.md)
 addresses every requested documentation area and links the official sources.
-[The research manifest](mill-research.json) records 129 retained primary sources from 132
-fetches, including stable-version checks and excluding alternate-root/redirect duplicates.
-It stores URLs, titles, retrieval hashes and skill routing, without copying the manual.
 Research date: **2026-10-04**. Unversioned Mill documentation currently describes **1.3.0-M1**;
 the examples use stable **1.1.10**, which supports all three project models.
 

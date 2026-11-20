@@ -70,7 +70,7 @@ List loaded skills and case files with reasons. Then findings grouped by skill: 
 
 ## Limitations
 
-- Coverage uneven: some repositories contributed several skills, others none. Per-repository outcomes: `research/scala-history/KNOWLEDGE.md` in dot-agents repository. Absence of a skill is not evidence of no practice.
+- Coverage uneven: some repositories contributed several skills, others none. Absence of a skill is not evidence of no practice.
 - Skills evaluated by model-based review against held-out historical cases. No upstream Scala build ran during research.
 
 ## Sources

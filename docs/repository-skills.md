@@ -8,8 +8,6 @@ contains **586 skills: 500 included and 86 external**.
 The review updated 92 existing skills and added 25 public skills. Private repository
 context is installed locally as one additional external entry. Provider entrypoints
 were reviewed locally; their caches and restricted text remain under provider control.
-[Local fork records](../sources/local-forks.json) preserve attribution, reasons,
-affected files, and before/after entrypoint hashes.
 
 ## Find the conventions for a repository
 
@@ -98,8 +96,7 @@ and distribution boundaries.
 Read the repository's current build, instruction, and CI files, then update its record in
 `skills/domain/worxbend-repository-context/references/profiles.json`. Refresh the
 catalog checksum afterwards. `just check` rejects a stale hash and any profile skill that
-is not in `catalog.json`. Compare upstream updates with `sources/local-forks.json` before
-overwriting an adapted skill.
+is not in `catalog.json`.
 
 ## Private context on another machine
 

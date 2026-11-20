@@ -143,4 +143,4 @@ When these voice skills are active, they stay on and shape the lesson as follows
 - No spaced review, records or progress tracking across sessions. Use `mattpocock--teach` for that.
 - Exercises are not graded by a tool. Run the user's code when they ask.
 
-Sources and credits: [references/sources.md](references/sources.md).
+Credits: ideas and short quotes from mattpocock/skills `teach`, 7ekmaz/senior-mentor, earendil-works/explainer and ktaletsk/learn-codebase (all MIT).

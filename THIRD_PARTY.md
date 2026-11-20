@@ -27,7 +27,6 @@ Setup for those two is in [docs/providers.md](docs/providers.md).
 The 14 Mill skills and preference overlay are original guidance under the repository MIT
 license, researched from [official Mill documentation](https://mill-build.org/mill/index.html).
 The Mill MIT notice is retained at `licenses/upstream/com-lihaoyi--mill.txt` for adapted examples.
-The [research manifest](docs/mill-research.json) records source attribution and retrieval hashes.
 
 VirtusLab `direct-style-scala` is cataloged as external because no repository license or
 redistribution grant was found at the pinned commit. Its source is downloaded directly by
