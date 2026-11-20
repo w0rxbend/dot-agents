@@ -66,7 +66,8 @@ def validate(repo=REPO):
     voice = (repo / 'instructions/VOICE.md').read_text(encoding='utf-8')
     for rel in ('instructions/claude/CLAUDE.md', 'instructions/codex/AGENTS.md',
                 'instructions/hermes/SOUL.md', 'instructions/opencode/AGENTS.md',
-                'instructions/cursor/voice.mdc', 'instructions/grok/voice.md'):
+                'instructions/cursor/voice.mdc', 'instructions/grok/voice.md',
+                'instructions/kimi/AGENTS.md'):
         if voice not in (repo / rel).read_text(encoding='utf-8'):
             raise ValueError(f'voice instructions drifted: {rel}')
     for profile in profiles['repositories']:

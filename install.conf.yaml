@@ -8007,3 +8007,6 @@
     ~/.grok/rules/voice.md:
       path: instructions/grok/voice.md
       if: test -d "$HOME/.grok"
+    ~/.kimi-code/AGENTS.md:
+      path: instructions/kimi/AGENTS.md
+      if: test -d "$HOME/.kimi-code"

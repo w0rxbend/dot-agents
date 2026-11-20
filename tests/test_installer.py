@@ -151,6 +151,8 @@ class InstallerTests(unittest.TestCase):
         self.assertIn('~/.cursor/rules/voice.mdc:', config)
         self.assertIn('~/.grok/rules/voice.md:', config)
         self.assertIn('if: test -d "$HOME/.grok"', config)
+        self.assertIn('~/.kimi-code/AGENTS.md:', config)
+        self.assertIn('if: test -d "$HOME/.kimi-code"', config)
         self.assertNotIn('if: test -d "$HOME/.claude"', config)
 
     def test_render_rejects_agent_selection(self):

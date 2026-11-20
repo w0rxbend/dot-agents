@@ -64,7 +64,7 @@ COLLECTION_AGENTS = {
     **{name: frozenset(AGENTS) - {'claude'} for name in CLAUDE_PLUGIN_COLLECTIONS},
 }
 # Global voice files. Claude is always linked. The others link when their
-# config directory exists, or when --agents names them (including grok).
+# config directory exists, or when --agents names them (including grok and kimi).
 # Codex reads AGENTS.md unless AGENTS.override.md is present; that override
 # is never written here.
 INSTRUCTIONS = (
@@ -74,6 +74,7 @@ INSTRUCTIONS = (
     ('opencode', '.config/opencode/AGENTS.md', 'instructions/opencode/AGENTS.md', '.config/opencode'),
     ('cursor', '.cursor/rules/voice.mdc', 'instructions/cursor/voice.mdc', '.cursor'),
     ('grok', '.grok/rules/voice.md', 'instructions/grok/voice.md', '.grok'),
+    ('kimi', '.kimi-code/AGENTS.md', 'instructions/kimi/AGENTS.md', '.kimi-code'),
 )
 INSTRUCTION_KEYS = {item[0] for item in INSTRUCTIONS}
 # The committed reference config covers every agent; it never depends on the

@@ -1,6 +1,6 @@
 # 🧠 dot-agents
 
-Personal skills for Claude, Codex, Hermes, OpenCode, Cursor, Grok, and the shared `~/.agents` root.
+Personal skills for Claude, Codex, Hermes, OpenCode, Cursor, Grok, Kimi, and the shared `~/.agents` root.
 
 [![CI](https://github.com/w0rxbend/dot-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/w0rxbend/dot-agents/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/w0rxbend/dot-agents)](https://github.com/w0rxbend/dot-agents/releases)
@@ -61,8 +61,9 @@ Their own "wait for the slash command" gates do not apply. Any code edit also lo
 | OpenCode | `~/.config/opencode/AGENTS.md` |
 | Cursor | `~/.cursor/rules/voice.mdc` |
 | Grok | `~/.grok/rules/voice.md` |
+| Kimi Code | `~/.kimi-code/AGENTS.md` |
 
-Claude is always linked. The others link when that agent's config directory already exists (`~/.codex`, `~/.hermes`, `~/.config/opencode`, `~/.cursor`, `~/.grok`). Codex reads `AGENTS.override.md` instead of `AGENTS.md` when the override file exists. This installer does not write the override. An existing Hermes `SOUL.md` is backed up, then replaced with a symlink.
+Claude is always linked. The others link when that agent's config directory already exists (`~/.codex`, `~/.hermes`, `~/.config/opencode`, `~/.cursor`, `~/.grok`, `~/.kimi-code`). Codex reads `AGENTS.override.md` instead of `AGENTS.md` when the override file exists. This installer does not write the override. An existing Hermes `SOUL.md` is backed up, then replaced with a symlink.
 
 The shared text is [`instructions/VOICE.md`](instructions/VOICE.md).
 
@@ -123,7 +124,7 @@ Every edit loads the first three, then the review and optimization skills in [`i
 | GitHub Copilot CLI | `~/.copilot/skills` |
 | OpenCode | `~/.config/opencode/skills` |
 
-Default install links `~/.agents/skills` and `~/.claude/skills`, plus every other agent whose config directory already exists. Force a set with `./install install --agents all` or `./install install --agents claude,hermes,grok`. `grok` links the voice rule only. Grok reads skills from `~/.agents/skills`.
+Default install links `~/.agents/skills` and `~/.claude/skills`, plus every other agent whose config directory already exists. Force a set with `./install install --agents all` or `./install install --agents claude,hermes,grok`. `grok` and `kimi` link the voice file only. Both read skills from `~/.agents/skills`.
 
 Codex, Hermes, Claude, and Render system skills are not in this repo. They stay with the agent that ships them.
 
