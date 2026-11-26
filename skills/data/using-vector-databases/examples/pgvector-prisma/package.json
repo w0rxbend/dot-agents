@@ -21,6 +21,9 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   },
+  "overrides": {
+    "effect": "^3.22.1"
+  },
   "engines": {
     "node": ">=22.12.0"
   },

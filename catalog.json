@@ -4547,7 +4547,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "1bdc738b39c3fba8e55e9dfc6130210cf490091787f63ddf269429d15239fb02",
+      "sha256": "36c0bcd29ce3c6e7d8c8bf909ab207b29c70e39f9505b0c33a4600701419a923",
       "local_globs": [
         "~/.agents/skills/using-vector-databases"
       ],
