@@ -995,7 +995,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "7d7538f4521623dd2ebde30e603665598ab8ed909bf670eaeb9b01d47544da58",
+      "sha256": "d2bb12b2f1a670c79139d805434ee02961d8a0763492c80ab18ad38e27d6375a",
       "local_globs": [
         "~/.agents/skills/deploying-applications"
       ],
@@ -2318,7 +2318,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "176fef6cf5cab0d01aa73f1bbd624078d3949184a19d718f2b835328ce61cbba",
+      "sha256": "57f69769db127e0a7daa0850269255fe7bd472e1ad2cb52dfb042eef59235c57",
       "local_globs": [
         "~/.agents/skills/implementing-api-patterns"
       ],
@@ -2374,7 +2374,7 @@
       "collection": "shared",
       "source": "ancoleman/ai-design-components",
       "license": "MIT",
-      "sha256": "f7a072ac8643e443e02e71232dbac494df592065ae9296393a90afff37a0a2e8",
+      "sha256": "70c819284f22818b95e3d10fcdf6ca00ebcadc5e3fae93861322635c190b3109",
       "local_globs": [
         "~/.agents/skills/implementing-observability"
       ],
